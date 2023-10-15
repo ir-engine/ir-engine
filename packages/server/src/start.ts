@@ -26,12 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { koa } from '@feathersjs/koa'
 import packageRoot from 'app-root-path'
 import fs from 'fs'
+import http from 'http'
 import https from 'https'
 import favicon from 'koa-favicon'
 import sendFile from 'koa-send'
 import serve from 'koa-static'
 import { join } from 'path'
-import psList from 'ps-list'
+import psList, { ProcessDescriptor } from 'ps-list'
 
 import config from '@etherealengine/server-core/src/appconfig'
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
@@ -56,18 +57,26 @@ export const start = async (): Promise<void> => {
 
   if (!config.kubernetes.enabled && !config.db.forceRefresh && !config.testEnabled) {
     app.isSetup.then(() => {
-      app.service(projectPath)._fetchDevLocalProjects()
+      try {
+        app.service(projectPath)._fetchDevLocalProjects()
+      } catch (err) {
+        console.error('Error fetching local projects:', err)
+      }
     })
   }
 
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {
-    const processList = await (
-      await psList()
-    ).filter((e) => {
-      const regexp = /docker-compose up|docker-proxy|mysql/gi
-      return e[key]?.match(regexp)
-    })
+    let processList: ProcessDescriptor[] = []
+    try {
+      processList = (await psList()).filter((e) => {
+        const regexp = /docker-compose up|docker-proxy|mysql/gi
+        return e[key]?.match(regexp)
+      })
+    } catch (err) {
+      console.error('Error fetching process list:', err)
+    }
+
     const dockerProcess = processList.find((c) => c[key]?.match(/docker-compose/))
     const dockerProxy = processList.find((c) => c[key]?.match(/docker-proxy/))
     const processMysql = processList.find((c) => c[key]?.match(/mysql/))
@@ -89,35 +98,27 @@ export const start = async (): Promise<void> => {
 
   const useSSL = !config.noSSL && (config.localBuild || !config.kubernetes.enabled) && fs.existsSync(certKeyPath)
 
+  // If useSSL skipped due to config.kuber.enabled no need to manually set certs since helm has its own way of dealing with ssl
   const certOptions = {
     key: useSSL ? fs.readFileSync(certKeyPath) : null,
     cert: useSSL ? fs.readFileSync(certPath) : null
   }
 
-  if (useSSL) {
-    logger.info('Starting server with HTTPS')
-  } else {
-    logger.info("Starting server with NO HTTPS, if you meant to use HTTPS try 'sudo bash generate-certs'")
-  }
   const port = Number(config.server.port)
+  const server = useSSL ? https.createServer(certOptions as any, app.callback()).listen(port) : await app.listen(port)
 
   // http redirects for development
   if (useSSL) {
-    app.use(async (ctx, next) => {
-      if (ctx.secure) {
-        // request was via https, so do no special handling
-        await next()
-      } else {
+    logger.info('Starting server with HTTPS')
+    app.use(async (ctx) => {
+      if (!ctx.secure) {
         // request was via http, so redirect to https
         ctx.redirect('https://' + ctx.headers.host + ctx.url)
       }
     })
-  }
-
-  const server = useSSL ? https.createServer(certOptions as any, app.callback()).listen(port) : await app.listen(port)
-
-  if (useSSL) {
     app.setup(server)
+  } else {
+    logger.info("Starting server with NO HTTPS, if you meant to use HTTPS try 'sudo bash generate-certs'")
   }
 
   process.on('unhandledRejection', (error, promise) => {
@@ -146,25 +147,59 @@ export const start = async (): Promise<void> => {
       })
     )
     clientApp.use(async (ctx) => {
-      await sendFile(ctx, join('dist', 'index.html'), {
-        root: join(packageRoot.path, 'packages', 'client')
-      })
+      try {
+        await sendFile(ctx, join('dist', 'index.html'), {
+          root: join(packageRoot.path, 'packages', 'client')
+        })
+      } catch (err) {
+        console.error(err)
+      }
     })
     clientApp.listen = function () {
-      let server
-      const HTTPS = process.env.VITE_LOCAL_BUILD ?? false
-      if (HTTPS) {
-        const key = fs.readFileSync(join(packageRoot.path, 'certs/key.pem'))
-        const cert = fs.readFileSync(join(packageRoot.path, 'certs/cert.pem'))
-        server = https.createServer({ key: key, cert: cert }, this.callback())
-      } else {
-        const http = require('http')
-        server = http.createServer(this.callback())
-      }
-      // eslint-disable-next-line prefer-spread, prefer-rest-params
-      return server.listen.apply(server, arguments)
+      return new Promise((resolve, reject) => {
+        try {
+          let server: http.Server | https.Server
+          const HTTPS = process.env.VITE_LOCAL_BUILD ?? false
+          if (HTTPS) {
+            let key: Buffer, cert: Buffer
+            try {
+              key = fs.readFileSync(join(packageRoot.path, 'certs/key.pem'))
+              cert = fs.readFileSync(join(packageRoot.path, 'certs/cert.pem'))
+            } catch (err) {
+              console.error('Error reading key/cert files:', err)
+              reject(err)
+              return
+            }
+            try {
+              server = https.createServer({ key: key, cert: cert }, this.callback())
+            } catch (err) {
+              console.error('Error creating HTTPS server:', err)
+              reject(err)
+              return
+            }
+          } else {
+            try {
+              server = http.createServer(this.callback())
+            } catch (err) {
+              console.error('Error creating HTTP server:', err)
+              reject(err)
+              return
+            }
+          }
+          // eslint-disable-next-line prefer-spread, prefer-rest-params
+          server
+            .listen(...arguments)
+            .on('listening', () => resolve(server))
+            .on('error', (err) => {
+              console.error('Error starting server:', err)
+              reject(err)
+            })
+        } catch (err) {
+          console.error('Unexpected error:', err)
+          reject(err)
+        }
+      })
     }
-
     const PORT = parseInt(config.client.port) || 3000
     clientApp.listen(PORT, () => console.log(`Client listening on port: ${PORT}`))
   }

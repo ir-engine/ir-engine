@@ -138,6 +138,8 @@
     "@feathersjs/feathers": "5.0.5",
     "@feathersjs/schema": "5.0.5",
     "@feathersjs/typebox": "5.0.5",
+    "@types/koa-favicon": "^2.1.1",
+    "@types/node": "^20.8.5",
     "app-root-path": "3.1.0",
     "cli": "1.0.1",
     "dotenv": "16.0.3",
@@ -146,6 +148,7 @@
     "patch-package": "^6.5.1",
     "three": "0.153.0",
     "ts-node": "10.9.1",
-    "typescript": "5.0.2"
+    "typescript": "5.0.2",
+    "uuid": "^9.0.1"
   }
 }

@@ -47,6 +47,7 @@ export const AvatarState = defineState({
   })
 })
 
+// Creates new avatar and stores it in featherjs service or updates it based on id if not public
 export const AvatarService = {
   async createAvatar(model: File, thumbnail: File, avatarName: string, isPublic: boolean) {
     const newAvatar = await Engine.instance.api.service(avatarPath).create({
@@ -61,6 +62,7 @@ export const AvatarService = {
     }
   },
 
+  // Fetches avatars by querry and updates AvatarState
   async fetchAvatarList(search?: string, incDec?: 'increment' | 'decrement') {
     const avatarState = getMutableState(AvatarState)
     const skip = avatarState.skip.value
@@ -91,12 +93,13 @@ export const AvatarService = {
     avatarFile?: File,
     thumbnailFile?: File
   ) {
+    // Payload for request
     let payload = {
       modelResourceId: originalAvatar.modelResourceId,
       thumbnailResourceId: originalAvatar.thumbnailResourceId,
       name: avatarName
     }
-
+    // Update avatar in db
     if (updateModels && avatarFile && thumbnailFile) {
       const uploadResponse = await AvatarService.uploadAvatarModel(
         avatarFile,
@@ -105,38 +108,38 @@ export const AvatarService = {
         originalAvatar.isPublic,
         originalAvatar.id
       )
-
+      // Check if payload = original if not it removes it
       const removalPromises: Promise<StaticResourceType>[] = []
       if (uploadResponse[0].id !== originalAvatar.modelResourceId)
         removalPromises.push(AvatarService.removeStaticResource(originalAvatar.modelResourceId))
       if (uploadResponse[1].id !== originalAvatar.thumbnailResourceId)
         removalPromises.push(AvatarService.removeStaticResource(originalAvatar.thumbnailResourceId))
       await Promise.all(removalPromises)
-
+      // After removing resources repopulate with payload resources
       payload = {
         modelResourceId: uploadResponse[0].id,
         thumbnailResourceId: uploadResponse[1].id,
         name: avatarName
       }
     }
-
+    // Update information in db then state based on new db resources
     const avatar = await Engine.instance.api.service(avatarPath).patch(originalAvatar.id, payload)
     getMutableState(AvatarState).avatarList.set((prevAvatarList) => {
       const index = prevAvatarList.findIndex((item) => item.id === avatar.id)
       prevAvatarList[index] = avatar
       return prevAvatarList
     })
-
+    // Update id
     const userAvatarId = getState(AvatarNetworkState)[Engine.instance.userID]
     if (userAvatarId === avatar.id) {
       AvatarNetworkState.updateUserAvatarId(avatar.id)
     }
   },
-
+  // Remmove address to old resources
   async removeStaticResource(id: string) {
     return Engine.instance.api.service(staticResourcePath).remove(id)
   },
-
+  // Upload using featherjs which creates new path for file
   async uploadAvatarModel(avatar: File, thumbnail: File, avatarName: string, isPublic: boolean, avatarId?: string) {
     return uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
