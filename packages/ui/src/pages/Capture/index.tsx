@@ -77,6 +77,7 @@ import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
 import ReactSlider from 'react-slider'
 import Toolbar from '../../components/tailwind/mocap/Toolbar'
+import smoothLandmarks from './smoothLandmarks'
 /**
  * Start playback of a recording
  * - If we are streaming data, close the data producer
@@ -245,7 +246,9 @@ const CaptureMode = () => {
     poseDetector.value.onResults((results) => {
       if (Object.keys(results).length === 0) return
 
-      const { poseWorldLandmarks, poseLandmarks } = results
+      const { poseWorldLandmarks, poseLandmarks } = trackingSettings?.smoothLandmarks
+        ? smoothLandmarks(results, 3)
+        : results
 
       if (debugSettings?.throttleSend) {
         throttledSend({ poseWorldLandmarks, poseLandmarks })
