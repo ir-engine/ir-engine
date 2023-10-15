@@ -24,28 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/no-var-requires */
-const dotenv = require('dotenv')
-const fs = require('fs')
-const knex = require('knex')
-const { staticResourcePath } = require('@etherealengine/engine/src/media/static-resource.schema')
-const { S3Client } = require('@aws-sdk/client-s3')
-const { nanoid } = require('nanoid')
-const { v4 } = require('uuid')
 
-// TODO: check for existing avatar on S3
+import { HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { avatarUploadData } from '@etherealengine/server-core/src/user/avatar/avatar-helper'
+import dotenv from 'dotenv'
+import knex from 'knex'
+import { nanoid } from 'nanoid'
+import { v4 as uuidv4 } from 'uuid'
 
-dotenv.config({ path: process.cwd() + '/../../.env.local' })
-const forceS3Upload = process.argv.includes('--force-s3-upload')
+// Directing to variables but change as needed
+dotenv.config({ path: process.cwd() + '/../../../.env.local' })
+const avatarPath = process.cwd() + '/../projects/default-project/assets/avatars/'
 
-const s3 = new S3Client({
-  credentials: {
-    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET
-  },
-  region: process.env.STORAGE_S3_REGION
-})
-
-const onlyDBUpdate = process.argv.includes('--db-only')
+// Set up sql
 const knexClient = knex({
   client: 'mysql',
   connection: {
@@ -58,112 +50,173 @@ const knexClient = knex({
   }
 })
 
-// match case of the name of the avatar and the name of corresponding file.
-// also update seed file of static resource model to match changes.
-const AVATAR_LIST = [
-  // 'Allison',
-  // 'Rose',
-  // 'Andy',
-  // 'Erik',
-  // 'Geoff',
-  // 'Jace',
-  // 'Karthik'
-  'Razer1',
-  'Razer2',
-  'Razer3',
-  'Razer4',
-  'Razer5',
-  'Razer6'
-]
-const MODEL_PATH = process.cwd() + '/../client/public/models/avatars/'
-const THUMBNAIL_PATH = process.cwd() + '/../client/public/static/'
-const MODEL_EXTENSION = '.glb'
-const THUMBNAIL_EXTENSION = '.jpg'
+// Set up s3
+const s3 = new S3Client({
+  credentials: {
+    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!
+  },
+  region: process.env.STORAGE_S3_REGION
+})
+
 const BUCKET = process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET
-const AVATAR_FOLDER = process.env.STORAGE_S3_AVATAR_DIRECTORY
-const AVATAR_RESOURCE_TYPE = 'avatar'
-const THUMBNAIL_RESOURCE_TYPE = 'user-thumbnail'
 
-const uploadFile = (Key, Body) => {
-  return new Promise((resolve) => {
-    s3.headObject(
-      {
-        Bucket: BUCKET,
-        Key: Key
-      },
-      (err, data) => {
-        if (forceS3Upload || (err && err.code === 'NotFound')) {
-          s3.putObject(
-            {
-              Body,
-              Bucket: BUCKET,
-              Key,
-              ACL: 'public-read'
-            },
-            (err, data) => {
-              resolve(data)
-            }
-          )
-        } else {
-          console.log('Object Already Exist hence Skipping => ', Key)
-          resolve(data)
-        }
-      }
-    )
-  })
-}
+// Upload to s3
+const uploadToS3 = async (
+  model: Buffer,
+  thumbnail: Buffer,
+  name: string,
+  extension: string,
+  dependencies?: string[]
+) => {
+  /* Add arg if wanna differentiate on upload
+  isPublic: boolean add as arg 
+  ACL: isPublic ? 'public-read' : 'private' 
+  then substitute with this for conditional ACL*/
 
-const saveToDB = async (name, extension) => {
-  await knexClient.from(staticResourcePath).insert({
-    id: v4(),
-    sid: nanoid(8),
-    name,
-    url: 'https://s3.amazonaws.com/' + BUCKET + '/' + AVATAR_FOLDER + '/' + name + extension,
-    key: AVATAR_FOLDER + '/' + name + extension,
-    createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
-    updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
-  })
-}
+  // If truthy update avatars
+  const forceS3Upload = process.argv.includes('--force-s3-upload')
+  // When avatar not on db
+  let notFound = true || false
 
-const processFile = async (fileName, extension, dirPath) => {
-  if (!onlyDBUpdate) {
-    const location = dirPath + fileName + extension
-    console.log('File Location => ', location)
-    const file = fs.readFileSync(location)
-    const result = await uploadFile(AVATAR_FOLDER + '/' + fileName + extension, file)
-    console.log('Uploading status => ', result)
-  }
-
-  console.log('Saving to DB')
-  await saveToDB(fileName, extension)
-  console.log('Saved To DB')
-}
-
-new Promise(async (resolve, reject) => {
+  // Check for existing file in db
   try {
-    console.log('Removing old DB entries.')
+    const headObjectCommand = new HeadObjectCommand({
+      Bucket: BUCKET,
+      Key: name
+    })
+    const headResponse = await s3.send(headObjectCommand)
+    if (headResponse) {
+      console.log(`${name} is already uploaded =>`, headResponse)
+    }
+  } catch (err) {
+    console.error('File not uploaded or check failed =>', err)
+    if (err && err.code === 'NotFound') {
+      // File not uploaded so we upload
+      notFound = true
+    }
+  }
+  // Upload avatar when not present or to overwrite
+  if (forceS3Upload || notFound) {
+    // Check buffer to see if theres any thumbnail to upload, it could be empty buffer
+    if (thumbnail.length > 0) {
+      try {
+        const putObjectCommand = new PutObjectCommand({
+          Body: thumbnail,
+          Bucket: BUCKET,
+          Key: `${name}/thumbnail`,
+          ACL: 'public-read'
+        })
+        const thumbnailResponse = await s3.send(putObjectCommand)
+        console.log(`${name}/thumbnail uploaded successfully`, thumbnailResponse)
+      } catch (err) {
+        console.error(`Error uploading ${name}/thumbnail:`, err)
+      }
+    }
+    // Upload model, dependencies are uploaded in model's metadata, alternatively they
+    // could be updated separately if dependencies bigger than <2KB>
+    try {
+      const putObjectCommand = new PutObjectCommand({
+        Body: model,
+        Bucket: BUCKET,
+        Key: `${name}/model`,
+        ACL: 'public-read',
+        // Dependencies could also be null so we upload conditionally
+        Metadata: dependencies
+          ? {
+              dependencies: JSON.stringify(dependencies)
+            }
+          : {}
+      })
+      const modelResponse = await s3.send(putObjectCommand)
+      console.log(`${name}/model uploaded successfully`, modelResponse)
+    } catch (err) {
+      console.error(`Error uploading ${name}/model:`, err)
+    }
+    /* Upload dependencies separately
+    // Check if they exist
+    if (dependencies) {
+      try {
+        const putObjectCommand = new PutObjectCommand({
+          Body: JSON.stringify(dependencies),
+          Bucket: BUCKET,
+          Key: `${name}/dependencies`,
+          ACL: 'public-read'
+        })
+        const dependenciesResponse = await s3.send(putObjectCommand)
+        console.log(`${name}/dependencies uploaded successfully`, dependenciesResponse)
+      } catch (err) {
+        console.error(`Failed to upload ${name}/dependencies`, err)
+      }
+    } */
+  }
+}
+
+// Save references of links to models uploaded on s3 to sql db
+const saveToDB = async (name: string, extension: string) => {
+  const AVATAR_FOLDER = process.env.STORAGE_S3_AVATAR_DIRECTORY!
+  try {
+    await knexClient.from(staticResourcePath).insert({
+      id: uuidv4(),
+      sid: nanoid(8),
+      name,
+      url: 'https://s3.amazonaws.com/' + BUCKET + '/' + AVATAR_FOLDER + '/' + name + extension,
+      key: AVATAR_FOLDER + '/' + name + extension,
+      createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
+    })
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+// Set references in sql and upload to s3
+const processFiles = async (
+  model: Buffer,
+  thumbnail: Buffer,
+  name: string,
+  extension: string,
+  dependencies?: string[]
+) => {
+  const onlyDBUpdate = process.argv.includes('--db-only')
+  try {
+    if (!onlyDBUpdate) {
+      await uploadToS3(model, thumbnail, name, extension, dependencies)
+      await saveToDB(name, extension)
+    }
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+// Avatars retrieved with imported function from avatar-helper to ensure data uniformity
+const avatarData = async () => {
+  try {
+    // Removal of old db entries where id is null (possibly unused)
     await knexClient
       .from(staticResourcePath)
       .where({
         userId: null
       })
       .del()
-
-    for (const avatar of AVATAR_LIST) {
-      console.log('Uploading Avatar Model =>', avatar)
-      await processFile(avatar, MODEL_EXTENSION, MODEL_PATH)
-
-      console.log('Uploading Avatar Thumbnail =>', avatar)
-      await processFile(avatar, THUMBNAIL_EXTENSION, THUMBNAIL_PATH)
-    }
-    resolve(true)
+    // Get array
+    const avatarsFiles = await avatarUploadData(avatarPath)
+    await Promise.all(
+      avatarsFiles.map(async (avatarFile) => {
+        try {
+          const model = avatarFile.avatar
+          const thumbnail = avatarFile.thumbnail
+          const name = avatarFile.avatarName
+          const extension = avatarFile.avatarFileType
+          const dependencies = avatarFile.dependencies
+          // Upload each avatarFile
+          await processFiles(model, thumbnail, name, extension, dependencies)
+        } catch (err) {
+          console.error(`Failed to process ${avatarFile.avatarName} =>`, err)
+        }
+      })
+    )
   } catch (err) {
-    reject(err)
+    console.error(err)
   }
-})
-  .then(() => {
-    console.log('Uploading Completed.')
-  })
-  .catch((err) => {
-    console.log('Error Occured => ', err)
-  })
+}
