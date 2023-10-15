@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LandmarkList, NormalizedLandmarkList, Results } from '@mediapipe/pose'
+import { NormalizedLandmarkList, Results } from '@mediapipe/pose'
 
 const frameSets: NormalizedLandmarkList[][] = [[], []]
 const smoothFrame: NormalizedLandmarkList[] = [[], []]
 
-type MotionCaptureResults = {
+/* type MotionCaptureResults = {
   poseWorldLandmarks: NormalizedLandmarkList
   poseLandmarks: LandmarkList
 }
@@ -54,7 +54,7 @@ const interpolateData = (data: MotionCaptureTimeseries, lastData?: MotionCapture
       data.results[list[i]][j].z += (z1 - z) * alpha
     }
   }
-}
+} */
 
 // Average N amount of frames
 const smoothLandmarks = (results: Results, frames: number): Results => {
