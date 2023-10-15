@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-const cors_proxy = require('../../../node_modules/cors-anywhere/server')
+const cors_proxy = require('../../../node_modules/cors-anywhere')
 import net from 'net'
 import logger from './ServerLogger'
 import config from './appconfig'
