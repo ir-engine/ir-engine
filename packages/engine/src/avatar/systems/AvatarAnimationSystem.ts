@@ -82,8 +82,6 @@ export const AvatarAnimationState = defineState({
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 const avatarComponentQuery = defineQuery([AvatarComponent])
 
-const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
-
 const _quat = new Quaternion()
 const _vector3 = new Vector3()
 const _right = new Vector3()
@@ -111,12 +109,6 @@ const setVisualizers = () => {
     setComponent(e, TransformComponent)
     visualizers[i].set(e)
   }
-}
-
-interface targetTransform {
-  position: Vector3
-  rotation: Quaternion
-  blendWeight: number
 }
 
 const footRaycastInterval = 0.25
@@ -227,6 +219,12 @@ const execute = () => {
 
       //special case for the head if we're in xr mode
       if (getState(XRState).sessionActive) {
+        rightHandTarget.blendWeight.set(1)
+        leftHandTarget.blendWeight.set(1)
+        rightFootTarget.blendWeight.set(1)
+        leftFootTarget.blendWeight.set(1)
+        headTarget.blendWeight.set(1)
+
         rig.hips.node.position.copy(
           _vector3.copy(headTransform.position).setY(headTransform.position.y - rigComponent.torsoLength - 0.125)
         )
