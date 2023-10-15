@@ -48,7 +48,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(authenticationSettingPath, new AuthenticationSettingService(options, app), {
+  app.use(authenticationSettingPath, new AuthenticationSettingService(options), {
     // A list of all methods this service exposes externally
     methods: authenticationSettingMethods,
     // You can add additional custom events to be sent to clients here
