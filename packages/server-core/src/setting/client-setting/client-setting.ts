@@ -48,7 +48,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(clientSettingPath, new ClientSettingService(options, app), {
+  app.use(clientSettingPath, new ClientSettingService(options), {
     // A list of all methods this service exposes externally
     methods: clientSettingMethods,
     // You can add additional custom events to be sent to clients here
