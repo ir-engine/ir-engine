@@ -34,6 +34,21 @@ import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { DepthDataTexture } from './DepthDataTexture'
 
+export class XRAction {
+  static sessionChanged = defineAction({
+    type: 'xre.xr.sessionChanged' as const,
+    active: matches.boolean,
+    $cache: { removePrevious: true }
+  })
+
+  // todo, support more haptic formats other than just vibrating controllers
+  static vibrateController = defineAction({
+    type: 'xre.xr.vibrateController',
+    handedness: matches.literals('left', 'right'),
+    value: matches.number,
+    duration: matches.number
+  })
+}
 // TODO: divide this up into the systems that manage these states
 export const XRState = defineState({
   name: 'XRState',
@@ -91,22 +106,6 @@ export const ReferenceSpace = {
   viewer: null as XRReferenceSpace | null
 }
 globalThis.ReferenceSpace = ReferenceSpace
-
-export class XRAction {
-  static sessionChanged = defineAction({
-    type: 'xre.xr.sessionChanged' as const,
-    active: matches.boolean,
-    $cache: { removePrevious: true }
-  })
-
-  // todo, support more haptic formats other than just vibrating controllers
-  static vibrateController = defineAction({
-    type: 'xre.xr.vibrateController',
-    handedness: matches.literals('left', 'right'),
-    value: matches.number,
-    duration: matches.number
-  })
-}
 
 /**
  * Gets the camera mode - either 'attached' or 'detached'

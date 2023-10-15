@@ -26,8 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  defineActionQueue,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -38,6 +46,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
@@ -50,6 +59,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRRigComponent } from '../../xr/XRRigComponent'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { XRState, isMobileXRHeadset } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
@@ -61,6 +71,7 @@ import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
+import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -114,12 +125,20 @@ const setVisualizers = () => {
 const footRaycastInterval = 0.25
 let footRaycastTimer = 0
 
+const avatarXrActions = defineActionQueue(AvatarNetworkAction.setAvatarXrTracking.matches)
+
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
 const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds } = getState(EngineState)
   const { avatarDebug } = getState(RendererState)
+
+  for (const action of avatarXrActions()) {
+    const entity = UUIDComponent.entitiesByUUID[action.entityUUID]
+    if (action.active) setComponent(entity, XRRigComponent)
+    else removeComponent(entity, XRRigComponent)
+  }
 
   /**
    * 1 - Sort & apply avatar priority queue
@@ -188,7 +207,7 @@ const execute = () => {
     //or when we're running our own leg calculations for mocap
     if (
       (motionCaptureRigComponent && !MotionCaptureRigComponent.solvingLowerBody[entity]) ||
-      getState(XRState).sessionActive
+      getOptionalComponent(entity, XRRigComponent)
     ) {
       hipsForward.set(0, 0, 1)
 
@@ -218,7 +237,7 @@ const execute = () => {
       setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
 
       //special case for the head if we're in xr mode
-      if (getState(XRState).sessionActive) {
+      if (getOptionalComponent(entity, XRRigComponent)) {
         rightHandTarget.blendWeight.set(1)
         leftHandTarget.blendWeight.set(1)
         rightFootTarget.blendWeight.set(1)
@@ -346,6 +365,7 @@ const reactor = () => {
   const heightDifference = useHookstate(xrState.userAvatarHeightDifference)
   const sessionMode = useHookstate(xrState.sessionMode)
   const pose = useHookstate(xrState.viewerPose)
+  const active = useHookstate(xrState.sessionActive)
   useEffect(() => {
     if (xrState.sessionMode.value == 'immersive-vr' && heightDifference.value)
       xrState.sceneScale.set(Math.max(heightDifference.value, 0.5))
@@ -357,6 +377,15 @@ const reactor = () => {
   useEffect(() => {
     setVisualizers()
   }, [renderState.physicsDebug])
+  useEffect(() => {
+    if (xrState.sessionMode.value == 'immersive-vr')
+      dispatchAction(
+        AvatarNetworkAction.setAvatarXrTracking({
+          active: xrState.sessionActive.value,
+          entityUUID: Engine.instance.userID as any as EntityUUID
+        })
+      )
+  }, [active])
   return null
 }
 
