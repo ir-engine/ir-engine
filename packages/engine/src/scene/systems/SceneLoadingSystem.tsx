@@ -490,6 +490,7 @@ const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
 const reactor = () => {
   const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+  const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
 
@@ -515,9 +516,10 @@ const reactor = () => {
   }, [sceneAssetPendingTagQuery.length, assetLoadingState])
 
   useEffect(() => {
+    if (!isEngineInitialized.value) return
     /** editor loading is done in  EditorHistory via snapshots */
     if (!getState(EngineState).isEditor) updateSceneFromJSON()
-  }, [sceneData])
+  }, [sceneData, isEngineInitialized])
 
   return null
 }

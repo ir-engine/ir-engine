@@ -32,9 +32,9 @@ import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
-export interface GenerateTokenParams extends RootParams<GenerateTokenQuery> {
+export interface GenerateTokenParams extends KnexAdapterParams<GenerateTokenQuery> {
   authentication?: any
 }
 

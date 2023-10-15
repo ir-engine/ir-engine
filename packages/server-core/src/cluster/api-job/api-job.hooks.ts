@@ -32,7 +32,6 @@ import {
   apiJobQueryValidator
 } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   apiJobDataResolver,
@@ -49,22 +48,19 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(apiJobQueryValidator),
       schemaHooks.resolveQuery(apiJobQueryResolver)
     ],
-    find: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
-    get: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    find: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    get: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
     create: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(apiJobDataValidator),
       schemaHooks.resolveData(apiJobDataResolver)
     ],
-    update: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
     patch: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(apiJobPatchValidator),
       schemaHooks.resolveData(apiJobPatchResolver)
