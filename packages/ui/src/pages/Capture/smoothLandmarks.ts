@@ -103,7 +103,7 @@ const smoothLandmarks = (results: Results, frames: number): Results => {
     frameSets[1].shift()
   }
 
-  // after first 8 frames we have averaged coordinates, So now updating the poseLandmarks with averaged coordinates
+  // after first N frames we have averaged coordinates, So now updating the poseLandmarks with averaged coordinates
   if (smoothFrame[0].length > 0) {
     results.poseLandmarks = smoothFrame[0]
   }
