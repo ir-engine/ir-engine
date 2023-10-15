@@ -224,7 +224,7 @@ describe.skip('matchmaking match-instance service', () => {
     assert((assignments[0] as any).locationName)
 
     // cleanup created instance
-    await app.service(instancePath)._remove(instanceServerInstance.id)
+    await app.service(instancePath).remove(instanceServerInstance.id)
   })
 
   // it will create null:null instance server on localhost for second match
@@ -256,7 +256,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     // test cleanup
     await Promise.all(matchInstance.map((mi) => app.service(matchInstancePath).remove(mi.id)))
-    await Promise.all(matchInstance.map((mi) => app.service(instancePath)._remove(mi.instanceServer!)))
+    await Promise.all(matchInstance.map((mi) => app.service(instancePath).remove(mi.instanceServer!)))
   })
 
   it('does not assign players if match is not found', async () => {

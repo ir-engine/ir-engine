@@ -261,7 +261,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         const instance =
-          invite.inviteType === 'instance' ? await this.app.service(instancePath)._get(invite.targetObjectId) : null
+          invite.inviteType === 'instance' ? await this.app.service(instancePath).get(invite.targetObjectId) : null
         const locationId = instance ? instance.locationId : invite.targetObjectId
         const location = await this.app.service(locationPath).get(locationId)
         returned.locationName = location.slugifiedName

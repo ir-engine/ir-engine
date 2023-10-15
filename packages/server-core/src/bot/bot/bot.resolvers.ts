@@ -49,7 +49,7 @@ export const botExternalResolver = resolve<BotType, HookContext>({
   }),
   instance: virtual(async (bot, context) => {
     if (context.event !== 'removed' && bot.instanceId)
-      return (await context.app.service(instancePath)._get(bot.instanceId)) as any as InstanceType
+      return (await context.app.service(instancePath).get(bot.instanceId)) as any as InstanceType
   }),
   botCommands: virtual(async (bot, context) => {
     if (context.event !== 'removed' && bot.id)
