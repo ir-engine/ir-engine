@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineAction, defineState } from '@etherealengine/hyperflux'
 
 import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
 
@@ -63,36 +63,10 @@ export const EngineState = defineState({
   })
 })
 
-export function EngineEventReceptor(a) {
-  const s = getMutableState(EngineState)
-  matches(a)
-    .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
-    .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
-    .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoading: false, sceneLoaded: true }))
-    .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
-    .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
-}
-
 export class EngineActions {
-  static setTeleporting = defineAction({
-    type: 'xre.engine.Engine.SET_TELEPORTING' as const,
-    isTeleporting: matches.boolean
-  })
-
-  /** @deprecated */
-  static initializeEngine = defineAction({
-    type: 'xre.engine.Engine.INITIALIZED_ENGINE' as const,
-    initialised: matches.boolean
-  })
-
   /** @deprecated */
   static sceneLoaded = defineAction({
     type: 'xre.engine.Engine.SCENE_LOADED' as const
-  })
-
-  /** @deprecated */
-  static sceneUnloaded = defineAction({
-    type: 'xre.engine.Engine.SCENE_UNLOADED' as const
   })
 
   static spectateUser = defineAction({

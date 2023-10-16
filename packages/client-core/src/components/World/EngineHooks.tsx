@@ -79,7 +79,7 @@ export const initClient = async () => {
   startClientSystems()
   await loadEngineInjection(await projects)
 
-  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+  getMutableState(EngineState).isEngineInitialized.set(true)
 }
 
 export const useLoadEngine = () => {
@@ -168,51 +168,51 @@ export const despawnSelfAvatar = () => {
 export const usePortalTeleport = () => {
   const engineState = useHookstate(getMutableState(EngineState))
   const locationState = useHookstate(getMutableState(LocationState))
+  const portalState = useHookstate(getMutableState(PortalState))
 
   useEffect(() => {
-    if (engineState.isTeleporting.value) {
-      logger.info('Resetting connection for portal teleport.')
-      const activePortalEntity = getState(PortalState).activePortalEntity
+    if (!portalState.activePortalEntity.value) return
 
-      if (!activePortalEntity) return
+    logger.info('Resetting connection for portal teleport.')
+    const activePortalEntity = portalState.activePortalEntity.value
 
-      const activePortal = getComponent(activePortalEntity, PortalComponent)
+    if (!activePortalEntity) return
 
-      const currentLocation = locationState.locationName.value.split('/')[1]
-      if (currentLocation === activePortal.location || UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]) {
-        teleportAvatar(
-          Engine.instance.localClientEntity!,
-          activePortal.remoteSpawnPosition
-          // activePortal.remoteSpawnRotation
-        )
-        getState(PortalState).activePortalEntity = UndefinedEntity
-        dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
-        return
-      }
+    const activePortal = getComponent(activePortalEntity, PortalComponent)
 
-      if (activePortal.redirect) {
-        window.location.href = engineState.publicPath.value + '/location/' + activePortal.location
-        return
-      }
-
-      RouterState.navigate('/location/' + activePortal.location)
-      LocationService.getLocationByName(activePortal.location)
-
-      // shut down connection with existing world instance server
-      // leaving a world instance server will check if we are in a location media instance and shut that down too
-      leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
-
-      setAvatarToLocationTeleportingState()
-      if (activePortal.effectType !== 'None') {
-        addComponent(Engine.instance.localClientEntity!, PortalEffects.get(activePortal.effectType), true)
-      } else {
-        getMutableState(AppLoadingState).merge({
-          state: AppLoadingStates.START_STATE,
-          loaded: false
-        })
-      }
+    const currentLocation = locationState.locationName.value.split('/')[1]
+    if (currentLocation === activePortal.location || UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]) {
+      teleportAvatar(
+        Engine.instance.localClientEntity!,
+        activePortal.remoteSpawnPosition
+        // activePortal.remoteSpawnRotation
+      )
+      portalState.activePortalEntity.set(UndefinedEntity)
+      return
     }
-  }, [engineState.isTeleporting])
+
+    if (activePortal.redirect) {
+      window.location.href = engineState.publicPath.value + '/location/' + activePortal.location
+      return
+    }
+
+    RouterState.navigate('/location/' + activePortal.location)
+    LocationService.getLocationByName(activePortal.location)
+
+    // shut down connection with existing world instance server
+    // leaving a world instance server will check if we are in a location media instance and shut that down too
+    leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
+
+    setAvatarToLocationTeleportingState()
+    if (activePortal.effectType !== 'None') {
+      addComponent(Engine.instance.localClientEntity!, PortalEffects.get(activePortal.effectType), true)
+    } else {
+      getMutableState(AppLoadingState).merge({
+        state: AppLoadingStates.START_STATE,
+        loaded: false
+      })
+    }
+  }, [portalState.activePortalEntity])
 }
 
 type Props = {

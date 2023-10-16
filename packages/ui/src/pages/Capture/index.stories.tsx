@@ -44,7 +44,7 @@ import { SceneService } from '@etherealengine/client-core/src/world/services/Sce
 import { AudioEffectPlayer, MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
@@ -83,7 +83,7 @@ const initializeEngineForRecorder = async () => {
   startCaptureSystems()
   // await loadEngineInjection(await projects)
 
-  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+  getMutableState(EngineState).isEngineInitialized.set(true)
   dispatchAction(EngineActions.sceneLoaded({}))
 }
 
