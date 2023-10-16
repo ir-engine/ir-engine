@@ -406,12 +406,13 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
     shoulderObject.quaternion.identity()
     const hipDirection = new Quaternion().setFromUnitVectors(
       V_100,
-      new Vector3().subVectors(hipright, hipleft).normalize()
+      new Vector3().subVectors(hipright, hipleft).setY(0).normalize()
     )
     MotionCaptureRigComponent.hipRotation.x[entity] = hipDirection.x
     MotionCaptureRigComponent.hipRotation.y[entity] = hipDirection.y
     MotionCaptureRigComponent.hipRotation.z[entity] = hipDirection.z
     MotionCaptureRigComponent.hipRotation.w[entity] = hipDirection.w
+    console.log(hipObject.quaternion)
   } else {
     hipObject.quaternion.set(
       MotionCaptureRigComponent.hipRotation.x[entity],
