@@ -23,54 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
+import React from 'react'
 
-import { inviteCodeLookupQueryValidator } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+type Props = {
+  children: React.ReactNode
+}
 
-import {
-  inviteCodeLookupExternalResolver,
-  inviteCodeLookupQueryResolver,
-  inviteCodeLookupResolver
-} from './invite-code-lookup.resolvers'
+type ErrorHandler = (error: Error, info: React.ErrorInfo) => void
+type ErrorHandlingComponent<Props> = (props: Props, error?: Error) => React.ReactNode
 
-export default {
-  around: {
-    all: [
-      schemaHooks.resolveExternal(inviteCodeLookupExternalResolver),
-      schemaHooks.resolveResult(inviteCodeLookupResolver)
-    ]
-  },
+type ErrorState = { error?: Error }
 
-  before: {
-    all: [
-      () => schemaHooks.validateQuery(inviteCodeLookupQueryValidator),
-      schemaHooks.resolveQuery(inviteCodeLookupQueryResolver)
-    ],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
+export function createErrorBoundary<P extends Props>(
+  component: ErrorHandlingComponent<P>,
+  errorHandler?: ErrorHandler
+): React.ComponentType<P> {
+  return class extends React.Component<P, ErrorState> {
+    state: ErrorState = {
+      error: undefined
+    }
 
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
+    static getDerivedStateFromError(error: Error) {
+      return { error }
+    }
 
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    componentDidCatch(error: Error, info: React.ErrorInfo) {
+      if (errorHandler) {
+        errorHandler(error, info)
+      }
+    }
+
+    render() {
+      return component(this.props, this.state.error)
+    }
   }
-} as any
+}

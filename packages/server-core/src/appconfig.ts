@@ -29,7 +29,13 @@ import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
+import { oembedPath } from '@etherealengine/engine/src/schemas/media/oembed.schema'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
+import { discordBotAuthPath } from '@etherealengine/engine/src/schemas/user/discord-bot-auth.schema'
+import { githubRepoAccessWebhookPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-webhook.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
 import multiLogger from './ServerLogger'
 
 const logger = multiLogger.child({ component: 'server-core:config' })
@@ -233,6 +239,11 @@ const email = {
   smsNameCharacterLimit: 20
 }
 
+type WhiteListItem = {
+  path: string
+  methods: string[]
+}
+
 /**
  * Authentication
  */
@@ -247,6 +258,18 @@ const authentication = {
   bearerToken: {
     numBytes: 16
   },
+  whiteList: [
+    'auth',
+    'oauth/:provider',
+    'authentication',
+    oembedPath,
+    githubRepoAccessWebhookPath,
+    { path: identityProviderPath, methods: ['create'] },
+    { path: routePath, methods: ['find'] },
+    { path: acceptInvitePath, methods: ['get'] },
+    { path: discordBotAuthPath, methods: ['find'] },
+    { path: loginPath, methods: ['get'] }
+  ] as (string | WhiteListItem)[],
   callback: {
     discord: process.env.DISCORD_CALLBACK_URL || `${client.url}/auth/oauth/discord`,
     facebook: process.env.FACEBOOK_CALLBACK_URL || `${client.url}/auth/oauth/facebook`,
@@ -352,14 +375,6 @@ const redis = {
   password: process.env.REDIS_PASSWORD == '' || process.env.REDIS_PASSWORD == null ? null! : process.env.REDIS_PASSWORD!
 }
 
-/**
- * Scope
- */
-const scopes = {
-  guest: process.env.DEFAULT_GUEST_SCOPES?.split(',') || [],
-  user: process.env.DEFAULT_USER_SCOPES?.split(',') || []
-}
-
 const blockchain = {
   blockchainUrl: process.env.BLOCKCHAIN_URL,
   blockchainUrlSecret: process.env.BLOCKCHAIN_URL_SECRET
@@ -386,7 +401,6 @@ const config = {
   server,
   taskserver,
   redis,
-  scopes,
   blockchain,
   kubernetes: {
     enabled: kubernetesEnabled,

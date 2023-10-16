@@ -24,69 +24,33 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { lazy, Suspense } from 'react'
+import React, { Suspense } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
+import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
+import { useHookstate } from '@hookstate/core'
+import { Redirect } from '../common/components/Redirect'
 import { LoadingCircle } from '../components/LoadingCircle'
+import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
 
-const Avatars = lazy(() => import('./components/Avatars'))
-const Benchmarking = lazy(() => import('./components/Benchmarking'))
-const BotSetting = lazy(() => import('./components/Bots'))
-const Instance = lazy(() => import('./components/Instance'))
-const Invites = lazy(() => import('./components/Invite'))
-const Locations = lazy(() => import('./components/Location'))
-const Channels = lazy(() => import('./components/Channels'))
-const Projects = lazy(() => import('./components/Project'))
-const Recordings = lazy(() => import('./components/Recordings'))
-const Resources = lazy(() => import('./components/Resources'))
-const RoutesComp = lazy(() => import('./components/Routes'))
-const Server = lazy(() => import('./components/Server'))
-const Setting = lazy(() => import('./components/Setting'))
-const Users = lazy(() => import('./components/Users'))
-
-const availableRoutes = [
-  { route: '/avatars', key: 'globalAvatars', component: Avatars, props: {} },
-  { route: '/benchmarking', key: 'benchmarking', component: Benchmarking, props: {} },
-  { route: '/instance', key: 'instance', component: Instance, props: {} },
-  { route: '/invites', key: 'invite', component: Invites, props: {} },
-  { route: '/locations', key: 'location', component: Locations, props: {} },
-  { route: '/routes', key: 'routes', component: RoutesComp, props: {} },
-  { route: '/channel', key: 'channel', component: Channels, props: {} },
-  { route: '/bots', key: 'bot', component: BotSetting, props: {} },
-  { route: '/projects', key: 'projects', component: Projects, props: {} },
-  { route: '/server', key: 'server', component: Server, props: {} },
-  { route: '/settings', key: 'settings', component: Setting, props: {} },
-  { route: '/resources', key: 'static_resource', component: Resources, props: {} },
-  { route: '/users', key: 'user', component: Users, props: {} },
-  { route: '/recordings', key: 'recording', component: Recordings, props: {} }
-]
-
-const AllowedRoutes = ({ allowedRoutes }) => {
+const AllowedRoutes = () => {
   const location = useLocation()
   const { pathname } = location
 
-  // Improve loading by only using matched route
-  const matchedRoutes = availableRoutes.filter((r) => {
-    return r.route.split('/')[1] === pathname.split('/')[2] && allowedRoutes[r.key]
-  })
+  const allowedRoutes = useHookstate(getMutableState(AllowedAdminRoutesState))
+
+  const path = pathname.split('/')[2]
+
+  const currentRoute = allowedRoutes[path]
+
+  if (currentRoute.redirect.value) return <Redirect to={currentRoute.redirect.value} />
+
+  const Element = currentRoute?.get(NO_PROXY)?.component
+  const allowed = currentRoute?.access?.value
 
   return (
     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingAllowed')} />}>
-      <Routes>
-        {matchedRoutes.map((route, i) => {
-          const { route: r, component, props: p } = route
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const Element = component as any
-          return (
-            <Route
-              key={`custom-route-${i}`}
-              path={r.split('/')[1] === '' ? `${r}*` : `${r}/*`}
-              element={<Element />}
-              {...p}
-            />
-          )
-        })}
-      </Routes>
+      <Routes>{allowed && Element && <Route key={path} path={`*`} element={<Element />} />}</Routes>
     </Suspense>
   )
 }

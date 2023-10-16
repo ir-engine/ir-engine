@@ -24,13 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discard, iff, isProvider } from 'feathers-hooks-common'
 
 import {
+  BotCommandData,
+  BotCommandType,
+  botCommandPath
+} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import {
+  BotType,
   botDataValidator,
   botPatchValidator,
   botQueryValidator
 } from '@etherealengine/engine/src/schemas/bot/bot.schema'
+import { HookContext } from '../../../declarations'
 import {
   botDataResolver,
   botExternalResolver,
@@ -38,8 +45,29 @@ import {
   botQueryResolver,
   botResolver
 } from '../../bot/bot/bot.resolvers'
-import authenticate from '../../hooks/authenticate'
+import persistData from '../../hooks/persist-data'
 import verifyScope from '../../hooks/verify-scope'
+import { BotService } from './bot.class'
+
+async function addBotCommands(context: HookContext<BotService>) {
+  const process = async (bot: BotType, botCommandData: BotCommandData[]) => {
+    const botCommands: BotCommandType[] = await Promise.all(
+      botCommandData.map((commandData) =>
+        context.app.service(botCommandPath).create({
+          ...commandData,
+          botId: bot.id
+        })
+      )
+    )
+    bot.botCommands = botCommands
+  }
+
+  if (Array.isArray(context.result)) {
+    await Promise.all(context.result.map((bot, idx) => process(bot, context.actualData[idx].botCommands)))
+  } else {
+    await process(context.result as BotType, context.actualData.botCommands)
+  }
+}
 
 export default {
   around: {
@@ -48,14 +76,18 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(botQueryValidator),
       schemaHooks.resolveQuery(botQueryResolver)
     ],
     find: [],
     get: [],
-    create: [() => schemaHooks.validateData(botDataValidator), schemaHooks.resolveData(botDataResolver)],
+    create: [
+      () => schemaHooks.validateData(botDataValidator),
+      schemaHooks.resolveData(botDataResolver),
+      persistData,
+      discard('botCommands')
+    ],
     update: [disallow()],
     patch: [() => schemaHooks.validateData(botPatchValidator), schemaHooks.resolveData(botPatchResolver)],
     remove: []
@@ -65,7 +97,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [addBotCommands],
     update: [],
     patch: [],
     remove: []

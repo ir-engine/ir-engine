@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import { instanceActiveQueryValidator } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   instanceActiveExternalResolver,
@@ -47,7 +46,7 @@ export default {
       () => schemaHooks.validateQuery(instanceActiveQueryValidator),
       schemaHooks.resolveQuery(instanceActiveQueryResolver)
     ],
-    find: [authenticate(), verifyScope('editor', 'write')],
+    find: [verifyScope('editor', 'write')],
     get: [],
     create: [],
     update: [],

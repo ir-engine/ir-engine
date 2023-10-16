@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   ApiJobData,
@@ -32,10 +32,9 @@ import {
   ApiJobQuery,
   ApiJobType
 } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ApiJobParams extends RootParams<ApiJobQuery> {}
+export interface ApiJobParams extends KnexAdapterParams<ApiJobQuery> {}
 
 export class ApiJobService<T = ApiJobType, ServiceParams extends Params = ApiJobParams> extends KnexService<
   ApiJobType,

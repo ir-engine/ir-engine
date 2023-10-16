@@ -33,10 +33,10 @@ import {
   AnalyticsType
 } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AnalyticsParams extends RootParams<AnalyticsQuery> {}
+export interface AnalyticsParams extends KnexAdapterParams<AnalyticsQuery> {}
 
 export class AnalyticsService<T = AnalyticsType, ServiceParams extends Params = AnalyticsParams> extends KnexService<
   AnalyticsType,

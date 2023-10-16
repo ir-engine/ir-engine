@@ -37,7 +37,6 @@ import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { Knex } from 'knex'
 import { HookContext } from '../../../declarations'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { AnalyticsService } from './analytics.class'
 import {
@@ -119,7 +118,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(analyticsQueryValidator),
       schemaHooks.resolveQuery(analyticsQueryResolver)

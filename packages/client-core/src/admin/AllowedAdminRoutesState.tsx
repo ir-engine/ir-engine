@@ -23,54 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
+import { defineState } from '@etherealengine/hyperflux'
+import React from 'react'
 
-import { inviteCodeLookupQueryValidator } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+export type AdminRouteStateType = {
+  name: string
+  scope: string
+  redirect?: string
+  component: React.LazyExoticComponent<() => JSX.Element>
+  access: boolean
+  icon: JSX.Element
+}
 
-import {
-  inviteCodeLookupExternalResolver,
-  inviteCodeLookupQueryResolver,
-  inviteCodeLookupResolver
-} from './invite-code-lookup.resolvers'
-
-export default {
-  around: {
-    all: [
-      schemaHooks.resolveExternal(inviteCodeLookupExternalResolver),
-      schemaHooks.resolveResult(inviteCodeLookupResolver)
-    ]
-  },
-
-  before: {
-    all: [
-      () => schemaHooks.validateQuery(inviteCodeLookupQueryValidator),
-      schemaHooks.resolveQuery(inviteCodeLookupQueryResolver)
-    ],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+export const AllowedAdminRoutesState = defineState({
+  name: 'AllowedAdminRoutesState',
+  initial: {} as Record<string, AdminRouteStateType>
+})
