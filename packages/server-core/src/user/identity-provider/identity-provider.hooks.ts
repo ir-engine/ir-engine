@@ -43,6 +43,7 @@ import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schem
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { random } from 'lodash'
 import { Application } from '../../../declarations'
+import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import {
   identityProviderDataResolver,
@@ -97,16 +98,6 @@ async function checkOnlyIdentityProvider(context: HookContext): Promise<HookCont
     throw new MethodNotAllowed('Cannot remove the only identity provider on a user')
   }
   return context
-}
-
-function addUserId(key: 'data' | 'query') {
-  return (context: HookContext) => {
-    if (key === 'data') {
-      context.data.userId = context.existingUser!.id
-    } else {
-      if (context.params.provider) context.params.query.userId = context.params.user!.id
-    }
-  }
 }
 
 /** (BEFORE) CREATE HOOKS **/
@@ -165,14 +156,6 @@ async function createNewUser(context: HookContext) {
 /** (AFTER) CREATE HOOKS **/
 
 async function addScopes(context: HookContext) {
-  if (context.data.type === 'guest' && appConfig.scopes.guest.length) {
-    const data = appConfig.scopes.guest.map((el) => ({
-      type: el,
-      userId: context.existingUser!.id
-    }))
-    await context.app.service(scopePath).create(data)
-  }
-
   if (isDev && context.data.type === 'admin') {
     const data = scopeTypeSeed.map(({ type }) => ({ userId: context.existingUser!.id, type }))
     await context.app.service(scopePath).create(data)
@@ -200,7 +183,7 @@ export default {
       () => schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
-    find: [addUserId('query')],
+    find: [setLoggedinUserInQuery('userId')],
     get: [iff(isProvider('external'), checkIdentityProvider)],
     create: [
       () => schemaHooks.validateData(identityProviderDataValidator),
@@ -208,7 +191,7 @@ export default {
       validateAuthParams,
       addIdentityProviderType,
       iff((context: HookContext) => !context.existingUser, createNewUser),
-      addUserId('data')
+      (context: HookContext) => (context.data.userId = context.existingUser!.id)
     ],
     update: [iff(isProvider('external'), checkIdentityProvider)],
     patch: [
