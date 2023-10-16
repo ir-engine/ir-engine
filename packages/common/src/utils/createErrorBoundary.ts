@@ -23,35 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { loginTokenMethods, loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import React from 'react'
 
-import { Application } from '../../../declarations'
-import { LoginTokenService } from './login-token.class'
-import loginTokenDocs from './login-token.docs'
-import hooks from './login-token.hooks'
-
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    [loginTokenPath]: LoginTokenService
-  }
+type Props = {
+  children: React.ReactNode
 }
 
-export default (app: Application): void => {
-  const options = {
-    name: loginTokenPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
+type ErrorHandler = (error: Error, info: React.ErrorInfo) => void
+type ErrorHandlingComponent<Props> = (props: Props, error?: Error) => React.ReactNode
+
+type ErrorState = { error?: Error }
+
+export function createErrorBoundary<P extends Props>(
+  component: ErrorHandlingComponent<P>,
+  errorHandler?: ErrorHandler
+): React.ComponentType<P> {
+  return class extends React.Component<P, ErrorState> {
+    state: ErrorState = {
+      error: undefined
+    }
+
+    static getDerivedStateFromError(error: Error) {
+      return { error }
+    }
+
+    componentDidCatch(error: Error, info: React.ErrorInfo) {
+      if (errorHandler) {
+        errorHandler(error, info)
+      }
+    }
+
+    render() {
+      return component(this.props, this.state.error)
+    }
   }
-
-  app.use(loginTokenPath, new LoginTokenService(options), {
-    // A list of all methods this service exposes externally
-    methods: loginTokenMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: loginTokenDocs
-  })
-
-  const service = app.service(loginTokenPath)
-  service.hooks(hooks)
 }

@@ -44,9 +44,9 @@ import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/s
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 
+import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import appConfig from '../../appconfig'
-import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export interface IdentityProviderParams extends KnexAdapterParams<IdentityProviderQuery> {
@@ -255,7 +255,11 @@ export class IdentityProviderService<
         .createAccessToken({}, { subject: result.id.toString() })
     } else if (isDev && type === 'admin') {
       // in dev mode, add all scopes to the first user made an admin
-      const data = scopeTypeSeed.map(({ type }) => {
+      const scopeTypes = await this.app.service(scopeTypePath).find({
+        paginate: false
+      })
+
+      const data = scopeTypes.map(({ type }) => {
         return { userId, type }
       })
       await this.app.service(scopePath).create(data)

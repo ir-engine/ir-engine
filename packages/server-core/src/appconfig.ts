@@ -375,9 +375,6 @@ const redis = {
   password: process.env.REDIS_PASSWORD == '' || process.env.REDIS_PASSWORD == null ? null! : process.env.REDIS_PASSWORD!
 }
 
-/**
- * Scope
- */
 const scopes = {
   guest: process.env.DEFAULT_GUEST_SCOPES?.split(',') || [],
   user: process.env.DEFAULT_USER_SCOPES?.split(',') || []

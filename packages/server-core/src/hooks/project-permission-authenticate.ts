@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
+import { Application } from '../../declarations'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 
@@ -41,7 +42,7 @@ import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
 
 export default (writeAccess) => {
-  return async (context: HookContext): Promise<HookContext> => {
+  return async (context: HookContext<Application>) => {
     const { params, app } = context
     if (context.params.isInternal) return context
     const loggedInUser = params.user as UserType
@@ -67,7 +68,7 @@ export default (writeAccess) => {
     }
     if (!projectId) projectId = params.id || context.id
     // @ts-ignore
-    const projectPermissionResult = (await app.service(projectPermissionPath)._find({
+    const projectPermissionResult = (await app.service(projectPermissionPath).find({
       query: {
         projectId: projectId,
         userId: loggedInUser.id,

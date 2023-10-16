@@ -133,11 +133,9 @@ const execute = () => {
     const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
-    if (data && entity) {
-      timeSeriesMocapLastSeen.set(peerID, Date.now())
-      setComponent(entity, MotionCaptureRigComponent)
-      solveMotionCapturePose(data.results.poseWorldLandmarks, data.results.poseLandmarks, entity)
-    }
+    timeSeriesMocapLastSeen.set(peerID, Date.now())
+    setComponent(entity, MotionCaptureRigComponent)
+    solveMotionCapturePose(entity, data?.results.poseWorldLandmarks, data?.results.poseLandmarks)
 
     mocapData.clear() // TODO: add a predictive filter and remove this
   }

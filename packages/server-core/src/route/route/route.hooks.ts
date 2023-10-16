@@ -32,6 +32,7 @@ import {
   routeQueryValidator
 } from '@etherealengine/engine/src/schemas/route/route.schema'
 
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
 import {
   routeDataResolver,
@@ -48,7 +49,7 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(routeQueryValidator), schemaHooks.resolveQuery(routeQueryResolver)],
-    find: [],
+    find: [enableClientPagination()],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('admin', 'admin')),
