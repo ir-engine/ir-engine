@@ -373,6 +373,11 @@ const redis = {
   password: process.env.REDIS_PASSWORD == '' || process.env.REDIS_PASSWORD == null ? null! : process.env.REDIS_PASSWORD!
 }
 
+const scopes = {
+  guest: process.env.DEFAULT_GUEST_SCOPES?.split(',') || [],
+  user: process.env.DEFAULT_USER_SCOPES?.split(',') || []
+}
+
 const blockchain = {
   blockchainUrl: process.env.BLOCKCHAIN_URL,
   blockchainUrlSecret: process.env.BLOCKCHAIN_URL_SECRET
@@ -399,6 +404,7 @@ const config = {
   server,
   taskserver,
   redis,
+  scopes,
   blockchain,
   kubernetes: {
     enabled: kubernetesEnabled,
