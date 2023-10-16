@@ -70,7 +70,8 @@ export class IdentityProviderService<
 
   async create(data: IdentityProviderData, params?: IdentityProviderParams) {
     if (!params) params = {}
-    let { token, type } = data
+    const { token } = data
+    let { type } = data
     let user
     let authResult
 
@@ -240,16 +241,6 @@ export class IdentityProviderService<
     // DRC
 
     if (type === 'guest') {
-      if (appConfig.scopes.guest.length) {
-        const data = appConfig.scopes.guest.map((el) => {
-          return {
-            type: el,
-            userId
-          }
-        })
-        await this.app.service(scopePath).create(data)
-      }
-
       result.accessToken = await this.app
         .service('authentication')
         .createAccessToken({}, { subject: result.id.toString() })
