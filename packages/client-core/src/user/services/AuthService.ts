@@ -581,7 +581,7 @@ export const AuthService = {
   async removeConnection(identityProviderId: number, userId: UserID) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     try {
-      await Engine.instance.api.service(identityProviderPath)._remove(identityProviderId)
+      await Engine.instance.api.service(identityProviderPath).remove(identityProviderId)
       return AuthService.loadUserData(userId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

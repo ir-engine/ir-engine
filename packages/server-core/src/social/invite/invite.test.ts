@@ -64,7 +64,7 @@ describe.skip('invite service', () => {
 
   after(async () => {
     // Remove test user
-    await app.service(identityProviderPath)._remove(null, {
+    await app.service(identityProviderPath).remove(null, {
       query: {
         userId: user.userId
       }

@@ -194,11 +194,11 @@ export default {
     create: [
       () => schemaHooks.validateData(identityProviderDataValidator),
       schemaHooks.resolveData(identityProviderDataResolver),
-      validateAuthParams,
-      addIdentityProviderType,
       iff((context: HookContext<IdentityProviderService>) => !context.existingUser, createNewUser),
       (context: HookContext<IdentityProviderService>) =>
-        ((context.data as IdentityProviderData).userId = context.existingUser!.id)
+        ((context.data as IdentityProviderData).userId = context.existingUser!.id),
+      validateAuthParams,
+      addIdentityProviderType
     ],
     update: [iff(isProvider('external'), checkIdentityProvider)],
     patch: [

@@ -84,7 +84,7 @@ const afterInviteFind = async (app: Application, result: Paginated<InviteType>) 
 }
 
 export const inviteReceived = async (app: Application, query) => {
-  const identityProviders = (await app.service(identityProviderPath)._find({
+  const identityProviders = (await app.service(identityProviderPath).find({
     query: {
       userId: query.userId
     }
