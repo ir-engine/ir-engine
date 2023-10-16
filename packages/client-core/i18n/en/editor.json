@@ -738,14 +738,14 @@
       "lbl-loop": "Loop"
     },
     "systemnode": {
+      "name": "Systems",
       "description": "Attach script.",
-      "lbl-filePath": "Url",
+      "lbl-name": "Name",
       "lbl-insertUUID": "Reference System",
       "lbl-insertOrder": "Insertion Order",
       "lbl-enableClient": "Client",
       "lbl-enableServer": "Server",
-      "lbl-args": "Args",
-      "error-url": "Error Loading Script From URL"
+      "lbl-args": "Args"
     },
     "portal": {
       "lbl-portal": "Linked Portal",

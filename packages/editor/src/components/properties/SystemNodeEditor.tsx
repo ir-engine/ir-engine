@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { validatePath } from '@etherealengine/common/src/utils/validatePath'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { ComponentType, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   AnimationSystemGroup,
   InputSystemGroup,
@@ -38,9 +37,11 @@ import { SystemComponent } from '@etherealengine/engine/src/scene/components/Sys
 
 import ExtensionIcon from '@mui/icons-material/Extension'
 
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { convertSystemComponentJSON } from '@etherealengine/engine/src/scene/components/SystemComponent'
+import { getState } from '@etherealengine/hyperflux'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
-import ScriptInput from '../inputs/ScriptInput'
 import { SelectInput } from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperties, commitProperty } from './Util'
@@ -80,19 +81,80 @@ const insertTypes = [
 ]
 
 export const SystemNodeEditor: EditorComponentType = (props) => {
-  const [isPathValid, setPathValid] = useState(true)
   const { t } = useTranslation()
 
-  const onChangePath = (path) => {
-    if (validatePath(path)) {
-      commitProperties(SystemComponent, { filePath: path })
-      setPathValid(true)
-    } else {
-      setPathValid(false)
-    }
+  const [systemsState, setSystems] = useState(
+    [] as {
+      label: string
+      data: ComponentType<typeof SystemComponent>
+      value: number
+    }[]
+  )
+
+  const [selected, setSelected] = useState(0)
+
+  const onSystemChange = (systemIndex: number) => {
+    setSelected(systemIndex)
+    commitProperties(SystemComponent, systemsState[systemIndex].data)
   }
 
   const systemComponent = useComponent(props.entity, SystemComponent).value
+
+  useEffect(() => {
+    const sceneData = getState(SceneState).sceneData!
+    const systems = [] as {
+      label: string
+      data: ComponentType<typeof SystemComponent>
+      value: number
+    }[]
+
+    for (const entity of Object.values(sceneData.scene.entities)) {
+      for (const component of entity.components) {
+        if (component.name === 'system') {
+          const systemProps = convertSystemComponentJSON(component.props)
+
+          /**
+           * Create a shortest unique label for this system
+           * filePath is a full path to the system file. We want to create a label that is unique and short
+           * We will start with the last part of the path and check if it is unique. If it is not unique, we will
+           * prepend the previous part of the path and check again. We will continue this until we have a unique label
+           */
+
+          const filePathSplit = systemProps.filePath.split('/')
+          let label = filePathSplit.pop() || ''
+
+          // eslint-disable-next-line no-constant-condition
+          while (true) {
+            let isDuplicateLabel = false
+            for (let i = 0; i < systems.length; i++) {
+              if (systems.length && systems[i].label === label && systems[i].data.filePath !== systemProps.filePath) {
+                isDuplicateLabel = true
+                break
+              }
+            }
+
+            if (isDuplicateLabel) {
+              const previous = filePathSplit.pop()
+              if (previous) {
+                label = previous + '/' + label
+              } else {
+                // This is already a full path, Cannot extend the label any further
+                break
+              }
+            } else {
+              break
+            }
+          }
+          systems.push({
+            label: label,
+            data: systemProps,
+            value: systems.length
+          })
+        }
+      }
+    }
+    setSystems(systems)
+  }, [])
 
   return (
     <NodeEditor
@@ -100,9 +162,13 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.systemnode.name')}
       description={t('editor:properties.systemnode.description')}
     >
-      <InputGroup name="Script" label={t('editor:properties.systemnode.lbl-filePath')}>
-        <ScriptInput value={systemComponent.filePath} onChange={onChangePath} />
-        {!isPathValid && <div>{t('editor:properties.systemnode.error-url')}</div>}
+      <InputGroup name="Systems" label={t('editor:properties.systemnode.lbl-name')}>
+        <SelectInput
+          key={props.entity}
+          options={systemsState}
+          onChange={onSystemChange}
+          value={systemsState.length ? systemsState[selected].value : ''}
+        />
       </InputGroup>
       <InputGroup name="insertUUID" label={t('editor:properties.systemnode.lbl-insertUUID')}>
         <SelectInput
