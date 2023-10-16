@@ -456,7 +456,7 @@
           "name": "directional-light",
           "props": {
             "color": 16777215,
-            "intensity": 1.0,
+            "intensity": 1,
             "cameraFar": 200,
             "castShadow": true,
             "shadowBias": -0.00001,
@@ -984,65 +984,6 @@
       "index": 15,
       "name": "Portal"
     },
-    "ce1ad9ab-d24a-43a1-9792-ec6ea4f92ac7": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0,
-              "w": 1
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "media",
-          "props": {
-            "controls": false,
-            "autoplay": true,
-            "resources": [
-              "__$project$__/default-project/assets/apartment-ambience.mp3"
-            ],
-            "volume": 1,
-            "synchronize": true,
-            "playMode": "loop",
-            "isMusic": false,
-            "seekTime": 0
-          }
-        },
-        {
-          "name": "audio",
-          "props": {
-            "distanceModel": "inverse",
-            "rolloffFactor": 2,
-            "refDistance": 20,
-            "maxDistance": 10000,
-            "coneInnerAngle": 360,
-            "coneOuterAngle": 0,
-            "coneOuterGain": 0
-          }
-        }
-      ],
-      "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 16,
-      "name": "Audio - Ambience"
-    },
     "0f5b5b02-67f9-4682-b687-d8ef95448c16": {
       "components": [
         {
@@ -1091,7 +1032,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 17,
+      "index": 16,
       "name": "Trigger Volume"
     },
     "d8a020bd-0795-44f2-b00a-97c6bc9984a7": {
@@ -1142,7 +1083,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 18,
+      "index": 17,
       "name": "Door"
     },
     "61304262-c00c-4f1f-80a2-e4163d97a007": {
@@ -1217,7 +1158,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 19,
+      "index": 18,
       "name": "Model"
     },
     "9d06e7cb-bd8f-4537-80ad-d62dcc8b89c3": {
@@ -1268,7 +1209,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 20,
+      "index": 19,
       "name": "VCKey Trigger Volume"
     },
     "1f374932-e649-4b30-b6e7-de990fdee2a1": {
@@ -1325,7 +1266,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 21,
+      "index": 20,
       "name": "New EnvMap Bake"
     }
   },
