@@ -38,10 +38,6 @@ import { KnexAdapterParams } from '@feathersjs/knex'
 export interface IdentityProviderParams extends KnexAdapterParams<IdentityProviderQuery> {
   authentication?: any
 }
-
-/**
- * A class for IdentityProvider service
- */
 export class IdentityProviderService<
   T = IdentityProviderType,
   ServiceParams extends Params = IdentityProviderParams

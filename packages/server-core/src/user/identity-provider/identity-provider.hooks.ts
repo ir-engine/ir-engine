@@ -24,14 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  IdentityProviderData,
   IdentityProviderType,
   identityProviderDataValidator,
   identityProviderPatchValidator,
   identityProviderPath,
   identityProviderQueryValidator
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 import appConfig from '../../appconfig'
@@ -42,9 +42,10 @@ import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { random } from 'lodash'
-import { Application } from '../../../declarations'
+import { HookContext } from '../../../declarations'
 import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
+import { IdentityProviderService } from './identity-provider.class'
 import {
   identityProviderDataResolver,
   identityProviderExternalResolver,
@@ -53,41 +54,40 @@ import {
   identityProviderResolver
 } from './identity-provider.resolvers'
 
-async function checkIdentityProvider(context: HookContext): Promise<HookContext> {
+/**
+ * If trying to CRUD multiple identity-providers (e.g. patch all IP's belonging to a user),
+ * make `params.query.userId` the ID of the calling user, so no one can alter anyone else's IPs.
+ */
+async function checkIdentityProvider(context: HookContext<IdentityProviderService>): Promise<HookContext> {
   if (context.id) {
-    // If trying to CRUD a specific identity-provider, throw 404 if the user doesn't own it
-    const thisIdentityProvider = (await context.app
-      .service(identityProviderPath)
-      .get(context.id)) as IdentityProviderType
+    const thisIdentityProvider = await context.app.service(identityProviderPath).get(context.id)
     if (
       !context.params.user ||
       !thisIdentityProvider ||
       (context.params.user && thisIdentityProvider && context.params.user.id !== thisIdentityProvider.userId)
     )
-      throw new NotFound()
+      throw new MethodNotAllowed('authenticated user is not owner of this identity provider')
   } else {
-    // If trying to CRUD multiple identity-providers, e.g. patch all IP's belonging to a user, make params.query.userId
-    // the ID of the calling user, so no one can alter anyone else's IPs.
     const userId = context.params[identityProviderPath]?.userId
     if (!userId) throw new NotFound()
     if (!context.params.query) context.params.query = {}
     context.params.query.userId = userId
   }
-  if (context.data) context.data = { password: context.data.password } //If patching externally, should only be able to change password
   return context
 }
 
-async function checkOnlyIdentityProvider(context: HookContext): Promise<HookContext> {
+/**
+ * do not allow to remove the identity providers in bulk
+ * and we want to disallow removing the last identity provider for non-guest users
+ */
+async function checkOnlyIdentityProvider(context: HookContext<IdentityProviderService>) {
   if (!context.id) {
-    // do not allow to remove identity providers in bulk
     throw new MethodNotAllowed('Cannot remove multiple providers together')
   }
-  const thisIdentityProvider = (await context.app.service(identityProviderPath).get(context.id)) as IdentityProviderType
+  const thisIdentityProvider = await context.app.service(identityProviderPath).get(context.id)
 
   if (!thisIdentityProvider) throw new Forbidden('You do not have any identity provider')
 
-  // we only want to disallow removing the last identity provider if it is not a guest
-  // since the guest user will be destroyed once they log in
   if (thisIdentityProvider.type === 'guest') return context
 
   const providers = await context.app
@@ -102,12 +102,15 @@ async function checkOnlyIdentityProvider(context: HookContext): Promise<HookCont
 
 /** (BEFORE) CREATE HOOKS **/
 
-// async function validateAuthParams(context:HookContext<IdentityProviderService>) {
-async function validateAuthParams(context: HookContext) {
-  let userId = context.data.userId
+async function validateAuthParams(context: HookContext<IdentityProviderService>) {
+  if (Array.isArray(context.data)) {
+    throw new MethodNotAllowed('identity-provider create works only with singular entries')
+  }
+
+  let userId = context.data!.userId
 
   if (context.params.authentication) {
-    const authResult = await (context.app.service('authentication') as any).strategies.jwt.authenticate(
+    const authResult = await context.app.service('authentication').strategies.jwt.authenticate!(
       { accessToken: context.params.authentication.accessToken },
       {}
     )
@@ -115,7 +118,7 @@ async function validateAuthParams(context: HookContext) {
   }
 
   if (!userId) {
-    return
+    throw new BadRequest('userId not found')
   }
 
   const user = await context.app.service(userPath).get(userId)
@@ -123,10 +126,14 @@ async function validateAuthParams(context: HookContext) {
   context.existingUser = user
 }
 
-async function addIdentityProviderType(context: HookContext) {
+async function addIdentityProviderType(context: HookContext<IdentityProviderService>) {
   const isAdmin = context.existingUser && (await checkScope(context.existingUser, 'admin', 'admin'))
-  if (!isAdmin && context.params!.provider && !['password', 'email', 'sms'].includes(context.data.type)) {
-    context.data.type = 'guest'
+  if (
+    !isAdmin &&
+    context.params!.provider &&
+    !['password', 'email', 'sms'].includes((context!.data as IdentityProviderData).type)
+  ) {
+    ;(context.data as IdentityProviderData).type = 'guest'
   }
 
   const adminScopes = await context.app.service(scopePath).find({
@@ -135,15 +142,14 @@ async function addIdentityProviderType(context: HookContext) {
     }
   })
 
-  if (adminScopes.total === 0 && isDev && context.data.type !== 'guest') {
-    // doubt here - it should be the first if condition
-    context.data.type = 'admin'
+  if (adminScopes.total === 0 && isDev && (context.data as IdentityProviderData).type !== 'guest') {
+    ;(context.data as IdentityProviderData).type = 'admin'
   }
 }
 
-async function createNewUser(context: HookContext) {
-  const isGuest = context.data.type === 'guest'
-  const avatars = await context.app.service(avatarPath).find({ isInternal: true, query: { $limit: 1000 } } as any)
+async function createNewUser(context: HookContext<IdentityProviderService>) {
+  const isGuest = (context.data as IdentityProviderType).type === 'guest'
+  const avatars = await context.app.service(avatarPath).find({ isInternal: true, query: { $limit: 1000 } })
 
   const newUser = await context.app.service(userPath).create({
     isGuest,
@@ -155,18 +161,18 @@ async function createNewUser(context: HookContext) {
 
 /** (AFTER) CREATE HOOKS **/
 
-async function addScopes(context: HookContext) {
-  if (isDev && context.data.type === 'admin') {
+async function addScopes(context: HookContext<IdentityProviderService>) {
+  if (isDev && (context.data as IdentityProviderType).type === 'admin') {
     const data = scopeTypeSeed.map(({ type }) => ({ userId: context.existingUser!.id, type }))
     await context.app.service(scopePath).create(data)
   }
 }
 
-async function createAccessToken(context: HookContext) {
-  if (!context.result!.accessToken) {
-    context.result.accessToken = await (context.app as Application)
+async function createAccessToken(context: HookContext<IdentityProviderService>) {
+  if (!(context.result as IdentityProviderType).accessToken) {
+    ;(context.result as IdentityProviderType).accessToken = await context.app
       .service('authentication')
-      .createAccessToken({}, { subject: context.result.id.toString() })
+      .createAccessToken({}, { subject: (context.result as IdentityProviderType).id.toString() })
   }
 }
 
@@ -190,8 +196,9 @@ export default {
       schemaHooks.resolveData(identityProviderDataResolver),
       validateAuthParams,
       addIdentityProviderType,
-      iff((context: HookContext) => !context.existingUser, createNewUser),
-      (context: HookContext) => (context.data.userId = context.existingUser!.id)
+      iff((context: HookContext<IdentityProviderService>) => !context.existingUser, createNewUser),
+      (context: HookContext<IdentityProviderService>) =>
+        ((context.data as IdentityProviderData).userId = context.existingUser!.id)
     ],
     update: [iff(isProvider('external'), checkIdentityProvider)],
     patch: [
