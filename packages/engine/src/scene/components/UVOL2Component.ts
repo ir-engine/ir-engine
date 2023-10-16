@@ -254,8 +254,9 @@ const resolvePath = (
   return resolvedPath
 }
 
+const KEY_PADDING = 7
 const createKey = (target: string, index: number) => {
-  return target + index.toString().padStart(7, '0')
+  return target + index.toString().padStart(KEY_PADDING, '0')
 }
 
 function UVOL2Reactor() {
@@ -742,6 +743,8 @@ function UVOL2Reactor() {
         oldGeometry.deleteAttribute(key)
       }
     }
+
+    // Dispose method exists only on rendered geometries
     oldGeometry.dispose()
 
     const oldAttributeKey = oldGeometry.attributes[name]?.name
@@ -841,7 +844,7 @@ function UVOL2Reactor() {
     const geometryFrame = currentTime * manifest.current.geometry.targets[geometryTarget].frameRate
     const keyframeAIndex = Math.floor(geometryFrame)
     const keyframeBIndex = Math.ceil(geometryFrame)
-    const mixRatio = geometryFrame - keyframeAIndex
+    let mixRatio = geometryFrame - keyframeAIndex
 
     const keyframeA = getAttribute('position', geometryTarget, keyframeAIndex)
     const keyframeB = getAttribute('position', geometryTarget, keyframeBIndex)
@@ -857,6 +860,14 @@ function UVOL2Reactor() {
       ;(mesh.material as ShaderMaterial).uniforms.mixRatio.value = 0
       return
     } else if (keyframeA && keyframeB) {
+      const keyframeATarget = keyframeA.name.slice(0, -KEY_PADDING)
+      const keyframeBTarget = keyframeB.name.slice(0, -KEY_PADDING)
+      if (keyframeATarget === keyframeBTarget && keyframeATarget !== geometryTarget) {
+        // If both keyframes are of different target, update the mixRatio
+        const _geometryFrame = currentTime * manifest.current.geometry.targets[keyframeATarget].frameRate
+        const _keyframeAIndex = Math.floor(_geometryFrame)
+        mixRatio = _geometryFrame - _keyframeAIndex
+      }
       setAttribute('keyframeA', keyframeA)
       setAttribute('keyframeB', keyframeB)
       ;(mesh.material as ShaderMaterial).uniforms.mixRatio.value = mixRatio
