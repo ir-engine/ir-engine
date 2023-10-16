@@ -23,17 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext, NextFunction } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import verifyScope from '../../hooks/verify-scope'
 
 import {
+  InstanceData,
+  InstanceType,
   instanceDataValidator,
   instancePatchValidator,
+  instancePath,
   instanceQueryValidator
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { BadRequest } from '@feathersjs/errors'
+import { HookContext } from '../../../declarations'
+import isAction from '../../hooks/is-action'
+import { InstanceService, generateRoomCode } from './instance.class'
 import {
   instanceDataResolver,
   instanceExternalResolver,
@@ -42,57 +49,108 @@ import {
   instanceResolver
 } from './instance.resolvers'
 
-const applyLocationNameSort = async (context: HookContext, next: NextFunction) => {
-  await next() // Read more about execution of hooks: https://github.com/feathersjs/hooks#flow-control-with-multiple-hooks
+/**
+ * Sort result by location name
+ * @param context
+ * @returns
+ */
+const sortByLocationName = async (context: HookContext<InstanceService>) => {
+  if (context.params.query?.$sort?.['locationName']) {
+    const sort = context.params.query.$sort['locationName']
+    delete context.params.query.$sort['locationName']
 
-  const hasLocationNameSort =
-    context.params.query && context.params.query.$sort && context.params.query.$sort['locationName']
+    const query = context.service.createQuery(context.params)
 
-  if (hasLocationNameSort) {
-    const { dispatch } = context
-    const data = dispatch.data ? dispatch.data : dispatch
+    query.join(locationPath, `${locationPath}.id`, `${instancePath}.locationId`)
+    query.orderBy(`${locationPath}.name`, sort === 1 ? 'asc' : 'desc')
+    query.select(`${instancePath}.*`)
 
-    data.sort((a, b) => {
-      let fa = a['locationName'],
-        fb = b['locationName']
-
-      if (typeof fa === 'string') {
-        fa = fa.toLowerCase()
-        fb = fb.toLowerCase()
-      }
-
-      if (fa < fb) {
-        return -1
-      }
-      if (fa > fb) {
-        return 1
-      }
-      return 0
-    })
-
-    if (context.params.query.$sort['locationName'] === 1) {
-      data.reverse()
-    }
+    context.params.knex = query
   }
+}
+
+/**
+ * Add location search to query
+ * @param context
+ * @returns
+ */
+const addLocationSearchToQuery = async (context: HookContext<InstanceService>) => {
+  const { action, search } = context.params.query || {}
+  const foundLocations = search
+    ? ((await context.app.service(locationPath)._find({
+        query: { name: { $like: `%${search}%` } },
+        paginate: false
+      })) as any as LocationType[])
+    : []
+
+  context.params.query = {
+    ...context.params.query,
+    ended: false,
+    $or: [
+      {
+        ipAddress: {
+          $like: `%${search}%`
+        }
+      },
+      {
+        locationId: {
+          $in: foundLocations.map((item) => item.id)
+        }
+      }
+    ]
+  }
+}
+
+/**
+ * Ensure newly created instance has a unique room code
+ * @param context
+ * @returns
+ */
+const addRoomCode = async (context: HookContext<InstanceService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data: InstanceData[] = Array.isArray(context.data) ? context.data : [context.data]
+
+  for (const item of data) {
+    let existingInstances: InstanceType[] = []
+
+    do {
+      item.roomCode = generateRoomCode()
+      // We need to have unique room codes therefore checking if room code already exists
+      existingInstances = (await context.service._find({
+        query: {
+          roomCode: item.roomCode,
+          ended: false
+        },
+        paginate: false
+      })) as any as InstanceType[]
+    } while (existingInstances.length > 0)
+  }
+
+  return context
 }
 
 export default {
   around: {
-    all: [
-      applyLocationNameSort,
-      schemaHooks.resolveExternal(instanceExternalResolver),
-      schemaHooks.resolveResult(instanceResolver)
-    ]
+    all: [schemaHooks.resolveExternal(instanceExternalResolver), schemaHooks.resolveResult(instanceResolver)]
   },
 
   before: {
     all: [() => schemaHooks.validateQuery(instanceQueryValidator), schemaHooks.resolveQuery(instanceQueryResolver)],
-    find: [],
+    find: [
+      iff(isProvider('external') && isAction('admin'), verifyScope('admin', 'admin'), addLocationSearchToQuery),
+      discardQuery('search'),
+      discardQuery('action'),
+      sortByLocationName
+    ],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(instanceDataValidator),
-      schemaHooks.resolveData(instanceDataResolver)
+      schemaHooks.resolveData(instanceDataResolver),
+      addRoomCode
     ],
     update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
     patch: [

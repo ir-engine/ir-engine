@@ -78,7 +78,7 @@ describe('scene.test', () => {
     it('should find the scene data', async () => {
       const { data } = (await app
         .service(sceneDataPath)
-        .find({ query: { metadataOnly: false } })) as Paginated<SceneDataType>
+        .find({ query: { projectName, metadataOnly: false } })) as Paginated<SceneDataType>
       assert.deepStrictEqual(parsedSceneData, data.find((entry) => entry.name === sceneName)!.scene)
       assert(data.length > 0)
       data.forEach((scene) => {
@@ -92,6 +92,7 @@ describe('scene.test', () => {
     it('should get all scenes for a project scenes with metadata only', async function () {
       const { data } = (await app.service(sceneDataPath).find({
         query: {
+          projectName,
           metadataOnly: true
         }
       })) as Paginated<SceneDataType>
