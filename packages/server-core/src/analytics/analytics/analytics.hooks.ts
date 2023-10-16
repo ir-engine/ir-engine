@@ -37,6 +37,7 @@ import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { Knex } from 'knex'
 import { HookContext } from '../../../declarations'
+import isAction from '../../hooks/is-action'
 import verifyScope from '../../hooks/verify-scope'
 import { AnalyticsService } from './analytics.class'
 import {
@@ -46,10 +47,6 @@ import {
   analyticsQueryResolver,
   analyticsResolver
 } from './analytics.resolvers'
-
-function checkQueryAction(action: 'dailyUsers' | 'dailyNewUsers') {
-  return (context: HookContext<AnalyticsService>) => context.params.query?.action === action
-}
 
 async function addDailyUsers(context: HookContext<AnalyticsService>) {
   const limit = context.params.query?.$limit || 30
@@ -123,8 +120,8 @@ export default {
       schemaHooks.resolveQuery(analyticsQueryResolver)
     ],
     find: [
-      iff(checkQueryAction('dailyUsers'), addDailyUsers),
-      iff(checkQueryAction('dailyNewUsers'), addDailyNewUsers),
+      iff(isAction('dailyUsers'), addDailyUsers),
+      iff(isAction('dailyNewUsers'), addDailyNewUsers),
       discardQuery('action')
     ],
     get: [],
