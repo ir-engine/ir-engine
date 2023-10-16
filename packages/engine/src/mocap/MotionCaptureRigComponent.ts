@@ -47,6 +47,7 @@ export const MotionCaptureRigComponent = defineComponent({
 
     useEffect(() => {
       for (const boneName of VRMHumanBoneList) {
+        //causes issues with ik solves, commenting out for now
         //proxifyVector3(AvatarRigComponent.rig[boneName].position, entity)
         //proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity)
       }

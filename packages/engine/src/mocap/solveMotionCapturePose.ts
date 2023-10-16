@@ -401,13 +401,9 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   shoulderObject.matrixWorld.decompose(shoulderObject.position, shoulderObject.quaternion, shoulderObject.scale)
 
   if (trackingLowerBody) {
-    hipObject.quaternion.copy(shoulderWorldQuaternion)
     spineObject.quaternion.identity()
     shoulderObject.quaternion.identity()
-    const hipDirection = new Quaternion().setFromUnitVectors(
-      V_100,
-      new Vector3().subVectors(hipright, hipleft).setY(0).normalize()
-    )
+    const hipDirection = new Quaternion().setFromUnitVectors(V_100, new Vector3().subVectors(hipright, hipleft).setY(0))
     MotionCaptureRigComponent.hipRotation.x[entity] = hipDirection.x
     MotionCaptureRigComponent.hipRotation.y[entity] = hipDirection.y
     MotionCaptureRigComponent.hipRotation.z[entity] = hipDirection.z
@@ -420,7 +416,15 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
       MotionCaptureRigComponent.hipRotation.z[entity],
       MotionCaptureRigComponent.hipRotation.w[entity]
     )
-    spineObject.quaternion.copy(hipToShoulderQuaternion)
+    if (leftHip.visibility! + rightHip.visibility! > 1) spineObject.quaternion.copy(hipToShoulderQuaternion)
+    else {
+      spineObject.quaternion.identity()
+      const fallbackShoulderQuaternion = new Quaternion().setFromUnitVectors(
+        V_100,
+        new Vector3().subVectors(shoulderRight, shoulderLeft)
+      )
+      shoulderObject.quaternion.copy(fallbackShoulderQuaternion)
+    }
   }
 
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipObject.quaternion.x
