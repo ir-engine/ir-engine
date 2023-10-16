@@ -42,7 +42,6 @@ export interface IdentityProviderParams extends KnexAdapterParams<IdentityProvid
 /**
  * A class for IdentityProvider service
  */
-
 export class IdentityProviderService<
   T = IdentityProviderType,
   ServiceParams extends Params = IdentityProviderParams
