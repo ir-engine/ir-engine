@@ -31,11 +31,12 @@ import {
   loginTokenPatchValidator,
   loginTokenQueryValidator
 } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import { HookContext } from '../../../declarations'
 
 import { BadRequest } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
 import moment from 'moment'
 import { toDateTimeSql } from '../../util/datetime-sql'
+import { LoginTokenService } from './login-token.class'
 import {
   loginTokenDataResolver,
   loginTokenExternalResolver,
@@ -44,11 +45,13 @@ import {
   loginTokenResolver
 } from './login-token.resolvers'
 
-const checkIdentityProvider = async (context: HookContext): Promise<HookContext> => {
-  const { data, params } = context
-  if (!params.user || params.user.isGuest) throw new BadRequest('Can only generate a login link for a non-guest user')
-  data.identityProviderId = params.user.identityProviders[0].id
-  data.expiresAt = toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
+const checkIdentityProvider = (context: HookContext<LoginTokenService>) => {
+  if (!context.params.user || context.params.user.isGuest)
+    throw new BadRequest('This can only generate a login link for a non-guest user')
+  const data = Array.isArray(context.data) ? context.data : [context.data]
+  if (data.length === 0 || !data[0]) data[0] = {}
+  data[0].identityProviderId = context.params.user.identityProviders[0].id
+  data[0].expiresAt = toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
   return context
 }
 
