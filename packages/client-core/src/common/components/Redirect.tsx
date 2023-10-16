@@ -23,19 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import React, { useEffect } from 'react'
+import { RouterState } from '../services/RouterService'
 
-import { BotData, BotPatch, BotQuery, BotType } from '@etherealengine/engine/src/schemas/bot/bot.schema'
-
-import { KnexAdapterParams } from '@feathersjs/knex'
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface BotParams extends KnexAdapterParams<BotQuery> {}
-
-export class BotService<T = BotType, ServiceParams extends Params = BotParams> extends KnexService<
-  BotType,
-  BotData,
-  BotParams,
-  BotPatch
-> {}
+export const Redirect = (props: { to: string }) => {
+  useEffect(() => {
+    RouterState.navigate(props.to)
+  })
+  return <></>
+}

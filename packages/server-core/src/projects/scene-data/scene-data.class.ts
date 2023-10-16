@@ -50,7 +50,7 @@ export class SceneDataService
 
     const projects = (await this.app
       .service(projectPath)
-      .find({ ...params, query: { name: params?.query?.projectName }, paginate: false })) as ProjectType[]
+      .find({ ...params, query: { name: params?.query?.projectName }, paginate: false })) as any as ProjectType[]
     const scenes = await Promise.all(
       projects.map(
         (project) =>

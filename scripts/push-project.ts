@@ -67,7 +67,7 @@ cli.main(async () => {
     await app.setup()
     const { userId, projectId, reset, commitSHA, storageProviderName, jobId } = options
     const user = await app.service(userPath).get(userId)
-    const project = await app.service(projectPath)._get(projectId)
+    const project = await app.service(projectPath).get(projectId)
     await pushProjectToGithub(app, project, user, reset, commitSHA, storageProviderName || undefined, true, jobId)
     cli.exit(0)
   } catch (err) {
