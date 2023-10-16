@@ -36,17 +36,12 @@ import {
 import { API } from '@etherealengine/client-core/src/API'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
-import {
-  NotificationAction,
-  NotificationActions
-} from '@etherealengine/client-core/src/common/services/NotificationService'
+import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
 import EngineTW from '../engine_tw'
@@ -119,24 +114,11 @@ const AppPage = () => {
 
 const TailwindPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
+  const notificationstate = useHookstate(getMutableState(NotificationState))
 
   useEffect(() => {
-    const receptor = (action): any => {
-      // @ts-ignore
-      matches(action).when(NotificationAction.notify.matches, (action) => {
-        AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
-        notistackRef.current?.enqueueSnackbar(action.message, {
-          variant: action.options.variant,
-          action: NotificationActions[action.options.actionType ?? 'default']
-        })
-      })
-    }
-    addActionReceptor(receptor)
-
-    return () => {
-      removeActionReceptor(receptor)
-    }
-  }, [])
+    notificationstate.snackbar.set(notistackRef.current)
+  }, [notistackRef.current])
 
   return (
     <EngineTW>
