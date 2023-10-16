@@ -1,6 +1,6 @@
 ---
 name: Installation Tech Support
-description: I'm having difficulty installing Ethereal Engine
+about: I'm having difficulty installing Ethereal Engine
 title: '[Ticket]: '
 labels: '[ticket]'
 assignees: ''
