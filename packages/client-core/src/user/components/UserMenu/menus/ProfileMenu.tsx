@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // import * as polyfill from 'credential-handler-polyfill'
+import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
@@ -469,21 +470,26 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         )}
 
         {loginLink.value.length > 0 && (
-          <InputText
-            label={t('user:usermenu.profile.loginLink')}
-            value={loginLink.value}
-            sx={{ mt: 2 }}
-            endIcon={<Icon type="ContentCopy" />}
-            startIcon={<Icon type="Refresh" />}
-            startIconTitle={t('user:usermenu.profile.createLoginLink')}
-            onStartIconClick={createLoginLink}
-            onEndIconClick={() => {
-              navigator.clipboard.writeText(loginLink.value)
-              NotificationService.dispatchNotify(t('user:usermenu.profile.loginLinkCopied'), {
-                variant: 'success'
-              })
-            }}
-          />
+          <div>
+            <InputText
+              label={t('user:usermenu.profile.loginLink')}
+              value={loginLink.value}
+              sx={{ mt: 2 }}
+              endIcon={<Icon type="ContentCopy" />}
+              startIcon={<Icon type="Refresh" />}
+              startIconTitle={t('user:usermenu.profile.createLoginLink')}
+              onStartIconClick={createLoginLink}
+              onEndIconClick={() => {
+                navigator.clipboard.writeText(loginLink.value)
+                NotificationService.dispatchNotify(t('user:usermenu.profile.loginLinkCopied'), {
+                  variant: 'success'
+                })
+              }}
+            />
+            <div className={styles.QRContainer}>
+              <QRCodeSVG height={176} width={200} value={loginLink.value} />
+            </div>
+          </div>
         )}
 
         {!hideLogin && (
