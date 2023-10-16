@@ -35,7 +35,7 @@ import {
   BotCommandType,
   botCommandPath
 } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 import { botCommandDataResolver } from '../bot-command/bot-command.resolvers'
@@ -49,7 +49,7 @@ export const botExternalResolver = resolve<BotType, HookContext>({
   }),
   instance: virtual(async (bot, context) => {
     if (context.event !== 'removed' && bot.instanceId)
-      return (await context.app.service(instancePath)._get(bot.instanceId)) as any as InstanceType
+      return (await context.app.service(instancePath).get(bot.instanceId)) as any as InstanceType
   }),
   botCommands: virtual(async (bot, context) => {
     if (context.event !== 'removed' && bot.id)
@@ -67,6 +67,9 @@ export const botExternalResolver = resolve<BotType, HookContext>({
 export const botDataResolver = resolve<BotType, HookContext>({
   id: async () => {
     return v4()
+  },
+  instanceId: async (instanceId) => {
+    return instanceId ?? ('' as InstanceID)
   },
   botCommands: async (value, bot, context) => {
     const botCommands: BotCommandData[] = []

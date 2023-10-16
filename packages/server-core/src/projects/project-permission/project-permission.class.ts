@@ -23,17 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Id, Paginated, Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
 
-import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
-
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
 
 import {
   ProjectPermissionData,
@@ -42,7 +34,6 @@ import {
   ProjectPermissionType
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -55,16 +46,9 @@ export interface ProjectPermissionParams extends KnexAdapterParams<ProjectPermis
 export class ProjectPermissionService<
   T = ProjectPermissionType,
   ServiceParams extends Params = ProjectPermissionParams
-> extends KnexAdapter<ProjectPermissionType, ProjectPermissionData, ProjectPermissionParams, ProjectPermissionPatch> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-
+> extends KnexService<ProjectPermissionType, ProjectPermissionData, ProjectPermissionParams, ProjectPermissionPatch> {
   async makeRandomProjectOwnerIfNone(projectId) {
-    const projectOwners = (await super._find({
+    const projectOwners = (await super.find({
       query: {
         projectId: projectId,
         type: 'owner'
@@ -73,119 +57,16 @@ export class ProjectPermissionService<
     })) as any as ProjectPermissionType[]
 
     if (projectOwners.length === 0) {
-      const newOwner = (await super._find({
+      const newOwner = (await super.find({
         query: {
           projectId: projectId,
           $limit: 1
         }
       })) as Paginated<ProjectPermissionType>
       if (newOwner.data.length > 0)
-        await super._patch(newOwner.data[0].id, {
+        await super.patch(newOwner.data[0].id, {
           type: 'owner'
         })
     }
-  }
-
-  async find(params?: ProjectPermissionParams) {
-    if (!params) params = {}
-    if (!params.query) params.query = {}
-
-    const loggedInUser = params.user
-
-    if (!loggedInUser) throw new BadRequest('User missing from request')
-
-    if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return super._find(params)
-
-    if (params.query.projectId) {
-      const permissionStatus = (await super._find({
-        query: {
-          projectId: params.query.projectId,
-          userId: loggedInUser.id,
-          $limit: 1
-        }
-      })) as Paginated<ProjectPermissionType>
-      if (permissionStatus.data.length > 0) return super._find(params)
-    }
-
-    params.query.userId = loggedInUser.id
-    return super._find(params)
-  }
-
-  async get(id: Id, params?: ProjectPermissionParams) {
-    const loggedInUser = params!.user!
-    const projectPermission = await super._get(id, params)
-    if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return projectPermission
-    if (projectPermission.userId !== loggedInUser.id) throw new Forbidden('You do not own this project-permission')
-    return projectPermission
-  }
-
-  async create(data: ProjectPermissionData, params?: ProjectPermissionParams) {
-    const selfUser = params!.user!
-    if (data.inviteCode && USER_ID_REGEX.test(data.inviteCode)) {
-      data.userId = data.inviteCode as UserID
-      delete data.inviteCode
-    }
-    if (data.userId && INVITE_CODE_REGEX.test(data.userId)) {
-      data.inviteCode = data.userId
-      delete data.userId
-    }
-    try {
-      const searchParam = data.inviteCode
-        ? {
-            inviteCode: data.inviteCode
-          }
-        : {
-            id: data.userId
-          }
-      const users = await this.app.service(userPath).find({
-        query: searchParam
-      })
-      if (users.data.length === 0) throw new BadRequest('Invalid user ID and/or user invite code')
-      const existing = await super._find({
-        query: {
-          projectId: data.projectId,
-          userId: users.data[0].id
-        }
-      })
-      if (existing.total > 0) return existing.data[0]
-      const project = await this.app.service(projectPath).get(data.projectId!)
-
-      if (!project) throw new BadRequest('Invalid project ID')
-      const existingPermissionsCount = (await super._find({
-        query: {
-          projectId: data.projectId
-        },
-        paginate: false
-      })) as any as ProjectPermissionType[]
-      delete data.inviteCode
-      return super._create({
-        ...data,
-        userId: users.data[0].id,
-        type:
-          data.type === 'owner' ||
-          existingPermissionsCount.length === 0 ||
-          (selfUser.scopes?.find((scope) => scope.type === 'admin:admin') && selfUser.id === users.data[0].id)
-            ? 'owner'
-            : 'user'
-      })
-    } catch (err) {
-      logger.error(err)
-      throw err
-    }
-  }
-
-  async patch(id: Id, data: ProjectPermissionData, params?: ProjectPermissionParams) {
-    const result = await super._patch(id, {
-      type: data.type === 'owner' ? 'owner' : 'user'
-    })
-
-    await this.makeRandomProjectOwnerIfNone(result.projectId)
-    return result
-  }
-
-  async remove(id: Id, params?: ProjectPermissionParams) {
-    const result = await super._remove(id, params)
-    if (id && result) await this.makeRandomProjectOwnerIfNone(result.projectId)
-    return result
   }
 }
