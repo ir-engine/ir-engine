@@ -24,14 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import { ScopeData, ScopePatch, ScopeQuery, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 
-import { RootParams } from '../../api/root-params'
-
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ScopeParams extends RootParams<ScopeQuery> {}
+export interface ScopeParams extends KnexAdapterParams<ScopeQuery> {}
 
 /**
  * A class for Scope service

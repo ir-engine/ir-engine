@@ -82,7 +82,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
     const parm = particleSystem.systemParameters[field]
     return (value: typeof parm) => {
       particleSystemState._refresh.set(particleSystem._refresh + 1)
-      commitProperty(ParticleSystemComponent, ('systemParameters' + field) as any)(value)
+      commitProperty(ParticleSystemComponent, ('systemParameters.' + field) as any)(value)
     }
   }, [])
 
@@ -105,13 +105,14 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
     return (value: any) => {
       const nuParms = JSON.parse(JSON.stringify(particleSystem.systemParameters.shape))
       nuParms[field] = value
-      commitProperty(ParticleSystemComponent, ('systemParameters.shape' + field) as any)(nuParms)
+      commitProperty(ParticleSystemComponent, 'systemParameters.shape' as any)(nuParms)
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
     }
   }, [])
 
   const onSetState = useCallback((state: State<any>) => {
     return (value: any) => {
+      state.set(value)
       const { systemParameters, behaviorParameters } = JSON.parse(
         JSON.stringify(getComponent(entity, ParticleSystemComponent))
       )

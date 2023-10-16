@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Params } from '@feathersjs/feathers'
 
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   UserRelationshipData,
@@ -33,10 +33,9 @@ import {
   UserRelationshipQuery,
   UserRelationshipType
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserRelationshipParams extends RootParams<UserRelationshipQuery> {}
+export interface UserRelationshipParams extends KnexAdapterParams<UserRelationshipQuery> {}
 
 /**
  * A class for User Relationship service

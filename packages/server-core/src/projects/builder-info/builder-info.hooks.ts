@@ -19,7 +19,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import authenticate from '../../hooks/authenticate'
 
 import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
@@ -33,7 +32,7 @@ export default {
   before: {
     all: [],
     find: [],
-    get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('projects', 'read'))],
     create: [],
     update: [],
     patch: [],

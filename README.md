@@ -1,4 +1,5 @@
-![Ethereal Engine logo](https://user-images.githubusercontent.com/5104160/181167947-2cf42b34-7dd6-4e71-b840-c25b8cf850e6.png)
+![EtherealEngine-logo-horizontal-web-fullcolor](https://github.com/EtherealEngine/etherealengine/assets/5104160/878a74b0-11eb-463d-a70e-6cb7055683eb)
+
 
 >  Manifest your dreams on the open social spatial web.
 
