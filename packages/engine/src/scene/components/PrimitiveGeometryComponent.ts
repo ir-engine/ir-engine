@@ -30,9 +30,11 @@ import {
   CircleGeometry,
   CylinderGeometry,
   DodecahedronGeometry,
+  Euler,
   IcosahedronGeometry,
   Mesh,
   MeshBasicMaterial,
+  MeshLambertMaterial,
   OctahedronGeometry,
   PlaneGeometry,
   RingGeometry,
@@ -45,6 +47,7 @@ import {
 import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GeometryTypeEnum } from '../constants/GeometryTypeEnum'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -57,7 +60,7 @@ export const PrimitiveGeometryComponent = defineComponent({
   onInit: (entity) => {
     return {
       geometryType: GeometryTypeEnum.BoxGeometry as GeometryTypeEnum,
-      geometry: new BoxGeometry(1, 1, 4, 4) as Geometry
+      geometry: null! as Geometry
     }
   },
 
@@ -82,13 +85,13 @@ export const PrimitiveGeometryComponent = defineComponent({
 function GeometryReactor() {
   const entity = useEntityContext()
   const geometry = useComponent(entity, PrimitiveGeometryComponent)
-  const material = new MeshBasicMaterial({ color: 0xffffff }) // set material later
-  const mesh = new Mesh(geometry.geometry.value, material)
-  mesh.name = `${entity}-primitive-geometry`
-  setObjectLayers(mesh, ObjectLayers.Scene)
-  mesh.visible = true
+  const transform = useComponent(entity, TransformComponent)
+
   useEffect(() => {
-    addObjectToGroup(entity, mesh)
+    geometry.geometry.set(new BoxGeometry())
+    const material = new MeshBasicMaterial({ color: 0xffffff }) // set material later
+    const mesh = new Mesh(geometry.geometry.value, material)
+
     return () => {
       mesh.geometry.dispose()
       removeObjectFromGroup(entity, mesh)
@@ -96,14 +99,28 @@ function GeometryReactor() {
   }, [])
 
   useEffect(() => {
-    mesh.geometry.copy(geometry.geometry.value)
-    console.log('DEBUG new geo is', mesh.geometry, mesh)
+    const material = new MeshLambertMaterial() // set material later
+    const mesh = new Mesh(geometry.geometry.value, material)
+    mesh.name = `${entity}-primitive-geometry`
+    mesh.visible = true
+    mesh.updateMatrixWorld(true)
+    setObjectLayers(mesh, ObjectLayers.Scene)
+    addObjectToGroup(entity, mesh)
+    mesh.position.copy(transform.position.value)
+    mesh.rotation.copy(new Euler().setFromQuaternion(transform.rotation.value))
+    mesh.scale.copy(transform.scale.value)
+
+    return () => {
+      mesh.geometry.dispose()
+      removeObjectFromGroup(entity, mesh)
+    }
   }, [geometry.geometry])
+
   useEffect(() => {
-    mesh.geometry.dispose()
+    console.log('DEBUG set geometry type')
     switch (geometry.geometryType.value) {
       case GeometryTypeEnum.BoxGeometry:
-        geometry.geometry.set(new BoxGeometry(1, 1, 4, 4))
+        geometry.geometry.set(new BoxGeometry())
         break
       case GeometryTypeEnum.SphereGeometry:
         geometry.geometry.set(new SphereGeometry())
@@ -144,7 +161,6 @@ function GeometryReactor() {
       default:
         return
     }
-
     // change the geometry on the model
   }, [geometry.geometryType])
   return null
