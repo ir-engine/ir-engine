@@ -144,13 +144,8 @@ export const InviteService = {
     }
 
     try {
-      const params = {
-        ...data,
-        existenceCheck: true
-      }
-
       const existingInviteResult = (await Engine.instance.api.service(invitePath).find({
-        query: params
+        query: data
       })) as Paginated<InviteType>
 
       let inviteResult
