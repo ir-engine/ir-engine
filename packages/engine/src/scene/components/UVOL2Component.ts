@@ -720,7 +720,19 @@ function UVOL2Reactor() {
    * we transfer the old attibute to a new geometry and dispose it.
    */
   const setAttribute = (name: string, attribute: InterleavedBufferAttribute) => {
-    if (mesh.geometry.attributes[name] === attribute) return
+    if (mesh.geometry.attributes[name] === attribute) {
+      return
+    }
+
+    if (name === 'keyframeB') {
+      /**
+       * Disposing should be done only on keyframeA
+       * Because, keyframeA will use the previous buffer of keyframeB in the next frame.
+       */
+      mesh.geometry.attributes.keyframeB = attribute
+      mesh.geometry.attributes.keyframeB.needsUpdate = true
+      return
+    }
 
     const index = mesh.geometry.index
     const geometry = new BufferGeometry()
