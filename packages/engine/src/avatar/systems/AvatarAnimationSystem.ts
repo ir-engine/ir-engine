@@ -205,10 +205,7 @@ const execute = () => {
 
     //right now the only times we want to be using inverse kinematics is when we're in xr mode,
     //or when we're running our own leg calculations for mocap
-    if (
-      (motionCaptureRigComponent && !MotionCaptureRigComponent.solvingLowerBody[entity]) ||
-      getOptionalComponent(entity, XRRigComponent)
-    ) {
+    if (motionCaptureRigComponent || getOptionalComponent(entity, XRRigComponent)) {
       hipsForward.set(0, 0, 1)
 
       const uuid = getComponent(entity, UUIDComponent)
@@ -262,8 +259,9 @@ const execute = () => {
           )
         )
       } else {
-        leftFootTarget.blendWeight.set(1)
-        rightFootTarget.blendWeight.set(1)
+        /**todo: fix foot heuristic function causing ik solve issues */
+        //leftFootTarget.blendWeight.set(1)
+        //rightFootTarget.blendWeight.set(1)
       }
 
       const transform = getComponent(entity, TransformComponent)

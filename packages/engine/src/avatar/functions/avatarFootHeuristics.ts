@@ -23,11 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
 import { Euler, Quaternion, Vector3 } from 'three'
 import { V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -102,13 +100,10 @@ export const setIkFootTarget = (stepThreshold: number, delta: number) => {
     }
 
     //interpolate foot to next step position
-    ikTransform.position.lerp(nextStep[key].position, getState(EngineState).deltaSeconds * (minSpeed + playerSpeed))
+    ikTransform.position.lerp(nextStep[key].position, delta * (minSpeed + playerSpeed))
     //set foot y to player y until we have step math
     ikTransform.position.y = playerTransform.position.y + 0.1
-    ikTransform.rotation.slerp(
-      quat.copy(playerTransform.rotation).multiply(offset),
-      getState(EngineState).deltaSeconds * (minSpeed + playerSpeed)
-    )
+    ikTransform.rotation.slerp(quat.copy(playerTransform.rotation).multiply(offset), delta * (minSpeed + playerSpeed))
   }
 
   lastPlayerPosition.copy(playerTransform.position)

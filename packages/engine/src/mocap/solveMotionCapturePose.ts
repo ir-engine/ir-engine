@@ -236,24 +236,26 @@ export function solveMotionCapturePose(
       VRMHumanBoneName.RightUpperLeg,
       VRMHumanBoneName.RightLowerLeg
     )
-    solveFoot(
-      entity,
-      lowestWorldY,
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
-      VRMHumanBoneName.RightUpperLeg,
-      VRMHumanBoneName.RightFoot
-    )
-    solveFoot(
-      entity,
-      lowestWorldY,
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
-      VRMHumanBoneName.LeftUpperLeg,
-      VRMHumanBoneName.LeftFoot
-    )
+    /**todo: figure out why we get bad foot quaternions when using solveFoot */
+    //solveFoot(
+    //  entity,
+    //  lowestWorldY,
+    //  landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+    //  landmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
+    //  landmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
+    //  VRMHumanBoneName.RightUpperLeg,
+    //  VRMHumanBoneName.RightFoot
+    //)
+    //solveFoot(
+    //  entity,
+    //  lowestWorldY,
+    //  landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+    //  landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
+    //  landmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
+    //  VRMHumanBoneName.LeftUpperLeg,
+    //  VRMHumanBoneName.LeftFoot
+    //)
+
     //check state, if we are still not set to track lower body, update that
     if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
       MotionCaptureRigComponent.solvingLowerBody[entity] = 1
