@@ -70,3 +70,13 @@ export function arraysAreEqual(arr1: any[], arr2: any[]): boolean {
 
   return true
 }
+
+export function pathJoin(...parts: string[]): string {
+  const separator = '/'
+  const replace = new RegExp(separator + '{1,}', 'g')
+  return parts.join(separator).replace(replace, separator)
+}
+
+export function baseName(path: string): string {
+  return path.split(/[\\/]/).pop()!
+}

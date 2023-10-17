@@ -43,20 +43,16 @@ import {
 } from '@gltf-transform/core'
 import { EXTMeshGPUInstancing } from '@gltf-transform/extensions'
 import { dedup, draco, flatten, join, palette, partition, prune, reorder, weld } from '@gltf-transform/functions'
-import appRootPath from 'app-root-path'
-import { execFileSync } from 'child_process'
 import { createHash } from 'crypto'
-import fs from 'fs'
 import { MeshoptEncoder } from 'meshoptimizer'
-import path from 'path'
-import { MathUtils } from 'three'
+import { LoaderUtils, MathUtils } from 'three'
 
+import { baseName, pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
-import { Application } from '@feathersjs/feathers/lib/declarations'
+import { Engine } from '../../ecs/classes/Engine'
 import { EEMaterial } from './extensions/EE_MaterialTransformer'
 import { EEResourceID } from './extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from './ModelTransformLoader'
-
 /**
  *
  * @param doc
@@ -326,15 +322,8 @@ function hashBuffer(buffer: Uint8Array): string {
   return hash.digest('hex')
 }
 
-export async function transformModel(app: Application, args: ModelTransformParameters) {
+export async function transformModel(args: ModelTransformParameters) {
   const parms = args
-  const serverDir = path.join(appRootPath.path, 'packages/server')
-  const tmpDir = path.join(serverDir, 'tmp')
-  const BASIS_U = path.join(appRootPath.path, 'packages/server/public/loader_decoders/basisu')
-  const GLTF_PACK = path.join(appRootPath.path, 'packages/server/public/loader_decoders/gltfpack')
-  const toTmp = (fileName) => {
-    return `${tmpDir}/${fileName}`
-  }
 
   /**
    *
@@ -368,11 +357,8 @@ export async function transformModel(app: Application, args: ModelTransformParam
     }
   }
 
-  const resourceName = /*'model-resources'*/ path.basename(args.src).slice(0, path.basename(args.src).lastIndexOf('.'))
-  const resourcePath = args.resourceUri
-    ? path.join(path.dirname(args.src), args.resourceUri)
-    : path.join(path.dirname(args.src), resourceName)
-  const projectRoot = path.join(appRootPath.path, 'packages/projects')
+  const resourceName = baseName(args.src).slice(0, baseName(args.src).lastIndexOf('.'))
+  const resourcePath = pathJoin(LoaderUtils.extractUrlBase(args.src), args.resourceUri || resourceName)
 
   const toValidFilename = (name: string) => {
     const result = name.replace(/[\s]/g, '-')
@@ -382,7 +368,7 @@ export async function transformModel(app: Application, args: ModelTransformParam
   const toPath = (element: Texture | glBuffer, index?: number) => {
     if (element instanceof Texture) {
       if (element.getURI()) {
-        return path.basename(element.getURI())
+        return baseName(element.getURI())
       } else {
         pathIndex++
         return `${toValidFilename(element.getName())}-${pathIndex}-.${mimeToFileType(element.getMimeType())}`
@@ -395,7 +381,7 @@ export async function transformModel(app: Application, args: ModelTransformParam
   const fileUploadPath = (fUploadPath: string) => {
     const pathCheck = /.*\/packages\/projects\/(.*)\/([\w\d\s\-_.]*)$/
     const [_, savePath, fileName] =
-      pathCheck.exec(fUploadPath) ?? pathCheck.exec(path.join(path.dirname(args.src), fUploadPath))!
+      pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(LoaderUtils.extractUrlBase(args.src), fUploadPath))!
     return [savePath, fileName]
   }
 
@@ -403,6 +389,7 @@ export async function transformModel(app: Application, args: ModelTransformParam
 
   let initialSrc = args.src
   /* Meshopt Compression */
+  /*
   if (args.meshoptCompression.enabled) {
     const segments = args.src.split('.')
     const ext = segments.pop()
@@ -423,6 +410,7 @@ export async function transformModel(app: Application, args: ModelTransformParam
       packArgs.split(/\s+/).filter((x) => !!x)
     )
   }
+  */
   /* /Meshopt Compression */
 
   const document = await io.read(initialSrc)
@@ -593,28 +581,37 @@ export async function transformModel(app: Application, args: ModelTransformParam
   if (parms.modelFormat === 'glb') {
     const data = Buffer.from(await io.writeBinary(document))
     const [savePath, fileName] = fileUploadPath(args.dst)
-    result = await app.service('file-browser').patch(null, {
+    result = await Engine.instance.api.service('file-browser').patch(null, {
       path: savePath,
       fileName,
       body: data,
-      contentType: getContentType(args.dst)
+      contentType: (await getContentType(args.dst)) || ''
     })
     console.log('Handled glb file')
   } else if (parms.modelFormat === 'gltf') {
-    ;[root.listBuffers(), root.listMeshes(), root.listTextures()].forEach((elements) =>
-      elements.map((element: Texture | Mesh | glBuffer) => {
-        let elementName = ''
-        if (element instanceof Texture) {
-          elementName = hashBuffer(element.getImage()!)
-        } else if (element instanceof Mesh) {
-          elementName = hashBuffer(Uint8Array.from(element.listPrimitives()[0].getAttribute('POSITION')!.getArray()!))
-        } else if (element instanceof glBuffer) {
-          const bufferPath = path.join(path.dirname(args.src), element.getURI())
-          const bufferData = fs.readFileSync(bufferPath)
-          elementName = hashBuffer(bufferData)
-        }
-        element.setName(elementName)
-      })
+    await Promise.all(
+      [root.listBuffers(), root.listMeshes(), root.listTextures()].map(
+        async (elements) =>
+          await Promise.all(
+            elements.map(async (element: Texture | Mesh | glBuffer) => {
+              let elementName = ''
+              if (element instanceof Texture) {
+                elementName = hashBuffer(element.getImage()!)
+              } else if (element instanceof Mesh) {
+                elementName = hashBuffer(
+                  Uint8Array.from(element.listPrimitives()[0].getAttribute('POSITION')!.getArray()!)
+                )
+              } else if (element instanceof glBuffer) {
+                const bufferPath = pathJoin(LoaderUtils.extractUrlBase(args.src), element.getURI())
+                const response = await fetch(bufferPath)
+                const arrayBuffer = await response.arrayBuffer()
+                const bufferData = new Uint8Array(arrayBuffer)
+                elementName = hashBuffer(bufferData)
+              }
+              element.setName(elementName)
+            })
+          )
+      )
     )
     document.transform(
       partition({
@@ -623,11 +620,11 @@ export async function transformModel(app: Application, args: ModelTransformParam
       })
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
-    if (!fs.existsSync(resourcePath)) {
-      await app.service(fileBrowserPath).create(resourcePath.replace(projectRoot, '') as any)
-    }
+
+    await Engine.instance.api.service(fileBrowserPath).create(resourcePath as any)
+
     json.images?.map((image) => {
-      const nuURI = path.join(
+      const nuURI = pathJoin(
         args.resourceUri ? args.resourceUri : resourceName,
         `${image.name}.${mimeToFileType(image.mimeType)}`
       )
@@ -637,29 +634,25 @@ export async function transformModel(app: Application, args: ModelTransformParam
     })
     const defaultBufURI = MathUtils.generateUUID() + '.bin'
     json.buffers?.map((buffer) => {
-      buffer.uri = path.join(
-        args.resourceUri ? args.resourceUri : resourceName,
-        path.basename(buffer.uri ?? defaultBufURI)
-      )
+      buffer.uri = pathJoin(args.resourceUri ? args.resourceUri : resourceName, baseName(buffer.uri ?? defaultBufURI))
     })
     Object.keys(resources).map((uri) => {
-      const localPath = path.join(resourcePath, path.basename(uri))
+      const localPath = pathJoin(resourcePath, baseName(uri))
       resources[localPath] = resources[uri]
       delete resources[uri]
     })
-    const doUpload = (uri, data) => {
+    const doUpload = async (uri, data) => {
       const [savePath, fileName] = fileUploadPath(uri)
-      return app.service(fileBrowserPath).patch(null, {
+      return Engine.instance.api.service(fileBrowserPath).patch(null, {
         path: savePath,
         fileName,
         body: data,
-        contentType: getContentType(uri)
+        contentType: (await getContentType(uri)) || ''
       })
     }
     await Promise.all(Object.entries(resources).map(([uri, data]) => doUpload(uri, data)))
     result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))
     console.log('Handled gltf file')
   }
-  fs.existsSync(tmpDir) && (await execFileSync('rm', ['-R', tmpDir]))
   return result
 }

@@ -48,6 +48,8 @@ import { getModelResources } from '@etherealengine/engine/src/scene/functions/lo
 import { useHookstate } from '@etherealengine/hyperflux'
 import { getMutableState, State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
+import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
+import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
 import exportGLTF from '../../functions/exportGLTF'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
@@ -58,8 +60,6 @@ import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import GLTFTransformProperties from './GLTFTransformProperties'
 import LightmapBakerProperties from './LightmapBakerProperties'
-
-import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
 import './ModelTransformProperties.css'
 
 export default function ModelTransformProperties({
@@ -73,7 +73,7 @@ export default function ModelTransformProperties({
   const selectionState = useHookstate(getMutableState(SelectionState))
   const transforming = useHookstate<boolean>(false)
   const transformHistory = useHookstate<string[]>([])
-
+  const isClientside = useHookstate<boolean>(false)
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: modelState.src.value,
@@ -134,7 +134,11 @@ export default function ModelTransformProperties({
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
       const modelSrc = modelState.src.value
-      await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
+      if (isClientside.value) {
+        await clientSideTransformModel(transformParms.value)
+      } else {
+        await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
+      }
       const nuPath = modelSrc.replace(/\.glb$/, '-transformed.glb')
       transformHistory.set([modelSrc, ...transformHistory.value])
       const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
@@ -207,9 +211,19 @@ export default function ModelTransformProperties({
           onChange={(transformParms: ModelTransformParameters) => {}}
         />
         {!transforming.value && (
-          <button className="OptimizeButton button" onClick={onTransformModel(modelState)}>
-            Optimize
-          </button>
+          <>
+            <InputGroup name="Clientside Transform" label="Clientside Transform">
+              <BooleanInput
+                value={isClientside.value}
+                onChange={(val: boolean) => {
+                  isClientside.set(val)
+                }}
+              />
+            </InputGroup>
+            <button className="OptimizeButton button" onClick={onTransformModel(modelState)}>
+              Optimize
+            </button>
+          </>
         )}
         {transforming.value && <p>Transforming...</p>}
         {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}
