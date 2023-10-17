@@ -74,8 +74,19 @@ const LocationMenu = (props: Props) => {
         query: {
           $limit: rows,
           $skip: page * rows,
-          adminnedLocations: true,
-          search
+          action: 'admin',
+          $or: [
+            {
+              name: {
+                $like: `%${search}%`
+              }
+            },
+            {
+              sceneId: {
+                $like: `%${search}%`
+              }
+            }
+          ]
         }
       })
       .then((res: Paginated<LocationType>) => {

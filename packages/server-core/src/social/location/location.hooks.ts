@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { iff, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
@@ -54,6 +54,7 @@ import { Knex } from 'knex'
 import slugify from 'slugify'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
+import isAction from '../../hooks/is-action'
 import { LocationService, locationSettingSorts } from './location.class'
 import {
   locationDataResolver,
@@ -85,30 +86,6 @@ const sortByLocationSetting = async (context: HookContext<LocationService>) => {
       }
     }
   }
-}
-
-const addSearchParams = async (context: HookContext<LocationService>) => {
-  const { adminnedLocations, search } = context.params.query || {}
-
-  if (adminnedLocations && search) {
-    context.params.query = {
-      ...context.params.query,
-      $or: [
-        {
-          name: {
-            $like: `%${search}%`
-          }
-        },
-        {
-          sceneId: {
-            $like: `%${search}%`
-          }
-        }
-      ]
-    }
-  }
-  if (context.params.query?.adminnedLocations) delete context.params.query.adminnedLocations
-  if (context.params.query?.search || context.params.query?.search === '') delete context.params.query.search
 }
 
 const insertLocationData = async (context: HookContext<LocationService>) => {
@@ -166,7 +143,7 @@ const insertLocationData = async (context: HookContext<LocationService>) => {
       logger.error(err)
       await trx.rollback()
       if (err.code === 'ER_DUP_ENTRY') {
-        throw new Error('Name is in use.')
+        throw new BadRequest('Name is in use.')
       }
       throw err
     }
@@ -226,7 +203,7 @@ const updateLocation = async (context: HookContext<LocationService>) => {
     logger.error(err)
     await trx.rollback()
     if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
-      throw new Error('That name is already in use')
+      throw new BadRequest('That name is already in use')
     }
     throw err
   }
@@ -237,7 +214,7 @@ const checkIsLobby = async (context: HookContext<LocationService>) => {
     const location = await context.app.service(locationPath).get(context.id)
 
     if (location && location.isLobby) {
-      throw new Error("Lobby can't be deleted")
+      throw new BadRequest("Lobby can't be deleted")
     }
   }
 }
@@ -271,7 +248,7 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
-    find: [sortByLocationSetting, addSearchParams],
+    find: [sortByLocationSetting, iff(isAction('admin'), verifyScope('admin', 'admin')), discardQuery('action')],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('location', 'write')),

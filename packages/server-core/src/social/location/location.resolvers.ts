@@ -59,7 +59,8 @@ export const locationResolver = resolve<LocationType, HookContext>({
     if (
       loggedInUser &&
       params.query &&
-      params.query.adminnedLocations &&
+      params.query.action &&
+      params.query.action === 'admin' &&
       (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
     ) {
       const locationAdmin = (await context.app.service(locationAdminPath).find({
