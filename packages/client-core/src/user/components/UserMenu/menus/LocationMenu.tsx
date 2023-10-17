@@ -74,7 +74,6 @@ const LocationMenu = (props: Props) => {
         query: {
           $limit: rows,
           $skip: page * rows,
-          action: 'admin',
           $or: [
             {
               name: {

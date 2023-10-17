@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { iff, isProvider } from 'feathers-hooks-common'
 
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
@@ -54,7 +54,6 @@ import { Knex } from 'knex'
 import slugify from 'slugify'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
-import isAction from '../../hooks/is-action'
 import { LocationService, locationSettingSorts } from './location.class'
 import {
   locationDataResolver,
@@ -248,7 +247,7 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
-    find: [sortByLocationSetting, iff(isAction('admin'), verifyScope('admin', 'admin')), discardQuery('action')],
+    find: [sortByLocationSetting],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('location', 'write')),
