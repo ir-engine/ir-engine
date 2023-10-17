@@ -155,7 +155,7 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
     drawDebug(landmarks)
     drawDebugScreen(screenlandmarks)
   }
-
+  console.log(landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE])
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
   const estimatingLowerBody = shouldEstimateLowerBody(landmarks)
   solveSpine(entity, lowestWorldY, landmarks)
@@ -408,7 +408,6 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
     MotionCaptureRigComponent.hipRotation.y[entity] = hipDirection.y
     MotionCaptureRigComponent.hipRotation.z[entity] = hipDirection.z
     MotionCaptureRigComponent.hipRotation.w[entity] = hipDirection.w
-    console.log(hipObject.quaternion)
   } else {
     hipObject.quaternion.set(
       MotionCaptureRigComponent.hipRotation.x[entity],
