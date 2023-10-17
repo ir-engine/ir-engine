@@ -67,6 +67,7 @@ export const useStudioEditor = () => {
   useEffect(() => {
     if (engineReady) return
     getMutableState(EngineState).isEditor.set(true)
+    getMutableState(EngineState).isEditing.set(true)
     const projects = Engine.instance.api.service(projectsPath).find()
     startClientSystems()
 

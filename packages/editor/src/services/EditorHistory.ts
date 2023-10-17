@@ -164,6 +164,8 @@ const appendSnapshotQueue = defineActionQueue(EditorHistoryAction.appendSnapshot
 const modifyQueue = defineActionQueue(EditorHistoryAction.createSnapshot.matches)
 
 const execute = () => {
+  if (!getState(EngineState).isEditing) return
+
   const state = getMutableState(EditorHistoryState)
   for (const action of undoQueue()) {
     if (state.index.value <= 0) continue
