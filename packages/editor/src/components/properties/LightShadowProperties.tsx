@@ -32,7 +32,7 @@ import { Component, useComponent } from '@etherealengine/engine/src/ecs/function
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
-import { updateProperty } from './Util'
+import { commitProperty, updateProperty } from './Util'
 
 /**creating properties for LightShadowProperties component */
 type LightShadowPropertiesProps = {
@@ -52,7 +52,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   return (
     <>
       <InputGroup name="Cast Shadows" label={t('editor:properties.directionalLight.lbl-castShadows')}>
-        <BooleanInput value={lightComponent.castShadow} onChange={updateProperty(props.comp, 'castShadow')} />
+        <BooleanInput value={lightComponent.castShadow} onChange={commitProperty(props.comp, 'castShadow')} />
       </InputGroup>
       <NumericInputGroup
         name="Shadow Bias"
@@ -65,6 +65,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
         displayPrecision={0.000001}
         value={lightComponent.shadowBias}
         onChange={updateProperty(props.comp, 'shadowBias')}
+        onRelease={commitProperty(props.comp, 'shadowBias')}
       />
       <NumericInputGroup
         name="Shadow Radius"
@@ -75,6 +76,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
         displayPrecision={0.0001}
         value={lightComponent.shadowRadius}
         onChange={updateProperty(props.comp, 'shadowRadius')}
+        onRelease={commitProperty(props.comp, 'shadowRadius')}
       />
     </>
   )

@@ -47,8 +47,14 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getMutableComponent,
+  useComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { RendererState } from '../../renderer/RendererState'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
@@ -70,7 +76,9 @@ export const EnvmapComponent = defineComponent({
       envMapSourceColor: new Color(0xfff) as Color,
       envMapSourceURL: '',
       envMapSourceEntityUUID: '' as EntityUUID,
-      envMapIntensity: 1
+      envMapIntensity: 1,
+      // internal
+      envmap: null as Texture | null
     }
   },
 
@@ -109,6 +117,7 @@ export const EnvmapComponent = defineComponent({
 
     useEffect(() => {
       if (component.type.value !== EnvMapSourceType.Skybox) return
+      component.envmap.set(null)
       updateEnvMap(group.value, background.value as Texture | null)
     }, [component.type, group, background])
 
@@ -122,8 +131,8 @@ export const EnvmapComponent = defineComponent({
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping
 
-      updateEnvMap(group.value, texture)
-    }, [component.type, group])
+      component.envmap.set(texture)
+    }, [component.type, component.envMapSourceColor])
 
     useEffect(() => {
       if (component.type.value !== EnvMapSourceType.Texture) return
@@ -135,14 +144,16 @@ export const EnvmapComponent = defineComponent({
             (texture: CubeTexture | undefined) => {
               if (texture) {
                 texture.mapping = CubeReflectionMapping
-                const EnvMap = texture
-                EnvMap.colorSpace = SRGBColorSpace
-                if (group?.value) updateEnvMap(group.value, texture)
+                texture.colorSpace = SRGBColorSpace
+                component.envmap.set(texture)
                 removeError(entity, EnvmapComponent, 'MISSING_FILE')
               }
             },
             undefined,
-            (_) => addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+            (_) => {
+              component.envmap.set(null)
+              addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+            }
           )
           break
 
@@ -150,15 +161,29 @@ export const EnvmapComponent = defineComponent({
           AssetLoader.loadAsync(component.envMapSourceURL.value, {}).then((texture) => {
             if (texture) {
               texture.mapping = EquirectangularReflectionMapping
-              updateEnvMap(group.value, texture)
+              component.envmap.set(texture)
               removeError(entity, EnvmapComponent, 'MISSING_FILE')
-              texture.dispose()
             } else {
+              component.envmap.set(null)
               addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
             }
           })
       }
-    }, [component.type, group, component.envMapSourceURL])
+    }, [component.type, component.envMapSourceURL])
+
+    useEffect(() => {
+      if (!component.envmap.value) return
+      updateEnvMap(group.value, component.envmap.value)
+    }, [group, component.envmap])
+
+    useEffect(() => {
+      const envmap = component.envmap.value
+      if (!envmap) return
+
+      return () => {
+        envmap.dispose()
+      }
+    }, [component.envmap])
 
     const entitiesByUUIDState = useHookstate(UUIDComponent.entitiesByUUIDState)
     const bakeEntity = entitiesByUUIDState[component.envMapSourceEntityUUID.value].value
@@ -176,15 +201,16 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
   const renderState = useHookstate(getMutableState(RendererState))
+  const dynamicBoundingBox = useOptionalComponent(envmapEntity, BoundingBoxDynamicTag)
 
+  /** @todo add an unmount cleanup for applyBoxprojection */
   useEffect(() => {
     AssetLoader.loadAsync(bakeComponent.envMapOrigin.value, {}).then((texture) => {
       if (texture) {
         texture.mapping = EquirectangularReflectionMapping
-        updateEnvMap(group.value, texture)
-        if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
+        getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
+        if (bakeComponent.boxProjection.value && !dynamicBoundingBox) applyBoxProjection(bakeEntity, group.value)
         removeError(envmapEntity, EnvmapComponent, 'MISSING_FILE')
-        texture.dispose()
       } else {
         addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
       }
@@ -195,21 +221,22 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
 }
 
 function updateEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
-  if (!obj3ds?.length) return
-
   for (const obj of obj3ds) {
     if (obj instanceof Scene) {
       obj.environment = envmap
     } else {
-      obj.traverse((child: Mesh<any, MeshStandardMaterial>) => {
-        if (child.material instanceof MeshMatcapMaterial) return
-        if (child.material) child.material.envMap = envmap!
+      obj.traverse((child: Mesh<any, MeshStandardMaterial | MeshStandardMaterial[]>) => {
+        if (!child.material) return
+        if (Array.isArray(child.material)) {
+          child.material.forEach((mat: MeshStandardMaterial) => {
+            if (mat instanceof MeshMatcapMaterial) return
+            mat.envMap = envmap!
+          })
+        } else {
+          if (child.material instanceof MeshMatcapMaterial) return
+          child.material.envMap = envmap!
+        }
       })
-
-      if ((obj as Mesh<any, MeshStandardMaterial>).material) {
-        if ((obj as Mesh).material instanceof MeshMatcapMaterial) return
-        ;(obj as Mesh<any, MeshStandardMaterial>).material.envMap = envmap!
-      }
     }
   }
 }

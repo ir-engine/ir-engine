@@ -36,31 +36,29 @@ import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { gltfToSceneJson, sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { getComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { useDrop } from 'react-dnd'
-import { Vector2 } from 'three'
+import { Vector2, Vector3 } from 'three'
 import { ItemTypes } from '../constants/AssetTypes'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
 import { loadProjectScene } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { getCursorSpawnPosition } from '../functions/screenSpaceFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
-import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
+import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
+import { EditorHistoryState } from '../services/EditorHistory'
 import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
 import { AppContext } from './Search/context'
@@ -75,7 +73,7 @@ import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
 import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
-import ElementList, { SceneElementType, addSceneComponentElement } from './element/ElementList'
+import ElementList, { SceneElementType } from './element/ElementList'
 import GraphPanel from './graph/GraphPanel'
 import { GraphPanelTitle } from './graph/GraphPanelTitle'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
@@ -106,6 +104,82 @@ export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
   )
 }
 
+const ViewportDnD = () => {
+  const [{ isDragging, isOver }, dropRef] = useDrop({
+    accept: [ItemTypes.Component],
+    collect: (monitor) => ({
+      isDragging: monitor.getItem() !== null && monitor.canDrop(),
+      isOver: monitor.isOver()
+    }),
+    drop(item: SceneElementType, monitor) {
+      const vec3 = new Vector3()
+      getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
+      EditorControlFunctions.createObjectFromSceneElement([
+        { name: item!.componentJsonID },
+        { name: LocalTransformComponent.jsonID, props: { position: vec3 } }
+      ])
+    }
+  })
+
+  return (
+    <div
+      id="viewport-panel"
+      ref={dropRef}
+      style={{
+        pointerEvents: isDragging ? 'all' : 'none',
+        border: isDragging && isOver ? '5px solid white' : 'none',
+        width: '100%',
+        height: '100%'
+      }}
+    />
+  )
+}
+const ViewPortPanelContent = () => {
+  const { t } = useTranslation()
+  const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
+  return sceneName ? (
+    <ViewportDnD />
+  ) : (
+    <div className={styles.bgImageBlock}>
+      <img src="/static/etherealengine.png" alt="" />
+      <h2>{t('editor:selectSceneMsg')}</h2>
+    </div>
+  )
+}
+
+const SceneLoadingProgress = () => {
+  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
+  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress).value
+  return (
+    <div style={{ top: '50px', position: 'relative' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          height: '100%',
+          width: '100%',
+          flexDirection: 'column'
+        }}
+      >
+        <div
+          style={{
+            // default values will be overridden by theme
+            fontFamily: 'Lato',
+            fontSize: '12px',
+            color: 'white',
+            padding: '16px'
+          }}
+        >
+          {`Scene Loading... ${loadingProgress}% - ${sceneAssetPendingTagQuery.length} assets left`}
+        </div>
+        <CircularProgress />
+      </div>
+    </div>
+  )
+}
+
 /**
  * EditorContainer class used for creating container for Editor
  */
@@ -115,9 +189,7 @@ const EditorContainer = () => {
   const sceneName = editorState.sceneName
   const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
 
-  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress).value
-  const sceneLoading = sceneName && !sceneLoaded
+  const sceneLoading = sceneName.value && !sceneLoaded.value
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -195,7 +267,7 @@ const EditorContainer = () => {
       const sceneData = await createNewScene(projectName.value)
       if (!sceneData) return
 
-      reRouteToLoadScene(sceneData.sceneName)
+      reRouteToLoadScene(sceneData.name)
     } catch (error) {
       logger.error(error)
     }
@@ -225,7 +297,7 @@ const EditorContainer = () => {
     editorState.sceneModified.set(false)
     editorState.projectName.set(null)
     editorState.sceneName.set(null)
-    getMutableState(SceneState).sceneData.set(null)
+    EditorHistoryState.unloadScene()
     RouterState.navigate('/studio')
   }
 
@@ -272,7 +344,8 @@ const EditorContainer = () => {
     const el = document.createElement('input')
     el.type = 'file'
     el.multiple = true
-    el.accept = '.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
+    el.accept =
+      '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
     el.style.display = 'none'
     el.onchange = async () => {
       const pName = projectName.value
@@ -354,7 +427,7 @@ const EditorContainer = () => {
       return
     }
 
-    const result: { generateThumbnails: boolean } = (await new Promise((resolve) => {
+    const result = (await new Promise((resolve) => {
       setDialogComponent(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
     })) as any
 
@@ -381,11 +454,11 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        if (result.generateThumbnails) {
+        if (result) {
           const blob = await takeScreenshot(512, 320, 'ktx2')
           const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
 
-          await uploadBPCEMBakeToServer(getState(SceneState).sceneEntity)
+          await uploadSceneBakeToServer()
           await saveScene(projectName.value, sceneName.value, file, abortController.signal)
         } else {
           await saveScene(projectName.value, sceneName.value, null, abortController.signal)
@@ -465,54 +538,6 @@ const EditorContainer = () => {
         action: onCloseProject
       }
     ]
-  }
-
-  const ViewportDnD = () => {
-    const [{ isDragging, isOver }, dropRef] = useDrop({
-      accept: [ItemTypes.Prefab],
-      collect: (monitor) => ({
-        isDragging: monitor.getItem() !== null && monitor.canDrop(),
-        isOver: monitor.isOver()
-      }),
-      drop(item: SceneElementType, monitor) {
-        const node = addSceneComponentElement(item)
-        if (!node) return
-
-        const transformComponent = getComponent(node, TransformComponent)
-        if (transformComponent) {
-          getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
-          const localTransformComponent = getComponent(node, LocalTransformComponent)
-          if (localTransformComponent) {
-            localTransformComponent.position.copy(transformComponent.position)
-          }
-        }
-      }
-    })
-
-    return (
-      <div
-        id="viewport-panel"
-        ref={dropRef}
-        style={{
-          pointerEvents: isDragging ? 'all' : 'none',
-          border: isDragging && isOver ? '5px solid white' : 'none',
-          width: '100%',
-          height: '100%'
-        }}
-      />
-    )
-  }
-
-  const ViewPortPanelContent = () => {
-    const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
-    return sceneLoaded ? (
-      <ViewportDnD />
-    ) : (
-      <div className={styles.bgImageBlock}>
-        <img src="/static/etherealengine.png" alt="" />
-        <h2>{t('editor:selectSceneMsg')}</h2>
-      </div>
-    )
   }
 
   const toolbarMenu = generateToolbarMenu()
@@ -629,13 +654,7 @@ const EditorContainer = () => {
             <ToolBar menu={toolbarMenu} />
             <ElementList />
             <ControlText />
-            {sceneLoading && (
-              <div style={{ top: '5px' }}>
-                <LoadingCircle
-                  message={`Scene Loading... ${loadingProgress}% - ${sceneAssetPendingTagQuery.length} assets left`}
-                />
-              </div>
-            )}
+            {sceneLoading && <SceneLoadingProgress />}
             <div className={styles.workspaceContainer}>
               <AssetDropZone />
               <AppContext.Provider value={{ searchElement, searchHierarchy }}>

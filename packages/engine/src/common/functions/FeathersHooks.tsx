@@ -87,7 +87,11 @@ export const FeathersState = defineState({
 
 type Args = MethodArgs[Methods]
 
-export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(serviceName: S, method: M, ...args: Args) => {
+export const useService = <S extends keyof ServiceTypes, M extends Methods>(
+  serviceName: S,
+  method: M,
+  ...args: Args
+) => {
   const service = Engine.instance.api.service(serviceName)
   const state = useHookstate(getMutableState(FeathersState))
 
@@ -112,7 +116,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
         })
       })
       .catch((error) => {
-        console.error(error)
+        console.error(`Error in service: ${serviceName}, method: ${method}, args: ${JSON.stringify(args)}`, error)
         state[serviceName][queryId].merge({
           status: 'error',
           error: error.message
@@ -156,7 +160,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
 }
 
 export const useGet = <S extends keyof ServiceTypes>(serviceName: S, id: string | undefined, params: Params = {}) => {
-  return useQuery(serviceName, 'get', id, params)
+  return useService(serviceName, 'get', id, params)
 }
 
 export type PaginationQuery = Partial<PaginationProps> & Query
@@ -164,7 +168,7 @@ export type PaginationQuery = Partial<PaginationProps> & Query
 export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Params<PaginationQuery> = {}) => {
   const paginate = usePaginate(params.query)
 
-  const response = useQuery(serviceName, 'find', {
+  const response = useService(serviceName, 'find', {
     ...params,
     query: {
       ...params.query,

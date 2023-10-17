@@ -53,7 +53,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(instancePath, new InstanceService(options, app), {
+  app.use(instancePath, new InstanceService(options), {
     // A list of all methods this service exposes externally
     methods: instanceMethods,
     // You can add additional custom events to be sent to clients here
@@ -98,7 +98,7 @@ export default (app: Application): void => {
     try {
       /** Remove channel if instance is a world server and it has ended */
       if (data.locationId && data.ended && !data.channelId) {
-        const channel = (await app.service(channelPath)._find({
+        const channel = (await app.service(channelPath).find({
           query: {
             instanceId: data.id,
             $limit: 1

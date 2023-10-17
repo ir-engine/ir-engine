@@ -56,6 +56,7 @@ import {
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RendererState } from '../../renderer/RendererState'
+import { portalPath } from '../../schemas/projects/portal.schema'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { portalTriggerEnter } from '../functions/loaders/PortalFunctions'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -147,8 +148,17 @@ export const PortalComponent = defineComponent({
       effectType: component.effectType.value,
       previewType: component.previewType.value,
       previewImageURL: component.previewImageURL.value,
-      spawnPosition: component.spawnPosition.value,
-      spawnRotation: component.spawnRotation.value
+      spawnPosition: {
+        x: component.spawnPosition.value.x,
+        y: component.spawnPosition.value.y,
+        z: component.spawnPosition.value.z
+      } as Vector3,
+      spawnRotation: {
+        x: component.spawnRotation.value.x,
+        y: component.spawnRotation.value.y,
+        z: component.spawnRotation.value.z,
+        w: component.spawnRotation.value.w
+      } as Quaternion
     }
   },
 
@@ -251,10 +261,10 @@ export const PortalComponent = defineComponent({
       } else {
         /** Portal is not in the scene yet */
         Engine.instance.api
-          .service('portal')
+          .service(portalPath)
           .get(portalComponent.linkedPortalId.value, { query: { locationName: portalComponent.location.value } })
           .then((data) => {
-            const portalDetails = data.data!
+            const portalDetails = data
             if (portalDetails) applyPortalDetails(portalDetails)
           })
           .catch((e) => {

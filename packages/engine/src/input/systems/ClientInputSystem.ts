@@ -160,7 +160,8 @@ export const addClientInputListeners = () => {
   /** Clear mouse events */
   const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
   const clearKeyState = () => {
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
     const state = inputSourceComponent.buttons as ButtonStateMap
     for (const button of pointerButtons) {
       const val = state[button]
@@ -262,12 +263,14 @@ export const addClientInputListeners = () => {
    */
 
   const onXRSelectStart = (event: any) => {
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
     const state = inputSourceComponent.buttons as ButtonStateMap
     state.PrimaryClick = createInitialButtonState()
   }
   const onXRSelectEnd = (event: any) => {
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
     const state = inputSourceComponent.buttons as ButtonStateMap
     if (!state.PrimaryClick) return
     state.PrimaryClick.up = true

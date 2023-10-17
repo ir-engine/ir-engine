@@ -35,9 +35,9 @@ import { AvatarDissolveComponent } from '@etherealengine/engine/src/avatar/compo
 import { AvatarEffectComponent, MaterialMap } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { AudioState } from '../../audio/AudioState'
 import { isClient } from '../../common/functions/getEnvironment'
+import { iOS } from '../../common/functions/isMobile'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  ComponentType,
   defineComponent,
   getComponent,
   getMutableComponent,
@@ -52,7 +52,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { addObjectToGroup } from '../components/GroupComponent'
 import { PlayMode } from '../constants/PlayMode'
-import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from './MediaComponent'
+import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup, getNextTrack } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 
 export const VolumetricComponent = defineComponent({
@@ -157,11 +157,14 @@ export function VolumetricReactor() {
               renderer: EngineRenderer.instance.renderer,
               onTrackEnd: () => {
                 volumetric.hasTrackStopped.set(true)
-                volumetric.track.set(getNextTrack(volumetric.value))
+                volumetric.track.set(
+                  getNextTrack(volumetric.track.value, volumetric.paths.length, volumetric.playMode.value)
+                )
               },
               video: element as HTMLVideoElement,
               V1Args: {
-                worker: worker
+                worker: worker,
+                targetFramesToRequest: iOS ? 10 : 90
               },
               paths: [],
               playMode: PlayMode.loop
@@ -255,26 +258,6 @@ export function VolumetricReactor() {
   }, [volumetric.paused, volumetric.player])
 
   return null
-}
-
-export function getNextTrack(volumetric: ComponentType<typeof VolumetricComponent>) {
-  const currentTrack = volumetric.track
-  const numTracks = volumetric.paths.length
-  let nextTrack = 0
-
-  if (volumetric.playMode == PlayMode.random) {
-    // todo: smart random, i.e., lower probability of recently played tracks
-    nextTrack = Math.floor(Math.random() * numTracks)
-  } else if (volumetric.playMode == PlayMode.single) {
-    nextTrack = (currentTrack + 1) % numTracks
-  } else if (volumetric.playMode == PlayMode.singleloop) {
-    nextTrack = currentTrack
-  } else {
-    //PlayMode.Loop
-    nextTrack = (currentTrack + 1) % numTracks
-  }
-
-  return nextTrack
 }
 
 export const endLoadingEffect = (entity, object) => {

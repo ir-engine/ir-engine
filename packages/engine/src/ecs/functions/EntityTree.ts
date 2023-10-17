@@ -31,6 +31,7 @@ import { dispatchAction, getMutableState, getState, hookstate, NO_PROXY, none } 
 
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { NetworkState } from '../../networking/NetworkState'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -158,7 +159,7 @@ export type EntityOrObjectUUID = Entity | string
  */
 export function initializeSceneEntity(): void {
   const oldSceneEntity = getState(SceneState).sceneEntity
-  if (oldSceneEntity && entityExists(oldSceneEntity)) removeEntity(oldSceneEntity, true)
+  if (oldSceneEntity && entityExists(oldSceneEntity)) removeEntity(oldSceneEntity)
 
   const sceneEntity = createEntity()
   getMutableState(SceneState).sceneEntity.set(sceneEntity)
@@ -219,7 +220,7 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIn
     childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
   }
 
-  if (Engine.instance.worldNetwork?.isHosting) {
+  if (NetworkState.worldNetwork?.isHosting) {
     const uuid = getComponent(entity, UUIDComponent)
     dispatchAction(
       WorldNetworkAction.spawnObject({

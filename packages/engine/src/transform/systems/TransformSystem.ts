@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
-import { Box3, Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
@@ -39,7 +39,11 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
+import {
+  BoundingBoxComponent,
+  BoundingBoxDynamicTag,
+  updateBoundingBoxAndHelper
+} from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
 import {
   RigidBodyComponent,
@@ -252,50 +256,6 @@ const compareReferenceDepth = (a: Entity, b: Entity) => {
   return aDepth - bDepth
 }
 
-const traverseComputeBoundingBox = (mesh: Mesh) => {
-  if (mesh.isMesh) mesh.geometry.computeBoundingBox()
-}
-
-const computeBoundingBox = (entity: Entity) => {
-  const box = getComponent(entity, BoundingBoxComponent).box
-  const group = getComponent(entity, GroupComponent)
-
-  box.makeEmpty()
-
-  for (const obj of group) {
-    obj.traverse(traverseComputeBoundingBox)
-    box.expandByObject(obj)
-  }
-}
-
-const updateBoundingBox = (entity: Entity) => {
-  const box = getComponent(entity, BoundingBoxComponent).box
-  const group = getComponent(entity, GroupComponent)
-  box.makeEmpty()
-  for (const obj of group) expandBoxByObject(obj, box, 0)
-}
-
-const expandBoxByObject = (object, box: Box3, layer: number) => {
-  const geometry = object.geometry
-
-  if (geometry !== undefined) {
-    if (geometry.boundingBox === null) {
-      geometry.computeBoundingBox()
-    }
-
-    box.copy(geometry.boundingBox)
-    if (layer > 0) box.applyMatrix4(object.matrixWorld)
-
-    box.union(box)
-  }
-
-  const children = object.children
-
-  for (let i = 0, l = children.length; i < l; i++) {
-    expandBoxByObject(children[i], box, i)
-  }
-}
-
 const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
 
 // @todo: once all animations are entity-based, we no longer need to check for AnimationComponent
@@ -414,8 +374,7 @@ const execute = () => {
 
   for (const entity in TransformComponent.dirtyTransforms) TransformComponent.dirtyTransforms[entity] = false
 
-  for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
-  for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
+  for (const entity of dynamicBoundingBoxQuery()) updateBoundingBoxAndHelper(entity)
 
   const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)

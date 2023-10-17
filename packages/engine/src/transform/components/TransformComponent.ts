@@ -114,8 +114,8 @@ export const TransformComponent = defineComponent({
       const parentEntity = entityTree.parentEntity
       const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
       if (parentTransform) {
-        const localMatrix = matrix.copy(component.matrix.value).premultiply(parentTransform.matrixInverse)
-        localMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+        localTransform.matrix.copy(component.matrix.value).premultiply(parentTransform.matrixInverse)
+        localTransform.matrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
       }
     }
   },
@@ -133,54 +133,71 @@ export const LocalTransformComponent = defineComponent({
   schema: TransformSchema,
 
   onInit: (entity) => {
-    return {
-      position: new Vector3(),
-      rotation: new Quaternion(),
-      scale: new Vector3(1, 1, 1),
+    const dirtyTransforms = TransformComponent.dirtyTransforms
+
+    const component = {
+      position: proxifyVector3WithDirty(LocalTransformComponent.position, entity, dirtyTransforms) as Vector3,
+      rotation: proxifyQuaternionWithDirty(LocalTransformComponent.rotation, entity, dirtyTransforms) as Quaternion,
+      scale: proxifyVector3WithDirty(
+        LocalTransformComponent.scale,
+        entity,
+        dirtyTransforms,
+        new Vector3(1, 1, 1)
+      ) as Vector3,
       matrix: new Matrix4()
-    }
+    } as TransformComponentType
+
+    return component
   },
 
   toJSON: (entity, component) => {
     return {
-      position: component.position.value,
-      rotation: component.rotation.value,
-      scale: component.scale.value
+      position: {
+        x: component.position.value.x,
+        y: component.position.value.y,
+        z: component.position.value.z
+      } as Vector3,
+      rotation: {
+        x: component.rotation.value.x,
+        y: component.rotation.value.y,
+        z: component.rotation.value.z,
+        w: component.rotation.value.w
+      } as Quaternion,
+      scale: {
+        x: component.scale.value.x,
+        y: component.scale.value.y,
+        z: component.scale.value.z
+      } as Vector3
     }
   },
 
-  onSet: (entity, component, json: Partial<DeepReadonly<TransformComponentType>>) => {
-    if (!json) return
+  onSet: (entity, component, json: Partial<DeepReadonly<TransformComponentType>> = {}) => {
+    if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
+    getMutableState(EngineState).transformsNeedSorting.set(true)
 
     const position = json.position?.isVector3
       ? json.position
       : json.position
       ? new Vector3(json.position.x, json.position.y, json.position.z)
-      : new Vector3()
+      : null
+
+    if (position) component.position.value.copy(position)
+
     const rotation = json.rotation?.isQuaternion
       ? json.rotation
       : json.rotation
       ? new Quaternion(json.rotation.x, json.rotation.y, json.rotation.z, json.rotation.w)
-      : new Quaternion()
+      : null
+
+    if (rotation) component.rotation.value.copy(rotation)
+
     const scale = json.scale?.isVector3
       ? json.scale
       : json.scale
       ? new Vector3(json.scale.x, json.scale.y, json.scale.z)
-      : new Vector3(1, 1, 1)
-    const dirtyTransforms = TransformComponent.dirtyTransforms
+      : null
 
-    if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
-
-    getMutableState(EngineState).transformsNeedSorting.set(true)
-
-    // clone incoming transform properties, because we don't want to accidentally bind obj properties to local transform
-    component.position.set(
-      proxifyVector3WithDirty(LocalTransformComponent.position, entity, dirtyTransforms, position.clone())
-    )
-    component.rotation.set(
-      proxifyQuaternionWithDirty(LocalTransformComponent.rotation, entity, dirtyTransforms, rotation.clone())
-    )
-    component.scale.set(proxifyVector3WithDirty(LocalTransformComponent.scale, entity, dirtyTransforms, scale.clone()))
+    if (scale) component.scale.value.copy(scale)
 
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
   }

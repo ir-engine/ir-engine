@@ -46,7 +46,7 @@
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
     "create-root-package-json": "cross-env ts-node --swc scripts/create-root-package-json",
     "depcheck": "lerna exec --no-bail --stream -- depcheck",
-    "dev": "npm run dev-docker && concurrently -n agones,server,client,taskserver npm:dev-agones-silent npm:dev-server npm:dev-client npm:dev-taskserver",
+    "dev": "npm run dev-docker && concurrently -n agones,server,client,taskserver -c '#CEB793,#FF9800,#7E2D40,#B2B4B2' npm:dev-agones-silent npm:dev-server npm:dev-client npm:dev-taskserver",
     "dev-noclient": "npm run dev-docker && concurrently -n agones,server,taskserver npm:dev-agones-silent npm:dev-server npm:dev-taskserver",
     "dev-agones": "cd scripts && ./start-agones.sh",
     "dev-agones-silent": "npm run dev-agones &> /dev/null",

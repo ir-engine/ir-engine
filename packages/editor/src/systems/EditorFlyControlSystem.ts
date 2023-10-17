@@ -35,11 +35,11 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { editorCameraCenter } from '../classes/EditorCameraState'
-import { EditorHelperAction } from '../services/EditorHelperState'
+import { EditorHelperState } from '../services/EditorHelperState'
 
 const tempVec3 = new Vector3()
 const normalMatrix = new Matrix3()
@@ -52,7 +52,7 @@ const onSecondaryClick = () => {
       lookSensitivity: 5,
       maxXRotation: MathUtils.degToRad(80)
     })
-    dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: true }))
+    getMutableState(EditorHelperState).isFlyModeEnabled.set(true)
   }
 }
 
@@ -65,7 +65,7 @@ const onSecondaryReleased = () => {
       tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
     )
     removeComponent(Engine.instance.cameraEntity, FlyControlComponent)
-    dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: false }))
+    getMutableState(EditorHelperState).isFlyModeEnabled.set(false)
   }
 }
 

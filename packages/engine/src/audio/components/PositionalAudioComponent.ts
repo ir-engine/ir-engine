@@ -27,7 +27,6 @@ import { useEffect } from 'react'
 
 import {
   defineComponent,
-  hasComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -72,6 +71,8 @@ export const PositionalAudioComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, MediaComponent, {})
+
     if (!json) return
     if (typeof json.distanceModel === 'number' && component.distanceModel.value !== json.distanceModel)
       component.distanceModel.set(json.distanceModel)
@@ -110,11 +111,6 @@ export const PositionalAudioComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
-    useEffect(() => {
-      if (hasComponent(entity, MediaComponent)) return
-
-      setComponent(entity, MediaComponent, {})
-    }, [])
 
     useEffect(() => {
       if (

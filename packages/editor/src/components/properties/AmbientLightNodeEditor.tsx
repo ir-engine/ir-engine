@@ -35,7 +35,7 @@ import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  *
@@ -56,7 +56,11 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.ambientLight.description')}
     >
       <InputGroup name="Color" label={t('editor:properties.ambientLight.lbl-color')}>
-        <ColorInput value={lightComponent.color.value} onChange={updateProperty(AmbientLightComponent, 'color')} />
+        <ColorInput
+          value={lightComponent.color.value}
+          onChange={updateProperty(AmbientLightComponent, 'color')}
+          onRelease={commitProperty(AmbientLightComponent, 'color')}
+        />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
@@ -67,6 +71,7 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
         largeStep={0.1}
         value={lightComponent.intensity.value}
         onChange={updateProperty(AmbientLightComponent, 'intensity')}
+        onRelease={commitProperty(AmbientLightComponent, 'intensity')}
         unit="cd"
       />
     </NodeEditor>

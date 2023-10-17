@@ -39,6 +39,7 @@ import {
   WebGLCubeRenderTarget,
   WebGLRenderer
 } from 'three'
+import { disposeObject3D } from '../systems/SceneObjectSystem'
 
 /**
  * @author zz85 / https://github.com/zz85
@@ -256,7 +257,7 @@ export class Sky {
 
   skyScene: Scene
   cubeCamera: CubeCamera
-  sky: Mesh
+  sky: Mesh<BoxGeometry, ShaderMaterial>
 
   _inclination: number
   _azimuth: number
@@ -381,5 +382,9 @@ export class Sky {
     this.distance = source.distance
 
     return this
+  }
+
+  dispose() {
+    this.skyScene.traverse(disposeObject3D)
   }
 }

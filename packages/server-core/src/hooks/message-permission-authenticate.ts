@@ -30,24 +30,30 @@ import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/soc
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from './../../declarations'
 
-// This will attach the owner ID in the contact while creating/updating list item
+/**
+ * Checks if the requesting user is the owner of the message
+ */
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
-    const { id, method, data, params, app } = context
+    const { id, params, app } = context
     const loggedInUser = params.user as UserType
-    if ((method === 'remove' || method === 'patch') && id) {
-      const match = (await app.service(messagePath)._find({
-        query: {
-          id: id.toString(),
-          senderId: loggedInUser.id,
-          $limit: 1
-        }
-      })) as Paginated<MessageType>
 
-      if (match == null) {
-        throw new BadRequest('Message not owned by requesting user')
-      }
+    if (!id) {
+      throw new BadRequest('Must provide a message ID')
     }
+
+    const match = (await app.service(messagePath).find({
+      query: {
+        id: id.toString(),
+        senderId: loggedInUser.id,
+        $limit: 1
+      }
+    })) as Paginated<MessageType>
+
+    if (match.data.length === 0) {
+      throw new BadRequest('Message not owned by requesting user')
+    }
+
     return context
   }
 }

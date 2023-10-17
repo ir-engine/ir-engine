@@ -37,8 +37,10 @@ import {
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
 import {
+  blurAndScaleImageData,
   convertCubemapToEquiImageData,
-  convertCubemapToKTX2
+  convertCubemapToImageData,
+  convertImageDataToKTX2Blob
 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -51,7 +53,7 @@ import { uploadProjectFiles } from './assetFunctions'
 
 const query = defineQuery([ScenePreviewCameraComponent, TransformComponent])
 
-const getScenePositionForBake = (entity: Entity | null) => {
+const getScenePositionForBake = (entity?: Entity) => {
   if (entity) {
     const transformComponent = getComponent(entity, TransformComponent)
     return transformComponent.position
@@ -83,12 +85,12 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {
-      setComponent(entity, EnvMapBakeComponent)
+      setComponent(entity, EnvMapBakeComponent, { resolution: 1024 })
     }
   }
 
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
-  const position = getScenePositionForBake(isSceneEntity ? null : entity)
+  const position = getScenePositionForBake(isSceneEntity ? undefined : entity)
 
   const cubemapCapturer = new CubemapCapturer(
     EngineRenderer.instance.renderer,
@@ -99,15 +101,16 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   if (isSceneEntity) Engine.instance.scene.environment = renderTarget.texture
 
-  const blob = await convertCubemapToKTX2(
+  const envmapImageData = convertCubemapToImageData(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
     bakeComponent.resolution,
-    bakeComponent.resolution,
-    true
+    bakeComponent.resolution
   )
 
-  if (!blob) return null!
+  const envmap = await convertImageDataToKTX2Blob(envmapImageData)
+
+  if (!envmap) return null!
 
   const nameComponent = getComponent(entity, NameComponent)
   const editorState = getState(EditorState)
@@ -115,11 +118,66 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const projectName = editorState.projectName!
   const filename = isSceneEntity ? `${sceneName}.envmap.ktx2` : `${sceneName}-${nameComponent.replace(' ', '-')}.ktx2`
 
-  const url = (await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0])[0]
+  const url = (await uploadProjectFiles(projectName, [new File([envmap], filename)]).promises[0])[0]
 
   setComponent(entity, EnvMapBakeComponent, { envMapOrigin: url })
+}
 
-  return url
+export const uploadSceneBakeToServer = async () => {
+  const entity = getState(SceneState).sceneEntity
+
+  if (!hasComponent(entity, EnvMapBakeComponent)) {
+    setComponent(entity, EnvMapBakeComponent, { resolution: 2048 })
+  }
+
+  const bakeComponent = getComponent(entity, EnvMapBakeComponent)
+  const position = getScenePositionForBake()
+
+  const cubemapCapturer = new CubemapCapturer(
+    EngineRenderer.instance.renderer,
+    Engine.instance.scene,
+    bakeComponent.resolution
+  )
+  const renderTarget = cubemapCapturer.update(position)
+
+  Engine.instance.scene.environment = renderTarget.texture
+
+  const envmapImageData = convertCubemapToImageData(
+    EngineRenderer.instance.renderer,
+    renderTarget.texture,
+    bakeComponent.resolution,
+    bakeComponent.resolution
+  )
+
+  const loadingScreenImageData = blurAndScaleImageData(
+    envmapImageData,
+    bakeComponent.resolution,
+    bakeComponent.resolution,
+    6,
+    512
+  )
+
+  const [envmap, loadingScreen] = await Promise.all([
+    convertImageDataToKTX2Blob(envmapImageData),
+    convertImageDataToKTX2Blob(loadingScreenImageData)
+  ])
+
+  if (!envmap || !loadingScreen) return null!
+
+  const editorState = getState(EditorState)
+  const sceneName = editorState.sceneName!
+  const projectName = editorState.projectName!
+  const envmapFilename = `${sceneName}.envmap.ktx2`
+  const loadingScreenFilename = `${sceneName}.loadingscreen.ktx2`
+
+  const url = (
+    await uploadProjectFiles(projectName, [
+      new File([envmap], envmapFilename),
+      new File([loadingScreen], loadingScreenFilename)
+    ]).promises[0]
+  )[0]
+
+  setComponent(entity, EnvMapBakeComponent, { envMapOrigin: url })
 }
 
 const resolution = 1024
@@ -156,13 +214,9 @@ export const getPreviewBakeTexture = async (position: Vector3) => {
 const saveCubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
 export const uploadCubemapBakeToServer = async (name: string, position: Vector3, res: number = resolution) => {
   const renderTarget = saveCubemapCapturer.update(position)
-  const blob = (await convertCubemapToKTX2(
-    EngineRenderer.instance.renderer,
-    renderTarget.texture,
-    res,
-    res,
-    true
-  )) as Blob
+  const bake = await convertCubemapToImageData(EngineRenderer.instance.renderer, renderTarget.texture, res, res)
+
+  const blob = await convertImageDataToKTX2Blob(bake)
 
   if (!blob) return null!
 

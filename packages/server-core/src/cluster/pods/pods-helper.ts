@@ -233,7 +233,7 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
     return
   }
 
-  const instances = (await app.service(instancePath)._find({
+  const instances = (await app.service(instancePath).find({
     query: {
       ended: false
     },
@@ -262,7 +262,7 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
   let channels: ChannelType[] = []
 
   if (channelInstances) {
-    channels = (await app.service(channelPath)._find({
+    channels = (await app.service(channelPath).find({
       query: {
         id: {
           $in: channelInstances.map((item) => item.channelId!)
