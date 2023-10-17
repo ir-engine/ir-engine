@@ -208,6 +208,9 @@ export class EngineRenderer {
 
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 
+    const canvasParent = document.getElementById('engine-renderer-canvas')?.parentElement
+    if (!canvasParent) return
+
     /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
     if (xrFrame) {
       // Assume camera.layers is source of truth for all xr cameras
@@ -225,20 +228,18 @@ export class EngineRenderer {
 
         if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
 
-        const canvasParent = document.getElementById('engine-renderer-canvas')?.parentElement
-        if (canvasParent) {
-          const width = canvasParent.clientWidth
-          const height = canvasParent.clientHeight
+        const width = canvasParent.clientWidth
+        const height = canvasParent.clientHeight
 
-          if (camera.isPerspectiveCamera) {
-            camera.aspect = width / height
-            camera.updateProjectionMatrix()
-          }
-
-          state.qualityLevel > 0 && state.csm?.updateFrustums()
-          // Effect composer calls renderer.setSize internally
-          this.effectComposer.setSize(width, height, true)
+        if (camera.isPerspectiveCamera) {
+          camera.aspect = width / height
+          camera.updateProjectionMatrix()
         }
+
+        state.qualityLevel > 0 && state.csm?.updateFrustums()
+        // Effect composer calls renderer.setSize internally
+        this.effectComposer.setSize(width, height, true)
+
         this.needsResize = false
       }
 
