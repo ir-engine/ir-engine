@@ -69,7 +69,7 @@ describe('identity-provider.service', () => {
     assert.equal(createdIdentityProvider.type, type)
     assert.equal(createdIdentityProvider.token, token)
     assert.ok(createdIdentityProvider.accessToken)
-    assert.ok(createdIdentityProvider.userId)
+    assert.equal(createdIdentityProvider.userId, userId)
   })
 
   it('should create an identity provider for email', async () => {
@@ -87,7 +87,7 @@ describe('identity-provider.service', () => {
     assert.equal(createdIdentityProvider.type, type)
     assert.equal(createdIdentityProvider.token, token)
     assert.ok(createdIdentityProvider.accessToken)
-    assert.ok(createdIdentityProvider.userId)
+    assert.equal(createdIdentityProvider.userId, userId)
   })
 
   it('should create an identity provider for password', async () => {
@@ -105,7 +105,7 @@ describe('identity-provider.service', () => {
     assert.equal(createdIdentityProvider.type, type)
     assert.equal(createdIdentityProvider.token, token)
     assert.ok(createdIdentityProvider.accessToken)
-    assert.ok(createdIdentityProvider.userId)
+    assert.equal(createdIdentityProvider.userId, userId)
   })
 
   it('should find identity providers', async () => {

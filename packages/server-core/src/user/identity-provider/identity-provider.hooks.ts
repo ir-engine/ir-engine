@@ -121,9 +121,7 @@ async function validateAuthParams(context: HookContext<IdentityProviderService>)
     throw new BadRequest('userId not found')
   }
 
-  const user = await context.app.service(userPath).get(userId)
-
-  context.existingUser = user
+  context.existingUser = await context.app.service(userPath).get(userId)
 }
 
 async function addIdentityProviderType(context: HookContext<IdentityProviderService>) {
@@ -189,16 +187,16 @@ export default {
       () => schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
-    find: [setLoggedinUserInQuery('userId')],
+    find: [iff(isProvider('external'), setLoggedinUserInQuery('userId'))],
     get: [iff(isProvider('external'), checkIdentityProvider)],
     create: [
       () => schemaHooks.validateData(identityProviderDataValidator),
       schemaHooks.resolveData(identityProviderDataResolver),
+      validateAuthParams,
+      addIdentityProviderType,
       iff((context: HookContext<IdentityProviderService>) => !context.existingUser, createNewUser),
       (context: HookContext<IdentityProviderService>) =>
-        ((context.data as IdentityProviderData).userId = context.existingUser!.id),
-      validateAuthParams,
-      addIdentityProviderType
+        ((context.data as IdentityProviderData).userId = context.existingUser!.id)
     ],
     update: [iff(isProvider('external'), checkIdentityProvider)],
     patch: [
