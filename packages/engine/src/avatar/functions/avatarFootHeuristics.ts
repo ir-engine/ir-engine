@@ -96,7 +96,7 @@ export const setIkFootTarget = (stepThreshold: number, delta: number) => {
     }
 
     //if we're at the target, switch to the other foot
-    if (ikDistanceSqFromWalkTarget < 0.05) {
+    if (ikDistanceSqFromWalkTarget < 0.01) {
       currentStep = key == ikTargets.leftFoot ? ikTargets.rightFoot : ikTargets.leftFoot
       continue
     }
