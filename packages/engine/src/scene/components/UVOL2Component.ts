@@ -109,6 +109,7 @@ export const UVOL2Component = defineComponent({
   onInit: (entity) => {
     return {
       manifestPath: '',
+      isBuffering: false,
       data: {} as PlayerManifest,
       hasAudio: false,
       geometryTarget: '',
@@ -620,6 +621,13 @@ function UVOL2Reactor() {
   }
 
   useEffect(() => {
+    if (component.isBuffering.value) {
+      component.geometryTarget.set(geometryTargets.current[0])
+      component.textureTarget.set(textureTargets.current[0])
+    }
+  }, [component.isBuffering])
+
+  useEffect(() => {
     if (!component.initialGeometryBuffersLoaded.value || !component.initialTextureBuffersLoaded.value) {
       return
     }
@@ -894,6 +902,19 @@ function UVOL2Reactor() {
 
   const update = () => {
     const delta = getState(EngineState).deltaSeconds
+    const canPlay =
+      geometryBufferHealth.current - currentTime.current >= minBufferToPlay &&
+      textureBufferHealth.current - currentTime.current >= minBufferToPlay
+    if (!canPlay) {
+      if (!component.isBuffering.value) {
+        component.isBuffering.set(true)
+      }
+      return
+    } else {
+      if (component.isBuffering.value) {
+        component.isBuffering.set(false)
+      }
+    }
 
     if (
       component.loadingEffectStarted.value &&
