@@ -18,8 +18,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import authenticate from '../../hooks/authenticate'
-
 import { iff, isProvider } from 'feathers-hooks-common'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -35,10 +33,7 @@ export default {
     get: [],
     create: [],
     update: [],
-    patch: [
-      authenticate(),
-      iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate('write'))
-    ],
+    patch: [iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate('write'))],
     remove: []
   },
   after: {

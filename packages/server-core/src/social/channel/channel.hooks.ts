@@ -45,7 +45,6 @@ import { Paginated } from '@feathersjs/feathers'
 import { disallow, discard, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { Knex } from 'knex'
 import { HookContext } from '../../../declarations'
-import authenticate from '../../hooks/authenticate'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import persistData from '../../hooks/persist-data'
@@ -285,7 +284,7 @@ export default {
   },
 
   before: {
-    all: [authenticate()],
+    all: [],
     find: [
       enableClientPagination(),
       iff(isProvider('external'), verifyUserId()),

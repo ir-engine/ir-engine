@@ -23,21 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction } from '@etherealengine/hyperflux'
-import matches from 'ts-matches'
-import { defineComponent } from '../ecs/functions/ComponentFunctions'
+import React, { useEffect } from 'react'
+import { RouterState } from '../services/RouterService'
 
-export class MotionCaptureAction {
-  static trackingScopeChanged = defineAction({
-    type: 'ee.mocap.trackLowerBody' as const,
-    trackingLowerBody: matches.boolean,
-    $cache: { removePrevious: true }
+export const Redirect = (props: { to: string }) => {
+  useEffect(() => {
+    RouterState.navigate(props.to)
   })
+  return <></>
 }
-
-export const MotionCaptureState = defineComponent({
-  name: 'MotionCaptureState',
-  initial: () => ({
-    trackingLowerBody: true
-  })
-})

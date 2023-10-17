@@ -40,7 +40,7 @@ import { NormalizedLandmarkList } from '@mediapipe/pose'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
 import { getState } from '@etherealengine/hyperflux'
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
+import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import {
   BufferAttribute,
   BufferGeometry,
@@ -133,11 +133,9 @@ const execute = () => {
     const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
-    if (data && entity) {
-      timeSeriesMocapLastSeen.set(peerID, Date.now())
-      setComponent(entity, MotionCaptureRigComponent)
-      solveMotionCapturePose(data.results.poseWorldLandmarks, data.results.poseLandmarks, entity)
-    }
+    timeSeriesMocapLastSeen.set(peerID, Date.now())
+    setComponent(entity, MotionCaptureRigComponent)
+    solveMotionCapturePose(entity, data?.results.poseWorldLandmarks, data?.results.poseLandmarks)
 
     mocapData.clear() // TODO: add a predictive filter and remove this
   }
@@ -153,7 +151,17 @@ const execute = () => {
     for (const boneName of VRMHumanBoneList) {
       const localbone = rigComponent.localRig[boneName]?.node
       if (!localbone) continue
-
+      if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
+        if (
+          boneName == VRMHumanBoneName.LeftUpperLeg ||
+          boneName == VRMHumanBoneName.RightUpperLeg ||
+          boneName == VRMHumanBoneName.LeftLowerLeg ||
+          boneName == VRMHumanBoneName.RightLowerLeg ||
+          boneName == VRMHumanBoneName.LeftFoot ||
+          boneName == VRMHumanBoneName.RightFoot
+        )
+          continue
+      }
       if (
         MotionCaptureRigComponent.rig[boneName].x[entity] === 0 &&
         MotionCaptureRigComponent.rig[boneName].y[entity] === 0 &&

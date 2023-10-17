@@ -31,12 +31,12 @@ import { createTicket, deleteTicket, getTicket } from '@etherealengine/matchmaki
 import { MatchTicketData, MatchTicketQuery, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 import { emulate_createTicket, emulate_getTicket } from '../emulate'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface MatchTicketParams extends RootParams<MatchTicketQuery> {}
+export interface MatchTicketParams extends KnexAdapterParams<MatchTicketQuery> {}
 
 /**
  * A class for MatchTicket service

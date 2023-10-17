@@ -126,7 +126,7 @@ export const WorldInstanceProvisioning = () => {
 
   return (
     <>
-      {locationInstances.keys.map((instanceId: InstanceID) => (
+      {Object.keys(locationInstances.value).map((instanceId: InstanceID) => (
         <WorldInstance key={instanceId} id={instanceId} />
       ))}
     </>
@@ -178,7 +178,7 @@ export const MediaInstanceProvisioning = () => {
 
   return (
     <>
-      {mediaInstance.keys.map((instanceId: InstanceID) => (
+      {Object.keys(mediaInstance.value).map((instanceId: InstanceID) => (
         <MediaInstance key={instanceId} id={instanceId} />
       ))}
     </>

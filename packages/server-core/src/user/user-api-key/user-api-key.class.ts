@@ -31,11 +31,10 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 
 import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserApiKeyParams extends RootParams<UserApiKeyQuery> {}
+export interface UserApiKeyParams extends KnexAdapterParams<UserApiKeyQuery> {}
 
 export class UserApiKeyService<T = UserApiKeyType, ServiceParams extends Params = UserApiKeyParams> extends KnexService<
   UserApiKeyType,

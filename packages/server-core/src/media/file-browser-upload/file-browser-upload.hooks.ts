@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { iff, isProvider } from 'feathers-hooks-common'
 import { SYNC } from 'feathers-sync'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 // An example of calculating the remaining space left on a hypothetical project max size
@@ -52,7 +51,7 @@ import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write'))],
+    all: [iff(isProvider('external'), verifyScope('editor', 'write'))],
     find: [],
     get: [],
     create: [
