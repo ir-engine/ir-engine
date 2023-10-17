@@ -66,7 +66,18 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
 
   const invitesQuery = useFind(invitePath, {
     query: {
-      search,
+      $or: [
+        {
+          inviteType: {
+            $like: '%' + search + '%'
+          }
+        },
+        {
+          passcode: {
+            $like: '%' + search + '%'
+          }
+        }
+      ],
       $sort: { id: 1 },
       $limit: 20
     }
