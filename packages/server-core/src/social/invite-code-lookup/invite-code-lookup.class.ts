@@ -31,12 +31,11 @@ import {
 } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface InviteCodeLookupParams extends RootParams<InviteCodeLookupQuery> {}
+export interface InviteCodeLookupParams extends KnexAdapterParams<InviteCodeLookupQuery> {}
 
-// export class InviteCodeLookupService extends KnexAdapter<InviteCodeLookupParams> {
 export class InviteCodeLookupService implements ServiceInterface<InviteCodeLookupType, InviteCodeLookupParams> {
   app: Application
 
@@ -48,7 +47,7 @@ export class InviteCodeLookupService implements ServiceInterface<InviteCodeLooku
     const inviteCode = params?.query?.inviteCode
 
     if (inviteCode) {
-      const users = await this.app.service(userPath)._find({
+      const users = await this.app.service(userPath).find({
         query: {
           inviteCode
         },

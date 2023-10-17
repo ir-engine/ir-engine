@@ -192,9 +192,9 @@ export async function takeScreenshot(
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
-  const selection = EngineRenderer.instance.effectComposer.HighlightEffect.selection.values()
+  const selection = EngineRenderer.instance.effectComposer.HighlightEffect?.selection.values()
   if (hideHelpers) {
-    EngineRenderer.instance.effectComposer.HighlightEffect.clearSelection()
+    EngineRenderer.instance.effectComposer.HighlightEffect?.clearSelection()
   }
 
   const originalSize = EngineRenderer.instance.renderer.getSize(new Vector2())
@@ -230,7 +230,7 @@ export async function takeScreenshot(
   EngineRenderer.instance.effectComposer.render()
 
   if (hideHelpers) {
-    EngineRenderer.instance.effectComposer.HighlightEffect.setSelection(selection)
+    EngineRenderer.instance.effectComposer.HighlightEffect?.setSelection(selection)
   }
 
   const canvas = getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height)

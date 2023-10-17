@@ -337,7 +337,7 @@ const revertXRSessionFunctions = () => {
 const execute = () => {
   if (!XR8) return
 
-  getMutableState(XRState).xrFrame.set(new XRFrameProxy() as any as XRFrame)
+  getState(XRState).xrFrame = new XRFrameProxy() as any as XRFrame
 }
 
 const reactor = () => {

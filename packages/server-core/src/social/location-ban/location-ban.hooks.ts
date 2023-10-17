@@ -32,7 +32,6 @@ import {
   locationBanQueryValidator
 } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyLocationAdmin from '../../hooks/verify-location-admin'
 import {
   locationBanDataResolver,
@@ -49,7 +48,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(locationBanQueryValidator),
       schemaHooks.resolveQuery(locationBanQueryResolver)
     ],

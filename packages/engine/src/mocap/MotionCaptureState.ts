@@ -23,11 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { AdapterQuery } from '@feathersjs/adapter-commons'
-import { KnexAdapterParams } from '@feathersjs/knex'
+import { defineAction } from '@etherealengine/hyperflux'
+import matches from 'ts-matches'
+import { defineComponent } from '../ecs/functions/ComponentFunctions'
 
-export interface RootParams<Q = AdapterQuery> extends KnexAdapterParams<Q> {
-  user?: UserType
-  isInternal?: boolean
+export class MotionCaptureAction {
+  static trackingScopeChanged = defineAction({
+    type: 'ee.mocap.trackLowerBody' as const,
+    trackingLowerBody: matches.boolean,
+    $cache: { removePrevious: true }
+  })
 }
+
+export const MotionCaptureState = defineComponent({
+  name: 'MotionCaptureState',
+  initial: () => ({
+    trackingLowerBody: true
+  })
+})

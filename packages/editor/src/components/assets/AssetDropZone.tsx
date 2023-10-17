@@ -26,18 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
-import { Vector2 } from 'three'
+import { Vector2, Vector3 } from 'three'
 
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
-import { SelectionAction } from '../../services/SelectionServices'
 import useUpload from './useUpload'
 
 const dropZoneBackgroundStyle = {
@@ -66,7 +63,7 @@ export function AssetDropZone() {
 
   const [{ canDrop, isOver, isDragging, isUploaded }, onDropTarget] = useDrop({
     accept: [...SupportedFileTypes],
-    async drop(item: any, monitor) {
+    drop(item: any, monitor) {
       const mousePos = monitor.getClientOffset() as Vector2
 
       if (item.files) {
@@ -76,25 +73,21 @@ export function AssetDropZone() {
         onUpload(entries).then((assets) => {
           if (!assets) return
 
-          assets.map(async (asset) => {
-            const node = await addMediaNode(asset)
-            if (!node) return
-            const transformComponent = getComponent(node, TransformComponent)
-            if (transformComponent) {
-              getCursorSpawnPosition(mousePos, transformComponent.position)
-              dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName: 'position' }))
-            }
+          assets.map((asset) => {
+            const vec3 = new Vector3()
+            getCursorSpawnPosition(mousePos, vec3)
+            addMediaNode(asset, undefined, undefined, [
+              { name: LocalTransformComponent.jsonID, props: { position: vec3 } }
+            ])
           })
         })
       } else {
         // When user drags files from files panel
-        const node = await addMediaNode(item.url)
-        if (!node) return
-        const transformComponent = getComponent(node, TransformComponent)
-        if (transformComponent) {
-          getCursorSpawnPosition(mousePos, transformComponent.position)
-          dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName: 'position' }))
-        }
+        const vec3 = new Vector3()
+        getCursorSpawnPosition(mousePos, vec3)
+        addMediaNode(item.url, undefined, undefined, [
+          { name: LocalTransformComponent.jsonID, props: { position: vec3 } }
+        ])
       }
     },
     collect: (monitor) => ({

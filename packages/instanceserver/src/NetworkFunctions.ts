@@ -53,6 +53,7 @@ import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/n
 import { instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
@@ -96,13 +97,13 @@ export const setupIPs = async () => {
     announcedIp
   }
 
-  localConfig.mediasoup.recording.ip = announcedIp
+  localConfig.mediasoup.recording.ip = config.kubernetes.enabled ? '127.0.0.1' : announcedIp
 }
 
 export async function cleanupOldInstanceservers(app: Application): Promise<void> {
   const serverState = getState(ServerState)
 
-  const instances = (await app.service(instancePath)._find({
+  const instances = (await app.service(instancePath).find({
     query: {
       ended: false
     },
@@ -326,10 +327,10 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
           isNotification: true
         },
         {
-          'identity-provider': {
+          [identityProviderPath]: {
             userId: userId
           }
-        }
+        } as any
       )
 
     NetworkPeerFunctions.destroyPeer(network, peerID)

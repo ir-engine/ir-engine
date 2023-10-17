@@ -36,7 +36,7 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 export const PointLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -45,7 +45,11 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor {...props} description={t('editor:properties.pointLight.description')}>
       <InputGroup name="Color" label={t('editor:properties.pointLight.lbl-color')}>
-        <ColorInput value={lightComponent.color} onChange={updateProperty(PointLightComponent, 'color')} />
+        <ColorInput
+          value={lightComponent.color}
+          onChange={updateProperty(PointLightComponent, 'color')}
+          onRelease={commitProperty(PointLightComponent, 'color')}
+        />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
@@ -56,6 +60,7 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
         largeStep={0.1}
         value={lightComponent.intensity}
         onChange={updateProperty(PointLightComponent, 'intensity')}
+        onRelease={commitProperty(PointLightComponent, 'intensity')}
         unit="cd"
       />
       <NumericInputGroup
@@ -67,6 +72,7 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
         largeStep={10}
         value={lightComponent.range}
         onChange={updateProperty(PointLightComponent, 'range')}
+        onRelease={commitProperty(PointLightComponent, 'range')}
         unit="m"
       />
       <NumericInputGroup
@@ -78,6 +84,7 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
         largeStep={10}
         value={lightComponent.decay}
         onChange={updateProperty(PointLightComponent, 'decay')}
+        onRelease={commitProperty(PointLightComponent, 'decay')}
       />
       <LightShadowProperties entity={props.entity} comp={PointLightComponent} />
     </NodeEditor>

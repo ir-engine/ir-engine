@@ -42,8 +42,8 @@ import {
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { isClient } from '../../common/functions/getEnvironment'
 import { matches, matchesEntityUUID } from '../../common/functions/MatchesUtils'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -56,6 +56,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { NetworkState } from '../../networking/NetworkState'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -68,7 +69,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
 import { createInteractUI } from '../functions/interactUI'
-import { addInteractableUI, InteractableTransitions, removeInteractiveUI } from './InteractiveSystem'
+import { InteractableTransitions, addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
 
 export class GrabbableNetworkAction {
   static setGrabbedObject = defineAction({
@@ -168,7 +169,7 @@ export function transferAuthorityOfObjectReceptor(
   if (action.newAuthority !== Engine.instance.peerID) return
   const grabbableEntity = NetworkObjectComponent.getNetworkObject(action.ownerId, action.networkId)!
   if (hasComponent(grabbableEntity, GrabbableComponent)) {
-    const grabberUserId = Engine.instance.worldNetwork.peers[action.newAuthority]?.userId
+    const grabberUserId = NetworkState.worldNetwork.peers[action.newAuthority]?.userId
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
         entityUUID: getComponent(grabbableEntity, UUIDComponent),

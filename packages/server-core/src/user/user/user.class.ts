@@ -23,191 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, NullableId, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import { UserData, UserID, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-
-import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
-import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
-import { RootParams } from '../../api/root-params'
-import getFreeInviteCode from '../../util/get-free-invite-code'
+import { UserData, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserParams extends RootParams<UserQuery> {}
+export interface UserParams extends KnexAdapterParams<UserQuery> {}
 
 /**
  * A class for User service
  */
-
-export class UserService<T = UserType, ServiceParams extends Params = UserParams> extends KnexAdapter<
+export class UserService<T = UserType, ServiceParams extends Params = UserParams> extends KnexService<
   UserType,
   UserData,
   UserParams,
   UserPatch
-> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  async get(id: Id, params?: UserParams) {
-    return super._get(id, params)
-  }
-
-  /**
-   * @function find it is used to find specific users
-   *
-   */
-  async find(params: UserParams) {
-    const { search } = params.query || {}
-
-    if (search) {
-      const searchedIdentityProviders = (await this.app.service(identityProviderPath).find({
-        query: {
-          accountIdentifier: {
-            $like: `%${search}%`
-          }
-        },
-        paginate: false
-      })) as IdentityProviderType[]
-
-      params.query = {
-        ...params.query,
-        $or: [
-          {
-            id: {
-              $like: `%${search}%`
-            }
-          },
-          {
-            name: {
-              $like: `%${search}%`
-            }
-          },
-          {
-            id: {
-              $in: searchedIdentityProviders.map((ip) => ip.userId)
-            }
-          }
-        ]
-      }
-    }
-
-    const paramsWithoutExtras = {
-      ...params,
-      // Explicitly cloned sort object because otherwise it was affecting default params object as well.
-      query: params.query ? JSON.parse(JSON.stringify(params.query)) : {}
-    }
-
-    // Remove extra params
-    if (paramsWithoutExtras.query?.action || paramsWithoutExtras.query?.action === '')
-      delete paramsWithoutExtras.query.action
-    if (paramsWithoutExtras.query?.search || paramsWithoutExtras.query?.search === '')
-      delete paramsWithoutExtras.query.search
-
-    // Remove account identifier sort
-    if (paramsWithoutExtras.query?.$sort && paramsWithoutExtras.query.$sort.accountIdentifier) {
-      delete paramsWithoutExtras.query.$sort.accountIdentifier
-    }
-
-    return super._find(paramsWithoutExtras)
-  }
-
-  async create(data: UserData, params?: UserParams) {
-    if (!data.inviteCode) {
-      data.inviteCode = Math.random().toString(36).slice(2)
-    }
-
-    const dataWithoutExtras = { ...data } as any
-
-    delete dataWithoutExtras.scopes
-    if (!dataWithoutExtras.avatarId) delete dataWithoutExtras.avatarId
-
-    const result = await super._create(dataWithoutExtras, params)
-
-    if (data.scopes) result.scopes = [...data.scopes]
-
-    await this._afterCreate(this.app, result)
-
-    return result
-  }
-
-  async patch(id: NullableId, data: UserPatch, params?: UserParams) {
-    const dataWithoutExtras = { ...data } as any
-
-    delete dataWithoutExtras.scopes
-
-    const result = (await super._patch(id, dataWithoutExtras, params)) as UserType | UserType[]
-
-    await this._afterPatch(this.app, result)
-
-    return result
-  }
-
-  async remove(id: NullableId, params?: Params) {
-    if (id) {
-      await this.app.service(userApiKeyPath).remove(null, {
-        query: {
-          userId: id as UserID
-        }
-      })
-    }
-
-    return await super._remove(id, params)
-  }
-
-  _afterCreate = async (app: Application, result: UserType) => {
-    try {
-      await app.service(userSettingPath).create({
-        userId: result.id
-      })
-
-      if (result.scopes && result.scopes.length > 0) {
-        const data = result.scopes.map((el) => {
-          return {
-            type: el.type,
-            userId: result.id
-          }
-        })
-
-        await app.service(scopePath).create(data)
-      }
-
-      if (result && !result.isGuest) {
-        await app.service(userApiKeyPath).create({
-          userId: result.id
-        })
-      }
-
-      await this._afterPatch(app, result)
-    } catch (err) {
-      logger.error(err, `USER AFTER CREATE ERROR: ${err.message}`)
-    }
-  }
-
-  _afterPatch = async (app: Application, results: UserType | UserType[]) => {
-    try {
-      for (const result of Array.isArray(results) ? results : [results]) {
-        if (result && !result.isGuest && result.inviteCode == null) {
-          const code = await getFreeInviteCode(app)
-          await this._patch(result.id!, {
-            inviteCode: code
-          })
-        }
-      }
-    } catch (err) {
-      logger.error(err, `USER AFTER PATCH ERROR: ${err.message}`)
-    }
-  }
-}
+> {}

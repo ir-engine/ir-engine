@@ -26,15 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  addComponent,
-  hasComponent,
-  removeComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
 
 import ScreenShareIcon from '@mui/icons-material/ScreenShare'
 
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import BooleanInput from '../inputs/BooleanInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
@@ -50,11 +47,7 @@ export const ScreenshareTargetNodeEditor: EditorComponentType = (props) => {
 
   const onChange = (enable) => {
     setEnabled(enable)
-    if (enable) {
-      addComponent(entity, ScreenshareTargetComponent, true)
-    } else {
-      removeComponent(entity, ScreenshareTargetComponent)
-    }
+    EditorControlFunctions.addOrRemoveComponent([entity], ScreenshareTargetComponent, enable)
   }
 
   return (

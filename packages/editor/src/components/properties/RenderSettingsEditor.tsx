@@ -34,8 +34,6 @@ import {
   PCFShadowMap,
   PCFSoftShadowMap,
   ReinhardToneMapping,
-  ShadowMapType,
-  ToneMapping,
   VSMShadowMap
 } from 'three'
 
@@ -47,7 +45,7 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * ToneMappingOptions array containing tone mapping type options.
@@ -119,7 +117,10 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
         label={t('editor:properties.renderSettings.lbl-csm')}
         info={t('editor:properties.renderSettings.info-csm')}
       >
-        <BooleanInput value={rendererSettingsState.csm.value} onChange={(val) => rendererSettingsState.csm.set(val)} />
+        <BooleanInput
+          value={rendererSettingsState.csm.value}
+          onChange={commitProperty(RenderSettingsComponent, 'csm')}
+        />
       </InputGroup>
       <InputGroup
         name="Tone Mapping"
@@ -129,7 +130,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
         <SelectInput
           options={ToneMappingOptions}
           value={rendererSettingsState.toneMapping.value}
-          onChange={(val: ToneMapping) => rendererSettingsState.toneMapping.set(val)}
+          onChange={commitProperty(RenderSettingsComponent, 'toneMapping')}
         />
       </InputGroup>
       <InputGroup
@@ -142,7 +143,8 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
           max={10}
           step={0.1}
           value={rendererSettingsState.toneMappingExposure.value}
-          onChange={(val) => rendererSettingsState.toneMappingExposure.set(val)}
+          onChange={updateProperty(RenderSettingsComponent, 'toneMappingExposure')}
+          onRelease={commitProperty(RenderSettingsComponent, 'toneMappingExposure')}
         />
       </InputGroup>
       <InputGroup
@@ -153,7 +155,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
         <SelectInput
           options={ShadowTypeOptions}
           value={rendererSettingsState.shadowMapType.value ?? -1}
-          onChange={(val: ShadowMapType) => rendererSettingsState.shadowMapType.set(val)}
+          onChange={commitProperty(RenderSettingsComponent, 'shadowMapType')}
         />
       </InputGroup>
     </PropertyGroup>

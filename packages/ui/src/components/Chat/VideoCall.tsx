@@ -41,6 +41,7 @@ import {
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { t } from 'i18next'
@@ -51,7 +52,7 @@ import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => {
   const { peerID, type } = props
 
-  const mediaNetwork = Engine.instance.mediaNetwork
+  const mediaNetwork = NetworkState.mediaNetwork
 
   const isSelf =
     !mediaNetwork ||
@@ -111,7 +112,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       toggleWebcamPaused()
     } else if (isSelf && isScreen) {
@@ -129,7 +130,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       toggleMicrophonePaused()
     } else if (isSelf && isScreen) {

@@ -23,14 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperflux'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import { EditorHelperServiceReceptor } from './EditorHelperState'
+import {
+  ApiJobData,
+  ApiJobPatch,
+  ApiJobQuery,
+  ApiJobType
+} from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 
-export const registerEditorReceptors = () => {
-  addActionReceptor(EditorHelperServiceReceptor)
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ApiJobParams extends KnexAdapterParams<ApiJobQuery> {}
 
-export const unregisterEditorReceptors = () => {
-  removeActionReceptor(EditorHelperServiceReceptor)
-}
+export class ApiJobService<T = ApiJobType, ServiceParams extends Params = ApiJobParams> extends KnexService<
+  ApiJobType,
+  ApiJobData,
+  ApiJobParams,
+  ApiJobPatch
+> {}

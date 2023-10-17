@@ -32,7 +32,6 @@ import { FixedSizeList, areEqual } from 'react-window'
 import { Object3D } from 'three'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
@@ -54,6 +53,7 @@ import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
@@ -66,7 +66,6 @@ import { SelectionState } from '../../services/SelectionServices'
 import Search from '../Search/Search'
 import { AppContext } from '../Search/context'
 import useUpload from '../assets/useUpload'
-import { addSceneComponentElement } from '../element/ElementList'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { ContextMenu } from '../layout/ContextMenu'
 import { updateProperties } from '../properties/Util'
@@ -425,7 +424,7 @@ export default function HierarchyPanel({
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
 
-    EditorControlFunctions.groupObjects(objs, [], [])
+    EditorControlFunctions.groupObjects(objs)
   }, [])
   /* Event handlers */
 
@@ -458,7 +457,7 @@ export default function HierarchyPanel({
   /* Rename functions */
 
   const [, treeContainerDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ...SupportedFileTypes],
     drop(item: any, monitor) {
       if (monitor.didDrop()) return
 
@@ -481,8 +480,8 @@ export default function HierarchyPanel({
         return
       }
 
-      if (item.type === ItemTypes.Prefab) {
-        addSceneComponentElement(item) // TODO: need to test this
+      if (item.type === ItemTypes.Component) {
+        EditorControlFunctions.createObjectFromSceneElement([{ name: item!.componentJsonID }])
         return
       }
 
@@ -559,7 +558,7 @@ export default function HierarchyPanel({
             fontSize: '12px',
             lineHeight: '0.5'
           }}
-          onClick={() => EditorControlFunctions.createObjectFromSceneElement('VisibleComponent')}
+          onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
         >
           {t('editor:hierarchy.lbl-addEntity')}
         </PropertiesPanelButton>

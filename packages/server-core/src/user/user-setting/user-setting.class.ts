@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   UserSettingData,
@@ -32,10 +32,9 @@ import {
   UserSettingQuery,
   UserSettingType
 } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserSettingParams extends RootParams<UserSettingQuery> {}
+export interface UserSettingParams extends KnexAdapterParams<UserSettingQuery> {}
 
 export class UserSettingService<
   T = UserSettingType,

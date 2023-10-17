@@ -34,7 +34,7 @@ import {
 } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
 import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 export const EditorActiveInstanceState = defineState({
   name: 'EditorActiveInstanceState',
@@ -81,11 +81,11 @@ export const EditorActiveInstanceService = {
     }
   },
   getActiveInstances: async (sceneId: string) => {
-    dispatchAction(EditorActiveInstanceAction.fetchingActiveInstances({}))
+    getMutableState(EditorActiveInstanceState).merge({ fetching: true })
     const activeInstances = await Engine.instance.api.service(instanceActivePath).find({
       query: { sceneId }
     })
-    dispatchAction(EditorActiveInstanceAction.fetchedActiveInstances({ activeInstances }))
+    getMutableState(EditorActiveInstanceState).merge({ activeInstances, fetching: false })
   }
 }
 

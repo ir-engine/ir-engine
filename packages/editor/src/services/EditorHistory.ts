@@ -27,21 +27,25 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import {
+  migrateSceneData,
   removeSceneEntitiesFromOldJSON,
-  updateSceneEntitiesFromJSON
+  updateSceneEntitiesFromJSON,
+  updateSceneEntity,
+  updateSceneFromJSON
 } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import { defineAction, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { Topic, defineActionQueue, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { defineQuery, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import { useEffect } from 'react'
 import { EditorState } from './EditorServices'
-import { SelectionAction, SelectionState } from './SelectionServices'
+import { SelectionAction } from './SelectionServices'
 
 export const EditorTopic = 'editor' as Topic
 
@@ -55,8 +59,71 @@ export const EditorHistoryState = defineState({
   initial: () => ({
     index: 0,
     history: [] as EditorStateSnapshot[]
-  })
+  }),
+
+  cloneCurrentSnapshot: () => {
+    const state = getState(EditorHistoryState)
+    return JSON.parse(JSON.stringify(state.history[state.index])) as EditorStateSnapshot
+  },
+
+  unloadScene: () => {
+    getMutableState(SceneState).sceneData.set(null)
+    getMutableState(EditorHistoryState).set({
+      index: 0,
+      history: []
+    })
+    updateSceneFromJSON()
+  },
+
+  resetHistory: () => {
+    const sceneData = getState(SceneState).sceneData!
+    getMutableState(EditorHistoryState).set({
+      index: 0,
+      history: [{ data: migrateSceneData(sceneData), selectedEntities: [] }]
+    })
+    EditorHistoryState.applyCurrentSnapshot()
+  },
+
+  applyCurrentSnapshot: async () => {
+    const state = getState(EditorHistoryState)
+    const snapshot = state.history[state.index]
+
+    if (snapshot.data) {
+      getMutableState(EngineState).merge({
+        sceneLoading: true
+      })
+
+      getMutableState(SceneState).sceneData.ornull!.scene.set(snapshot.data.scene)
+      const sceneData = getState(SceneState).sceneData!
+
+      removeSceneEntitiesFromOldJSON()
+      const sceneState = getState(SceneState)
+      setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null!, uuid: sceneData.scene.root })
+      updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root])
+      updateSceneEntitiesFromJSON(sceneData.scene.root)
+
+      if (!sceneAssetPendingTagQuery().length) {
+        if (getState(EngineState).sceneLoading) {
+          getMutableState(EngineState).merge({
+            sceneLoading: false,
+            sceneLoaded: true
+          })
+          if (!getState(EngineState).sceneLoaded) dispatchAction(EngineActions.sceneLoaded({}))
+        }
+      }
+
+      dispatchAction(SelectionAction.changedSceneGraph({}))
+    }
+    // if (snapshot.selectedEntities)
+    //   dispatchAction(
+    //     SelectionAction.updateSelection({
+    //       selectedEntities: snapshot.selectedEntities.map((uuid) => UUIDComponent.entitiesByUUID[uuid] ?? uuid)
+    //     })
+    //   )
+  }
 })
+
+const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
 export class EditorHistoryAction {
   static undo = defineAction({
@@ -86,26 +153,10 @@ export class EditorHistoryAction {
 
   static createSnapshot = defineAction({
     type: 'ee.editor.EditorHistory.CREATE_SNAPSHOT' as const,
-    selectedEntities: matches.array.optional() as Validator<unknown, Array<Entity | string> | undefined>
+    selectedEntities: matches.array as Validator<unknown, Array<EntityUUID | string>>,
+    data: matches.object as Validator<unknown, SceneData>
   })
 }
-
-const applyCurrentSnapshot = () => {
-  const state = getState(EditorHistoryState)
-  const snapshot = state.history[state.index]
-  if (snapshot.data) {
-    getMutableState(SceneState).sceneData.ornull!.scene.set(snapshot.data.scene)
-    removeSceneEntitiesFromOldJSON()
-    updateSceneEntitiesFromJSON(snapshot.data.scene.root)
-  }
-  if (snapshot.selectedEntities)
-    dispatchAction(
-      SelectionAction.updateSelection({
-        selectedEntities: snapshot.selectedEntities.map((uuid) => UUIDComponent.entitiesByUUID[uuid] ?? uuid)
-      })
-    )
-}
-
 const undoQueue = defineActionQueue(EditorHistoryAction.undo.matches)
 const redoQueue = defineActionQueue(EditorHistoryAction.redo.matches)
 const clearHistoryQueue = defineActionQueue(EditorHistoryAction.clearHistory.matches)
@@ -113,30 +164,21 @@ const appendSnapshotQueue = defineActionQueue(EditorHistoryAction.appendSnapshot
 const modifyQueue = defineActionQueue(EditorHistoryAction.createSnapshot.matches)
 
 const execute = () => {
-  const selectedEntitiesState = getState(SelectionState)
-
   const state = getMutableState(EditorHistoryState)
   for (const action of undoQueue()) {
     if (state.index.value <= 0) continue
     state.index.set(Math.max(state.index.value - action.count, 0))
-    applyCurrentSnapshot()
+    EditorHistoryState.applyCurrentSnapshot()
   }
 
   for (const action of redoQueue()) {
     if (state.index.value >= state.history.value.length - 1) continue
     state.index.set(Math.min(state.index.value + action.count, state.history.value.length - 1))
-    applyCurrentSnapshot()
+    EditorHistoryState.applyCurrentSnapshot()
   }
 
   for (const action of clearHistoryQueue()) {
-    const selectedEntities = selectedEntitiesState.selectedEntities.map((entity) =>
-      typeof entity === 'number' ? getComponent(entity, UUIDComponent) : entity
-    ) as Array<EntityUUID | string>
-    const data = { scene: serializeWorld(getState(SceneState).sceneEntity) } as any as SceneData
-    state.merge({
-      index: 0,
-      history: [{ data, selectedEntities }]
-    })
+    EditorHistoryState.resetHistory()
   }
 
   for (const action of appendSnapshotQueue()) {
@@ -158,17 +200,27 @@ const execute = () => {
   /** Local only - serialize world then push to CRDT */
   for (const action of modifyQueue()) {
     const editorHistory = getState(EditorHistoryState)
-    const data = { scene: serializeWorld(getState(SceneState).sceneEntity) } as any as SceneData
-    const selectedEntities = (action.selectedEntities ?? selectedEntitiesState.selectedEntities).map((entity) =>
-      typeof entity === 'number' ? getComponent(entity, UUIDComponent) : entity
-    ) as Array<EntityUUID | string>
+    const { data, selectedEntities } = action
     state.history.set([...editorHistory.history.slice(0, state.index.value + 1), { data, selectedEntities }])
     state.index.set(state.index.value + 1)
     getMutableState(EditorState).sceneModified.set(true)
+    EditorHistoryState.applyCurrentSnapshot()
   }
+}
+
+const reactor = () => {
+  const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+
+  useEffect(() => {
+    if (getState(EditorHistoryState).history.length || !sceneData.value?.scene) return
+    EditorHistoryState.resetHistory()
+  }, [sceneData])
+
+  return null
 }
 
 export const EditorHistoryReceptorSystem = defineSystem({
   uuid: 'ee.editor.EditorHistoryReceptorSystem',
-  execute
+  execute,
+  reactor
 })

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   BotCommandData,
@@ -31,10 +31,9 @@ import {
   BotCommandQuery,
   BotCommandType
 } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface BotCommandParams extends RootParams<BotCommandQuery> {}
+export interface BotCommandParams extends KnexAdapterParams<BotCommandQuery> {}
 
 export class BotCommandService<T = BotCommandType, ServiceParams extends Params = BotCommandParams> extends KnexService<
   BotCommandType,

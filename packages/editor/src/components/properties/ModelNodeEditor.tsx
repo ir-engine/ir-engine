@@ -44,7 +44,7 @@ import ErrorPopUp from '../popup/ErrorPopUp'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -86,18 +86,14 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     [exportPath, exportType]
   )
 
-  const onExportModel = useCallback(() => {
+  const onExportModel = () => {
     if (exporting.value) {
       console.warn('already exporting')
       return
     }
     exporting.set(true)
     exportGLTF(entity, exportPath.value).then(() => exporting.set(false))
-  }, [])
-
-  const updateResources = useCallback((path: string) => {
-    updateProperty(ModelComponent, 'src')(path)
-  }, [])
+  }
 
   return (
     <NodeEditor
@@ -106,25 +102,25 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={modelComponent.src.value} onChange={updateResources} />
+        <ModelInput value={modelComponent.src.value} onChange={commitProperty(ModelComponent, 'src')} />
         {errors?.LOADING_ERROR ||
           (errors?.INVALID_URL && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
       <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
         <BooleanInput
           value={modelComponent.generateBVH.value}
-          onChange={updateProperty(ModelComponent, 'generateBVH')}
+          onChange={commitProperty(ModelComponent, 'generateBVH')}
           disabled={modelComponent.hasSkinnedMesh.value}
         />
       </InputGroup>
       <InputGroup name="Avoid Camera Occlusion" label={t('editor:properties.model.lbl-avoidCameraOcclusion')}>
         <BooleanInput
           value={modelComponent.avoidCameraOcclusion.value}
-          onChange={updateProperty(ModelComponent, 'avoidCameraOcclusion')}
+          onChange={commitProperty(ModelComponent, 'avoidCameraOcclusion')}
         />
       </InputGroup>
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
-      <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
+      <ModelTransformProperties modelState={modelComponent} onChangeModel={commitProperty(ModelComponent, 'src')} />
       {!exporting.value && modelComponent.src.value && (
         <Well>
           <ModelInput value={exportPath.value} onChange={onChangeExportPath} />

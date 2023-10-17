@@ -38,6 +38,7 @@ import {
   toggleScreenshare,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { Resizable } from 're-resizable'
@@ -219,7 +220,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
   }, [])
 
   const mediaNetworkState = useMediaNetwork()
-  const mediaNetworkID = Engine.instance.mediaNetwork?.id
+  const mediaNetworkID = NetworkState.mediaNetwork?.id
   const mediaConnected = mediaNetworkID && mediaNetworkState?.connected.value
   const connecting = mediaNetworkID && !mediaNetworkState?.connected?.value
 
@@ -295,7 +296,7 @@ export const MessageContainer = () => {
   const selectedChannelID = useHookstate(getMutableState(ChatState).selectedChannelID).value
 
   const mediaNetworkState = useMediaNetwork()
-  const mediaNetworkID = Engine.instance.mediaNetwork?.id
+  const mediaNetworkID = NetworkState.mediaNetwork?.id
   const mediaConnected = mediaNetworkID && mediaNetworkState?.connected.value
 
   return (

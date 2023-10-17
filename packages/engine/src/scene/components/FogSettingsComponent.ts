@@ -35,8 +35,10 @@ export const FogSettingsComponent = defineComponent({
   name: 'FogSettingsComponent',
   jsonID: 'fog',
 
-  onInit(entity) {
-    return JSON.parse(JSON.stringify(getState(FogSettingState))) as typeof FogSettingState._TYPE
+  onInit(entity): typeof FogSettingState._TYPE {
+    return typeof FogSettingState.initial === 'function'
+      ? (FogSettingState.initial as any)()
+      : JSON.parse(JSON.stringify(FogSettingState.initial))
   },
 
   onSet: (entity, component, json) => {

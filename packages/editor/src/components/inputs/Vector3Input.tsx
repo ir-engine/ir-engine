@@ -143,7 +143,7 @@ export const Vector3Input = ({
         {...rest}
         value={vx}
         onChange={onChangeX}
-        onCommit={onRelease}
+        onRelease={onRelease}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x" />
@@ -154,7 +154,7 @@ export const Vector3Input = ({
         {...rest}
         value={vy}
         onChange={onChangeY}
-        onCommit={onRelease}
+        onRelease={onRelease}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y" />
@@ -165,7 +165,7 @@ export const Vector3Input = ({
         {...rest}
         value={vz}
         onChange={onChangeZ}
-        onCommit={onRelease}
+        onRelease={onRelease}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} value={vz} onChange={onChangeZ} onPointerUp={onRelease} axis="z" />

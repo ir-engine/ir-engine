@@ -30,6 +30,7 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { AuthState } from '../user/services/AuthService'
 import { SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
@@ -43,10 +44,10 @@ export const FilteredUsersState = defineState({
 
 export const FilteredUsersService = {
   updateNearbyLayerUsers: () => {
-    if (!Engine.instance.worldNetwork) return
+    if (!NetworkState.worldNetwork) return
     const mediaState = getMutableState(FilteredUsersState)
     const selfUserId = getMutableState(AuthState).user.id.value
-    const peers = Object.values(Engine.instance.worldNetwork.peers)
+    const peers = Object.values(NetworkState.worldNetwork.peers)
     const worldUserIds = peers
       .filter((peer) => peer.peerID !== 'server' && peer.userId !== selfUserId)
       .map((peer) => peer.userId)
@@ -56,7 +57,7 @@ export const FilteredUsersService = {
 }
 
 export const updateNearbyAvatars = () => {
-  const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  const network = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   if (!network) return
 
   FilteredUsersService.updateNearbyLayerUsers()

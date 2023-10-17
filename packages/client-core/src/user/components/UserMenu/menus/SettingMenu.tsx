@@ -35,10 +35,9 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
-  AvatarInputSettingsAction,
   AvatarInputSettingsState
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
@@ -46,7 +45,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -131,11 +130,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   }
 
   const handleChangeInvertRotationAndMoveSticks = () => {
-    dispatchAction(
-      AvatarInputSettingsAction.setInvertRotationAndMoveSticks({
-        invertRotationAndMoveSticks: !invertRotationAndMoveSticks
-      })
-    )
+    getMutableState(AvatarInputSettingsState).invertRotationAndMoveSticks.set((value) => !value)
   }
 
   useLayoutEffect(() => {
@@ -263,11 +258,9 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       label={t('user:usermenu.setting.lbl-left-control-scheme')}
                       value={leftAxesControlScheme}
                       menu={controlSchemesMenu}
-                      onChange={(event) => {
-                        dispatchAction(
-                          AvatarInputSettingsAction.setLeftAxesControlScheme({ scheme: event.target.value })
-                        )
-                      }}
+                      onChange={(event) =>
+                        getMutableState(AvatarInputSettingsState).leftAxesControlScheme.set(event.target.value)
+                      }
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -275,11 +268,9 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       label={t('user:usermenu.setting.lbl-right-control-scheme')}
                       value={rightAxesControlScheme}
                       menu={controlSchemesMenu}
-                      onChange={(event) => {
-                        dispatchAction(
-                          AvatarInputSettingsAction.setRightAxesControlScheme({ scheme: event.target.value })
-                        )
-                      }}
+                      onChange={(event) =>
+                        getMutableState(AvatarInputSettingsState).rightAxesControlScheme.set(event.target.value)
+                      }
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -288,7 +279,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       value={preferredHand}
                       menu={handOptionsMenu}
                       onChange={(event) =>
-                        dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: event.target.value }))
+                        getMutableState(AvatarInputSettingsState).preferredHand.set(event.target.value)
                       }
                     />
                   </Grid>
@@ -382,7 +373,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               label={t('user:usermenu.setting.use-positional-media')}
               checked={audioState.positionalMedia.value}
               onChange={(value: boolean) => {
-                dispatchAction(AudioSettingAction.setUsePositionalMedia({ value }))
+                getMutableState(AudioState).positionalMedia.set(value)
               }}
             />
 
@@ -394,7 +385,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.masterVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setMasterVolume({ value }))
+                getMutableState(AudioState).masterVolume.set(value)
               }}
             />
 
@@ -406,7 +397,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.microphoneGain.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setMicrophoneVolume({ value }))
+                getMutableState(AudioState).microphoneGain.set(value)
               }}
             />
 
@@ -430,7 +421,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.mediaStreamVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setMediaStreamVolume({ value }))
+                getMutableState(AudioState).mediaStreamVolume.set(value)
               }}
             />
 
@@ -442,7 +433,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.notificationVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setNotificationVolume({ value }))
+                getMutableState(AudioState).notificationVolume.set(value)
               }}
             />
 
@@ -454,7 +445,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.soundEffectsVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setSoundEffectsVolume({ value }))
+                getMutableState(AudioState).soundEffectsVolume.set(value)
               }}
             />
 
@@ -466,7 +457,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.backgroundMusicVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setMusicVolume({ value }))
+                getMutableState(AudioState).backgroundMusicVolume.set(value)
               }}
             />
             {/* </>

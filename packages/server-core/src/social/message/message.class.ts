@@ -31,11 +31,10 @@ import {
   MessageQuery,
   MessageType
 } from '@etherealengine/engine/src/schemas/social/message.schema'
-import { KnexService } from '@feathersjs/knex'
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface MessageParams extends RootParams<MessageQuery> {}
+export interface MessageParams extends KnexAdapterParams<MessageQuery> {}
 
 export class MessageService<T = MessageType, ServiceParams extends Params = MessageParams> extends KnexService<
   MessageType,

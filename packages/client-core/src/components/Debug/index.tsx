@@ -299,14 +299,13 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
           data={dag}
           labelRenderer={(raw, ...keyPath) => {
             const label = raw[0]
-            if (label === 'preSystems') return <span style={{ color: 'red' }}>{t('common:debug.preSystems')}</span>
-            if (label === 'simulation') return <span style={{ color: 'green' }}>{t('common:debug.simulation')}</span>
-            if (label === 'subSystems') return <span style={{ color: 'red' }}>{t('common:debug.subSystems')}</span>
-            if (label === 'postSystems') return <span style={{ color: 'red' }}>{t('common:debug.postSystems')}</span>
+            if (label === 'preSystems' || label === 'simulation' || label === 'subSystems' || label === 'postSystems')
+              return <span style={{ color: 'green' }}>{t(`common:debug.${label}`)}</span>
             return <span style={{ color: 'black' }}>{label}</span>
           }}
           valueRenderer={(raw, value, ...keyPath) => {
             const system = SystemDefinitions.get((keyPath[0] === 'enabled' ? keyPath[1] : keyPath[0]) as SystemUUID)!
+            const systemReactor = system ? Engine.instance.activeSystemReactors.get(system.uuid) : undefined
             return (
               <>
                 <input
@@ -321,6 +320,11 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
                     }
                   }}
                 ></input>
+                {systemReactor?.error && (
+                  <span style={{ color: 'red' }}>
+                    {systemReactor.error.name}: {systemReactor.error.message}
+                  </span>
+                )}
               </>
             )
           }}

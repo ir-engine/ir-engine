@@ -65,7 +65,9 @@ const AvatarMenu = () => {
 
   const avatarsData = useFind(avatarPath, {
     query: {
-      search: search.query.value,
+      name: {
+        $like: `%${search.query.value}%`
+      },
       $skip: page.value * AVATAR_PAGE_LIMIT,
       $limit: AVATAR_PAGE_LIMIT
     }

@@ -24,11 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
-import crypto from 'crypto'
-import moment from 'moment'
-import config from '../../appconfig'
+import { KnexService } from '@feathersjs/knex'
 
 import {
   LoginTokenData,
@@ -37,32 +33,18 @@ import {
   LoginTokenType
 } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 
-import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
-import { toDateTimeSql } from '../../util/datetime-sql'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface LoginTokenParams extends RootParams<LoginTokenQuery> {}
+export interface LoginTokenParams extends KnexAdapterParams<LoginTokenQuery> {}
 
 /**
  * A class for LoginToken service
  */
 
-export class LoginTokenService<T = LoginTokenType, ServiceParams extends Params = LoginTokenParams> extends KnexAdapter<
+export class LoginTokenService<T = LoginTokenType, ServiceParams extends Params = LoginTokenParams> extends KnexService<
   LoginTokenType,
   LoginTokenData,
   LoginTokenParams,
   LoginTokenPatch
-> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-  async create(data: LoginTokenData, params?: LoginTokenParams) {
-    const token = crypto.randomBytes(config.authentication.bearerToken.numBytes).toString('hex')
-
-    return await super._create({ ...data, token, expiresAt: toDateTimeSql(moment().utc().add(2, 'days').toDate()) })
-  }
-}
+> {}

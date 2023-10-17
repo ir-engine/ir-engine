@@ -58,7 +58,6 @@ import { SystemComponent } from '@etherealengine/engine/src/scene/components/Sys
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { PersistentAnchorComponent } from '@etherealengine/engine/src/xr/XRAnchorComponents'
 
 // import ChairIcon from '@mui/icons-material/Chair'
@@ -105,14 +104,12 @@ import { SplineNodeEditor } from '../components/properties/SplineNodeEditor'
 import { SplineTrackNodeEditor } from '../components/properties/SplineTrackNodeEditor'
 import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
-import TransformPropertyGroup from '../components/properties/TransformPropertyGroup'
 import { EditorComponentType } from '../components/properties/Util'
 import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 
 export const EntityNodeEditor = new Map<Component, EditorComponentType>()
-EntityNodeEditor.set(TransformComponent, TransformPropertyGroup)
 EntityNodeEditor.set(PostProcessingComponent, PostProcessingSettingsEditor)
 EntityNodeEditor.set(MediaSettingsComponent, MediaSettingsEditor)
 EntityNodeEditor.set(RenderSettingsComponent, RenderSettingsEditor)

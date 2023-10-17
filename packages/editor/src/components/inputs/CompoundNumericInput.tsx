@@ -39,6 +39,7 @@ import Slider from './Slider'
 export function CompoundNumericInput({
   value,
   onChange,
+  onRelease,
   ...extras
 }: NumericInputProp & { step: number; style?: React.CSSProperties }) {
   const { min, max, step, style } = extras
@@ -54,8 +55,8 @@ export function CompoundNumericInput({
 
   return (
     <div style={compoundNumericInputStyle}>
-      <Slider min={min} max={max} value={value} step={step} onChange={onChange} />
-      <NumericInput {...extras} mediumStep={step} value={value} onChange={onChange} />
+      <Slider min={min} max={max} value={value} step={step} onChange={onChange} onRelease={onRelease} />
+      <NumericInput {...extras} mediumStep={step} value={value} onChange={onChange} onRelease={onRelease} />
     </div>
   )
 }

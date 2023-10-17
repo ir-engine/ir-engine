@@ -23,28 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
+import { RouterState } from '../services/RouterService'
 
-import { Dependencies, NodeDefinitionsMap, NodeSpecJSON, ValueTypeMap, writeNodeSpecsToJSON } from '@behave-graph/core'
-
-export const useNodeSpecJson = ({
-  values,
-  nodes,
-  dependencies
-}: {
-  values: ValueTypeMap
-  nodes: NodeDefinitionsMap
-  dependencies: Dependencies | undefined
-}) => {
-  const [specJson, setSpecJson] = useState<NodeSpecJSON[]>()
-
+export const Redirect = (props: { to: string }) => {
   useEffect(() => {
-    if (!nodes || !values || !dependencies) {
-      setSpecJson(undefined)
-      return
-    }
-    setSpecJson(writeNodeSpecsToJSON({ nodes, values, dependencies }))
-  }, [nodes, values, dependencies])
-
-  return specJson
+    RouterState.navigate(props.to)
+  })
+  return <></>
 }

@@ -36,8 +36,6 @@ import {
 import { Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
-import authenticate from '../../hooks/authenticate'
-
 import {
   identityProviderDataResolver,
   identityProviderExternalResolver,
@@ -112,19 +110,19 @@ export default {
       () => schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
-    find: [iff(isProvider('external'), authenticate() as any)],
-    get: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
+    find: [],
+    get: [iff(isProvider('external'), checkIdentityProvider())],
     create: [
       () => schemaHooks.validateData(identityProviderDataValidator),
       schemaHooks.resolveData(identityProviderDataResolver)
     ],
-    update: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
+    update: [iff(isProvider('external'), checkIdentityProvider())],
     patch: [
-      iff(isProvider('external'), authenticate() as any, checkIdentityProvider()),
+      iff(isProvider('external'), checkIdentityProvider()),
       () => schemaHooks.validateData(identityProviderPatchValidator),
       schemaHooks.resolveData(identityProviderPatchResolver)
     ],
-    remove: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider()), checkOnlyIdentityProvider()]
+    remove: [iff(isProvider('external'), checkIdentityProvider()), checkOnlyIdentityProvider()]
   },
   after: {
     all: [],

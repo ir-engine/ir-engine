@@ -23,35 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 
-import {
-  addActionReceptor,
-  getMutableState,
-  getState,
-  removeActionReceptor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
 import styles from './index.module.scss'
-import { PopupMenuServiceReceptor, PopupMenuServices, PopupMenuState } from './PopupMenuService'
+import { PopupMenuServices, PopupMenuState } from './PopupMenuService'
 
 export const UserMenu = () => {
   const popupMenuState = useHookstate(getMutableState(PopupMenuState))
   const popupMenu = getState(PopupMenuState)
   const Panel = popupMenu.openMenu ? popupMenu.menus[popupMenu.openMenu] : null
   const hotbarItems = popupMenu.hotbar
-
-  useEffect(() => {
-    addActionReceptor(PopupMenuServiceReceptor)
-    return () => {
-      removeActionReceptor(PopupMenuServiceReceptor)
-    }
-  }, [])
 
   const { bottomShelfStyle } = useShelfStyles()
 

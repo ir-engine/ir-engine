@@ -38,7 +38,6 @@ import {
   userSettingPath,
   userSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
-import authenticate from '../../hooks/authenticate'
 import {
   userSettingDataResolver,
   userSettingExternalResolver,
@@ -78,7 +77,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(userSettingQueryValidator),
       schemaHooks.resolveQuery(userSettingQueryResolver)
     ],

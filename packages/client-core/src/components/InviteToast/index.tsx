@@ -28,9 +28,9 @@ import { useTranslation } from 'react-i18next'
 
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { Button } from '@etherealengine/editor/src/components/inputs/Button'
-import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { InviteService, InviteServiceReceptor, InviteState } from '../../social/services/InviteService'
+import { InviteService, InviteState } from '../../social/services/InviteService'
 import { AuthState } from '../../user/services/AuthService'
 import styles from './index.module.scss'
 
@@ -45,13 +45,6 @@ const InviteToast = () => {
     if (inviteState.receivedUpdateNeeded.value && authState.isLoggedIn.value)
       InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')
   }, [inviteState.receivedUpdateNeeded.value, authState.isLoggedIn.value])
-
-  useEffect(() => {
-    addActionReceptor(InviteServiceReceptor)
-    return () => {
-      removeActionReceptor(InviteServiceReceptor)
-    }
-  }, [])
 
   const acceptInvite = (invite) => {
     InviteService.acceptInvite(invite)

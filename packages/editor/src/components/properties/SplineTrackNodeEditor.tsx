@@ -40,7 +40,7 @@ import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import { Vector3Scrubber } from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * SplineTrackNodeEditor adds rotation editing to splines.
@@ -65,23 +65,9 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
   })
 
   // @todo allow these to be passed in or remove this capability
-  const onChange = () => {}
-  const onRelease = () => {}
 
   const setAlpha = (value) => {
     component.alpha.set(value)
-  }
-
-  const setRunning = (value) => {
-    component.loop.set(component.loop.value ? false : true)
-  }
-
-  const setVelocity = (value) => {
-    component.velocity.set(value)
-  }
-
-  const setRoll = () => {
-    component.enableRotation.set(component.enableRotation.value ? false : true)
   }
 
   return (
@@ -91,31 +77,38 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={availableSplines}
           value={component.splineEntityUUID.value!}
-          onChange={updateProperty(SplineTrackComponent, 'splineEntityUUID') as any}
+          onChange={commitProperty(SplineTrackComponent, 'splineEntityUUID') as any}
         />
       </InputGroup>
       <InputGroup name="Velocity" label={t('editor:properties.splinetrack.lbl-velocity')}>
         <NumericInput
           value={velocity.value}
-          onChange={setVelocity}
-          onCommit={onRelease}
-          prefix={<Vector3Scrubber tag="div" value={velocity.value} onChange={setVelocity} onPointerUp={onRelease} />}
+          onChange={updateProperty(SplineTrackComponent, 'velocity')}
+          onRelease={commitProperty(SplineTrackComponent, 'velocity')}
+          prefix={
+            <Vector3Scrubber
+              tag="div"
+              value={velocity.value}
+              onChange={updateProperty(SplineTrackComponent, 'velocity')}
+              onPointerUp={commitProperty(SplineTrackComponent, 'velocity')}
+            />
+          }
         />
       </InputGroup>
       <InputGroup name="Enable Rotation" label={t('editor:properties.splinetrack.lbl-enableRotation')}>
         <BooleanInput
           value={component.enableRotation.value}
-          onChange={updateProperty(SplineTrackComponent, 'enableRotation')}
+          onChange={commitProperty(SplineTrackComponent, 'enableRotation')}
         />
       </InputGroup>
       <InputGroup name="Lock XZ" label={t('editor:properties.splinetrack.lbl-lockXZ')}>
         <BooleanInput
           value={component.lockToXZPlane.value}
-          onChange={updateProperty(SplineTrackComponent, 'lockToXZPlane')}
+          onChange={commitProperty(SplineTrackComponent, 'lockToXZPlane')}
         />
       </InputGroup>
       <InputGroup name="Loop" label={t('editor:properties.splinetrack.lbl-loop')}>
-        <BooleanInput value={component.loop.value} onChange={updateProperty(SplineTrackComponent, 'loop')} />
+        <BooleanInput value={component.loop.value} onChange={commitProperty(SplineTrackComponent, 'loop')} />
       </InputGroup>
     </NodeEditor>
   )

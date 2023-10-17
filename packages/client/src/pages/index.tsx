@@ -32,13 +32,10 @@ import styles from '@etherealengine/client-core/src/admin/styles/admin.module.sc
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import {
-  PopupMenuServiceReceptor,
-  PopupMenuState
-} from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
+import { PopupMenuState } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import config from '@etherealengine/common/src/config'
-import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Box, Button } from '@mui/material'
 
@@ -55,11 +52,6 @@ export const HomePage = (): any => {
     if (error) NotificationService.dispatchNotify(error, { variant: 'error' })
 
     openMenu.set(UserMenus.Profile)
-
-    addActionReceptor(PopupMenuServiceReceptor)
-    return () => {
-      removeActionReceptor(PopupMenuServiceReceptor)
-    }
   }, [])
 
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {

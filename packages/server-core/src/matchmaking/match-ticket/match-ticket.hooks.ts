@@ -35,7 +35,6 @@ import matchmakingRestrictMultipleQueueing from '@etherealengine/server-core/src
 import matchmakingSaveTicket from '@etherealengine/server-core/src/hooks/matchmaking-save-ticket'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
-import authenticate from '../../hooks/authenticate'
 import {
   matchTicketDataResolver,
   matchTicketExternalResolver,
@@ -54,9 +53,9 @@ export default {
       schemaHooks.resolveQuery(matchTicketQueryResolver)
     ],
     find: [],
-    get: [iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any)],
+    get: [iff(isProvider('external'), setLoggedInUser('userId') as any)],
     create: [
-      iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any),
+      iff(isProvider('external'), setLoggedInUser('userId') as any),
       matchmakingRestrictMultipleQueueing(),
       // addUUID(),
       () => schemaHooks.validateData(matchTicketDataValidator),

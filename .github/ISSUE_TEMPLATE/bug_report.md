@@ -4,7 +4,6 @@ about: Create a report to help us improve
 title: '[Bug]: '
 labels: '[bug]'
 assignees: ''
-
 body:
   - type: markdown
     attributes:
@@ -35,7 +34,6 @@ body:
     id: reproduce
     attributes:
       label: Steps to reproduce
-      description: 
       render: shell
     validations:
       required: true
@@ -47,5 +45,4 @@ body:
       render: shell
     validations:
       required: false
-
 ---
