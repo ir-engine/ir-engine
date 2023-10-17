@@ -24,15 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { StateDefinition, StateDefinitions } from '@etherealengine/hyperflux'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
 const skipState = [''] // behave graph state is skipped since its a type of record we do want to skip it anyways
 
-export function generateStateNodeSchema(state) {
+export function generateStateNodeSchema(stateDefinition: StateDefinition<any>) {
   const nodeschema = {}
-  const schema = state.get(NO_PROXY)
+
+  const schema =
+    typeof stateDefinition.initial === 'function'
+      ? (stateDefinition.initial as any)()
+      : JSON.parse(JSON.stringify(stateDefinition.initial))
+
   if (schema === null) {
     return nodeschema
   }
@@ -49,12 +54,13 @@ export function generateStateNodeSchema(state) {
 export function getStateSetters() {
   const setters: NodeDefinition[] = []
   const skipped: string[] = []
-  for (const [stateName, state] of Object.entries(Engine.instance.store.stateMap)) {
+  for (const stateDefinition of StateDefinitions) {
+    const stateName = stateDefinition.name
     if (skipState.includes(stateName)) {
       skipped.push(stateName)
       continue
     }
-    const inputsockets = generateStateNodeSchema(state)
+    const inputsockets = generateStateNodeSchema(stateDefinition)
     if (Object.keys(inputsockets).length === 0) {
       skipped.push(stateName)
       continue
@@ -72,6 +78,7 @@ export function getStateSetters() {
       triggered: ({ read, write, commit, graph }) => {
         //read from the read and set dict acccordingly
         const inputs = Object.entries(node.in).splice(1)
+        const state = Engine.instance.store.stateMap[stateName]
         for (const [input, type] of inputs) {
           state[input].set(NodetoEnginetype(read(input as any), type))
         }
@@ -86,12 +93,13 @@ export function getStateSetters() {
 export function getStateGetters() {
   const getters: NodeDefinition[] = []
   const skipped: string[] = []
-  for (const [stateName, state] of Object.entries(Engine.instance.store.stateMap)) {
+  for (const stateDefinition of StateDefinitions) {
+    const stateName = stateDefinition.name
     if (skipState.includes(stateName)) {
       skipped.push(stateName)
       continue
     }
-    const outputsockets = generateStateNodeSchema(state)
+    const outputsockets = generateStateNodeSchema(stateDefinition)
     if (Object.keys(outputsockets).length === 0) {
       skipped.push(stateName)
       continue
@@ -110,7 +118,7 @@ export function getStateGetters() {
       initialState: undefined,
       triggered: ({ read, write, commit, graph }) => {
         const outputs = Object.entries(node.out).splice(1)
-        const props = state
+        const props = Engine.instance.store.stateMap[stateName]
         if (typeof props !== 'object') {
           write(outputs[outputs.length - 1][0] as any, EnginetoNodetype(props))
         } else {

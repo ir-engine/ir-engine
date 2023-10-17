@@ -60,11 +60,11 @@ export type StateDefinition<S> = {
   onCreate?: (store: HyperStore, state: State<S>) => void
 }
 
-const StateDefinitions = new Set<string>()
+export const StateDefinitions = new Set<StateDefinition<any>>()
 
 export function defineState<S, StateExtras = unknown>(definition: StateDefinition<S> & StateExtras) {
-  if (StateDefinitions.has(definition.name)) throw new Error(`State ${definition.name} already defined`)
-  StateDefinitions.add(definition.name)
+  if (StateDefinitions.has(definition)) throw new Error(`State ${definition} already defined`)
+  StateDefinitions.add(definition)
   return definition as StateDefinition<S> & { _TYPE: S } & StateExtras
 }
 
