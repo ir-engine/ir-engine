@@ -32,6 +32,7 @@ import {
   Color,
   LineBasicMaterial,
   LineSegments,
+  MathUtils,
   Matrix4,
   Object3D,
   Plane,
@@ -45,6 +46,7 @@ import { Entity } from '../ecs/classes/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
+import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { getState } from '@etherealengine/hyperflux'
 import {
   NormalizedLandmark,
@@ -56,12 +58,15 @@ import {
 } from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { V_010, V_100, V_111 } from '../common/constants/MathConstants'
+import { EngineState } from '../ecs/classes/EngineState'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
 const grey = new Color(0.5, 0.5, 0.5)
+
+let prevLandmarks: NormalizedLandmarkList
 
 export const drawMocapDebug = () => {
   const debugMeshes = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
@@ -129,6 +134,7 @@ export const drawMocapDebug = () => {
 
 const drawDebug = drawMocapDebug()
 const drawDebugScreen = drawMocapDebug()
+const drawDebugFinal = drawMocapDebug()
 
 export const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], threshold = 0.5) => {
   const hipsVisibility =
@@ -141,19 +147,46 @@ export const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], thresho
   return hipsVisibility && feetVisibility
 }
 
-export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screenlandmarks, entity) {
+export function solveMotionCapturePose(
+  entity,
+  newLandmarks?: NormalizedLandmarkList,
+  newScreenlandmarks?: NormalizedLandmarkList
+) {
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
     return
   }
 
-  if (!landmarks?.length) return
+  // const last = lastLandmarks
+
+  // lastLandmarks = landmarks
+
+  if (!newLandmarks?.length) return
 
   const avatarDebug = getState(RendererState).avatarDebug
 
+  if (!prevLandmarks) prevLandmarks = newLandmarks.map((landmark) => ({ ...landmark }))
+
+  const landmarks = newLandmarks.map((landmark, index) => {
+    // if (!landmark.visibility || landmark.visibility < 0.3) return prevLandmarks[index]
+    const prevLandmark = prevLandmarks[index]
+    const visibility = ((landmark.visibility ?? 0) + (prevLandmark.visibility ?? 0)) / 2
+    const deltaSeconds = getState(EngineState).deltaSeconds
+    const alpha = smootheLerpAlpha(5 + 20 * visibility, deltaSeconds)
+    return {
+      visibility,
+      x: MathUtils.lerp(prevLandmark.x, landmark.x, alpha),
+      y: MathUtils.lerp(prevLandmark.y, landmark.y, alpha),
+      z: MathUtils.lerp(prevLandmark.z, landmark.z, alpha)
+    }
+  })
+
+  prevLandmarks = landmarks
+
   if (avatarDebug) {
-    drawDebug(landmarks)
-    drawDebugScreen(screenlandmarks)
+    drawDebug(newLandmarks)
+    newScreenlandmarks && drawDebugScreen(newScreenlandmarks)
+    drawDebugFinal(landmarks)
   }
   console.log(landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE])
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
@@ -239,12 +272,20 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
     }
   }
 
+  solveHead(
+    entity,
+    landmarks[POSE_LANDMARKS.RIGHT_EAR],
+    landmarks[POSE_LANDMARKS.LEFT_EAR],
+    landmarks[POSE_LANDMARKS.NOSE]
+  )
+
+  if (!newScreenlandmarks) return
   solveHand(
     entity,
     lowestWorldY,
-    screenlandmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
-    screenlandmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
-    screenlandmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
+    newScreenlandmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
+    newScreenlandmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
+    newScreenlandmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
     false,
     VRMHumanBoneName.RightLowerArm,
     VRMHumanBoneName.RightHand
@@ -252,19 +293,12 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
   solveHand(
     entity,
     lowestWorldY,
-    screenlandmarks[POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
-    screenlandmarks[POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
-    screenlandmarks[POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
+    newScreenlandmarks![POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
+    newScreenlandmarks![POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
+    newScreenlandmarks![POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
     true,
     VRMHumanBoneName.LeftLowerArm,
     VRMHumanBoneName.LeftHand
-  )
-
-  solveHead(
-    entity,
-    landmarks[POSE_LANDMARKS.RIGHT_EAR],
-    landmarks[POSE_LANDMARKS.LEFT_EAR],
-    landmarks[POSE_LANDMARKS.NOSE]
   )
 
   // if (!planeHelper1.parent) {

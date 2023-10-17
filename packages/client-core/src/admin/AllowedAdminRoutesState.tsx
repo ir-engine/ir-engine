@@ -23,24 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { defineState } from '@etherealengine/hyperflux'
+import React from 'react'
 
-import {
-  AnalyticsData,
-  AnalyticsPatch,
-  AnalyticsQuery,
-  AnalyticsType
-} from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+export type AdminRouteStateType = {
+  name: string
+  scope: string
+  redirect?: string
+  component: React.LazyExoticComponent<() => JSX.Element>
+  access: boolean
+  icon: JSX.Element
+}
 
-import { KnexAdapterParams } from '@feathersjs/knex'
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AnalyticsParams extends KnexAdapterParams<AnalyticsQuery> {}
-
-export class AnalyticsService<T = AnalyticsType, ServiceParams extends Params = AnalyticsParams> extends KnexService<
-  AnalyticsType,
-  AnalyticsData,
-  AnalyticsParams,
-  AnalyticsPatch
-> {}
+export const AllowedAdminRoutesState = defineState({
+  name: 'AllowedAdminRoutesState',
+  initial: {} as Record<string, AdminRouteStateType>
+})

@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, Params } from '@feathersjs/feathers'
-import { KnexAdapter, type KnexAdapterOptions } from '@feathersjs/knex'
+import { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
 
 import {
   InstanceData,
@@ -33,14 +33,11 @@ import {
   InstanceType
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { Forbidden } from '@feathersjs/errors'
 import { KnexAdapterParams } from '@feathersjs/knex'
-import { Application } from '../../../declarations'
 
 const roomCodeCharacters = '123456789'
 
-const generateRoomCode = () => {
+export const generateRoomCode = () => {
   let code = ''
   for (let i = 0; i < 6; i++) code += roomCodeCharacters.charAt(Math.floor(Math.random() * roomCodeCharacters.length))
   return code
@@ -53,110 +50,9 @@ export interface InstanceParams extends KnexAdapterParams<InstanceQuery> {}
  * A class for Instance service
  */
 
-export class InstanceService<T = InstanceType, ServiceParams extends Params = InstanceParams> extends KnexAdapter<
+export class InstanceService<T = InstanceType, ServiceParams extends Params = InstanceParams> extends KnexService<
   InstanceType,
   InstanceData,
   InstanceParams,
   InstancePatch
-> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-  /**
-   * A method which searches for instances
-   *
-   * @param params of query with an acton or user role
-   * @returns user object
-   */
-  async find(params: InstanceParams) {
-    const { action, search } = params.query || {}
-
-    if (action === 'admin') {
-      const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
-      if (!isAdmin) throw new Forbidden('Must be system admin to execute this action')
-
-      const foundLocations = search
-        ? ((await this.app.service(locationPath)._find({
-            query: { name: { $like: `%${search}%` } },
-            paginate: false
-          })) as any as LocationType[])
-        : []
-
-      params.query = {
-        ...params.query,
-        ended: false,
-        $or: [
-          {
-            ipAddress: {
-              $like: `%${search}%`
-            }
-          },
-          {
-            locationId: {
-              $in: foundLocations.map((item) => item.id)
-            }
-          }
-        ]
-      }
-    }
-
-    const paramsWithoutExtras = {
-      ...params,
-      // Explicitly cloned sort object because otherwise it was affecting default params object as well.
-      query: params.query ? JSON.parse(JSON.stringify(params.query)) : {}
-    }
-
-    // Remove extra params
-    if (paramsWithoutExtras.query?.search || paramsWithoutExtras.query?.search === '')
-      delete paramsWithoutExtras.query.search
-    if (paramsWithoutExtras.query?.action || paramsWithoutExtras.query?.action === '')
-      delete paramsWithoutExtras.query.action
-
-    // Remove instance locationName sort
-    if (paramsWithoutExtras.query?.$sort && paramsWithoutExtras.query?.$sort['locationName']) {
-      delete paramsWithoutExtras.query.$sort['locationName']
-    }
-
-    return super._find(paramsWithoutExtras)
-  }
-
-  /**
-   * A method which creates an instance
-   *
-   * @param data of new instance
-   * @param params of query
-   * @returns instance object
-   */
-  async create(data: InstanceData, params?: InstanceParams) {
-    let existingInstances: InstanceType[] = []
-
-    do {
-      data.roomCode = generateRoomCode()
-      // We need to have unique room codes therefore checking if room code already exists
-      existingInstances = (await super._find({
-        query: {
-          roomCode: data.roomCode,
-          ended: false
-        },
-        paginate: false
-      })) as any as InstanceType[]
-    } while (existingInstances.length > 0)
-
-    return super._create(data)
-  }
-
-  async patch(id: Id, data: InstancePatch, params?: InstanceParams) {
-    return await super._patch(id, data, params)
-  }
-
-  async get(id: Id, params?: InstanceParams) {
-    return super._get(id, params)
-  }
-
-  async remove(id: Id, params?: InstanceParams) {
-    return super._remove(id, params)
-  }
-}
+> {}
