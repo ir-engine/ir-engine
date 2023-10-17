@@ -54,8 +54,7 @@ export function generateStateNodeSchema(stateDefinition: StateDefinition<any>) {
 export function getStateSetters() {
   const setters: NodeDefinition[] = []
   const skipped: string[] = []
-  for (const stateDefinition of StateDefinitions) {
-    const stateName = stateDefinition.name
+  for (const [stateName, stateDefinition] of StateDefinitions) {
     if (skipState.includes(stateName)) {
       skipped.push(stateName)
       continue
@@ -93,8 +92,7 @@ export function getStateSetters() {
 export function getStateGetters() {
   const getters: NodeDefinition[] = []
   const skipped: string[] = []
-  for (const stateDefinition of StateDefinitions) {
-    const stateName = stateDefinition.name
+  for (const [stateName, stateDefinition] of StateDefinitions) {
     if (skipState.includes(stateName)) {
       skipped.push(stateName)
       continue
