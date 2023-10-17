@@ -2,7 +2,7 @@ name: Installation Tech Support
 description: I'm having difficulty installing Ethereal Engine
 title: '[Ticket]: '
 labels: '[ticket]'
-assignees: ''
+assignees: []
 body:
   - type: markdown
     attributes:
