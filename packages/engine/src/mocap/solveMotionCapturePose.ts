@@ -188,7 +188,6 @@ export function solveMotionCapturePose(
     newScreenlandmarks && drawDebugScreen(newScreenlandmarks)
     drawDebugFinal(landmarks)
   }
-  console.log(landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE])
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
   const estimatingLowerBody = shouldEstimateLowerBody(landmarks)
   solveSpine(entity, lowestWorldY, landmarks)
