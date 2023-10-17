@@ -40,7 +40,7 @@ import { NormalizedLandmarkList } from '@mediapipe/pose'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
 import { getState } from '@etherealengine/hyperflux'
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
+import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import {
   BufferAttribute,
   BufferGeometry,
@@ -151,7 +151,17 @@ const execute = () => {
     for (const boneName of VRMHumanBoneList) {
       const localbone = rigComponent.localRig[boneName]?.node
       if (!localbone) continue
-
+      if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
+        if (
+          boneName == VRMHumanBoneName.LeftUpperLeg ||
+          boneName == VRMHumanBoneName.RightUpperLeg ||
+          boneName == VRMHumanBoneName.LeftLowerLeg ||
+          boneName == VRMHumanBoneName.RightLowerLeg ||
+          boneName == VRMHumanBoneName.LeftFoot ||
+          boneName == VRMHumanBoneName.RightFoot
+        )
+          continue
+      }
       if (
         MotionCaptureRigComponent.rig[boneName].x[entity] === 0 &&
         MotionCaptureRigComponent.rig[boneName].y[entity] === 0 &&
