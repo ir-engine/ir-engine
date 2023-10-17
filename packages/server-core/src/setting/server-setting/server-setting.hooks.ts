@@ -32,7 +32,6 @@ import {
   serverSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   serverSettingDataResolver,
@@ -49,7 +48,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(serverSettingQueryValidator),
       schemaHooks.resolveQuery(serverSettingQueryResolver)

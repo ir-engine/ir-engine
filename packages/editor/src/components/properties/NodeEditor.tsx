@@ -26,10 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React, { PropsWithChildren, Suspense } from 'react'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { hasComponent, removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { SelectionAction } from '../../services/SelectionServices'
+import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { getState } from '@etherealengine/hyperflux'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { SelectionState } from '../../services/SelectionServices'
 import PropertyGroup from './PropertyGroup'
 import { EditorPropType } from './Util'
 
@@ -99,8 +101,10 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
       onClose={
         component && hasComponent(entity, component)
           ? () => {
-              dispatchAction(SelectionAction.forceUpdate({}))
-              removeComponent(entity, component)
+              const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities).filter(
+                (n) => typeof n !== 'string'
+              )
+              EditorControlFunctions.addOrRemoveComponent(nodes, component, false)
             }
           : undefined
       }

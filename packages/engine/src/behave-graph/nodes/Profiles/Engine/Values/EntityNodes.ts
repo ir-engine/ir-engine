@@ -136,7 +136,10 @@ export const addEntity = makeFlowNodeDefinition({
       }
     },
     component: (_, graphApi) => {
-      const choices = Array.from(ComponentMap.keys()).sort()
+      const choices = Array.from(ComponentMap.entries())
+        .filter(([, component]) => !!component.jsonID)
+        .map(([name]) => name)
+        .sort()
       choices.unshift('none')
       return {
         valueType: 'string',
@@ -151,7 +154,7 @@ export const addEntity = makeFlowNodeDefinition({
     const parentEntityUUID = read<string>('parentEntity')
     const parentEntity: Entity = parentEntityUUID == '' ? null : UUIDComponent.entitiesByUUID[parentEntityUUID]
     const componentName = read<string>('component')
-    const entity = addEntityToScene(componentName, parentEntity)
+    const entity = addEntityToScene([{ name: ComponentMap.get(componentName)?.jsonID! }], parentEntity)
     const entityName = read<string>('entityName')
     if (entityName.length > 0) setComponent(entity, NameComponent, entityName)
     write('entity', entity)

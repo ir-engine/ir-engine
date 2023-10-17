@@ -23,31 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 
-import {
-  addActionReceptor,
-  getMutableState,
-  getState,
-  removeActionReceptor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import { PopupMenuServiceReceptor, PopupMenuServices, PopupMenuState } from './PopupMenuService'
+import { PopupMenuServices, PopupMenuState } from './PopupMenuService'
 
 export const PopupMenuInline = () => {
   const openMenu = useHookstate(getMutableState(PopupMenuState).openMenu)
   const popupMenu = getState(PopupMenuState)
   const Panel = openMenu.value ? popupMenu.menus[openMenu.value] : null
-
-  useEffect(() => {
-    addActionReceptor(PopupMenuServiceReceptor)
-    return () => {
-      removeActionReceptor(PopupMenuServiceReceptor)
-    }
-  }, [])
 
   return (
     <ClickAwayListener onClickAway={() => PopupMenuServices.showPopupMenu()} mouseEvent="onMouseDown">

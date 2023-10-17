@@ -48,7 +48,6 @@ export const AvatarDissolveComponent = defineComponent({
   },
 
   createDissolveMaterial(object: Mesh<any, MeshBasicMaterial & ShaderMaterial>): any {
-    const hasUV = object.geometry.hasAttribute('uv')
     const isShaderMaterial = object.material.type == 'ShaderMaterial'
     const material = object.material
     const hasTexture = !!material.map
@@ -101,31 +100,10 @@ export const AvatarDissolveComponent = defineComponent({
 
     uniforms = UniformsUtils.merge([UniformsLib['lights'], uniforms])
 
-    const vertexNonUVShader = `
-      #include <fog_vertex>
-      vec2 clipSpace = gl_Position.xy / gl_Position.w;
-      vUv3 = clipSpace * 0.5 + 0.5;
-      vPosition = position.y;
-    `
-
     const vertexUVShader = `
       #include <fog_vertex>
       vUv3 = uv;
       vPosition = position.y;
-    `
-
-    const fragmentColorShader = `
-      #include <output_fragment>
-      float offset = vPosition - time;
-      if(offset > (-0.01 - rand(time) * 0.3)){
-      gl_FragColor = vec4(color.r, color.g, color.b, 1.0);
-      gl_FragColor.r = 0.0;
-      gl_FragColor.g = 1.0;
-      gl_FragColor.b = 0.0;
-      }
-      if(offset > 0.0){
-      discard;
-      }
     `
 
     let textureShader = `gl_FragColor = textureColor;`
@@ -136,7 +114,7 @@ export const AvatarDissolveComponent = defineComponent({
     const fragmentTextureShader = `
       #include <output_fragment>
       float offset = vPosition - time;
-      vec4 textureColor = texture2D(origin_texture, vUv3);
+      vec4 textureColor = texture2D(map, vUv3);
       ${textureShader}
       if(offset > (-0.01 - rand(time) * 0.3)){
       gl_FragColor.r = 0.0;
@@ -156,11 +134,10 @@ export const AvatarDissolveComponent = defineComponent({
 
     const fragmentHeaderShader = `
       #include <clipping_planes_pars_fragment>
-      uniform vec3 color;
       varying vec2 vUv3;
       varying float vPosition;
       uniform float time;
-      uniform sampler2D origin_texture;
+      uniform sampler2D map;
       float rand(float co) { return fract(sin(co*(91.3458)) * 47453.5453); }
       vec4 sRGBToLinear( in vec4 value ) {
         return vec4( mix( pow( value.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), value.rgb * 0.0773993808, vec3( lessThanEqual( value.rgb, vec3( 0.04045 ) ) ) ), value.a );
@@ -168,12 +145,9 @@ export const AvatarDissolveComponent = defineComponent({
     `
 
     vertexShader = vertexShader.replace('#include <clipping_planes_pars_vertex>', vertexHeaderShader)
-    vertexShader = vertexShader.replace('#include <fog_vertex>', hasUV ? vertexUVShader : vertexNonUVShader)
+    vertexShader = vertexShader.replace('#include <fog_vertex>', vertexUVShader)
     fragmentShader = fragmentShader.replace('#include <clipping_planes_pars_fragment>', fragmentHeaderShader)
-    fragmentShader = fragmentShader.replace(
-      '#include <output_fragment>',
-      hasTexture ? fragmentTextureShader : fragmentColorShader
-    )
+    fragmentShader = fragmentShader.replace('#include <output_fragment>', fragmentTextureShader)
 
     if (isShaderMaterial) {
       material.vertexShader = vertexShader

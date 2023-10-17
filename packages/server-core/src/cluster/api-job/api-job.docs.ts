@@ -23,40 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext } from '@feathersjs/feathers'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { Application } from './../../declarations'
+import {
+  apiJobDataSchema,
+  apiJobPatchSchema,
+  apiJobQuerySchema,
+  apiJobSchema
+} from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 
-export default () => {
-  return async (context: HookContext<Application>): Promise<HookContext> => {
-    if (context.arguments[1]?.scopes || Array.isArray(context.arguments[1].scope)) {
-      const foundItem = (await context.app.service(scopePath).find({
-        query: {
-          userId: context.arguments[0]
-        },
-        paginate: false
-      })) as ScopeType[]
-
-      if (foundItem.length > 0) {
-        foundItem.forEach(async (scp) => {
-          try {
-            await context.app.service(scopePath).remove(scp.id)
-          } catch (e) {
-            return
-          }
-        })
-      }
-
-      const data = context.arguments[1].scopes.map((el) => {
-        return {
-          type: el.type,
-          userId: context.arguments[0]
-        }
-      })
-      if (data.length > 0) await context.app.service(scopePath).create(data)
-    }
-
-    return context
+export default createSwaggerServiceOptions({
+  schemas: {
+    apiJobDataSchema,
+    apiJobPatchSchema,
+    apiJobQuerySchema,
+    apiJobSchema
+  },
+  docs: {
+    description: 'Build status service description',
+    securities: ['all']
   }
-}
+})

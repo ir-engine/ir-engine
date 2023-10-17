@@ -44,7 +44,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(botPath, new BotService(options, app), {
+  app.use(botPath, new BotService(options), {
     // A list of all methods this service exposes externally
     methods: botMethods,
     // You can add additional custom events to be sent to clients here

@@ -152,9 +152,7 @@ export const SkyboxComponent = defineComponent({
         return
       }
 
-      if (skyboxState.backgroundType.value === SkyTypeEnum.skybox && !skyboxState.sky.value) {
-        skyboxState.sky.set(new Sky())
-      }
+      skyboxState.sky.set(new Sky())
 
       const sky = skyboxState.sky.value!
 
@@ -172,7 +170,17 @@ export const SkyboxComponent = defineComponent({
       texture.mapping = CubeReflectionMapping
       background.set(texture)
       sky.dispose()
-    }, [skyboxState.backgroundType, skyboxState.skyboxProps])
+    }, [
+      skyboxState.backgroundType,
+      skyboxState.skyboxProps,
+      skyboxState.skyboxProps.azimuth,
+      skyboxState.skyboxProps.inclination,
+      skyboxState.skyboxProps.mieCoefficient,
+      skyboxState.skyboxProps.mieDirectionalG,
+      skyboxState.skyboxProps.rayleigh,
+      skyboxState.skyboxProps.turbidity,
+      skyboxState.skyboxProps.luminance
+    ])
 
     return null
   },

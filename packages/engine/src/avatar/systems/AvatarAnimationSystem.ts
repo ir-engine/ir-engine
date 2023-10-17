@@ -29,7 +29,6 @@ import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'thr
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
-import { V_010 } from '../../common/constants/MathConstants'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -37,6 +36,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { MotionCaptureState } from '../../mocap/MotionCaptureState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RendererState } from '../../renderer/RendererState'
@@ -193,7 +193,7 @@ const execute = () => {
       }
     }
 
-    if (rigComponent.ikOverride != '') {
+    if (!getState(MotionCaptureState).trackingLowerBody || getState(XRState).sessionActive) {
       hipsForward.set(0, 0, 1)
 
       //calculate world positions
@@ -221,7 +221,7 @@ const execute = () => {
 
         //special case for the head if we're in xr mode
         //todo: automatically infer whether or not we need to set hips position from the head position
-        if (rigComponent.ikOverride == 'xr' && ikTargetName == 'head') {
+        if (getState(XRState).sessionActive && ikTargetName == 'head') {
           rig.hips.node.position.copy(
             _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
           )
@@ -245,25 +245,10 @@ const execute = () => {
 
       const transform = getComponent(entity, TransformComponent)
 
-      const leftLegLength =
-        leftLegVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.leftFoot].position).length() +
-        rigComponent.footHeight
-      const rightLegLength =
-        rightLegVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.rightFoot].position).length() +
-        rigComponent.footHeight
-
       const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
       const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
 
-      //calculate hips to head
-      rig.hips.node.position.applyMatrix4(transform.matrixInverse)
-      if (ikDataByName[ikTargets.head])
-        _hipVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.head].position)
-
-      if (rigComponent.ikOverride == 'mocap')
-        rig.hips.node.quaternion
-          .setFromUnitVectors(V_010, _hipVector)
-          .multiply(_hipRot.setFromEuler(new Euler(0, rigComponent.flipped ? Math.PI : 0)))
+      if (getState(XRState).sessionActive) rig.hips.node.position.applyMatrix4(transform.matrixInverse)
 
       if (ikDataByName[ikTargets.rightHand]) {
         solveTwoBoneIK(

@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useMemo, useRef, useState } from 'react'
 import { useEdges, useNodes } from 'reactflow'
 
-import { NodeSpecJSON } from '@behave-graph/core'
-
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -37,23 +35,24 @@ import { SelectionState } from '../../../../../services/SelectionServices'
 import GraphInput from '../../../../inputs/GraphInput'
 import { uploadGraphFilefromJson } from '../../../../properties/BehaveGraphNodeEditor'
 import { updateProperty } from '../../../../properties/Util'
+import { NodeSpecGenerator } from '../../hooks/useNodeSpecGenerator'
 import { flowToBehave } from '../../transformers/flowToBehave'
 import { Modal } from './Modal'
 
 export type SaveModalProps = {
   open?: boolean
   onClose: () => void
-  specJson: NodeSpecJSON[]
+  specGenerator: NodeSpecGenerator
 }
 
-export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, specJson, ...rest }) => {
+export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, specGenerator }) => {
   const ref = useRef<HTMLTextAreaElement>(null)
   const [copied, setCopied] = useState(false)
 
   const edges = useEdges()
   const nodes = useNodes()
 
-  const flow = useMemo(() => flowToBehave(nodes, edges, specJson), [nodes, edges, specJson])
+  const flow = useMemo(() => flowToBehave(nodes, edges, specGenerator), [nodes, edges, specGenerator])
 
   const jsonString = JSON.stringify(flow, null, 2)
   const selectionState = useHookstate(getMutableState(SelectionState))

@@ -36,31 +36,29 @@ import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { gltfToSceneJson, sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
-import { getComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { useDrop } from 'react-dnd'
-import { Vector2 } from 'three'
+import { Vector2, Vector3 } from 'three'
 import { ItemTypes } from '../constants/AssetTypes'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
 import { loadProjectScene } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { getCursorSpawnPosition } from '../functions/screenSpaceFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
-import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
+import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
+import { EditorHistoryState } from '../services/EditorHistory'
 import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
 import { AppContext } from './Search/context'
@@ -75,7 +73,7 @@ import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
 import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
-import ElementList, { SceneElementType, addSceneComponentElement } from './element/ElementList'
+import ElementList, { SceneElementType } from './element/ElementList'
 import GraphPanel from './graph/GraphPanel'
 import { GraphPanelTitle } from './graph/GraphPanelTitle'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
@@ -108,23 +106,18 @@ export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
 
 const ViewportDnD = () => {
   const [{ isDragging, isOver }, dropRef] = useDrop({
-    accept: [ItemTypes.Prefab],
+    accept: [ItemTypes.Component],
     collect: (monitor) => ({
       isDragging: monitor.getItem() !== null && monitor.canDrop(),
       isOver: monitor.isOver()
     }),
     drop(item: SceneElementType, monitor) {
-      const node = addSceneComponentElement(item)
-      if (!node) return
-
-      const transformComponent = getComponent(node, TransformComponent)
-      if (transformComponent) {
-        getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
-        const localTransformComponent = getComponent(node, LocalTransformComponent)
-        if (localTransformComponent) {
-          localTransformComponent.position.copy(transformComponent.position)
-        }
-      }
+      const vec3 = new Vector3()
+      getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
+      EditorControlFunctions.createObjectFromSceneElement([
+        { name: item!.componentJsonID },
+        { name: LocalTransformComponent.jsonID, props: { position: vec3 } }
+      ])
     }
   })
 
@@ -304,7 +297,7 @@ const EditorContainer = () => {
     editorState.sceneModified.set(false)
     editorState.projectName.set(null)
     editorState.sceneName.set(null)
-    getMutableState(SceneState).sceneData.set(null)
+    EditorHistoryState.unloadScene()
     RouterState.navigate('/studio')
   }
 
@@ -434,7 +427,7 @@ const EditorContainer = () => {
       return
     }
 
-    const result: { generateThumbnails: boolean } = (await new Promise((resolve) => {
+    const result = (await new Promise((resolve) => {
       setDialogComponent(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
     })) as any
 
@@ -461,11 +454,11 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        if (result.generateThumbnails) {
+        if (result) {
           const blob = await takeScreenshot(512, 320, 'ktx2')
           const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
 
-          await uploadBPCEMBakeToServer(getState(SceneState).sceneEntity)
+          await uploadSceneBakeToServer()
           await saveScene(projectName.value, sceneName.value, file, abortController.signal)
         } else {
           await saveScene(projectName.value, sceneName.value, null, abortController.signal)

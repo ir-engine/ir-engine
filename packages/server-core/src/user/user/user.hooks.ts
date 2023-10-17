@@ -24,6 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  UserID,
+  UserPatch,
   UserType,
   userDataValidator,
   userPatchValidator,
@@ -31,14 +33,21 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { HookContext } from '@feathersjs/feathers'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import addScopeToUser from '../../hooks/add-scope-to-user'
-import authenticate from '../../hooks/authenticate'
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { HookContext } from '../../../declarations'
+import disallowNonId from '../../hooks/disallow-non-id'
+import persistData from '../../hooks/persist-data'
 import verifyScope from '../../hooks/verify-scope'
+import getFreeInviteCode from '../../util/get-free-invite-code'
+import { UserService } from './user.class'
 import {
   userDataResolver,
   userExternalResolver,
@@ -47,24 +56,12 @@ import {
   userResolver
 } from './user.resolvers'
 
-const addInstanceAttendanceLocation = () => {
-  // TODO: Remove this once instance-attendance & instance service is moved to feathers 5.
-  return async (context: HookContext): Promise<HookContext> => {
-    const { result } = context
-
-    for (const attendance of result.instanceAttendance || []) {
-      if (attendance.instanceId)
-        attendance.instance = await context.app.service(instancePath).get(attendance.instanceId)
-      if (attendance.instance && attendance.instance.locationId) {
-        attendance.instance.location = await context.app.service(locationPath).get(attendance.instance.locationId)
-      }
-    }
-
-    return context
-  }
-}
-
-const restrictUserPatch = (context: HookContext) => {
+/**
+ * Restricts patching of user data to admins and the user itself
+ * @param context
+ * @returns
+ */
+const restrictUserPatch = (context: HookContext<UserService>) => {
   if (context.params.isInternal) return context
 
   // allow admins for all patch actions
@@ -81,15 +78,24 @@ const restrictUserPatch = (context: HookContext) => {
     throw new Error("Must be an admin with user:write scope to patch another user's data")
 
   // If a user without admin and user:write scope is patching themself, only allow changes to avatarId and name
-  const data = {} as any
-  // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
-  if (typeof context.data.avatarId !== 'undefined') data.avatarId = context.data.avatarId
-  if (typeof context.data.name !== 'undefined') data.name = context.data.name
-  context.data = data
-  return context
+  const process = (item: UserType) => {
+    const data = {} as UserPatch
+    // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
+    if (typeof item.avatarId !== 'undefined') data.avatarId = item.avatarId
+    if (typeof item.name !== 'undefined') data.name = item.name
+
+    return data
+  }
+
+  context.data = Array.isArray(context.data) ? context.data.map(process) : process(context.data as UserType)
 }
 
-const restrictUserRemove = (context: HookContext) => {
+/**
+ * Restricts removing of user data to admins and the user itself
+ * @param context
+ * @returns
+ */
+const restrictUserRemove = (context: HookContext<UserService>) => {
   if (context.params.isInternal) return context
 
   // allow admins for all patch actions
@@ -108,9 +114,147 @@ const restrictUserRemove = (context: HookContext) => {
 }
 
 /**
- * This module used to declare and identify database relation
- * which will be used later in user service
+ * Removes the user's api key
+ * @param context
  */
+const removeApiKey = async (context: HookContext<UserService>) => {
+  if (context.id) {
+    await context.app.service(userApiKeyPath).remove(null, {
+      query: {
+        userId: context.id as UserID
+      }
+    })
+  }
+}
+
+/**
+ * Removes existing scopes of user
+ * @param context
+ */
+const removeUserScopes = async (context: HookContext<UserService>) => {
+  const data = Array.isArray(context.data) ? context.data : [context.data]
+
+  for (const item of data) {
+    if (item?.scopes) {
+      await context.app.service(scopePath).remove(null, {
+        query: {
+          userId: context.id as UserID
+        }
+      })
+    }
+  }
+}
+
+/**
+ * Adds new scopes to user
+ * @param useActualData
+ */
+const addUserScopes = (useActualData = false) => {
+  return async (context: HookContext<UserService>) => {
+    const dataKey = useActualData ? 'actualData' : 'data'
+    const data: UserType[] = Array.isArray(context[dataKey]) ? context[dataKey] : [context[dataKey]]
+
+    for (const item of data) {
+      if (item?.scopes) {
+        const scopeData = item.scopes.map((el) => {
+          return {
+            type: el.type,
+            userId: useActualData ? item.id : (context.id as UserID)
+          }
+        })
+        if (scopeData.length > 0) await context.app.service(scopePath).create(scopeData)
+      }
+    }
+  }
+}
+
+/**
+ * Updates the user's invite code if they don't have one
+ * @param context
+ */
+const updateInviteCode = async (context: HookContext<UserService>) => {
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as UserType[]
+
+  for (const item of result) {
+    if (!item.isGuest && !item.inviteCode) {
+      const code = await getFreeInviteCode(context.app)
+      await context.service._patch(item.id, {
+        inviteCode: code
+      })
+    }
+  }
+}
+
+/**
+ * Add the user's settings
+ * @param context
+ */
+const addUserSettings = async (context: HookContext<UserService>) => {
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as UserType[]
+
+  for (const item of result) {
+    await context.app.service(userSettingPath).create({
+      userId: item.id
+    })
+  }
+}
+
+/**
+ * Add the user's api key
+ * @param context
+ */
+const addApiKey = async (context: HookContext<UserService>) => {
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as UserType[]
+
+  for (const item of result) {
+    if (!item.isGuest) {
+      await context.app.service(userApiKeyPath).create({
+        userId: item.id
+      })
+    }
+  }
+}
+
+/**
+ * Handle search query in find
+ * @param context
+ */
+const handleUserSearch = async (context: HookContext<UserService>) => {
+  if (context.params.query?.search) {
+    const search = context.params.query.search
+
+    const searchedIdentityProviders = (await context.app.service(identityProviderPath).find({
+      query: {
+        accountIdentifier: {
+          $like: `%${search}%`
+        }
+      },
+      paginate: false
+    })) as IdentityProviderType[]
+
+    context.params.query = {
+      ...context.params.query,
+      $or: [
+        ...(context.params?.query?.$or || []),
+        {
+          id: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          name: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          id: {
+            $in: searchedIdentityProviders.map((ip) => ip.userId)
+          }
+        }
+      ]
+    }
+  }
+}
 
 export default {
   around: {
@@ -118,39 +262,39 @@ export default {
   },
 
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(userQueryValidator),
-      schemaHooks.resolveQuery(userQueryResolver)
+    all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
+    find: [
+      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'), handleUserSearch),
+      iff(isProvider('external'), discardQuery('search', '$sort.accountIdentifier'))
     ],
-    find: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'))],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
       () => schemaHooks.validateData(userDataValidator),
-      schemaHooks.resolveData(userDataResolver)
+      schemaHooks.resolveData(userDataResolver),
+      persistData,
+      discard('scopes')
     ],
     update: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write'))],
     patch: [
       iff(isProvider('external'), restrictUserPatch),
       () => schemaHooks.validateData(userPatchValidator),
       schemaHooks.resolveData(userPatchResolver),
-      addScopeToUser()
+      disallowNonId,
+      removeUserScopes,
+      addUserScopes(false),
+      discard('scopes')
     ],
-    remove: [iff(isProvider('external'), restrictUserRemove)]
+    remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
   },
 
   after: {
     all: [],
-    find: [
-      addInstanceAttendanceLocation() //TODO: Remove addInstanceAttendanceLocation after feathers 5 migration
-    ],
-    get: [
-      addInstanceAttendanceLocation() //TODO: Remove addInstanceAttendanceLocation after feathers 5 migration
-    ],
-    create: [],
+    find: [],
+    get: [],
+    create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode],
     update: [],
-    patch: [],
+    patch: [updateInviteCode],
     remove: []
   },
 

@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 import {
   getComponent,
   getOptionalComponent,
-  setComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
@@ -37,6 +36,7 @@ import { GroupComponent } from '@etherealengine/engine/src/scene/components/Grou
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
@@ -77,7 +77,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
 
   //function to handle change in name property
   const updateName = () => {
-    setComponent(props.entity, NameComponent, tempName.value)
+    EditorControlFunctions.modifyName([props.entity], tempName.value)
 
     const group = getOptionalComponent(props.entity, GroupComponent)
     if (group) for (const obj3d of group) obj3d.name = tempName.value

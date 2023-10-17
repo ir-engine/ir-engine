@@ -57,7 +57,7 @@ export const ItemTypes = {
   Graph: ['json'],
   Node: 'Node',
   Material: 'Material',
-  Prefab: 'Prefab'
+  Component: 'Component'
 }
 
 export const SupportedFileTypes = [

@@ -57,7 +57,6 @@ export function SelectInput<T extends string | ReadonlyArray<string> | number | 
   // const autoComponentValue = options.find((el) => el.value === value)!.label
 
   const handleChange = (event: SelectChangeEvent<T>) => {
-    console.log(event, event.target.value)
     onChange?.(event.target.value)
   }
 

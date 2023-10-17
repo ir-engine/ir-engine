@@ -42,18 +42,19 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { dispatchAction, getMutableState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -106,7 +107,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
 
-  const mediaNetwork = Engine.instance.mediaNetwork
+  const mediaNetwork = NetworkState.mediaNetwork
   const isSelf =
     !mediaNetwork ||
     peerID === Engine.instance.peerID ||
@@ -256,7 +257,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       toggleWebcamPaused()
     } else if (isSelf && isScreen) {
@@ -274,7 +275,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
@@ -292,7 +293,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleGlobalMute = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     const audioStreamProducer = audioStream as ConsumerExtension
     if (!audioProducerGlobalMute) {
       globalMuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
@@ -305,7 +306,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const adjustVolume = (e, value) => {
     if (isSelf) {
-      dispatchAction(AudioSettingAction.setMicrophoneVolume({ value }))
+      getMutableState(AudioState).microphoneGain.set(value)
     } else {
       audioElement!.volume = value
     }
@@ -436,7 +437,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
 
   useEffect(() => {
     if (!videoStream) return
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     const encodings = videoStream.rtpParameters.encodings
 
     const immersiveMedia = getMutableState(MediaSettingsState).immersiveMedia

@@ -23,9 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
-import { addActionReceptor, defineActionQueue, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction } from '@etherealengine/hyperflux'
 
 import { getState } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
@@ -42,6 +40,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { NetworkState } from '../../networking/NetworkState'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -49,7 +48,6 @@ import { XRAction } from '../../xr/XRState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { respawnAvatar } from '../functions/respawnAvatar'
-import { AvatarInputSettingsReceptor } from '../state/AvatarInputSettingsState'
 
 const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
 const controllerQuery = defineQuery([AvatarControllerComponent])
@@ -109,7 +107,7 @@ const execute = () => {
       const deltaSeconds = getState(EngineState).deltaSeconds
       if (
         !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
-        Engine.instance.worldNetwork &&
+        NetworkState.worldNetwork &&
         controller.gamepadWorldMovement.lengthSq() > 0.1 * deltaSeconds
       ) {
         const networkObject = getComponent(controlledEntity, NetworkObjectComponent)
@@ -129,18 +127,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    addActionReceptor(AvatarInputSettingsReceptor)
-    return () => {
-      removeActionReceptor(AvatarInputSettingsReceptor)
-    }
-  }, [])
-  return null
-}
-
 export const AvatarControllerSystem = defineSystem({
   uuid: 'ee.engine.AvatarControllerSystem',
-  execute,
-  reactor
+  execute
 })

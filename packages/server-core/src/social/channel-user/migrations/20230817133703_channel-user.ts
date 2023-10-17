@@ -62,7 +62,7 @@ export async function up(knex: Knex): Promise<void> {
       table.uuid('channelId').collate('utf8mb4_bin').defaultTo(null).index()
 
       // Foreign keys
-      table.foreign('channelId').references('id').inTable('channel').onUpdate('CASCADE').onDelete('SET NULL')
+      table.foreign('channelId').references('id').inTable('channel').onUpdate('CASCADE').onDelete('CASCADE')
       table.foreign('userId').references('id').inTable('user').onUpdate('CASCADE').onDelete('SET NULL')
     })
   }

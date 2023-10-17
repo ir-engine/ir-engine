@@ -46,7 +46,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import GraphInput from '../inputs/GraphInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 export const uploadGraphFilefromJson = async (fullURL: string, graph: GraphJSON) => {
   const directoryPath = getFileDirectory(fullURL)
@@ -95,16 +95,17 @@ export const BehaveGraphNodeEditor: EditorComponentType = (props) => {
         <GraphInput
           value={behaveGraphComponent.filepath.value}
           onChange={updateProperty(BehaveGraphComponent, 'filepath')}
+          onRelease={commitProperty(BehaveGraphComponent, 'filepath')}
         />
       </InputGroup>
       <InputGroup name="Disable Graph" label={t('editor:properties.graph.lbl-disableGraph')}>
         <BooleanInput
           value={behaveGraphComponent.disabled.value}
-          onChange={updateProperty(BehaveGraphComponent, 'disabled')}
+          onChange={commitProperty(BehaveGraphComponent, 'disabled')}
         />
       </InputGroup>
-      <InputGroup name="Play Graph" label={t('editor:properties.image.lbl-playGraph')}>
-        <BooleanInput value={behaveGraphComponent.run.value} onChange={updateProperty(BehaveGraphComponent, 'run')} />
+      <InputGroup name="Play Graph" label="Play Graph">
+        <BooleanInput value={behaveGraphComponent.run.value} onChange={commitProperty(BehaveGraphComponent, 'run')} />
       </InputGroup>
     </NodeEditor>
   )

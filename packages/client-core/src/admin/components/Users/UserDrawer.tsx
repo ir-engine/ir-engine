@@ -88,7 +88,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
 
   const avatars = useFind(avatarPath, {
     query: {
-      admin: true /** @todo - this should not be paginated */
+      action: 'admin' /** @todo - this should not be paginated */
     }
   }).data
   const scopeTypes = useFind(scopeTypePath, {

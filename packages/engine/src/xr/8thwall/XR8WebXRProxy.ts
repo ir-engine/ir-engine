@@ -72,7 +72,8 @@ export class XRHitTestResultProxy {
     const _pos = new Vector3()
     const _rot = new Quaternion()
     this._mat4.decompose(_pos, _rot, _scale)
-    return (getState(XRState).xrFrame! as any as XRFrameProxy).getPose(new XRSpace(_pos, _rot), baseSpace)
+    if (!XRFrameProxy._lastFrame) throw new Error('XRFrameProxy._lastFrame is null')
+    return XRFrameProxy._lastFrame.getPose(new XRSpace(_pos, _rot), baseSpace)
   }
 
   /** @todo */
@@ -198,6 +199,7 @@ const _scale = new Vector3()
  */
 export class XRFrameProxy {
   _viewerPose: XRViewerPose | null = null
+  static _lastFrame: XRFrameProxy | null = null
 
   constructor() {
     const sessionActive = getState(XRState).sessionActive
@@ -206,6 +208,7 @@ export class XRFrameProxy {
       const { camera } = xr8scene
       this._viewerPose = new XRViewerPose(new XRRigidTransform(camera.position, camera.quaternion))
     }
+    XRFrameProxy._lastFrame = this
   }
 
   getHitTestResults(source: XRHitTestSource) {

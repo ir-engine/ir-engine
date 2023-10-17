@@ -25,11 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { disallow } from 'feathers-hooks-common'
 
-import authenticate from '../../hooks/authenticate'
-
 export default {
   before: {
-    all: [authenticate()],
+    all: [],
     find: [],
     get: [disallow() /*iff(isProvider('external'), verifyScope('admin', 'admin') as any)*/],
     create: [disallow() /*iff(isProvider('external'), verifyScope('admin', 'admin') as any)*/],

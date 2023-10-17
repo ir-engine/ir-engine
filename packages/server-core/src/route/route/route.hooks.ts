@@ -32,7 +32,7 @@ import {
   routeQueryValidator
 } from '@etherealengine/engine/src/schemas/route/route.schema'
 
-import authenticate from '../../hooks/authenticate'
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
 import {
   routeDataResolver,
@@ -49,22 +49,20 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(routeQueryValidator), schemaHooks.resolveQuery(routeQueryResolver)],
-    find: [],
+    find: [enableClientPagination()],
     get: [],
     create: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(routeDataValidator),
       schemaHooks.resolveData(routeDataResolver)
     ],
-    update: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
     patch: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(routePatchValidator),
       schemaHooks.resolveData(routePatchResolver)
     ],
-    remove: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))]
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]
   },
 
   after: {

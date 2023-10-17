@@ -25,22 +25,28 @@ Ethereal Engine. All Rights Reserved.
 
 import { Node, OnConnectStartParams } from 'reactflow'
 
-import { NodeSpecJSON } from '@behave-graph/core'
-
 import { NodePickerFilters } from '../components/NodePicker'
+import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType'
 
 export const getNodePickerFilters = (
   nodes: Node[],
   params: OnConnectStartParams | undefined,
-  specJSON: NodeSpecJSON[] | undefined
+  specGenerator: NodeSpecGenerator | undefined
 ): NodePickerFilters | undefined => {
   if (params === undefined) return
 
   const originNode = nodes.find((node) => node.id === params.nodeId)
   if (originNode === undefined) return
 
-  const sockets = specJSON ? getSocketsByNodeTypeAndHandleType(specJSON, originNode.type, params.handleType) : undefined
+  const sockets = specGenerator
+    ? getSocketsByNodeTypeAndHandleType(
+        specGenerator,
+        originNode.type,
+        originNode.data.configuration,
+        params.handleType
+      )
+    : undefined
 
   const socket = sockets?.find((socket) => socket.name === params.handleId)
 

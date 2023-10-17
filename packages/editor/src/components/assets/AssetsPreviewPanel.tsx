@@ -53,6 +53,7 @@ export type AssetSelectionChangePropsType = {
   resourceUrl: string
   name: string
   contentType: string
+  size: string | undefined
 }
 
 /**
@@ -62,7 +63,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
   useImperativeHandle(ref, () => ({ onSelectionChanged }))
   const [previewPanel, usePreviewPanel] = useState({
     PreviewSource: null as any,
-    resourceProps: { resourceUrl: '', name: '' }
+    resourceProps: { resourceUrl: '', name: '', size: '' }
   })
 
   const thumbnail = useHookstate('')
@@ -91,7 +92,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case AssetType.FBX:
         const modelPreviewPanel = {
           PreviewSource: ModelPreviewPanel,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(modelPreviewPanel)
         break
@@ -102,7 +103,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'jpg':
         const imagePreviewPanel = {
           PreviewSource: ImagePreviewPanel,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(imagePreviewPanel)
         break
@@ -110,7 +111,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'image/ktx2':
         const compImgPreviewPanel = {
           PreviewSource: ImagePreviewPanel,
-          resourceProps: { resourceUrl: thumbnail.value, name: props.name }
+          resourceProps: { resourceUrl: thumbnail.value, name: props.name, size: props.size }
         }
         usePreviewPanel(compImgPreviewPanel)
         break
@@ -120,7 +121,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'm3u8':
         const videoPreviewPanel = {
           PreviewSource: VideoPreviewPanel,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(videoPreviewPanel)
         break
@@ -129,7 +130,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'mp3':
         const audioPreviewPanel = {
           PreviewSource: AudioPreviewPanel,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(audioPreviewPanel)
         break
@@ -137,14 +138,14 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'ts':
         const txtPreviewPanel = {
           PreviewSource: TxtPreviewPanel,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(txtPreviewPanel)
         break
       case 'json':
         const jsonPreviewPanel = {
           PreviewSource: JsonPreviewPanel,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(jsonPreviewPanel)
         break
@@ -152,7 +153,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       default:
         const unavailable = {
           PreviewSource: PreviewUnavailable,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(unavailable)
         break
@@ -161,7 +162,11 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
 
   return (
     <>
-      {!hideHeading && <div style={assetHeadingStyles as React.CSSProperties}>{previewPanel.resourceProps.name}</div>}
+      {!hideHeading && (
+        <div style={assetHeadingStyles as React.CSSProperties}>
+          {`${previewPanel.resourceProps.name} (${previewPanel.resourceProps.size})`}{' '}
+        </div>
+      )}
       {previewPanel.PreviewSource && <previewPanel.PreviewSource resourceProps={previewPanel.resourceProps} />}
     </>
   )

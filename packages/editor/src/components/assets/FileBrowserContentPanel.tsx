@@ -206,7 +206,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       props.onSelectionChanged({
         resourceUrl: params.url,
         name: params.name,
-        contentType: params.type
+        contentType: params.type,
+        size: params.size
       })
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
@@ -303,7 +304,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     isLoading.set(true)
     openConfirm.set(false)
     await FileBrowserService.deleteContent(contentToDeletePath.value)
-    props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '' })
+    props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '', size: '' })
     await refreshDirectory()
   }
 

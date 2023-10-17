@@ -31,7 +31,6 @@ import {
   analyticsPatchValidator,
   analyticsQueryValidator
 } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   analyticsDataResolver,
@@ -48,7 +47,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(analyticsQueryValidator),
       schemaHooks.resolveQuery(analyticsQueryResolver)

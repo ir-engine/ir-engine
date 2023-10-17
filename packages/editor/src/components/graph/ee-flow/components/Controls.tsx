@@ -28,8 +28,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
 import { ControlButton, Controls } from 'reactflow'
 
-import { GraphJSON, NodeSpecJSON } from '@behave-graph/core'
+import { GraphJSON } from '@behave-graph/core'
 
+import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator.js'
 import { ClearModal } from './modals/ClearModal'
 import { HelpModal } from './modals/HelpModal'
 import { Examples, LoadModal } from './modals/LoadModal'
@@ -41,7 +42,7 @@ export type CustomControlsProps = {
   onSaveGraph: (value: GraphJSON) => void
   setBehaviorGraph: (value: GraphJSON) => void
   examples: Examples
-  specJson: NodeSpecJSON[] | undefined
+  specGenerator: NodeSpecGenerator | undefined
 }
 
 export const CustomControls: React.FC<CustomControlsProps> = ({
@@ -49,13 +50,13 @@ export const CustomControls: React.FC<CustomControlsProps> = ({
   togglePlay,
   setBehaviorGraph,
   examples,
-  specJson
+  specGenerator
 }: {
   playing: boolean
   togglePlay: () => void
   setBehaviorGraph: (value: GraphJSON) => void
   examples: Examples
-  specJson: NodeSpecJSON[] | undefined
+  specGenerator: NodeSpecGenerator | undefined
 }) => {
   const [loadModalOpen, setLoadModalOpen] = useState(false)
   const [saveModalOpen, setSaveModalOpen] = useState(false)
@@ -93,7 +94,9 @@ export const CustomControls: React.FC<CustomControlsProps> = ({
         setBehaviorGraph={setBehaviorGraph}
         examples={examples}
       />
-      {specJson && <SaveModal open={saveModalOpen} specJson={specJson} onClose={() => setSaveModalOpen(false)} />}
+      {specGenerator && (
+        <SaveModal open={saveModalOpen} specGenerator={specGenerator} onClose={() => setSaveModalOpen(false)} />
+      )}
       <HelpModal open={helpModalOpen} onClose={() => setHelpModalOpen(false)} />
       <ClearModal open={clearModalOpen} onClose={() => setClearModalOpen(false)} />
     </>

@@ -44,12 +44,11 @@ import {
   removeObjectFromGroup
 } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Divider } from '@mui/material'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { EditorHistoryAction } from '../../services/EditorHistory'
 import { SelectionState } from '../../services/SelectionServices'
 import GeometryEditor from '../geometry/GeometryEditor'
 import BooleanInput from '../inputs/BooleanInput'
@@ -220,9 +219,9 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                     //EditorControlFunctions.positionObject([obj3d.uuid], [nuPosition])
                     obj3d.position.set(nuPosition.x, nuPosition.y, nuPosition.z)
                   }}
-                  onRelease={() => {
-                    dispatchAction(EditorHistoryAction.createSnapshot({}))
-                  }}
+                  // onRelease={() => {
+                  //   dispatchAction(EditorHistoryAction.createSnapshot({}))
+                  // }}
                 />
               </InputGroup>
               <InputGroup name="Rotation" label="Rotation">
@@ -237,9 +236,9 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                     EditorControlFunctions.rotateObject([obj3d.uuid], [actualEuler])
                     //obj3d.rotation.setFromVector3(nuEulers.multiplyScalar(Deg2Rad))
                   }}
-                  onRelease={() => {
-                    dispatchAction(EditorHistoryAction.createSnapshot({}))
-                  }}
+                  // onRelease={() => {
+                  //   dispatchAction(EditorHistoryAction.createSnapshot({}))
+                  // }}
                 />
               </InputGroup>
               <InputGroup name="Scale" label="Scale">
@@ -252,9 +251,9 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                     EditorControlFunctions.scaleObject([obj3d.uuid], [nuScale], TransformSpace.Local, true)
                     //obj3d.scale.copy(nuScale)
                   }}
-                  onRelease={() => {
-                    dispatchAction(EditorHistoryAction.createSnapshot({}))
-                  }}
+                  // onRelease={() => {
+                  //   dispatchAction(EditorHistoryAction.createSnapshot({}))
+                  // }}
                 />
               </InputGroup>
             </Well>

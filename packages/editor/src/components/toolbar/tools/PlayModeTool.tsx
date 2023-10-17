@@ -44,7 +44,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
 import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
 import { useTranslation } from 'react-i18next'
-import { EditorHelperAction, EditorHelperState } from '../../../services/EditorHelperState'
+import { EditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
@@ -65,7 +65,7 @@ const PlayModeTool = () => {
       removeComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
       removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
-      dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: false }))
+      getMutableState(EditorHelperState).isPlayModeEnabled.set(false)
       graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.stop({ entity })))
       // stop all behave graph logic
     } else {
@@ -80,7 +80,7 @@ const PlayModeTool = () => {
           name: authState.user.name.value
         })
 
-      dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: true }))
+      getMutableState(EditorHelperState).isPlayModeEnabled.set(true)
       // run all behave graph logic
       graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.execute({ entity })))
     }
