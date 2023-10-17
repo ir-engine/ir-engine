@@ -24,14 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   loginTokenDataValidator,
   loginTokenPatchValidator,
   loginTokenQueryValidator
 } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import { HookContext } from '../../../declarations'
 
+import { BadRequest } from '@feathersjs/errors'
+import moment from 'moment'
+import { toDateTimeSql } from '../../util/datetime-sql'
+import { LoginTokenService } from './login-token.class'
 import {
   loginTokenDataResolver,
   loginTokenExternalResolver,
@@ -39,6 +44,16 @@ import {
   loginTokenQueryResolver,
   loginTokenResolver
 } from './login-token.resolvers'
+
+const checkIdentityProvider = (context: HookContext<LoginTokenService>) => {
+  if (!context.params.user || context.params.user.isGuest)
+    throw new BadRequest('This can only generate a login link for a non-guest user')
+  const data = Array.isArray(context.data) ? context.data : [context.data]
+  if (data.length === 0 || !data[0]) data[0] = {}
+  data[0].identityProviderId = context.params.user.identityProviders[0].id
+  data[0].expiresAt = toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
+  return context
+}
 
 export default {
   around: {
@@ -50,7 +65,7 @@ export default {
     find: [disallow('external')],
     get: [disallow('external')],
     create: [
-      disallow('external'),
+      iff(isProvider('external'), checkIdentityProvider),
       () => schemaHooks.validateData(loginTokenDataValidator),
       schemaHooks.resolveData(loginTokenDataResolver)
     ],
