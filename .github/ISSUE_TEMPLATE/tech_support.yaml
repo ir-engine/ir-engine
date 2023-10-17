@@ -1,6 +1,5 @@
----
 name: Installation Tech Support
-about: I'm having difficulty installing Ethereal Engine
+description: I'm having difficulty installing Ethereal Engine
 title: '[Ticket]: '
 labels: '[ticket]'
 assignees: ''
@@ -36,4 +35,3 @@ body:
       label: Relevant log output
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       render: shell
----
