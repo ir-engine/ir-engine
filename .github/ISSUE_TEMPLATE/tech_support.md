@@ -4,7 +4,6 @@ about: I'm having difficulty installing Ethereal Engine
 title: '[Ticket]: '
 labels: '[ticket]'
 assignees: ''
-
 body:
   - type: markdown
     attributes:
@@ -15,7 +14,6 @@ body:
     attributes:
       label: Operating System
       description: What operating system are you trying to install on?
-      placeholder: 
     validations:
       required: true
   - type: input
@@ -23,7 +21,6 @@ body:
     attributes:
       label: Node Version
       description: What nodejs version are you using? (run `node -v` if you are unsure)
-      placeholder: 
     validations:
       required: true
   - type: textarea
@@ -31,8 +28,6 @@ body:
     attributes:
       label: What happened?
       description: Please describe the issue you are facing.
-      placeholder: 
-      value: ""
     validations:
       required: true
   - type: textarea
@@ -41,5 +36,4 @@ body:
       label: Relevant log output
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       render: shell
-
 ---

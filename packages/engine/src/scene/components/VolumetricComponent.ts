@@ -35,6 +35,7 @@ import { AvatarDissolveComponent } from '@etherealengine/engine/src/avatar/compo
 import { AvatarEffectComponent, MaterialMap } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { AudioState } from '../../audio/AudioState'
 import { isClient } from '../../common/functions/getEnvironment'
+import { iOS } from '../../common/functions/isMobile'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
@@ -162,7 +163,8 @@ export function VolumetricReactor() {
               },
               video: element as HTMLVideoElement,
               V1Args: {
-                worker: worker
+                worker: worker,
+                targetFramesToRequest: iOS ? 10 : 90
               },
               paths: [],
               playMode: PlayMode.loop
