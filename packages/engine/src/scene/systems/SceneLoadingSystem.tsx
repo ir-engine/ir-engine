@@ -31,7 +31,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/engine/src/common/functions/logger'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import { AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
@@ -524,8 +524,14 @@ const reactor = () => {
   return null
 }
 
+const sceneLoadedActionQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
+
+const execute = () => {
+  if (sceneLoadedActionQueue().length) getMutableState(EngineState).merge({ sceneLoading: false, sceneLoaded: true })
+}
+
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',
-  execute: () => {},
+  execute,
   reactor
 })
