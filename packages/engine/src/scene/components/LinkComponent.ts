@@ -25,6 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
+import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
+import {
+  SocketWebRTCClientNetwork,
+  leaveNetwork
+} from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { useTranslation } from 'react-i18next'
 import { MeshBasicMaterial, Vector3 } from 'three'
@@ -35,7 +41,6 @@ import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneServices } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
@@ -54,11 +59,13 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { createInteractUI } from '../../interaction/functions/interactUI'
+import { createNonInteractUI } from '../../interaction/functions/nonInteractUI'
 import {
   InteractableTransitions,
   addInteractableUI,
   removeInteractiveUI
 } from '../../interaction/systems/InteractiveSystem'
+import { NetworkState } from '../../networking/NetworkState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
@@ -70,7 +77,9 @@ const linkLogic = (linkComponent, xrState) => {
     xrState && xrState.session?.end()
     typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
   } else {
-    SceneServices.setCurrentScene(linkComponent.projectName, linkComponent.sceneName)
+    RouterState.navigate('/location/' + linkComponent.location)
+    LocationService.getLocationByName(linkComponent.location)
+    leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
   }
 }
 
@@ -126,8 +135,7 @@ export const LinkComponent = defineComponent({
     return {
       url: 'https://www.etherealengine.org',
       sceneNav: false,
-      projectName: '',
-      sceneName: ''
+      location: ''
     }
   },
 
@@ -135,20 +143,22 @@ export const LinkComponent = defineComponent({
     if (!json) return
     matches.string.test(json.url) && component.url.set(json.url as string)
     matches.boolean.test(json.sceneNav) && component.sceneNav.set(json.sceneNav as boolean)
-    matches.string.test(json.projectName) && component.projectName.set(json.projectName as string)
-    matches.string.test(json.sceneName) && component.sceneName.set(json.sceneName as string)
+    matches.string.test(json.location) && component.location.set(json.location as string)
   },
 
   toJSON: (entity, component) => {
     return {
       url: component.url.value,
       sceneNav: component.sceneNav.value,
-      projectName: component.projectName.value,
-      sceneName: component.sceneName.value
+      location: component.location.value
     }
   },
 
   errors: ['INVALID_URL'],
+
+  onRemove: function (entity) {
+    removeInteractiveUI(entity)
+  },
 
   reactor: function () {
     if (!isClient) return null
@@ -183,10 +193,7 @@ export const LinkComponent = defineComponent({
       setComponent(entity, BoundingBoxComponent)
       setComponent(entity, InputComponent, { highlight: true, grow: true })
       if (!getState(EngineState).isEditor) {
-        addInteractableUI(entity, createInteractUI(entity, t('common:interactables.link')), onLinkInteractUpdate)
-        return () => {
-          removeInteractiveUI(entity)
-        }
+        addInteractableUI(entity, createNonInteractUI(entity, t('common:interactables.link')), onLinkInteractUpdate)
       }
     }, [])
 

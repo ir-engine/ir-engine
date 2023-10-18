@@ -680,8 +680,7 @@
       "title": "link Component",
       "lbl-url": "Link URL",
       "lbl-navigateScene": "Scene navigation",
-      "lbl-projname": "Project Name",
-      "lbl-scenename": "Scene Name",
+      "lbl-locaiton": "Location Name",
       "description": "Adds an interactable that opens links or navigates scene"
     },
     "spotLight": {

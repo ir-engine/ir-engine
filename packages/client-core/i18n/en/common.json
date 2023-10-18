@@ -11,7 +11,7 @@
     "pressKey": "Press {{tip}} to {{message}}"
   },
   "interactables": {
-    "link": "Click to follow link"
+    "link": "Click to follow"
   },
   "toast": {
     "joined": "joined",
