@@ -74,7 +74,7 @@ export const UVOLDissolveComponent = defineComponent({
     const height = maxY - minY
 
     let uniforms = {
-      time: {
+      progress: {
         value: 0
       },
       loadedHeight: {
@@ -135,7 +135,7 @@ uniform vec2 repeat;
 uniform vec2 offset;
 uniform sampler2D origin_texture;
 uniform float jitterWidth;
-uniform float time;
+uniform float progress;
 
 vec4 sRGBToLinear( in vec4 value ) {
   return vec4( mix( pow( value.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), value.rgb * 0.0773993808, vec3( lessThanEqual( value.rgb, vec3( 0.04045 ) ) ) ), value.a );
@@ -159,9 +159,9 @@ float localJitter = jitterWidth * (100.0 + jitterDelta) / 100.0;
 float lowerOffset = loadedHeight - localJitter;
 float upperOffset = loadedHeight + localJitter;
 
-float randomR = (sin(time) * 0.5) + 0.5;
+float randomR = (sin(progress) * 0.5) + 0.5;
 float randomG = .5;
-float randomB = (cos(time) * 0.5) + 0.5;
+float randomB = (cos(progress) * 0.5) + 0.5;
 
 if (positionY < lowerOffset) {
   ${textureShader}
@@ -214,7 +214,7 @@ if (positionY < lowerOffset) {
     )
 
     mesh.material.uniforms.loadedHeight.value = loadedHeight
-    mesh.material.uniforms.time.value = dissolveComponent.currentTime
+    mesh.material.uniforms.progress.value = dissolveComponent.currentTime / duration
 
     return dissolveComponent.currentTime >= duration
   }

@@ -95,7 +95,7 @@ export const VolumetricComponent = defineComponent({
       ended: true,
       volume: 1,
       playMode: PlayMode.loop as PlayMode,
-      track: 0
+      track: -1
     }
   },
 

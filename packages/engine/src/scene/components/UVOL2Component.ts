@@ -51,6 +51,7 @@ import {
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import {
   AudioFileFormat,
   DRACOTarget,
@@ -157,6 +158,7 @@ const loadGeometryAsync = (url: string, targetData: DRACOTarget | GLBTarget | Un
 const loadTextureAsync = (url: string) => {
   return new Promise<CompressedTexture>((resolve, reject) => {
     getState(AssetLoaderState).gltfLoader.ktx2Loader!.load(url, (texture) => {
+      EngineRenderer.instance.renderer.initTexture(texture)
       resolve(texture)
     })
   })
@@ -256,6 +258,8 @@ const resolvePath = (
 }
 
 const KEY_PADDING = 7
+const EPSILON = 0.00001 // For float comparison
+
 const createKey = (target: string, index: number) => {
   return target + index.toString().padStart(KEY_PADDING, '0')
 }
@@ -485,15 +489,13 @@ function UVOL2Reactor() {
   }
 
   const adjustGeometryTarget = (metric: number) => {
-    if (metric > 0.3) {
+    if (metric >= 0.1) {
       const currentTargetIndex = geometryTargets.current.indexOf(component.geometryTarget.value)
       if (currentTargetIndex > 0) {
         console.log(`VDEBUGadjustGeometryTarget: ${currentTargetIndex} to ${currentTargetIndex - 1}`)
         component.geometryTarget.set(geometryTargets.current[currentTargetIndex - 1])
       }
-    } else if (0.1 <= metric && metric <= 0.3) {
-      return
-    } else {
+    } else if (metric < 0.01) {
       const currentTargetIndex = geometryTargets.current.indexOf(component.geometryTarget.value)
       if (currentTargetIndex < geometryTargets.current.length - 1) {
         console.log(`VDEBUGadjustGeometryTarget: ${currentTargetIndex} to ${currentTargetIndex + 1}`)
@@ -503,15 +505,13 @@ function UVOL2Reactor() {
   }
 
   const adjustTextureTarget = (metric: number) => {
-    if (metric > 0.3) {
+    if (metric >= 0.1) {
       const currentTargetIndex = textureTargets.current.indexOf(component.textureTarget.value)
       if (currentTargetIndex > 0) {
         console.log(`VDEBUGadjustTextureTarget: ${currentTargetIndex} to ${currentTargetIndex - 1}`)
         component.textureTarget.set(textureTargets.current[currentTargetIndex - 1])
       }
-    } else if (0.1 <= metric && metric <= 0.3) {
-      return
-    } else {
+    } else if (metric < 0.01) {
       const currentTargetIndex = textureTargets.current.indexOf(component.textureTarget.value)
       if (currentTargetIndex < textureTargets.current.length - 1) {
         console.log(`VDEBUGadjustTextureTarget: ${currentTargetIndex} to ${currentTargetIndex + 1}`)
@@ -597,7 +597,6 @@ function UVOL2Reactor() {
         const key = createKey(target, i)
         texture.name = key
         pendingTextureRequests.current--
-        texture.needsUpdate = true
         textureBuffer.set(key, texture)
         textureBufferHealth.current += 1 / frameRate
         if (textureBufferHealth.current >= minBufferToPlay && !component.initialTextureBuffersLoaded.value) {
@@ -737,8 +736,8 @@ function UVOL2Reactor() {
        * Disposing should be done only on keyframeA
        * Because, keyframeA will use the previous buffer of keyframeB in the next frame.
        */
-      mesh.geometry.attributes.keyframeB = attribute
-      mesh.geometry.attributes.keyframeB.needsUpdate = true
+      mesh.geometry.attributes[name] = attribute
+      mesh.geometry.attributes[name].needsUpdate = true
       return
     }
 
@@ -903,8 +902,10 @@ function UVOL2Reactor() {
   const update = () => {
     const delta = getState(EngineState).deltaSeconds
     const canPlay =
-      geometryBufferHealth.current - currentTime.current >= minBufferToPlay &&
-      textureBufferHealth.current - currentTime.current >= minBufferToPlay
+      (geometryBufferHealth.current - currentTime.current >= minBufferToPlay ||
+        geometryBufferHealth.current + EPSILON >= manifest.current.duration) &&
+      (textureBufferHealth.current - currentTime.current >= minBufferToPlay ||
+        textureBufferHealth.current + EPSILON >= manifest.current.duration)
     if (!canPlay) {
       if (!component.isBuffering.value) {
         component.isBuffering.set(true)
