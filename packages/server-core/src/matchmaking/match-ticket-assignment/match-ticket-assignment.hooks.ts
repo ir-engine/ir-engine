@@ -35,16 +35,17 @@ import linkMatchUserToMatch from '@etherealengine/server-core/src/hooks/matchmak
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { getTicketsAssignment } from '@etherealengine/matchmaking/src/functions'
 import { NotFound } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import { emulate_getTicketsAssignment } from '../emulate'
+import { MatchTicketAssignmentService } from './match-ticket-assignment.class'
 import {
   matchTicketAssignmentExternalResolver,
   matchTicketAssignmentQueryResolver,
   matchTicketAssignmentResolver
 } from './match-ticket-assignment.resolvers'
 
-const getTicketAssigment = async (context: HookContext) => {
+const getTicketAssigment = async (context: HookContext<MatchTicketAssignmentService>) => {
   let assignment: MatchTicketAssignmentType
   try {
     if (config.server.matchmakerEmulationMode) {

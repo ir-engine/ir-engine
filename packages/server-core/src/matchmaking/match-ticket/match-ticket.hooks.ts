@@ -27,6 +27,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
+  MatchTicketData,
   MatchTicketType,
   matchTicketDataValidator,
   matchTicketQueryValidator
@@ -38,10 +39,11 @@ import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-
 
 import { createTicket, deleteTicket, getTicket } from '@etherealengine/matchmaking/src/functions'
 import { BadRequest, NotFound } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import authenticate from '../../hooks/authenticate'
 import { emulate_createTicket, emulate_getTicket } from '../emulate'
+import { MatchTicketService } from './match-ticket.class'
 import {
   matchTicketDataResolver,
   matchTicketExternalResolver,
@@ -49,13 +51,13 @@ import {
   matchTicketResolver
 } from './match-ticket.resolvers'
 
-const ensureId = async (context: HookContext) => {
+const ensureId = async (context: HookContext<MatchTicketService>) => {
   if (typeof context.id !== 'string' || context.id.length === 0) {
     throw new BadRequest('Invalid ticket id, not empty string is expected')
   }
 }
 
-const getEmulationTicket = async (context: HookContext) => {
+const getEmulationTicket = async (context: HookContext<MatchTicketService>) => {
   let ticket
   if (config.server.matchmakerEmulationMode) {
     // emulate response from open-match-api
@@ -70,16 +72,26 @@ const getEmulationTicket = async (context: HookContext) => {
   context.result = ticket as MatchTicketType
 }
 
-const createInEmulation = async (context: HookContext) => {
-  if (config.server.matchmakerEmulationMode) {
-    // emulate response from open-match-api
-    return emulate_createTicket(context.data.gameMode)
+const createInEmulation = async (context: HookContext<MatchTicketService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  context.result = await createTicket(context.data.gameMode, context.data.attributes)
+  const data: MatchTicketData[] = Array.isArray(context.data) ? context.data : [context.data]
+  const result: MatchTicketType[] = []
+
+  for (const item of data) {
+    if (config.server.matchmakerEmulationMode) {
+      // emulate response from open-match-api
+      return emulate_createTicket(item.gameMode)
+    }
+
+    result.push(await createTicket(item.gameMode, item.attributes))
+  }
+  context.result = result
 }
 
-const skipDeleteInEmulation = async (context: HookContext) => {
+const skipDeleteInEmulation = async (context: HookContext<MatchTicketService>) => {
   if (!config.server.matchmakerEmulationMode) {
     await deleteTicket(String(context.id))
   }
