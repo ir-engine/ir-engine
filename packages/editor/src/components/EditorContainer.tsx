@@ -58,6 +58,7 @@ import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
+import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorHistoryState } from '../services/EditorHistory'
 import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
@@ -454,7 +455,8 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        if (result) {
+        const isGenerateThumbnailsEnabled = getState(EditorHelperState).isGenerateThumbnailsEnabled
+        if (isGenerateThumbnailsEnabled) {
           const blob = await takeScreenshot(512, 320, 'ktx2')
           const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
 
