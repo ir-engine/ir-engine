@@ -32,6 +32,7 @@ import Primus from 'primus'
 import '@feathersjs/transport-commons'
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 export type PrimusType = Primus & {
   forEach(cb: (spark: Primus.Spark, id: string, connections: { [id: string]: Primus.Spark }) => boolean | void): Primus
@@ -53,5 +54,17 @@ declare module '@feathersjs/feathers' {
   }
 }
 
-// The context for hook functions - can be typed with a service class
+/**
+ * Add the user as an optional property to all params
+ */
+declare module '@feathersjs/knex' {
+  interface KnexAdapterParams {
+    user?: UserType
+    isInternal?: boolean
+  }
+}
+
+/**
+ * The context for hook functions - can be typed with a service class
+ */
 export type HookContext<S = any> = FeathersHookContext<Application, S>

@@ -27,7 +27,7 @@ import { MeshPhysicalMaterial as Physical } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
 import { SourceType } from '../../components/MaterialSource'
-import { FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
+import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 import { DefaultArgs as StandardDefaults } from './MeshStandardMaterial.mat'
 
 export const DefaultArgs = {
@@ -35,6 +35,23 @@ export const DefaultArgs = {
   clearcoat: { ...NormalizedFloatArg, default: 0.5 },
   clearcoatMap: TextureArg,
   clearcoatNormalMap: TextureArg,
+  ior: { ...FloatArg, default: 1.5, min: 1.0, max: 2.333 },
+  iridescence: NormalizedFloatArg,
+  iridescenceMap: TextureArg,
+  iridescenceIOR: { ...FloatArg, default: 1.3, min: 1.0, max: 2.333 },
+  iridescenceThicknessMap: TextureArg,
+  sheen: { ...NormalizedFloatArg, default: 0.5 },
+  sheenMap: TextureArg,
+  sheenColor: ColorArg,
+  sheenColorMap: TextureArg,
+  sheenRoughness: { ...NormalizedFloatArg, default: 0.5 },
+  sheenRoughnessMap: TextureArg,
+  specularIntensity: FloatArg,
+  specularIntensityMap: TextureArg,
+  specularColor: ColorArg,
+  specularColorMap: TextureArg,
+  thickness: FloatArg,
+  thicknessMap: TextureArg,
   transmission: FloatArg,
   transmissionMap: TextureArg
 }

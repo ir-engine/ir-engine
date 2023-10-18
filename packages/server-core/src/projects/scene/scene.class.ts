@@ -47,7 +47,7 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { cleanString } from '../../util/cleanString'
-import { downloadAssetsFromScene, getSceneData } from './scene-helper'
+import { getSceneData } from './scene-helper'
 const NEW_SCENE_NAME = 'New-Scene'
 
 const sceneAssetFiles = ['.scene.json', '.thumbnail.ktx2', '.envmap.ktx2']
@@ -106,7 +106,7 @@ export class SceneService
     const sceneName = params?.query?.name?.toString()
     const project = (await this.app
       .service(projectPath)
-      ._find({ ...params, query: { name: projectName!, $limit: 1 } })) as Paginated<ProjectType>
+      .find({ ...params, query: { name: projectName!, $limit: 1 } })) as Paginated<ProjectType>
     if (project.data.length === 0) throw new Error(`No project named ${projectName!} exists`)
 
     const sceneData = await getSceneData(projectName!, sceneName!, metadataOnly, params!.provider == null)
@@ -123,7 +123,7 @@ export class SceneService
 
     const projectResult = (await this.app
       .service(projectPath)
-      ._find({ ...params, query: { name: project, $limit: 1 } })) as Paginated<ProjectType>
+      .find({ ...params, query: { name: project, $limit: 1 } })) as Paginated<ProjectType>
     if (projectResult.data.length === 0) throw new Error(`No project named ${project} exists`)
 
     const projectRoutePath = `projects/${project}/`
@@ -179,7 +179,7 @@ export class SceneService
 
     const projectResult = (await this.app
       .service(projectPath)
-      ._find({ ...params, query: { name: project, $limit: 1 } })) as Paginated<ProjectType>
+      .find({ ...params, query: { name: project, $limit: 1 } })) as Paginated<ProjectType>
     if (projectResult.data.length === 0) throw new Error(`No project named ${project} exists`)
 
     const projectRoutePath = `projects/${project}/`
@@ -235,8 +235,6 @@ export class SceneService
         .service(projectPath)
         .find({ ...params, query: { name: project }, paginate: false })) as ProjectType[]
       if (projectResult.length === 0) throw new Error(`No project named ${project} exists`)
-
-      await downloadAssetsFromScene(this.app, project!, parsedSceneData!)
 
       const newSceneJsonPath = `projects/${project}/${name}.scene.json`
       await storageProvider.putObject({
@@ -305,7 +303,7 @@ export class SceneService
 
     const project = (await this.app
       .service(projectPath)
-      .find({ ...params, query: { name: projectName }, paginate: false })) as ProjectType[]
+      .find({ ...params, query: { name: projectName }, paginate: false })) as any as ProjectType[]
     if (project.length === 0) throw new Error(`No project named ${projectName} exists`)
 
     for (const ext of sceneAssetFiles) {

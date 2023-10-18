@@ -123,7 +123,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(routePath, new RouteService(options, app), {
+  app.use(routePath, new RouteService(options), {
     // A list of all methods this service exposes externally
     methods: routeMethods,
     // You can add additional custom events to be sent to clients here

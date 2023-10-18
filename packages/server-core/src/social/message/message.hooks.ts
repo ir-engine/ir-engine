@@ -31,7 +31,6 @@ import {
   messagePatchValidator,
   messageQueryValidator
 } from '@etherealengine/engine/src/schemas/social/message.schema'
-import authenticate from '../../hooks/authenticate'
 import channelPermissionAuthenticate from '../../hooks/channel-permission-authenticate'
 import messagePermissionAuthenticate from '../../hooks/message-permission-authenticate'
 import {
@@ -58,7 +57,7 @@ import { MessageService } from './message.class'
  */
 const disallowEmptyMessage = async (context: HookContext<MessageService>) => {
   if (!context.data) {
-    return
+    throw new BadRequest(`${context.path} service data is empty`)
   }
 
   const data = Array.isArray(context.data) ? context.data : [context.data]
@@ -78,7 +77,7 @@ const disallowEmptyMessage = async (context: HookContext<MessageService>) => {
  */
 const ensureChannelId = async (context: HookContext<MessageService>) => {
   if (!context.data || context.method !== 'create') {
-    return
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
   const data: MessageData[] = Array.isArray(context.data) ? context.data : [context.data]
@@ -128,11 +127,7 @@ export default {
   },
 
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(messageQueryValidator),
-      schemaHooks.resolveQuery(messageQueryResolver)
-    ],
+    all: [() => schemaHooks.validateQuery(messageQueryValidator), schemaHooks.resolveQuery(messageQueryResolver)],
     find: [iff(isProvider('external'), channelPermissionAuthenticate())],
     get: [],
     create: [

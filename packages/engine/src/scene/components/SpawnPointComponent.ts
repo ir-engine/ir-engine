@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 import { BoxGeometry, BoxHelper, Mesh, Scene } from 'three'
 
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { matches } from '../../common/functions/MatchesUtils'
@@ -59,7 +59,7 @@ export const SpawnPointComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      permissionedUsers: component.permissionedUsers.value
+      permissionedUsers: component.permissionedUsers.get(NO_PROXY)
     }
   },
 

@@ -70,7 +70,9 @@ export class OembedService implements ServiceInterface<OembedType | BadRequest |
         query_url: queryURL
       } as OembedType
 
-      const activeRoutes = (await this.app.service(routePath).find({ query: { paginate: false } })) as RouteType[]
+      const activeRoutes = (await this.app
+        .service(routePath)
+        .find({ query: { paginate: false } })) as any as RouteType[]
       const uniqueProjects = [...new Set<string>(activeRoutes.map((item) => item.project))]
 
       for (const projectName of uniqueProjects) {

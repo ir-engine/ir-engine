@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { Object3D } from 'three'
 
 import logger from '@etherealengine/engine/src/common/functions/logger'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { IncomingActionSystem } from '../../networking/systems/IncomingActionSystem'
@@ -35,7 +35,7 @@ import { OutgoingActionSystem } from '../../networking/systems/OutgoingActionSys
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
-import { EngineActions, EngineState } from '../classes/EngineState'
+import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
 import { SceneState } from '../classes/Scene'
 import { removeEntityNodeRecursively } from '../functions/EntityTree'
@@ -78,7 +78,7 @@ export const unloadScene = async () => {
   for (const entity of entitiesToRemove) removeEntity(entity)
 
   await disableAllSystems()
-  dispatchAction(EngineActions.sceneUnloaded({}))
+  getMutableState(EngineState).sceneLoaded.set(false)
 }
 
 export const InputSystemGroup = defineSystem({

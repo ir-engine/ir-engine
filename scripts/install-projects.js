@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,32 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-
-import { download } from "@etherealengine/server-core/src/projects/project/downloadProjects";
-import { createDefaultStorageProvider } from "@etherealengine/server-core/src/media/storageprovider/storageprovider";
-import dotenv from 'dotenv';
-import path from "path";
-import fs from "fs";
-import appRootPath from 'app-root-path'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import logger from '@etherealengine/server-core/src/ServerLogger'
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
+import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { createDefaultStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
+import { download } from '@etherealengine/server-core/src/projects/project/downloadProjects'
 import { getProjectConfig, onProjectEvent } from '@etherealengine/server-core/src/projects/project/project-helper'
-import { projectPath, ProjectType } from "@etherealengine/engine/src/schemas/projects/project.schema";
+import appRootPath from 'app-root-path'
+import dotenv from 'dotenv'
+import fs from 'fs'
+import path from 'path'
 
-dotenv.config();
+dotenv.config()
 const db = {
-    username: process.env.MYSQL_USER ?? 'server',
-    password: process.env.MYSQL_PASSWORD ?? 'password',
-    database: process.env.MYSQL_DATABASE ?? 'etherealengine',
-    host: process.env.MYSQL_HOST ?? '127.0.0.1',
-    port: process.env.MYSQL_PORT ?? 3306,
-    dialect: 'mysql'
-};
+  username: process.env.MYSQL_USER ?? 'server',
+  password: process.env.MYSQL_PASSWORD ?? 'password',
+  database: process.env.MYSQL_DATABASE ?? 'etherealengine',
+  host: process.env.MYSQL_HOST ?? '127.0.0.1',
+  port: process.env.MYSQL_PORT ?? 3306,
+  dialect: 'mysql'
+}
 
-db.url = process.env.MYSQL_URL ??
-    `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`;
-
+db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
 async function installAllProjects() {
   try {
@@ -60,19 +56,18 @@ async function installAllProjects() {
     if (!fs.existsSync(localProjectDirectory)) fs.mkdirSync(localProjectDirectory, { recursive: true })
     logger.info('running installAllProjects')
 
-    const projects = await app.service(projectPath)._find({paginate: false})
+    const projects = await app.service(projectPath).find({ paginate: false })
     logger.info('found projects %o', projects)
     await Promise.all(projects.map((project) => download(project.name)))
-    await app.service(projectPath).update({ sourceURL: 'default-project' }, null, { isInternal: true, isJob: true })
+    await app.service(projectPath).update('', { sourceURL: 'default-project' }, { isInternal: true, isJob: true })
     const projectConfig = getProjectConfig('default-project') ?? {}
     if (projectConfig.onEvent) await onProjectEvent(app, 'default-project', projectConfig.onEvent, 'onUpdate')
     process.exit(0)
   } catch (e) {
     logger.fatal(e)
-      console.error(e)
-      process.exit(1)
+    console.error(e)
+    process.exit(1)
   }
-
 }
 
-installAllProjects();
+installAllProjects()

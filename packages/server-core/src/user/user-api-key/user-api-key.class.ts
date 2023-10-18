@@ -23,10 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { NullableId, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
-
 import {
   UserApiKeyData,
   UserApiKeyPatch,
@@ -34,66 +30,15 @@ import {
   UserApiKeyType
 } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 
-import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserApiKeyParams extends RootParams<UserApiKeyQuery> {}
+export interface UserApiKeyParams extends KnexAdapterParams<UserApiKeyQuery> {}
 
-/**
- * A class for UserApiKey service
- */
-
-export class UserApiKeyService<T = UserApiKeyType, ServiceParams extends Params = UserApiKeyParams> extends KnexAdapter<
+export class UserApiKeyService<T = UserApiKeyType, ServiceParams extends Params = UserApiKeyParams> extends KnexService<
   UserApiKeyType,
   UserApiKeyData,
   UserApiKeyParams,
   UserApiKeyPatch
-> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  async find(params?: UserApiKeyParams) {
-    return await super._find(params)
-  }
-
-  async create(data: UserApiKeyData, params?: UserApiKeyParams) {
-    return super._create(data, params)
-  }
-
-  async patch(id: NullableId, data: UserApiKeyPatch, params?: UserApiKeyParams) {
-    const loggedInUser = params!.user
-    if (
-      loggedInUser &&
-      loggedInUser.scopes &&
-      loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
-      id != null &&
-      params
-    )
-      return super._patch(id, { ...data })
-
-    const userApiKey = await super._find({
-      query: {
-        userId: loggedInUser?.id
-      }
-    })
-
-    let returned
-    if (userApiKey.data.length > 0) {
-      const patchData: UserApiKeyPatch = { token: data.token }
-      returned = await super._patch(userApiKey.data[0].id, patchData)
-    } else {
-      const patchData: UserApiKeyData = { ...data, userId: loggedInUser?.id }
-      returned = await super._create(patchData)
-    }
-    return returned
-  }
-
-  async remove(id: NullableId, _params?: UserApiKeyParams) {
-    return super._remove(id, _params)
-  }
-}
+> {}

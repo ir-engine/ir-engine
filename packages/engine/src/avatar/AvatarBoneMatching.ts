@@ -589,7 +589,7 @@ export function getAllBones(rootBone: Bone) {
   const bones = {} as Record<VRMHumanBoneName, Bone>
   rootBone.traverse((bone: Bone) => {
     if (bone.isBone) {
-      const boneName = mixamoVRMRigMap[bone.name] ?? bone.name
+      const boneName = mixamoVRMRigMap[bone.name] ?? hipRigMap[bone.name] ?? bone.name
       bones[boneName] = bone
     }
   })
@@ -763,6 +763,10 @@ export const mixamoVRMRigMap = {
   mixamorigRightLeg: 'rightLowerLeg',
   mixamorigRightFoot: 'rightFoot',
   mixamorigRightToeBase: 'rightToes'
+}
+
+export const hipRigMap = {
+  CC_Base_Hip: 'hips'
 }
 
 export function makeBindPose(bones: VRMHumanBones) {

@@ -31,7 +31,6 @@ import {
   botCommandPatchValidator,
   botCommandQueryValidator
 } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   botCommandDataResolver,
@@ -48,7 +47,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(botCommandQueryValidator),
       schemaHooks.resolveQuery(botCommandQueryResolver)

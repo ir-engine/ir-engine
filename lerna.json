@@ -3,7 +3,7 @@
     "packages/*",
     "packages/projects/projects/*"
   ],
-  "version": "1.4.0",
+  "version": "1.5.0",
   "npmClient": "npm",
   "useNx": true,
   "loglevel": "verbose",

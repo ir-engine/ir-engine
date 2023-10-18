@@ -27,7 +27,10 @@ import _ from 'lodash'
 
 import logger from '@etherealengine/engine/src/common/functions/logger'
 
-import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import {
+  ProjectPermissionType,
+  projectPermissionPath
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { ProjectType, projectMethods, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -64,12 +67,12 @@ export default (app: Application): void => {
   service.publish('patched', async (data: ProjectType) => {
     try {
       let targetIds: string[] = []
-      const projectOwners = await app.service(projectPermissionPath)._find({
+      const projectOwners = (await app.service(projectPermissionPath).find({
         query: {
           projectId: data.id
         },
         paginate: false
-      })
+      })) as any as ProjectPermissionType[]
       targetIds = targetIds.concat(projectOwners.map((permission) => permission.userId))
 
       const adminScopes = (await app.service(scopePath).find({

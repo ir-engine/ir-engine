@@ -58,7 +58,7 @@ export async function up(knex: Knex): Promise<void> {
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      table.foreign('userId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
     })
   }
 

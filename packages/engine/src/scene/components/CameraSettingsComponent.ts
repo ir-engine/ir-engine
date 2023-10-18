@@ -35,8 +35,10 @@ export const CameraSettingsComponent = defineComponent({
   name: 'CameraSettingsComponent',
   jsonID: 'camera-settings',
 
-  onInit(entity) {
-    return JSON.parse(JSON.stringify(getState(CameraSettingsState))) as typeof CameraSettingsState._TYPE
+  onInit(entity): typeof CameraSettingsState._TYPE {
+    return typeof CameraSettingsState.initial === 'function'
+      ? (CameraSettingsState.initial as any)()
+      : JSON.parse(JSON.stringify(CameraSettingsState.initial))
   },
 
   onSet: (entity, component, json) => {
