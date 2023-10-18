@@ -100,14 +100,10 @@ async function checkOnlyIdentityProvider(context: HookContext<IdentityProviderSe
   return context
 }
 
-/** (BEFORE) CREATE HOOKS **/
+/* (BEFORE) CREATE HOOKS */
 
 async function validateAuthParams(context: HookContext<IdentityProviderService>) {
-  if (Array.isArray(context.data)) {
-    throw new MethodNotAllowed('identity-provider create works only with singular entries')
-  }
-
-  let userId = context.data!.userId
+  let userId = (context.data as IdentityProviderData).userId
 
   if (context.params.authentication) {
     const authResult = await context.app.service('authentication').strategies.jwt.authenticate!(
@@ -118,6 +114,9 @@ async function validateAuthParams(context: HookContext<IdentityProviderService>)
   }
 
   if (!userId) {
+    if ((context.data as IdentityProviderData).type === 'guest') {
+      return
+    }
     throw new BadRequest('userId not found')
   }
 
@@ -157,7 +156,7 @@ async function createNewUser(context: HookContext<IdentityProviderService>) {
   context.existingUser = newUser
 }
 
-/** (AFTER) CREATE HOOKS **/
+/* (AFTER) CREATE HOOKS */
 
 async function addScopes(context: HookContext<IdentityProviderService>) {
   if (isDev && (context.data as IdentityProviderType).type === 'admin') {
@@ -190,6 +189,12 @@ export default {
     find: [iff(isProvider('external'), setLoggedinUserInQuery('userId'))],
     get: [iff(isProvider('external'), checkIdentityProvider)],
     create: [
+      iff(
+        (context: HookContext<IdentityProviderService>) => Array.isArray(context.data),
+        () => {
+          throw new MethodNotAllowed('identity-provider create works only with singular entries')
+        }
+      ),
       () => schemaHooks.validateData(identityProviderDataValidator),
       schemaHooks.resolveData(identityProviderDataResolver),
       validateAuthParams,

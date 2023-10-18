@@ -37,9 +37,8 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-let userId: UserID
-
 describe('identity-provider.service', () => {
+  let userId: UserID
   let app: Application
   let providers: IdentityProviderType[] = []
 
