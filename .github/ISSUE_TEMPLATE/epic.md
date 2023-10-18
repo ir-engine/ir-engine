@@ -7,8 +7,8 @@ labels: '[epic]'
 
 ## Dependent on
 
-- [ ] 
+- [ ]
 
 ## Stories
 
-- [ ] 
+- [ ]

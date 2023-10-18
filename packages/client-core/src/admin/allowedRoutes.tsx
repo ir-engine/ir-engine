@@ -43,7 +43,7 @@ const AllowedRoutes = () => {
 
   const currentRoute = allowedRoutes[path]
 
-  if (currentRoute.redirect.value) return <Redirect to={currentRoute.redirect.value} />
+  if (currentRoute?.value && currentRoute.redirect.value) return <Redirect to={currentRoute.redirect?.value} />
 
   const Element = currentRoute?.get(NO_PROXY)?.component
   const allowed = currentRoute?.access?.value
