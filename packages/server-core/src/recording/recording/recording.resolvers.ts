@@ -68,7 +68,7 @@ export const recordingResolver = resolve<RecordingType, HookContext>(
       return recordingResources.map((resource) => resource.staticResource)
     }),
     userName: virtual(async (recording, context) => {
-      const user = await context.app.service(userPath)._get(recording.userId)
+      const user = await context.app.service(userPath).get(recording.userId)
 
       return user.name
     }),

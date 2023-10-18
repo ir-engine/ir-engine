@@ -41,7 +41,6 @@ import { createTicket, deleteTicket, getTicket } from '@etherealengine/matchmaki
 import { BadRequest, NotFound } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
-import authenticate from '../../hooks/authenticate'
 import { emulate_createTicket, emulate_getTicket } from '../emulate'
 import { MatchTicketService } from './match-ticket.class'
 import {
@@ -110,13 +109,9 @@ export default {
       schemaHooks.resolveQuery(matchTicketQueryResolver)
     ],
     find: [],
-    get: [
-      iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any),
-      ensureId,
-      getEmulationTicket
-    ],
+    get: [iff(isProvider('external'), setLoggedInUser('userId') as any), ensureId, getEmulationTicket],
     create: [
-      iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any),
+      iff(isProvider('external'), setLoggedInUser('userId') as any),
       matchmakingRestrictMultipleQueueing(),
       // addUUID(),
       () => schemaHooks.validateData(matchTicketDataValidator),

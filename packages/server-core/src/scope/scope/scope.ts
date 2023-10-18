@@ -44,7 +44,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(scopePath, new ScopeService(options, app), {
+  app.use(scopePath, new ScopeService(options), {
     // A list of all methods this service exposes externally
     methods: scopeMethods,
     // You can add additional custom events to be sent to clients here

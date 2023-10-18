@@ -106,12 +106,12 @@ export class CSM {
     this.cascades = data.cascades || 3
     this.maxFar = data.maxFar || 100
     this.mode = data.mode || CSMModes.PRACTICAL
-    this.shadowMapSize = data.shadowMapSize || 512
+    this.shadowMapSize = data.shadowMapSize || 2048
     this.shadowBias = -0.000003
     this.lightDirection = data.lightDirection || new Vector3(1, -1, 1).normalize()
     this.lightIntensity = data.lightIntensity || 1
-    this.lightNear = data.lightNear || 1
-    this.lightFar = data.lightFar || 2000
+    this.lightNear = data.lightNear || 0.01
+    this.lightFar = data.lightFar || 200
     this.lightMargin = data.lightMargin || 100
     this.customSplitsCallback = data.customSplitsCallback
     this.fade = true
@@ -291,8 +291,8 @@ export class CSM {
 
   update(): void {
     if (this.needsUpdate) {
+      this.updateFrustums()
       for (const light of this.lights) {
-        this.updateFrustums()
         light.shadow.map?.dispose()
         light.shadow.map = null as any
         light.shadow.camera.updateProjectionMatrix()
@@ -308,6 +308,8 @@ export class CSM {
 
       const texelWidth = (shadowCam.right - shadowCam.left) / light.shadow.mapSize.x
       const texelHeight = (shadowCam.top - shadowCam.bottom) / light.shadow.mapSize.y
+      shadowCam.far = this.lightFar
+      shadowCam.near = this.lightNear
 
       light.shadow.camera.updateMatrixWorld(true)
       _cameraToLightMatrix.multiplyMatrices(light.shadow.camera.matrixWorldInverse, camera.matrixWorld)

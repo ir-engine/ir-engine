@@ -38,9 +38,9 @@ import {
 } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
@@ -51,7 +51,7 @@ import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface FileBrowserParams extends RootParams {}
+export interface FileBrowserParams extends KnexAdapterParams {}
 
 /**
  * A class for File Browser service

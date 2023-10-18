@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import authenticate from '../../hooks/authenticate'
 import setLoggedInUser from '../../hooks/set-loggedin-user-in-body'
 
 export default {
   before: {
     all: [],
-    find: [authenticate(), setLoggedInUser('userId')],
+    find: [setLoggedInUser('userId')],
     get: [],
     create: [],
     update: [],

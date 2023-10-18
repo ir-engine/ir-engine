@@ -47,10 +47,188 @@
               "z": 0
             },
             "bakeType": "Baked",
-            "resolution": 1024,
+            "resolution": 2048,
             "refreshMode": "OnAwake",
             "envMapOrigin": "__$project$__/default-project/apartment.envmap.ktx2",
             "boxProjection": false
+          }
+        },
+        {
+          "name": "camera-settings",
+          "props": {
+            "fov": 50,
+            "cameraNearClip": 0.01,
+            "cameraFarClip": 10000,
+            "projectionType": 1,
+            "minCameraDistance": 1,
+            "maxCameraDistance": 50,
+            "startCameraDistance": 3,
+            "cameraMode": 5,
+            "cameraModeDefault": 2,
+            "minPhi": -70,
+            "maxPhi": 85
+          }
+        },
+        {
+          "name": "postprocessing",
+          "props": {
+            "enabled": false,
+            "effects": {
+              "SSAOEffect": {
+                "isActive": false,
+                "blendFunction": 21,
+                "distanceScaling": true,
+                "depthAwareUpsampling": true,
+                "samples": 16,
+                "rings": 7,
+                "distanceThreshold": 0.125,
+                "distanceFalloff": 0.02,
+                "minRadiusScale": 1,
+                "bias": 0.25,
+                "radius": 0.01,
+                "intensity": 2,
+                "fade": 0.05
+              },
+              "SSREffect": {
+                "isActive": false,
+                "distance": 10,
+                "thickness": 10,
+                "autoThickness": false,
+                "maxRoughness": 1,
+                "blend": 0.9,
+                "denoiseIterations": 1,
+                "denoiseKernel": 2,
+                "denoiseDiffuse": 10,
+                "denoiseSpecular": 10,
+                "depthPhi": 2,
+                "normalPhi": 50,
+                "roughnessPhi": 1,
+                "envBlur": 0.5,
+                "importanceSampling": true,
+                "directLightMultiplier": 1,
+                "steps": 20,
+                "refineSteps": 5,
+                "spp": 1,
+                "resolutionScale": 1,
+                "missedRays": false
+              },
+              "DepthOfFieldEffect": {
+                "isActive": false,
+                "blendFunction": 23,
+                "focusDistance": 0.02,
+                "focalLength": 0.5,
+                "bokehScale": 1
+              },
+              "BloomEffect": {
+                "isActive": true,
+                "blendFunction": 28,
+                "kernelSize": 2,
+                "luminanceThreshold": 1,
+                "luminanceSmoothing": 0.1,
+                "intensity": 0.2
+              },
+              "ToneMappingEffect": {
+                "isActive": false,
+                "blendFunction": 23,
+                "adaptive": true,
+                "resolution": 512,
+                "middleGrey": 0.6,
+                "maxLuminance": 32,
+                "averageLuminance": 1,
+                "adaptationRate": 2
+              },
+              "BrightnessContrastEffect": {
+                "isActive": false,
+                "brightness": 0.05,
+                "contrast": 0.1
+              },
+              "HueSaturationEffect": {
+                "isActive": false,
+                "hue": 0,
+                "saturation": -0.15
+              },
+              "ColorDepthEffect": {
+                "isActive": false,
+                "bits": 16
+              },
+              "LinearTosRGBEffect": {
+                "isActive": false
+              },
+              "SSGIEffect": {
+                "isActive": false,
+                "distance": 10,
+                "thickness": 10,
+                "autoThickness": false,
+                "maxRoughness": 1,
+                "blend": 0.9,
+                "denoiseIterations": 1,
+                "denoiseKernel": 2,
+                "denoiseDiffuse": 10,
+                "denoiseSpecular": 10,
+                "depthPhi": 2,
+                "normalPhi": 50,
+                "roughnessPhi": 1,
+                "envBlur": 0.5,
+                "importanceSampling": true,
+                "directLightMultiplier": 1,
+                "steps": 20,
+                "refineSteps": 5,
+                "spp": 1,
+                "resolutionScale": 1,
+                "missedRays": false
+              },
+              "TRAAEffect": {
+                "isActive": false,
+                "blend": 0.8,
+                "constantBlend": true,
+                "dilation": true,
+                "blockySampling": false,
+                "logTransform": false,
+                "depthDistance": 10,
+                "worldDistance": 5,
+                "neighborhoodClamping": true
+              },
+              "MotionBlurEffect": {
+                "isActive": false,
+                "intensity": 1,
+                "jitter": 1,
+                "samples": 16
+              }
+            }
+          }
+        },
+        {
+          "name": "fog",
+          "props": {
+            "type": "disabled",
+            "color": "#FFFFFF",
+            "density": 0.005,
+            "near": 1,
+            "far": 1000,
+            "timeScale": 1,
+            "height": 0.05
+          }
+        },
+        {
+          "name": "media-settings",
+          "props": {
+            "immersiveMedia": false,
+            "refDistance": 20,
+            "rolloffFactor": 1,
+            "maxDistance": 10000,
+            "distanceModel": "linear",
+            "coneInnerAngle": 360,
+            "coneOuterAngle": 0,
+            "coneOuterGain": 0
+          }
+        },
+        {
+          "name": "render-settings",
+          "props": {
+            "csm": false,
+            "toneMapping": 1,
+            "toneMappingExposure": 0.8,
+            "shadowMapType": 2
           }
         }
       ],
@@ -278,8 +456,8 @@
           "name": "directional-light",
           "props": {
             "color": 16777215,
-            "intensity": 0.6699999999999999,
-            "cameraFar": 2000,
+            "intensity": 1,
+            "cameraFar": 200,
             "castShadow": true,
             "shadowBias": -0.00001,
             "shadowRadius": 1,
@@ -806,65 +984,6 @@
       "index": 15,
       "name": "Portal"
     },
-    "ce1ad9ab-d24a-43a1-9792-ec6ea4f92ac7": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0,
-              "w": 1
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "media",
-          "props": {
-            "controls": false,
-            "autoplay": true,
-            "resources": [
-              "__$project$__/default-project/assets/apartment-ambience.mp3"
-            ],
-            "volume": 1,
-            "synchronize": true,
-            "playMode": "loop",
-            "isMusic": false,
-            "seekTime": 0
-          }
-        },
-        {
-          "name": "audio",
-          "props": {
-            "distanceModel": "inverse",
-            "rolloffFactor": 2,
-            "refDistance": 20,
-            "maxDistance": 10000,
-            "coneInnerAngle": 360,
-            "coneOuterAngle": 0,
-            "coneOuterGain": 0
-          }
-        }
-      ],
-      "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 16,
-      "name": "Audio - Ambience"
-    },
     "0f5b5b02-67f9-4682-b687-d8ef95448c16": {
       "components": [
         {
@@ -913,7 +1032,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 17,
+      "index": 16,
       "name": "Trigger Volume"
     },
     "d8a020bd-0795-44f2-b00a-97c6bc9984a7": {
@@ -964,7 +1083,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 18,
+      "index": 17,
       "name": "Door"
     },
     "61304262-c00c-4f1f-80a2-e4163d97a007": {
@@ -1039,7 +1158,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 19,
+      "index": 18,
       "name": "Model"
     },
     "9d06e7cb-bd8f-4537-80ad-d62dcc8b89c3": {
@@ -1090,7 +1209,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 20,
+      "index": 19,
       "name": "VCKey Trigger Volume"
     },
     "1f374932-e649-4b30-b6e7-de990fdee2a1": {
@@ -1147,7 +1266,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 21,
+      "index": 20,
       "name": "New EnvMap Bake"
     }
   },

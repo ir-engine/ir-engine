@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow } from 'feathers-hooks-common'
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import authenticate from '../../hooks/authenticate'
 
 import {
   userKickDataValidator,
@@ -48,11 +47,7 @@ export default {
   },
 
   before: {
-    all: [
-      iff(isProvider('external'), authenticate() as any),
-      () => schemaHooks.validateQuery(userKickQueryValidator),
-      schemaHooks.resolveQuery(userKickQueryResolver)
-    ],
+    all: [() => schemaHooks.validateQuery(userKickQueryValidator), schemaHooks.resolveQuery(userKickQueryResolver)],
     find: [],
     get: [disallow()],
     create: [() => schemaHooks.validateData(userKickDataValidator), schemaHooks.resolveData(userKickDataResolver)],

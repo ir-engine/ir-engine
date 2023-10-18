@@ -28,10 +28,10 @@ import { KnexService } from '@feathersjs/knex/lib'
 
 import { MatchTicketData, MatchTicketQuery, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface MatchTicketParams extends RootParams<MatchTicketQuery> {}
+export interface MatchTicketParams extends KnexAdapterParams<MatchTicketQuery> {}
 
 /**
  * A class for MatchTicket service

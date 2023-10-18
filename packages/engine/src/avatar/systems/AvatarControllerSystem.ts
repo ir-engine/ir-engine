@@ -23,9 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
-import { addActionReceptor, defineActionQueue, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction } from '@etherealengine/hyperflux'
 
 import { getState } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
@@ -50,7 +48,6 @@ import { XRAction } from '../../xr/XRState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { respawnAvatar } from '../functions/respawnAvatar'
-import { AvatarInputSettingsReceptor } from '../state/AvatarInputSettingsState'
 
 const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
 const controllerQuery = defineQuery([AvatarControllerComponent])
@@ -130,18 +127,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    addActionReceptor(AvatarInputSettingsReceptor)
-    return () => {
-      removeActionReceptor(AvatarInputSettingsReceptor)
-    }
-  }, [])
-  return null
-}
-
 export const AvatarControllerSystem = defineSystem({
   uuid: 'ee.engine.AvatarControllerSystem',
-  execute,
-  reactor
+  execute
 })

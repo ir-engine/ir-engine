@@ -40,13 +40,13 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { v1 as uuidv1 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AcceptInviteParams extends RootParams {
+export interface AcceptInviteParams extends KnexAdapterParams {
   preventUserRelationshipRemoval?: boolean
 }
 
@@ -163,14 +163,14 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
       }
 
       if (invite.inviteType === 'friend') {
-        const inviter = await this.app.service(userPath)._get(invite.userId)
+        const inviter = await this.app.service(userPath).get(invite.userId)
 
         if (inviter == null) {
           await this.app.service(invitePath).remove(invite.id)
           throw new BadRequest('Invalid user ID')
         }
 
-        const existingRelationshipResult = await this.app.service(userRelationshipPath)._find({
+        const existingRelationshipResult = await this.app.service(userRelationshipPath).find({
           query: {
             $or: [
               {
@@ -204,7 +204,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
           )
         }
 
-        const relationshipToPatch = await this.app.service(userRelationshipPath)._find({
+        const relationshipToPatch = await this.app.service(userRelationshipPath).find({
           query: {
             $or: [
               {
@@ -261,7 +261,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         const instance =
-          invite.inviteType === 'instance' ? await this.app.service(instancePath)._get(invite.targetObjectId) : null
+          invite.inviteType === 'instance' ? await this.app.service(instancePath).get(invite.targetObjectId) : null
         const locationId = instance ? instance.locationId : invite.targetObjectId
         const location = await this.app.service(locationPath).get(locationId)
         returned.locationName = location.slugifiedName

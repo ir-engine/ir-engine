@@ -23,28 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect, useState } from 'react'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import { Dependencies, NodeDefinitionsMap, NodeSpecJSON, ValueTypeMap, writeNodeSpecsToJSON } from '@behave-graph/core'
+import {
+  ApiJobData,
+  ApiJobPatch,
+  ApiJobQuery,
+  ApiJobType
+} from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 
-export const useNodeSpecJson = ({
-  values,
-  nodes,
-  dependencies
-}: {
-  values: ValueTypeMap
-  nodes: NodeDefinitionsMap
-  dependencies: Dependencies | undefined
-}) => {
-  const [specJson, setSpecJson] = useState<NodeSpecJSON[]>()
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ApiJobParams extends KnexAdapterParams<ApiJobQuery> {}
 
-  useEffect(() => {
-    if (!nodes || !values || !dependencies) {
-      setSpecJson(undefined)
-      return
-    }
-    setSpecJson(writeNodeSpecsToJSON({ nodes, values, dependencies }))
-  }, [nodes, values, dependencies])
-
-  return specJson
-}
+export class ApiJobService<T = ApiJobType, ServiceParams extends Params = ApiJobParams> extends KnexService<
+  ApiJobType,
+  ApiJobData,
+  ApiJobParams,
+  ApiJobPatch
+> {}

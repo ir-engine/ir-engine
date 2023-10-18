@@ -41,8 +41,8 @@ import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/s
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
@@ -74,7 +74,7 @@ export async function getFreeInstanceserver({
   userId?: UserID
   createPrivateRoom?: boolean
 }): Promise<InstanceProvisionType> {
-  await app.service(instancePath)._remove(null, {
+  await app.service(instancePath).remove(null, {
     query: {
       assigned: true,
       assignedAt: {
@@ -172,7 +172,7 @@ export async function checkForDuplicatedAssignments({
     const query = { ended: false } as any
     if (locationId) query.locationId = locationId
     if (channelId) query.channelId = channelId
-    await app.service(instancePath)._patch(null, { ended: true }, { query })
+    await app.service(instancePath).patch(null, { ended: true }, { query })
   }
 
   //Create an assigned instance at this IP
@@ -243,7 +243,7 @@ export async function checkForDuplicatedAssignments({
     }
     if (!isFirstAssignment) {
       //If this is not the first assignment to this IP, remove the assigned instance row
-      await app.service(instancePath)._remove(assignResult.id)
+      await app.service(instancePath).remove(assignResult.id)
       //If this is the 10th or more attempt to get a free instanceserver, then there probably aren't any free ones,
       if (iteration < 10) {
         return getFreeInstanceserver({ app, iteration: iteration + 1, locationId, channelId, roomCode, userId })
@@ -310,7 +310,7 @@ export async function checkForDuplicatedAssignments({
     }
     if (!isFirstAssignment) {
       //If this is not the first assignment to this IP, remove the assigned instance row
-      await app.service(instancePath)._remove(assignResult.id)
+      await app.service(instancePath).remove(assignResult.id)
       return earlierInstance!
     }
   }
@@ -348,7 +348,7 @@ export async function checkForDuplicatedAssignments({
     })
   ])
   if (!responsivenessCheck) {
-    await app.service(instancePath)._remove(assignResult.id)
+    await app.service(instancePath).remove(assignResult.id)
     const k8DefaultClient = getState(ServerState).k8DefaultClient
     if (config.kubernetes.enabled)
       try {
@@ -385,7 +385,7 @@ export async function checkForDuplicatedAssignments({
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface InstanceProvisionParams extends RootParams {}
+export interface InstanceProvisionParams extends KnexAdapterParams {}
 
 /**
  * A class for Instance Provision service
@@ -420,7 +420,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
     roomCode?: undefined | string
     userId?: UserID
   }): Promise<InstanceProvisionType> {
-    await this.app.service(instancePath)._remove(null, {
+    await this.app.service(instancePath).remove(null, {
       query: {
         assigned: true,
         assignedAt: {
@@ -502,7 +502,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       return true
     }
 
-    await this.app.service(instancePath)._remove(null, {
+    await this.app.service(instancePath).remove(null, {
       query: {
         assigned: true,
         assignedAt: {
@@ -546,7 +546,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         } catch (err) {
           throw new BadRequest('Invalid channel ID', channelId)
         }
-        const channelInstance = (await this.app.service(instancePath)._find({
+        const channelInstance = (await this.app.service(instancePath).find({
           query: {
             channelId: channelId,
             ended: false,
@@ -579,7 +579,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         if (instanceId != null) {
           instance = await this.app.service(instancePath).get(instanceId)
         } else if (roomCode != null) {
-          const instances = (await this.app.service(instancePath)._find({
+          const instances = (await this.app.service(instancePath).find({
             query: {
               roomCode,
               ended: false

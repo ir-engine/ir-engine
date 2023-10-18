@@ -45,7 +45,6 @@ import { Paginated } from '@feathersjs/feathers'
 import { disallow, discard, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { Knex } from 'knex'
 import { HookContext } from '../../../declarations'
-import authenticate from '../../hooks/authenticate'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import persistData from '../../hooks/persist-data'
@@ -112,7 +111,7 @@ const ensureUserHasChannelAccess = async (context: HookContext<ChannelService>) 
  */
 const ensureUsersFriendWithOwner = async (context: HookContext<ChannelService>) => {
   if (!context.data) {
-    throw new BadRequest('Channel service data is empty')
+    throw new BadRequest(`${context.path} service data is empty`)
   }
 
   const data: ChannelData[] = Array.isArray(context.data) ? context.data : [context.data]
@@ -125,7 +124,7 @@ const ensureUsersFriendWithOwner = async (context: HookContext<ChannelService>) 
 
     if (!users || !userId) return context
 
-    const userRelationships = (await context.app.service(userRelationshipPath)._find({
+    const userRelationships = (await context.app.service(userRelationshipPath).find({
       query: {
         userId,
         userRelationshipType: 'friend',
@@ -179,7 +178,7 @@ const handleChannelInstance = async (context: HookContext<ChannelService>) => {
  */
 const checkExistingChannel = async (context: HookContext<ChannelService>) => {
   if (Array.isArray(context.data) || context.method !== 'create') {
-    throw new BadRequest('Channel service only works for single create')
+    throw new BadRequest(`${context.path} service only works for single object create`)
   }
 
   const { users, instanceId } = context.data as ChannelData
@@ -285,7 +284,7 @@ export default {
   },
 
   before: {
-    all: [authenticate()],
+    all: [],
     find: [
       enableClientPagination(),
       iff(isProvider('external'), verifyUserId()),

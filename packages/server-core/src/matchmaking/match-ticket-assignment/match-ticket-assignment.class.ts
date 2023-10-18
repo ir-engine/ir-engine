@@ -31,10 +31,10 @@ import {
   MatchTicketAssignmentType
 } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface MatchTicketAssignmentParams extends RootParams<MatchTicketAssignmentQuery> {}
+export interface MatchTicketAssignmentParams extends KnexAdapterParams<MatchTicketAssignmentQuery> {}
 
 /**
  * A class for MatchTicketAssignment service
