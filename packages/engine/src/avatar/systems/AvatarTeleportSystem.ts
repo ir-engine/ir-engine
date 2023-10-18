@@ -183,7 +183,6 @@ const execute = () => {
     getState(AvatarTeleportSystemState)
 
   if (fadeBackInAccumulator >= 0) {
-    /** @todo fix camera fade transition shader - for now just teleport instantly */
     fadeBackInAccumulator += getState(EngineState).deltaSeconds
     if (fadeBackInAccumulator > 0.25) {
       fadeBackInAccumulator = -1
