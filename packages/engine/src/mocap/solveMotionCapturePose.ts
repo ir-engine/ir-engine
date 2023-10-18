@@ -214,6 +214,8 @@ export function solveMotionCapturePose(
     VRMHumanBoneName.RightLowerArm
   )
   if (estimatingLowerBody) {
+    if (landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE].visibility > 0.5)
+      console.log(landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE])
     solveLimb(
       entity,
       lowestWorldY,
