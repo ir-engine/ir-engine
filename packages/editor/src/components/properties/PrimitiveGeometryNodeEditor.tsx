@@ -112,7 +112,6 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
   const hasError = getEntityErrors(entity, PrimitiveGeometryComponent)
   const primitiveGeometry = useComponent(entity, PrimitiveGeometryComponent)
   const geometry = primitiveGeometry.geometry.get(NO_PROXY)
-  //console.log("DEBUG geom params", (geometry as any).parameters)
   const renderPrimitiveGeometrySettings = () => (
     <ParameterInput
       entity={`${props.entity}-primitive-geometry`}

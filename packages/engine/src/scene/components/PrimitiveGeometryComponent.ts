@@ -121,12 +121,10 @@ function GeometryReactor() {
   function createGeometry(geometryType: new (...args: any[]) => Geometry, params: Record<string, any>): Geometry {
     const argList = params ? Object.values(params) : null
     let currGeometry = new geometryType()
-    console.log('DEBUG keys are ', params, (currGeometry as any).parameters, argList)
     if (areKeysDifferentTypes(params, (currGeometry as any).parameters)) {
-      geometryComponent.geometryParams.set((currGeometry as any).parameters) // set for first time
+      geometryComponent.geometryParams.set((currGeometry as any).parameters)
       return currGeometry
     }
-    console.log('DEBUG keys are not different')
     currGeometry.dispose()
     currGeometry = argList ? new geometryType(...argList) : new geometryType()
     return currGeometry
@@ -167,7 +165,7 @@ function GeometryReactor() {
         break
       case GeometryTypeEnum.CylinderGeometry:
         currentGeometry = createGeometry(CylinderGeometry, params)
-
+        break
       case GeometryTypeEnum.CapsuleGeometry:
         currentGeometry = createGeometry(CapsuleGeometry, params)
         break
