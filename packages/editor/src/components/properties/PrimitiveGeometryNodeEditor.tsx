@@ -33,22 +33,9 @@ import { GeometryTypeEnum } from '@etherealengine/engine/src/scene/constants/Geo
 
 import InterestsIcon from '@mui/icons-material/Interests'
 
-import {
-  BoxGeometry,
-  CapsuleGeometry,
-  CircleGeometry,
-  CylinderGeometry,
-  DodecahedronGeometry,
-  IcosahedronGeometry,
-  OctahedronGeometry,
-  PlaneGeometry,
-  RingGeometry,
-  SphereGeometry,
-  TetrahedronGeometry,
-  TorusGeometry,
-  TorusKnotGeometry
-} from 'three'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import InputGroup from '../inputs/InputGroup'
+import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty } from './Util'
@@ -118,109 +105,25 @@ const GeometryOption = [
  *
  * @type {class component}
  */
+
 export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
   const hasError = getEntityErrors(entity, PrimitiveGeometryComponent)
   const primitiveGeometry = useComponent(entity, PrimitiveGeometryComponent)
-
-  const renderPrimitiveGeometrySettings = () => <></>
-
-  // creating editor view for equirectangular Settings
-  // Function for BoxGeometry settings
-  const renderBoxGeometrySettings = () => (
-    <InputGroup name="Box" label={t('editor:properties.primitiveGeometry.lbl-box')}>
-      {/* Add your specific settings for BoxGeometry here */}
-    </InputGroup>
+  const geometry = primitiveGeometry.geometry.get(NO_PROXY)
+  //console.log("DEBUG geom params", (geometry as any).parameters)
+  const renderPrimitiveGeometrySettings = () => (
+    <ParameterInput
+      entity={`${props.entity}-primitive-geometry`}
+      values={(primitiveGeometry.geometry.value as any).parameters}
+      onChange={(k) => (val) => {
+        const params = primitiveGeometry.geometryParams.get(NO_PROXY)
+        params[k] = val
+        commitProperty(PrimitiveGeometryComponent, 'geometryParams')(params)
+      }}
+    />
   )
-
-  // Function for SphereGeometry settings
-  const renderSphereGeometrySettings = () => (
-    <InputGroup name="Sphere" label={t('editor:properties.primitiveGeometry.lbl-sphere')}>
-      {/* Add your specific settings for SphereGeometry here */}
-    </InputGroup>
-  )
-
-  // Function for CylinderGeometry settings
-  const renderCylinderGeometrySettings = () => (
-    <InputGroup name="Cylinder" label={t('editor:properties.primitiveGeometry.lbl-cylinder')}>
-      {/* Add your specific settings for CylinderGeometry here */}
-    </InputGroup>
-  )
-
-  // Define similar functions for other geometry types
-  const renderCapsuleGeometrySettings = () => (
-    <InputGroup name="Capsule" label={t('editor:properties.primitiveGeometry.lbl-capsule')}>
-      {/* Add your specific settings for CapsuleGeometry here */}
-    </InputGroup>
-  )
-
-  const renderPlaneGeometrySettings = () => (
-    <InputGroup name="Plane" label={t('editor:properties.primitiveGeometry.lbl-plane')}>
-      {/* Add your specific settings for PlaneGeometry here */}
-    </InputGroup>
-  )
-
-  const renderCircleGeometrySettings = () => (
-    <InputGroup name="Circle" label={t('editor:properties.primitiveGeometry.lbl-circle')}>
-      {/* Add your specific settings for CircleGeometry here */}
-    </InputGroup>
-  )
-
-  const renderRingGeometrySettings = () => (
-    <InputGroup name="Ring" label={t('editor:properties.primitiveGeometry.lbl-ring')}>
-      {/* Add your specific settings for RingGeometry here */}
-    </InputGroup>
-  )
-
-  const renderTorusGeometrySettings = () => (
-    <InputGroup name="Torus" label={t('editor:properties.primitiveGeometry.lbl-torus')}>
-      {/* Add your specific settings for TorusGeometry here */}
-    </InputGroup>
-  )
-
-  const renderPolyhedronGeometrySettings = () => (
-    <InputGroup name="Polyhedron" label={t('editor:properties.primitiveGeometry.lbl-polyhedron')}>
-      {/* Add your specific settings for TetrahedronGeometry here */}
-    </InputGroup>
-  )
-
-  const renderTorusKnotGeometrySettings = () => (
-    <InputGroup name="Torus Knot" label={t('editor:properties.primitiveGeometry.lbl-torusknot')}>
-      {/* Add your specific settings for TorusKnotGeometry here */}
-    </InputGroup>
-  )
-
-  // creating editor view for skybox Properties
-  const renderPrimitiveGeometryProps = () => {
-    switch (primitiveGeometry.geometry.constructor) {
-      case BoxGeometry:
-        return renderBoxGeometrySettings()
-      case SphereGeometry:
-        return renderSphereGeometrySettings()
-      case CylinderGeometry:
-        return renderCylinderGeometrySettings()
-      case CapsuleGeometry:
-        return renderCapsuleGeometrySettings()
-      case PlaneGeometry:
-        return renderPlaneGeometrySettings()
-      case CircleGeometry:
-        return renderCircleGeometrySettings()
-      case RingGeometry:
-        return renderRingGeometrySettings()
-      case TorusGeometry:
-        return renderTorusGeometrySettings()
-      case TorusKnotGeometry:
-        return renderTorusKnotGeometrySettings()
-      case DodecahedronGeometry:
-      case IcosahedronGeometry:
-      case OctahedronGeometry:
-      case TetrahedronGeometry:
-        return renderPolyhedronGeometrySettings()
-      default:
-        return renderPrimitiveGeometrySettings()
-    }
-  }
 
   return (
     <NodeEditor
@@ -233,10 +136,12 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={GeometryOption}
           value={primitiveGeometry.geometryType.value}
-          onChange={commitProperty(PrimitiveGeometryComponent, 'geometryType')}
+          onChange={(value) => {
+            commitProperty(PrimitiveGeometryComponent, 'geometryType')(value as GeometryTypeEnum)
+          }}
         />
       </InputGroup>
-      {renderPrimitiveGeometryProps()}
+      {renderPrimitiveGeometrySettings()}
     </NodeEditor>
   )
 }

@@ -33,7 +33,6 @@ import {
   Euler,
   IcosahedronGeometry,
   Mesh,
-  MeshBasicMaterial,
   MeshLambertMaterial,
   OctahedronGeometry,
   PlaneGeometry,
@@ -45,6 +44,7 @@ import {
 } from 'three'
 
 import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
+import { NO_PROXY, useState } from '@etherealengine/hyperflux'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -60,21 +60,26 @@ export const PrimitiveGeometryComponent = defineComponent({
   onInit: (entity) => {
     return {
       geometryType: GeometryTypeEnum.BoxGeometry as GeometryTypeEnum,
-      geometry: null! as Geometry
+      geometry: null! as Geometry,
+      geometryParams: null! as Record<string, any>
     }
   },
 
   toJSON: (entity, component) => {
-    return component.value
+    return {
+      geometryType: component.geometryType.value,
+      geometryParams: component.geometryParams.value
+    }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.geometryType === 'number') component.geometryType.set(json.geometryType)
+    if (typeof json.geometryParams === 'object') component.geometryParams.set(json.geometryParams)
   },
 
   onRemove: (entity, component) => {
-    if (component.value) {
+    if (component.geometry.value) {
       component.geometry.value.dispose()
     }
   },
@@ -84,84 +89,120 @@ export const PrimitiveGeometryComponent = defineComponent({
 
 function GeometryReactor() {
   const entity = useEntityContext()
-  const geometry = useComponent(entity, PrimitiveGeometryComponent)
+  const geometryComponent = useComponent(entity, PrimitiveGeometryComponent)
   const transform = useComponent(entity, TransformComponent)
+  const material = new MeshLambertMaterial() // set material later
+  const mesh = useState<Mesh>(new Mesh())
 
+  function areKeysDifferentTypes(obj1: Record<string, any>, obj2: Record<string, any>): boolean {
+    if (!obj1 || !obj2) {
+      return true
+    }
+    const keys1 = Object.keys(obj1)
+    const keys2 = Object.keys(obj2)
+
+    if (keys1.length !== keys2.length) {
+      return true // Objects have different numbers of keys
+    }
+
+    for (const key of keys1) {
+      if (!keys2.includes(key)) {
+        return true // Objects have different keys
+      }
+
+      if (typeof obj1[key] !== typeof obj2[key]) {
+        return true // Keys have different types
+      }
+    }
+
+    return false // Objects have the same keys with the same types
+  }
+
+  function createGeometry(geometryType: new (...args: any[]) => Geometry, params: Record<string, any>): Geometry {
+    const argList = params ? Object.values(params) : null
+    let currGeometry = new geometryType()
+    console.log('DEBUG keys are ', params, (currGeometry as any).parameters, argList)
+    if (areKeysDifferentTypes(params, (currGeometry as any).parameters)) {
+      geometryComponent.geometryParams.set((currGeometry as any).parameters) // set for first time
+      return currGeometry
+    }
+    console.log('DEBUG keys are not different')
+    currGeometry.dispose()
+    currGeometry = argList ? new geometryType(...argList) : new geometryType()
+    return currGeometry
+  }
   useEffect(() => {
-    geometry.geometry.set(new BoxGeometry())
-    const material = new MeshBasicMaterial({ color: 0xffffff }) // set material later
-    const mesh = new Mesh(geometry.geometry.value, material)
+    geometryComponent.geometry.set(new BoxGeometry()) // set default geometry
+    mesh.set(new Mesh(geometryComponent.geometry.value, material))
+    mesh.value.name = `${entity}-primitive-geometry`
+    mesh.value.visible = true
+    mesh.value.updateMatrixWorld(true)
+    setObjectLayers(mesh.value, ObjectLayers.Scene)
+    addObjectToGroup(entity, mesh.value)
 
     return () => {
-      mesh.geometry.dispose()
-      removeObjectFromGroup(entity, mesh)
+      removeObjectFromGroup(entity, mesh.value)
     }
   }, [])
 
   useEffect(() => {
-    const material = new MeshLambertMaterial() // set material later
-    const mesh = new Mesh(geometry.geometry.value, material)
-    mesh.name = `${entity}-primitive-geometry`
-    mesh.visible = true
-    mesh.updateMatrixWorld(true)
-    setObjectLayers(mesh, ObjectLayers.Scene)
-    addObjectToGroup(entity, mesh)
-    mesh.position.copy(transform.position.value)
-    mesh.rotation.copy(new Euler().setFromQuaternion(transform.rotation.value))
-    mesh.scale.copy(transform.scale.value)
+    if (!mesh) return
 
-    return () => {
-      mesh.geometry.dispose()
-      removeObjectFromGroup(entity, mesh)
-    }
-  }, [geometry.geometry])
+    mesh.value.geometry.dispose()
+    mesh.value.geometry = geometryComponent.geometry.get(NO_PROXY)
+    mesh.position.value.copy(transform.position.value)
+    mesh.rotation.value.copy(new Euler().setFromQuaternion(transform.rotation.value))
+    mesh.scale.value.copy(transform.scale.value)
+  }, [geometryComponent.geometry])
 
   useEffect(() => {
-    console.log('DEBUG set geometry type')
-    switch (geometry.geometryType.value) {
+    const params = geometryComponent.geometryParams.get(NO_PROXY)
+    let currentGeometry: Geometry
+    switch (geometryComponent.geometryType.value) {
       case GeometryTypeEnum.BoxGeometry:
-        geometry.geometry.set(new BoxGeometry())
+        currentGeometry = createGeometry(BoxGeometry, params)
         break
       case GeometryTypeEnum.SphereGeometry:
-        geometry.geometry.set(new SphereGeometry())
+        currentGeometry = createGeometry(SphereGeometry, params)
         break
       case GeometryTypeEnum.CylinderGeometry:
-        geometry.geometry.set(new CylinderGeometry())
-        break
+        currentGeometry = createGeometry(CylinderGeometry, params)
+
       case GeometryTypeEnum.CapsuleGeometry:
-        geometry.geometry.set(new CapsuleGeometry())
+        currentGeometry = createGeometry(CapsuleGeometry, params)
         break
       case GeometryTypeEnum.PlaneGeometry:
-        geometry.geometry.set(new PlaneGeometry())
+        currentGeometry = createGeometry(PlaneGeometry, params)
         break
       case GeometryTypeEnum.CircleGeometry:
-        geometry.geometry.set(new CircleGeometry())
+        currentGeometry = createGeometry(CircleGeometry, params)
         break
       case GeometryTypeEnum.RingGeometry:
-        geometry.geometry.set(new RingGeometry())
+        currentGeometry = createGeometry(RingGeometry, params)
         break
       case GeometryTypeEnum.TorusGeometry:
-        geometry.geometry.set(new TorusGeometry())
+        currentGeometry = createGeometry(TorusGeometry, params)
         break
       case GeometryTypeEnum.TorusKnotGeometry:
-        geometry.geometry.set(new TorusKnotGeometry())
+        currentGeometry = createGeometry(TorusKnotGeometry, params)
         break
       case GeometryTypeEnum.DodecahedronGeometry:
-        geometry.geometry.set(new DodecahedronGeometry())
+        currentGeometry = createGeometry(DodecahedronGeometry, params)
         break
       case GeometryTypeEnum.IcosahedronGeometry:
-        geometry.geometry.set(new IcosahedronGeometry())
+        currentGeometry = createGeometry(IcosahedronGeometry, params)
         break
       case GeometryTypeEnum.OctahedronGeometry:
-        geometry.geometry.set(new OctahedronGeometry())
+        currentGeometry = createGeometry(OctahedronGeometry, params)
         break
       case GeometryTypeEnum.TetrahedronGeometry:
-        geometry.geometry.set(new TetrahedronGeometry())
+        currentGeometry = createGeometry(TetrahedronGeometry, params)
         break
       default:
         return
     }
+    geometryComponent.geometry.set(currentGeometry)
     // change the geometry on the model
-  }, [geometry.geometryType])
+  }, [geometryComponent.geometryType, geometryComponent.geometryParams])
   return null
 }
