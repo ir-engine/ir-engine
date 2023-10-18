@@ -1,9 +1,8 @@
----
-name: Installation Tech Support
-about: I'm having difficulty installing Ethereal Engine
-title: '[Ticket]: '
-labels: '[ticket]'
-assignees: ''
+name: Bug report
+description: Create a report to help us improve
+title: '[Bug]: '
+labels: '[bug]'
+assignees: []
 body:
   - type: markdown
     attributes:
@@ -13,21 +12,28 @@ body:
     id: os
     attributes:
       label: Operating System
-      description: What operating system are you trying to install on?
+      description: What operating system is Ethereal Engine running on?
     validations:
       required: true
   - type: input
-    id: nodev
+    id: browser
     attributes:
-      label: Node Version
-      description: What nodejs version are you using? (run `node -v` if you are unsure)
+      label: Browser (if applicable)
+      description: What browser did this occur on? (including version number)
     validations:
-      required: true
+      required: false
   - type: textarea
     id: what-happened
     attributes:
       label: What happened?
-      description: Please describe the issue you are facing.
+      description: Please clearly describe the issue you are facing, including any screenshots that may be helpful.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      render: shell
     validations:
       required: true
   - type: textarea
@@ -36,4 +42,5 @@ body:
       label: Relevant log output
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       render: shell
----
+    validations:
+      required: false
