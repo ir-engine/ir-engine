@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Edge, Node } from 'reactflow'
 
-import { GraphJSON, NodeJSON, ValueJSON } from '@behave-graph/core'
+import { GraphJSON, NodeJSON } from '@behave-graph/core'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 
 const isNullish = (value: any): value is null | undefined => value === undefined || value === null
@@ -47,22 +47,29 @@ export const flowToBehave = (nodes: Node[], edges: Edge[], specGenerator: NodeSp
         positionY: String(node.position.y)
       }
     }
-    if (node.data.configuration) {
-      Object.entries(node.data.configuration).forEach(([key, value]) => {
-        if (behaveNode.configuration === undefined) {
-          behaveNode.configuration = {}
-        }
-        behaveNode.configuration[key] = value as ValueJSON
-      })
-    }
-    if (node.data.values) {
-      Object.entries(node.data.values).forEach(([key, value]) => {
-        if (behaveNode.parameters === undefined) {
-          behaveNode.parameters = {}
-        }
-        behaveNode.parameters[key] = { value: value as string }
-      })
-    }
+    // if (node.data.configuration) {
+    //   Object.entries(node.data.configuration).forEach(([key, value]) => {
+    //     if (behaveNode.configuration === undefined) {
+    //       behaveNode.configuration = {}
+    //     }
+    //     behaveNode.configuration[key] = value as ValueJSON
+    //   })
+    // }
+    // if (node.data.values) {
+    //   Object.entries(node.data.values).forEach(([key, value]) => {
+    //     if (behaveNode.parameters === undefined) {
+    //       behaveNode.parameters = {}
+    //     }
+    //     behaveNode.parameters[key] = { value: value as string }
+    //   })
+    // }
+
+    Object.entries(node.data).forEach(([key, value]) => {
+      if (behaveNode.parameters === undefined) {
+        behaveNode.parameters = {}
+      }
+      behaveNode.parameters[key] = { value: value as string }
+    })
 
     edges
       .filter((edge) => edge.target === node.id)
