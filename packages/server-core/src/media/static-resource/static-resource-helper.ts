@@ -36,13 +36,7 @@ import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInt
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
-import { sceneRelativePathIdentifier } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { Paginated } from '@feathersjs/feathers'
-import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import { getStorageProvider } from '../storageprovider/storageprovider'
-import { addAssetAsStaticResource, getFileMetadata } from '../upload-asset/upload-asset.service'
 
 const logger = multiLogger.child('static-resource-helper')
 
@@ -65,10 +59,7 @@ export type MediaUploadArguments = {
  * @param download - if true, will download the file and return it as a buffer, otherwise will return the url
  * @returns
  */
-export const downloadResourceAndMetadata = async (
-  url: string,
-  download = config.server.cloneProjectStaticResources
-): Promise<UploadFile> => {
+export const downloadResourceAndMetadata = async (url: string, download = false): Promise<UploadFile> => {
   // console.log('getResourceFiles', url, download)
   if (/http(s)?:\/\//.test(url)) {
     // if configured to clone project static resources, we need to fetch the file and upload it
@@ -109,18 +100,19 @@ export const downloadResourceAndMetadata = async (
 
 const absoluteProjectPath = path.join(appRootPath.path, '/packages/projects/projects')
 
-export const isAssetFromProject = (url: string, project: string) => {
+export const isAssetFromDomain = (url: string) => {
   const storageProvider = getStorageProvider()
-  const storageProviderPath = path.join(storageProvider.cacheDomain, 'projects/', project)
-  const originPath = path.join(storageProvider.originURLs[0], 'projects/', project)
   return (
-    url.includes(storageProviderPath) ||
-    url.includes(originPath) ||
-    url.includes(path.join(absoluteProjectPath, project))
+    url.includes(storageProvider.cacheDomain) || !!storageProvider.originURLs.find((origin) => url.includes(origin))
   )
 }
 
-export const getKeyForAsset = (url: string, project: string, isFromProject: boolean) => {
+/**
+ * Get the key for a given asset
+ * - if from project, will return the path relative to the project
+ * - if from external url, will return the path relative to the static-resources folder
+ */
+export const getKeyForAsset = (url: string, project: string) => {
   const storageProvider = getStorageProvider()
   const storageProviderPath = 'https://' + path.join(storageProvider.cacheDomain, 'projects/', project)
   const originPath = 'https://' + path.join(storageProvider.originURLs[0], 'projects/', project)
@@ -131,51 +123,7 @@ export const getKeyForAsset = (url: string, project: string, isFromProject: bool
     .split('/')
     .slice(0, -1)
     .join('/')
-  return isFromProject ? `projects/${project}${projectPath}` : `static-resources/${project}/`
-}
-
-/**
- * install project
- * if external url and clone static resources, clone to /static-resources/project
- * if external url and not clone static resources, link new static resource
- * if internal url, link new static resource
- */
-export const addAssetFromProject = async (
-  app: Application,
-  url: string, // expects all urls to be from the same location, and to be variants of the same asset
-  project: string,
-  download = config.server.cloneProjectStaticResources
-) => {
-  // console.log('addAssetsFromProject', url, project, download)
-  const mainURL = decodeURI(url.replace(sceneRelativePathIdentifier, absoluteProjectPath))
-
-  const isFromProject = isAssetFromProject(mainURL, project)
-
-  const { hash, mimeType } = await getFileMetadata({ file: mainURL })
-
-  const key = getKeyForAsset(mainURL, project, isFromProject)
-
-  const existingResource = (await app.service(staticResourcePath).find({
-    query: {
-      hash,
-      project,
-      mimeType,
-      $limit: 1
-    }
-  })) as Paginated<StaticResourceType>
-
-  if (existingResource.data.length > 0) return existingResource.data[0]
-
-  const forceDownload = isFromProject ? false : download
-
-  const file = await downloadResourceAndMetadata(mainURL, forceDownload)
-
-  return addAssetAsStaticResource(app, file, {
-    hash: hash,
-    // use key for when downloading the asset, otherwise pass the url directly to be inserted into the database
-    path: isFromProject || download ? key : mainURL,
-    project
-  })
+  return `projects/${project}${projectPath}`
 }
 
 export const getStats = async (buffer: Buffer | string, mimeType: string): Promise<Record<string, any>> => {

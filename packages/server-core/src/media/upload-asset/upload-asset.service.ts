@@ -115,7 +115,6 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
 
 const addFileToStorageProvider = async (file: Buffer, mimeType: string, key: string) => {
   logger.info(`Uploading ${key} to storage provider`)
-  console.log(file, mimeType, key)
   const provider = getStorageProvider()
   try {
     await provider.createInvalidation([key])
@@ -143,7 +142,11 @@ export type UploadAssetArgs = {
 }
 
 export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
-  console.log('uploadAsset', args)
+  logger.info('uploadAsset', {
+    project: args.project,
+    name: args.name,
+    path: args.path
+  })
   const { hash } = await getFileMetadata({
     file: args.file,
     name: args.file.originalname
@@ -227,7 +230,9 @@ export const addAssetAsStaticResource = async (
   file: UploadFile,
   args: AdminAssetUploadArgumentsType
 ): Promise<StaticResourceType> => {
-  console.log('addAssetAsStaticResource', file, args)
+  logger.info('addAssetAsStaticResource %o', args)
+  // console.log(file)
+
   const provider = getStorageProvider()
 
   const isFromOrigin = isFromOriginURL(args.path)
