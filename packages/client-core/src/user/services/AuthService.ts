@@ -41,6 +41,7 @@ import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
 import { magicLinkPath } from '@etherealengine/engine/src/schemas/user/magic-link.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
@@ -623,6 +624,10 @@ export const AuthService = {
       .patch(userId, { name: name })) as UserType
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
+  },
+
+  async createLoginToken() {
+    return Engine.instance.api.service(loginTokenPath).create({})
   },
 
   useAPIListeners: () => {

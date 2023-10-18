@@ -41,6 +41,24 @@ import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
+const buildInviteSearchQuery = (search?: string) =>
+  search
+    ? {
+        $or: [
+          {
+            inviteType: {
+              $like: '%' + search + '%'
+            }
+          },
+          {
+            passcode: {
+              $like: '%' + search + '%'
+            }
+          }
+        ]
+      }
+    : {}
+
 export const InviteState = defineState({
   name: 'InviteState',
   initial: () => ({
@@ -65,7 +83,6 @@ export const InviteState = defineState({
   })
 })
 
-//Service
 export const InviteService = {
   sendInvite: async (data: InviteData, inviteCode: string) => {
     if (data.identityProviderType === 'email') {
@@ -127,13 +144,8 @@ export const InviteService = {
     }
 
     try {
-      const params = {
-        ...data,
-        existenceCheck: true
-      }
-
       const existingInviteResult = (await Engine.instance.api.service(invitePath).find({
-        query: params
+        query: data
       })) as Paginated<InviteType>
 
       let inviteResult
@@ -171,10 +183,10 @@ export const InviteService = {
       const inviteResult = (await Engine.instance.api.service(invitePath).find({
         query: {
           $sort: sortData,
-          type: 'received',
+          action: 'received',
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
           $limit: limit,
-          search: search
+          ...buildInviteSearchQuery(search)
         }
       })) as Paginated<InviteType>
       getMutableState(InviteState).merge({
@@ -216,10 +228,10 @@ export const InviteService = {
       const inviteResult = (await Engine.instance.api.service(invitePath).find({
         query: {
           $sort: sortData,
-          type: 'sent',
+          action: 'sent',
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
           $limit: limit,
-          search: search
+          ...buildInviteSearchQuery(search)
         }
       })) as Paginated<InviteType>
       getMutableState(InviteState).merge({

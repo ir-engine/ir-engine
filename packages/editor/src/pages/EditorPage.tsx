@@ -50,6 +50,11 @@ import { EditorFlyControlSystem } from '../systems/EditorFlyControlSystem'
 import { GizmoSystem } from '../systems/GizmoSystem'
 import { ModelHandlingSystem } from '../systems/ModelHandlingSystem'
 
+import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
+
+// ensure all our systems are imported, #9077
+const EditorSystemsReferenced = [useDefaultLocationSystems]
+
 const editorSystems = () => {
   startSystems([EditorFlyControlSystem, EditorControlSystem, EditorCameraSystem, GizmoSystem], {
     before: PresentationSystemGroup
