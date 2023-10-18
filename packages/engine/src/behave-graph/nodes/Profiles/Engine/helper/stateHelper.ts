@@ -26,9 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
 import { StateDefinition, StateDefinitions } from '@etherealengine/hyperflux'
 import { Engine } from '../../../../../ecs/classes/Engine'
+import { StatesToSkip } from '../../../../state/BehaveGraphState'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
-
-const skipState = [''] // behave graph state is skipped since its a type of record we do want to skip it anyways
 
 export function generateStateNodeSchema(stateDefinition: StateDefinition<any>) {
   const nodeschema = {}
@@ -55,7 +54,7 @@ export function getStateSetters() {
   const setters: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [stateName, stateDefinition] of StateDefinitions) {
-    if (skipState.includes(stateName)) {
+    if (StatesToSkip.includes(stateName)) {
       skipped.push(stateName)
       continue
     }
@@ -93,7 +92,7 @@ export function getStateGetters() {
   const getters: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [stateName, stateDefinition] of StateDefinitions) {
-    if (skipState.includes(stateName)) {
+    if (StatesToSkip.includes(stateName)) {
       skipped.push(stateName)
       continue
     }

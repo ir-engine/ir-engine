@@ -34,3 +34,5 @@ export const BehaveGraphState = defineState({
     registries: { ECS: createECSRegistry() } as Record<BehaveGraphDomain, IRegistry>
   })
 })
+
+export const StatesToSkip = [BehaveGraphState.name] // behave graph state is skipped since its a type of record we do want to skip it anyways

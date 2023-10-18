@@ -55,6 +55,7 @@ export type StateActionReceptor<S, A extends ActionShape<Action>> = [
 export type StateDefinition<S> = {
   name: string
   initial: SetInitialStateAction<S>
+  schema?: any
   receptors?: StateActionReceptor<S, any>[]
   receptorActionQueue?: ActionQueueDefinition
   onCreate?: (store: HyperStore, state: State<S>) => void
