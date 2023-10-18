@@ -34,8 +34,14 @@ import {
   InviteType,
   SpawnDetailsType
 } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
+import { Paginated } from '@feathersjs/feathers'
+import crypto from 'crypto'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
@@ -55,10 +61,10 @@ export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
 
 export const inviteResolver = resolve<InviteType, HookContext>(
   {
-    createdAt: virtual(async (invite) => fromDateTimeSql(invite.createdAt)),
-    updatedAt: virtual(async (invite) => fromDateTimeSql(invite.updatedAt)),
     startTime: virtual(async (invite) => (invite.startTime ? fromDateTimeSql(invite.startTime) : '')),
-    endTime: virtual(async (invite) => (invite.endTime ? fromDateTimeSql(invite.endTime) : ''))
+    endTime: virtual(async (invite) => (invite.endTime ? fromDateTimeSql(invite.endTime) : '')),
+    createdAt: virtual(async (invite) => fromDateTimeSql(invite.createdAt)),
+    updatedAt: virtual(async (invite) => fromDateTimeSql(invite.updatedAt))
   },
   {
     // Convert the raw data into a new structure before running property resolvers
@@ -74,6 +80,16 @@ export const inviteExternalResolver = resolve<InviteType, HookContext>({
   }),
   invitee: virtual(async (invite, context) => {
     if (invite.inviteeId) return await context.app.service(userPath).get(invite.inviteeId)
+    else if (invite.token) {
+      const identityProvider = (await context.app.service(identityProviderPath).find({
+        query: {
+          token: invite.token
+        }
+      })) as Paginated<IdentityProviderType>
+      if (identityProvider.data.length > 0) {
+        return await context.app.service(userPath).get(identityProvider.data[0].userId)
+      }
+    }
   }),
   channelName: virtual(async (invite, context) => {
     if (invite.inviteType === 'channel' && invite.targetObjectId) {
@@ -91,6 +107,9 @@ export const inviteDataResolver = resolve<InviteType, HookContext>(
   {
     id: async () => {
       return v4()
+    },
+    passcode: async () => {
+      return crypto.randomBytes(8).toString('hex')
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql
