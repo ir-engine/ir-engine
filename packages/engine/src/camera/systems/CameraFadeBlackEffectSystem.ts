@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
+import { Color, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
 import { defineActionQueue, defineState, getState } from '@etherealengine/hyperflux'
 
@@ -88,10 +88,12 @@ const execute = () => {
     } else removeComponent(entity, ComputedTransformComponent)
     if (action.graphicTexture) {
       AssetLoader.load(action.graphicTexture, {}, (texture: Texture) => {
+        mesh.material.color = new Color('white')
         mesh.material.map = texture
         mesh.material.needsUpdate = true
       })
     } else {
+      mesh.material.color = new Color('black')
       mesh.material.map = null
       mesh.material.needsUpdate = true
     }
