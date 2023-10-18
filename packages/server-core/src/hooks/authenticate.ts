@@ -56,6 +56,10 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
   // No need to authenticate if it's an internal call.
   const isInternal = isProvider('server')(context)
   if (isInternal) {
+    if (context.params.user) {
+      asyncLocalStorage.enterWith({ user: context.params.user })
+    }
+
     return next()
   }
 
