@@ -40,9 +40,16 @@ export const sceneFilesSchema = Type.Object(
     }),
     name: Type.String(),
     reference: Type.String(),
-    sceneFilesId: Type.String({
-      format: 'uuid'
-    }),
+    domainId: Type.Optional(
+      Type.String({
+        format: 'uuid'
+      })
+    ),
+    projectId: Type.Optional(
+      Type.String({
+        format: 'uuid'
+      })
+    ),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -63,7 +70,7 @@ export const sceneFilesPatchSchema = Type.Partial(sceneFilesSchema, {
 export type SceneFilesPatch = Static<typeof sceneFilesPatchSchema>
 
 // Schema for allowed query properties
-export const sceneFilesQueryProperties = Type.Pick(sceneFilesSchema, ['name', 'sceneFilesId', 'reference'])
+export const sceneFilesQueryProperties = Type.Pick(sceneFilesSchema, ['name', 'reference', 'domainId', 'projectId'])
 export const sceneFilesQuerySchema = Type.Intersect(
   [
     querySyntax(sceneFilesQueryProperties),
