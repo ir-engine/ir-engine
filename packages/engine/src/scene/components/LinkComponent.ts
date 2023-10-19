@@ -23,15 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-
-import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
-import {
-  SocketWebRTCClientNetwork,
-  leaveNetwork
-} from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { getState } from '@etherealengine/hyperflux'
 import { useTranslation } from 'react-i18next'
 import { MeshBasicMaterial, Vector3 } from 'three'
 import { clamp } from 'three/src/math/MathUtils'
@@ -65,7 +58,6 @@ import {
   addInteractableUI,
   removeInteractiveUI
 } from '../../interaction/systems/InteractiveSystem'
-import { NetworkState } from '../../networking/NetworkState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
@@ -77,9 +69,7 @@ const linkLogic = (linkComponent, xrState) => {
     xrState && xrState.session?.end()
     typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
   } else {
-    RouterState.navigate('/location/' + linkComponent.location)
-    LocationService.getLocationByName(linkComponent.location)
-    leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
+    getMutableState(LinkState).location.set(linkComponent.location)
   }
 }
 
@@ -126,6 +116,13 @@ const onLinkInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInte
     })
   })
 }
+
+export const LinkState = defineState({
+  name: 'LinkState',
+  initial: {
+    location: undefined
+  }
+})
 
 export const LinkComponent = defineComponent({
   name: 'LinkComponent',
