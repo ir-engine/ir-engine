@@ -55,7 +55,7 @@ export const avatarSchema = Type.Object(
       format: 'uuid'
     }),
     project: Type.String(),
-    user: Type.Optional(Type.Any()),
+    user: Type.Optional(Type.Any()), // avoid circular reference to `userSchema` which utilizes current `avatarSchema`
     modelResource: Type.Optional(Type.Ref(staticResourceSchema)),
     thumbnailResource: Type.Optional(Type.Ref(staticResourceSchema)),
     createdAt: Type.String({ format: 'date-time' }),
