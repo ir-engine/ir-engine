@@ -23,75 +23,45 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Mesh, PlaneGeometry, ShaderMaterial, Texture, Uniform, Vector2, Vector3 } from 'three'
+import { Color, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
-import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getState } from '@etherealengine/hyperflux'
 
-import { useEffect } from 'react'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { LocalTransformComponent } from '../../transform/components/TransformComponent'
+import {
+  ComputedTransformComponent,
+  setComputedTransformComponent
+} from '../../transform/components/ComputedTransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { CameraActions } from '../CameraState'
-
-const VERTEX_SHADER = `
-precision highp float;
-
-void main() { 
-  vec3 newPosition = position * 2.0; 
-  gl_Position = vec4(newPosition, 1.0);
-}`
-
-const FRAGMENT_SHADER = `
-precision highp float;
-
-uniform vec2 resolution;
-uniform vec3 color; 
-uniform float intensity; 
-#ifdef USE_GRAPHIC
-  uniform sampler2D graphicTexture;
-#endif
-void main() {
-  vec2 uv = gl_FragCoord.xy / resolution.xy;
-  vec4 baseColor = vec4(color, intensity);
-  #ifdef USE_GRAPHIC
-    if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
-      vec4 graphicColor = texture2D(graphicTexture, uv);
-      baseColor = graphicColor * baseColor;
-    } else {
-      baseColor = vec4(0.0, 0.0, 0.0, 1.0);
-    }
-  #endif
-  gl_FragColor = baseColor; 
-}`
 
 const fadeToBlackQueue = defineActionQueue(CameraActions.fadeToBlack.matches)
 
 const CameraFadeBlackEffectSystemState = defineState({
   name: 'CameraFadeBlackEffectSystemState',
   initial: () => {
-    const geometry = new PlaneGeometry(1, 1)
-    const material = new ShaderMaterial({
-      vertexShader: VERTEX_SHADER,
-      fragmentShader: FRAGMENT_SHADER,
+    const geometry = new SphereGeometry(10)
+    const material = new MeshBasicMaterial({
       transparent: true,
-      depthTest: false,
-      uniforms: {
-        color: { value: new Color('black') },
-        intensity: { value: 0 },
-        resolution: { value: new Vector2(window.outerWidth, window.outerHeight) }
-      }
+      side: DoubleSide,
+      depthWrite: true,
+      depthTest: false
     })
 
     const mesh = new Mesh(geometry, material)
+    mesh.scale.set(-1, 1, -1)
+    mesh.geometry.rotateY(Math.PI)
+    mesh.renderOrder = 1
     mesh.name = 'Camera Fade Transition'
     const entity = createEntity()
     addObjectToGroup(entity, mesh)
@@ -110,44 +80,34 @@ const execute = () => {
   const { transition, mesh, entity } = getState(CameraFadeBlackEffectSystemState)
   for (const action of fadeToBlackQueue()) {
     transition.setState(action.in ? 'IN' : 'OUT')
-    if (action.in)
-      setComponent(entity, LocalTransformComponent, {
-        parentEntity: Engine.instance.cameraEntity,
-        position: new Vector3(0, 0, -0.1)
+    if (action.in) {
+      setComputedTransformComponent(entity, Engine.instance.cameraEntity, () => {
+        getComponent(entity, TransformComponent).position.copy(
+          getComponent(Engine.instance.cameraEntity, TransformComponent).position
+        )
       })
-    else removeComponent(entity, LocalTransformComponent)
+    } else removeComponent(entity, ComputedTransformComponent)
     if (action.graphicTexture) {
       AssetLoader.load(action.graphicTexture, {}, (texture: Texture) => {
-        mesh.material.uniforms.graphicTexture = new Uniform(texture)
-        mesh.material.uniforms.color = new Uniform(new Color('white'))
-        mesh.material.defines.USE_GRAPHIC = true
+        mesh.material.color = new Color('white')
+        mesh.material.map = texture
         mesh.material.needsUpdate = true
       })
     } else {
-      delete mesh.material.defines.USE_GRAPHIC
-      mesh.material.uniforms.color = new Uniform(new Color('black'))
+      mesh.material.color = new Color('black')
+      mesh.material.map = null
       mesh.material.needsUpdate = true
     }
   }
+
   const deltaSeconds = getState(EngineState).deltaSeconds
   transition.update(deltaSeconds, (alpha) => {
-    mesh.material.uniforms.intensity.value = alpha
+    mesh.material.opacity = alpha
     setVisibleComponent(entity, alpha > 0)
   })
 }
 
-const reactor = () => {
-  const outerWidth = useHookstate(window.outerWidth)
-  const outerHeight = useHookstate(window.outerHeight)
-  const { mesh } = useHookstate(getMutableState(CameraFadeBlackEffectSystemState))
-  useEffect(() => {
-    mesh.material.uniforms.resolution.nested('value').set([outerWidth.value, outerHeight.value])
-  }, [outerWidth, outerHeight])
-  return null
-}
-
 export const CameraFadeBlackEffectSystem = defineSystem({
   uuid: 'ee.engine.CameraFadeBlackEffectSystem',
-  execute,
-  reactor
+  execute
 })
