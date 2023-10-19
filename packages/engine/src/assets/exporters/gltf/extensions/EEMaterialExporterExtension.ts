@@ -109,6 +109,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
       name: material.name,
       prototype: materialEntry?.prototype ?? material.userData.type ?? material.type,
       plugins: materialEntry?.plugins ?? material.userData.plugins ?? [],
+      pluginstest: getState(MaterialLibraryState).plugins[materialEntry?.plugins[0]].plugin,
       args: result
     }
     this.writer.extensionsUsed[this.name] = true
