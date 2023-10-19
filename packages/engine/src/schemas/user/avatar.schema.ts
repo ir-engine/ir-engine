@@ -55,6 +55,7 @@ export const avatarSchema = Type.Object(
       format: 'uuid'
     }),
     project: Type.String(),
+    user: Type.Optional(Type.Any()),
     modelResource: Type.Optional(Type.Ref(staticResourceSchema)),
     thumbnailResource: Type.Optional(Type.Ref(staticResourceSchema)),
     createdAt: Type.String({ format: 'date-time' }),
@@ -64,7 +65,7 @@ export const avatarSchema = Type.Object(
 )
 export type AvatarType = Static<typeof avatarSchema>
 
-export type AvatarDatabaseType = Omit<AvatarType, 'modelResource' | 'thumbnailResource'>
+export type AvatarDatabaseType = Omit<AvatarType, 'user' | 'modelResource' | 'thumbnailResource'>
 
 // Schema for creating new entries
 // export const avatarDataSchema = Type.Pick(

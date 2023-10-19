@@ -155,28 +155,6 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
   }
 }
 
-const addAndSortByUserName = async (context: HookContext<AvatarService>) => {
-  if (!context.params.query) return
-
-  const userNameAlias = 'userName'
-
-  const sort = context.params.query.$sort?.['owner']
-  delete context.params.query.$sort?.['owner']
-  const nameLike = context.params.query.name as any
-  delete context.params.query.name
-
-  const query = context.service.createQuery(context.params)
-
-  query.leftJoin(userPath, `${userPath}.id`, `${avatarPath}.userId`)
-  if (nameLike) {
-    query.where(`${avatarPath}.name`, 'LIKE', nameLike.$like)
-  }
-  query.orderBy(`${userPath}.name`, sort === 1 ? 'asc' : 'desc')
-  query.select(`${avatarPath}.*`, `${userPath}.name AS ${userNameAlias}`)
-
-  context.params.knex = query
-}
-
 export default {
   around: {
     all: [schemaHooks.resolveExternal(avatarExternalResolver), schemaHooks.resolveResult(avatarResolver)]
@@ -187,7 +165,7 @@ export default {
     find: [
       iffElse(isAction('admin'), verifyScope('admin', 'admin'), ensureUserAccessibleAvatars),
       discardQuery('action'),
-      addAndSortByUserName
+      iff((context) => context.params.query?.$sort?.['user'], discardQuery('$sort.user'))
     ],
     get: [],
     create: [

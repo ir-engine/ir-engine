@@ -98,7 +98,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
     ),
     id: el.id,
     name: el.name as string,
-    owner: (el as any).userName,
+    user: el.user?.name || '',
     thumbnail: (
       <img
         style={{ maxHeight: '50px' }}
@@ -174,7 +174,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
 
   return (
     <Box className={className}>
-      <TableComponent query={adminAvatarQuery} rows={rows} column={columns} />
+      <TableComponent query={adminAvatarQuery} rows={rows} column={columns} allowSort={!!adminAvatarQuery.sort.user} />
 
       <ConfirmDialog
         open={openConfirm.value}
