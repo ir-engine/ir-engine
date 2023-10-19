@@ -83,6 +83,7 @@ const AvatarMenu = () => {
       }
     }
     selectedAvatarId.set('')
+    PopupMenuServices.showPopupMenu()
   }
 
   const handleSearch = async (searchString: string) => {
