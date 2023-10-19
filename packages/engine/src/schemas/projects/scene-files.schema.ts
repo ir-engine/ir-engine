@@ -28,53 +28,53 @@ import { dataValidator, queryValidator } from '@etherealengine/engine/src/schema
 import type { Static } from '@feathersjs/typebox'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 
-export const sceneDirectoryPath = 'scene-directory'
+export const sceneFilesPath = 'scene-files'
 
-export const sceneDirectoryMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const sceneFilesMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
 
 // Main data model schema
-export const sceneDirectorySchema = Type.Object(
+export const sceneFilesSchema = Type.Object(
   {
     id: Type.String({
       format: 'uuid'
     }),
     name: Type.String(),
     reference: Type.String(),
-    sceneDirectoryId: Type.String({
+    sceneFilesId: Type.String({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'SceneDirectory', additionalProperties: false }
+  { $id: 'SceneFiles', additionalProperties: false }
 )
-export type SceneDirectoryType = Static<typeof sceneDirectorySchema>
+export type SceneFilesType = Static<typeof sceneFilesSchema>
 
 // Schema for creating new entries
-export const sceneDirectoryDataSchema = Type.Partial(sceneDirectorySchema, {
-  $id: 'SceneDirectoryData'
+export const sceneFilesDataSchema = Type.Partial(sceneFilesSchema, {
+  $id: 'SceneFilesData'
 })
-export type SceneDirectoryData = Static<typeof sceneDirectoryDataSchema>
+export type SceneFilesData = Static<typeof sceneFilesDataSchema>
 
 // Schema for updating existing entries
-export const sceneDirectoryPatchSchema = Type.Partial(sceneDirectorySchema, {
-  $id: 'SceneDirectoryPatch'
+export const sceneFilesPatchSchema = Type.Partial(sceneFilesSchema, {
+  $id: 'SceneFilesPatch'
 })
-export type SceneDirectoryPatch = Static<typeof sceneDirectoryPatchSchema>
+export type SceneFilesPatch = Static<typeof sceneFilesPatchSchema>
 
 // Schema for allowed query properties
-export const sceneDirectoryQueryProperties = Type.Pick(sceneDirectorySchema, ['name', 'sceneDirectoryId', 'reference'])
-export const sceneDirectoryQuerySchema = Type.Intersect(
+export const sceneFilesQueryProperties = Type.Pick(sceneFilesSchema, ['name', 'sceneFilesId', 'reference'])
+export const sceneFilesQuerySchema = Type.Intersect(
   [
-    querySyntax(sceneDirectoryQueryProperties),
+    querySyntax(sceneFilesQueryProperties),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-export type SceneDirectoryQuery = Static<typeof sceneDirectoryQuerySchema>
+export type SceneFilesQuery = Static<typeof sceneFilesQuerySchema>
 
-export const sceneDirectoryValidator = getValidator(sceneDirectorySchema, dataValidator)
-export const sceneDirectoryDataValidator = getValidator(sceneDirectoryDataSchema, dataValidator)
-export const sceneDirectoryPatchValidator = getValidator(sceneDirectoryPatchSchema, dataValidator)
-export const sceneDirectoryQueryValidator = getValidator(sceneDirectoryQuerySchema, queryValidator)
+export const sceneFilesValidator = getValidator(sceneFilesSchema, dataValidator)
+export const sceneFilesDataValidator = getValidator(sceneFilesDataSchema, dataValidator)
+export const sceneFilesPatchValidator = getValidator(sceneFilesPatchSchema, dataValidator)
+export const sceneFilesQueryValidator = getValidator(sceneFilesQuerySchema, queryValidator)

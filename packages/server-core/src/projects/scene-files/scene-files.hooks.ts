@@ -24,46 +24,43 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  sceneDirectoryDataValidator,
-  sceneDirectoryPatchValidator,
-  sceneDirectoryQueryValidator
-} from '@etherealengine/engine/src/schemas/projects/scene-directory.schema'
+  sceneFilesDataValidator,
+  sceneFilesPatchValidator,
+  sceneFilesQueryValidator
+} from '@etherealengine/engine/src/schemas/projects/scene-files.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
-  sceneDirectoryDataResolver,
-  sceneDirectoryExternalResolver,
-  sceneDirectoryPatchResolver,
-  sceneDirectoryQueryResolver,
-  sceneDirectoryResolver
-} from './scene-directoy.resolvers'
+  sceneFilesDataResolver,
+  sceneFilesExternalResolver,
+  sceneFilesPatchResolver,
+  sceneFilesQueryResolver,
+  sceneFilesResolver
+} from './scene-files.resolvers'
 
 export default {
   around: {
-    all: [
-      schemaHooks.resolveExternal(sceneDirectoryExternalResolver),
-      schemaHooks.resolveResult(sceneDirectoryResolver)
-    ]
+    all: [schemaHooks.resolveExternal(sceneFilesExternalResolver), schemaHooks.resolveResult(sceneFilesResolver)]
   },
 
   before: {
     all: [
       disallow('external'),
-      () => schemaHooks.validateQuery(sceneDirectoryQueryValidator),
-      schemaHooks.resolveQuery(sceneDirectoryQueryResolver)
+      () => schemaHooks.validateQuery(sceneFilesQueryValidator),
+      schemaHooks.resolveQuery(sceneFilesQueryResolver)
     ],
     find: [],
     get: [],
     create: [
-      () => schemaHooks.validateData(sceneDirectoryDataValidator),
-      schemaHooks.resolveData(sceneDirectoryDataResolver),
+      () => schemaHooks.validateData(sceneFilesDataValidator),
+      schemaHooks.resolveData(sceneFilesDataResolver),
       iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false))
     ],
     patch: [
-      () => schemaHooks.validateData(sceneDirectoryPatchValidator),
-      schemaHooks.resolveData(sceneDirectoryPatchResolver),
+      () => schemaHooks.validateData(sceneFilesPatchValidator),
+      schemaHooks.resolveData(sceneFilesPatchResolver),
       iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false))
     ],
     update: [iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false))],

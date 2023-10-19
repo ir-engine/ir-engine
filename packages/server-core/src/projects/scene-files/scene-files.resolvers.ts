@@ -27,21 +27,18 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import {
-  SceneDirectoryQuery,
-  SceneDirectoryType
-} from '@etherealengine/engine/src/schemas/projects/scene-directory.schema'
+import { SceneFilesQuery, SceneFilesType } from '@etherealengine/engine/src/schemas/projects/scene-files.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 
-export const sceneDirectoryResolver = resolve<SceneDirectoryType, HookContext>({
-  createdAt: virtual(async (sceneDirectory) => fromDateTimeSql(sceneDirectory.createdAt)),
-  updatedAt: virtual(async (sceneDirectory) => fromDateTimeSql(sceneDirectory.updatedAt))
+export const sceneFilesResolver = resolve<SceneFilesType, HookContext>({
+  createdAt: virtual(async (sceneFiles) => fromDateTimeSql(sceneFiles.createdAt)),
+  updatedAt: virtual(async (sceneFiles) => fromDateTimeSql(sceneFiles.updatedAt))
 })
 
-export const sceneDirectoryExternalResolver = resolve<SceneDirectoryType, HookContext>({})
+export const sceneFilesExternalResolver = resolve<SceneFilesType, HookContext>({})
 
-export const sceneDirectoryDataResolver = resolve<SceneDirectoryType, HookContext>({
+export const sceneFilesDataResolver = resolve<SceneFilesType, HookContext>({
   id: async () => {
     return v4()
   },
@@ -49,8 +46,8 @@ export const sceneDirectoryDataResolver = resolve<SceneDirectoryType, HookContex
   updatedAt: getDateTimeSql
 })
 
-export const sceneDirectoryPatchResolver = resolve<SceneDirectoryType, HookContext>({
+export const sceneFilesPatchResolver = resolve<SceneFilesType, HookContext>({
   updatedAt: getDateTimeSql
 })
 
-export const sceneDirectoryQueryResolver = resolve<SceneDirectoryQuery, HookContext>({})
+export const sceneFilesQueryResolver = resolve<SceneFilesQuery, HookContext>({})

@@ -26,21 +26,21 @@ Ethereal Engine. All Rights Reserved.
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 import {
-  sceneDirectoryDataSchema,
-  sceneDirectoryPatchSchema,
-  sceneDirectoryQuerySchema,
-  sceneDirectorySchema
-} from '@etherealengine/engine/src/schemas/projects/scene-directory.schema'
+  sceneFilesDataSchema,
+  sceneFilesPatchSchema,
+  sceneFilesQuerySchema,
+  sceneFilesSchema
+} from '@etherealengine/engine/src/schemas/projects/scene-files.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {
-    sceneDirectoryDataSchema,
-    sceneDirectoryPatchSchema,
-    sceneDirectoryQuerySchema,
-    sceneDirectorySchema
+    sceneFilesDataSchema,
+    sceneFilesPatchSchema,
+    sceneFilesQuerySchema,
+    sceneFilesSchema
   },
   docs: {
-    description: 'Scene directory service description',
+    description: 'Scene files service description',
     securities: ['all']
   }
 })

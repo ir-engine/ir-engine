@@ -23,37 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  sceneDirectoryMethods,
-  sceneDirectoryPath
-} from '@etherealengine/engine/src/schemas/projects/scene-directory.schema'
+import { sceneFilesMethods, sceneFilesPath } from '@etherealengine/engine/src/schemas/projects/scene-files.schema'
 import { Application } from '@etherealengine/server-core/declarations'
-import { SceneDirectoryService } from './scene-directory.class'
-import sceneDirectoryDocs from './scene-directory.docs'
-import hooks from './scene-directory.hooks'
+import { SceneFilesService } from './scene-files.class'
+import sceneFilesDocs from './scene-files.docs'
+import hooks from './scene-files.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    [sceneDirectoryPath]: SceneDirectoryService
+    [sceneFilesPath]: SceneFilesService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    name: sceneDirectoryPath,
+    name: sceneFilesPath,
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),
     multi: true
   }
 
-  app.use(sceneDirectoryPath, new SceneDirectoryService(options), {
+  app.use(sceneFilesPath, new SceneFilesService(options), {
     // A list of all methods this service exposes externally
-    methods: sceneDirectoryMethods,
+    methods: sceneFilesMethods,
     // You can add additional custom events to be sent to clients here
     events: [],
-    docs: sceneDirectoryDocs
+    docs: sceneFilesDocs
   })
 
-  const service = app.service(sceneDirectoryPath)
+  const service = app.service(sceneFilesPath)
   service.hooks(hooks)
 }

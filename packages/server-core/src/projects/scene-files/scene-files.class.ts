@@ -24,18 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  SceneDirectoryData,
-  SceneDirectoryPatch,
-  SceneDirectoryQuery,
-  SceneDirectoryType
-} from '@etherealengine/engine/src/schemas/projects/scene-directory.schema'
+  SceneFilesData,
+  SceneFilesPatch,
+  SceneFilesQuery,
+  SceneFilesType
+} from '@etherealengine/engine/src/schemas/projects/scene-files.schema'
 import type { Params } from '@feathersjs/feathers'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface SceneDirectoryParams extends KnexAdapterParams<SceneDirectoryQuery> {}
+export interface SceneFilesParams extends KnexAdapterParams<SceneFilesQuery> {}
 
-export class SceneDirectoryService<
-  T = SceneDirectoryType,
-  ServiceParams extends Params = SceneDirectoryParams
-> extends KnexService<SceneDirectoryType, SceneDirectoryData, SceneDirectoryParams, SceneDirectoryPatch> {}
+export class SceneFilesService<T = SceneFilesType, ServiceParams extends Params = SceneFilesParams> extends KnexService<
+  SceneFilesType,
+  SceneFilesData,
+  SceneFilesParams,
+  SceneFilesPatch
+> {}
