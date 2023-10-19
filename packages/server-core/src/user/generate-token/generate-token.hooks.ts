@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import authenticate from '../../hooks/authenticate'
-
 import {
   generateTokenDataValidator,
   generateTokenPatchValidator,
@@ -46,14 +44,13 @@ export default {
   },
 
   before: {
-    all: [],
-    find: [
+    all: [
       () => schemaHooks.validateQuery(generateTokenQueryValidator),
       schemaHooks.resolveQuery(generateTokenQueryResolver)
     ],
+    find: [],
     get: [],
     create: [
-      authenticate(),
       () => schemaHooks.validateData(generateTokenDataValidator),
       schemaHooks.resolveData(generateTokenDataResolver)
     ],

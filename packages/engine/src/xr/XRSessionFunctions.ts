@@ -50,7 +50,7 @@ export const onSessionEnd = () => {
   xrState.session.set(null)
   xrState.sceneScale.set(1)
 
-  Engine.instance.xrFrame = null
+  getMutableState(XRState).xrFrame.set(null)
 
   EngineRenderer.instance.renderer.domElement.style.display = ''
   setVisibleComponent(Engine.instance.localClientEntity, true)
@@ -65,6 +65,7 @@ export const onSessionEnd = () => {
 
   dispatchAction(XRAction.sessionChanged({ active: false }))
 
+  xrState.userAvatarHeightDifference.set(null)
   xrState.session.set(null)
 }
 
@@ -178,7 +179,6 @@ export const requestXRSession = createHookableFunction(
       getReferenceSpaces(xrSession)
 
       dispatchAction(XRAction.sessionChanged({ active: true }))
-
       xrSession.addEventListener('end', onSessionEnd)
     } catch (e) {
       console.error('Failed to create XR Session', e)

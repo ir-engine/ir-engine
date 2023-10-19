@@ -24,7 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, CubeTexture, SRGBColorSpace, Texture } from 'three'
+import {
+  Color,
+  CubeReflectionMapping,
+  CubeTexture,
+  EquirectangularReflectionMapping,
+  SRGBColorSpace,
+  Texture
+} from 'three'
 
 import { config } from '@etherealengine/common/src/config'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -38,12 +45,14 @@ import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
-import { getPmremGenerator, loadCubeMapTexture } from '../constants/Util'
+import { loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
+
   jsonID: 'skybox',
+
   onInit: (entity) => {
     return {
       backgroundColor: new Color(0x000000),
@@ -62,6 +71,7 @@ export const SkyboxComponent = defineComponent({
       }
     }
   },
+
   onSet: (entity, component, json) => {
     if (typeof json?.backgroundColor === 'number') component.backgroundColor.set(new Color(json.backgroundColor))
     if (typeof json?.equirectangularPath === 'string') component.equirectangularPath.set(json.equirectangularPath)
@@ -69,6 +79,7 @@ export const SkyboxComponent = defineComponent({
     if (typeof json?.backgroundType === 'number') component.backgroundType.set(json.backgroundType)
     if (typeof json?.skyboxProps === 'object') component.skyboxProps.set(json.skyboxProps)
   },
+
   toJSON: (entity, component) => {
     return {
       backgroundColor: component.backgroundColor.value,
@@ -77,6 +88,10 @@ export const SkyboxComponent = defineComponent({
       backgroundType: component.backgroundType.value,
       skyboxProps: component.skyboxProps.get({ noproxy: true }) as any
     }
+  },
+
+  onRemove: (entity, component) => {
+    getMutableState(SceneState).background.set(null)
   },
 
   reactor: function () {
@@ -95,7 +110,8 @@ export const SkyboxComponent = defineComponent({
       if (skyboxState.backgroundType.value !== SkyTypeEnum.cubemap) return
       const onLoad = (texture: CubeTexture) => {
         texture.colorSpace = SRGBColorSpace
-        background.set(getPmremGenerator().fromCubemap(texture).texture)
+        texture.mapping = CubeReflectionMapping
+        background.set(texture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       }
       const loadArgs: [
@@ -119,7 +135,8 @@ export const SkyboxComponent = defineComponent({
         {},
         (texture: Texture) => {
           texture.colorSpace = SRGBColorSpace
-          background.set(getPmremGenerator().fromEquirectangular(texture).texture)
+          texture.mapping = EquirectangularReflectionMapping
+          background.set(texture)
           removeError(entity, SkyboxComponent, 'FILE_ERROR')
         },
         undefined,
@@ -135,9 +152,7 @@ export const SkyboxComponent = defineComponent({
         return
       }
 
-      if (skyboxState.backgroundType.value === SkyTypeEnum.skybox && !skyboxState.sky.value) {
-        skyboxState.sky.set(new Sky())
-      }
+      skyboxState.sky.set(new Sky())
 
       const sky = skyboxState.sky.value!
 
@@ -151,10 +166,21 @@ export const SkyboxComponent = defineComponent({
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
       getState(RendererState).csm?.lightDirection.copy(sky.sunPosition).multiplyScalar(-1)
-      background.set(
-        getPmremGenerator().fromCubemap(sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)).texture
-      )
-    }, [skyboxState.backgroundType, skyboxState.skyboxProps])
+      const texture = sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
+      texture.mapping = CubeReflectionMapping
+      background.set(texture)
+      sky.dispose()
+    }, [
+      skyboxState.backgroundType,
+      skyboxState.skyboxProps,
+      skyboxState.skyboxProps.azimuth,
+      skyboxState.skyboxProps.inclination,
+      skyboxState.skyboxProps.mieCoefficient,
+      skyboxState.skyboxProps.mieDirectionalG,
+      skyboxState.skyboxProps.rayleigh,
+      skyboxState.skyboxProps.turbidity,
+      skyboxState.skyboxProps.luminance
+    ])
 
     return null
   },

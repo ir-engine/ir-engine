@@ -34,19 +34,20 @@ import {
 import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import LockIcon from '@mui/icons-material/Lock'
 import UnlockIcon from '@mui/icons-material/LockOpen'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { EditorAction, EditorState } from '../../services/EditorServices'
+import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import { PanelIcon } from '../layout/Panel'
 import NameInputGroup from './NameInputGroup'
+import TransformPropertyGroup from './TransformPropertyGroup'
 
 const propertiesHeaderStyle = {
   border: 'none !important',
@@ -89,20 +90,13 @@ export const CoreNodeEditor = (props) => {
             const currentEntity = selectionState.selectedEntities.value[0]
             const currentState = editorState.lockPropertiesPanel.value
             if (currentState) {
-              dispatchAction(
-                EditorAction.lockPropertiesPanel({
-                  lockPropertiesPanel: '' as EntityUUID
-                })
-              )
+              getMutableState(EditorState).lockPropertiesPanel.set('' as EntityUUID)
             } else {
               if (currentEntity) {
-                dispatchAction(
-                  EditorAction.lockPropertiesPanel({
-                    lockPropertiesPanel:
-                      typeof currentEntity === 'string'
-                        ? (currentEntity as EntityUUID)
-                        : getComponent(currentEntity, UUIDComponent)
-                  })
+                getMutableState(EditorState).lockPropertiesPanel.set(
+                  typeof currentEntity === 'string'
+                    ? (currentEntity as EntityUUID)
+                    : getComponent(currentEntity, UUIDComponent)
                 )
               }
             }
@@ -118,7 +112,7 @@ export const CoreNodeEditor = (props) => {
         </button>
       </div>
       <div style={nameInputGroupContainerStyle}>
-        <NameInputGroup entity={props.entity} key={props.entity} />
+        <NameInputGroup entity={props.entity} />
         {!hasComponent(props.entity, SceneTagComponent) && (
           <>
             <InputGroup
@@ -130,6 +124,7 @@ export const CoreNodeEditor = (props) => {
             </InputGroup>
           </>
         )}
+        <TransformPropertyGroup entity={props.entity} />
       </div>
     </div>
   )

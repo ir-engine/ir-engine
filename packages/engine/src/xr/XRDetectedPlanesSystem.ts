@@ -26,20 +26,21 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMaterial } from 'three'
 
-import { defineActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
+import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { getComponent, getMutableComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
-import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
+import { LocalTransformComponent } from '../transform/components/TransformComponent'
 import { XRPlaneComponent } from './XRComponents'
-import { ReferenceSpace, XRAction } from './XRState'
+import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 /** https://github.com/immersive-web/webxr-samples/blob/main/proposals/plane-detection.html */
 
@@ -82,7 +83,7 @@ export const updatePlaneGeometry = (entity: Entity, plane: XRPlane) => {
 }
 
 export const updatePlanePose = (entity: Entity, plane: XRPlane) => {
-  const planePose = Engine.instance.xrFrame!.getPose(plane.planeSpace, ReferenceSpace.localFloor!)!
+  const planePose = getState(XRState).xrFrame!.getPose(plane.planeSpace, ReferenceSpace.localFloor!)!
   if (!planePose) return
   LocalTransformComponent.position.x[entity] = planePose.transform.position.x
   LocalTransformComponent.position.y[entity] = planePose.transform.position.y
@@ -97,7 +98,7 @@ export const foundPlane = (plane: XRPlane) => {
   const geometry = createGeometryFromPolygon(plane)
 
   const entity = createEntity()
-  setLocalTransformComponent(entity, Engine.instance.originEntity)
+  setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
   setVisibleComponent(entity, true)
   setComponent(entity, XRPlaneComponent)
   setComponent(entity, NameComponent, 'plane-' + planeId++)
@@ -156,7 +157,7 @@ const execute = () => {
     }
   }
 
-  const frame = Engine.instance.xrFrame as XRFrame & DetectedPlanesType
+  const frame = getState(XRState).xrFrame as XRFrame & DetectedPlanesType
   if (!frame?.detectedPlanes || frame.session.environmentBlendMode === 'opaque' || !ReferenceSpace.localFloor) return
 
   for (const [plane, entity] of detectedPlanesMap) {

@@ -40,14 +40,7 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  const options = {
-    name: githubRepoAccessRefreshPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(githubRepoAccessRefreshPath, new GithubRepoAccessRefreshService(options, app), {
+  app.use(githubRepoAccessRefreshPath, new GithubRepoAccessRefreshService(app), {
     // A list of all methods this service exposes externally
     methods: githubRepoAccessRefreshMethods,
     // You can add additional custom events to be sent to clients here

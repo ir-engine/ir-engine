@@ -24,32 +24,34 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext, Paginated } from '@feathersjs/feathers'
 
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Application } from './../../declarations'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
-  return async (context: HookContext<Application>): Promise<HookContext> => {
+  return async (context: HookContext): Promise<HookContext> => {
     const { params, app } = context
     const loggedInUser = params.user as UserType
     const userId = loggedInUser.id
     if (!params.query!.channelId) {
       throw new BadRequest('Must provide a channel ID')
     }
-    const channel = await app.service('channel').get(params.query!.channelId)
+    const channel = await app.service(channelPath).get(params.query!.channelId)
     if (channel == null) {
-      throw new BadRequest('Invalid channel ID')
+      throw new BadRequest(`Invalid channel ID: ${params.query.channelId}`)
     }
-    const partyUser = await app.service('channel-user').Model.findOne({
-      where: {
+    const channelUser = (await app.service(channelUserPath).find({
+      query: {
         channelId: channel.id,
-        userId: userId
+        userId: userId,
+        $limit: 1
       }
-    })
-    if (partyUser == null) {
-      throw new Forbidden('You are not a member of that channel')
+    })) as Paginated<ChannelUserType>
+    if (channelUser.data.length === 0) {
+      throw new Forbidden(`You are not a member of channel: ${params.query.channelId}`)
     }
     return context
   }

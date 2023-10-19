@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
-import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
+import { defineAction, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Validator, matches } from '../common/functions/MatchesUtils'
 import { InstanceID } from '../schemas/networking/instance.schema'
+import { ChannelID } from '../schemas/social/channel.schema'
 import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
 
@@ -62,6 +61,24 @@ export const NetworkState = defineState({
       /** Use room IDs in url */
       roomID: false
     }
+  },
+
+  get worldNetwork() {
+    const state = getState(NetworkState)
+    return state.networks[state.hostIds.world!]!
+  },
+
+  get worldNetworkState() {
+    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
+  },
+
+  get mediaNetwork() {
+    const state = getState(NetworkState)
+    return state.networks[state.hostIds.media!]!
+  },
+
+  get mediaNetworkState() {
+    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
   }
 })
 

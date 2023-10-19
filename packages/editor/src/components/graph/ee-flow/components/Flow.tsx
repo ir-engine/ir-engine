@@ -32,7 +32,7 @@ import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/function
 import _ from 'lodash'
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
-import { useNodeSpecJson } from '../hooks/useNodeSpecJson.js'
+import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator.js'
 import CustomControls from './Controls.js'
 import { NodePicker } from './NodePicker.js'
 import { Examples } from './modals/LoadModal.js'
@@ -45,13 +45,13 @@ type FlowProps = {
 }
 
 export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, registry, onChangeGraph }) => {
-  const specJson = useNodeSpecJson(registry)
+  const specGenerator = useNodeSpecGenerator(registry)
 
   const flowRef = useRef(null)
 
   const { nodes, edges, onNodesChange, onEdgesChange, graphJson, setGraphJson, nodeTypes } = useBehaveGraphFlow({
     initialGraphJson: graph,
-    specJson
+    specGenerator
   })
 
   const {
@@ -69,7 +69,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     nodes,
     onEdgesChange,
     onNodesChange,
-    specJSON: specJson
+    specGenerator
   })
 
   const { togglePlay, playing } = useGraphRunner({
@@ -79,7 +79,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
 
   const debouncedOnChangeGraph = _.debounce(() => {
     onChangeGraph(graphJson ?? graph)
-  }, 1000)
+  }, 2000)
 
   useEffect(() => {
     debouncedOnChangeGraph()
@@ -112,7 +112,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
         onSaveGraph={onChangeGraph}
         setBehaviorGraph={setGraphJson}
         examples={examples}
-        specJson={specJson}
+        specGenerator={specGenerator}
       />
       <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
       {nodePickerVisibility && (
@@ -122,7 +122,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
           filters={nodePickFilters}
           onPickNode={handleAddNode}
           onClose={closeNodePicker}
-          specJSON={specJson}
+          specJSON={specGenerator?.getAllNodeSpecs()}
         />
       )}
     </ReactFlow>

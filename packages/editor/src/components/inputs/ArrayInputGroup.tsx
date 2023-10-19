@@ -23,17 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import AddIcon from '@mui/icons-material/Add'
+import IconButton from '@mui/material/IconButton'
 import React from 'react'
+import styles from './ArrayInputGroup.module.scss'
+import FileBrowserInput from './FileBrowserInput'
+import InputGroup from './InputGroup'
 
 export interface ArrayInputGroupProp {
   name?: string
   prefix?: string
-  isStringInput?: boolean
   label?: any
   values: string[]
   onChange?: (values: string[]) => void
   acceptFileTypes?: any
-  itemType?: any
+  acceptDropItems?: any
 }
 
 export interface ArrayInputGroupState {
@@ -41,111 +46,91 @@ export interface ArrayInputGroupState {
   values: string[]
 }
 
-const onChangeSize = (textSize: string, values: string[], onChange?: any) => {
-  // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
-  let valuesCopy = [...values] as string[]
-  let preCount = valuesCopy.length
-  const count = parseInt(textSize)
-  if (isNaN(count) || preCount === count) return
-  if (preCount > count) {
-    valuesCopy.splice(count)
-  } else {
-    for (let i = 0; i < count - preCount; i++) {
-      valuesCopy.push('')
-    }
-  }
-  onChange?.(valuesCopy)
-}
-
-const onChangeText = (text: string, index: number, values: string[], onChange?: any) => {
-  // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
-  const valuesCopy = [...values]
-  valuesCopy[index] = text
-  onChange?.(valuesCopy)
-}
-
-const groupContainerStyle: React.CSSProperties = {
-  backgroundColor: 'transparent',
-  color: '#9fa4b5',
-  whiteSpace: 'pre-wrap',
-  padding: '0 8px 8px'
-}
-
-const arrayInputGroupContentStyle: React.CSSProperties = {
-  margin: '4px 0px',
-  display: 'flex',
-  flexWrap: 'wrap',
-  flexDirection: 'row'
-}
-
-const labelStyle = {
-  maxWidth: '20%'
-}
-
-const inputStyle = {
-  maxWidth: '80%'
-}
-
-const divStyle = {
-  maxWidth: '80%'
-}
-
 const ArrayInputGroup = ({
-  isStringInput,
   prefix,
   label,
   values,
   onChange,
   acceptFileTypes,
-  itemType
+  acceptDropItems
 }: ArrayInputGroupProp) => {
-  let count = 0
-  if (values && values.length) count = values.length
+  const addInput = (count = 1) => {
+    const valuesCopy = [...values]
+    for (let i = 0; i < count; i++) {
+      valuesCopy.push('')
+    }
+    onChange?.(valuesCopy)
+  }
+
+  const deleteInput = (index: number) => {
+    const valuesCopy = [...values]
+    valuesCopy.splice(index, 1)
+    onChange?.(valuesCopy)
+  }
+
+  const onChangeText = (text: string, index: number) => {
+    // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
+    const valuesCopy = [...values]
+    valuesCopy[index] = text
+    onChange?.(valuesCopy)
+  }
 
   return (
-    <div style={groupContainerStyle}>
-      <div style={arrayInputGroupContentStyle}>
-        <label style={{ ...labelStyle, color: '#9FA4B5' }}>{label}:</label>
-        <div style={divStyle}>
-          <label> Size: </label>
-          <input
-            style={inputStyle}
-            value={'' + count}
-            onChange={(e) => {
-              onChangeSize(e.target.value, values, onChange)
+    <InputGroup name="label" label={label} labelClasses={styles.sizeLabel}>
+      <div className={styles.arrayInputGroupContent}>
+        <InputGroup name={`${prefix} 1`} label={`${prefix} 1`}>
+          <FileBrowserInput
+            value={values.length > 0 ? values[0] : ''}
+            onChange={(value) => {
+              if (values.length > 0) {
+                onChangeText(value, 0)
+              } else {
+                addInput()
+                onChangeText(value, 0)
+              }
             }}
+            acceptFileTypes={acceptFileTypes}
+            acceptDropItems={acceptDropItems}
           />
-        </div>
+          <IconButton
+            disableRipple
+            onClick={() => {
+              if (values.length === 0) {
+                addInput(2)
+              } else {
+                addInput(1)
+              }
+            }}
+            style={{
+              padding: 0
+            }}
+          >
+            <AddIcon sx={{ color: 'var(--textColor)' }} />
+          </IconButton>
+        </InputGroup>
         {values &&
-          values.map(function (value, index) {
-            return (
-              <div key={index} style={{ ...arrayInputGroupContentStyle, margin: '4px 0px' }}>
-                <label>
-                  {' '}
-                  {prefix} {index + 1}:{' '}
-                </label>
-                {isStringInput ? (
-                  <input
-                    style={inputStyle}
-                    value={value}
-                    onChange={(e) => {
-                      onChangeText(e.target.value, index, values, onChange)
-                    }}
-                  />
-                ) : (
-                  <input
-                    style={inputStyle}
-                    value={value}
-                    onChange={(e) => {
-                      onChangeText(e.target.value, index, values, onChange)
-                    }}
-                  />
-                )}
-              </div>
-            )
-          })}
+          values.length > 0 &&
+          values.slice(1).map((value, index) => (
+            <InputGroup name={`${prefix} ${index + 2}`} label={`${prefix} ${index + 2}`} key={value + '' + index}>
+              <FileBrowserInput
+                value={value}
+                onChange={(value) => onChangeText(value, index + 1)}
+                acceptFileTypes={acceptFileTypes}
+                acceptDropItems={acceptDropItems}
+              />
+              <IconButton
+                disableRipple
+                style={{
+                  padding: 0
+                }}
+                onClick={() => deleteInput(index + 1)}
+              >
+                <Icon type="Delete" style={{ color: 'var(--textColor)' }} />
+              </IconButton>
+            </InputGroup>
+          ))}
       </div>
-    </div>
+    </InputGroup>
   )
 }
 

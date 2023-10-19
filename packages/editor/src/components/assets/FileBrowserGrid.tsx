@@ -29,8 +29,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { StateMethods } from '@etherealengine/hyperflux'
 
 import DescriptionIcon from '@mui/icons-material/Description'
@@ -40,6 +39,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import { PopoverPosition } from '@mui/material/Popover'
 
+import { Vector3 } from 'three'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
@@ -111,6 +111,7 @@ type FileBrowserItemType = {
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   moveContent: (oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean) => Promise<void>
+  addFolder: () => void
   refreshDirectory: () => Promise<void>
 }
 
@@ -128,6 +129,7 @@ export function FileBrowserItem({
   dropItemsOnPanel,
   moveContent,
   isFilesLoading,
+  addFolder,
   refreshDirectory
 }: FileBrowserItemType) {
   const { t } = useTranslation()
@@ -154,17 +156,16 @@ export function FileBrowserItem({
 
   const onClickItem = (_) => onClick(item)
 
-  const placeObject = () => {
+  const placeObjectAtOrigin = () => {
     addMediaNode(item.url)
 
     handleClose()
   }
 
-  const placeObjectAtOrigin = async () => {
-    const node = await addMediaNode(item.url)
-    if (!node) return
-    const transformComponent = getComponent(node, TransformComponent)
-    if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
+  const placeObject = async () => {
+    const vec3 = new Vector3()
+    getSpawnPositionAtCenter(vec3)
+    addMediaNode(item.url, undefined, undefined, [{ name: LocalTransformComponent.jsonID, props: { position: vec3 } }])
 
     handleClose()
   }
@@ -213,14 +214,8 @@ export function FileBrowserItem({
   }
 
   const viewAssetProperties = () => {
-    if (item.isFolder) {
-      setFileProperties({
-        ...item,
-        url: item.url + '/' + item.key
-      })
-    } else {
-      setFileProperties(item)
-    }
+    setFileProperties(item)
+
     setOpenPropertiesModal(true)
 
     handleClose()
@@ -254,7 +249,6 @@ export function FileBrowserItem({
 
   const rename = () => {
     setRenamingAsset(true)
-
     handleClose()
   }
 
@@ -297,11 +291,12 @@ export function FileBrowserItem({
         </div>
 
         <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
-          {item.isFolder && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
-          {item.isFolder && (
+          <MenuItem onClick={addFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
+          {!item.isFolder && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
+          {!item.isFolder && (
             <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
           )}
-          {item.isFolder && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
+          {!item.isFolder && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
           <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
           <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
           <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>

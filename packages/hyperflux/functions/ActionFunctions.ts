@@ -28,10 +28,11 @@ import { matches, Parser, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import multiLogger from '@etherealengine/common/src/logger'
 import { deepEqual } from '@etherealengine/engine/src/common/functions/deepEqual'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })
@@ -77,6 +78,7 @@ export type ActionOptions = {
 
   /**
    * The id of the sender
+   * @deprecated see getDispatchId
    */
   $from?: UserID
 
@@ -101,7 +103,7 @@ export type ActionOptions = {
    * Optionally specify the network to send this action to.
    * Specifying this will not send the action to other networks, even as a cached action.
    */
-  $network?: string | undefined // TODO make a type for NetworkID
+  $network?: InstanceID | undefined // TODO make a type for NetworkID
 
   /**
    * Specifies how this action should be cached for newly joining clients.
@@ -220,6 +222,8 @@ export type PartialActionType<Shape extends ActionShape<any>> = Omit<
  * @param actionShape
  * @returns a function that creates an instance of the defined action
  */
+export const ActionDefinitions = {} as Record<string, any>
+
 function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
   type ResolvedAction = ResolvedActionType<Shape>
   type PartialAction = PartialActionType<Shape>
@@ -286,6 +290,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
   actionCreator.type = actionShape.type as Shape['type']
   actionCreator.matches = matchesShape
 
+  ActionDefinitions[actionCreator.type as string] = actionCreator
   return actionCreator
 }
 
@@ -343,30 +348,6 @@ function removeActionsForTopic(topic: string) {
   delete HyperFlux.store.actions.outgoing[topic]
 }
 
-/**
- * Adds an action receptor to the store
- * @param receptor
- * @deprecated use defineActionQueue instead
- */
-function addActionReceptor(receptor: ActionReceptor) {
-  logger.info(`Added Receptor ${receptor.name}`)
-  ;(HyperFlux.store.receptors as Array<ActionReceptor>).push(receptor)
-}
-
-/**
- * Removes an action receptor from the store
- * @param store
- * @param receptor
- * @deprecated use defineActionQueue instead
- */
-function removeActionReceptor(receptor: ActionReceptor) {
-  const idx = HyperFlux.store.receptors.indexOf(receptor)
-  if (idx >= 0) {
-    logger.info(`Removed Receptor ${receptor.name}`)
-    ;(HyperFlux.store.receptors as Array<ActionReceptor>).splice(idx, 1)
-  }
-}
-
 const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
   if (incomingAction.$cache) {
     const cachedActions = HyperFlux.store.actions.cached
@@ -378,6 +359,7 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
 
       if (remove) {
         for (const a of [...cachedActions]) {
+          // TODO - is it safe to change $from to $peer here?
           if (a.$from === incomingAction.$from && a.type === incomingAction.type) {
             if (remove === true) {
               const idx = cachedActions.indexOf(a)
@@ -446,7 +428,6 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     } catch (err) {
       console.log('error in logging action', action)
     }
-    for (const receptor of [...HyperFlux.store.receptors]) receptor(action)
     if (HyperFlux.store.forwardIncomingActions(action)) {
       addOutgoingTopicIfNecessary(action.$topic)
       HyperFlux.store.actions.outgoing[action.$topic].queue.push(action)
@@ -546,8 +527,6 @@ const removeActionQueue = (queueFunction: ActionQueueDefinition) => {
 export {
   defineAction,
   dispatchAction,
-  addActionReceptor,
-  removeActionReceptor,
   createActionQueue,
   defineActionQueue,
   removeActionQueue,

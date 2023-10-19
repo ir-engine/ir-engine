@@ -34,6 +34,7 @@ import {
   ProjectPermissionType,
   projectPermissionPath
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -47,7 +48,7 @@ const cleanup = async (app: Application) => {
   const project1Dir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName1}/`)
   deleteFolderRecursive(project1Dir)
   try {
-    await app.service('project').Model.destroy({ where: { name: newProjectName1 } })
+    await app.service(projectPath).remove(null, { query: { name: newProjectName1 } })
   } catch (e) {
     //
   }
@@ -160,11 +161,11 @@ describe('project-permission.test', () => {
           },
           provider: 'rest'
         }
-        project1 = await app.service('project').create(
+        project1 = await app.service(projectPath).create(
           {
             name: newProjectName1
           },
-          params
+          { ...params }
         )
         const projectPermission = (await app.service(projectPermissionPath).find({
           query: {
@@ -323,7 +324,7 @@ describe('project-permission.test', () => {
           params
         )
 
-        const permissions = await app.service(projectPermissionPath)._find({
+        const permissions = await app.service(projectPermissionPath).find({
           query: {
             projectId: project1.id
           },
@@ -344,15 +345,15 @@ describe('project-permission.test', () => {
           },
           provider: 'rest'
         }
-        const update = await app.service(projectPermissionPath).patch(
+        const update = (await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
             projectId: project1.id,
             userId: 'abcdefg' as UserID,
             type: 'owner'
-          },
-          params
-        )
+          }
+          // params
+        )) as any as ProjectPermissionType
         assert.strictEqual(update.type, 'owner')
         assert.strictEqual(update.userId, user2.id)
       })
@@ -365,7 +366,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        const update = await app.service(projectPermissionPath).patch(
+        const update = (await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
             projectId: project1.id,
@@ -373,7 +374,7 @@ describe('project-permission.test', () => {
             type: 'user'
           },
           params
-        )
+        )) as any as ProjectPermissionType
         assert.strictEqual(update.type, 'user')
         assert.strictEqual(update.userId, user2.id)
       })
@@ -410,7 +411,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        const permissions = await app.service(projectPermissionPath)._find({
+        const permissions = await app.service(projectPermissionPath).find({
           query: {
             projectId: project1.id
           },
@@ -493,7 +494,7 @@ describe('project-permission.test', () => {
         }
 
         await app.service(projectPermissionPath).remove(project1Permission1.id, params)
-        const permissions = (await app.service(projectPermissionPath)._find({
+        const permissions = (await app.service(projectPermissionPath).find({
           query: {
             projectId: project1.id
           },

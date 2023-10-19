@@ -30,13 +30,14 @@ import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearc
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { getState } from '@etherealengine/hyperflux'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineQuery,
@@ -110,7 +111,7 @@ export const updateCameraTargetRotation = (cameraEntity: Entity) => {
     return
   }
 
-  const delta = Engine.instance.deltaSeconds
+  const delta = getState(EngineState).deltaSeconds
   followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
@@ -223,13 +224,14 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   // Zoom smoothing
   let smoothingSpeed = isInsideWall ? 0.1 : 0.3
+  const deltaSeconds = getState(EngineState).deltaSeconds
 
   followCamera.distance = smoothDamp(
     followCamera.distance,
     newZoomDistance,
     followCamera.zoomVelocity,
     smoothingSpeed,
-    Engine.instance.deltaSeconds
+    deltaSeconds
   )
 
   const theta = followCamera.theta
@@ -287,6 +289,7 @@ const execute = () => {
   for (const action of cameraSpawnActions()) cameraSpawnReceptor(action)
 
   for (const action of spectateUserActions()) {
+    getMutableState(EngineState).userReady.set(true)
     const cameraEntity = Engine.instance.cameraEntity
     if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserID })
     else

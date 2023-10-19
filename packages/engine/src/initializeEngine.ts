@@ -23,15 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { addActionReceptor } from '@etherealengine/hyperflux'
-
 import * as bitecs from 'bitecs'
 
 import { BoxGeometry, Mesh, MeshNormalMaterial } from 'three'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
-import { EngineEventReceptor } from './ecs/classes/EngineState'
 import { getComponent, setComponent } from './ecs/functions/ComponentFunctions'
 import { executeSystems, startCoreSystems } from './ecs/functions/EngineFunctions'
 import { createEntity } from './ecs/functions/EntityFunctions'
@@ -42,7 +39,7 @@ import { NameComponent } from './scene/components/NameComponent'
 import { VisibleComponent } from './scene/components/VisibleComponent'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { setObjectLayers } from './scene/functions/setObjectLayers'
-import { TransformComponent, setTransformComponent } from './transform/components/TransformComponent'
+import { TransformComponent } from './transform/components/TransformComponent'
 
 /**
  * Creates a new instance of the engine and engine renderer. This initializes all properties and state for the engine,
@@ -64,7 +61,7 @@ export const createEngine = () => {
   Engine.instance.originEntity = createEntity()
   setComponent(Engine.instance.originEntity, NameComponent, 'origin')
   setComponent(Engine.instance.originEntity, EntityTreeComponent, { parentEntity: null })
-  setTransformComponent(Engine.instance.originEntity)
+  setComponent(Engine.instance.originEntity, TransformComponent)
   setComponent(Engine.instance.originEntity, VisibleComponent, true)
   addObjectToGroup(Engine.instance.originEntity, Engine.instance.origin)
   Engine.instance.origin.name = 'world-origin'
@@ -78,6 +75,7 @@ export const createEngine = () => {
   setComponent(Engine.instance.cameraEntity, CameraComponent)
   setComponent(Engine.instance.cameraEntity, VisibleComponent, true)
   getComponent(Engine.instance.cameraEntity, TransformComponent).position.set(0, 5, 2)
+  setComponent(Engine.instance.cameraEntity, EntityTreeComponent, { parentEntity: null })
 
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   camera.matrixAutoUpdate = false
@@ -86,7 +84,6 @@ export const createEngine = () => {
   initializeSceneEntity()
 
   EngineRenderer.instance = new EngineRenderer()
-  addActionReceptor(EngineEventReceptor)
   startCoreSystems()
   Engine.instance.engineTimer = Timer(executeSystems)
 }

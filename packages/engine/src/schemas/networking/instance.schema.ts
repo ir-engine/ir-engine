@@ -28,11 +28,13 @@ import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { ChannelID } from '../social/channel.schema'
+import { locationSchema } from '../social/location.schema'
 import { dataValidator, queryValidator } from '../validators'
 
 export const instancePath = 'instance'
 
-export const instanceMethods = ['find', 'create', 'patch', 'remove', 'get'] as const
+export const instanceMethods = ['create', 'find', 'get', 'patch', 'remove'] as const
 
 export type InstanceID = OpaqueType<'InstanceID'> & string
 
@@ -42,20 +44,24 @@ export const instanceSchema = Type.Object(
     id: TypedString<InstanceID>({
       format: 'uuid'
     }),
+    roomCode: Type.String(),
     ipAddress: Type.Optional(Type.String()),
     channelId: Type.Optional(
-      Type.String({
+      TypedString<ChannelID>({
         format: 'uuid'
       })
     ),
+    podName: Type.Optional(Type.String()),
     currentUsers: Type.Integer(),
-    podName: Type.String(),
-    ended: Type.Boolean(),
+    ended: Type.Optional(Type.Boolean()),
+    assigned: Type.Optional(Type.Boolean()),
     locationId: Type.Optional(
       Type.String({
         format: 'uuid'
       })
     ),
+    assignedAt: Type.Optional(Type.String({ format: 'date-time' })),
+    location: Type.Ref(locationSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -66,7 +72,7 @@ export type InstanceType = Static<typeof instanceSchema>
 // Schema for creating new entries
 export const instanceDataSchema = Type.Pick(
   instanceSchema,
-  ['ipAddress', 'channelId', 'currentUsers', 'podName', 'ended', 'locationId'],
+  ['roomCode', 'ipAddress', 'channelId', 'podName', 'currentUsers', 'ended', 'assigned', 'locationId', 'assignedAt'],
   {
     $id: 'InstanceData'
   }
@@ -82,18 +88,28 @@ export type InstancePatch = Static<typeof instancePatchSchema>
 // Schema for allowed query properties
 export const instanceQueryProperties = Type.Pick(instanceSchema, [
   'id',
+  'roomCode',
   'ipAddress',
   'channelId',
-  'currentUsers',
   'podName',
+  'currentUsers',
   'ended',
-  'locationId'
+  'assigned',
+  'locationId',
+  'assignedAt'
 ])
 export const instanceQuerySchema = Type.Intersect(
   [
-    querySyntax(instanceQueryProperties),
+    querySyntax(instanceQueryProperties, {
+      ipAddress: {
+        $like: Type.String()
+      }
+    }),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      { action: Type.Optional(Type.String()), search: Type.Optional(Type.String()) },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

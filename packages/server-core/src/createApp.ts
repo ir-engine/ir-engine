@@ -45,13 +45,15 @@ import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { initializeNode } from '@etherealengine/engine/src/initializeNode'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import { pipeLogs } from '@etherealengine/engine/src/common/functions/logger'
 import { Application } from '../declarations'
-import { default as appConfig, default as config } from './appconfig'
-import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
-import mysql from './mysql'
-import sequelize from './sequelize'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
+import { default as appConfig, default as config } from './appconfig'
+import authenticate from './hooks/authenticate'
+import persistHeaders from './hooks/persist-headers'
+import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
+import mysql from './mysql'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
@@ -166,13 +168,17 @@ export const createFeathersKoaApp = (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
 ): Application => {
+  createEngine()
+
+  const serverState = getMutableState(ServerState)
+  serverState.serverMode.set(serverMode)
+
   createDefaultStorageProvider()
 
   if (appConfig.ipfs.enabled) {
     createIPFSStorageProvider()
   }
 
-  createEngine()
   getMutableState(EngineState).publicPath.set(config.client.dist)
   if (!appConfig.db.forceRefresh) {
     initializeNode()
@@ -180,9 +186,6 @@ export const createFeathersKoaApp = (
 
   const app = koa(feathers()) as Application
   Engine.instance.api = app
-
-  const serverState = getMutableState(ServerState)
-  serverState.serverMode.set(serverMode)
 
   app.set('nextReadyEmitter', new EventEmitter())
 
@@ -207,15 +210,18 @@ export const createFeathersKoaApp = (
   // Feathers authentication-oauth will use http for its redirect_uri if this is 'dev'.
   // Doesn't appear anything else uses it.
   app.set('env', 'production')
-
-  app.configure(sequelize)
+  app.configure(mysql)
 
   // Enable security, CORS, compression, favicon and body parsing
   app.use(errorHandler()) // in koa no option to pass logger object its a async function instead and must be set first
   app.use(helmet())
 
   app.use(compress())
-  app.use(bodyParser())
+  app.use(
+    bodyParser({
+      includeUnparsed: true
+    })
+  )
 
   app.configure(rest())
   // app.use(function (req, res, next) {
@@ -224,13 +230,18 @@ export const createFeathersKoaApp = (
   //   next()
   // })
 
-  app.configure(mysql)
-
   // Configure other middleware (see `middleware/index.js`)
   app.configure(authentication)
 
   // Set up our services (see `services/index.js`)
   app.configure(services)
+
+  // Store headers across internal service calls
+  app.hooks({
+    around: [authenticate, persistHeaders]
+  })
+
+  pipeLogs(Engine.instance.api)
 
   return app
 }

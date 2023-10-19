@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { UserID, userSchema } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
@@ -44,7 +44,6 @@ export const scopeSchema = Type.Object(
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
-    user: Type.Ref(userSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -70,7 +69,7 @@ export const scopeQuerySchema = Type.Intersect(
   [
     querySyntax(scopeQueryProperties),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object({ paginate: Type.Optional(Type.Boolean()) }, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )

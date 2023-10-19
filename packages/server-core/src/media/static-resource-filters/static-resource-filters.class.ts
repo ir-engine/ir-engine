@@ -1,3 +1,4 @@
+import { ServiceInterface } from '@feathersjs/feathers'
 /*
 CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
@@ -18,7 +19,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 
 import {
@@ -26,17 +26,18 @@ import {
   StaticResourceFiltersType
 } from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface StaticResourceFiltersParams extends RootParams<StaticResourceFiltersQuery> {}
+export interface StaticResourceFiltersParams extends KnexAdapterParams<StaticResourceFiltersQuery> {}
 
-export class StaticResourceFiltersService extends KnexAdapter<StaticResourceFiltersType, StaticResourceFiltersParams> {
+export class StaticResourceFiltersService
+  implements ServiceInterface<StaticResourceFiltersType, StaticResourceFiltersParams>
+{
   app: Application
 
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
+  constructor(app: Application) {
     this.app = app
   }
 

@@ -40,15 +40,7 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  const options = {
-    id: 'type',
-    name: inviteCodeLookupPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(inviteCodeLookupPath, new InviteCodeLookupService(options, app), {
+  app.use(inviteCodeLookupPath, new InviteCodeLookupService(app), {
     // A list of all methods this service exposes externally
     methods: inviteCodeLookupMethods,
     // You can add additional custom events to be sent to clients here

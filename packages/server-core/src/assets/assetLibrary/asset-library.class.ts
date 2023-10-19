@@ -23,21 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, Params, ServiceMethods } from '@feathersjs/feathers'
-import appRootPath from 'app-root-path'
+import { ServiceInterface } from '@feathersjs/feathers'
 import extract from 'extract-zip'
 import fs from 'fs'
 import path from 'path'
 
 import { Application } from '@etherealengine/server-core/declarations'
+import { KnexAdapterParams } from '@feathersjs/knex'
+import appRootPath from 'app-root-path'
 
-interface CreateParams {
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface AssetLibraryParams extends KnexAdapterParams {
   path: string
 }
 
-export class AssetLibrary implements ServiceMethods<any> {
+/**
+ * A class for AssetLibrary service
+ */
+
+export class AssetLibraryService implements ServiceInterface<string, AssetLibraryParams> {
   app: Application
-  docs: any
   rootPath: string
 
   constructor(app: Application) {
@@ -45,29 +50,7 @@ export class AssetLibrary implements ServiceMethods<any> {
     this.rootPath = path.join(appRootPath.path, 'packages/projects/projects/')
   }
 
-  async find(params?: Params): Promise<any> {
-    return {}
-  }
-
-  async get(id: Id, params?: Params): Promise<any> {
-    return {}
-  }
-
-  async update(id: Id, params?: Params): Promise<any> {
-    return {}
-  }
-
-  async patch(id: Id, params?: Params): Promise<any> {
-    return {}
-  }
-
-  async remove(id: Id, params?: Params): Promise<any> {
-    return {}
-  }
-
-  async setup() {}
-
-  async create(createParams: CreateParams, params?: Params): Promise<any> {
+  async create(createParams: AssetLibraryParams) {
     try {
       const inPath = decodeURI(createParams.path)
       const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/([\w\d\s\-_\\\/]+).zip$/.exec(inPath)
@@ -77,7 +60,7 @@ export class AssetLibrary implements ServiceMethods<any> {
       const fullPath = path.join(this.rootPath, assetRoot)
       fs.mkdirSync(fullPath)
       await extract(`${fullPath}.zip`, { dir: fullPath })
-      return { assetRoot }
+      return assetRoot
     } catch (e) {
       throw new Error('error unzipping archive:', e)
     }

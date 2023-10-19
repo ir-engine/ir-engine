@@ -45,7 +45,9 @@ export const ItemTypes = {
     AssetType.FBX,
     'model/fbx',
     AssetType.USDZ,
-    'model/usdz'
+    'model/usdz',
+    AssetType.VRM,
+    'model/vrm'
   ],
   Scripts: ['tsx', AssetType.TS, 'jsx', 'js', AssetType.Script],
   Videos: [AssetType.MP4, AssetType.M3U8, 'video/mp4', AssetType.MKV],
@@ -54,7 +56,7 @@ export const ItemTypes = {
   ECS: [AssetType.XRE, 'scene.json'],
   Node: 'Node',
   Material: 'Material',
-  Prefab: 'Prefab'
+  Component: 'Component'
 }
 
 export const SupportedFileTypes = [

@@ -42,9 +42,10 @@ import {
 import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { CameraActions } from '../../camera/CameraState'
-import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { easeOutCubic, normalizeRange } from '../../common/functions/MathFunctions'
+import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -52,8 +53,8 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { getCameraMode, ReferenceSpace, XRAction } from '../../xr/XRState'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { ReferenceSpace, XRAction, XRState, getCameraMode } from '../../xr/XRState'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
@@ -133,7 +134,7 @@ const AvatarTeleportSystemState = defineState({
     guideline.name = 'teleport-guideline'
 
     const guidelineEntity = createEntity()
-    setTransformComponent(guidelineEntity)
+    setComponent(guidelineEntity, TransformComponent)
     addObjectToGroup(guidelineEntity, guideline)
     setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
 
@@ -147,7 +148,7 @@ const AvatarTeleportSystemState = defineState({
     guideCursor.frustumCulled = false
 
     const guideCursorEntity = createEntity()
-    setTransformComponent(guideCursorEntity)
+    setComponent(guideCursorEntity, TransformComponent)
     addObjectToGroup(guideCursorEntity, guideCursor)
     setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
 
@@ -183,7 +184,7 @@ const execute = () => {
 
   if (fadeBackInAccumulator >= 0) {
     /** @todo fix camera fade transition shader - for now just teleport instantly */
-    // fadeBackInAccumulator += Engine.instance.deltaSeconds
+    // fadeBackInAccumulator += getState(EngineState).deltaSeconds
     // if (fadeBackInAccumulator > 0.25) {
     fadeBackInAccumulator = -1
     teleportAvatar(Engine.instance.localClientEntity, guideCursor.position)
@@ -215,7 +216,7 @@ const execute = () => {
     for (const inputSourceEntity of nonCapturedInputSources) {
       const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
       if (inputSourceComponent.source.handedness === side) {
-        const pose = Engine.instance.xrFrame!.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)!
+        const pose = getState(XRState).xrFrame!.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)!
         guidelineTransform.position.copy(pose.transform.position as any as Vector3)
         guidelineTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
         guidelineTransform.matrixInverse.fromArray(pose.transform.inverse.matrix)
@@ -267,7 +268,8 @@ const execute = () => {
     }
     setVisibleComponent(guideCursorEntity, canTeleport)
   }
-  transition.update(Engine.instance.deltaSeconds, (alpha) => {
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  transition.update(deltaSeconds, (alpha) => {
     if (alpha === 0 && transition.state === 'OUT') {
       setVisibleComponent(guidelineEntity, false)
       setVisibleComponent(guideCursorEntity, false)

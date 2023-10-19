@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   EmailSettingData,
@@ -32,10 +32,9 @@ import {
   EmailSettingQuery,
   EmailSettingType
 } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface EmailSettingParams extends RootParams<EmailSettingQuery> {}
+export interface EmailSettingParams extends KnexAdapterParams<EmailSettingQuery> {}
 
 export class EmailSettingService<
   T = EmailSettingType,

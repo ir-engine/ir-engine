@@ -34,27 +34,27 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const avatarResolver = resolve<AvatarType, HookContext>({
-  modelResource: virtual(async (avatar, context) => {
-    if (avatar.modelResourceId) {
-      const modelStaticResource = await context.app.service(staticResourcePath).get(avatar.modelResourceId)
-      return modelStaticResource
-    }
-  }),
-  thumbnailResource: virtual(async (avatar, context) => {
-    if (avatar.thumbnailResourceId) {
-      const thumbnailStaticResource = await context.app.service(staticResourcePath).get(avatar.thumbnailResourceId)
-      return thumbnailStaticResource
-    }
-  }),
   createdAt: virtual(async (avatar) => fromDateTimeSql(avatar.createdAt)),
   updatedAt: virtual(async (avatar) => fromDateTimeSql(avatar.updatedAt))
 })
 
-export const avatarExternalResolver = resolve<AvatarType, HookContext>({})
+export const avatarExternalResolver = resolve<AvatarType, HookContext>({
+  modelResource: virtual(async (avatar, context) => {
+    if (context.event !== 'removed' && avatar.modelResourceId)
+      return context.app.service(staticResourcePath).get(avatar.modelResourceId)
+  }),
+  thumbnailResource: virtual(async (avatar, context) => {
+    if (context.event !== 'removed' && avatar.thumbnailResourceId)
+      return context.app.service(staticResourcePath).get(avatar.thumbnailResourceId)
+  })
+})
 
 export const avatarDataResolver = resolve<AvatarDatabaseType, HookContext>({
   id: async () => {
     return v4()
+  },
+  isPublic: async (isPublic) => {
+    return isPublic ?? true
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

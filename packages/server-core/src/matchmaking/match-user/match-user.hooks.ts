@@ -34,7 +34,6 @@ import {
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import setLoggedInUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
-import authenticate from '../../hooks/authenticate'
 import {
   matchUserDataResolver,
   matchUserExternalResolver,
@@ -49,15 +48,11 @@ export default {
   },
 
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(matchUserQueryValidator),
-      schemaHooks.resolveQuery(matchUserQueryResolver)
-    ],
-    find: [iff(isProvider('external'), authenticate() as any, setLoggedInUserInQuery('userId') as any)],
+    all: [() => schemaHooks.validateQuery(matchUserQueryValidator), schemaHooks.resolveQuery(matchUserQueryResolver)],
+    find: [iff(isProvider('external'), setLoggedInUserInQuery('userId') as any)],
     get: [],
     create: [
-      iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any),
+      iff(isProvider('external'), setLoggedInUser('userId') as any),
       () => schemaHooks.validateData(matchUserDataValidator),
       schemaHooks.resolveData(matchUserDataResolver)
     ],

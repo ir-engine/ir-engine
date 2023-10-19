@@ -30,9 +30,13 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
+import { ikTargets } from '../../avatar/animation/Util'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { Engine } from '../../ecs/classes/Engine'
+import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { WorldState } from '../interfaces/WorldState'
+import { WorldNetworkAction } from './WorldNetworkAction'
 
 export enum AuthError {
   MISSING_ACCESS_TOKEN = 'MISSING_ACCESS_TOKEN',
@@ -71,4 +75,40 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   worldState.userNames[Engine.instance.userID].set(name)
   dispatchAction(AvatarNetworkAction.spawn({ ...avatarSpawnPose, entityUUID }))
   dispatchAction(AvatarNetworkAction.setAvatarID({ avatarID, entityUUID }))
+  dispatchAction(
+    WorldNetworkAction.spawnCamera({
+      entityUUID: ('camera_' + entityUUID) as EntityUUID
+    })
+  )
+  createIkTargetsForLocalAvatar()
+}
+
+export const createIkTargetsForLocalAvatar = () => {
+  const { localClientEntity, userID } = Engine.instance
+  const headUUID = (Engine.instance.userID + ikTargets.head) as EntityUUID
+  const leftHandUUID = (Engine.instance.userID + ikTargets.leftHand) as EntityUUID
+  const rightHandUUID = (Engine.instance.userID + ikTargets.rightHand) as EntityUUID
+  const leftFootUUID = (Engine.instance.userID + ikTargets.leftFoot) as EntityUUID
+  const rightFootUUID = (Engine.instance.userID + ikTargets.rightFoot) as EntityUUID
+
+  const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
+  const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
+  const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
+  const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[leftFootUUID]
+  const ikTargetRightFoot = UUIDComponent.entitiesByUUID[rightFootUUID]
+
+  if (ikTargetHead) removeEntity(ikTargetHead)
+  if (ikTargetLeftHand) removeEntity(ikTargetLeftHand)
+  if (ikTargetRightHand) removeEntity(ikTargetRightHand)
+
+  if (!ikTargetHead)
+    dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: headUUID, name: 'head', blendWeight: 0 }))
+  if (!ikTargetLeftHand)
+    dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand', blendWeight: 0 }))
+  if (!ikTargetRightHand)
+    dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand', blendWeight: 0 }))
+  if (!ikTargetLeftFoot)
+    dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', blendWeight: 0 }))
+  if (!ikTargetRightFoot)
+    dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', blendWeight: 0 }))
 }

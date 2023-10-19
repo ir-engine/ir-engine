@@ -43,7 +43,7 @@ export const Vector3InputContainer: React.FC<{ children?: any }> = ({ children }
 
 interface Vector3ScrubberProps {
   tag?: string
-  axis: 'x' | 'y' | 'z' | string
+  axis?: 'x' | 'y' | 'z' | string
   value: number
   onChange: any
   onPointerUp?: any
@@ -53,7 +53,7 @@ interface Vector3ScrubberProps {
 
 export const Vector3Scrubber = ({ tag, axis, onChange, value, children, ...props }: Vector3ScrubberProps) => {
   props.className = `Vector3Scrubber ${axis}`
-  const content = children ?? axis.toUpperCase()
+  const content = children ?? axis?.toUpperCase()
   return (
     <Scrubber tag={tag} onChange={onChange} value={value} {...props}>
       {content}
@@ -142,7 +142,7 @@ export const Vector3Input = ({
         {...rest}
         value={vx}
         onChange={onChangeX}
-        onCommit={onRelease}
+        onRelease={onRelease}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x" />
@@ -153,7 +153,7 @@ export const Vector3Input = ({
         {...rest}
         value={vy}
         onChange={onChangeY}
-        onCommit={onRelease}
+        onRelease={onRelease}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y" />
@@ -164,7 +164,7 @@ export const Vector3Input = ({
         {...rest}
         value={vz}
         onChange={onChangeZ}
-        onCommit={onRelease}
+        onRelease={onRelease}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} value={vz} onChange={onChangeZ} onPointerUp={onRelease} axis="z" />

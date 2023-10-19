@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { Validator, matches } from 'ts-matches'
 
-import { defineAction, defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineAction, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { useEffect } from 'react'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
-import { defineQuery, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, hasComponent, removeQuery, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BehaveGraphComponent } from '../components/BehaveGraphComponent'
 
@@ -59,6 +59,8 @@ export const graphQuery = defineQuery([BehaveGraphComponent])
 const executeQueue = defineActionQueue(BehaveGraphActions.execute.matches)
 const stopQueue = defineActionQueue(BehaveGraphActions.stop.matches)
 const execute = () => {
+  if (getState(EngineState).isEditor) return
+
   for (const action of executeQueue()) {
     const entity = action.entity
     if (hasComponent(entity, BehaveGraphComponent)) setComponent(entity, BehaveGraphComponent, { run: true })
@@ -73,10 +75,18 @@ const execute = () => {
 const reactor = () => {
   const engineState = useHookstate(getMutableState(EngineState))
   const sceneState = useHookstate(getMutableState(SceneState))
+
   useEffect(() => {
     if (!engineState.sceneLoaded.value || engineState.isEditor.value) return
-    for (const entity of defineQuery([BehaveGraphComponent])()) {
+
+    const graphQuery = defineQuery([BehaveGraphComponent])
+
+    for (const entity of graphQuery()) {
       setComponent(entity, BehaveGraphComponent, { run: true })
+    }
+
+    return () => {
+      removeQuery(graphQuery)
     }
   }, [engineState.sceneLoaded, sceneState.sceneData])
   // run scripts when loaded a scene, joined a world, scene entity changed, scene data changed

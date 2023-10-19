@@ -27,6 +27,7 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
+import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 
@@ -51,17 +52,18 @@ cli.enable('status')
 
 const options = cli.parse({
   directory: [false, 'Directory to archive', 'string'],
-  storageProviderName: [false, 'Storage Provider Name', 'string']
+  storageProviderName: [false, 'Storage Provider Name', 'string'],
+  jobId: [false, 'ID of Job record', 'string']
 })
 
 cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
-    const { directory, storageProviderName } = options
-    await app
-      .service('archiver')
-      .get(directory, { isJob: true, query: { storageProviderName: storageProviderName || undefined } })
+    const { directory, jobId, storageProviderName } = options
+    await app.service(archiverPath).get(null, {
+      query: { storageProviderName: storageProviderName || undefined, isJob: true, directory, jobId }
+    })
     cli.exit(0)
   } catch (err) {
     console.log(err)

@@ -45,10 +45,7 @@ import { ScreenshotSettings } from '@etherealengine/engine/src/scene/classes/Ima
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import {
-  TransformComponent,
-  setTransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
@@ -97,7 +94,7 @@ export async function previewScreenshot(
       setComponent(entity, ScenePreviewCameraComponent)
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-      setTransformComponent(entity, position, rotation)
+      setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       addEntityNodeChild(entity, getState(SceneState).sceneEntity)
       scenePreviewCamera.updateMatrixWorld(true)
@@ -166,7 +163,8 @@ export async function takeScreenshot(
   width: number,
   height: number,
   format = 'ktx2' as 'png' | 'ktx2' | 'jpeg',
-  scenePreviewCamera?: PerspectiveCamera
+  scenePreviewCamera?: PerspectiveCamera,
+  hideHelpers = true
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
@@ -179,7 +177,7 @@ export async function takeScreenshot(
       setComponent(entity, ScenePreviewCameraComponent)
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-      setTransformComponent(entity, position, rotation)
+      setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       addEntityNodeChild(entity, getState(SceneState).sceneEntity)
       scenePreviewCamera.updateMatrixWorld(true)
@@ -194,8 +192,12 @@ export async function takeScreenshot(
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
-  const originalSize = EngineRenderer.instance.renderer.getSize(new Vector2())
+  const selection = EngineRenderer.instance.effectComposer.HighlightEffect?.selection.values()
+  if (hideHelpers) {
+    EngineRenderer.instance.effectComposer.HighlightEffect?.clearSelection()
+  }
 
+  const originalSize = EngineRenderer.instance.renderer.getSize(new Vector2())
   const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
 
   // Rendering the scene to the new canvas with given size
@@ -204,14 +206,14 @@ export async function takeScreenshot(
       const viewport = EngineRenderer.instance.renderContext.getParameter(
         EngineRenderer.instance.renderContext.VIEWPORT
       )
-      // todo - scrolling in and out sometimes causes weird pixel ratios that can cause this to fail
-      if (viewport[2] === Math.round(width * pixelRatio) && viewport[3] === Math.round(height * pixelRatio)) {
+      if (viewport[2] === Math.round(width) && viewport[3] === Math.round(height)) {
         console.log('Resized viewport')
         clearTimeout(timeout)
         clearInterval(interval)
         resolve()
       }
     }, 10)
+
     const timeout = setTimeout(() => {
       console.warn('Could not resize viewport in time')
       clearTimeout(timeout)
@@ -225,51 +227,32 @@ export async function takeScreenshot(
     EngineRenderer.instance.renderer.setPixelRatio(1)
   })
 
+  EngineRenderer.instance.effectComposer.render()
+
+  if (hideHelpers) {
+    EngineRenderer.instance.effectComposer.HighlightEffect?.setSelection(selection)
+  }
+
+  const canvas = getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height)
+
   let blob: Blob | null = null
 
   if (format === 'ktx2') {
-    const renderer = EngineRenderer.instance.renderer
-    // todo - support post processing
-    // EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
-    // const renderer = EngineRenderer.instance.effectComposer.getRenderer()
-    renderer.outputColorSpace = SRGBColorSpace
-    const renderTarget = new WebGLRenderTarget(width, height, {
-      minFilter: LinearFilter,
-      magFilter: LinearFilter,
-      wrapS: ClampToEdgeWrapping,
-      wrapT: ClampToEdgeWrapping,
-      colorSpace: SRGBColorSpace,
-      format: RGBAFormat,
-      type: UnsignedByteType
-    })
-
-    renderer.setRenderTarget(renderTarget)
-
-    // EngineRenderer.instance.effectComposer.render()
-    renderer.render(Engine.instance.scene, scenePreviewCamera)
-
-    const pixels = new Uint8Array(4 * width * height)
-    renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
-    const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
-    renderer.setRenderTarget(null) // pass `null` to set canvas as render target
-
-    const ktx2texture = (await ktx2Encoder.encode(imageData, getState(ScreenshotSettings).ktx2)) as ArrayBuffer
+    const imageData = canvas.getContext('2d')!.getImageData(0, 0, width, height)
+    const ktx2texture = (await ktx2Encoder.encode(imageData, {
+      ...getState(ScreenshotSettings).ktx2,
+      yFlip: true
+    })) as ArrayBuffer
 
     blob = new Blob([ktx2texture])
   } else {
-    EngineRenderer.instance.effectComposer.render()
-
-    blob = await getCanvasBlob(
-      getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height),
-      format === 'jpeg' ? 'image/jpeg' : 'image/png',
-      format === 'jpeg' ? 0.9 : 1
-    )
+    blob = await getCanvasBlob(canvas, format === 'jpeg' ? 'image/jpeg' : 'image/png', format === 'jpeg' ? 0.9 : 1)
   }
 
   // restore
   EngineRenderer.instance.effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
-  EngineRenderer.instance.effectComposer.setSize(originalSize.width, originalSize.height, false)
   EngineRenderer.instance.renderer.setPixelRatio(pixelRatio)
+  EngineRenderer.instance.effectComposer.setSize(originalSize.width, originalSize.height, false)
 
   // Restoring previous state
   scenePreviewCamera.aspect = prevAspect
@@ -280,7 +263,7 @@ export async function takeScreenshot(
 
 /** @todo make size, compression & format configurable */
 export const downloadScreenshot = () => {
-  takeScreenshot(1920 * 4, 1080 * 4, 'png', getComponent(Engine.instance.cameraEntity, CameraComponent)).then(
+  takeScreenshot(1920 * 4, 1080 * 4, 'png', getComponent(Engine.instance.cameraEntity, CameraComponent), false).then(
     (blob) => {
       if (!blob) return
 

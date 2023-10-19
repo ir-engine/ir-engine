@@ -27,9 +27,9 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Group, Vector3 } from 'three'
 
-import multiLogger from '@etherealengine/common/src/logger'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { easeOutElastic } from '@etherealengine/engine/src/common/functions/MathFunctions'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -38,7 +38,7 @@ import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFun
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
-import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState, webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import {
   NetworkObjectComponent,
   NetworkObjectOwnedTag
@@ -57,6 +57,7 @@ import { createTransitionState } from '@etherealengine/engine/src/xrui/functions
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { MediasoupMediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
@@ -108,7 +109,8 @@ const onPrimaryClick = () => {
   const state = getMutableState(AvatarUIContextMenuState)
   if (state.id.value !== '') {
     const layer = getComponent(state.ui.entity.value, XRUIComponent)
-    const hit = layer.hitTest(Engine.instance.pointerScreenRaycaster.ray)
+    const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
+    const hit = layer.hitTest(pointerScreenRaycaster.ray)
     if (!hit) {
       state.id.set('')
       setVisibleComponent(state.ui.entity.value, false)
@@ -127,9 +129,10 @@ const raycastComponentData = {
 
 const onSecondaryClick = () => {
   const { physicsWorld } = getState(PhysicsState)
+  const pointerState = getState(InputState).pointerState
   const hits = Physics.castRayFromCamera(
     getComponent(Engine.instance.cameraEntity, CameraComponent),
-    Engine.instance.pointerState.position,
+    pointerState.position,
     physicsWorld,
     raycastComponentData
   )
@@ -187,7 +190,7 @@ const execute = () => {
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
   const immersiveMedia = getState(MediaSettingsState).immersiveMedia
-  const mediaNetwork = Engine.instance.mediaNetwork
+  const mediaNetwork = NetworkState.mediaNetwork
 
   /** Render immersive media bubbles */
   for (const userEntity of userQuery()) {
@@ -207,8 +210,9 @@ const execute = () => {
     if (dist < 20) transition.setState('IN')
 
     let springAlpha = transition.alpha
+    const deltaSeconds = getState(EngineState).deltaSeconds
 
-    transition.update(Engine.instance.deltaSeconds, (alpha) => {
+    transition.update(deltaSeconds, (alpha) => {
       springAlpha = easeOutElastic(alpha)
     })
 

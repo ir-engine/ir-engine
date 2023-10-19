@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Id, Params } from '@feathersjs/feathers'
+import type { Id, NullableId, Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
@@ -44,12 +44,12 @@ import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/s
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 
-import { RootParams } from '../../api/root-params'
+import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import appConfig from '../../appconfig'
-import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
-export interface IdentityProviderParams extends RootParams<IdentityProviderQuery> {
+export interface IdentityProviderParams extends KnexAdapterParams<IdentityProviderQuery> {
   authentication?: any
 }
 
@@ -175,12 +175,10 @@ export class IdentityProviderService<
       userId = uuidv1()
     }
 
-    const userService = this.app.service(userPath)
-
     // check if there is a user with userId
     let foundUser
     try {
-      foundUser = await userService.get(userId)
+      foundUser = await this.app.service(userPath).get(userId)
     } catch (err) {
       //
     }
@@ -198,7 +196,7 @@ export class IdentityProviderService<
 
     const code = await getFreeInviteCode(this.app)
     // if there is no user with userId, then we create a user and a identity provider.
-    const adminCount = (await this.app.service(scopePath)._find({
+    const adminCount = (await this.app.service(scopePath).find({
       query: {
         type: 'admin:admin'
       }
@@ -257,7 +255,11 @@ export class IdentityProviderService<
         .createAccessToken({}, { subject: result.id.toString() })
     } else if (isDev && type === 'admin') {
       // in dev mode, add all scopes to the first user made an admin
-      const data = scopeTypeSeed.map(({ type }) => {
+      const scopeTypes = await this.app.service(scopeTypePath).find({
+        paginate: false
+      })
+
+      const data = scopeTypes.map(({ type }) => {
         return { userId, type }
       })
       await this.app.service(scopePath).create(data)
@@ -284,7 +286,7 @@ export class IdentityProviderService<
     return super._patch(id, data, params)
   }
 
-  async remove(id: Id, params?: IdentityProviderParams) {
+  async remove(id: NullableId, params?: IdentityProviderParams) {
     return super._remove(id, params)
   }
 }

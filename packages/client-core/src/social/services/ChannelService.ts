@@ -27,12 +27,11 @@ import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { NotificationService } from '../../common/services/NotificationService'
 import { SocketWebRTCClientNetwork, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 
@@ -40,7 +39,7 @@ export const ChannelState = defineState({
   name: 'ChannelState',
   initial: () => ({
     channels: {
-      channels: [] as Channel[],
+      channels: [] as ChannelType[],
       limit: 5,
       skip: 0,
       total: 0
@@ -59,7 +58,9 @@ export const ChannelState = defineState({
 export const ChannelService = {
   getChannels: async () => {
     try {
-      const channelResult = (await Engine.instance.api.service('channel').find({})) as Channel[]
+      const channelResult = (await Engine.instance.api
+        .service(channelPath)
+        .find({ query: { paginate: false } })) as any as ChannelType[]
       const channelState = getMutableState(ChannelState)
       channelState.channels.merge({
         channels: channelResult
@@ -70,12 +71,13 @@ export const ChannelService = {
   },
   getInstanceChannel: async () => {
     try {
-      const channelResult = (await Engine.instance.api.service('channel').find({
+      const channelResult = (await Engine.instance.api.service(channelPath).find({
         query: {
-          instanceId: Engine.instance.worldNetwork.id
+          instanceId: NetworkState.worldNetwork.id,
+          paginate: false
         }
-      })) as Channel[]
-      if (!channelResult.length) return setTimeout(() => ChannelService.getInstanceChannel(), 2000)
+      })) as any as ChannelType[]
+      if (channelResult.length === 0) return setTimeout(() => ChannelService.getInstanceChannel(), 2000)
 
       const channel = channelResult[0]
 
@@ -83,7 +85,7 @@ export const ChannelService = {
       let findIndex
       if (typeof channel.id === 'string')
         findIndex = channelState.channels.channels.findIndex((c) => c.id.value === channel.id)
-      let idx = findIndex > -1 ? findIndex : channelState.channels.channels.length
+      const idx = findIndex > -1 ? findIndex : channelState.channels.channels.length
       channelState.channels.channels[idx].set(channel)
       const endedInstanceChannelIndex = channelState.channels.channels.findIndex(
         (_channel) => channel.id !== _channel.id.value
@@ -97,12 +99,20 @@ export const ChannelService = {
       })
       channelState.merge({ messageCreated: true })
     } catch (err) {
+      console.error(err)
+      //Occasionally, the client attempts to fetch the instance's channel after it's been created, but before the user's
+      //channel-user has been created, which occurs when connecting to the instance server.
+      //If it's a 403, it is almost definitely because of this issue, so just wait a second and try again.
+      //The second part of the if condition is to handle the scenario when its channel resolver calling message service.
+      if (err.code == 403 || (err.data && err.data.length > 0 && err.data[0].data?.code === 403)) {
+        return setTimeout(() => ChannelService.getInstanceChannel(), 1000)
+      }
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   createChannel: async (users: UserID[]) => {
     try {
-      const channel = await Engine.instance.api.service('channel').create({
+      const channel = await Engine.instance.api.service(channelPath).create({
         users
       })
       await ChannelService.getChannels()
@@ -114,18 +124,18 @@ export const ChannelService = {
   },
   joinChannelInstance: (channelID: ChannelID) => {
     getMutableState(ChannelState).targetChannelId.set(channelID)
-    if (channelID === '' && Engine.instance.worldNetwork) {
+    if (channelID === '' && NetworkState.worldNetwork) {
       ChannelService.getInstanceChannel()
     } else {
       getMutableState(ChannelState).targetChannelId.set(channelID)
     }
-    const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const network = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (!network) return
     leaveNetwork(network)
   },
   removeUserFromChannel: async (channelId: ChannelID, userId: UserID) => {
     try {
-      await Engine.instance.api.service('channel-user').remove(null, {
+      await Engine.instance.api.service(channelUserPath).remove(null, {
         query: {
           channelId,
           userId
@@ -139,7 +149,7 @@ export const ChannelService = {
   },
   removeChannel: async (channelId: ChannelID) => {
     try {
-      await Engine.instance.api.service('channel').remove(channelId)
+      await Engine.instance.api.service(channelPath).remove(channelId)
       await ChannelService.getChannels()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -150,7 +160,7 @@ export const ChannelService = {
   },
   useAPIListeners: () => {
     useEffect(() => {
-      const channelCreatedListener = (params: Channel) => {
+      const channelCreatedListener = (params: ChannelType) => {
         const channelState = getMutableState(ChannelState)
         const channelId = params.id
         const channel = channelState.channels.channels.find((c) => c.id.value === channelId)
@@ -162,7 +172,7 @@ export const ChannelService = {
         }
       }
 
-      const channelPatchedListener = (params: Channel) => {
+      const channelPatchedListener = (params: ChannelType) => {
         const channelState = getMutableState(ChannelState)
         const channelId = params.id
         const channel = channelState.channels.channels.find((c) => c.id.value === channelId)
@@ -175,7 +185,7 @@ export const ChannelService = {
         channelState.merge({ messageCreated: false })
       }
 
-      const channelRemovedListener = (params: Channel) => {
+      const channelRemovedListener = (params: ChannelType) => {
         const channelState = getMutableState(ChannelState)
         const channelId = params.id
         const channelIdx = channelState.channels.channels.findIndex((c) => c.id.value === channelId)
@@ -184,7 +194,7 @@ export const ChannelService = {
         }
       }
 
-      const channelUserRemovedListener = (params: ChannelUser) => {
+      const channelUserRemovedListener = (params: ChannelUserType) => {
         ChannelService.getChannels()
         const channelState = getMutableState(ChannelState)
         if (params.userId === Engine.instance.userID && params.channelId === channelState.targetChannelId.value) {
@@ -193,16 +203,16 @@ export const ChannelService = {
         }
       }
 
-      Engine.instance.api.service('channel').on('created', channelCreatedListener)
-      Engine.instance.api.service('channel').on('patched', channelPatchedListener)
-      Engine.instance.api.service('channel').on('removed', channelRemovedListener)
-      Engine.instance.api.service('channel-user').on('removed', channelUserRemovedListener)
+      Engine.instance.api.service(channelPath).on('created', channelCreatedListener)
+      Engine.instance.api.service(channelPath).on('patched', channelPatchedListener)
+      Engine.instance.api.service(channelPath).on('removed', channelRemovedListener)
+      Engine.instance.api.service(channelUserPath).on('removed', channelUserRemovedListener)
 
       return () => {
-        Engine.instance.api.service('channel').off('created', channelCreatedListener)
-        Engine.instance.api.service('channel').off('patched', channelPatchedListener)
-        Engine.instance.api.service('channel').off('removed', channelRemovedListener)
-        Engine.instance.api.service('channel-user').off('removed', channelUserRemovedListener)
+        Engine.instance.api.service(channelPath).off('created', channelCreatedListener)
+        Engine.instance.api.service(channelPath).off('patched', channelPatchedListener)
+        Engine.instance.api.service(channelPath).off('removed', channelRemovedListener)
+        Engine.instance.api.service(channelUserPath).off('removed', channelUserRemovedListener)
       }
     }, [])
   }

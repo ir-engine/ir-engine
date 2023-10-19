@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   InstanceAuthorizedUserData,
@@ -32,10 +32,9 @@ import {
   InstanceAuthorizedUserQuery,
   InstanceAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface InstanceAuthorizedUserParams extends RootParams<InstanceAuthorizedUserQuery> {}
+export interface InstanceAuthorizedUserParams extends KnexAdapterParams<InstanceAuthorizedUserQuery> {}
 
 export class InstanceAuthorizedUserService<
   T = InstanceAuthorizedUserType,

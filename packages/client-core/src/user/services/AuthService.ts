@@ -30,7 +30,7 @@ import { v1 } from 'uuid'
 
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
@@ -41,6 +41,9 @@ import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
+import { magicLinkPath } from '@etherealengine/engine/src/schemas/user/magic-link.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import {
   UserSettingID,
@@ -409,8 +412,8 @@ export const AuthService = {
 
   async loginUserMagicLink(token, redirectSuccess, redirectError) {
     try {
-      const res = await Engine.instance.api.service('login').get(token)
-      await AuthService.loginUserByJwt(res.token, '/', '/')
+      const res = await Engine.instance.api.service(loginPath).get(token)
+      await AuthService.loginUserByJwt(res.token!, '/', '/')
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
@@ -446,39 +449,6 @@ export const AuthService = {
     } catch (err) {
       logger.warn(err, 'Error registering user by email')
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    } finally {
-      authState.merge({ isProcessing: false, error: '' })
-    }
-  },
-
-  async verifyEmail(token: string) {
-    const authState = getMutableState(AuthState)
-    authState.merge({ isProcessing: true, error: '' })
-
-    try {
-      const { accessToken } = Engine.instance.api.service('authManagement').create({
-        action: 'verifySignupLong',
-        value: token
-      })
-      await AuthService.loginUserByJwt(accessToken, '/', '/')
-    } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    } finally {
-      authState.merge({ isProcessing: false, error: '' })
-    }
-  },
-
-  async resendVerificationEmail(email: string) {
-    const authState = getMutableState(AuthState)
-    authState.merge({ isProcessing: true, error: '' })
-
-    try {
-      await Engine.instance.api.service('authManagement').create({
-        action: 'resendVerifySignup',
-        value: { token: email, type: 'password' }
-      })
-    } catch (err) {
-      logger.warn(err, 'Error resending verification email')
     } finally {
       authState.merge({ isProcessing: false, error: '' })
     }
@@ -528,7 +498,7 @@ export const AuthService = {
     }
 
     try {
-      await Engine.instance.api.service('magic-link').create({ type, [paramName]: emailPhone })
+      await Engine.instance.api.service(magicLinkPath).create({ type, [paramName]: emailPhone })
       NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.success-msg'), { variant: 'success' })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -560,7 +530,7 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      const identityProvider = (await Engine.instance.api.service('magic-link').create({
+      const identityProvider = (await Engine.instance.api.service(magicLinkPath).create({
         email,
         type: 'email',
         userId
@@ -586,7 +556,7 @@ export const AuthService = {
     }
 
     try {
-      const identityProvider = (await Engine.instance.api.service('magic-link').create({
+      const identityProvider = (await Engine.instance.api.service(magicLinkPath).create({
         mobile: sendPhone,
         type: 'sms',
         userId
@@ -636,7 +606,15 @@ export const AuthService = {
   },
 
   async updateApiKey() {
-    const apiKey = (await API.instance.client.service(userApiKeyPath).patch(null, {})) as UserApiKeyType
+    const userApiKey = (await Engine.instance.api.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
+
+    let apiKey: UserApiKeyType | undefined
+    if (userApiKey.data.length > 0) {
+      apiKey = await Engine.instance.api.service(userApiKeyPath).patch(userApiKey.data[0].id, {})
+    } else {
+      apiKey = await Engine.instance.api.service(userApiKeyPath).create({})
+    }
+
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
@@ -646,6 +624,10 @@ export const AuthService = {
       .patch(userId, { name: name })) as UserType
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
+  },
+
+  async createLoginToken() {
+    return Engine.instance.api.service(loginTokenPath).create({})
   },
 
   useAPIListeners: () => {

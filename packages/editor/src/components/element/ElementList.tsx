@@ -30,9 +30,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { Component, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { Component } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
 import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
@@ -45,7 +43,6 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
-import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
@@ -53,10 +50,10 @@ import { SplineComponent } from '@etherealengine/engine/src/scene/components/Spl
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
+import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { NO_PROXY, getState, useState } from '@etherealengine/hyperflux'
+import { NO_PROXY, useState } from '@etherealengine/hyperflux'
 
 import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
@@ -66,6 +63,10 @@ import { IconButton, PopoverPosition } from '@mui/material'
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
+import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
+import { LoadVolumeComponent } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
+import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
+import { Vector3 } from 'three'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -77,10 +78,10 @@ import { InfoTooltip } from '../layout/Tooltip'
 import styles from './styles.module.scss'
 
 export type SceneElementType = {
-  componentName: string
+  componentJsonID: string
   label: string
   Icon: any
-  type: typeof ItemTypes.Prefab
+  type: typeof ItemTypes.Component
 }
 
 type SceneElementListItemType = {
@@ -91,8 +92,8 @@ type SceneElementListItemType = {
 
 export const ComponentShelfCategories: Record<string, Component[]> = {
   Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
-  'Scene Composition': [GroundPlaneComponent, GroupComponent, PrefabComponent, ColliderComponent],
-  Interaction: [SpawnPointComponent, PortalComponent],
+  'Scene Composition': [GroundPlaneComponent, GroupComponent, ColliderComponent, LoadVolumeComponent],
+  Interaction: [SpawnPointComponent, PortalComponent, LinkComponent],
   Lighting: [
     AmbientLightComponent,
     PointLightComponent,
@@ -100,18 +101,16 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     DirectionalLightComponent,
     HemisphereLightComponent
   ],
-  FX: [ParticleSystemComponent, EnvmapComponent],
+  FX: [ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
   Scripting: [SystemComponent, BehaveGraphComponent],
-  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, SplineTrackComponent, SplineComponent]
-}
-
-export const addSceneComponentElement = (
-  item: Pick<SceneElementType, 'componentName'>,
-  before?: Entity,
-  parent = getState(SceneState).sceneEntity
-) => {
-  const newEntity = EditorControlFunctions.createObjectFromSceneElement(item.componentName, parent, before, true)
-  return newEntity
+  Misc: [
+    VariantComponent,
+    EnvMapBakeComponent,
+    ScenePreviewCameraComponent,
+    SkyboxComponent,
+    SplineTrackComponent,
+    SplineComponent
+  ]
 }
 
 const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementListItemType) => {
@@ -121,7 +120,7 @@ const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementList
     onClick?.(item)
   }, [item, onClick])
 
-  const [_, drag, preview] = useDrag(() => ({ type: ItemTypes.Prefab, item, multiple: false }))
+  const [_, drag, preview] = useDrag(() => ({ type: ItemTypes.Component, item, multiple: false }))
 
   //showing the object in viewport once it drag and droped
   useEffect(() => {
@@ -132,7 +131,7 @@ const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementList
     <div onContextMenu={(event) => onContextMenu(event, item)}>
       <InfoTooltip
         title={item.label}
-        info={t(`editor:layout.assetGrid.tooltip.${item.componentName}`)}
+        info={t(`editor:layout.assetGrid.tooltip.${item.componentJsonID}`)}
         placement="left"
         disableInteractive
       >
@@ -158,17 +157,18 @@ export function ElementList() {
   const placeObject = () => {
     handleClose()
 
-    const node = addSceneComponentElement(selectedItem!)
-    if (!node) return
+    const vec3 = new Vector3()
+    getSpawnPositionAtCenter(vec3)
 
-    const transformComponent = getComponent(node, TransformComponent)
-    if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
+    EditorControlFunctions.createObjectFromSceneElement([
+      { name: selectedItem!.componentJsonID, props: { position: vec3 } }
+    ])
   }
 
   const placeObjectAtOrigin = () => {
     handleClose()
 
-    addSceneComponentElement(selectedItem!)
+    EditorControlFunctions.createObjectFromSceneElement([{ name: selectedItem!.componentJsonID }])
   }
 
   const onContextMenu = (event: React.MouseEvent<HTMLDivElement>, item: SceneElementType) => {
@@ -226,14 +226,14 @@ export function ElementList() {
             )}
             {items.map((item) => (
               <SceneElementListItem
-                key={item.name}
+                key={item.jsonID}
                 item={{
-                  componentName: item.name,
+                  componentJsonID: item.jsonID!,
                   label: startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase()),
                   Icon: EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon,
-                  type: ItemTypes.Prefab
+                  type: ItemTypes.Component
                 }}
-                onClick={addSceneComponentElement}
+                onClick={() => EditorControlFunctions.createObjectFromSceneElement([{ name: item.jsonID! }])}
                 onContextMenu={onContextMenu}
               />
             ))}

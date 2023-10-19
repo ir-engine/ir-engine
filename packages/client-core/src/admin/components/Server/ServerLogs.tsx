@@ -28,20 +28,18 @@ import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import multiLogger from '@etherealengine/common/src/logger'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
 
 export type ServerLogsInputsType = { podName?: string; containerName?: string }
-
-const logger = multiLogger.child({ component: 'client-core:ServerLogs' })
 
 const ServerLogs = ({
   podName,
@@ -56,9 +54,7 @@ const ServerLogs = ({
   const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
 
   const serverInfo = useServerInfoFind().data
-  const serverLogsQuery = useFind('server-logs', {
-    query: { podName: podName.value, containerName: containerName.value }
-  })
+  const serverLogsQuery = useGet(podsPath, `${podName.value}/${containerName.value}`)
   const serverLogs = serverLogsQuery.data as string
 
   const scrollLogsToBottom = () => {
@@ -66,6 +62,7 @@ const ServerLogs = ({
   }
 
   useEffect(() => {
+    console.log('[ServerLogs]:', serverLogs)
     scrollLogsToBottom()
   }, [serverLogs])
 
@@ -88,7 +85,6 @@ const ServerLogs = ({
   }, [autoRefresh.value])
 
   const handleRefreshServerLogs = () => {
-    logger.info('Refreshing server logs.')
     serverLogsQuery.refetch()
   }
 
@@ -107,12 +103,13 @@ const ServerLogs = ({
   }
 
   const containers = serverInfo.find((item) => item.id === 'all')?.pods.find((item) => item.name === podName.value!)
-  const containersMenu = containers?.containers.map((item) => {
-    return {
-      value: item.name,
-      label: item.name
-    } as InputMenuItem
-  })
+  const containersMenu =
+    containers?.containers.map((item) => {
+      return {
+        value: item.name,
+        label: item.name
+      } as InputMenuItem
+    }) ?? []
 
   const autoRefreshMenu: InputMenuItem[] = [
     {
@@ -176,7 +173,7 @@ const ServerLogs = ({
           icon={<Icon type="Download" />}
         />
 
-        {!serverLogs && (
+        {serverLogsQuery.status !== 'pending' && (
           <IconButton
             title={t('admin:components.common.refresh')}
             className={styles.iconButton}
@@ -186,7 +183,7 @@ const ServerLogs = ({
           />
         )}
 
-        {serverLogs && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
+        {serverLogsQuery.status === 'pending' && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
 
         <InputSelect
           name="autoRefresh"

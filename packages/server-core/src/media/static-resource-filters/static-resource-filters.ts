@@ -39,14 +39,7 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  const options = {
-    name: staticResourceFiltersPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(staticResourceFiltersPath, new StaticResourceFiltersService(options, app), {
+  app.use(staticResourceFiltersPath, new StaticResourceFiltersService(app), {
     // A list of all methods this service exposes externally
     methods: staticResourceFiltersMethods,
     // You can add additional custom events to be sent to clients here

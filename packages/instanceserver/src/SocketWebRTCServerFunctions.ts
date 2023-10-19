@@ -26,18 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import { Consumer, DataProducer, Producer, TransportInternal, WebRtcTransport } from 'mediasoup/node/lib/types'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { MediaStreamAppData } from '@etherealengine/engine/src/networking/NetworkState'
+import { MediaStreamAppData, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
-import { Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/functions/NetworkActionFunctions'
+import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { encode } from 'msgpackr'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupServerSystem } from './MediasoupServerSystem'
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
@@ -69,20 +71,38 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostId
       for (const peer of Object.values(network.peers)) peer.spark?.write(data)
     },
 
-    bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {
-      /** @todo - for now just send to everyone */
-      network.transport.bufferToAll(dataChannelType, data)
+    onMessage: (fromPeerID: PeerID, message: any) => {
+      const networkPeer = network.peers[fromPeerID]
+      if (!networkPeer) return
+
+      networkPeer.lastSeenTs = Date.now()
+      if (!message?.length) {
+        // logger.info('Got heartbeat from ' + peerID + ' at ' + Date.now())
+        return
+      }
+
+      const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
+      NetworkActionFunctions.receiveIncomingActions(network, fromPeerID, actions)
     },
 
-    /**
-     * We need to specify which data channel type this is
-     * @param dataChannelType
-     * @param data
-     */
-    bufferToAll: (dataChannelType: DataChannelType, data: any) => {
+    bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, toPeerID: PeerID, data: any) => {
+      /** @todo - for now just send to everyone */
+      network.transport.bufferToAll(dataChannelType, fromPeerID, data)
+    },
+
+    bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, message: any) => {
       const dataProducer = network.transport.outgoingDataProducers[dataChannelType]
       if (!dataProducer) return
-      dataProducer.send(Buffer.from(new Uint8Array(data)))
+      const fromPeerIndex = network.peerIDToPeerIndex[fromPeerID]
+      if (typeof fromPeerIndex === 'undefined') return
+      dataProducer.send(Buffer.from(new Uint8Array(encode([fromPeerIndex, message]))))
+    },
+
+    onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
+      const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannelType]
+      if (dataChannelFunctions) {
+        for (const func of dataChannelFunctions) func(network, dataChannelType, fromPeerID, data)
+      }
     },
 
     workers,
@@ -104,5 +124,5 @@ export type SocketWebRTCServerNetwork = Awaited<ReturnType<typeof initializeNetw
 
 export const getServerNetwork = (app: Application) =>
   (getState(InstanceServerState).isMediaInstance
-    ? Engine.instance.mediaNetwork
-    : Engine.instance.worldNetwork) as SocketWebRTCServerNetwork
+    ? NetworkState.mediaNetwork
+    : NetworkState.worldNetwork) as SocketWebRTCServerNetwork

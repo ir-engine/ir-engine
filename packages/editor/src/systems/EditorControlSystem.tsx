@@ -41,9 +41,9 @@ import {
 import { V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
+  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -79,9 +79,10 @@ import {
   LocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { addMediaNode } from '../functions/addMediaNode'
@@ -95,8 +96,8 @@ import {
   toggleTransformSpace
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
-import { EditorHistoryAction, EditorHistoryReceptorSystem } from '../services/EditorHistory'
+import { EditorHelperState } from '../services/EditorHelperState'
+import { EditorHistoryAction, EditorHistoryReceptorSystem, EditorHistoryState } from '../services/EditorHistory'
 import { EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
@@ -223,9 +224,12 @@ const onKeyX = () => {
 
 const onKeyZ = (control: boolean, shift: boolean) => {
   if (control) {
+    const state = getState(EditorHistoryState)
     if (shift) {
+      if (state.index >= state.history.length - 1) return
       dispatchAction(EditorHistoryAction.redo({ count: 1 }))
     } else {
+      if (state.index <= 0) return
       dispatchAction(EditorHistoryAction.undo({ count: 1 }))
     }
   } else {
@@ -258,8 +262,14 @@ function copy(event) {
   }
 }
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 function paste(event) {
   if (isInputSelected()) return
+
+  const isMiddleClick = inputSourceQuery().find((e) => getComponent(e, InputSourceComponent).buttons.AuxiliaryClick)
+  if (isMiddleClick) return
+
   event.preventDefault()
 
   let data
@@ -342,16 +352,8 @@ const doZoom = (zoom) => {
 const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
 const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent)
-const changedTransformMode = defineActionQueue(EditorHelperAction.changedTransformMode.matches)
-
-//wait for scene load to load gizmo
-const sceneLoaded = defineActionQueue(EngineActions.sceneLoaded.matches)
 
 const execute = () => {
-  if (sceneLoaded().length) {
-    getComponent(gizmoEntity, TransformGizmoComponent).load()
-  }
-  for (const action of changedTransformMode()) gizmoObj.setTransformMode(action.mode)
   if (Engine.instance.localClientEntity) return
 
   const selectionState = getState(SelectionState)
@@ -432,7 +434,8 @@ const execute = () => {
       inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
     }
   }
-  const cursorPosition = Engine.instance.pointerState.position
+  const pointerState = getState(InputState).pointerState
+  const cursorPosition = pointerState.position
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
@@ -642,7 +645,7 @@ const execute = () => {
       setTransformMode(shift ? TransformMode.Placement : editorHelperState.transformModeOnCancel)
     } else if (transformMode === TransformMode.Placement) {
       if (shift) {
-        EditorControlFunctions.duplicateObject([])
+        // todo
       } else {
         setTransformMode(editorHelperState.transformModeOnCancel)
       }
@@ -650,7 +653,7 @@ const execute = () => {
       if (selectStartPosition.distanceTo(cursorPosition) < SELECT_SENSITIVITY) {
         const result = getIntersectingNodeOnScreen(raycaster, cursorPosition)
         if (result) {
-          if (result.node) {
+          if (result.node && (typeof result.node === 'string' || hasComponent(result.node, SceneObjectComponent))) {
             if (shift) {
               EditorControlFunctions.toggleSelection([result.node])
             } else {
@@ -685,13 +688,13 @@ const execute = () => {
   if (buttons.Delete?.down) onDelete()
 
   const selecting = buttons.PrimaryClick?.pressed && !dragging
-  const zoom = Engine.instance.pointerState.scroll.y
+  const zoom = pointerState.scroll.y
   const panning = buttons.AuxiliaryClick?.pressed
 
   if (selecting) {
     const editorCameraState = getMutableState(EditorCameraState)
     editorCameraState.isOrbiting.set(true)
-    const mouseMovement = Engine.instance.pointerState.movement
+    const mouseMovement = pointerState.movement
     if (mouseMovement) {
       editorCameraState.cursorDeltaX.set(mouseMovement.x)
       editorCameraState.cursorDeltaY.set(mouseMovement.y)
@@ -699,7 +702,7 @@ const execute = () => {
   } else if (panning) {
     const editorCameraState = getMutableState(EditorCameraState)
     editorCameraState.isPanning.set(true)
-    const mouseMovement = Engine.instance.pointerState.movement
+    const mouseMovement = pointerState.movement
     if (mouseMovement) {
       editorCameraState.cursorDeltaX.set(mouseMovement.x)
       editorCameraState.cursorDeltaY.set(mouseMovement.y)
@@ -722,6 +725,7 @@ const SceneObjectEntityReactor = (props: { entity: Entity }) => {
 
 const reactor = () => {
   const sceneObjectEntities = useQuery([SceneObjectComponent])
+  const transformMode = useHookstate(getMutableState(EditorHelperState).transformMode)
 
   useEffect(() => {
     // todo figure out how to do these with our input system
@@ -733,6 +737,10 @@ const reactor = () => {
       window.removeEventListener('paste', paste)
     }
   }, [])
+
+  useEffect(() => {
+    gizmoObj.setTransformMode(transformMode.value)
+  }, [transformMode])
 
   return (
     <>

@@ -72,6 +72,9 @@ export interface ResourcePatchCreateInterface {
 export const getFileMetadata = async (data: { name?: string; file: UploadFile | string }) => {
   const { name, file } = data
 
+  const storageProvider = getStorageProvider()
+  const originURLs = storageProvider.originURLs
+
   let contentLength = 0
   let extension = ''
   let assetName = name!
@@ -80,7 +83,9 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
   if (typeof file === 'string') {
     const url = file
     if (/http(s)?:\/\//.test(url)) {
-      const fileHead = await fetch(url, { method: 'HEAD' })
+      //If the file URL points to the cache domain, fetch it from the origin (S3) domain instead, to avoid cached
+      //information that might not be up-to-date
+      const fileHead = await fetch(url.replace(storageProvider.cacheDomain, originURLs[0]), { method: 'HEAD' })
       if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
       contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
       mimeType = fileHead.headers['content-type'] || fileHead.headers?.get('content-type')
@@ -110,7 +115,6 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
 
 const addFileToStorageProvider = async (file: Buffer, mimeType: string, key: string) => {
   logger.info(`Uploading ${key} to storage provider`)
-  console.log(file, mimeType, key)
   const provider = getStorageProvider()
   try {
     await provider.createInvalidation([key])
@@ -138,8 +142,12 @@ export type UploadAssetArgs = {
 }
 
 export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
-  console.log('uploadAsset', args)
-  const { assetName, hash, mimeType } = await getFileMetadata({
+  logger.info('uploadAsset', {
+    project: args.project,
+    name: args.name,
+    path: args.path
+  })
+  const { hash } = await getFileMetadata({
     file: args.file,
     name: args.file.originalname
   })
@@ -200,10 +208,14 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
   }
 }
 
-export const createStaticResourceHash = (file: Buffer | string, props: { name?: string; assetURL?: string }) => {
+export const createStaticResourceHash = (
+  file: Buffer | string,
+  props: { mimeType: string; name?: string; assetURL?: string }
+) => {
   return createHash('sha3-256')
     .update(typeof file === 'string' ? file : file.length.toString())
-    .update(props.name || props.assetURL!.split('/').pop()!.split('.')[0])
+    .update(props.name || props.assetURL!.split('/').pop()!)
+    .update(props.mimeType)
     .digest('hex')
 }
 
@@ -218,14 +230,28 @@ export const addAssetAsStaticResource = async (
   file: UploadFile,
   args: AdminAssetUploadArgumentsType
 ): Promise<StaticResourceType> => {
-  console.log('addAssetAsStaticResource', file, args)
+  logger.info('addAssetAsStaticResource %o', args)
+  // console.log(file)
+
   const provider = getStorageProvider()
 
+  const isFromOrigin = isFromOriginURL(args.path)
   const isExternalURL = args.path.startsWith('http')
 
-  // make userId optional and safe for feathers create
-  const primaryKey = isExternalURL ? args.path : processFileName(path.join(args.path, file.originalname))
-  const url = isExternalURL ? args.path : getCachedURL(primaryKey, provider.cacheDomain)
+  let primaryKey, url
+  if (isExternalURL && !isFromOrigin) {
+    primaryKey = args.path
+    url = args.path
+  } else if (isExternalURL && isFromOrigin) {
+    primaryKey = processFileName(args.path)
+    url = args.path
+    for (const originURL of provider.originURLs) {
+      url = url.replace(originURL, provider.cacheDomain)
+    }
+  } else {
+    primaryKey = processFileName(path.join(args.path, file.originalname))
+    url = getCachedURL(primaryKey, provider.cacheDomain)
+  }
 
   const query = {
     $limit: 1,
@@ -238,7 +264,8 @@ export const addAssetAsStaticResource = async (
 
   const stats = await getStats(file.buffer, file.mimetype)
 
-  const hash = args.hash || createStaticResourceHash(file.buffer, { name: args.name, assetURL: url })
+  const hash =
+    args.hash || createStaticResourceHash(file.buffer, { mimeType: file.mimetype, name: args.name, assetURL: url })
   const body: Partial<StaticResourceType> = {
     hash,
     url,
@@ -294,4 +321,13 @@ export default (app: Application): void => {
   const service = app.service('upload-asset')
 
   service.hooks(hooks)
+}
+
+const isFromOriginURL = (inputURL: string): boolean => {
+  const provider = getStorageProvider()
+  let returned = false
+  provider.originURLs.forEach((url) => {
+    if (new RegExp(url).exec(inputURL)) returned = true
+  })
+  return returned
 }

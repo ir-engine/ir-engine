@@ -31,14 +31,23 @@ import {
 } from '@behave-graph/core'
 import { toQuat, toVector3 } from '@behave-graph/scene'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { ComponentMap, defineQuery, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import {
+  ComponentMap,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  setComponent
+} from '../../../../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../../../../ecs/functions/EntityFunctions'
+import { RigidBodyComponent } from '../../../../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
 import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
+import { copyTransformToRigidBody } from '../../../../../transform/systems/TransformSystem'
 import { addEntityToScene } from '../helper/entityHelper'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
@@ -127,7 +136,10 @@ export const addEntity = makeFlowNodeDefinition({
       }
     },
     component: (_, graphApi) => {
-      const choices = Array.from(ComponentMap.keys()).sort()
+      const choices = Array.from(ComponentMap.entries())
+        .filter(([, component]) => !!component.jsonID)
+        .map(([name]) => name)
+        .sort()
       choices.unshift('none')
       return {
         valueType: 'string',
@@ -142,7 +154,7 @@ export const addEntity = makeFlowNodeDefinition({
     const parentEntityUUID = read<string>('parentEntity')
     const parentEntity: Entity = parentEntityUUID == '' ? null : UUIDComponent.entitiesByUUID[parentEntityUUID]
     const componentName = read<string>('component')
-    const entity = addEntityToScene(componentName, parentEntity)
+    const entity = addEntityToScene([{ name: ComponentMap.get(componentName)?.jsonID! }], parentEntity)
     const entityName = read<string>('entityName')
     if (entityName.length > 0) setComponent(entity, NameComponent, entityName)
     write('entity', entity)
@@ -185,9 +197,22 @@ export const setEntityTransform = makeFlowNodeDefinition({
     const rotation = toQuat(read('rotation'))
     const scale = toVector3(read('scale'))
     const entity = Number(read('entity')) as Entity
-    setComponent(entity, TransformComponent, { position: position!, rotation: rotation!, scale: scale! })
+    if (entity === Engine.instance.localClientEntity) {
+      teleportAvatar(entity, position!, true)
+    } else {
+      setComponent(entity, TransformComponent, { position: position!, rotation: rotation!, scale: scale! })
+      if (hasComponent(entity, RigidBodyComponent)) copyTransformToRigidBody(entity)
+    }
     commit('flow')
   }
+})
+
+export const getUUID = makeInNOutFunctionDesc({
+  name: 'engine/entity/getUuid',
+  label: 'Entity uuid',
+  in: ['entity'],
+  out: 'string',
+  exec: (entity: Entity) => getComponent(entity, UUIDComponent)
 })
 
 export const Constant = makeInNOutFunctionDesc({

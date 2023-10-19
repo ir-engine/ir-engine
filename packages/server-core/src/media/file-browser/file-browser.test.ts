@@ -24,378 +24,262 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import fs from 'fs'
-import path from 'path/posix'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { Paginated } from '@feathersjs/feathers'
+import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import LocalStorage from '../storageprovider/local.storage'
-import { getStorageProvider } from '../storageprovider/storageprovider'
-import { projectsRootFolder } from './file-browser.class'
 
-const TEST_PROJECT = 'test-project'
-const PROJECT_PATH = path.join(projectsRootFolder, TEST_PROJECT)
-let STORAGE_PATH = ''
-let STORAGE_ROOT = ''
+const getRandomizedName = (name: string, suffix = '', prefix = 'test') =>
+  `${prefix}-${name}-${(Math.random() + 1).toString(36).substring(7)}${suffix}`
+
+/**appends trailing `/` for directory paths */
+const getDirectoryPath = (name: string) => name + '/'
 
 describe('file browser service', () => {
   let app: Application
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
-
-    STORAGE_ROOT = (getStorageProvider() as LocalStorage).PATH_PREFIX
-    STORAGE_PATH = path.join(STORAGE_ROOT, TEST_PROJECT)
-
-    if (fs.existsSync(PROJECT_PATH)) fs.rmSync(PROJECT_PATH, { force: true, recursive: true })
-    if (fs.existsSync(STORAGE_PATH)) fs.rmSync(STORAGE_PATH, { force: true, recursive: true })
-
-    fs.mkdirSync(PROJECT_PATH)
-    fs.mkdirSync(STORAGE_PATH)
   })
   after(() => {
     return destroyEngine()
   })
 
-  it('should register the service', async () => {
-    const service = await app.service('file-browser')
+  it('should register the service', () => {
+    const service = app.service(fileBrowserPath)
     assert.ok(service, 'Registered the service')
   })
 
   it('find service', () => {
-    assert.doesNotThrow(async () => await app.service('file-browser').find())
+    assert.doesNotThrow(async () => await app.service(fileBrowserPath).get(''))
   })
 
-  it('gets directory content list', async () => {
-    const dirName = 'Get_Dir_Content_Test_' + Math.round(Math.random() * 100)
-    const dirStoragePath = path.join(STORAGE_PATH, dirName)
+  let testDirectoryName: string
+  it('creates a directory', async () => {
+    testDirectoryName = getRandomizedName('directory')
 
-    fs.mkdirSync(dirStoragePath)
-
-    const fileNames = [
-      'Get_Dir_Content_Test_File_1.txt',
-      'Get_Dir_Content_Test_File_2.txt',
-      'Get_Dir_Content_Test_File_3.txt',
-      'Get_Dir_Content_Test_File_4.txt',
-      'Get_Dir_Content_Test_File_5.txt'
-    ]
-    fileNames.forEach((n) => fs.writeFileSync(path.join(dirStoragePath, n), 'Hello world'))
-
-    let result = await app.service('file-browser').get(path.join(TEST_PROJECT, dirName))
-    result.data.forEach((r, i) => assert(r && r.key === path.join(TEST_PROJECT, dirName, fileNames[i])))
-
-    // If name starts with '/'
-    result = await app.service('file-browser').get('/' + path.join(TEST_PROJECT, dirName))
-    result.data.forEach((r, i) => assert(r && r.key === path.join(TEST_PROJECT, dirName, fileNames[i])))
-
-    fs.rmSync(dirStoragePath, { force: true, recursive: true })
+    const createdDirectory = await app.service(fileBrowserPath).create(testDirectoryName)
+    assert.ok(createdDirectory)
   })
 
-  it('create project directory service', async () => {
-    const dirName = 'Test_Project_' + Math.round(Math.random() * 100)
-    let result = await app.service('file-browser').create(dirName)
-
-    assert(result === true)
-
-    assert(fs.existsSync(path.join(projectsRootFolder, dirName)))
-    assert(fs.existsSync(path.join(STORAGE_ROOT, dirName)))
-
-    fs.rmdirSync(path.join(projectsRootFolder, dirName))
-    fs.rmdirSync(path.join(STORAGE_ROOT, dirName))
-
-    // If name starts with '/'
-    result = await app.service('file-browser').create('/' + dirName)
-
-    assert(result === true)
-
-    assert(fs.existsSync(path.join(projectsRootFolder, dirName)))
-    assert(fs.existsSync(path.join(STORAGE_ROOT, dirName)))
-
-    fs.rmdirSync(path.join(projectsRootFolder, dirName))
-    fs.rmdirSync(path.join(STORAGE_ROOT, dirName))
+  it('gets the directory', async () => {
+    const foundDirectories = await app
+      .service(fileBrowserPath)
+      .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+    assert.equal(foundDirectories.total, 0)
   })
 
-  describe('update service', () => {
-    it('copies file', async () => {
-      const fileName = 'Update_Service_Copy_File_Test_' + Math.round(Math.random() * 100) + '.txt'
-      const newFileName = 'Update_Service_Copy_File_Test_' + Math.round(Math.random() * 1000) + '.txt'
-      fs.writeFileSync(path.join(PROJECT_PATH, fileName), 'Hello world')
-      fs.writeFileSync(path.join(STORAGE_PATH, fileName), 'Hello world')
+  let testFileFullName: string
+  let testFileName: string
+  let testFileSize: number
+  it('creates a file', async () => {
+    testFileFullName = getRandomizedName('file', '.txt')
+    testFileName = testFileFullName.split('.')[0]
 
-      const result = await app.service('file-browser').update(null, {
-        oldName: fileName,
-        newName: newFileName,
-        oldPath: TEST_PROJECT,
-        newPath: TEST_PROJECT,
-        isCopy: true
-      })
+    const newData = getRandomizedName('new data')
+    const body = Buffer.from(newData, 'utf-8')
+    testFileSize = Buffer.byteLength(body)
 
-      assert(result === true)
-
-      assert(fs.existsSync(path.join(PROJECT_PATH, fileName)), 'Old file should not be removed on copy')
-      assert(fs.existsSync(path.join(STORAGE_PATH, fileName)), 'Old file should not be removed on copy')
-
-      assert(fs.existsSync(path.join(PROJECT_PATH, newFileName)))
-      assert(fs.existsSync(path.join(STORAGE_PATH, newFileName)))
-
-      fs.unlinkSync(path.join(PROJECT_PATH, fileName))
-      fs.unlinkSync(path.join(STORAGE_PATH, fileName))
-      fs.unlinkSync(path.join(PROJECT_PATH, newFileName))
-      fs.unlinkSync(path.join(STORAGE_PATH, newFileName))
-    })
-
-    it('copies directory', async () => {
-      const dir = 'Update_Service_Copy_Dir_' + Math.round(Math.random() * 100)
-      const newDirName = 'Update_Service_Copy_Dir_' + Math.round(Math.random() * 1000) + '.txt'
-      const fileName = 'Update_Service_Copy_Dir_Test_File_' + Math.round(Math.random() * 100) + '.txt'
-
-      const dirPath = path.join(PROJECT_PATH, dir)
-      const dirStoragePath = path.join(STORAGE_PATH, dir)
-      const dirFilePath = path.join(dirPath, fileName)
-      const dirFileStoragePath = path.join(dirStoragePath, fileName)
-      const newDirPath = path.join(PROJECT_PATH, newDirName)
-      const nweDirStoragePath = path.join(STORAGE_PATH, newDirName)
-
-      fs.mkdirSync(dirPath)
-      fs.mkdirSync(dirStoragePath)
-      fs.writeFileSync(dirFilePath, 'Hello world')
-      fs.writeFileSync(dirFileStoragePath, 'Hello world')
-
-      const result = await app.service('file-browser').update(null, {
-        oldName: dir,
-        newName: newDirName,
-        oldPath: TEST_PROJECT,
-        newPath: TEST_PROJECT,
-        isCopy: true
-      })
-
-      assert(result === true)
-
-      assert(fs.existsSync(dirPath), 'Old directory should not be removed on copy')
-      assert(fs.existsSync(dirStoragePath), 'Old directory should not be removed on copy')
-      assert(fs.existsSync(dirFilePath), 'Old file should not be removed on copy')
-      assert(fs.existsSync(dirFileStoragePath), 'Old file should not be removed on copy')
-
-      assert(fs.existsSync(newDirPath) && fs.lstatSync(newDirPath).isDirectory())
-      assert(fs.existsSync(nweDirStoragePath) && fs.lstatSync(nweDirStoragePath).isDirectory())
-      assert(fs.existsSync(path.join(newDirPath, fileName)))
-      assert(fs.existsSync(path.join(nweDirStoragePath, fileName)))
-
-      fs.rmSync(dirPath, { force: true, recursive: true })
-      fs.rmSync(dirStoragePath, { force: true, recursive: true })
-      fs.rmSync(newDirPath, { force: true, recursive: true })
-      fs.rmSync(nweDirStoragePath, { force: true, recursive: true })
-    })
-
-    it('moves file', async () => {
-      const fileName = 'Update_Service_Move_File_Test+' + Math.round(Math.random() * 100) + '.txt'
-      const newFileName = 'Update_Service_Move_File_Test_' + Math.round(Math.random() * 1000) + '.txt'
-      fs.writeFileSync(path.join(PROJECT_PATH, fileName), 'Hello world')
-      fs.writeFileSync(path.join(STORAGE_PATH, fileName), 'Hello world')
-
-      const result = await app.service('file-browser').update(null, {
-        oldName: fileName,
-        newName: newFileName,
-        oldPath: TEST_PROJECT,
-        newPath: TEST_PROJECT
-      })
-
-      assert(result === true)
-
-      assert(!fs.existsSync(path.join(PROJECT_PATH, fileName)), 'Old file should not exist on move')
-      assert(!fs.existsSync(path.join(STORAGE_PATH, fileName)), 'Old file should not exist on move')
-
-      assert(fs.existsSync(path.join(PROJECT_PATH, newFileName)))
-      assert(fs.existsSync(path.join(STORAGE_PATH, newFileName)))
-
-      fs.unlinkSync(path.join(PROJECT_PATH, newFileName))
-      fs.unlinkSync(path.join(STORAGE_PATH, newFileName))
-    })
-
-    it('moves directory', async () => {
-      const dir = 'Update_Service_Move_Dir_' + Math.round(Math.random() * 100)
-      const newDirName = 'Update_Service_Move_Dir_' + Math.round(Math.random() * 1000) + '.txt'
-      const fileName = 'Update_Service_Move_Dir_Test_File_' + Math.round(Math.random() * 100) + '.txt'
-
-      const dirPath = path.join(PROJECT_PATH, dir)
-      const dirStoragePath = path.join(STORAGE_PATH, dir)
-      const dirFilePath = path.join(dirPath, fileName)
-      const dirFileStoragePath = path.join(dirStoragePath, fileName)
-      const newDirPath = path.join(PROJECT_PATH, newDirName)
-      const nweDirStoragePath = path.join(STORAGE_PATH, newDirName)
-
-      fs.mkdirSync(dirPath)
-      fs.mkdirSync(dirStoragePath)
-      fs.writeFileSync(dirFilePath, 'Hello world')
-      fs.writeFileSync(dirFileStoragePath, 'Hello world')
-
-      const result = await app.service('file-browser').update(null, {
-        oldName: dir,
-        newName: newDirName,
-        oldPath: TEST_PROJECT,
-        newPath: TEST_PROJECT
-      })
-
-      assert(result === true)
-
-      assert(!fs.existsSync(dirPath), 'Old directory should not exists on Move')
-      assert(!fs.existsSync(dirStoragePath), 'Old directory should not exists on Move')
-      assert(!fs.existsSync(dirFilePath), 'Old file should not exists on Move')
-      assert(!fs.existsSync(dirFileStoragePath), 'Old file should not exists on Move')
-
-      assert(fs.existsSync(newDirPath) && fs.lstatSync(newDirPath).isDirectory())
-      assert(fs.existsSync(nweDirStoragePath) && fs.lstatSync(nweDirStoragePath).isDirectory())
-      assert(fs.existsSync(path.join(newDirPath, fileName)))
-      assert(fs.existsSync(path.join(nweDirStoragePath, fileName)))
-
-      fs.rmSync(newDirPath, { force: true, recursive: true })
-      fs.rmSync(nweDirStoragePath, { force: true, recursive: true })
-    })
-
-    it('increment file name if file already exists', async () => {
-      const fileName = 'Update_Service_File_Name_Increment_Test.txt'
-      const incrementedFileName = 'Update_Service_File_Name_Increment_Test(1).txt'
-      const incrementedFileName_2 = 'Update_Service_File_Name_Increment_Test(2).txt'
-      fs.writeFileSync(path.join(PROJECT_PATH, fileName), 'Hello world')
-      fs.writeFileSync(path.join(STORAGE_PATH, fileName), 'Hello world')
-
-      const result = await app.service('file-browser').update(null, {
-        oldName: fileName,
-        newName: fileName,
-        oldPath: TEST_PROJECT,
-        newPath: TEST_PROJECT,
-        isCopy: true
-      })
-
-      assert(result === true)
-
-      assert(fs.existsSync(path.join(PROJECT_PATH, incrementedFileName)))
-      assert(fs.existsSync(path.join(STORAGE_PATH, incrementedFileName)))
-
-      await app.service('file-browser').update(null, {
-        oldName: fileName,
-        newName: fileName,
-        oldPath: TEST_PROJECT,
-        newPath: TEST_PROJECT,
-        isCopy: true
-      })
-
-      assert(fs.existsSync(path.join(PROJECT_PATH, incrementedFileName_2)))
-      assert(fs.existsSync(path.join(STORAGE_PATH, incrementedFileName_2)))
-
-      fs.unlinkSync(path.join(PROJECT_PATH, fileName))
-      fs.unlinkSync(path.join(STORAGE_PATH, fileName))
-      fs.unlinkSync(path.join(PROJECT_PATH, incrementedFileName))
-      fs.unlinkSync(path.join(STORAGE_PATH, incrementedFileName))
-      fs.unlinkSync(path.join(PROJECT_PATH, incrementedFileName_2))
-      fs.unlinkSync(path.join(STORAGE_PATH, incrementedFileName_2))
-    })
-  })
-
-  it('patch file with new data', async () => {
-    const fileName = 'Patch_Service_File_Test_' + Math.round(Math.random() * 100) + '.txt'
-    const filePath = path.join(PROJECT_PATH, fileName)
-    const fileStoragePath = path.join(STORAGE_PATH, fileName)
-    const newData = 'New Data ' + Math.random()
-
-    fs.writeFileSync(filePath, 'Hello world')
-    fs.writeFileSync(fileStoragePath, 'Hello world')
-
-    const result = await app.service('file-browser').patch(null, {
-      fileName,
-      path: TEST_PROJECT,
-      body: Buffer.from(newData, 'utf-8'),
+    const createdURL = await app.service(fileBrowserPath).patch(null, {
+      fileName: testFileFullName,
+      path: testDirectoryName,
+      body,
       contentType: 'any'
     })
 
-    assert.equal(result, `https://${getStorageProvider().cacheDomain}/${path.join(TEST_PROJECT, fileName)}`)
+    assert.ok(createdURL)
+  })
 
-    assert(fs.existsSync(filePath))
-    assert(fs.existsSync(fileStoragePath))
+  it('gets the file', async () => {
+    const directoryContents = await app
+      .service(fileBrowserPath)
+      .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+    const foundFile = directoryContents.data.find((file) => file.key.match(testFileFullName))
 
-    assert(fs.readFileSync(filePath).toString() === newData)
-    assert(fs.readFileSync(fileStoragePath).toString() === newData)
+    assert.ok(foundFile)
+    assert.equal(foundFile.name, testFileName)
+    assert.equal(foundFile.size, testFileSize)
+  })
 
-    fs.unlinkSync(path.join(PROJECT_PATH, fileName))
-    fs.unlinkSync(path.join(STORAGE_PATH, fileName))
+  describe('update service', () => {
+    let testDirectoryName2: string
+    let testFileName2: string
+    let testFileName3: string
+    before(async () => {
+      testDirectoryName2 = getRandomizedName('directory2')
+
+      testFileName2 = getRandomizedName('file2', '.md')
+      const newData2 = getRandomizedName('new data 2')
+
+      await app.service(fileBrowserPath).patch(null, {
+        fileName: testFileName2,
+        path: testDirectoryName2,
+        body: Buffer.from(newData2, 'utf-8'),
+        contentType: 'any'
+      })
+
+      testFileName3 = getRandomizedName('file3', '.mdx')
+      const newData3 = getRandomizedName('new data 3')
+
+      await app.service(fileBrowserPath).patch(null, {
+        fileName: testFileName3,
+        path: testDirectoryName2,
+        body: Buffer.from(newData3, 'utf-8'),
+        contentType: 'any'
+      })
+    })
+
+    it('copies file', async () => {
+      const copyFileResult = await app.service(fileBrowserPath).update(null, {
+        oldName: testFileName2,
+        newName: testFileName2,
+        oldPath: getDirectoryPath(testDirectoryName2),
+        newPath: getDirectoryPath(testDirectoryName),
+        isCopy: true
+      })
+
+      assert.ok(Array.isArray(copyFileResult) ? copyFileResult.length > 0 : copyFileResult)
+
+      const directoryContents = await app
+        .service(fileBrowserPath)
+        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+      const foundFile = directoryContents.data.find((file) => file.key.match(testFileName2))
+
+      assert.ok(foundFile)
+    })
+
+    it('copies directory', async () => {
+      const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
+        oldName: testDirectoryName,
+        newName: testDirectoryName,
+        oldPath: '',
+        newPath: testDirectoryName2,
+        isCopy: true
+      })
+
+      assert.ok(Array.isArray(copyDirectoryResult) ? copyDirectoryResult.length > 0 : copyDirectoryResult)
+
+      const directoryContents = await app
+        .service(fileBrowserPath)
+        .find({ query: { directory: getDirectoryPath(testDirectoryName2) } })
+      const foundDirectory = directoryContents.data.find((dir) => dir.name.match(testDirectoryName))
+      assert.ok(foundDirectory)
+    })
+
+    it('moves file', async () => {
+      const moveFileResult = await app.service(fileBrowserPath).update(null, {
+        oldName: testFileName3,
+        newName: testFileName3,
+        oldPath: getDirectoryPath(testDirectoryName2),
+        newPath: getDirectoryPath(testDirectoryName)
+      })
+
+      assert.ok(Array.isArray(moveFileResult) ? moveFileResult.length > 0 : moveFileResult)
+
+      const toMovedDirectoryContents = await app
+        .service(fileBrowserPath)
+        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+      const foundFile = toMovedDirectoryContents.data.find((file) => file.key.match(testFileName3))
+
+      assert.ok(foundFile)
+
+      const fromMovedDirectoryContents = await app
+        .service(fileBrowserPath)
+        .find({ query: { directory: getDirectoryPath(testDirectoryName2) } })
+      const notFoundFile = fromMovedDirectoryContents.data.find((file) => file.key.match(testFileName3))
+      assert.ok(!notFoundFile)
+    })
+
+    it('moves directory', async () => {
+      const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
+        oldName: testDirectoryName2,
+        newName: testDirectoryName2,
+        oldPath: '',
+        newPath: testDirectoryName
+      })
+
+      assert.ok(Array.isArray(copyDirectoryResult) ? copyDirectoryResult.length > 0 : copyDirectoryResult)
+
+      const directoryContents = await app
+        .service(fileBrowserPath)
+        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+      const toMovedDirectoryContents = directoryContents.data.find((dir) => dir.name.match(testDirectoryName2))
+      assert.ok(toMovedDirectoryContents)
+
+      const fromMovedDirectoryContents = await app.service(fileBrowserPath).find({ query: { directory: '/' } })
+      const notFoundDirectory = fromMovedDirectoryContents.data.find((dir) => dir.name.match(testDirectoryName2))
+      assert.ok(!notFoundDirectory)
+    })
+
+    it('increment file name if file already exists', async () => {
+      const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
+        oldName: testFileFullName,
+        newName: testFileFullName,
+        oldPath: testDirectoryName,
+        newPath: testDirectoryName,
+        isCopy: true
+      })
+
+      assert.ok(Array.isArray(copyDirectoryResult) ? copyDirectoryResult.length > 0 : copyDirectoryResult)
+
+      const directoryContents = await app
+        .service(fileBrowserPath)
+        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+      const foundIncrementedFile = directoryContents.data.filter(
+        (file) => file.name.match(testFileName) && file.name.match('(1)')
+      )
+
+      assert.equal(foundIncrementedFile.length, 1)
+    })
+
+    it('updates file with new content', async () => {
+      const newData = getRandomizedName('new data 2 updated')
+      const updateResult = await app.service(fileBrowserPath).patch(null, {
+        fileName: testFileName2,
+        path: testDirectoryName,
+        body: Buffer.from(newData, 'utf-8'),
+        contentType: 'any'
+      })
+      assert.ok(updateResult)
+
+      const testDirectoryContents = await app
+        .service(fileBrowserPath)
+        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+      const updatedFile = testDirectoryContents.data.find((file) => file.key.match(testFileName2))
+      assert.ok(updatedFile)
+    })
   })
 
   describe('remove service', () => {
     it('removes file', async () => {
-      const fileName = 'Remove_Service_File_Test_' + Math.round(Math.random() * 100) + '.txt'
-      const filePath = path.join(PROJECT_PATH, fileName)
-      const fileStoragePath = path.join(STORAGE_PATH, fileName)
+      let directoryContents = await app
+        .service(fileBrowserPath)
+        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+      let foundFile = directoryContents.data.find((file) => file.key.match(testFileFullName))
+      assert.ok(foundFile)
+      const removeResult = await app.service(fileBrowserPath).remove(foundFile.key)
+      assert.ok(removeResult)
 
-      fs.writeFileSync(filePath, 'Hello world')
-      fs.writeFileSync(fileStoragePath, 'Hello world')
-
-      await app.service(staticResourcePath).create(
-        {
-          mimeType: 'txt',
-          hash: 'abcd',
-          key: filePath
-        },
-        {
-          isInternal: true
-        }
-      )
-
-      const result = await app.service('file-browser').remove(path.join(TEST_PROJECT, fileName))
-
-      result.forEach((r) => assert(r === true))
-
-      const staticResource = (await app.service(staticResourcePath).find({
-        query: {
-          key: filePath,
-          $limit: 1
-        }
-      })) as Paginated<StaticResourceType>
-
-      assert(!fs.existsSync(filePath))
-      assert(!fs.existsSync(fileStoragePath))
-      assert.notEqual(staticResource.total, 1)
+      directoryContents = await app
+        .service(fileBrowserPath)
+        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+      foundFile = directoryContents.data.find((file) => file.key.match(testFileFullName))
+      assert.ok(!foundFile)
     })
 
-    it('removes dir recursively', async () => {
-      const dirName = 'Remove_Service_Dir_Test_' + Math.round(Math.random() * 100) + '.txt'
-      const fileName = 'Remove_Service_Dir_File_Test_' + Math.round(Math.random() * 100) + '.txt'
-      const subdirName = 'Remove_Service_Dir_Subdir_Test_' + Math.round(Math.random() * 100)
-      const dirPath = path.join(PROJECT_PATH, dirName)
-      const dirStoragePath = path.join(STORAGE_PATH, dirName)
+    it('removes directory', async () => {
+      let directoryContents = await app.service(fileBrowserPath).find({ query: { directory: '/' } })
+      let foundDirectory = directoryContents.data.find((dir) => dir.key.match(testDirectoryName))
+      assert.ok(foundDirectory)
 
-      fs.mkdirSync(dirPath)
-      fs.mkdirSync(dirStoragePath)
+      const removeResult = await app.service(fileBrowserPath).remove(testDirectoryName)
+      assert.ok(removeResult)
 
-      fs.mkdirSync(path.join(dirPath, subdirName))
-      fs.mkdirSync(path.join(dirStoragePath, subdirName))
-
-      fs.writeFileSync(path.join(dirPath, fileName), 'Hello world')
-      fs.writeFileSync(path.join(dirStoragePath, fileName), 'Hello world')
-
-      fs.writeFileSync(path.join(dirPath, subdirName, fileName), 'Hello world in sub directory')
-      fs.writeFileSync(path.join(dirStoragePath, subdirName, fileName), 'Hello world sub directory')
-
-      const result = await app.service('file-browser').remove(path.join(TEST_PROJECT, dirName))
-
-      result.forEach((r) => assert(r === true))
-
-      assert(!fs.existsSync(dirPath))
-      assert(!fs.existsSync(dirStoragePath))
-      assert(!fs.existsSync(path.join(dirPath, subdirName)))
-      assert(!fs.existsSync(path.join(dirStoragePath, subdirName)))
-      assert(!fs.existsSync(path.join(dirPath, subdirName, fileName)))
-      assert(!fs.existsSync(path.join(dirStoragePath, subdirName, fileName)))
-      assert(!fs.existsSync(path.join(dirPath, fileName)))
-      assert(!fs.existsSync(path.join(dirStoragePath, fileName)))
+      directoryContents = await app.service(fileBrowserPath).find({ query: { directory: '/' } })
+      foundDirectory = directoryContents.data.find((dir) => dir.key.match(testDirectoryName))
+      assert.ok(!foundDirectory)
     })
-  })
-
-  after(() => {
-    fs.rmSync(PROJECT_PATH, { force: true, recursive: true })
-    fs.rmSync(STORAGE_PATH, { force: true, recursive: true })
   })
 })

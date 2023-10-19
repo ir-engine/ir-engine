@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import logger from '@etherealengine/engine/src/common/functions/logger'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
@@ -33,14 +34,12 @@ import {
   MediasoupDataProducerConsumerState,
   MediasoupDataProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
-import {
-  MediasoupTransportObjectsState,
-  MediasoupTransportState
-} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { none, useHookstate } from '@hookstate/core'
 import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
+import { decode } from 'msgpackr'
 import React, { useEffect } from 'react'
 import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from '../transports/SocketWebRTCClientFunctions'
 
@@ -93,6 +92,8 @@ export async function createDataProducer(
   })
 
   getMutableState(MediasoupDataProducersConsumersObjectsState).producers[dataProducer.id].set(dataProducer)
+
+  logger.info(`DataProducer created for ${args.label} on network ${network.id}`)
 }
 
 export const consumerData = async (action: typeof MediasoupDataConsumerActions.consumerCreated.matches._TYPE) => {
@@ -113,15 +114,10 @@ export const consumerData = async (action: typeof MediasoupDataConsumerActions.c
   // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.
   dataConsumer.binaryType = 'arraybuffer'
   dataConsumer.on('message', (message: any) => {
-    try {
-      const dataChannelFunctions = getState(DataChannelRegistryState)[dataConsumer.label as DataChannelType]
-      if (dataChannelFunctions) {
-        for (const func of dataChannelFunctions)
-          func(network, dataConsumer.label as DataChannelType, network.hostPeerID, message) // assmume for now data is coming from the host
-      }
-    } catch (e) {
-      console.error(e)
-    }
+    const [fromPeerIndex, data] = decode(message)
+    const fromPeerID = network.peerIndexToPeerID[fromPeerIndex]
+    const dataBuffer = new Uint8Array(data).buffer
+    network.transport.onBuffer(dataConsumer.label as DataChannelType, fromPeerID, dataBuffer)
   }) // Handle message received
 
   dataConsumer.on('transportclose', () => {
@@ -133,24 +129,26 @@ export const consumerData = async (action: typeof MediasoupDataConsumerActions.c
   })
 
   getMutableState(MediasoupDataProducersConsumersObjectsState).consumers[dataConsumer.id].set(dataConsumer)
+
+  logger.info(`DataConsumer created for ${action.dataChannel} on network ${network.id}`)
 }
 
 const dataConsumerCreatedActionQueue = defineActionQueue(MediasoupDataConsumerActions.consumerCreated.matches)
 
 const execute = () => {
   for (const action of dataConsumerCreatedActionQueue()) {
-    consumerData(action)
+    setTimeout(() => {
+      consumerData(action)
+    }, 100)
   }
 }
 
 export const DataChannel = (props: { networkID: InstanceID; dataChannelType: DataChannelType }) => {
   const { networkID, dataChannelType } = props
-  const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
+  const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
 
   useEffect(() => {
-    const recvTransport = MediasoupTransportState.getTransport(networkID, 'recv') as WebRTCTransportExtension
-    const sendTransport = MediasoupTransportState.getTransport(networkID, 'send') as WebRTCTransportExtension
-    if (!recvTransport || !sendTransport) return
+    if (!networkState.ready.value) return
 
     const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
     createDataProducer(network, { label: dataChannelType })
@@ -159,7 +157,7 @@ export const DataChannel = (props: { networkID: InstanceID; dataChannelType: Dat
     return () => {
       // todo - cleanup
     }
-  }, [transportState.keys])
+  }, [networkState.ready])
 
   return null
 }

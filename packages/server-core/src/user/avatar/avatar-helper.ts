@@ -32,12 +32,12 @@ import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/Common
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
-import { UserParams } from '../../api/root-params'
-import { isAssetFromProject } from '../../media/static-resource/static-resource-helper'
+import { isAssetFromDomain } from '../../media/static-resource/static-resource-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { addAssetAsStaticResource } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
 import { getContentType } from '../../util/fileUtils'
+import { AvatarParams } from './avatar.class'
 
 export type AvatarUploadArguments = {
   avatar: Buffer
@@ -168,14 +168,14 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
 export const uploadAvatarStaticResource = async (
   app: Application,
   data: AvatarUploadArguments,
-  params?: UserParams
+  params?: AvatarParams
 ) => {
   console.log('uploadAvatarStaticResource', data)
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
 
   const staticResourceKey = `static-resources/avatar/${data.isPublic ? 'public' : params?.user!.id}/`
-  const isFromProject = !!data.project && !!data.path && isAssetFromProject(data.path, data.project)
-  const path = isFromProject ? data.path! : staticResourceKey
+  const isFromDomain = !!data.path && isAssetFromDomain(data.path)
+  const path = isFromDomain ? data.path! : staticResourceKey
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')

@@ -36,9 +36,8 @@ import {
   toggleScreenshare,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import logger from '@etherealengine/common/src/logger'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import logger from '@etherealengine/engine/src/common/functions/logger'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { endXRSession, requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
@@ -47,13 +46,16 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
+import {
+  ECSRecordingActions,
+  PlaybackState,
+  RecordingState
+} from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 import { useTranslation } from 'react-i18next'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
-import { RecordingState } from '../../recording/RecordingService'
-import { RecordingTimer, RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
+import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
 import { useUserHasAccessHook } from '../../user/userHasAccess'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -62,6 +64,7 @@ import styles from './index.module.scss'
 export const MediaIconsBox = () => {
   const { t } = useTranslation()
   const recordScopes = useUserHasAccessHook('record')
+  const playbackState = useHookstate(getMutableState(PlaybackState))
   const recordingState = useHookstate(getMutableState(RecordingState))
 
   const location = useLocation()
@@ -73,7 +76,7 @@ export const MediaIconsBox = () => {
   const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
   const networkState = useHookstate(getMutableState(NetworkState))
   const mediaNetworkState = useMediaNetwork()
-  const mediaNetworkID = Engine.instance.mediaNetwork?.id
+  const mediaNetworkID = NetworkState.mediaNetwork?.id
   const mediaNetworkReady = mediaNetworkState?.ready?.value
   const currentChannelInstanceConnection = mediaNetworkID && channelConnectionState.instances[mediaNetworkID].ornull
   const videoEnabled = currentLocation?.locationSetting?.value
@@ -110,14 +113,14 @@ export const MediaIconsBox = () => {
     const activeRecording = recordingState.recordingID.value
     if (activeRecording) {
       getMutableState(RecordingUIState).mode.set('recordings')
-      ECSRecordingFunctions.stopRecording({
+      RecordingState.stopRecording({
         recordingID: activeRecording
       })
     }
-    const activePlayback = recordingState.playback.value
+    const activePlayback = playbackState.recordingID.value
     if (activePlayback) {
       getMutableState(RecordingUIState).mode.set('recordings')
-      ECSRecordingFunctions.stopPlayback({
+      ECSRecordingActions.stopPlayback({
         recordingID: activePlayback
       })
     }
@@ -243,9 +246,9 @@ export const MediaIconsBox = () => {
           Exit Spectate
         </button>
       )}
-      {recordScopes && (
+      {/* {recordScopes && (
         <>
-          {recordingState.playback.value || recordingState.recordingID.value ? (
+          {recordingState.recordingID.value || playbackState.recordingID.value ? (
             <button
               type="button"
               id="Record"
@@ -269,7 +272,7 @@ export const MediaIconsBox = () => {
             />
           )}
         </>
-      )}
+      )} */}
     </section>
   )
 }

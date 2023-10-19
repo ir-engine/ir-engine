@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Object3D } from 'three'
+import { Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -46,9 +46,19 @@ export const HighlightComponent = defineComponent({
 
     useEffect(() => {
       const objs = [...group.value]
-      for (const object of objs) object.traverse(addToSelection)
+      for (const object of objs) {
+        object.traverse((obj) => {
+          if (obj.type !== 'Mesh') return
+          addToSelection(obj as Mesh)
+        })
+      }
       return () => {
-        for (const object of objs) object.traverse(removeFromSelection)
+        for (const object of objs) {
+          object.traverse((obj) => {
+            if (obj.type !== 'Mesh') return
+            removeFromSelection(obj as Mesh)
+          })
+        }
       }
     }, [group, postProcessingSettingsState.effects, postProcessingSettingsState.enabled, usePostProcessing])
 
@@ -56,12 +66,12 @@ export const HighlightComponent = defineComponent({
   }
 })
 
-const addToSelection = (obj: Object3D) => {
+const addToSelection = (obj: Mesh) => {
   if (!EngineRenderer.instance.effectComposer?.HighlightEffect) return
   EngineRenderer.instance.effectComposer.HighlightEffect.selection.add(obj)
 }
 
-const removeFromSelection = (obj: Object3D) => {
+const removeFromSelection = (obj: Mesh) => {
   if (!EngineRenderer.instance.effectComposer?.HighlightEffect) return
   EngineRenderer.instance.effectComposer.HighlightEffect.selection.delete(obj)
 }

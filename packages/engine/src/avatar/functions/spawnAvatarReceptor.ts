@@ -33,9 +33,10 @@ import { getState } from '@etherealengine/hyperflux'
 import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
 import { addComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
   NetworkObjectComponent,
@@ -48,10 +49,12 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
+import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -59,7 +62,7 @@ import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
-export const avatarRadius = 0.25
+export const avatarRadius = 0.125
 export const defaultAvatarHeight = 1.8
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
@@ -77,8 +80,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     if (existingAvatarEntity) return
   }
 
-  const transform = getComponent(entity, TransformComponent)
-
   addComponent(entity, AvatarComponent, {
     primary,
     avatarHalfHeight: defaultAvatarHalfHeight,
@@ -93,21 +94,23 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   addComponent(entity, VisibleComponent, true)
 
+  setComponent(entity, BoundingBoxDynamicTag)
+  setComponent(entity, BoundingBoxComponent)
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
+
+  setComponent(entity, EnvmapComponent, {
+    type: EnvMapSourceType.Bake,
+    envMapIntensity: 0.5,
+    envMapSourceEntityUUID: getComponent(getState(SceneState).sceneEntity, UUIDComponent)
+  })
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(new Object3D()),
     animations: [] as AnimationClip[]
   })
 
-  addComponent(entity, AvatarAnimationComponent, {
-    animationGraph: {
-      states: {},
-      transitionRules: {},
-      currentState: null!,
-      stateChanged: null!
-    },
+  setComponent(entity, AvatarAnimationComponent, {
     rootYRatio: 1,
     locomotion: new Vector3()
   })
@@ -123,7 +126,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
   setComponent(entity, ShadowComponent)
-  setComponent(entity, BoundingBoxComponent)
   setComponent(entity, GrabberComponent)
 }
 
@@ -136,10 +138,10 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   rigidBody.rotation.copy(transform.rotation)
 
   const bodyColliderDesc = ColliderDesc.capsule(
-    avatarComponent.avatarHalfHeight - avatarRadius,
+    avatarComponent.avatarHalfHeight - avatarRadius - 0.25,
     avatarRadius
   ).setCollisionGroups(interactionGroups)
-  bodyColliderDesc.setTranslation(0, avatarComponent.avatarHalfHeight, 0)
+  bodyColliderDesc.setTranslation(0, avatarComponent.avatarHalfHeight + 0.25, 0)
 
   return Physics.createColliderAndAttachToRigidBody(
     getState(PhysicsState).physicsWorld,

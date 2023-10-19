@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AvatarStates } from '../../avatar/animation/Util'
 import { UndefinedEntity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
@@ -32,8 +31,8 @@ export const SittingComponent = defineComponent({
 
   onInit(entity) {
     return {
-      mountPointEntity: UndefinedEntity,
-      state: null! as (typeof AvatarStates)[keyof typeof AvatarStates]
+      mountPointEntity: UndefinedEntity
+      //state: null! as (typeof AvatarStates)[keyof typeof AvatarStates]
     }
   },
 
@@ -41,6 +40,6 @@ export const SittingComponent = defineComponent({
     if (!json) return
 
     if (typeof json.mountPointEntity === 'number') component.mountPointEntity.set(json.mountPointEntity)
-    if (typeof json.state === 'string') component.state.set(json.state)
+    //if (typeof json.state === 'string') component.state.set(json.state)
   }
 })

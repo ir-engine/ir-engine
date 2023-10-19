@@ -28,9 +28,9 @@ import React from 'react'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import { useTranslation } from 'react-i18next'
@@ -137,6 +137,24 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
       composingMessage.set('')
     }
 
+    const handleMessageKeyDown = (event) => {
+      if (event.key === 'Enter' && event.shiftKey) {
+        event.preventDefault()
+        const selectionStart = (event.target as HTMLInputElement).selectionStart
+
+        composingMessage.set(
+          composingMessage.value.substring(0, selectionStart || 0) +
+            '\n' +
+            composingMessage.value.substring(selectionStart || 0)
+        )
+        return
+      } else if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault()
+        sendMessage()
+        return
+      }
+    }
+
     return (
       <div style={{ position: 'absolute', bottom: '0px', display: 'flex' }}>
         <InputText
@@ -148,10 +166,11 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
               src={userThumbnail}
             />
           }
-          placeholder={''}
+          placeholder={t('user:messages.enterMessage')}
           sx={{ mb: 1, mt: 0 }}
           value={composingMessage.value}
           onChange={(e) => composingMessage.set(e.target.value)}
+          onKeyDown={(e) => handleMessageKeyDown(e)}
           onEndIconClick={sendMessage}
         />
         <XRIconButton

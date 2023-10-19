@@ -23,9 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
+import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 
 import {
   githubRepoAccessPath,
@@ -36,25 +34,21 @@ import {
   identityProviderPath,
   IdentityProviderType
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 import { getUserRepos } from '../../projects/project/github-helper'
 import logger from '../../ServerLogger'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface GithubRepoAccessRefreshParams extends RootParams {}
+export interface GithubRepoAccessRefreshParams extends KnexAdapterParams {}
 
 /**
  * A class for Github Repo Access Refresh service
  */
-export class GithubRepoAccessRefreshService<
-  T = any,
-  ServiceParams extends Params = GithubRepoAccessRefreshParams
-> extends KnexAdapter<T, T, GithubRepoAccessRefreshParams, T> {
+export class GithubRepoAccessRefreshService implements ServiceInterface<void, GithubRepoAccessRefreshParams> {
   app: Application
 
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
+  constructor(app: Application) {
     this.app = app
   }
 

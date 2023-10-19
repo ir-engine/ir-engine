@@ -29,15 +29,11 @@ import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { AuthError, AuthTask } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
-import {
-  authorizeUserToJoinServer,
-  handleConnectingPeer,
-  handleDisconnect,
-  handleIncomingActions
-} from './NetworkFunctions'
+import { authorizeUserToJoinServer, handleConnectingPeer, handleDisconnect } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:spark' })
@@ -105,7 +101,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
       }
 
       // Check that this use is allowed on this instance
-      const instance = await app.service('instance').get(getState(InstanceServerState).instance.id)
+      const instance = await app.service(instancePath).get(getState(InstanceServerState).instance.id)
       if (!(await authorizeUserToJoinServer(app, instance, userId))) {
         authTask.status = 'fail'
         authTask.error = AuthError.USER_NOT_AUTHORIZED
@@ -133,7 +129,9 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
         handleDisconnect(network, peerID)
       })
 
-      spark.on('data', handleIncomingActions(network, peerID))
+      spark.on('data', (message) => {
+        network.transport.onMessage(peerID, message)
+      })
     } catch (e) {
       console.error(e)
       authTask.status = 'fail'

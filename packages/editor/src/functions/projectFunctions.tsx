@@ -24,24 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { API } from '@etherealengine/client-core/src/API'
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
  * Gets a list of projects installed
- * @returns {ProjectInterface[]}
+ * @returns {ProjectType[]}
  */
-export const getProjects = async (): Promise<ProjectInterface[]> => {
+export const getProjects = async (): Promise<ProjectType[]> => {
   try {
-    const { data } = await API.instance.client.service('project').find({
+    const projects = (await API.instance.client.service(projectPath).find({
       query: { allowed: true }
-    })
-    return data
+    })) as Paginated<ProjectType>
+    return projects.data
   } catch (error) {
     throw new Error(error)
   }

@@ -23,65 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, NullableId, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
+import { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
 
 import { BotData, BotPatch, BotQuery, BotType } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 
-import { botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface BotParams extends RootParams<BotQuery> {}
+export interface BotParams extends KnexAdapterParams<BotQuery> {}
 
-/**
- * A class for Bot service
- */
-
-export class BotService<T = BotType, ServiceParams extends Params = BotParams> extends KnexAdapter<
+export class BotService<T = BotType, ServiceParams extends Params = BotParams> extends KnexService<
   BotType,
   BotData,
   BotParams,
   BotPatch
-> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  async find(params?: BotParams) {
-    return super._find(params)
-  }
-
-  async create(data: BotData, params?: BotParams) {
-    data.instanceId = data.instanceId ? data.instanceId : ('' as InstanceID)
-
-    const dataWithoutExtras = { ...data } as any
-    delete dataWithoutExtras.botCommands
-
-    const result = await super._create(dataWithoutExtras)
-    result.botCommands = []
-
-    for (let element of data.botCommands) {
-      const command = await this.app.service(botCommandPath).create({
-        ...element,
-        botId: result.id
-      })
-      result.botCommands.push(command)
-    }
-    return result
-  }
-
-  async patch(id: NullableId, data: BotPatch, _params?: BotParams) {
-    return super._patch(id, data)
-  }
-
-  async remove(id: Id, _params?: BotParams) {
-    return super._remove(id, _params)
-  }
-}
+> {}

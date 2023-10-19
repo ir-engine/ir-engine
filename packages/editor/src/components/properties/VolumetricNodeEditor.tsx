@@ -41,7 +41,7 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
 const PlayModeOptions = [
   {
@@ -74,7 +74,9 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const volumetricComponent = useComponent(props.entity, VolumetricComponent)
 
   const toggle = () => {
-    volumetricComponent.paused.set(!volumetricComponent.paused.value)
+    commitProperties(VolumetricComponent, {
+      paused: !volumetricComponent.paused.value
+    })
   }
 
   return (
@@ -85,7 +87,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="useLoadingEffect" label={t('editor:properties.volumetric.lbl-useLoadingEffect')}>
         <BooleanInput
-          onChange={updateProperty(VolumetricComponent, 'useLoadingEffect')}
+          onChange={commitProperty(VolumetricComponent, 'useLoadingEffect')}
           value={volumetricComponent.useLoadingEffect.value}
         />
       </InputGroup>
@@ -97,7 +99,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       >
         <BooleanInput
           value={volumetricComponent.paused.value}
-          onChange={updateProperty(VolumetricComponent, 'paused')}
+          onChange={commitProperty(VolumetricComponent, 'paused')}
         />
       </InputGroup>
 
@@ -108,6 +110,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
           step={0.01}
           value={volumetricComponent.volume.value}
           onChange={updateProperty(VolumetricComponent, 'volume')}
+          onRelease={commitProperty(VolumetricComponent, 'volume')}
         />
       </InputGroup>
 
@@ -115,18 +118,18 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         name="Source Paths"
         prefix="Content"
         values={volumetricComponent.paths.value}
-        onChange={updateProperty(VolumetricComponent, 'paths')}
+        onChange={commitProperty(VolumetricComponent, 'paths')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={VolumetricFileTypes}
-        itemType={ItemTypes.Volumetrics}
-      ></ArrayInputGroup>
+        acceptDropItems={ItemTypes.Volumetrics}
+      />
 
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
         <SelectInput
           key={props.entity}
           options={PlayModeOptions}
           value={volumetricComponent.playMode.value}
-          onChange={updateProperty(VolumetricComponent, 'playMode')}
+          onChange={commitProperty(VolumetricComponent, 'playMode')}
         />
         {volumetricComponent.paths && volumetricComponent.paths.length > 0 && volumetricComponent.paths[0] && (
           <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>

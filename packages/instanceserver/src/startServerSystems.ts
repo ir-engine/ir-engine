@@ -24,9 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AvatarSimulationSystemGroup } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
-import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import {
-  InputSystemGroup,
+  AnimationSystemGroup,
   PresentationSystemGroup,
   SimulationSystemGroup
 } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
@@ -40,8 +39,8 @@ import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/sys
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
 
+import { ECSRecordingSystem } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
-import { ServerRecordingSystem } from './ServerRecordingSystem'
 
 export const startMediaServerSystems = () => {
   /** Fixed */
@@ -50,15 +49,12 @@ export const startMediaServerSystems = () => {
   })
 
   /** Post Render */
-  startSystems([ServerRecordingSystem], {
+  startSystems([ECSRecordingSystem], {
     after: PresentationSystemGroup
   })
 }
 
 export const startWorldServerSystems = () => {
-  /** Input */
-  startSystems([MotionCaptureSystem], { with: InputSystemGroup })
-
   /** Fixed */
   startSystems(
     [
@@ -73,6 +69,8 @@ export const startWorldServerSystems = () => {
     }
   )
 
+  startSystems([MotionCaptureSystem], { with: AnimationSystemGroup })
+
   startSystems([PhysicsSystem, OutgoingNetworkSystem], {
     after: SimulationSystemGroup
   })
@@ -83,7 +81,7 @@ export const startWorldServerSystems = () => {
   })
 
   /** Post Render */
-  startSystems([ECSSerializerSystem, SceneSystemLoadGroup, ServerRecordingSystem], {
+  startSystems([SceneSystemLoadGroup, ECSRecordingSystem], {
     after: PresentationSystemGroup
   })
 }

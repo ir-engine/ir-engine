@@ -30,7 +30,6 @@ import {
   recordingResourcePatchValidator,
   recordingResourceQueryValidator
 } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 import {
@@ -51,7 +50,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(recordingResourceQueryValidator),
       schemaHooks.resolveQuery(recordingResourceQueryResolver)
     ],

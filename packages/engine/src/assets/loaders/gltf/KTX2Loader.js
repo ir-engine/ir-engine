@@ -60,6 +60,10 @@ import {
 } from 'three'
 import { WorkerPool } from './WorkerPool'
 
+import WebWorker from 'web-worker'
+
+import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
+
 const KTX2TransferSRGB = 2
 const KTX2_ALPHA_PREMULTIPLIED = 1
 const _taskCache = new WeakMap()
@@ -151,7 +155,7 @@ class KTX2Loader extends Loader {
         this.transcoderBinary = binaryContent
 
         this.workerPool.setWorkerCreator(() => {
-          const worker = new Worker(this.workerSourceURL)
+          const worker = isClient ? new Worker(this.workerSourceURL) : new WebWorker(`data:image/ktx2;base64,${Buffer.from(body, 'utf-8').toString('base64')}`)
           const transcoderBinary = this.transcoderBinary.slice(0)
 
           worker.postMessage({ type: 'init', config: this.workerConfig, transcoderBinary }, [transcoderBinary])
@@ -175,8 +179,21 @@ class KTX2Loader extends Loader {
     return this.transcoderPending
   }
 
+  parse(buffer, onLoad, onError) {
+    const texture = new CompressedTexture()
+    this._createTexture(buffer)
+      .then(function (_texture) {
+        texture.copy(_texture)
+        texture.needsUpdate = true
+
+        if (onLoad) onLoad(texture)
+      })
+      .catch(onError)
+    return texture
+  }
+
   load(url, onLoad, onProgress, onError) {
-    if (this.workerConfig === null) {
+    if (isClient && this.workerConfig === null) {
       throw new Error('THREE.KTX2Loader: Missing initialization with `.detectSupport( renderer )`.')
     }
 
@@ -198,7 +215,7 @@ class KTX2Loader extends Loader {
           return cachedTask.promise.then(onLoad).catch(onError)
         }
 
-        this._createTexture([buffer])
+        this._createTexture(buffer)
           .then(function (_texture) {
             texture.copy(_texture)
             texture.needsUpdate = true
@@ -231,20 +248,20 @@ class KTX2Loader extends Loader {
   }
 
   /**
-   * @param {ArrayBuffer[]} buffers
+   * @param {ArrayBuffer} buffer
    * @param {object?} config
    * @return {Promise<CompressedTexture>}
    */
-  _createTexture(buffers, config = {}) {
+  _createTexture(buffer, config = {}) {
     const taskConfig = config
     const texturePending = this.init()
       .then(() => {
-        return this.workerPool.postMessage({ type: 'transcode', buffers, taskConfig: taskConfig }, buffers)
+        return this.workerPool.postMessage({ type: 'transcode', buffer, taskConfig: taskConfig }, [buffer])
       })
       .then((e) => this._createTextureFrom(e.data))
 
     // Cache the task result.
-    _taskCache.set(buffers[0], { promise: texturePending })
+    _taskCache.set(buffer, { promise: texturePending })
 
     return texturePending
   }
@@ -322,7 +339,7 @@ KTX2Loader.BasisWorker = function () {
       case 'transcode':
         transcoderPending.then(() => {
           try {
-            const { width, height, hasAlpha, mipmaps, format, dfdTransferFn, dfdFlags } = transcode(message.buffers[0])
+            const { width, height, hasAlpha, mipmaps, format, dfdTransferFn, dfdFlags } = transcode(message.buffer)
 
             const buffers = []
 

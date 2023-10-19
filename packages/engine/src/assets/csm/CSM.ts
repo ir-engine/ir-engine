@@ -42,6 +42,9 @@ import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCo
 import Frustum from './Frustum'
 import Shader from './Shader'
 
+const originalLightsFragmentBegin = ShaderChunk.lights_fragment_begin
+const originalLightsParsBegin = ShaderChunk.lights_pars_begin
+
 const _cameraToLightMatrix = new Matrix4()
 const _lightSpaceFrustum = new Frustum()
 const _center = new Vector3()
@@ -103,12 +106,12 @@ export class CSM {
     this.cascades = data.cascades || 3
     this.maxFar = data.maxFar || 100
     this.mode = data.mode || CSMModes.PRACTICAL
-    this.shadowMapSize = data.shadowMapSize || 512
+    this.shadowMapSize = data.shadowMapSize || 2048
     this.shadowBias = -0.000003
     this.lightDirection = data.lightDirection || new Vector3(1, -1, 1).normalize()
     this.lightIntensity = data.lightIntensity || 1
-    this.lightNear = data.lightNear || 1
-    this.lightFar = data.lightFar || 2000
+    this.lightNear = data.lightNear || 0.01
+    this.lightFar = data.lightFar || 200
     this.lightMargin = data.lightMargin || 100
     this.customSplitsCallback = data.customSplitsCallback
     this.fade = true
@@ -288,8 +291,8 @@ export class CSM {
 
   update(): void {
     if (this.needsUpdate) {
+      this.updateFrustums()
       for (const light of this.lights) {
-        this.updateFrustums()
         light.shadow.map?.dispose()
         light.shadow.map = null as any
         light.shadow.camera.updateProjectionMatrix()
@@ -305,6 +308,8 @@ export class CSM {
 
       const texelWidth = (shadowCam.right - shadowCam.left) / light.shadow.mapSize.x
       const texelHeight = (shadowCam.top - shadowCam.bottom) / light.shadow.mapSize.y
+      shadowCam.far = this.lightFar
+      shadowCam.near = this.lightNear
 
       light.shadow.camera.updateMatrixWorld(true)
       _cameraToLightMatrix.multiplyMatrices(light.shadow.camera.matrixWorldInverse, camera.matrixWorld)
@@ -334,6 +339,11 @@ export class CSM {
   injectInclude(): void {
     ShaderChunk.lights_fragment_begin = Shader.lights_fragment_begin(this)
     ShaderChunk.lights_pars_begin = Shader.lights_pars_begin()
+  }
+
+  removeInclude(): void {
+    ShaderChunk.lights_fragment_begin = originalLightsFragmentBegin
+    ShaderChunk.lights_pars_begin = originalLightsParsBegin
   }
 
   setupMaterial(mesh: Mesh): void {
@@ -368,6 +378,22 @@ export class CSM {
     }
 
     addOBCPlugin(material, material.userData.CSMPlugin)
+  }
+
+  teardownMaterial(mesh: Mesh): void {
+    const material = mesh.material as Material
+    if (!material.userData) material.userData = {}
+    if (material.userData.CSMPlugin) {
+      removeOBCPlugin(material, material.userData.CSMPlugin)
+      delete material.userData.CSMPlugin
+    }
+    if (material.defines) {
+      delete material.defines.USE_CSM
+      delete material.defines.CSM_CASCADES
+      delete material.defines.CSM_FADE
+    }
+    material.needsUpdate = true
+    this.shaders.delete(material)
   }
 
   updateUniforms(): void {
@@ -438,5 +464,6 @@ export class CSM {
     })
     this.shaders.clear()
     this.remove()
+    this.removeInclude()
   }
 }

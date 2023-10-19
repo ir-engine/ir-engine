@@ -32,13 +32,14 @@ import { SplineComponent } from '@etherealengine/engine/src/scene/components/Spl
 import ClearIcon from '@mui/icons-material/Clear'
 import TimelineIcon from '@mui/icons-material/Timeline'
 
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
 import { PropertiesPanelButton } from '../inputs/Button'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 /**
  * SplineNodeEditor used to create and customize splines in the scene.
@@ -57,7 +58,8 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
         <PropertiesPanelButton
           onClick={() => {
             const elem = { position: new Vector3(), quaternion: new Quaternion() }
-            component.elements.merge([elem])
+            const newElements = [...elements.get(NO_PROXY), elem]
+            commitProperty(SplineComponent, 'elements')(newElements)
           }}
         >
           {t('editor:properties.spline.lbl-addNode')}
@@ -66,49 +68,42 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
       {elements.map((elem, index) => (
         <div key={index}>
           <br />
-          <div style={{ display: 'flex' }}>
-            <div
-              style={
-                {
-                  // pointerEvents: 'all',
-                  // marginTop: '20px',
-                  // position: 'fixed'
-                }
-              }
+          <div style={{ display: 'flex-row' }}>
+            <ClearIcon
               onClick={() => {
-                elements.set((p) => {
-                  p.splice(index, 1)
-                  return p
-                })
+                const newElements = [...elements.get(NO_PROXY)].filter((_, i) => i !== index)
+                commitProperty(SplineComponent, 'elements')(newElements)
               }}
-            >
-              <ClearIcon style={{ color: 'white' }} />
-            </div>
-            <div>
-              <InputGroup name="Position" label={`${t('editor:properties.transform.lbl-position')} ${index + 1}`}>
-                <Vector3Input
-                  //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
-                  value={elem.position.value}
-                  smallStep={0.01}
-                  mediumStep={0.1}
-                  largeStep={1}
-                  onChange={(position) => {
-                    elem.position.set(new Vector3(position.x, position.y, position.z))
-                  }}
-                />
-              </InputGroup>
-              <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')} ${index + 1}`}>
-                <EulerInput
-                  //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
-                  quaternion={elem.quaternion.value}
-                  unit="°"
-                  onChange={(euler) => {
-                    const quaternion = new Quaternion().setFromEuler(euler)
-                    elem.quaternion.set(quaternion)
-                  }}
-                />
-              </InputGroup>
-            </div>
+              style={{ color: 'white' }}
+            />
+            <InputGroup name="Position" label={`${t('editor:properties.transform.lbl-position')} ${index + 1}`}>
+              <Vector3Input
+                //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
+                value={elem.position.value}
+                smallStep={0.01}
+                mediumStep={0.1}
+                largeStep={1}
+                onChange={(position) => {
+                  commitProperty(
+                    SplineComponent,
+                    `elements.${index}.position` as any
+                  )(new Vector3(position.x, position.y, position.z))
+                }}
+              />
+            </InputGroup>
+            <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')} ${index + 1}`}>
+              <EulerInput
+                //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
+                quaternion={elem.quaternion.value}
+                unit="°"
+                onChange={(euler) => {
+                  commitProperty(
+                    SplineComponent,
+                    `elements.${index}.quaternion` as any
+                  )(new Quaternion().setFromEuler(euler))
+                }}
+              />
+            </InputGroup>
           </div>
         </div>
       ))}

@@ -25,16 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { uploadToFeathersService } from '../../util/upload'
-import { AuthState } from './AuthService'
+
+import { AvatarState as AvatarNetworkState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 
 export const AVATAR_PAGE_LIMIT = 100
 
@@ -59,9 +57,7 @@ export const AvatarService = {
     await AvatarService.uploadAvatarModel(model, thumbnail, newAvatar.identifierName, isPublic, newAvatar.id)
 
     if (!isPublic) {
-      const selfUser = getState(AuthState).user
-      const userId = selfUser.id!
-      await AvatarService.updateUserAvatarId(userId, newAvatar.id)
+      AvatarNetworkState.updateUserAvatarId(newAvatar.id)
     }
   },
 
@@ -72,7 +68,9 @@ export const AvatarService = {
       incDec === 'increment' ? skip + AVATAR_PAGE_LIMIT : incDec === 'decrement' ? skip - AVATAR_PAGE_LIMIT : skip
     const result = (await Engine.instance.api.service(avatarPath).find({
       query: {
-        search,
+        name: {
+          $like: `%${search}%`
+        },
         $skip: newSkip,
         $limit: AVATAR_PAGE_LIMIT
       }
@@ -129,27 +127,14 @@ export const AvatarService = {
       return prevAvatarList
     })
 
-    const authState = getState(AuthState)
-    const userAvatarId = authState.user?.avatarId
+    const userAvatarId = getState(AvatarNetworkState)[Engine.instance.userID]
     if (userAvatarId === avatar.id) {
-      const userId = authState.user?.id!
-      await AvatarService.updateUserAvatarId(userId, avatar.id)
+      AvatarNetworkState.updateUserAvatarId(avatar.id)
     }
   },
 
   async removeStaticResource(id: string) {
     return Engine.instance.api.service(staticResourcePath).remove(id)
-  },
-
-  async updateUserAvatarId(userId: UserID, avatarId: string) {
-    const res = (await Engine.instance.api.service(userPath).patch(userId, { avatarId: avatarId })) as UserType
-    getMutableState(AuthState).user.avatarId.set(res.avatarId!)
-    dispatchAction(
-      AvatarNetworkAction.setAvatarID({
-        avatarID: avatarId,
-        entityUUID: userId as string as EntityUUID
-      })
-    )
   },
 
   async uploadAvatarModel(avatar: File, thumbnail: File, avatarName: string, isPublic: boolean, avatarId?: string) {

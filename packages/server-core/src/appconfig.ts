@@ -29,7 +29,13 @@ import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
+import { oembedPath } from '@etherealengine/engine/src/schemas/media/oembed.schema'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
+import { discordBotAuthPath } from '@etherealengine/engine/src/schemas/user/discord-bot-auth.schema'
+import { githubRepoAccessWebhookPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-webhook.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
 import multiLogger from './ServerLogger'
 
 const logger = multiLogger.child({ component: 'server-core:config' })
@@ -73,6 +79,13 @@ if (!testEnabled) {
   })
 }
 
+if (!kubernetesEnabled) {
+  dotenv.config({
+    path: appRootPath.path,
+    silent: true
+  })
+}
+
 if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
   // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -83,13 +96,6 @@ if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
     const toEnvPath = appRootPath.path + '/.env.local'
     fs.copyFileSync(fromEnvPath, toEnvPath, fs.constants.COPYFILE_EXCL)
   }
-}
-
-if (!kubernetesEnabled) {
-  dotenv.config({
-    path: appRootPath.path,
-    silent: true
-  })
 }
 
 /**
@@ -139,8 +145,6 @@ const server = {
   corsServerPort: process.env.CORS_SERVER_PORT!,
   storageProvider: process.env.STORAGE_PROVIDER!,
   storageProviderExternalEndpoint: process.env.STORAGE_PROVIDER_EXTERNAL_ENDPOINT!,
-  cloneProjectStaticResources:
-    typeof process.env.CLONE_STATIC_RESOURCES === 'undefined' ? true : process.env.CLONE_STATIC_RESOURCES === 'true',
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID!,
   hub: {
     endpoint: process.env.HUB_ENDPOINT!
@@ -233,6 +237,11 @@ const email = {
   smsNameCharacterLimit: 20
 }
 
+type WhiteListItem = {
+  path: string
+  methods: string[]
+}
+
 /**
  * Authentication
  */
@@ -247,6 +256,18 @@ const authentication = {
   bearerToken: {
     numBytes: 16
   },
+  whiteList: [
+    'auth',
+    'oauth/:provider',
+    'authentication',
+    oembedPath,
+    githubRepoAccessWebhookPath,
+    { path: identityProviderPath, methods: ['create'] },
+    { path: routePath, methods: ['find'] },
+    { path: acceptInvitePath, methods: ['get'] },
+    { path: discordBotAuthPath, methods: ['find'] },
+    { path: loginPath, methods: ['get'] }
+  ] as (string | WhiteListItem)[],
   callback: {
     discord: process.env.DISCORD_CALLBACK_URL || `${client.url}/auth/oauth/discord`,
     facebook: process.env.FACEBOOK_CALLBACK_URL || `${client.url}/auth/oauth/facebook`,
@@ -306,19 +327,24 @@ const aws = {
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!,
     endpoint: process.env.STORAGE_S3_ENDPOINT!,
-    staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
+    staticResourceBucket: testEnabled
+      ? process.env.STORAGE_S3_TEST_RESOURCE_BUCKET!
+      : process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
     region: process.env.STORAGE_S3_REGION!,
     avatarDir: process.env.STORAGE_S3_AVATAR_DIRECTORY!,
     s3DevMode: process.env.STORAGE_S3_DEV_MODE!
   },
   cloudfront: {
-    domain: process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER ? server.clientHost : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
+    domain:
+      process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true'
+        ? server.clientHost
+        : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
     distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID!,
     region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
   },
   eks: {
-    accessKeyId: process.env.EKS_AWS_ACCESS_KEY!,
-    secretAccessKey: process.env.EKS_AWS_SECRET!
+    accessKeyId: process.env.EKS_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET!
   },
   sms: {
     accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID!,
@@ -347,9 +373,6 @@ const redis = {
   password: process.env.REDIS_PASSWORD == '' || process.env.REDIS_PASSWORD == null ? null! : process.env.REDIS_PASSWORD!
 }
 
-/**
- * Scope
- */
 const scopes = {
   guest: process.env.DEFAULT_GUEST_SCOPES?.split(',') || [],
   user: process.env.DEFAULT_USER_SCOPES?.split(',') || []
