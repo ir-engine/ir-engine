@@ -82,9 +82,10 @@ const execute = () => {
     transition.setState(action.in ? 'IN' : 'OUT')
     if (action.in) {
       setComputedTransformComponent(entity, Engine.instance.cameraEntity, () => {
-        getComponent(entity, TransformComponent).position.copy(
-          getComponent(Engine.instance.cameraEntity, TransformComponent).position
-        )
+        const transform = getComponent(entity, TransformComponent)
+        const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+        transform.position.copy(cameraTransform.position)
+        transform.rotation.copy(cameraTransform.rotation)
       })
     } else removeComponent(entity, ComputedTransformComponent)
     if (action.graphicTexture) {
