@@ -23,15 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VariantType } from 'notistack'
+import { SnackbarProvider, VariantType } from 'notistack'
 
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { defaultAction } from '../components/NotificationActions'
 
 const logger = multiLogger.child({ component: 'client-core:Notification' })
+
+export const NotificationState = defineState({
+  name: 'ee.client.NotificationState',
+  initial: {
+    snackbar: null as SnackbarProvider | null | undefined
+  }
+})
 
 export type NotificationOptions = {
   variant: VariantType // 'default' | 'error' | 'success' | 'warning' | 'info'
@@ -47,14 +54,12 @@ export const NotificationService = {
     if (options?.variant === 'error') {
       logger.error(new Error(message))
     }
-    dispatchAction(NotificationAction.notify({ message, options }))
-  }
-}
 
-export class NotificationAction {
-  static notify = defineAction({
-    type: 'ee.client.Notification.ENQUEUE_NOTIFICATION' as const,
-    message: matches.string,
-    options: matches.object as Validator<unknown, NotificationOptions>
-  })
+    const state = getState(NotificationState)
+    AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
+    state.snackbar?.enqueueSnackbar(message, {
+      variant: options.variant,
+      action: NotificationActions[options.actionType ?? 'default']
+    })
+  }
 }

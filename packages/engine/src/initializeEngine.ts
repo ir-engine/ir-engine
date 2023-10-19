@@ -23,15 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { addActionReceptor } from '@etherealengine/hyperflux'
-
 import * as bitecs from 'bitecs'
 
 import { BoxGeometry, Mesh, MeshNormalMaterial } from 'three'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
-import { EngineEventReceptor } from './ecs/classes/EngineState'
 import { getComponent, setComponent } from './ecs/functions/ComponentFunctions'
 import { executeSystems, startCoreSystems } from './ecs/functions/EngineFunctions'
 import { createEntity } from './ecs/functions/EntityFunctions'
@@ -87,7 +84,6 @@ export const createEngine = () => {
   initializeSceneEntity()
 
   EngineRenderer.instance = new EngineRenderer()
-  addActionReceptor(EngineEventReceptor)
   startCoreSystems()
   Engine.instance.engineTimer = Timer(executeSystems)
 }
