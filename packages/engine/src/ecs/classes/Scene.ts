@@ -25,7 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, Texture } from 'three'
 
+import config from '@etherealengine/common/src/config'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from './Engine'
@@ -44,8 +46,26 @@ export const SceneState = defineState({
 
 export const SceneServices = {
   setCurrentScene: async (projectName: string, sceneName: string) => {
-    const sceneData = await Engine.instance.api.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
-    getMutableState(SceneState).sceneData.set(sceneData.data)
+    //If there's an API connection, fetch the scene information from the API. If not, e.g. a client-only build, use
+    //a templated URL of where the scene is expected to be, and replace the __$project$__ template with the file
+    //server URL
+    if (Engine.instance.api) {
+      const sceneData = await Engine.instance.api
+          .service('scene')
+          .get({ projectName, sceneName, metadataOnly: null }, {})
+      getMutableState(SceneState).sceneData.set(sceneData.data)
+    } else {
+      let sceneData = await (
+          await fetch(`${config.client.fileServer}/projects/${projectName}/${sceneName}.scene.json`)
+      ).json()
+      sceneData = parseStorageProviderURLs(sceneData)
+      getMutableState(SceneState).sceneData.set({
+        name: sceneName,
+        project: projectName,
+        scene: sceneData,
+        thumbnailUrl: `${config.client.fileServer}/projects/${projectName}/${sceneName}.thumbnail.ktx2`
+      })
+    }
   }
 }
 // export const

@@ -131,7 +131,7 @@ export const drawMocapDebug = () => {
   }
 }
 
-const drawDebug = drawMocapDebug()
+// const drawDebug = drawMocapDebug()
 
 export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID, entity) {
   const rig = getComponent(entity, AvatarRigComponent)
@@ -142,7 +142,7 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
   const avatarDebug = getState(RendererState).avatarDebug
 
   if (avatarDebug) {
-    drawDebug(landmarks)
+    drawMocapDebug()
   }
 
   const last = lastLandmarks
