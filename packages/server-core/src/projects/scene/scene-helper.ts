@@ -24,18 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import koa from '@feathersjs/koa'
-import fs from 'fs'
 
-import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import { addAssetFromProject } from '../../media/static-resource/static-resource-helper'
 // import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
-import {
-  cleanStorageProviderURLs,
-  parseStorageProviderURLs
-} from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -102,92 +96,4 @@ export const getEnvMapBakeById = async (app, entityId: string) => {
   //     }
   //   ]
   // })
-}
-
-export const uploadSceneToStaticResources = async (app: Application, projectName: string, file: string) => {
-  const fileResult = fs.readFileSync(file)
-
-  // todo - how do we handle updating projects on local dev?
-  if (!config.kubernetes.enabled) return fileResult
-
-  if (/.scene.json$/.test(file)) {
-    const sceneData = JSON.parse(fileResult.toString())
-    const convertedSceneData = await downloadAssetsFromScene(app, projectName, sceneData)
-    cleanStorageProviderURLs(convertedSceneData)
-    const newFile = Buffer.from(JSON.stringify(convertedSceneData, null, 2))
-    fs.writeFileSync(file, newFile)
-    return newFile
-  }
-
-  return fileResult
-}
-
-export const downloadAssetsFromScene = async (app: Application, project: string, sceneData: SceneJson) => {
-  // parallelizes each entity, serializes each component to avoid media playlists taking up gigs of memory when downloading
-  await Promise.all(
-    Object.values(sceneData!.entities).map(async (entity) => {
-      try {
-        for (const component of entity.components) {
-          switch (component.name) {
-            case 'media': {
-              let urls = [] as string[]
-              const paths = component.props.paths
-              if (paths) {
-                urls = paths
-                delete component.props.paths
-              }
-              const resources = component.props.resources
-              if (resources && resources.length > 0) {
-                if (typeof resources[0] === 'string') urls = resources
-                else urls = resources.map((resource) => resource.path)
-              }
-
-              const isVolumetric = entity.components.find((component) => component.name === 'volumetric')
-              if (isVolumetric) {
-                const extensions = ['drcs', 'mp4', 'manifest']
-                const newUrls = [] as string[]
-                for (const url of urls) {
-                  const split = url.split('.')
-                  const fileName = split.slice(0, split.length - 1).join('.')
-                  for (const extension of extensions) {
-                    newUrls.push(`${fileName}.${extension}`)
-                  }
-                }
-                urls = newUrls
-              }
-
-              const newUrls = [] as string[]
-              for (const url of urls) {
-                const newURL = await addAssetFromProject(app, url, project)
-                newUrls.push(newURL.url!)
-              }
-              if (isVolumetric) {
-                component.props.resources = newUrls.filter((url) => url.endsWith('.mp4'))
-              } else {
-                component.props.resources = newUrls
-              }
-              break
-            }
-            case 'gltf-model': {
-              if (component.props.src) {
-                const resource = await addAssetFromProject(app, component.props.src, project)
-                component.props.src = resource.url
-              }
-              break
-            }
-            case 'image': {
-              if (component.props.source) {
-                const resource = await addAssetFromProject(app, component.props.source, project)
-                component.props.source = resource.url
-              }
-              break
-            }
-          }
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    })
-  )
-  return sceneData
 }

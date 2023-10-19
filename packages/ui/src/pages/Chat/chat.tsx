@@ -56,7 +56,7 @@ export const initializeEngineForChat = async () => {
   startChatSystems()
   await loadEngineInjection(await projects)
 
-  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+  getMutableState(EngineState).isEngineInitialized.set(true)
   dispatchAction(EngineActions.sceneLoaded({}))
 }
 

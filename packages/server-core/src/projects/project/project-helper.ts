@@ -76,7 +76,6 @@ import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
-import { uploadSceneToStaticResources } from '../scene/scene-helper'
 import { getAuthenticatedRepo, getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
@@ -1648,7 +1647,7 @@ export const uploadLocalProjectToProvider = async (
   const results = [] as (string | null)[]
   for (const file of filtered) {
     try {
-      const fileResult = await uploadSceneToStaticResources(app, projectName, file)
+      const fileResult = fs.readFileSync(file)
       const filePathRelative = processFileName(file.slice(projectRootPath.length))
       await storageProvider.putObject(
         {

@@ -39,6 +39,7 @@ import {
 import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { Topic, defineActionQueue, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineQuery, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
@@ -77,9 +78,17 @@ export const EditorHistoryState = defineState({
 
   resetHistory: () => {
     const sceneData = getState(SceneState).sceneData!
+    let migratedSceneData
+    try {
+      migratedSceneData = migrateSceneData(sceneData)
+    } catch (e) {
+      console.error(e)
+      migratedSceneData = JSON.parse(JSON.stringify(sceneData))
+      NotificationService.dispatchNotify('Failed to migrate scene.', { variant: 'error' })
+    }
     getMutableState(EditorHistoryState).set({
       index: 0,
-      history: [{ data: migrateSceneData(sceneData), selectedEntities: [] }]
+      history: [{ data: migratedSceneData, selectedEntities: [] }]
     })
     EditorHistoryState.applyCurrentSnapshot()
   },

@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../../avatar/components/AvatarControllerComponent'
 import { teleportAvatar } from '../../../avatar/functions/moveAvatar'
 import { switchCameraMode } from '../../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../../camera/types/CameraMode'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNetworkState } from '../../../networking/state/EntityNetworkState'
@@ -61,14 +60,11 @@ export const revertAvatarToMovingStateFromTeleport = () => {
   teleportAvatar(localClientEntity, activePortal!.remoteSpawnPosition)
 
   getMutableState(PortalState).activePortalEntity.set(UndefinedEntity)
-  dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
 }
 
 export const portalTriggerEnter = (triggerEntity: Entity) => {
-  if (!getState(EngineState).isTeleporting && getComponent(triggerEntity, PortalComponent)) {
-    const portalComponent = getComponent(triggerEntity, PortalComponent)
+  if (!getState(PortalState).activePortalEntity && getComponent(triggerEntity, PortalComponent)) {
     getMutableState(PortalState).activePortalEntity.set(triggerEntity)
-    dispatchAction(EngineActions.setTeleporting({ isTeleporting: true }))
     return
   }
 }
