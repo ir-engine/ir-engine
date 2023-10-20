@@ -108,6 +108,7 @@ import { encode } from 'msgpackr'
 
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem, disableSystem, startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
@@ -236,7 +237,7 @@ export const connectToNetwork = async (
   port: string,
   locationId?: string | null,
   channelId?: ChannelID | null,
-  roomCode?: string | null
+  roomCode?: RoomCode | null
 ) => {
   logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, locationId, channelId, roomCode })
 
@@ -253,7 +254,7 @@ export const connectToNetwork = async (
     instanceID: InstanceID
     locationId?: string
     channelId?: ChannelID
-    roomCode?: string
+    roomCode?: RoomCode
     address?: string
     port?: string
     token: string
