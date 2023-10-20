@@ -53,6 +53,9 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EEMaterial } from './extensions/EE_MaterialTransformer'
 import { EEResourceID } from './extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from './ModelTransformLoader'
+
+import config from '@etherealengine/common/src/config'
+
 /**
  *
  * @param doc
@@ -358,7 +361,7 @@ export async function transformModel(args: ModelTransformParameters) {
   }
 
   const resourceName = baseName(args.src).slice(0, baseName(args.src).lastIndexOf('.'))
-  const resourcePath = pathJoin(LoaderUtils.extractUrlBase(args.src), args.resourceUri || resourceName)
+  const resourcePath = pathJoin(LoaderUtils.extractUrlBase(args.src), args.resourceUri || resourceName + '_resources')
 
   const toValidFilename = (name: string) => {
     const result = name.replace(/[\s]/g, '-')
@@ -379,7 +382,8 @@ export async function transformModel(args: ModelTransformParameters) {
   }
 
   const fileUploadPath = (fUploadPath: string) => {
-    const pathCheck = /.*\/packages\/projects\/(.*)\/([\w\d\s\-_.]*)$/
+    const relativePath = fUploadPath.replace(config.client.fileServer, '')
+    const pathCheck = /projects\/(.*)\/([\w\d\s\-_.]*)$/
     const [_, savePath, fileName] =
       pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(LoaderUtils.extractUrlBase(args.src), fUploadPath))!
     return [savePath, fileName]
@@ -581,12 +585,13 @@ export async function transformModel(args: ModelTransformParameters) {
   if (parms.modelFormat === 'glb') {
     const data = Buffer.from(await io.writeBinary(document))
     const [savePath, fileName] = fileUploadPath(args.dst)
-    result = await Engine.instance.api.service('file-browser').patch(null, {
+    const uploadArgs = {
       path: savePath,
       fileName,
       body: data,
       contentType: (await getContentType(args.dst)) || ''
-    })
+    }
+    result = await Engine.instance.api.service('file-browser').patch(null, uploadArgs)
     console.log('Handled glb file')
   } else if (parms.modelFormat === 'gltf') {
     await Promise.all(
@@ -620,8 +625,9 @@ export async function transformModel(args: ModelTransformParameters) {
       })
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
-
-    await Engine.instance.api.service(fileBrowserPath).create(resourcePath as any)
+    const folderURL = resourcePath.replace(config.client.fileServer, '')
+    //await Engine.instance.api.service(fileBrowserPath).remove(folderURL)
+    await Engine.instance.api.service(fileBrowserPath).create(folderURL)
 
     json.images?.map((image) => {
       const nuURI = pathJoin(
@@ -643,12 +649,13 @@ export async function transformModel(args: ModelTransformParameters) {
     })
     const doUpload = async (uri, data) => {
       const [savePath, fileName] = fileUploadPath(uri)
-      return Engine.instance.api.service(fileBrowserPath).patch(null, {
+      const args = {
         path: savePath,
         fileName,
         body: data,
         contentType: (await getContentType(uri)) || ''
-      })
+      }
+      return Engine.instance.api.service(fileBrowserPath).patch(null, args)
     }
     await Promise.all(Object.entries(resources).map(([uri, data]) => doUpload(uri, data)))
     result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))
