@@ -45,6 +45,7 @@ import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
@@ -146,7 +147,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   }
 
   const packageMessage = (): void => {
-    const instanceId = NetworkState.worldNetwork.id
+    const instanceId = NetworkState.worldNetwork.id as InstanceID
     if (composingMessage?.value?.length && instanceId) {
       if (usersTyping) {
         dispatchAction(
