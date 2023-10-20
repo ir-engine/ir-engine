@@ -596,6 +596,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                   value={volume}
                   onChange={adjustVolume}
                   aria-labelledby="continuous-slider"
+                  style={{ color: 'var(--textColor)' }}
                 />
               </div>
             )}
