@@ -34,9 +34,6 @@ export type SceneID = OpaqueType<'SceneID'> & string
 
 export const componentJsonSchema = Type.Object(
   {
-    id: TypedString<SceneID>({
-      format: 'uuid'
-    }),
     name: Type.String(),
     props: Type.Optional(Type.Any())
   },
@@ -47,9 +44,7 @@ export type ComponentJsonType = Static<typeof componentJsonSchema>
 export const entityJsonSchema = Type.Object(
   {
     name: Type.Union([
-      TypedString<SceneID>({
-        format: 'uuid'
-      }),
+      Type.String(),
       TypedString<EntityUUID>({
         format: 'uuid'
       })
