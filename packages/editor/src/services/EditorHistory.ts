@@ -173,26 +173,30 @@ const appendSnapshotQueue = defineActionQueue(EditorHistoryAction.appendSnapshot
 const modifyQueue = defineActionQueue(EditorHistoryAction.createSnapshot.matches)
 
 const execute = () => {
-  if (!getState(EngineState).isEditing) return
+  const isEditing = getState(EngineState).isEditing
 
   const state = getMutableState(EditorHistoryState)
   for (const action of undoQueue()) {
+    if (!isEditing) return
     if (state.index.value <= 0) continue
     state.index.set(Math.max(state.index.value - action.count, 0))
     EditorHistoryState.applyCurrentSnapshot()
   }
 
   for (const action of redoQueue()) {
+    if (!isEditing) return
     if (state.index.value >= state.history.value.length - 1) continue
     state.index.set(Math.min(state.index.value + action.count, state.history.value.length - 1))
     EditorHistoryState.applyCurrentSnapshot()
   }
 
   for (const action of clearHistoryQueue()) {
+    if (!isEditing) return
     EditorHistoryState.resetHistory()
   }
 
   for (const action of appendSnapshotQueue()) {
+    if (!isEditing) return
     if (action.$from !== Engine.instance.userID) {
       const json = action.json
       /**
@@ -210,6 +214,7 @@ const execute = () => {
 
   /** Local only - serialize world then push to CRDT */
   for (const action of modifyQueue()) {
+    if (!isEditing) return
     const editorHistory = getState(EditorHistoryState)
     const { data, selectedEntities } = action
     state.history.set([...editorHistory.history.slice(0, state.index.value + 1), { data, selectedEntities }])
