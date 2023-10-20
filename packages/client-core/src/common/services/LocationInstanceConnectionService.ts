@@ -28,10 +28,10 @@ import { none, State } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import logger from '@etherealengine/engine/src/common/functions/logger'
-import { matches, Parser } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
-import { defineAction, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { API } from '../../API'
@@ -223,20 +223,11 @@ export const LocationInstanceConnectionService = {
           })
       }
 
-      API.instance.client.service(instanceProvisionPath).on('created', instanceProvisionCreatedListener)
+      Engine.instance.api.service(instanceProvisionPath).on('created', instanceProvisionCreatedListener)
 
       return () => {
-        API.instance.client.service(instanceProvisionPath).off('created', instanceProvisionCreatedListener)
+        Engine.instance.api.service(instanceProvisionPath).off('created', instanceProvisionCreatedListener)
       }
     }, [])
   }
-}
-
-//Action
-
-export class LocationInstanceConnectionAction {
-  static connecting = defineAction({
-    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CONNECTING' as const,
-    instanceId: matches.string as Parser<unknown, InstanceID>
-  })
 }
