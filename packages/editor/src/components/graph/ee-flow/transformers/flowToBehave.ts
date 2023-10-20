@@ -38,7 +38,6 @@ export const flowToBehave = (nodes: Node[], edges: Edge[], specGenerator: NodeSp
 
     const nodeSpec = specGenerator.getNodeSpec(node.type, node.data.configuration)
     if (nodeSpec === undefined) return
-
     const behaveNode: NodeJSON = {
       id: node.id,
       type: node.type,
@@ -47,22 +46,19 @@ export const flowToBehave = (nodes: Node[], edges: Edge[], specGenerator: NodeSp
         positionY: String(node.position.y)
       }
     }
-    if (node.data.configuration) {
-      Object.entries(node.data.configuration).forEach(([key, value]) => {
-        if (behaveNode.configuration === undefined) {
-          behaveNode.configuration = {}
-        }
-        behaveNode.configuration[key] = value as ValueJSON
-      })
-    }
-    if (node.data.values) {
-      Object.entries(node.data.values).forEach(([key, value]) => {
-        if (behaveNode.parameters === undefined) {
-          behaveNode.parameters = {}
-        }
-        behaveNode.parameters[key] = { value: value as string }
-      })
-    }
+    Object.entries(node.data.configuration).forEach(([key, value]) => {
+      if (behaveNode.configuration === undefined) {
+        behaveNode.configuration = {}
+      }
+      behaveNode.configuration[key] = value as ValueJSON
+    })
+
+    Object.entries(node.data.values).forEach(([key, value]) => {
+      if (behaveNode.parameters === undefined) {
+        behaveNode.parameters = {}
+      }
+      behaveNode.parameters[key] = { value: value as string }
+    })
 
     edges
       .filter((edge) => edge.target === node.id)

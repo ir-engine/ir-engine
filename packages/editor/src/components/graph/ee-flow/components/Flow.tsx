@@ -29,7 +29,7 @@ import { Background, BackgroundVariant, ReactFlow } from 'reactflow'
 import { GraphJSON, IRegistry } from '@behave-graph/core'
 
 import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/functions/useGraphRunner.js'
-import _ from 'lodash'
+import { useHookstate } from '@hookstate/core'
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
 import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator.js'
@@ -48,6 +48,9 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   const specGenerator = useNodeSpecGenerator(registry)
 
   const flowRef = useRef(null)
+
+  const dragging = useHookstate(false)
+  const mouseOver = useHookstate(false)
 
   const { nodes, edges, onNodesChange, onEdgesChange, graphJson, setGraphJson, nodeTypes } = useBehaveGraphFlow({
     initialGraphJson: graph,
@@ -77,16 +80,10 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     registry
   })
 
-  const debouncedOnChangeGraph = _.debounce(() => {
-    onChangeGraph(graphJson ?? graph)
-  }, 2000)
-
   useEffect(() => {
-    debouncedOnChangeGraph()
-    return () => {
-      debouncedOnChangeGraph.cancel()
-    }
-  }, [graphJson])
+    if (dragging.value || !mouseOver.value) return
+    onChangeGraph(graphJson ?? graph)
+  }, [dragging, graphJson])
 
   return (
     <ReactFlow
@@ -94,6 +91,8 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
       nodeTypes={nodeTypes}
       nodes={nodes}
       edges={edges}
+      onNodeDragStart={() => dragging.set(true)}
+      onNodeDragStop={() => dragging.set(false)}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
@@ -101,6 +100,8 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
       onConnectStart={handleStartConnect}
       // @ts-ignore
       onConnectEnd={handleStopConnect}
+      onPaneMouseEnter={() => mouseOver.set(true)}
+      onPaneMouseLeave={() => mouseOver.set(false)}
       fitView
       fitViewOptions={{ maxZoom: 1 }}
       onPaneClick={handlePaneClick}

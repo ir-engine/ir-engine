@@ -50,7 +50,7 @@ import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projec
 import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { RoomCode, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -80,7 +80,7 @@ interface PrimusConnectionType {
     locationId?: string
     instanceID?: InstanceID
     channelId?: string
-    roomCode?: string
+    roomCode?: RoomCode
     token: string
     EIO: string
     transport: string
@@ -261,7 +261,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     getMutableState(NetworkState).hostIds.media.set(hostId)
     startMediaServerSystems()
     await loadEngineInjection(projects)
-    dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+    getMutableState(EngineState).isEngineInitialized.set(true)
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
@@ -274,7 +274,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     startWorldServerSystems()
     await loadEngineInjection(projects)
-    dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+    getMutableState(EngineState).isEngineInitialized.set(true)
 
     const sceneUpdatedListener = async () => {
       const sceneData = await sceneResultPromise
@@ -511,7 +511,7 @@ const handleUserDisconnect = async (
     }
   )
 
-  app.channel(`instanceIds/${instanceId as string}`).leave(connection)
+  app.channel(`instanceIds/${instanceId}`).leave(connection)
 
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
