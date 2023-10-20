@@ -327,21 +327,26 @@ export const AuthService = {
 
   /**
    * Logs in the current user based on an OAuth response.
-   * @param service {string} - OAuth service id (github, etc).
-   * @param location {object} - `useLocation()` from 'react-router-dom'
    */
-  async loginUserByOAuth(service: string, location: any) {
+  async loginUserByOAuth(service: string, location: import('react-router-dom').Location) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
     const path = location?.state?.from || location.pathname
-    const instanceId = (new URL(window.location.href).searchParams.get('instanceId') as InstanceID) || null
-    const redirectObject = {
+
+    const redirectConfig = {
       path: path
-    } as any
-    if (instanceId) redirectObject.instanceId = instanceId
+    } as Record<string, string>
+
+    const currentUrl = new URL(window.location.href)
+    const domain = currentUrl.protocol.concat('//').concat(currentUrl.host)
+    const instanceId = (currentUrl.searchParams.get('instanceId') as InstanceID) || null
+
+    if (instanceId) redirectConfig.instanceId = instanceId
+    if (domain) redirectConfig.domain = domain
+
     window.location.href = `${
       config.client.serverUrl
-    }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`
+    }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectConfig)}`
   },
 
   async removeUserOAuth(service: string) {
