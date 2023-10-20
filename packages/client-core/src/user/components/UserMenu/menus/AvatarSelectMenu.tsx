@@ -99,7 +99,7 @@ const AvatarMenu = () => {
       open
       showBackButton
       actions={
-        <Box display="flex" width="100%">
+        <Box display="flex" width="100%" justifyContent="center">
           <Button
             disabled={!currentAvatar || currentAvatar.id === userAvatarId.value}
             startIcon={<Icon type="Check" />}
