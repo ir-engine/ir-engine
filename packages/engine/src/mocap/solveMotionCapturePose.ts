@@ -67,6 +67,55 @@ const grey = new Color(0.5, 0.5, 0.5)
 
 let prevLandmarks: NormalizedLandmarkList
 
+const rightFootHistory = [] as number[]
+const leftFootHistory = [] as number[]
+const feetGrounded = [false, false]
+const footAverageDifferenceThreshold = 0.05
+const footLevelDifferenceThreshold = 0.15
+/**calculates which feet are grounded. operates on the assumption that the user is on a plane,
+ * such that the lowest foot with no vertical motion over the past 10 frames is always the grounded foot.
+ */
+export const calculateGroundedFeet = (newLandmarks: NormalizedLandmark[]) => {
+  //assign right foot y to index 0, left foot y to index 1
+  const footVerticalPositions = [
+    newLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE].y,
+    newLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE].y
+  ]
+
+  if (!footVerticalPositions[0] || !footVerticalPositions[1]) return
+
+  //average history
+  const footAverages = [
+    rightFootHistory.reduce((a, b) => a + b, 0) / rightFootHistory.length,
+    leftFootHistory.reduce((a, b) => a + b, 0) / leftFootHistory.length
+  ]
+
+  //then update history
+  rightFootHistory.push(footVerticalPositions[0])
+  leftFootHistory.push(footVerticalPositions[1])
+  if (rightFootHistory.length > 10) rightFootHistory.shift()
+  if (leftFootHistory.length > 10) leftFootHistory.shift()
+
+  //determine if grounded for each foot
+  for (let i = 0; i < 2; i++) {
+    //difference between current landmark y and average y from history
+    const footMoving = Math.abs(footVerticalPositions[i] - footAverages[i]) > footAverageDifferenceThreshold
+    //compare foot level for right and left foot
+    const footLevel =
+      Math.abs(footVerticalPositions[i] - footVerticalPositions[i == 0 ? 1 : 0]) < footLevelDifferenceThreshold
+    const isLowestFoot = footVerticalPositions[i] > footVerticalPositions[i == 0 ? 1 : 0]
+    if (feetGrounded[i]) {
+      if (footMoving && !footLevel) {
+        feetGrounded[i] = false
+      }
+    } else {
+      if ((isLowestFoot || footLevel) && !footMoving) feetGrounded[i] = true
+    }
+  }
+
+  return feetGrounded
+}
+
 export const drawMocapDebug = () => {
   const debugMeshes = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
 
@@ -93,6 +142,16 @@ export const drawMocapDebug = () => {
       if (key === `${POSE_LANDMARKS_RIGHT.RIGHT_WRIST}`) mesh.material.color.set(0xff0000)
       if (key === `${POSE_LANDMARKS_RIGHT.RIGHT_PINKY}`) mesh.material.color.set(0x00ff00)
       if (key === `${POSE_LANDMARKS_RIGHT.RIGHT_INDEX}`) mesh.material.color.set(0x0000ff)
+
+      //debug to show the acurracy of the foot grounded  estimation
+      if (key === `${POSE_LANDMARKS_LEFT.LEFT_ANKLE}`) {
+        mesh.material.color.setHex(feetGrounded[1] ? 0x00ff00 : 0xff0000)
+        mesh.geometry = new SphereGeometry(0.05)
+      }
+      if (key === `${POSE_LANDMARKS_RIGHT.RIGHT_ANKLE}`) {
+        mesh.material.color.setHex(feetGrounded[0] ? 0x00ff00 : 0xff0000)
+        mesh.geometry = new SphereGeometry(0.05)
+      }
       mesh.matrixWorld.setPosition(value.x, lowestWorldY - value.y, value.z)
     }
 
@@ -134,56 +193,6 @@ export const drawMocapDebug = () => {
 const drawDebug = drawMocapDebug()
 const drawDebugScreen = drawMocapDebug()
 const drawDebugFinal = drawMocapDebug()
-
-const rightFootHistory = [] as number[]
-const leftFootHistory = [] as number[]
-const feetGrounded = [false, false]
-const footAverageDifferenceThreshold = 0.05
-const footLevelDifferenceThreshold = 0.15
-/**calculates which feet are grounded. operates on the assumption that the user is on a plane,
- * such that the lowest foot with no vertical motion over the past 10 frames is always the grounded foot.
- */
-export const calculateGroundedFeet = (newLandmarks: NormalizedLandmark[]) => {
-  //assign right foot y to index 0, left foot y to index 1
-  const footVerticalPositions = [
-    newLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE].y,
-    newLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE].y
-  ]
-
-  if (!footVerticalPositions[0] || !footVerticalPositions[1]) return
-
-  //average history
-  const footAverages = [
-    rightFootHistory.reduce((a, b) => a + b, 0) / rightFootHistory.length,
-    leftFootHistory.reduce((a, b) => a + b, 0) / leftFootHistory.length
-  ]
-
-  //then update history
-  rightFootHistory.push(footVerticalPositions[0])
-  leftFootHistory.push(footVerticalPositions[1])
-  if (rightFootHistory.length > 10) rightFootHistory.shift()
-  if (leftFootHistory.length > 10) leftFootHistory.shift()
-
-  //determine if grounded for each foot
-  for (let i = 0; i < 2; i++) {
-    //difference between current landmark y and average y from history
-    const footMoving = Math.abs(footVerticalPositions[i] - footAverages[i]) > footAverageDifferenceThreshold
-    //compare foot level for right and left foot
-    const footLevel =
-      Math.abs(footVerticalPositions[i] - footVerticalPositions[i == 0 ? 1 : 0]) < footLevelDifferenceThreshold
-    const isLowestFoot = footVerticalPositions[i] < footVerticalPositions[i == 0 ? 1 : 0]
-    console.log(footLevel, footMoving)
-    if (feetGrounded[i]) {
-      if (footMoving || !footLevel) {
-        feetGrounded[i] = false
-      }
-    } else {
-      if ((isLowestFoot || footLevel) && !footMoving) feetGrounded[i] = true
-    }
-  }
-
-  return feetGrounded
-}
 
 export const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], threshold = 0.5) => {
   const hipsVisibility =
