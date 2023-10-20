@@ -28,6 +28,7 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { SceneID } from '../projects/scene.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { InstanceID } from './instance.schema'
 
@@ -41,7 +42,9 @@ export const instanceAttendanceSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    sceneId: Type.String(),
+    sceneId: TypedString<SceneID>({
+      format: 'uuid'
+    }),
     isChannel: Type.Boolean(),
     ended: Type.Boolean(),
     instanceId: TypedString<InstanceID>({

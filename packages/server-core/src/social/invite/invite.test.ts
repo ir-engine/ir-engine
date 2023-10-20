@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { inviteTypes } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
 import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
@@ -37,7 +38,7 @@ describe('invite.service', () => {
   let app: Application
   let testUser: UserType
   let testLocation: LocationType
-  let invites: InviteType[] = []
+  const invites: InviteType[] = []
 
   before(async () => {
     app = createFeathersKoaApp()
@@ -63,7 +64,7 @@ describe('invite.service', () => {
       {
         name: `test-location-name-${v1()}`,
         slugifiedName: '',
-        sceneId: `test-invite-scene-${v1()}`,
+        sceneId: `test-invite-scene-${v1()}` as SceneID,
         maxUsersPerInstance: 30,
         locationSetting: {
           id: '',

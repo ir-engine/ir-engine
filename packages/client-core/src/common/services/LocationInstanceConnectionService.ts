@@ -34,6 +34,7 @@ import { defineState, getMutableState, getState, useState } from '@etherealengin
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { API } from '../../API'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -43,7 +44,7 @@ export type InstanceState = {
   ipAddress: string
   port: string
   locationId: string | null
-  sceneId: string | null
+  sceneId: SceneID | null
   roomCode: RoomCode
 }
 
@@ -72,7 +73,7 @@ export const LocationInstanceConnectionService = {
   provisionServer: async (
     locationId?: string,
     instanceId?: InstanceID,
-    sceneId?: string,
+    sceneId?: SceneID,
     roomCode?: RoomCode,
     createPrivateRoom?: boolean
   ) => {
@@ -116,7 +117,7 @@ export const LocationInstanceConnectionService = {
       }, 1000)
     }
   },
-  provisionExistingServer: async (locationId: string, instanceId: InstanceID, sceneId: string) => {
+  provisionExistingServer: async (locationId: string, instanceId: InstanceID, sceneId: SceneID) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision Existing World Server')
     const token = getState(AuthState).authUser.accessToken
     const instance = (await API.instance.client.service(instancePath).find({
@@ -157,7 +158,7 @@ export const LocationInstanceConnectionService = {
       console.warn('Failed to connect to expected existing instance')
     }
   },
-  provisionExistingServerByRoomCode: async (locationId: string, roomCode: RoomCode, sceneId: string) => {
+  provisionExistingServerByRoomCode: async (locationId: string, roomCode: RoomCode, sceneId: SceneID) => {
     logger.info({ locationId, roomCode, sceneId }, 'Provision Existing World Server')
     const token = getState(AuthState).authUser.accessToken
     const instance = (await API.instance.client.service(instancePath).find({
