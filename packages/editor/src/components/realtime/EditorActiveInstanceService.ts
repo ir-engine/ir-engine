@@ -23,7 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LocationInstanceState } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import {
+  InstanceState,
+  LocationInstanceState
+} from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import logger from '@etherealengine/engine/src/common/functions/logger'
@@ -77,7 +80,7 @@ export const EditorActiveInstanceService = {
           sceneId: sceneId,
           roomCode: provisionResult.roomCode
         }
-      })
+      } as Partial<{ [id: InstanceID]: InstanceState }>)
     }
   },
   getActiveInstances: async (sceneId: string) => {

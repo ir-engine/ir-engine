@@ -34,16 +34,17 @@ import { defineAction, defineState, getMutableState, getState, useState } from '
 
 import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { API } from '../../API'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 
-type InstanceState = {
+export type InstanceState = {
   ipAddress: string
   port: string
   locationId: string | null
   sceneId: string | null
-  roomCode: string
+  roomCode: RoomCode
 }
 
 //State
@@ -72,7 +73,7 @@ export const LocationInstanceConnectionService = {
     locationId?: string,
     instanceId?: InstanceID,
     sceneId?: string,
-    roomCode?: string,
+    roomCode?: RoomCode,
     createPrivateRoom?: boolean
   ) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
@@ -105,9 +106,9 @@ export const LocationInstanceConnectionService = {
           port: provisionResult.port,
           locationId: locationId!,
           sceneId: sceneId!,
-          roomCode: provisionResult.roomCode
+          roomCode: provisionResult.roomCode as RoomCode
         }
-      })
+      } as Partial<{ [id: InstanceID]: InstanceState }>)
     } else {
       logger.error('Failed to connect to expected instance')
       setTimeout(() => {
@@ -149,14 +150,14 @@ export const LocationInstanceConnectionService = {
           port: provisionResult.port,
           locationId: locationId!,
           sceneId: sceneId!,
-          roomCode: provisionResult.roomCode
+          roomCode: provisionResult.roomCode as RoomCode
         }
-      })
+      } as Partial<{ [id: InstanceID]: InstanceState }>)
     } else {
       console.warn('Failed to connect to expected existing instance')
     }
   },
-  provisionExistingServerByRoomCode: async (locationId: string, roomCode: string, sceneId: string) => {
+  provisionExistingServerByRoomCode: async (locationId: string, roomCode: RoomCode, sceneId: string) => {
     logger.info({ locationId, roomCode, sceneId }, 'Provision Existing World Server')
     const token = getState(AuthState).authUser.accessToken
     const instance = (await API.instance.client.service(instancePath).find({
@@ -193,7 +194,7 @@ export const LocationInstanceConnectionService = {
           sceneId: sceneId!,
           roomCode: provisionResult.roomCode
         }
-      })
+      } as Partial<{ [id: InstanceID]: InstanceState }>)
     } else {
       console.warn('Failed to connect to expected existing instance')
     }
