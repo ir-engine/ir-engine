@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Dashboard from '@etherealengine/ui/src/primitives/mui/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
@@ -55,7 +55,7 @@ const AdminRoutes = () => {
 
   useEffect(() => {
     AdminSystemInjection()
-    dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+    getMutableState(EngineState).isEngineInitialized.set(true)
     allowedRoutes.set(DefaultAdminRoutes)
   }, [])
 

@@ -30,6 +30,7 @@ import { createFeathersKoaApp } from '../../createApp'
 import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
@@ -110,7 +111,7 @@ describe('channel service', () => {
     })
 
     const instance = (await app.service(instancePath).create(
-      { roomCode: '', currentUsers: 0 },
+      { roomCode: '' as RoomCode, currentUsers: 0 },
       {
         // @ts-ignore
         isInternal: true
@@ -159,7 +160,7 @@ describe('channel service', () => {
     })
 
     const instance = (await app.service(instancePath).create(
-      { roomCode: '', currentUsers: 0 },
+      { roomCode: '' as RoomCode, currentUsers: 0 },
       {
         // @ts-ignore
         isInternal: true
@@ -188,7 +189,7 @@ describe('channel service', () => {
     })
 
     const instance = (await app.service(instancePath).create(
-      { roomCode: '', currentUsers: 0 },
+      { roomCode: '' as RoomCode, currentUsers: 0 },
       {
         // @ts-ignore
         isInternal: true

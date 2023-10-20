@@ -30,14 +30,14 @@ import { ProjectState } from '@etherealengine/client-core/src/common/services/Pr
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { startClientSystems } from '@etherealengine/client-core/src/world/startClientSystems'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
   PresentationSystemGroup,
   SimulationSystemGroup
 } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { RenderInfoSystem } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
@@ -49,6 +49,11 @@ import { EditorControlSystem } from '../systems/EditorControlSystem'
 import { EditorFlyControlSystem } from '../systems/EditorFlyControlSystem'
 import { GizmoSystem } from '../systems/GizmoSystem'
 import { ModelHandlingSystem } from '../systems/ModelHandlingSystem'
+
+import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
+
+// ensure all our systems are imported, #9077
+const EditorSystemsReferenced = [useDefaultLocationSystems]
 
 const editorSystems = () => {
   startSystems([EditorFlyControlSystem, EditorControlSystem, EditorCameraSystem, GizmoSystem], {
@@ -76,7 +81,7 @@ export const useStudioEditor = () => {
     projects.then((proj) => {
       loadEngineInjection(proj).then(() => {
         setEngineReady(true)
-        dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+        getMutableState(EngineState).isEngineInitialized.set(true)
       })
     })
   }, [])

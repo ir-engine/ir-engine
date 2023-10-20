@@ -202,10 +202,12 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
     const props = properties[i] ?? properties[0]
     Object.entries(props).map(([k, v]) => {
       if (!material) throw new Error('Updating properties on undefined material')
-      if (typeof v?.copy === 'function') {
-        if (!material[k]) material[k] = new v.constructor()
-        material[k].copy(v)
-      } else if (typeof v !== 'undefined' && typeof material[k] === 'object' && typeof material[k].set === 'function') {
+      if (
+        ![undefined, null].includes(v) &&
+        ![undefined, null].includes(material[k]) &&
+        typeof material[k] === 'object' &&
+        typeof material[k].set === 'function'
+      ) {
         material[k].set(v)
       } else {
         material[k] = v
