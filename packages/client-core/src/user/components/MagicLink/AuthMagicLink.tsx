@@ -78,7 +78,7 @@ const AuthMagicLinkWrapper = (props: any): JSX.Element => {
   const token = search.get('token') as string
   const type = search.get('type') as string
   const path = search.get('path') as string
-  const instanceId = search.get('instanceId') as string
+  const instanceId = search.get('instanceId') as InstanceID
 
   return <AuthMagicLink {...props} token={token} type={type} instanceId={instanceId} path={path} />
 }

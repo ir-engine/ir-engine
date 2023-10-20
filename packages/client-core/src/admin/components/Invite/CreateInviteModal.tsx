@@ -47,7 +47,7 @@ import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -78,7 +78,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const makeAdmin = useHookstate(false)
   const oneTimeUse = useHookstate(true)
   const locationId = useHookstate('')
-  const instanceId = useHookstate('')
+  const instanceId = useHookstate('' as InstanceID)
   const userInviteCode = useHookstate('')
   const spawnPointUUID = useHookstate('')
   const setSpawn = useHookstate(false)
@@ -204,7 +204,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
           sendData.endTime = toDateTimeSql(endTime.value?.toDate())
         }
         await InviteService.sendInvite(sendData, inviteCode)
-        instanceId.set('')
+        instanceId.set('' as InstanceID)
         locationId.set('')
         textValue.set('')
         makeAdmin.set(false)
