@@ -39,11 +39,11 @@ import { KnexAdapterParams } from '@feathersjs/knex'
 const roomCodeCharacters = '123456789'
 
 export const generateRoomCode = (): RoomCode => {
-  let code = '' as RoomCode
+  let code = ''
   for (let i = 0; i < 6; i++) {
     code += roomCodeCharacters.charAt(Math.floor(Math.random() * roomCodeCharacters.length))
   }
-  return code
+  return code as RoomCode
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
