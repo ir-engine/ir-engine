@@ -32,8 +32,8 @@ import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
@@ -112,7 +112,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     if (activeScene) {
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
-        dispatchAction(EngineActions.sceneUnloaded({}))
+        getMutableState(EngineState).sceneLoaded.set(false)
         RouterState.navigate(`/studio/${editorState.projectName.value}`)
       }
 

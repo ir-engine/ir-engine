@@ -28,7 +28,7 @@ import { none, State } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import logger from '@etherealengine/engine/src/common/functions/logger'
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { matches, Parser } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
 import { defineAction, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
@@ -237,6 +237,6 @@ export const LocationInstanceConnectionService = {
 export class LocationInstanceConnectionAction {
   static connecting = defineAction({
     type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CONNECTING' as const,
-    instanceId: matches.string
+    instanceId: matches.string as Parser<unknown, InstanceID>
   })
 }

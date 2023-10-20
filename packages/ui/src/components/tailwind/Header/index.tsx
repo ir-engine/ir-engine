@@ -67,7 +67,7 @@ const Header = (props: { mode: State<'playback' | 'capture'> }) => {
             <span className="mr-1">{user?.name?.value}</span>
             <div className="avatar">
               <div className="w-8 rounded-full">
-                {avatarDetails.thumbnailResource?.url ? (
+                {avatarDetails?.thumbnailResource?.url ? (
                   <img
                     src={avatarDetails.thumbnailResource?.url}
                     crossOrigin="anonymous"

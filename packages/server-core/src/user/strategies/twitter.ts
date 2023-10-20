@@ -29,6 +29,7 @@ import { random } from 'lodash'
 
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -133,7 +134,7 @@ export class TwitterStrategy extends CustomOAuthStrategy {
         parsedRedirect = {}
       }
       const path = parsedRedirect.path
-      const instanceId = parsedRedirect.instanceId
+      const instanceId = parsedRedirect.instanceId as InstanceID
       let returned = redirectHost + `?token=${token}&type=${type}`
       if (path != null) returned = returned.concat(`&path=${path}`)
       if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`)

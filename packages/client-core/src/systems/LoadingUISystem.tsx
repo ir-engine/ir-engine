@@ -31,7 +31,7 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
@@ -52,7 +52,7 @@ import {
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
@@ -86,16 +86,12 @@ const LoadingUISystemState = defineState({
     setObjectLayers(mesh, ObjectLayers.UI)
 
     return {
-      metadataLoaded: false,
       ui,
       mesh,
       transition
     }
   }
 })
-
-const avatarModelChangedQueue = defineActionQueue(EngineActions.avatarModelChanged.matches)
-const spectateUserQueue = defineActionQueue(EngineActions.spectateUser.matches)
 
 /** Scene Colors */
 function setDefaultPalette() {
@@ -120,25 +116,29 @@ const setColors = (image: HTMLImageElement) => {
 function LoadingReactor() {
   const loadingState = useHookstate(getMutableState(AppLoadingState))
   const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress)
+  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+  const userReady = useHookstate(getMutableState(EngineState).userReady)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const sceneData = useHookstate(getMutableState(SceneState).sceneData)
   const mesh = state.mesh.value
-  const metadataLoaded = state.metadataLoaded
 
   /** Handle loading state changes */
   useEffect(() => {
     const transition = getState(LoadingUISystemState).transition
+    if (loadingState.state.value === AppLoadingStates.SCENE_LOADING && transition.state === 'OUT')
+      return transition.setState('IN')
+
+    if (loadingState.state.value === AppLoadingStates.FAIL && transition.state === 'IN')
+      return transition.setState('OUT')
+
     if (
-      loadingState.state.value === AppLoadingStates.SCENE_LOADING &&
-      transition.state === 'OUT' &&
-      metadataLoaded.value
-    ) {
-      transition.setState('IN')
-    }
-    if (loadingState.state.value === AppLoadingStates.FAIL && transition.state === 'IN') {
-      transition.setState('OUT')
-    }
-  }, [loadingState.state, metadataLoaded])
+      loadingState.state.value === AppLoadingStates.SUCCESS &&
+      transition.state === 'IN' &&
+      userReady.value &&
+      sceneLoaded.value
+    )
+      return transition.setState('OUT')
+  }, [loadingState.state, userReady, sceneLoaded])
 
   /** Scene data changes */
   useEffect(() => {
@@ -204,24 +204,10 @@ const mainThemeColor = new Color()
 const defaultColor = new Color()
 
 const execute = () => {
-  const { transition, ui, mesh, metadataLoaded } = getState(LoadingUISystemState)
+  const { transition, ui, mesh } = getState(LoadingUISystemState)
   if (!transition) return
 
-  const appLoadingState = getState(AppLoadingState)
   const engineState = getState(EngineState)
-
-  for (const action of spectateUserQueue()) {
-    if (appLoadingState.state === AppLoadingStates.SUCCESS && engineState.sceneLoaded) transition.setState('OUT')
-  }
-
-  for (const action of avatarModelChangedQueue()) {
-    if (
-      (action.entity === Engine.instance.localClientEntity || engineState.spectating) &&
-      appLoadingState.state === AppLoadingStates.SUCCESS &&
-      engineState.sceneLoaded
-    )
-      transition.setState('OUT')
-  }
 
   if (transition.state === 'OUT' && transition.alpha === 0) {
     removeComponent(ui.entity, ComputedTransformComponent)
@@ -299,7 +285,6 @@ const reactor = () => {
     //   removeEntity(ui.entity)
     //   mesh.removeFromParent()
     //   getMutableState(LoadingUISystemState).set({
-    //     metadataLoaded: false,
     //     ui: null!,
     //     mesh: null!,
     //     transition: null!
