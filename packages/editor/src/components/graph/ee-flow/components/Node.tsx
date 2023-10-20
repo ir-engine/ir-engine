@@ -94,7 +94,7 @@ export const Node: React.FC<NodeProps> = ({ id, data, spec, selected, specGenera
             <InputSocket
               {...input}
               specGenerator={specGenerator}
-              value={data[input.name] ?? input.defaultValue}
+              value={data.values?.[input.name] ?? input.defaultValue}
               onChange={handleChange}
               connected={isHandleConnected(edges, id, input.name, 'target')}
             />
