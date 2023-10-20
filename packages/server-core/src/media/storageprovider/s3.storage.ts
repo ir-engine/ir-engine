@@ -28,6 +28,7 @@ import {
   CreateFunctionCommand,
   CreateInvalidationCommand,
   DescribeFunctionCommand,
+  FunctionRuntime,
   FunctionSummary,
   GetDistributionCommand,
   ListFunctionsCommand,
@@ -46,6 +47,7 @@ import {
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
+  ObjectCannedACL,
   ObjectIdentifier,
   PutObjectCommand,
   S3Client,
@@ -301,14 +303,14 @@ export class S3Provider implements StorageProviderInterface {
 
     const args = params.isDirectory
       ? {
-          ACL: 'public-read',
+          ACL: 'public-read' as ObjectCannedACL,
           Body: Buffer.alloc(0),
           Bucket: this.bucket,
           ContentType: 'application/x-empty',
           Key: key + '/'
         }
       : {
-          ACL: 'public-read',
+          ACL: 'public-read' as ObjectCannedACL,
           Body: data.Body,
           Bucket: this.bucket,
           ContentType: data.ContentType,
@@ -497,7 +499,7 @@ export class S3Provider implements StorageProviderInterface {
       FunctionCode: new TextEncoder().encode(code),
       FunctionConfig: {
         Comment: 'Function to handle routing of Ethereal Engine client',
-        Runtime: 'cloudfront-js-1.0'
+        Runtime: 'cloudfront-js-1.0' as FunctionRuntime
       }
     }
     const command = new CreateFunctionCommand(params)
@@ -566,7 +568,7 @@ export class S3Provider implements StorageProviderInterface {
       FunctionCode: new TextEncoder().encode(code),
       FunctionConfig: {
         Comment: 'Function to handle routing of Ethereal Engine client',
-        Runtime: 'cloudfront-js-1.0'
+        Runtime: 'cloudfront-js-1.0' as FunctionRuntime
       }
     }
     const command = new UpdateFunctionCommand(params)
@@ -699,7 +701,7 @@ export class S3Provider implements StorageProviderInterface {
     const result = await Promise.all([
       ...listResponse.Contents.map(async (file) => {
         const input = {
-          ACL: 'public-read',
+          ACL: 'public-read' as ObjectCannedACL,
           Bucket: this.bucket,
           CopySource: `/${this.bucket}/${file.Key}`,
           Key: path.join(newFilePath, file.Key.replace(oldFilePath, ''))
