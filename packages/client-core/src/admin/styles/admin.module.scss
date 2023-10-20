@@ -76,6 +76,7 @@
 .gradientButton {
   background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
   color: var(--buttonTextColor) !important;
+  width:100%;
 
   &.forceVaporwave {
     background: linear-gradient(90deg, #5236ff, #c20560);
@@ -95,6 +96,7 @@
   background: transparent;
   border: solid 1px var(--buttonOutlined);
   color: var(--buttonTextColor) !important;
+  width:100%;
 
   &:hover {
     opacity: 0.7;
