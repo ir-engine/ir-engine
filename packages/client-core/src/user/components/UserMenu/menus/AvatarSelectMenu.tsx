@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
@@ -35,7 +35,7 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AvatarEffectComponent } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -44,8 +44,10 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { debounce } from 'lodash'
+import { LoadingCircle } from '../../../../components/LoadingCircle'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -58,6 +60,8 @@ const AvatarMenu = () => {
   const authState = useHookstate(getMutableState(AuthState))
   const userId = authState.user?.id?.value
   const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as EntityUUID)
+  const avatarLoading = useHookstate(false)
+  const isUserReady = getState(EngineState).userReady
 
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('')
@@ -83,7 +87,7 @@ const AvatarMenu = () => {
       }
     }
     selectedAvatarId.set('')
-    PopupMenuServices.showPopupMenu()
+    avatarLoading.set(true)
   }
 
   const handleSearch = async (searchString: string) => {
@@ -95,22 +99,34 @@ const AvatarMenu = () => {
     searchTimeoutCancelRef.current = debounce(() => search.query.set(searchString), 1000).cancel
   }
 
+  useEffect(() => {
+    console.log('debug1 userReady value is', isUserReady)
+    if (avatarLoading.value && isUserReady) {
+      avatarLoading.set(false)
+      PopupMenuServices.showPopupMenu()
+    }
+  }, [isUserReady, avatarLoading])
+
   return (
     <Menu
       open
       showBackButton
       actions={
         <Box display="flex" width="100%">
-          <Button
-            disabled={!currentAvatar || currentAvatar.id === userAvatarId.value}
-            startIcon={<Icon type="Check" />}
-            size="medium"
-            type="gradientRounded"
-            title={t('user:avatar.confirm')}
-            onClick={handleConfirmAvatar}
-          >
-            {t('user:avatar.confirm')}
-          </Button>
+          {avatarLoading.value ? (
+            <LoadingCircle />
+          ) : (
+            <Button
+              disabled={!currentAvatar || currentAvatar.id === userAvatarId.value}
+              startIcon={<Icon type="Check" />}
+              size="medium"
+              type="gradientRounded"
+              title={t('user:avatar.confirm')}
+              onClick={handleConfirmAvatar}
+            >
+              {t('user:avatar.confirm')}
+            </Button>
+          )}
         </Box>
       }
       title={t('user:avatar.titleSelectAvatar')}
