@@ -33,7 +33,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import TableComponent from '../../common/Table'
 import { InstanceData, instanceColumns } from '../../common/variables/instance'
 import styles from '../../styles/admin.module.scss'
@@ -50,7 +50,7 @@ const InstanceTable = ({ className, search }: Props) => {
   const { t } = useTranslation()
   const refetch = useHookstate(false)
   const openConfirm = useHookstate(false)
-  const instanceId = useHookstate('')
+  const instanceId = useHookstate('' as InstanceID)
   const instanceName = useHookstate('')
   const instanceAdmin = useHookstate<InstanceType | undefined>(undefined)
   const openInstanceDrawer = useHookstate(false)
@@ -126,7 +126,7 @@ const InstanceTable = ({ className, search }: Props) => {
           <Button
             className={styles.actionStyle}
             onClick={() => {
-              instanceId.set(id)
+              instanceId.set(id as InstanceID)
               instanceName.set(ipAddress)
               openConfirm.set(true)
             }}
