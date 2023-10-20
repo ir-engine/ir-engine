@@ -511,7 +511,7 @@ const handleUserDisconnect = async (
     }
   )
 
-  app.channel(`instanceIds/${instanceId as string}`).leave(connection)
+  app.channel(`instanceIds/${instanceId}`).leave(connection)
 
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
