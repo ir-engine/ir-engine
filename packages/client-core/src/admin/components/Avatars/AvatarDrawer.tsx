@@ -505,7 +505,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
           <Button
             className={styles.gradientButton}
             startIcon={<Icon type="Portrait" />}
-            sx={{ marginLeft: 1, width: '250px' }}
+            sx={{ width: '250px' }}
             title={t('admin:components.avatar.saveThumbnailTooltip')}
             disabled={!state.avatarFile.value || avatarLoading.value}
             onClick={handleGenerateFileThumbnail}
