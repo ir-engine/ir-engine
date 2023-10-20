@@ -156,6 +156,8 @@ function GeometryReactor() {
   useEffect(() => {
     const params = geometryComponent.geometryParams.get(NO_PROXY)
     let currentGeometry: Geometry
+    // can we get the params for a geometry type before its initialized? that would simplify this
+    // can we make the GeometryTypeEnum, contain the typeof geometry? that would simplify this switch case into a single line
     switch (geometryComponent.geometryType.value) {
       case GeometryTypeEnum.BoxGeometry:
         currentGeometry = createGeometry(BoxGeometry, params)
