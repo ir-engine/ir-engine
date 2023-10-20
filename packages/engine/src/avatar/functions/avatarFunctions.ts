@@ -125,6 +125,8 @@ export const loadAvatarForUser = async (
     }
   }
 
+  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(false)
+
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
   const parent = (await loadAvatarModelAsset(avatarURL)) as VRM
 

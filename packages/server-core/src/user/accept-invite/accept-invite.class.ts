@@ -28,7 +28,7 @@ import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
@@ -265,7 +265,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
         const locationId = instance ? instance.locationId : invite.targetObjectId
         const location = await this.app.service(locationPath).get(locationId)
         returned.locationName = location.slugifiedName
-        if (instance) returned.instanceId = instance.id
+        if (instance) returned.instanceId = instance.id as InstanceID
 
         if (location.locationSetting?.locationType === 'private') {
           const userId = inviteeIdentityProvider.userId

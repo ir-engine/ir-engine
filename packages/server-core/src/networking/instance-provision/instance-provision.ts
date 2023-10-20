@@ -27,6 +27,7 @@ import {
   instanceProvisionMethods,
   instanceProvisionPath
 } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { InstanceProvisionService } from './instance-provision.class'
@@ -65,7 +66,7 @@ export default (app: Application): void => {
         locationId: data.locationId,
         sceneId: data.sceneId,
         channelId: data.channelId,
-        instanceId: data.instanceId
+        instanceId: data.instanceId as InstanceID
       })
     } catch (err) {
       logger.error(err)

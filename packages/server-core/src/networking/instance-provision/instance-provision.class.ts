@@ -35,7 +35,7 @@ import {
   InstanceAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 import { InstanceProvisionType } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
-import { instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { locationPath, LocationType, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
@@ -524,7 +524,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
     try {
       let userId
       const locationId = params?.query?.locationId
-      const instanceId = params?.query?.instanceId
+      const instanceId = params?.query?.instanceId as InstanceID
       const channelId = params?.query?.channelId as ChannelID | undefined
       const roomCode = params?.query?.roomCode as RoomCode
       const createPrivateRoom = params?.query?.createPrivateRoom

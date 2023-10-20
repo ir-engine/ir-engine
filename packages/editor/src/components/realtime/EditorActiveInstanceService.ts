@@ -28,7 +28,6 @@ import {
   LocationInstanceState
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import logger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
@@ -37,29 +36,15 @@ import {
 } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
 import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { defineAction, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 export const EditorActiveInstanceState = defineState({
   name: 'EditorActiveInstanceState',
   initial: () => ({
     activeInstances: [] as InstanceActiveType[],
     fetching: false
-  })
-})
+  }),
 
-export const EditorActiveInstanceServiceReceptor = (action): any => {
-  const state = getMutableState(EditorActiveInstanceState)
-  matches(action)
-    .when(EditorActiveInstanceAction.fetchingActiveInstances.matches, (action) => {
-      return state.merge({ fetching: true })
-    })
-    .when(EditorActiveInstanceAction.fetchedActiveInstances.matches, (action) => {
-      return state.merge({ activeInstances: action.activeInstances, fetching: false })
-    })
-}
-
-//Service
-export const EditorActiveInstanceService = {
   provisionServer: async (locationId: string, instanceId: InstanceID, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server Editor')
     const token = getState(AuthState).authUser.accessToken
@@ -83,6 +68,7 @@ export const EditorActiveInstanceService = {
       } as Partial<{ [id: InstanceID]: InstanceState }>)
     }
   },
+
   getActiveInstances: async (sceneId: string) => {
     getMutableState(EditorActiveInstanceState).merge({ fetching: true })
     const activeInstances = await Engine.instance.api.service(instanceActivePath).find({
@@ -90,16 +76,4 @@ export const EditorActiveInstanceService = {
     })
     getMutableState(EditorActiveInstanceState).merge({ activeInstances, fetching: false })
   }
-}
-
-//Action
-export class EditorActiveInstanceAction {
-  static fetchingActiveInstances = defineAction({
-    type: 'ee.editor.EditorActiveInstance.FETCHING_ACTIVE_INSTANCES' as const
-  })
-
-  static fetchedActiveInstances = defineAction({
-    type: 'ee.editor.EditorActiveInstance.FETCHED_ACTIVE_INSTANCES' as const,
-    activeInstances: matches.array as Validator<unknown, InstanceActiveType[]>
-  })
-}
+})

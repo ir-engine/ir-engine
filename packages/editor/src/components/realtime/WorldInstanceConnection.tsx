@@ -43,7 +43,7 @@ import { EditorState } from '../../services/EditorServices'
 import SelectInput from '../inputs/SelectInput'
 import { InfoTooltip } from '../layout/Tooltip'
 import * as styles from '../toolbar/styles.module.scss'
-import { EditorActiveInstanceService, EditorActiveInstanceState } from './EditorActiveInstanceService'
+import { EditorActiveInstanceState } from './EditorActiveInstanceService'
 
 export const WorldInstanceConnection = () => {
   const { t } = useTranslation()
@@ -74,7 +74,7 @@ export const WorldInstanceConnection = () => {
     }
     const instance = activeInstanceState.activeInstances.value.find(({ id }) => id === selectedInstance)
     if (!instance) return
-    EditorActiveInstanceService.provisionServer(instance.locationId!, instance.id, sceneId)
+    EditorActiveInstanceState.provisionServer(instance.locationId!, instance.id, sceneId)
   }
   // const decrementPage = () => { }
   // const incrementPage = () => { }
