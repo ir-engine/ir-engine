@@ -26,9 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { Hook, HookContext, Paginated } from '@feathersjs/feathers'
 
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath, LocationType, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-import { InstanceData, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import {
+  InstanceData,
+  InstanceID,
+  instancePath,
+  InstanceType
+} from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../declarations'
 import { getFreeInstanceserver } from '../networking/instance-provision/instance-provision.class'
 import logger from '../ServerLogger'
@@ -71,7 +76,7 @@ export default (): Hook => {
         }
       })) as Paginated<InstanceType>
 
-      let instanceId
+      let instanceId: InstanceID
       if (existingInstance.total === 0) {
         const newInstance = {
           ipAddress: `${freeInstance.ipAddress}:${freeInstance.port}`,
@@ -79,7 +84,7 @@ export default (): Hook => {
           locationId: location.data[0].id,
           assigned: true,
           assignedAt: toDateTimeSql(new Date()),
-          roomCode: ''
+          roomCode: '' as RoomCode
         } as InstanceData
         const newInstanceResult = await app.service(instancePath).create(newInstance)
         instanceId = newInstanceResult.id

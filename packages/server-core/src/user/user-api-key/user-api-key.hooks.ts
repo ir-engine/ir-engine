@@ -106,7 +106,8 @@ export default {
       () => schemaHooks.validateData(userApiKeyPatchValidator),
       schemaHooks.resolveData(userApiKeyPatchResolver),
       iff(isProvider('external'), ensureUserOwnsApiKey),
-      iff(isProvider('external'), attachOwnerIdInQuery('userId'), setLoggedInUser('userId'))
+      iff(isProvider('external'), attachOwnerIdInQuery('userId')),
+      iff(isProvider('external'), setLoggedInUser('userId'))
     ],
     remove: [disallow('external')]
   },
