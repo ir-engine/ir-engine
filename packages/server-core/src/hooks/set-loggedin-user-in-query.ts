@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext } from '../../declarations'
 
 // TODO: Make one hook by combine this with "set-loggedin-user-in-body"
 // This will attach the loggedIn user id in the query property

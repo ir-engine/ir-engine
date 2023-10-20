@@ -38,12 +38,12 @@ import {
   Vector3
 } from 'three'
 
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { iOS } from '../../common/functions/isMobile'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -64,6 +64,7 @@ import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, {
   BoneNames,
   findSkinnedMeshes,
@@ -124,6 +125,8 @@ export const loadAvatarForUser = async (
     }
   }
 
+  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(false)
+
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
   const parent = (await loadAvatarModelAsset(avatarURL)) as VRM
 
@@ -148,7 +151,7 @@ export const loadAvatarForUser = async (
     })
   }
 
-  dispatchAction(EngineActions.avatarModelChanged({ entity }))
+  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
 }
 
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {

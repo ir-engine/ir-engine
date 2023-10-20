@@ -39,6 +39,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 
@@ -49,7 +50,7 @@ interface Props {
 const RoomMenu = ({ location }: Props): JSX.Element => {
   const { t } = useTranslation()
   const [locationName, setLocationName] = useState('')
-  const [roomCode, setRoomCode] = useState('')
+  const [roomCode, setRoomCode] = useState('' as RoomCode)
   const [source, setSource] = useState('create')
   const [error, setError] = useState('')
   const roomsQuery = useFind(instancePath, { query: { roomCode, ended: false, locationId: { $ne: undefined } } })
@@ -58,7 +59,7 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
     const { value } = e.target
 
     setError('')
-    setRoomCode('')
+    setRoomCode('' as RoomCode)
     setSource(value)
   }
 

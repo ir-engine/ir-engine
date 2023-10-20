@@ -51,7 +51,6 @@ export const loginTokenDataResolver = resolve<LoginTokenType, HookContext>({
     return crypto.randomBytes(config.authentication.bearerToken.numBytes).toString('hex')
   },
   expiresAt: async (value, message, context) => {
-    console.log('expiresAt context', context)
     return context.data.expiresAt ? context.data.expiresAt : toDateTimeSql(moment().utc().add(2, 'days').toDate())
   },
   createdAt: getDateTimeSql,
