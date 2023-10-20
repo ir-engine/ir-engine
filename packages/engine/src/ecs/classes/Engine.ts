@@ -40,7 +40,6 @@ import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import { getAllEntities } from 'bitecs'
-import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { Timer } from '../../common/functions/Timer'
 import { NetworkState } from '../../networking/NetworkState'
 import { Query, QueryComponents, removeQuery } from '../functions/ComponentFunctions'
@@ -76,8 +75,6 @@ export class Engine {
   }) as HyperStore
 
   engineTimer = null! as ReturnType<typeof Timer>
-
-  cortoLoader: CORTOLoader = null!
 
   /**
    * Reference to the three.js scene object.

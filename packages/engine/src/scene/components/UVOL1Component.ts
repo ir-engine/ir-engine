@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect, useMemo, useRef } from 'react'
 import {
   BufferGeometry,
@@ -37,9 +37,9 @@ import {
   Texture
 } from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
+import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
 import { iOS } from '../../common/functions/isMobile'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
@@ -61,7 +61,7 @@ import { VolumetricComponent, handleAutoplay } from './VolumetricComponent'
 
 const decodeCorto = (url: string, start: number, end: number) => {
   return new Promise<BufferGeometry | null>((res, rej) => {
-    Engine.instance.cortoLoader.load(url, start, end, (geometry) => {
+    getState(AssetLoaderState).cortoLoader.load(url, start, end, (geometry) => {
       res(geometry)
     })
   })
@@ -150,11 +150,12 @@ function UVOL1Reactor() {
   const nextFrameToRequest = useRef(0)
 
   useEffect(() => {
-    if (!Engine.instance.cortoLoader) {
+    if (!getState(AssetLoaderState).cortoLoader) {
       const loader = new CORTOLoader()
       loader.setDecoderPath(getState(EngineState).publicPath + '/loader_decoders/')
       loader.preload()
-      Engine.instance.cortoLoader = loader
+      const assetLoaderState = getMutableState(AssetLoaderState)
+      assetLoaderState.cortoLoader.set(loader)
     }
     if (volumetric.useLoadingEffect.value) {
       setComponent(entity, UVOLDissolveComponent)
@@ -204,6 +205,7 @@ function UVOL1Reactor() {
   }, [volumetric.paused])
 
   useEffect(() => {
+    if (!component.firstGeometryFrameLoaded.value) return
     let timer = -1
 
     const prepareMesh = () => {
@@ -218,8 +220,8 @@ function UVOL1Reactor() {
       mesh.geometry = meshBuffer.get(0)!
       mesh.geometry.attributes.position.needsUpdate = true
 
-      EngineRenderer.instance.renderer.initTexture(videoTexture)
       videoTexture.needsUpdate = true
+      EngineRenderer.instance.renderer.initTexture(videoTexture)
 
       if (volumetric.useLoadingEffect.value) {
         mesh.material = UVOLDissolveComponent.createDissolveMaterial(mesh)
