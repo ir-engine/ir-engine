@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Hook, HookContext, Paginated } from '@feathersjs/feathers'
 
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath, LocationType, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import {
   InstanceData,
@@ -84,7 +84,7 @@ export default (): Hook => {
           locationId: location.data[0].id,
           assigned: true,
           assignedAt: toDateTimeSql(new Date()),
-          roomCode: ''
+          roomCode: '' as RoomCode
         } as InstanceData
         const newInstanceResult = await app.service(instancePath).create(newInstance)
         instanceId = newInstanceResult.id
