@@ -39,7 +39,7 @@ import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThu
 import { AuthState } from '../../../user/services/AuthService'
 import { AvatarMenus } from '../../AvatarUISystem'
 import XRTextButton from '../../components/XRTextButton'
-import styleString from './index.scss?inline'
+import styles from './index.scss'
 
 export const AvatarUIContextMenuState = defineState({
   name: 'AvatarUISystem',
@@ -105,21 +105,20 @@ const AvatarContextMenu = () => {
 
   return (
     <>
-      <style>{styleString}</style>
       {user?.userId && (
-        <div className="rootContainer">
+        <div className={styles.rootContainer}>
           <img
             style={{
               height: 'auto',
               maxWidth: '100%'
             }}
-            className="ownerImage"
+            className={styles.ownerImage}
             src={userThumbnail}
             alt=""
             crossOrigin="anonymous"
           />
-          <div className="buttonContainer">
-            <section className="buttonSection">
+          <div className={styles.buttonContainer}>
+            <section className={styles.buttonSection}>
               {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
                 <XRTextButton onClick={() => FriendService.requestFriend(selfId, user?.userId)}>
                   {t('user:personMenu.addAsFriend')}
