@@ -37,7 +37,7 @@ import {
 import { InstanceProvisionType } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath, LocationType, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
@@ -70,7 +70,7 @@ export async function getFreeInstanceserver({
   iteration: number
   locationId?: string
   channelId?: ChannelID
-  roomCode?: string
+  roomCode?: RoomCode
   userId?: UserID
   createPrivateRoom?: boolean
 }): Promise<InstanceProvisionType> {
@@ -162,7 +162,7 @@ export async function checkForDuplicatedAssignments({
   iteration: number
   locationId?: string
   channelId?: ChannelID
-  roomCode?: string | undefined
+  roomCode?: RoomCode | undefined
   createPrivateRoom?: boolean
   userId?: UserID
   podName?: string
@@ -183,7 +183,7 @@ export async function checkForDuplicatedAssignments({
     channelId: channelId,
     assigned: true,
     assignedAt: toDateTimeSql(new Date()),
-    roomCode: '',
+    roomCode: '' as RoomCode,
     currentUsers: 0
   })) as InstanceType
   await new Promise((resolve) =>
@@ -417,7 +417,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
     availableLocationInstances: InstanceType[]
     locationId?: string
     channelId?: ChannelID
-    roomCode?: undefined | string
+    roomCode?: RoomCode
     userId?: UserID
   }): Promise<InstanceProvisionType> {
     await this.app.service(instancePath).remove(null, {
@@ -526,7 +526,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       const locationId = params?.query?.locationId
       const instanceId = params?.query?.instanceId as InstanceID
       const channelId = params?.query?.channelId as ChannelID | undefined
-      const roomCode = params?.query?.roomCode
+      const roomCode = params?.query?.roomCode as RoomCode
       const createPrivateRoom = params?.query?.createPrivateRoom
       const token = params?.query?.token
       logger.info('instance-provision find %s %s %s %s', locationId, instanceId, channelId, roomCode)

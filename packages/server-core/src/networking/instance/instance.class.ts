@@ -33,14 +33,17 @@ import {
   InstanceType
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 
+import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
 const roomCodeCharacters = '123456789'
 
-export const generateRoomCode = () => {
+export const generateRoomCode = (): RoomCode => {
   let code = ''
-  for (let i = 0; i < 6; i++) code += roomCodeCharacters.charAt(Math.floor(Math.random() * roomCodeCharacters.length))
-  return code
+  for (let i = 0; i < 6; i++) {
+    code += roomCodeCharacters.charAt(Math.floor(Math.random() * roomCodeCharacters.length))
+  }
+  return code as RoomCode
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
