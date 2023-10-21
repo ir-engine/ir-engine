@@ -57,7 +57,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { getCameraMode, hasMovementControls } from '../../xr/XRState'
+import { XRState } from '../../xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -200,6 +200,7 @@ const getAvatarDoubleClick = (buttons): boolean => {
   clickCount = 0
   return false
 }
+
 const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
@@ -215,7 +216,9 @@ const execute = () => {
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
   const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
-  const attachedMode = getCameraMode() === 'attached'
+  const attachedMode = XRState.cameraMode === 'attached'
+  const hasMovementControls = XRState.hasMovementControls
+
   if (!attachedMode) {
     const firstWalkableEntityWithInput = walkableQuery().find(
       (entity) => getComponent(entity, InputComponent)?.inputSources.length
@@ -278,9 +281,9 @@ const execute = () => {
       if (buttons.KeyP?.down) onKeyP()
     }
 
-    if (!hasMovementControls()) return
-    //** touch input (only for avatar jump)*/
+    if (!hasMovementControls) continue
 
+    //** touch input (only for avatar jump)*/
     const doubleClicked = attachedMode ? false : getAvatarDoubleClick(buttons)
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
@@ -300,6 +303,7 @@ const execute = () => {
         : inputSource.source.handedness === avatarInputSettings.preferredHand
         ? avatarInputSettings.rightAxesControlScheme
         : avatarInputSettings.leftAxesControlScheme
+
     AvatarAxesControlSchemeBehavior[controlScheme](
       inputSource.source,
       controller,

@@ -40,6 +40,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
@@ -94,13 +95,17 @@ export const addClientInputListeners = () => {
   canvas.addEventListener('contextmenu', preventDefault)
 
   const addInputSource = (source: XRInputSource) => {
+    if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
+      removeComponent(emulatedInputSourceEntity, InputSourceComponent)
+    }
     const entity = createEntity()
     setComponent(entity, InputSourceComponent, { source })
     setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
   }
 
-  const removeInputSource = (source: XRInputSource) =>
+  const removeInputSource = (source: XRInputSource) => {
     removeEntity(InputSourceComponent.entitiesByInputSource.get(source))
+  }
 
   const session = xrState.session
 
@@ -143,7 +148,9 @@ export const addClientInputListeners = () => {
     const code = event.code
     const down = event.type === 'keydown'
 
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
+
     const buttonState = inputSourceComponent.buttons as ButtonStateMap
 
     if (down) buttonState[code] = createInitialButtonState()
@@ -192,7 +199,9 @@ export const addClientInputListeners = () => {
     if (event.button === 1) button = MouseButton.AuxiliaryClick
     else if (event.button === 2) button = MouseButton.SecondaryClick
 
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
+
     const state = inputSourceComponent.buttons as ButtonStateMap
 
     if (down) state[button] = createInitialButtonState()
@@ -229,7 +238,8 @@ export const addClientInputListeners = () => {
       return
     }
 
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
 
     const index = stick === 'LeftStick' ? 0 : 2
 
