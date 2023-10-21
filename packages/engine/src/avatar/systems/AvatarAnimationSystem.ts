@@ -104,8 +104,8 @@ const tipAxisRestriction = new Euler(0, 0, 0)
 
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
-  const { physicsDebug: debugEnable } = getMutableState(RendererState)
-  if (!debugEnable.value) {
+  const { physicsDebug } = getMutableState(RendererState)
+  if (!physicsDebug.value) {
     //remove visualizers
     for (let i = 0; i < visualizers.length; i++) {
       removeEntity(visualizers[i].value)
@@ -361,20 +361,18 @@ const execute = () => {
 const reactor = () => {
   const xrState = getMutableState(XRState)
   const heightDifference = useHookstate(xrState.userAvatarHeightDifference)
-  const sessionMode = useHookstate(xrState.sessionMode)
   const pose = useHookstate(xrState.viewerPose)
   const active = useHookstate(xrState.sessionActive)
-  useEffect(() => {
-    if (xrState.sessionMode.value == 'immersive-vr' && heightDifference.value)
-      xrState.sceneScale.set(Math.max(heightDifference.value, 0.5))
-  }, [heightDifference, sessionMode])
+  const renderState = useHookstate(getMutableState(RendererState))
+
   useEffect(() => {
     if (xrState.sessionMode.value == 'immersive-vr' && !heightDifference.value) setTrackingSpace()
   }, [pose])
-  const renderState = useHookstate(getMutableState(RendererState))
+
   useEffect(() => {
     setVisualizers()
   }, [renderState.physicsDebug])
+
   useEffect(() => {
     if (xrState.sessionMode.value == 'immersive-vr')
       dispatchAction(
@@ -384,6 +382,7 @@ const reactor = () => {
         })
       )
   }, [active])
+
   return null
 }
 

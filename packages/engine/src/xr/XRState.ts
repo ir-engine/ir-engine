@@ -70,7 +70,7 @@ export const XRState = defineState({
       session: null as XRSession | null,
       sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
       avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
-      userAvatarHeightDifference: null as number | null,
+      userAvatarHeightDifference: 1 as number,
       /** Stores the depth map data - will exist if depth map is supported */
       depthDataTexture: null as DepthDataTexture | null,
       is8thWallActive: false,
@@ -88,6 +88,62 @@ export const XRState = defineState({
       /** @todo replace this wither user_settings table entry */
       'userEyeLevel'
     ])
+  },
+
+  /**
+   * Gets the world scale according to avatar scaling factor and scene scale
+   * @todo - can we think of a better name for this?
+   * @returns {number} the world scale
+   */
+  get worldScale(): number {
+    const { sceneScale, userAvatarHeightDifference } = getState(XRState)
+    return sceneScale * Math.max(userAvatarHeightDifference, 0.5)
+  },
+
+  /**
+   * Gets the camera mode - either 'attached' or 'detached'
+   * - when in dollhouse mode,
+   * @returns the camera mode
+   */
+  get cameraMode(): 'attached' | 'detached' {
+    const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState)
+    if (!session || scenePlacementMode === 'placing') return 'detached'
+    if (avatarCameraMode === 'auto') {
+      return sceneScale === 1 ? 'attached' : 'detached'
+    }
+    return avatarCameraMode
+  },
+
+  /**
+   * Specifies that the user has movement controls if:
+   * - they are not in an immersive session
+   * - they are in an immersive session with a world-space interaction mode
+   * - they are in an immersive-ar session with a scene scale of 1
+   * @returns {boolean} true if the user has movement controls
+   */
+  get hasMovementControls(): boolean {
+    const { sessionActive, sceneScale, sessionMode, session } = getState(XRState)
+    if (!sessionActive) return true
+    if (session && session.interactionMode === 'world-space') return true
+    return sessionMode === 'immersive-ar' ? sceneScale === 1 : true
+  },
+
+  /**
+   * Gets the preferred controller entity - will return null if the entity is not in an active session or the controller is not available
+   * @param {boolean} offhand specifies to return the non-preferred hand instead
+   * @returns {Entity}
+   */
+  getPreferredInputSource: (offhand = false) => {
+    const xrState = getState(XRState)
+    if (!xrState.sessionActive) return
+    const avatarInputSettings = getState(AvatarInputSettingsState)
+    for (const inputSourceEntity of inputSourceQuery()) {
+      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+      const source = inputSourceComponent.source
+      if (source.handedness === 'none') continue
+      if (!offhand && avatarInputSettings.preferredHand == source.handedness) return source
+      if (offhand && avatarInputSettings.preferredHand !== source.handedness) return source
+    }
   }
 })
 
@@ -107,53 +163,16 @@ export const ReferenceSpace = {
 }
 globalThis.ReferenceSpace = ReferenceSpace
 
-/**
- * Gets the camera mode - either 'attached' or 'detached'
- * @returns the camera mode
- */
-export const getCameraMode = () => {
-  const { avatarCameraMode, sceneScale, scenePlacementMode, session, sessionMode } = getState(XRState)
-  if (!session || scenePlacementMode === 'placing') return 'detached'
-  if (avatarCameraMode === 'auto') {
-    if (session.interactionMode === 'screen-space') return 'detached'
-    return sceneScale === 1 || sessionMode == 'immersive-vr' ? 'attached' : 'detached'
-  }
-  return avatarCameraMode
-}
+/** @deprecated - use XRState.getCameraMode */
+export const getCameraMode = () => XRState.cameraMode
 
-/**
- * Specifies that the user has movement controls if:
- * - they are not in an immersive session
- * - they are in an immersive session with a world-space interaction mode
- * - they are in an immersive-ar session with a scene scale of 1
- * @returns {boolean} true if the user has movement controls
- */
-export const hasMovementControls = () => {
-  const { sessionActive, sceneScale, sessionMode, session } = getState(XRState)
-  if (!sessionActive) return true
-  if (session && session.interactionMode === 'world-space') return true
-  return sessionMode === 'immersive-ar' ? sceneScale !== 1 : true
-}
+/** @deprecated - use XRState.hasMovementControls */
+export const hasMovementControls = () => XRState.hasMovementControls
 
 const inputSourceQuery = defineQuery([InputSourceComponent])
 
-/**
- * Gets the preferred controller entity - will return null if the entity is not in an active session or the controller is not available
- * @param {boolean} offhand specifies to return the non-preferred hand instead
- * @returns {Entity}
- */
-export const getPreferredInputSource = (offhand = false) => {
-  const xrState = getState(XRState)
-  if (!xrState.sessionActive) return
-  const avatarInputSettings = getState(AvatarInputSettingsState)
-  for (const inputSourceEntity of inputSourceQuery()) {
-    const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
-    const source = inputSourceComponent.source
-    if (source.handedness === 'none') continue
-    if (!offhand && avatarInputSettings.preferredHand == source.handedness) return source
-    if (offhand && avatarInputSettings.preferredHand !== source.handedness) return source
-  }
-}
+/** @deprecated - use XRState.getPreferredInputSource */
+export const getPreferredInputSource = XRState.getPreferredInputSource
 
 const userAgent = 'navigator' in globalThis ? navigator.userAgent : ''
 

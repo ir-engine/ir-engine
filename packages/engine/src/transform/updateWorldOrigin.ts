@@ -33,10 +33,10 @@ import { computeTransformMatrix } from './systems/TransformSystem'
 
 // TODO: only update the world origin in one place; move logic for moving based on viewer hit into the function above
 export const updateWorldOriginFromScenePlacement = () => {
-  const xrState = getMutableState(XRState)
-  const scenePosition = xrState.scenePosition.value
-  const sceneRotation = xrState.sceneRotation.value
-  const sceneScale = xrState.sceneScale.value
+  const xrState = getState(XRState)
+  const scenePosition = xrState.scenePosition
+  const sceneRotation = xrState.sceneRotation
+  const sceneScale = XRState.worldScale
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   originTransform.position.copy(scenePosition)
   originTransform.rotation.copy(sceneRotation)

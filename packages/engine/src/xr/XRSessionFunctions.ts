@@ -65,7 +65,6 @@ export const onSessionEnd = () => {
 
   dispatchAction(XRAction.sessionChanged({ active: false }))
 
-  xrState.userAvatarHeightDifference.set(null)
   xrState.session.set(null)
 }
 
