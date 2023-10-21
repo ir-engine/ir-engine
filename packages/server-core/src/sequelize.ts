@@ -23,17 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { spawn } from 'child_process'
 import { Sequelize } from 'sequelize'
 
 import { isDev } from '@etherealengine/common/src/config'
+import { delay } from '@etherealengine/engine/src/common/functions/delay'
 import appConfig from '@etherealengine/server-core/src/appconfig'
-
+import { Knex } from 'knex'
 import { Application } from '../declarations'
-import { seeder } from './seeder'
 import multiLogger from './ServerLogger'
+import { seeder } from './seeder'
+const config = require('../knexfile')
 
 const logger = multiLogger.child({ component: 'server-core:sequelize' })
+
+const checkLock = async (knexClient: Knex, delayInMs: number) => {
+  const trx = await knexClient.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const lockTableExists = await trx.schema.hasTable('knex_migrations_lock')
+  if (lockTableExists) {
+    const existingData = await trx('knex_migrations_lock').select()
+
+    if (existingData.length > 0 && existingData[0].is_locked === 1) {
+      logger.info(`Knex migrations are locked. Waiting for ${delayInMs / 1000} seconds to check again.`)
+      await delay(delayInMs)
+      const existingData = await trx('knex_migrations_lock').select()
+
+      if (existingData.length > 0 && existingData[0].is_locked === 1) {
+        await knexClient.migrate.forceFreeMigrationsLock(config.migrations)
+      }
+    }
+  }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
+}
 
 export default (app: Application): void => {
   try {
@@ -125,37 +149,14 @@ export default (app: Application): void => {
           // And then knex migrations can be executed. This is because knex migrations will have foreign key dependency
           // on ta tables that are created using sequelize.
           // TODO: Once sequelize is removed, we should add migration as part of `dev-reinit-db` script in package.json
-          const initPromise = new Promise((resolve, reject) => {
-            const initProcess = spawn('npm', ['run', 'migrate'])
-            initProcess.once('exit', resolve)
-            initProcess.once('error', reject)
-            initProcess.once('disconnect', resolve)
-            initProcess.stdout.on('data', (data) => console.log(data.toString()))
-          })
-            .then((exitCode) => {
-              if (exitCode !== 0) {
-                throw new Error(`Knex migration exited with: ${exitCode}`)
-              }
-            })
-            .catch((err) => {
-              logger.error('Knex migration error')
-              logger.error(err)
-              promiseReject()
-              throw err
-            })
+          const knexClient: Knex = app.get('knexClient')
+          await checkLock(knexClient, prepareDb ? 25000 : 0)
 
-          await Promise.race([
-            initPromise,
-            new Promise<void>((resolve) => {
-              setTimeout(
-                () => {
-                  console.log('WARNING: Knex migrations took too long to run!')
-                  resolve()
-                },
-                2 * 60 * 1000
-              ) // timeout after 2 minutes
-            })
-          ])
+          logger.info('Knex migration started')
+          await knexClient.migrate.latest(config.migrations)
+          logger.info('Knex migration ended')
+
+          await checkLock(knexClient, prepareDb ? 25000 : 0)
         }
 
         try {
