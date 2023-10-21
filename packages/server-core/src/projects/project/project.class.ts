@@ -205,7 +205,12 @@ export class Project extends Service {
     super(options)
     this.app = app
 
-    this.app.isSetup.then(() => this._callOnLoad())
+    try {
+      this.app.isSetup.then(() => this._callOnLoad())
+    } catch(err) {
+      console.log(err)
+      throw err
+    }
   }
 
   async _getCommitSHADate(projectName: string): Promise<{ commitSHA: string; commitDate: Date }> {
