@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 
 import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
-import { LocationQuery, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, LocationQuery, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import {
@@ -102,14 +102,14 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
 
 export const locationDataResolver = resolve<LocationType, HookContext>({
   id: async () => {
-    return v4()
+    return v4() as LocationID
   },
   locationSetting: async (value, location) => {
     return {
       ...location.locationSetting,
       id: v4(),
       locationType: location.locationSetting.locationType || 'private',
-      locationId: '',
+      locationId: '' as LocationID,
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
     }
@@ -118,7 +118,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
     return {
       ...location.locationAdmin,
       id: v4(),
-      locationId: '',
+      locationId: '' as LocationID,
       userId: '' as UserID,
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()

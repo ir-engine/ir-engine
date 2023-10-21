@@ -49,10 +49,9 @@ import { useFind, useMutation } from '@etherealengine/engine/src/common/function
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InvitePatch, InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
-import { Id } from '@feathersjs/feathers'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
 import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
@@ -78,7 +77,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const textValue = useHookstate('')
   const makeAdmin = useHookstate(false)
   const oneTimeUse = useHookstate(true)
-  const locationId = useHookstate('')
+  const locationId = useHookstate('' as LocationID)
   const instanceId = useHookstate('' as InstanceID)
   const userInviteCode = useHookstate('')
   const spawnPointUUID = useHookstate('')
@@ -212,7 +211,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     const instance = adminInstances.find((instance) => instance.id === e.target.value)
 
     if (!instance) return
-    const location = await Engine.instance.api.service(locationPath).get(instance.locationId as Id)
+    const location = await Engine.instance.api.service(locationPath).get(instance.locationId as LocationID)
 
     if (!location) return
     const sceneName = location.sceneId.split('/')
@@ -256,7 +255,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       }
       await patchInvite(invite.id, sendData)
       instanceId.set('' as InstanceID)
-      locationId.set('')
+      locationId.set('' as LocationID)
       textValue.set('')
       makeAdmin.set(false)
       oneTimeUse.set(true)

@@ -29,7 +29,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { InstanceID, instanceSchema } from '../networking/instance.schema'
-import { locationSchema } from '../social/location.schema'
+import { LocationID, locationSchema } from '../social/location.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { botCommandDataSchema } from './bot-command.schema'
 
@@ -48,7 +48,7 @@ export const botSchema = Type.Object(
     instanceId: TypedString<InstanceID>({
       format: 'uuid'
     }),
-    locationId: Type.String({
+    locationId: TypedString<LocationID>({
       format: 'uuid'
     }),
     userId: TypedString<UserID>({

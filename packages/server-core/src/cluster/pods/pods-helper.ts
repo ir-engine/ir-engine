@@ -201,11 +201,12 @@ const getServerPodsInfo = (items: k8s.V1Pod[]) => {
 }
 
 const getServerPodInfo = (item: k8s.V1Pod) => {
+  const containerStatuses = item.status?.containerStatuses
   return {
     name: item.metadata?.name,
     status: item.status?.phase,
     age: item.status?.startTime?.toString(),
-    containers: getServerContainerInfo(item.status?.containerStatuses!)
+    containers: getServerContainerInfo(containerStatuses ? containerStatuses : [])
   } as ServerPodInfoType
 }
 

@@ -49,7 +49,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -77,7 +77,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const textValue = useHookstate('')
   const makeAdmin = useHookstate(false)
   const oneTimeUse = useHookstate(true)
-  const locationId = useHookstate('')
+  const locationId = useHookstate('' as LocationID)
   const instanceId = useHookstate('' as InstanceID)
   const userInviteCode = useHookstate('')
   const spawnPointUUID = useHookstate('')
@@ -205,7 +205,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         }
         await InviteService.sendInvite(sendData, inviteCode)
         instanceId.set('' as InstanceID)
-        locationId.set('')
+        locationId.set('' as LocationID)
         textValue.set('')
         makeAdmin.set(false)
         oneTimeUse.set(true)

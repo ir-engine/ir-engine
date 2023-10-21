@@ -26,7 +26,9 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
+import { LocationID } from './location.schema'
 
 export const locationSettingPath = 'location-setting'
 
@@ -38,7 +40,7 @@ export const locationSettingSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    locationId: Type.String({
+    locationId: TypedString<LocationID>({
       format: 'uuid'
     }),
     locationType: StringEnum(['private', 'public', 'showroom']),

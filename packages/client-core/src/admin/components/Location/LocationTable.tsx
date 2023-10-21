@@ -27,7 +27,7 @@ import React, { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -53,7 +53,7 @@ const LocationTable = ({ className, search }: Props) => {
   const { t } = useTranslation()
 
   const openConfirm = useHookstate(false)
-  const locationId = useHookstate('')
+  const locationId = useHookstate('' as LocationID)
   const locationName = useHookstate('')
   const openLocationDrawer = useHookstate(false)
   const locationAdmin = useHookstate<LocationType | undefined>(undefined)
@@ -116,7 +116,7 @@ const LocationTable = ({ className, search }: Props) => {
           <Button
             className={styles.actionStyle}
             onClick={() => {
-              locationId.set(id)
+              locationId.set(id as LocationID)
               locationName.set(name)
               openConfirm.set(true)
             }}

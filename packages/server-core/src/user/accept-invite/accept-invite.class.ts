@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
@@ -262,7 +262,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         const instance =
           invite.inviteType === 'instance' ? await this.app.service(instancePath).get(invite.targetObjectId) : null
-        const locationId = instance ? instance.locationId : invite.targetObjectId
+        const locationId = instance ? (instance.locationId as LocationID) : (invite.targetObjectId as LocationID)
         const location = await this.app.service(locationPath).get(locationId)
         returned.locationName = location.slugifiedName
         if (instance) returned.instanceId = instance.id as InstanceID

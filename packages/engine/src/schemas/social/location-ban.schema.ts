@@ -29,6 +29,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
+import { LocationID } from './location.schema'
 
 export const locationBanPath = 'location-ban'
 
@@ -43,7 +44,7 @@ export const locationBanSchema = Type.Object(
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
-    locationId: Type.String({
+    locationId: TypedString<LocationID>({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),
