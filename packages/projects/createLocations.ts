@@ -31,12 +31,7 @@ import { v4 as generateUUID } from 'uuid'
 
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
-import {
-  LocationData,
-  LocationID,
-  locationPath,
-  LocationType
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationData, locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { Application } from '@etherealengine/server-core/declarations'
 
 function toCapitalCase(str: string) {
@@ -52,7 +47,7 @@ export const createLocations = async (app: Application, projectName: string) => 
       .readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects', projectName))
       .filter((file) => file.endsWith('.scene.json'))
       .map(async (sceneJson) => {
-        const locationId = generateUUID() as LocationID
+        const locationId = generateUUID()
         const settingsId = generateUUID()
         const sceneName = sceneJson.replace('.scene.json', '')
         const locationName = toCapitalCase(sceneName.replace('-', ' '))

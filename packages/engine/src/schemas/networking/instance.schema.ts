@@ -29,7 +29,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { ChannelID } from '../social/channel.schema'
-import { LocationID, locationSchema, RoomCode } from '../social/location.schema'
+import { locationSchema, RoomCode } from '../social/location.schema'
 import { dataValidator, queryValidator } from '../validators'
 
 export const instancePath = 'instance'
@@ -56,7 +56,7 @@ export const instanceSchema = Type.Object(
     ended: Type.Optional(Type.Boolean()),
     assigned: Type.Optional(Type.Boolean()),
     locationId: Type.Optional(
-      TypedString<LocationID>({
+      Type.String({
         format: 'uuid'
       })
     ),

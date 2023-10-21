@@ -50,7 +50,7 @@ import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projec
 import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { LocationID, RoomCode, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { RoomCode, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -77,7 +77,7 @@ interface PrimusConnectionType {
   headers: any
   socketQuery?: {
     sceneId: SceneID
-    locationId?: LocationID
+    locationId?: string
     instanceID?: InstanceID
     channelId?: string
     roomCode?: RoomCode
@@ -125,15 +125,15 @@ const createNewInstance = async (app: Application, newInstance: InstanceData) =>
  * Updates the existing 'instance' table entry
  * @param app
  * @param existingInstance
- * @param {ChannelID}channelId
- * @param {LocationID} locationId
+ * @param channelId
+ * @param locationId
  */
 
 const assignExistingInstance = async (
   app: Application,
   existingInstance: InstanceType,
   channelId: ChannelID,
-  locationId: LocationID
+  locationId: string
 ) => {
   const serverState = getState(ServerState)
   const instanceServerState = getMutableState(InstanceServerState)
@@ -155,16 +155,16 @@ const assignExistingInstance = async (
  * - Should only initialize an instance once per the lifecycle of an instance server
  * @param app
  * @param status
- * @param {LocationID}locationId
- * @param {ChannelID}channelId
- * @param {UserID}userId
+ * @param locationId
+ * @param channelId
+ * @param userId
  * @returns
  */
 
 const initializeInstance = async (
   app: Application,
   status: InstanceserverStatus,
-  locationId: LocationID,
+  locationId: string,
   channelId: ChannelID,
   userId?: UserID
 ) => {
@@ -374,16 +374,16 @@ let instanceStarted = false
  * Creates a new 'instance' entry or updates the current one with a connecting user, and handles initializing the instance server
  * @param app
  * @param status
- * @param {LocationID}locationId
- * @param {ChannelID}channelId
- * @param {SceneID}sceneId
- * @param {UserID}userId
+ * @param locationId
+ * @param channelId
+ * @param sceneId
+ * @param userId
  * @returns
  */
 const createOrUpdateInstance = async (
   app: Application,
   status: InstanceserverStatus,
-  locationId: LocationID,
+  locationId: string,
   channelId: ChannelID,
   sceneId: SceneID,
   userId?: UserID
@@ -711,13 +711,8 @@ export default (app: Application): void => {
   }
 
   app.service('instanceserver-load').on('patched', async (params) => {
-    const {
-      id,
-      ipAddress,
-      podName,
-      locationId,
-      sceneId
-    }: { id; ipAddress; podName; locationId: LocationID; sceneId: SceneID } = params
+    const { id, ipAddress, podName, locationId, sceneId }: { id; ipAddress; podName; locationId; sceneId: SceneID } =
+      params
 
     const serverState = getState(ServerState)
     const instanceServerState = getState(InstanceServerState)

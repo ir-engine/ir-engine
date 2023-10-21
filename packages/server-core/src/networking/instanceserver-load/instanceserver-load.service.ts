@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { LocationID } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { Application } from '../../../declarations'
 import hooks from './instanceserver-load.hooks'
 
@@ -46,7 +45,7 @@ export default (app: Application): void => {
       id
       ipAddress
       podName
-      locationId: LocationID
+      locationId
       sceneId: SceneID
     }) => {
       return { id, ipAddress, podName, locationId, sceneId }

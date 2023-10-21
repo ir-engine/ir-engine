@@ -42,12 +42,10 @@ export const locationMethods = ['find', 'get', 'create', 'patch', 'remove'] as c
 
 export type RoomCode = OpaqueType<'RoomCode'> & string
 
-export type LocationID = OpaqueType<'LocationID'> & string
-
 // Main data model schema
 export const locationSchema = Type.Object(
   {
-    id: TypedString<LocationID>({
+    id: Type.String({
       format: 'uuid'
     }),
     name: Type.String(),

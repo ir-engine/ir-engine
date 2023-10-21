@@ -37,12 +37,7 @@ import {
 import { InstanceProvisionType } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import {
-  LocationID,
-  locationPath,
-  LocationType,
-  RoomCode
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath, LocationType, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
@@ -73,7 +68,7 @@ export async function getFreeInstanceserver({
 }: {
   app: Application
   iteration: number
-  locationId?: LocationID
+  locationId?: string
   channelId?: ChannelID
   roomCode?: RoomCode
   userId?: UserID
@@ -165,7 +160,7 @@ export async function checkForDuplicatedAssignments({
   app: Application
   ipAddress: string
   iteration: number
-  locationId?: LocationID
+  locationId?: string
   channelId?: ChannelID
   roomCode?: RoomCode | undefined
   createPrivateRoom?: boolean
@@ -405,10 +400,10 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
   /**
    * A method which gets and instance of Instanceserver
    * @param availableLocationInstances for Instanceserver
-   * @param {LocationID} locationId
-   * @param {ChannelID} channelId
-   * @param {RoomCode} roomCode
-   * @param {UserID} userId
+   * @param locationId
+   * @param channelId
+   * @param roomCode
+   * @param userId
    * @returns id, ipAddress and port
    */
 
@@ -420,7 +415,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
     userId
   }: {
     availableLocationInstances: InstanceType[]
-    locationId?: LocationID
+    locationId?: string
     channelId?: ChannelID
     roomCode?: RoomCode
     userId?: UserID
@@ -527,10 +522,10 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
 
   async find(params?: InstanceProvisionParams) {
     try {
-      let userId = '' as UserID
-      const locationId = params?.query?.locationId as LocationID
+      let userId
+      const locationId = params?.query?.locationId
       const instanceId = params?.query?.instanceId as InstanceID
-      const channelId = params?.query?.channelId as ChannelID
+      const channelId = params?.query?.channelId as ChannelID | undefined
       const roomCode = params?.query?.roomCode as RoomCode
       const createPrivateRoom = params?.query?.createPrivateRoom
       const token = params?.query?.token

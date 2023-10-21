@@ -32,12 +32,7 @@ import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schem
 import { BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import {
-  LocationID,
-  LocationType,
-  RoomCode,
-  locationPath
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationType, RoomCode, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -73,7 +68,7 @@ describe('bot.service', () => {
           videoEnabled: true,
           faceStreamingEnabled: false,
           screenSharingEnabled: false,
-          locationId: '' as LocationID,
+          locationId: '',
           createdAt: '',
           updatedAt: ''
         },

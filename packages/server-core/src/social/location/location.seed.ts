@@ -25,11 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Knex } from 'knex'
 
-import {
-  LocationDatabaseType,
-  LocationID,
-  locationPath
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationDatabaseType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
@@ -42,7 +38,7 @@ export async function seed(knex: Knex): Promise<void> {
   const seedData: LocationDatabaseType[] = await Promise.all(
     [
       {
-        id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60' as LocationID,
+        id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60',
         name: 'Default',
         slugifiedName: 'default',
         maxUsersPerInstance: 30,
@@ -51,7 +47,7 @@ export async function seed(knex: Knex): Promise<void> {
         isLobby: false
       },
       {
-        id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62' as LocationID,
+        id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62',
         name: 'Sky Station',
         slugifiedName: 'sky-station',
         maxUsersPerInstance: 30,
@@ -60,7 +56,7 @@ export async function seed(knex: Knex): Promise<void> {
         isLobby: false
       },
       {
-        id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63' as LocationID,
+        id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63',
         name: 'Apartment',
         slugifiedName: 'apartment',
         maxUsersPerInstance: 30,

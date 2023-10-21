@@ -31,7 +31,6 @@ import {
 } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { LocationID } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getDateTimeSql } from '../../util/datetime-sql'
 
 export async function seed(knex: Knex): Promise<void> {
@@ -42,7 +41,7 @@ export async function seed(knex: Knex): Promise<void> {
     [
       {
         id: '37ce32f0-208d-11eb-b02f-37cfdadfe58b',
-        locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60' as LocationID,
+        locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60',
         locationType: 'public' as const,
         videoEnabled: true,
         audioEnabled: true,
@@ -51,7 +50,7 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         id: '37ce32f0-208d-11eb-b02f-37cfdadfe58d',
-        locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62' as LocationID,
+        locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62',
         locationType: 'public' as const,
         videoEnabled: true,
         audioEnabled: true,
@@ -60,7 +59,7 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         id: '37ce32f0-208d-11eb-b02f-37cfdadfe58e',
-        locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63' as LocationID,
+        locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63',
         locationType: 'public' as const,
         videoEnabled: true,
         audioEnabled: true,

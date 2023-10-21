@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { LocationID, locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
@@ -36,7 +36,7 @@ import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
 export const LocationSeed: LocationType = {
-  id: '' as LocationID,
+  id: '',
   name: '',
   slugifiedName: '',
   maxUsersPerInstance: 10,
@@ -45,7 +45,7 @@ export const LocationSeed: LocationType = {
   isFeatured: false,
   locationSetting: {
     id: '',
-    locationId: '' as LocationID,
+    locationId: '',
     audioEnabled: false,
     screenSharingEnabled: false,
     faceStreamingEnabled: false,
@@ -145,7 +145,7 @@ export const LocationState = defineState({
 })
 
 export const LocationService = {
-  getLocation: async (locationId: LocationID) => {
+  getLocation: async (locationId: string) => {
     try {
       LocationState.fetchingCurrentSocialLocation()
       const location = await API.instance.client.service(locationPath).get(locationId)
@@ -187,7 +187,7 @@ export const LocationService = {
       return null
     }
   },
-  banUserFromLocation: async (userId: UserID, locationId: LocationID) => {
+  banUserFromLocation: async (userId: UserID, locationId: string) => {
     try {
       await API.instance.client.service(locationBanPath).create({
         userId: userId,

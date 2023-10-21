@@ -29,7 +29,6 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
-import { LocationID } from './location.schema'
 
 export const locationAdminPath = 'location-admin'
 
@@ -44,7 +43,7 @@ export const locationAdminSchema = Type.Object(
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
-    locationId: TypedString<LocationID>({
+    locationId: Type.String({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),

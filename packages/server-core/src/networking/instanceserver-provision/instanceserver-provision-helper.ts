@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated, Params } from '@feathersjs/feathers'
 
-import { LocationID, locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getFreeInstanceserver } from '../instance-provision/instance-provision.class'
 
 type Props = {
-  locationId: LocationID
+  locationId: string
   count: number
 }
 

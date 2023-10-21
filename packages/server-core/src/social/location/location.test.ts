@@ -28,7 +28,7 @@ import { v1 } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
-import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
@@ -66,7 +66,7 @@ describe('location.test', () => {
           videoEnabled: true,
           faceStreamingEnabled: false,
           screenSharingEnabled: false,
-          locationId: '' as LocationID,
+          locationId: '',
           createdAt: '',
           updatedAt: ''
         },

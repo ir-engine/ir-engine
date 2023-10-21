@@ -36,7 +36,6 @@ import {
 import {
   LocationData,
   LocationDatabaseType,
-  LocationID,
   LocationPatch,
   locationPath,
   LocationQuery,
@@ -217,10 +216,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       const updateData = JSON.parse(JSON.stringify(data))
       delete updateData.locationSetting
 
-      await trx
-        .from<LocationDatabaseType>(locationPath)
-        .update(updateData)
-        .where({ id: id.toString() as LocationID })
+      await trx.from<LocationDatabaseType>(locationPath).update(updateData).where({ id: id.toString() })
 
       if (data.locationSetting) {
         await trx
@@ -271,7 +267,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       try {
         await this.app.service(locationAdminPath).remove(null, {
           query: {
-            locationId: id.toString() as LocationID,
+            locationId: id.toString(),
             userId: selfUser?.id
           }
         })

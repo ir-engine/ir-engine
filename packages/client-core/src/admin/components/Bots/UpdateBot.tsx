@@ -40,7 +40,7 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { BotPatch, BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import { validateForm } from '../../common/validation/formValidation'
@@ -141,7 +141,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
       instanceId: state.instance.value || ('' as InstanceID),
       userId: user.id.value,
       description: state.description.value,
-      locationId: state.location.value as LocationID
+      locationId: state.location.value
     }
 
     formErrors.merge({
