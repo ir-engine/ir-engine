@@ -183,9 +183,9 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
    * Lock lifesize to 1:1, whereas dollhouse mode uses
    * the distance from the camera to the hit test plane.
    *
-   * Miniature scale math shrinks exponentially from 20% to 1%, between 0.6 meters to 0.01 meters from the hit test plane
+   * Miniature scale math shrinks exponentially from 20% to 4%, between 0.6 meters to 0.01 meters from the hit test plane
    */
-  const minDollhouseScale = 0.01
+  const minDollhouseScale = 0.04
   const maxDollhouseScale = 0.2
   const minDollhouseDist = 0.01
   const maxDollhouseDist = 0.6
@@ -198,7 +198,8 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
   const targetScale = lifeSize
     ? 1
     : MathUtils.clamp(
-        Math.pow((dist - minDollhouseDist) / maxDollhouseDist, 2) * maxDollhouseScale,
+        // Math.pow((dist - minDollhouseDist) / maxDollhouseDist, 2) * maxDollhouseScale,
+        ((dist - minDollhouseDist) / maxDollhouseDist) * maxDollhouseScale,
         minDollhouseScale,
         maxDollhouseScale
       )
@@ -220,10 +221,14 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
 
   const targetScale = getTargetWorldSize(localTransform)
-  if (targetScale !== xrState.sceneScale)
-    getMutableState(XRState).sceneScale.set(MathUtils.lerp(xrState.sceneScale, targetScale, lerpAlpha))
+  if (targetScale !== xrState.sceneScale) {
+    const newScale = MathUtils.lerp(xrState.sceneScale, targetScale, lerpAlpha)
+    getMutableState(XRState).sceneScale.set(newScale > 0.9 ? 1 : newScale)
+  }
 
-  const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(1 / xrState.sceneScale)
+  const inverseWorldScale = 1 / XRState.worldScale
+
+  const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(inverseWorldScale)
   const targetRotation = localTransform.rotation.multiply(_quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset))
 
   xrState.scenePosition.copy(targetPosition)
@@ -293,7 +298,8 @@ const execute = () => {
     updateScenePlacement(scenePlacementEntity)
     updateWorldOriginFromScenePlacement()
 
-    worldOriginPinpointAnchor.scale.setScalar(1 / xrState.sceneScale)
+    const inverseWorldScale = 1 / XRState.worldScale
+    worldOriginPinpointAnchor.scale.setScalar(inverseWorldScale)
     worldOriginPinpointAnchor.updateMatrixWorld(true)
   }
 }

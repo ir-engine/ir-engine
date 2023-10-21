@@ -40,7 +40,6 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
@@ -95,9 +94,6 @@ export const addClientInputListeners = () => {
   canvas.addEventListener('contextmenu', preventDefault)
 
   const addInputSource = (source: XRInputSource) => {
-    if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
-      removeComponent(emulatedInputSourceEntity, InputSourceComponent)
-    }
     const entity = createEntity()
     setComponent(entity, InputSourceComponent, { source })
     setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)

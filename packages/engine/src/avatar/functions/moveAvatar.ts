@@ -104,7 +104,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     viewerPose &&
       viewerMovement
         .copy(viewerPose.transform.position as any)
-        .multiplyScalar(1 / XRState.worldScale)
+        .multiplyScalar(1 / xrState.sceneScale)
         .applyMatrix4(originTransform.matrix)
         .sub(avatarHeadPosition)
     // vertical viewer movement should only apply updward movement to the rigidbody,

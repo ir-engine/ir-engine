@@ -70,7 +70,7 @@ export const XRState = defineState({
       session: null as XRSession | null,
       sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
       avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
-      userAvatarHeightDifference: 1,
+      userAvatarHeightDifference: 0.5,
       /** Stores the depth map data - will exist if depth map is supported */
       depthDataTexture: null as DepthDataTexture | null,
       is8thWallActive: false,
@@ -92,6 +92,7 @@ export const XRState = defineState({
 
   /**
    * Gets the world scale according to avatar scaling factor and scene scale
+   * - divide any world-space distances by this to get the real-world distance
    * @todo - can we think of a better name for this?
    * @returns {number} the world scale
    */
@@ -118,14 +119,15 @@ export const XRState = defineState({
    * Specifies that the user has movement controls if:
    * - they are not in an immersive session
    * - they are in an immersive session with a world-space interaction mode
-   * - they are in an immersive-ar session with a scene scale of 1
+   * - they are in an immersive-ar and dollhouse mode
    * @returns {boolean} true if the user has movement controls
    */
   get hasMovementControls(): boolean {
     const { sessionActive, sceneScale, sessionMode, session } = getState(XRState)
     if (!sessionActive) return true
     if (session && session.interactionMode === 'world-space') return true
-    return sessionMode === 'immersive-ar' ? sceneScale === 1 : true
+    const isMiniatureScale = sceneScale !== 1
+    return sessionMode === 'immersive-ar' ? isMiniatureScale : true
   },
 
   /**
