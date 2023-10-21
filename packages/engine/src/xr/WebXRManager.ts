@@ -143,7 +143,7 @@ export function createWebXRManager() {
 
       // wrap in try catch to avoid errors when calling updateTargetFrameRate on unsupported devices
       try {
-        if ('updateTargetFrameRate' in session) session.updateTargetFrameRate(72).catch(() => console.warn)
+        if ('updateTargetFrameRate' in session) session.updateTargetFrameRate(72).catch(console.warn)
       } catch (e) {
         console.warn(e)
       }

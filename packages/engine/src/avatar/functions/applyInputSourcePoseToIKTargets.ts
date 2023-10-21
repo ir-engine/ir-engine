@@ -271,7 +271,7 @@ export const applyInputSourcePoseToIKTargets = () => {
 
   const xrFrame = getState(XRState).xrFrame!
 
-  const avatarScale = XRState.worldScale
+  const inverseWorldScale = 1 / XRState.worldScale
 
   const inAttachedControlMode = XRState.cameraMode === 'attached'
 
@@ -320,7 +320,7 @@ export const applyInputSourcePoseToIKTargets = () => {
               ikTransform.position
                 .copy(jointPose.transform.position as unknown as Vector3)
                 .sub(player.position)
-                .multiplyScalar(1 / avatarScale)
+                .multiplyScalar(inverseWorldScale)
                 .add(player.position)
               ikTransform.rotation.copy(jointPose.transform.orientation as unknown as Quaternion)
               ikTransform.rotation.multiply(handedness === 'right' ? rightHandOffset : leftHandOffset)
@@ -335,7 +335,7 @@ export const applyInputSourcePoseToIKTargets = () => {
               ikTransform.position
                 .copy(pose.transform.position as any as Vector3)
                 .sub(player.position)
-                .multiplyScalar(1 / avatarScale)
+                .multiplyScalar(inverseWorldScale)
                 .add(player.position)
               ikTransform.rotation
                 .copy(pose.transform.orientation as any as Quaternion)

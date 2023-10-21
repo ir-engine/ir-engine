@@ -70,7 +70,7 @@ export const XRState = defineState({
       session: null as XRSession | null,
       sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
       avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
-      userAvatarHeightDifference: 1 as number,
+      userAvatarHeightDifference: 1,
       /** Stores the depth map data - will exist if depth map is supported */
       depthDataTexture: null as DepthDataTexture | null,
       is8thWallActive: false,
