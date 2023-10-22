@@ -697,7 +697,8 @@
       "title": "Transform",
       "lbl-position": "Position",
       "lbl-rotation": "Rotation",
-      "lbl-scale": "Scale"
+      "lbl-scale": "Scale",
+      "lbl-useGlobalTransform": "Use Global Transform"
     },
     "triggerVolume": {
       "description": "Sets a property on the target object on enter and leave.",
