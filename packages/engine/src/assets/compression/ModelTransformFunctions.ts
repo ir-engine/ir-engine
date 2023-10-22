@@ -383,10 +383,10 @@ export async function transformModel(args: ModelTransformParameters) {
 
   const fileUploadPath = (fUploadPath: string) => {
     const relativePath = fUploadPath.replace(config.client.fileServer, '')
-    const pathCheck = /projects\/(.*)\/([\w\d\s\-_.]*)$/
-    const [_, savePath, fileName] =
+    const pathCheck = /projects\/([^/]+)\/assets\/([\w\d\s\-_.]*)$/
+    const [_, projectName, fileName] =
       pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(LoaderUtils.extractUrlBase(args.src), fUploadPath))!
-    return [savePath, fileName]
+    return [projectName, fileName]
   }
 
   const { io } = await ModelTransformLoader()
@@ -584,7 +584,8 @@ export async function transformModel(args: ModelTransformParameters) {
   let result
   if (parms.modelFormat === 'glb') {
     const data = Buffer.from(await io.writeBinary(document))
-    const [savePath, fileName] = fileUploadPath(args.dst)
+    const [projectName, fileName] = fileUploadPath(args.dst)
+    /*
     const uploadArgs = {
       path: savePath,
       fileName,
@@ -592,6 +593,16 @@ export async function transformModel(args: ModelTransformParameters) {
       contentType: (await getContentType(args.dst)) || ''
     }
     result = await Engine.instance.api.service('file-browser').patch(null, uploadArgs)
+    */
+    /*dispatchAction(
+      BufferHandlerExtension.saveBuffer({
+        {
+          name: fileName,
+          byteLength: data.byteLength,
+          
+        }
+      })
+    )*/
     console.log('Handled glb file')
   } else if (parms.modelFormat === 'gltf') {
     await Promise.all(
