@@ -163,6 +163,17 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
 // let lastSwipeValue = null! as null | number
 
+/**
+ * Lock lifesize to 1:1, whereas dollhouse mode uses
+ * the distance from the camera to the hit test plane.
+ *
+ * Miniature scale math shrinks linearly from 20% to 1%, between 1 meters to 0.01 meters from the hit test plane
+ */
+const minDollhouseScale = 0.01
+const maxDollhouseScale = 0.2
+const minDollhouseDist = 0.01
+const maxDollhouseDist = 1
+
 const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformComponent>) => {
   const xrState = getState(XRState)
   const placing = xrState.scenePlacementMode === 'placing'
@@ -179,32 +190,17 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
     .setFromNormalAndCoplanarPoint(upDir, localTransform.position)
     .distanceToPoint(viewerPose.transform.position as any)
 
-  /**
-   * Lock lifesize to 1:1, whereas dollhouse mode uses
-   * the distance from the camera to the hit test plane.
-   *
-   * Miniature scale math shrinks linearly from 20% to 4%, between 1 meters to 0.01 meters from the hit test plane
-   */
-  const minDollhouseScale = 0.04
-  const maxDollhouseScale = 0.2
-  const minDollhouseDist = 0.01
-  const maxDollhouseDist = 1
   const lifeSize =
     xrState.session!.interactionMode === 'world-space' ||
     (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
 
   if (lifeSize) return 1
 
-  const targetScale = lifeSize
-    ? 1
-    : MathUtils.clamp(
-        Math.pow(Math.max(dist, minDollhouseDist) / maxDollhouseDist, 2) * maxDollhouseScale,
-        // (Math.max(dist, minDollhouseDist) / maxDollhouseDist) * maxDollhouseScale,
-        minDollhouseScale,
-        maxDollhouseScale
-      )
+  const normalizedDist = MathUtils.clamp(dist, minDollhouseDist, maxDollhouseDist)
 
-  return targetScale
+  const scalingFactor = maxDollhouseDist - minDollhouseDist
+
+  return MathUtils.clamp(Math.pow(normalizedDist, 2) * scalingFactor, minDollhouseScale, maxDollhouseScale)
 }
 
 export const updateScenePlacement = (scenePlacementEntity: Entity) => {

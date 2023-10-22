@@ -124,8 +124,7 @@ export const XRControlsState = defineState({
     isMovementControlsEnabled: true,
     /**
      * Specifies that the camera is attached to the avatar if:
-     * - in an immersion session
-     * - or in miniature mode
+     * - in an immersion session and not in placement mode or miniature mode
      */
     isCameraAttachedToAvatar: true,
 

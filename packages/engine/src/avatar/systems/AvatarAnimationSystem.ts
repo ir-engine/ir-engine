@@ -60,10 +60,10 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRRigComponent } from '../../xr/XRRigComponent'
-import { XRState, isMobileXRHeadset } from '../../xr/XRState'
+import { XRControlsState, XRState, isMobileXRHeadset } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
-import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
+import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
@@ -359,8 +359,9 @@ const execute = () => {
 
 const reactor = () => {
   const xrState = getMutableState(XRState)
-  const active = useHookstate(xrState.sessionActive)
+  const session = useHookstate(xrState.session)
   const renderState = useHookstate(getMutableState(RendererState))
+  const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
 
   useEffect(() => {
     setVisualizers()
@@ -374,7 +375,20 @@ const reactor = () => {
           entityUUID: Engine.instance.userID as any as EntityUUID
         })
       )
-  }, [active])
+  }, [session])
+
+  useEffect(() => {
+    if (!session.value) return
+
+    const entity = Engine.instance.localClientEntity
+    if (!entity) return
+
+    if (isCameraAttachedToAvatar.value) {
+      setComponent(entity, AvatarHeadDecapComponent)
+    } else {
+      removeComponent(entity, AvatarHeadDecapComponent)
+    }
+  }, [isCameraAttachedToAvatar, session])
 
   return null
 }

@@ -46,7 +46,7 @@ import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
-import { XRState, getCameraMode, hasMovementControls } from '../../xr/XRState'
+import { XRControlsState, XRState, getCameraMode, hasMovementControls } from '../../xr/XRState'
 import { animationStates, defaultAnimationPath } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -414,7 +414,7 @@ const _updateLocalAvatarRotationAttachedMode = () => {
 
 export const updateLocalAvatarRotation = () => {
   const entity = Engine.instance.localClientEntity
-  if (getCameraMode() === 'attached') {
+  if (getState(XRControlsState).isCameraAttachedToAvatar) {
     _updateLocalAvatarRotationAttachedMode()
   } else {
     const deltaSeconds = getState(EngineState).deltaSeconds
