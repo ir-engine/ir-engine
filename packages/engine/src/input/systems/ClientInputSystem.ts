@@ -40,7 +40,6 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
@@ -95,8 +94,12 @@ export const addClientInputListeners = () => {
   canvas.addEventListener('contextmenu', preventDefault)
 
   const addInputSource = (source: XRInputSource) => {
-    if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
-      removeComponent(emulatedInputSourceEntity, InputSourceComponent)
+    // we don't want to override our custom thumbpad input source for mobile AR
+    if (
+      session?.interactionMode === 'screen-space' &&
+      (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze')
+    ) {
+      return
     }
     const entity = createEntity()
     setComponent(entity, InputSourceComponent, { source })
@@ -104,7 +107,9 @@ export const addClientInputListeners = () => {
   }
 
   const removeInputSource = (source: XRInputSource) => {
-    removeEntity(InputSourceComponent.entitiesByInputSource.get(source))
+    const entity = InputSourceComponent.entitiesByInputSource.get(source)
+    if (!entity) return
+    removeEntity(entity)
   }
 
   const session = xrState.session
