@@ -1448,7 +1448,7 @@ export const updateProject = async (
   const userId = params!.user?.id || project?.updateUserId
   if (!userId) throw new BadRequest('No user ID from call or existing project owner')
 
-  const githubIdentityProvider = (await app.service(identityProviderPath)._find({
+  const githubIdentityProvider = (await app.service(identityProviderPath).find({
     query: {
       userId: userId,
       type: 'github',
