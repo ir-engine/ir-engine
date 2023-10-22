@@ -36,11 +36,11 @@ export const updateWorldOriginFromScenePlacement = () => {
   const xrState = getState(XRState)
   const scenePosition = xrState.scenePosition
   const sceneRotation = xrState.sceneRotation
-  const sceneScale = XRState.worldScale
+  const worldScale = XRState.worldScale
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   originTransform.position.copy(scenePosition)
   originTransform.rotation.copy(sceneRotation)
-  originTransform.scale.setScalar(sceneScale)
+  originTransform.scale.setScalar(worldScale)
   originTransform.matrixInverse.compose(originTransform.position, originTransform.rotation, originTransform.scale)
   originTransform.matrix
     .copy(originTransform.matrixInverse)

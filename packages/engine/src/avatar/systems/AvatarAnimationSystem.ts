@@ -60,7 +60,6 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRRigComponent } from '../../xr/XRRigComponent'
-import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { XRState, isMobileXRHeadset } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
@@ -360,14 +359,8 @@ const execute = () => {
 
 const reactor = () => {
   const xrState = getMutableState(XRState)
-  const heightDifference = useHookstate(xrState.userAvatarHeightDifference)
-  const pose = useHookstate(xrState.viewerPose)
   const active = useHookstate(xrState.sessionActive)
   const renderState = useHookstate(getMutableState(RendererState))
-
-  useEffect(() => {
-    if (xrState.sessionMode.value == 'immersive-vr' && !heightDifference.value) setTrackingSpace()
-  }, [pose])
 
   useEffect(() => {
     setVisualizers()

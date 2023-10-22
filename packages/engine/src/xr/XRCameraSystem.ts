@@ -35,6 +35,7 @@ import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
+import { setTrackingSpace } from './XRScaleAdjustmentFunctions'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 const cameraLPos = new Vector3()
@@ -266,9 +267,16 @@ const execute = () => {
     }
   }
 
+  const hasPose = getState(XRState).viewerPose !== null
+
   getMutableState(XRState).viewerPose.set(
     ReferenceSpace.localFloor && getState(XRState).xrFrame?.getViewerPose(ReferenceSpace.localFloor)
   )
+
+  /** @todo - move this to a more appropriate place */
+  if (getState(XRState).viewerPose && !hasPose) {
+    if (getState(XRState).sessionMode === 'immersive-vr') setTrackingSpace()
+  }
 }
 
 export const XRCameraSystem = defineSystem({

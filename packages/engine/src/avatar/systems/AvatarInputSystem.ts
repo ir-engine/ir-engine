@@ -57,7 +57,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { XRState } from '../../xr/XRState'
+import { XRControlsState } from '../../xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -216,10 +216,9 @@ const execute = () => {
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
   const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
-  const attachedMode = XRState.cameraMode === 'attached'
-  const hasMovementControls = XRState.hasMovementControls
+  const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
 
-  if (!attachedMode) {
+  if (!isCameraAttachedToAvatar) {
     const firstWalkableEntityWithInput = walkableQuery().find(
       (entity) => getComponent(entity, InputComponent)?.inputSources.length
     )
@@ -281,10 +280,10 @@ const execute = () => {
       if (buttons.KeyP?.down) onKeyP()
     }
 
-    if (!hasMovementControls) continue
+    if (!isMovementControlsEnabled) continue
 
     //** touch input (only for avatar jump)*/
-    const doubleClicked = attachedMode ? false : getAvatarDoubleClick(buttons)
+    const doubleClicked = isCameraAttachedToAvatar ? false : getAvatarDoubleClick(buttons)
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
     const keyDeltaZ =

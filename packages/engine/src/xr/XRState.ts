@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
-import { defineAction, defineState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { useEffect } from 'react'
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { Entity } from '../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
@@ -49,6 +50,7 @@ export class XRAction {
     duration: matches.number
   })
 }
+
 // TODO: divide this up into the systems that manage these states
 export const XRState = defineState({
   name: 'XRState',
@@ -69,25 +71,15 @@ export const XRState = defineState({
       unassingedInputSources: [] as XRInputSource[],
       session: null as XRSession | null,
       sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
-      avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
-      userAvatarHeightDifference: 0.5,
       /** Stores the depth map data - will exist if depth map is supported */
       depthDataTexture: null as DepthDataTexture | null,
       is8thWallActive: false,
       viewerInputSourceEntity: 0 as Entity,
       viewerPose: null as XRViewerPose | null | undefined,
+      userAvatarHeightDifference: 1,
       userEyeLevel: 1.8,
-      //to be moved to user_settings
-      userHeight: 0,
       xrFrame: null as XRFrame | null
     }
-  },
-
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(XRState, [
-      /** @todo replace this wither user_settings table entry */
-      'userEyeLevel'
-    ])
   },
 
   /**
@@ -98,36 +90,7 @@ export const XRState = defineState({
    */
   get worldScale(): number {
     const { sceneScale, userAvatarHeightDifference } = getState(XRState)
-    return sceneScale * Math.max(userAvatarHeightDifference, 0.5)
-  },
-
-  /**
-   * Gets the camera mode - either 'attached' or 'detached'
-   * - when in dollhouse mode,
-   * @returns the camera mode
-   */
-  get cameraMode(): 'attached' | 'detached' {
-    const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState)
-    if (!session || scenePlacementMode === 'placing') return 'detached'
-    if (avatarCameraMode === 'auto') {
-      return sceneScale === 1 ? 'attached' : 'detached'
-    }
-    return avatarCameraMode
-  },
-
-  /**
-   * Specifies that the user has movement controls if:
-   * - they are not in an immersive session
-   * - they are in an immersive session with a world-space interaction mode
-   * - they are in an immersive-ar and dollhouse mode
-   * @returns {boolean} true if the user has movement controls
-   */
-  get hasMovementControls(): boolean {
-    const { sessionActive, sceneScale, sessionMode, session } = getState(XRState)
-    if (!sessionActive) return true
-    if (session && session.interactionMode === 'world-space') return true
-    const isMiniatureScale = sceneScale !== 1
-    return sessionMode === 'immersive-ar' ? isMiniatureScale : true
+    return sceneScale * userAvatarHeightDifference
   },
 
   /**
@@ -149,6 +112,61 @@ export const XRState = defineState({
   }
 })
 
+export const XRControlsState = defineState({
+  name: 'XRControlsState',
+  initial: () => ({
+    /**
+     * Specifies that the user has movement controls if:
+     * - in an immersive session
+     * - or in an immersive session with a world-space interaction mode
+     * - or in an immersive-ar and dollhouse mode
+     */
+    isMovementControlsEnabled: true,
+    /**
+     * Specifies that the camera is attached to the avatar if:
+     * - in an immersion session
+     * - or in miniature mode
+     */
+    isCameraAttachedToAvatar: true,
+
+    avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached'
+  })
+})
+
+export const useXRMovement = () => {
+  const xrMovementState = getMutableState(XRControlsState)
+  const avatarCameraMode = useHookstate(xrMovementState.avatarCameraMode)
+
+  const xrState = getMutableState(XRState)
+  const sceneScale = useHookstate(xrState.sceneScale)
+  const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
+  const session = useHookstate(xrState.session)
+
+  const getAvatarCameraMode = () => {
+    if (!session.value || scenePlacementMode.value === 'placing') return false
+    if (avatarCameraMode.value === 'auto') {
+      return sceneScale.value === 1
+    }
+    return avatarCameraMode.value === 'attached'
+  }
+
+  useEffect(() => {
+    xrMovementState.isCameraAttachedToAvatar.set(getAvatarCameraMode())
+  }, [avatarCameraMode, sceneScale, scenePlacementMode, session])
+
+  const getMovementControlsEnabled = () => {
+    const { sessionActive, sceneScale, sessionMode, session } = getState(XRState)
+    if (!sessionActive) return true
+    if (session && session.interactionMode === 'world-space') return true
+    const isMiniatureScale = sceneScale !== 1
+    return sessionMode === 'immersive-ar' ? isMiniatureScale : true
+  }
+
+  useEffect(() => {
+    xrMovementState.isMovementControlsEnabled.set(getMovementControlsEnabled())
+  }, [avatarCameraMode, sceneScale, scenePlacementMode, session])
+}
+
 export const ReferenceSpace = {
   /**
    * The scene origin reference space describes where the origin of the tracking space is
@@ -165,11 +183,11 @@ export const ReferenceSpace = {
 }
 globalThis.ReferenceSpace = ReferenceSpace
 
-/** @deprecated - use XRState.getCameraMode */
-export const getCameraMode = () => XRState.cameraMode
+/** @deprecated - use getState(XRMovementState).isCameraAttachedToAvatar */
+export const getCameraMode = () => (getState(XRControlsState).isCameraAttachedToAvatar ? 'attached' : 'detached')
 
-/** @deprecated - use XRState.hasMovementControls */
-export const hasMovementControls = () => XRState.hasMovementControls
+/** @deprecated - use getState(XRMovementState).isMovementControlsEnabled */
+export const hasMovementControls = () => getState(XRControlsState).isMovementControlsEnabled
 
 const inputSourceQuery = defineQuery([InputSourceComponent])
 
