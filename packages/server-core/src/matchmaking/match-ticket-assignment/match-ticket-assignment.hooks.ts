@@ -26,14 +26,44 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 
-import { matchTicketAssignmentQueryValidator } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
+import {
+  MatchTicketAssignmentType,
+  matchTicketAssignmentQueryValidator
+} from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import linkMatchUserToMatch from '@etherealengine/server-core/src/hooks/matchmaking-link-match-user-to-match'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { getTicketsAssignment } from '@etherealengine/matchmaking/src/functions'
+import { NotFound } from '@feathersjs/errors'
+import { HookContext } from '../../../declarations'
+import config from '../../appconfig'
+import { emulate_getTicketsAssignment } from '../emulate'
+import { MatchTicketAssignmentService } from './match-ticket-assignment.class'
 import {
   matchTicketAssignmentExternalResolver,
   matchTicketAssignmentQueryResolver,
   matchTicketAssignmentResolver
 } from './match-ticket-assignment.resolvers'
+
+const getTicketAssigment = async (context: HookContext<MatchTicketAssignmentService>) => {
+  let assignment: MatchTicketAssignmentType
+  try {
+    if (config.server.matchmakerEmulationMode) {
+      assignment = await emulate_getTicketsAssignment(
+        context.service,
+        context.id,
+        context.params[identityProviderPath].userId
+      )
+    } else {
+      assignment = await getTicketsAssignment(String(context.id))
+    }
+  } catch (e) {
+    // todo: handle other errors. like no connection, etc....
+    throw new NotFound(e.message, e)
+  }
+
+  context.result = assignment
+}
 
 export default {
   around: {
@@ -49,7 +79,7 @@ export default {
       schemaHooks.resolveQuery(matchTicketAssignmentQueryResolver)
     ],
     find: [],
-    get: [],
+    get: [getTicketAssigment],
     create: [disallow()],
     update: [disallow()],
     patch: [disallow()],
