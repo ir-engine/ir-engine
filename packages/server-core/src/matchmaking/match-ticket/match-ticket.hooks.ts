@@ -41,6 +41,7 @@ import { createTicket, deleteTicket, getTicket } from '@etherealengine/matchmaki
 import { BadRequest, NotFound } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
+import disallowNonId from '../../hooks/disallow-non-id'
 import { emulate_createTicket, emulate_getTicket } from '../emulate'
 import { MatchTicketService } from './match-ticket.class'
 import {
@@ -49,12 +50,6 @@ import {
   matchTicketQueryResolver,
   matchTicketResolver
 } from './match-ticket.resolvers'
-
-const ensureId = async (context: HookContext<MatchTicketService>) => {
-  if (typeof context.id !== 'string' || context.id.length === 0) {
-    throw new BadRequest('Invalid ticket id, not empty string is expected')
-  }
-}
 
 const getEmulationTicket = async (context: HookContext<MatchTicketService>) => {
   let ticket
@@ -109,7 +104,7 @@ export default {
       schemaHooks.resolveQuery(matchTicketQueryResolver)
     ],
     find: [],
-    get: [iff(isProvider('external'), setLoggedInUser('userId') as any), ensureId, getEmulationTicket],
+    get: [iff(isProvider('external'), setLoggedInUser('userId') as any), disallowNonId, getEmulationTicket],
     create: [
       iff(isProvider('external'), setLoggedInUser('userId') as any),
       matchmakingRestrictMultipleQueueing(),
