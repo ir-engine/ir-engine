@@ -50,7 +50,7 @@ import {
   locationSettingPath
 } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { BadRequest } from '@feathersjs/errors'
-import { Knex } from 'knex'
+import { transaction } from '@feathersjs/knex'
 import slugify from 'slugify'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -87,124 +87,168 @@ const sortByLocationSetting = async (context: HookContext<LocationService>) => {
   }
 }
 
-const insertLocationData = async (context: HookContext<LocationService>) => {
+const makeLobbies = async (context: HookContext<LocationService>) => {
   if (!context.data || context.method !== 'create') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
-
   const data: LocationData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-  const trx = await (context.app.get('knexClient') as Knex).transaction()
+  for (const item of data) {
+    if (item.isLobby) {
+      await context.makeLobby(context.params.transaction!.trx, context.params?.user)
+    }
+  }
+}
 
+const createSlugifiedNames = async (context: HookContext<LocationService>) => {
+  if (!context.data) {
+    throw new BadRequest(`No data in ${context.method}`)
+  }
+  const data = Array.isArray(context.data) ? context.data : [context.data]
+
+  for (const item of data) {
+    if (item.name) item.slugifiedName = slugify(item.name, { lower: true })
+  }
+
+  context.data = data.length === 1 ? data[0] : data
+}
+
+const setInsertData = async (context: HookContext<LocationService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+  const data: LocationData[] = Array.isArray(context.data) ? context.data : [context.data]
+
+  context.insertData = []
+
+  for (const [index, item] of data.entries()) {
+    context.insertData.push(JSON.parse(JSON.stringify(item)))
+    delete context.insertData[index].locationSetting
+    delete context.insertData[index].locationAdmin
+  }
+  context.result = undefined
+}
+
+const insertLocation = async (context: HookContext<LocationService>) => {
+  for (const item of context.insertData) {
+    await context.params.transaction!.trx!.from<LocationDatabaseType>(locationPath).insert(item)
+  }
+}
+
+const insertLocationSetting = async (context: HookContext<LocationService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+  const data: LocationData[] = Array.isArray(context.data) ? context.data : [context.data]
+
+  for (const item of data) {
+    await context.params.transaction!.trx!.from<LocationSettingType>(locationSettingPath).insert({
+      ...item.locationSetting,
+      locationId: (item as LocationType).id
+    })
+  }
+}
+
+const insertAuthorizedLocation = async (context: HookContext<LocationService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+  const data: LocationData[] = Array.isArray(context.data) ? context.data : [context.data]
+
+  for (const item of data) {
+    if ((item as LocationType).locationAdmin) {
+      await context.params.transaction!.trx!.from<LocationAdminType>(locationAdminPath).insert({
+        ...(item as LocationType).locationAdmin,
+        userId: context.params?.user?.id,
+        locationId: (item as LocationType).id
+      })
+      await context.params.transaction!.trx!.from<LocationAuthorizedUserType>(locationAuthorizedUserPath).insert({
+        ...(item as LocationType).locationAdmin,
+        userId: context.params.user?.id,
+        locationId: (item as LocationType).id
+      })
+    }
+  }
+}
+
+const getInsertResult = async (context: HookContext<LocationService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+  const data: LocationData[] = Array.isArray(context.data) ? context.data : [context.data]
   const result: LocationType[] = []
 
   for (const item of data) {
-    try {
-      const selfUser = context.params?.user
+    const location = await context.app.service(locationPath).get((item as LocationType).id)
 
-      if (item.isLobby) {
-        await context.makeLobby(trx, selfUser)
-      }
-
-      item.slugifiedName = slugify(item.name, { lower: true })
-
-      const insertData = JSON.parse(JSON.stringify(item))
-      delete insertData.locationSetting
-      delete insertData.locationAdmin
-
-      await trx.from<LocationDatabaseType>(locationPath).insert(insertData)
-
-      await trx.from<LocationSettingType>(locationSettingPath).insert({
-        ...item.locationSetting,
-        locationId: (item as LocationType).id
-      })
-
-      if ((item as LocationType).locationAdmin) {
-        await trx.from<LocationAdminType>(locationAdminPath).insert({
-          ...(item as LocationType).locationAdmin,
-          userId: selfUser?.id,
-          locationId: (item as LocationType).id
-        })
-
-        await trx.from<LocationAuthorizedUserType>(locationAuthorizedUserPath).insert({
-          ...(item as LocationType).locationAdmin,
-          userId: selfUser?.id,
-          locationId: (item as LocationType).id
-        })
-      }
-
-      await trx.commit()
-
-      const location = await context.app.service(locationPath).get((item as LocationType).id)
-
-      result.push(location)
-    } catch (err) {
-      logger.error(err)
-      await trx.rollback()
-      if (err.code === 'ER_DUP_ENTRY') {
-        throw new BadRequest('Name is in use.')
-      }
-      throw err
-    }
+    result.push(location)
   }
-
   context.result = result.length === 1 ? result[0] : result
 }
 
-const updateLocation = async (context: HookContext<LocationService>) => {
+const getUpdateResult = async (context: HookContext<LocationService>) => {
+  context.result = await context.app.service(locationPath).get(context.id!)
+}
+
+const duplicateNameError = async (context: HookContext<LocationService>) => {
+  if (context.error) {
+    if (context.error.code === 'ER_DUP_ENTRY') {
+      throw new BadRequest('Name is in use.')
+    } else if (context.error.errors && context.error.errors[0].message === 'slugifiedName must be unique') {
+      throw new BadRequest('That name is already in use')
+    }
+    throw context.error
+  }
+}
+
+const makeOldLocationLobby = async (context: HookContext<LocationService>) => {
   if (!context.data || context.method !== 'patch') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
-
   const data: LocationPatch = context.data as LocationPatch
-  const trx = await (context.app.get('knexClient') as Knex).transaction()
 
-  try {
-    const selfUser = context.params?.user
+  context.oldLocation = await context.app.service(locationPath).get(context.id!)
 
-    const oldLocation = await context.app.service(locationPath).get(context.id!)
+  if (!context.oldLocation.isLobby && data.isLobby) {
+    await context.service.makeLobby(context.params.transaction!.trx!, context.params?.user)
+  }
+}
 
-    if (!oldLocation.isLobby && data.isLobby) {
-      await context.service.makeLobby(trx, selfUser)
-    }
+const setUpdateData = async (context: HookContext<LocationService>) => {
+  if (!context.data || context.method !== 'patch') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+  const data: LocationPatch = context.data as LocationPatch
 
-    if (data.name) {
-      data.slugifiedName = slugify(data.name, { lower: true })
-    }
+  context.updateData = JSON.parse(JSON.stringify(data))
+  delete context.updateData.locationSetting
+  context.result = undefined
+}
 
-    const updateData = JSON.parse(JSON.stringify(data))
-    delete updateData.locationSetting
+const updateLocation = async (context: HookContext<LocationService>) => {
+  await context.params
+    .transaction!.trx!.from<LocationDatabaseType>(locationPath)
+    .update(context.updateData)
+    .where({ id: context.id?.toString() })
+}
 
-    await trx
-      .from<LocationDatabaseType>(locationPath)
-      .update(updateData)
-      .where({ id: context.id?.toString() })
+const updateLocationSetting = async (context: HookContext<LocationService>) => {
+  if (!context.data || context.method !== 'patch') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+  const data: LocationPatch = context.data as LocationPatch
 
-    if (data.locationSetting) {
-      await trx
-        .from<LocationSettingType>(locationSettingPath)
-        .update({
-          videoEnabled: data.locationSetting.videoEnabled,
-          audioEnabled: data.locationSetting.audioEnabled,
-          faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
-          screenSharingEnabled: data.locationSetting.screenSharingEnabled,
-          locationType: data.locationSetting.locationType || 'private'
-        })
-        .where({ id: oldLocation.locationSetting.id })
-    }
-
-    await trx.commit()
-
-    const location = await context.app.service(locationPath).get(context.id!)
-
-    context.result = location
-  } catch (err) {
-    logger.error(err)
-    await trx.rollback()
-    if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
-      throw new BadRequest('That name is already in use')
-    }
-    throw err
+  if (data.locationSetting) {
+    await context.params
+      .transaction!.trx!.from<LocationSettingType>(locationSettingPath)
+      .update({
+        videoEnabled: data.locationSetting.videoEnabled,
+        audioEnabled: data.locationSetting.audioEnabled,
+        faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
+        screenSharingEnabled: data.locationSetting.screenSharingEnabled,
+        locationType: data.locationSetting.locationType || 'private'
+      })
+      .where({ id: context.oldLocation.locationSetting.id })
   }
 }
 
@@ -253,14 +297,25 @@ export default {
       iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationDataValidator),
       schemaHooks.resolveData(locationDataResolver),
-      insertLocationData
+      transaction.start(),
+      makeLobbies,
+      createSlugifiedNames,
+      setInsertData,
+      insertLocation,
+      insertLocationSetting,
+      insertAuthorizedLocation
     ],
     update: [iff(isProvider('external'), verifyScope('location', 'write'))],
     patch: [
       iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationPatchValidator),
       schemaHooks.resolveData(locationPatchResolver),
-      updateLocation
+      transaction.start(),
+      makeOldLocationLobby,
+      createSlugifiedNames,
+      setUpdateData,
+      updateLocation,
+      updateLocationSetting
     ],
     remove: [
       iff(isProvider('external'), verifyScope('location', 'write')),
@@ -274,9 +329,9 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [transaction.end(), getInsertResult],
     update: [],
-    patch: [],
+    patch: [transaction.end(), getUpdateResult],
     remove: []
   },
 
@@ -284,9 +339,9 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [transaction.rollback(), duplicateNameError],
     update: [],
-    patch: [],
+    patch: [transaction.rollback(), duplicateNameError],
     remove: []
   }
 } as any
