@@ -50,6 +50,7 @@ import TablePagination from '@etherealengine/ui/src/primitives/mui/TablePaginati
 import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import DrawerView from '../../../common/DrawerView'
 import styles from '../../../styles/settings.module.scss'
 
@@ -97,7 +98,7 @@ const ThemePlayground = () => {
       align: 'right'
     },
     {
-      id: 'instanceId',
+      id: 'instanceId' as InstanceID,
       label: 'Instance',
       minWidth: 65,
       align: 'right'
@@ -116,7 +117,7 @@ const ThemePlayground = () => {
       isGuest: false,
       location: 'test',
       inviteCode: 'NULL',
-      instanceId: 'koqwndpkqwndpkqwndpqkwndm',
+      instanceId: 'koqwndpkqwndpkqwndpqkwndm' as InstanceID,
       action: (
         <>
           <a className="actionStyle" onClick={() => {}}>
@@ -133,7 +134,7 @@ const ThemePlayground = () => {
       isGuest: false,
       location: 'apartment',
       inviteCode: 'NULL',
-      instanceId: 'alksdnvoakewndawepdnpqwdew',
+      instanceId: 'alksdnvoakewndawepdnpqwdew' as InstanceID,
       action: (
         <>
           <a className="actionStyle" onClick={() => {}}>
@@ -150,7 +151,7 @@ const ThemePlayground = () => {
       isGuest: false,
       location: 'test',
       inviteCode: 'NULL',
-      instanceId: 'qkpwejdpqwdmpqlcmnpqwmndqow',
+      instanceId: 'qkpwejdpqwdmpqlcmnpqwmndqow' as InstanceID,
       action: (
         <>
           <a className="actionStyle" onClick={() => {}}>

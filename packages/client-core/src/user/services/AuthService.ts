@@ -35,6 +35,7 @@ import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/a
 import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { generateTokenPath } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
 import {
@@ -333,7 +334,7 @@ export const AuthService = {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
     const path = location?.state?.from || location.pathname
-    const instanceId = new URL(window.location.href).searchParams.get('instanceId')
+    const instanceId = (new URL(window.location.href).searchParams.get('instanceId') as InstanceID) || null
     const redirectObject = {
       path: path
     } as any
@@ -582,7 +583,7 @@ export const AuthService = {
   async removeConnection(identityProviderId: number, userId: UserID) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     try {
-      await Engine.instance.api.service(identityProviderPath)._remove(identityProviderId)
+      await Engine.instance.api.service(identityProviderPath).remove(identityProviderId)
       return AuthService.loadUserData(userId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

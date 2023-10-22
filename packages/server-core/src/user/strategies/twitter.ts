@@ -29,6 +29,7 @@ import { random } from 'lodash'
 
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -80,7 +81,7 @@ export class TwitterStrategy extends CustomOAuthStrategy {
         scopes: []
       })
       entity.userId = newUser.id
-      await this.app.service(identityProviderPath)._patch(entity.id, {
+      await this.app.service(identityProviderPath).patch(entity.id, {
         userId: newUser.id
       })
     }
@@ -101,7 +102,7 @@ export class TwitterStrategy extends CustomOAuthStrategy {
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
-      await this.app.service(identityProviderPath)._remove(identityProvider.id)
+      await this.app.service(identityProviderPath).remove(identityProvider.id)
       await this.app.service(userPath).remove(identityProvider.userId)
       return super.updateEntity(entity, profile, params)
     }
@@ -109,7 +110,7 @@ export class TwitterStrategy extends CustomOAuthStrategy {
     if (!existingEntity) {
       profile.userId = user.id
       const newIP = await super.createEntity(profile, params)
-      if (entity.type === 'guest') await this.app.service(identityProviderPath)._remove(entity.id)
+      if (entity.type === 'guest') await this.app.service(identityProviderPath).remove(entity.id)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) return existingEntity
     else {
@@ -133,7 +134,7 @@ export class TwitterStrategy extends CustomOAuthStrategy {
         parsedRedirect = {}
       }
       const path = parsedRedirect.path
-      const instanceId = parsedRedirect.instanceId
+      const instanceId = parsedRedirect.instanceId as InstanceID
       let returned = redirectHost + `?token=${token}&type=${type}`
       if (path != null) returned = returned.concat(`&path=${path}`)
       if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`)

@@ -32,6 +32,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './styles.module.scss'
 
@@ -46,7 +47,7 @@ const FacebookCallbackComponent = (props): JSX.Element => {
     const token = search.get('token') as string
     const type = search.get('type') as string
     const path = search.get('path') as string
-    const instanceId = search.get('instanceId') as string
+    const instanceId = search.get('instanceId') as InstanceID
 
     if (!error) {
       if (type === 'connection') {
