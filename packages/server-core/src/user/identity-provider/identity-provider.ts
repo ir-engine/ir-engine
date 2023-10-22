@@ -47,7 +47,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(identityProviderPath, new IdentityProviderService(options, app), {
+  app.use(identityProviderPath, new IdentityProviderService(options), {
     // A list of all methods this service exposes externally
     methods: identityProviderMethods,
     // You can add additional custom events to be sent to clients here

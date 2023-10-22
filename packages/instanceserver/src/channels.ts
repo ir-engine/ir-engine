@@ -665,7 +665,7 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
   } catch (err) {
     if (err.code === 401 && err.data.name === 'TokenExpiredError') {
       const jwtDecoded = decode(token)!
-      const idProvider = await app.service(identityProviderPath)._get(jwtDecoded.sub as string)
+      const idProvider = await app.service(identityProviderPath).get(jwtDecoded.sub as string)
       authResult = {
         [identityProviderPath]: idProvider
       }
