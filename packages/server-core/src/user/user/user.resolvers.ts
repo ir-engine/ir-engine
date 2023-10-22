@@ -47,6 +47,7 @@ import {
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserSettingType, userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
   identityProviders: virtual(async (user, context) => {
@@ -142,8 +143,8 @@ export const userDataResolver = resolve<UserType, HookContext>({
   name: async (name) => {
     return name || 'Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)
   },
-  inviteCode: async (inviteCode) => {
-    return inviteCode || Math.random().toString(36).slice(2)
+  inviteCode: async (inviteCode, _, context) => {
+    return inviteCode || (await getFreeInviteCode(context.app))
   },
   avatarId: async (avatarId) => {
     return avatarId || undefined
