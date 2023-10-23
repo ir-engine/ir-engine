@@ -125,7 +125,7 @@ export class LinkedInStrategy extends CustomOAuthStrategy {
       redirectConfig = {}
     }
     let { domain: redirectDomain, path: redirectPath, instanceId: redirectInstanceId } = redirectConfig
-    redirectDomain = redirectDomain || config.authentication.callback.linkedin
+    redirectDomain = `${redirectDomain}/auth/oauth/linkedin` || config.authentication.callback.linkedin
 
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string
