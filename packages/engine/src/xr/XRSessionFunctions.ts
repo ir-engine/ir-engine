@@ -32,10 +32,11 @@ import { V_000 } from '../common/constants/MathConstants'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { computeAndUpdateWorldOrigin, updateEyeHeight } from '../transform/updateWorldOrigin'
+import { computeAndUpdateWorldOrigin } from '../transform/updateWorldOrigin'
 import { Engine } from './../ecs/classes/Engine'
 import { getComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
+import { setTrackingSpace } from './XRScaleAdjustmentFunctions'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
@@ -152,7 +153,7 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
     // WebXR Emulator does not support XRReferenceSpace events
     if ('addEventListener' in space)
       space.addEventListener('reset', (ev) => {
-        updateEyeHeight()
+        setTrackingSpace()
       })
     ReferenceSpace.localFloor = space
     computeAndUpdateWorldOrigin()

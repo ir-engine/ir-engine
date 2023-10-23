@@ -64,7 +64,7 @@ export const XRState = defineState({
       sceneScaleAutoMode: true,
       sceneScaleTarget: 1,
       sceneRotationOffset: 0,
-      scenePlacementMode: 'placing' as 'unplaced' | 'placing' | 'placed',
+      scenePlacementMode: 'unplaced' as 'unplaced' | 'placing' | 'placed',
       supportedSessionModes: {
         inline: false,
         'immersive-ar': false,
@@ -78,8 +78,7 @@ export const XRState = defineState({
       is8thWallActive: false,
       viewerInputSourceEntity: 0 as Entity,
       viewerPose: null as XRViewerPose | null | undefined,
-      userAvatarHeightDifference: 1,
-      userEyeLevel: 1.8,
+      userAvatarHeightScale: 1,
       xrFrame: null as XRFrame | null
     }
   },
@@ -91,8 +90,8 @@ export const XRState = defineState({
    * @returns {number} the world scale
    */
   get worldScale(): number {
-    const { sceneScale, userAvatarHeightDifference } = getState(XRState)
-    return sceneScale * userAvatarHeightDifference
+    const { sceneScale, userAvatarHeightScale } = getState(XRState)
+    return sceneScale * userAvatarHeightScale
   },
 
   /**

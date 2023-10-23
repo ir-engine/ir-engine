@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
@@ -64,14 +64,4 @@ export const computeAndUpdateWorldOrigin = () => {
   computeTransformMatrix(Engine.instance.originEntity)
   TransformComponent.dirtyTransforms[Engine.instance.originEntity] = false
   updateWorldOrigin()
-}
-
-export const updateEyeHeight = () => {
-  const xrFrame = getState(XRState).xrFrame
-  if (!xrFrame) return
-  const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
-  if (viewerPose) {
-    const xrState = getMutableState(XRState)
-    xrState.userEyeLevel.set(viewerPose.transform.position.y)
-  }
 }
