@@ -24,15 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { SceneFilesType, sceneFilesPath } from '@etherealengine/engine/src/schemas/projects/scene-files.schema'
 import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application, Paginated } from '@feathersjs/feathers'
 import logger from '../../ServerLogger'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getSceneData } from '../scene/scene-helper'
 import { SceneDataParams } from './scene-data.class'
 
 export const getScenesForProject = async (app: Application, params?: SceneDataParams) => {
-  const storageProvider = getStorageProvider(params?.query?.storageProviderName)
   const projectName = params?.query?.projectName
   const metadataOnly = params?.query?.metadataOnly
   const internal = params?.query?.internal
@@ -42,18 +41,14 @@ export const getScenesForProject = async (app: Application, params?: SceneDataPa
       .find({ ...params, query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
     if (project.data.length === 0) throw new Error(`No project named ${projectName} exists`)
 
-    const newSceneJsonPath = `projects/${projectName}/`
+    const sceneReferences = (await app
+      .service(sceneFilesPath)
+      .find({ query: { projectId: project.data[0].id }, paginate: false })) as SceneFilesType[]
 
-    const fileResults = await storageProvider.listObjects(newSceneJsonPath, false)
-    const files = fileResults.Contents.map((dirent) => dirent.Key)
-      .filter((name) => name.endsWith('.scene.json'))
-      .map((name) => name.slice(0, -'.scene.json'.length))
-
-    const sceneData: SceneDataType[] = await Promise.all(
-      files.map(async (sceneName) =>
-        getSceneData(projectName!, sceneName.replace(newSceneJsonPath, ''), metadataOnly, internal)
-      )
-    )
+    const sceneData: SceneDataType[] = []
+    for (const item of sceneReferences) {
+      sceneData.push(await getSceneData(item.scene, item.name, projectName!, metadataOnly, internal))
+    }
 
     return { data: sceneData }
   } catch (e) {

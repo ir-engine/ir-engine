@@ -51,14 +51,19 @@ export const getEnvMapBake = (app: Application) => {
 }
 
 export const getSceneData = async (
-  projectName: string,
+  scenePath: string,
   sceneName: string,
+  projectName: string,
   metadataOnly?: boolean,
   internal = false,
   storageProviderName?: string
 ) => {
   const storageProvider = getStorageProvider(storageProviderName)
-  const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, `projects/${projectName}/`)
+  const pathArray = scenePath.split('/')
+  const sceneFile = pathArray.pop()
+  const directory = pathArray.join('/')
+
+  const sceneExists = await storageProvider.doesExist(sceneFile!, directory)
   if (!sceneExists) throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
 
   let thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.ktx2`
@@ -72,8 +77,6 @@ export const getSceneData = async (
   const cacheDomain = getCacheDomain(storageProvider, internal)
   const thumbnailUrl =
     thumbnailPath !== `` ? getCachedURL(thumbnailPath, cacheDomain) : `/static/etherealengine_thumbnail.jpg`
-
-  const scenePath = `projects/${projectName}/${sceneName}.scene.json`
 
   const sceneResult = await storageProvider.getObject(scenePath)
   const sceneData: SceneData = {

@@ -41,13 +41,14 @@ export async function up(knex: Knex): Promise<void> {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('name', 255).notNullable()
-      table.string('reference', 255).notNullable()
+      table.string('scene', 255).notNullable()
+      table.string('thumbnail', 255).notNullable()
       //@ts-ignore
-      table.uuid('domainId', 36).collate('utf8mb4_bin').nullable().index()
+      table.uuid('projectId').collate('utf8mb4_bin').defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      table.foreign('domainId').references('id').inTable('domain').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('projectId').references('id').inTable('project').onDelete('SET NULL').onUpdate('CASCADE')
     })
   }
 
