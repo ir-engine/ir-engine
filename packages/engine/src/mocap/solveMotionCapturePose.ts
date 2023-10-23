@@ -269,7 +269,6 @@ export function solveMotionCapturePose(
     VRMHumanBoneName.RightLowerArm
   )
   if (estimatingLowerBody) {
-    if (landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE].visibility > 0.5) console.log(calculateGroundedFeet(landmarks))
     solveLimb(
       entity,
       lowestWorldY,
@@ -424,7 +423,6 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
           landmarks[i == feetIndices.rightFoot ? POSE_LANDMARKS_RIGHT.RIGHT_ANKLE : POSE_LANDMARKS_LEFT.LEFT_ANKLE].y
         const footY = footLandmark * -1 + rig.rig.hips.node.position.y
         MotionCaptureRigComponent.footOffset[entity] = footY
-        console.log(MotionCaptureRigComponent.footOffset[entity])
       }
     }
     hipCenter.copy(hipleft).add(hipright).multiplyScalar(0.5)
