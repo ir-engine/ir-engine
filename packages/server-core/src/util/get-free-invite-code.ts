@@ -25,8 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import crypto from 'crypto'
+import { Application } from '../../declarations'
 
-const getFreeInviteCode = async (app): Promise<string> => {
+const getFreeInviteCode = async (app: Application): Promise<string> => {
   const code = crypto.randomBytes(4).toString('hex')
   const users = await app.service(userPath).find({
     query: {
