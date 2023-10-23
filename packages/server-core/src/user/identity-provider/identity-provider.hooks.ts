@@ -38,6 +38,7 @@ import appConfig from '../../appconfig'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -45,7 +46,6 @@ import { random } from 'lodash'
 import { HookContext } from '../../../declarations'
 import persistData from '../../hooks/persist-data'
 import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
-import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import { IdentityProviderService } from './identity-provider.class'
 import {
   identityProviderDataResolver,
@@ -161,7 +161,15 @@ async function createNewUser(context: HookContext<IdentityProviderService>) {
 
 async function addScopes(context: HookContext<IdentityProviderService>) {
   if (isDev && (context.actualData as IdentityProviderType).type === 'admin') {
-    const data = scopeTypeSeed.map(({ type }) => ({ userId: context.existingUser!.id, type }))
+    // in dev mode, add all scopes to the first user made an admin
+    const scopeTypes = await this.app.service(scopeTypePath).find({
+      paginate: false
+    })
+
+    const data = scopeTypes.map(({ type }) => {
+      return { userId: context.existingUser!.id, type }
+    })
+
     await context.app.service(scopePath).create(data)
   }
 }
