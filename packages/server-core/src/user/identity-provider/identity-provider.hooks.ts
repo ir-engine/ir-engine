@@ -43,6 +43,7 @@ import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schem
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { random } from 'lodash'
 import { HookContext } from '../../../declarations'
+import persistData from '../../hooks/persist-data'
 import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import { IdentityProviderService } from './identity-provider.class'
@@ -103,7 +104,7 @@ async function checkOnlyIdentityProvider(context: HookContext<IdentityProviderSe
 /* (BEFORE) CREATE HOOKS */
 
 async function validateAuthParams(context: HookContext<IdentityProviderService>) {
-  let userId = (context.data as IdentityProviderData).userId
+  let userId = (context.actualData as IdentityProviderData).userId
 
   if (context.params.authentication) {
     const authResult = await context.app.service('authentication').strategies.jwt.authenticate!(
@@ -114,7 +115,7 @@ async function validateAuthParams(context: HookContext<IdentityProviderService>)
   }
 
   if (!userId) {
-    if ((context.data as IdentityProviderData).type === 'guest') {
+    if ((context.actualData as IdentityProviderData).type === 'guest') {
       return
     }
     throw new BadRequest('userId not found')
@@ -128,9 +129,9 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
   if (
     !isAdmin &&
     context.params!.provider &&
-    !['password', 'email', 'sms'].includes((context!.data as IdentityProviderData).type)
+    !['password', 'email', 'sms'].includes((context!.actualData as IdentityProviderData).type)
   ) {
-    ;(context.data as IdentityProviderData).type = 'guest' //Non-password/magiclink create requests must always be for guests
+    ;(context.actualData as IdentityProviderData).type = 'guest' //Non-password/magiclink create requests must always be for guests
   }
 
   const adminScopes = await context.app.service(scopePath).find({
@@ -139,13 +140,13 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
     }
   })
 
-  if (adminScopes.total === 0 && (isDev || (context.data as IdentityProviderData).type !== 'guest')) {
-    ;(context.data as IdentityProviderData).type = 'admin'
+  if (adminScopes.total === 0 && (isDev || (context.actualData as IdentityProviderData).type !== 'guest')) {
+    ;(context.actualData as IdentityProviderData).type = 'admin'
   }
 }
 
 async function createNewUser(context: HookContext<IdentityProviderService>) {
-  const isGuest = (context.data as IdentityProviderType).type === 'guest'
+  const isGuest = (context.actualData as IdentityProviderType).type === 'guest'
   const avatars = await context.app.service(avatarPath).find({ isInternal: true, query: { $limit: 1000 } })
 
   const newUser = await context.app.service(userPath).create({
@@ -159,7 +160,7 @@ async function createNewUser(context: HookContext<IdentityProviderService>) {
 /* (AFTER) CREATE HOOKS */
 
 async function addScopes(context: HookContext<IdentityProviderService>) {
-  if (isDev && (context.data as IdentityProviderType).type === 'admin') {
+  if (isDev && (context.actualData as IdentityProviderType).type === 'admin') {
     const data = scopeTypeSeed.map(({ type }) => ({ userId: context.existingUser!.id, type }))
     await context.app.service(scopePath).create(data)
   }
@@ -197,6 +198,7 @@ export default {
       ),
       () => schemaHooks.validateData(identityProviderDataValidator),
       schemaHooks.resolveData(identityProviderDataResolver),
+      persistData,
       validateAuthParams,
       addIdentityProviderType,
       iff((context: HookContext<IdentityProviderService>) => !context.existingUser, createNewUser),
