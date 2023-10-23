@@ -32,7 +32,7 @@ import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
-import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
@@ -73,7 +73,7 @@ export const getScene = async (projectName: string, sceneName: string, metadataO
 /**
  * deleteScene used to delete project using projectId.
  *
- * @param  {any}  sceneId
+ * @param  {SceneID}  sceneId
  * @return {Promise}
  */
 export const deleteScene = async (projectName, sceneName): Promise<any> => {
