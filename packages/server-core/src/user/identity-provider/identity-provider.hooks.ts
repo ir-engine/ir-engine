@@ -162,7 +162,7 @@ async function createNewUser(context: HookContext<IdentityProviderService>) {
 async function addScopes(context: HookContext<IdentityProviderService>) {
   if (isDev && (context.actualData as IdentityProviderType).type === 'admin') {
     // in dev mode, add all scopes to the first user made an admin
-    const scopeTypes = await this.app.service(scopeTypePath).find({
+    const scopeTypes = await context.app.service(scopeTypePath).find({
       paginate: false
     })
 
