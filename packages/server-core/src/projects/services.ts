@@ -38,7 +38,7 @@ import ProjectPermission from './project-permission/project-permission'
 import Project from './project/project'
 import Projects from './projects/projects'
 import SceneData from './scene-data/scene-data'
-import SceneDirectory from './scene-directory/scene-directory'
+import SceneDirectory from './scene-files/scene-files'
 import SceneUpload from './scene-upload/scene-upload'
 import Scene from './scene/scene'
 
