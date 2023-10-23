@@ -174,7 +174,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
 
   return (
     <Box className={className}>
-      <TableComponent query={adminAvatarQuery} rows={rows} column={columns} allowSort={!!adminAvatarQuery.sort.user} />
+      <TableComponent query={adminAvatarQuery} rows={rows} column={columns} />
 
       <ConfirmDialog
         open={openConfirm.value}
