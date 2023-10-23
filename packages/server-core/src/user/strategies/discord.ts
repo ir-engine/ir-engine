@@ -80,7 +80,7 @@ export class DiscordStrategy extends CustomOAuthStrategy {
         scopes: []
       })
       entity.userId = newUser.id
-      await this.app.service(identityProviderPath)._patch(entity.id, {
+      await this.app.service(identityProviderPath).patch(entity.id, {
         userId: newUser.id
       })
     }
@@ -101,7 +101,7 @@ export class DiscordStrategy extends CustomOAuthStrategy {
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
-      await this.app.service(identityProviderPath)._remove(identityProvider.id)
+      await this.app.service(identityProviderPath).remove(identityProvider.id)
       await this.app.service(userPath).remove(identityProvider.userId)
       return super.updateEntity(entity, profile, params)
     }
@@ -109,7 +109,7 @@ export class DiscordStrategy extends CustomOAuthStrategy {
     if (!existingEntity) {
       profile.userId = user.id
       const newIP = await super.createEntity(profile, params)
-      if (entity.type === 'guest') await this.app.service(identityProviderPath)._remove(entity.id)
+      if (entity.type === 'guest') await this.app.service(identityProviderPath).remove(entity.id)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) return existingEntity
     else {
