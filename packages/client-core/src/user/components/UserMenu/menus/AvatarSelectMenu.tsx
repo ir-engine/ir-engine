@@ -35,7 +35,7 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AvatarEffectComponent } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -61,7 +61,7 @@ const AvatarMenu = () => {
   const userId = authState.user?.id?.value
   const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as EntityUUID)
   const avatarLoading = useHookstate(false)
-  const isUserReady = getState(EngineState).userReady
+  const isUserReady = useHookstate(getMutableState(EngineState).userReady)
 
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('')
@@ -100,8 +100,7 @@ const AvatarMenu = () => {
   }
 
   useEffect(() => {
-    console.log('debug1 userReady value is', isUserReady)
-    if (avatarLoading.value && isUserReady) {
+    if (avatarLoading.value && isUserReady.value) {
       avatarLoading.set(false)
       PopupMenuServices.showPopupMenu()
     }
