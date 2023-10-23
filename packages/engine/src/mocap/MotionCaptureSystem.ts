@@ -53,10 +53,12 @@ import {
   SphereGeometry,
   Vector3
 } from 'three'
+import { lerp } from 'three/src/math/MathUtils'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { V_010 } from '../common/constants/MathConstants'
 import { isClient } from '../common/functions/getEnvironment'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkState } from '../networking/NetworkState'
 import { RendererState } from '../renderer/RendererState'
@@ -117,7 +119,7 @@ const timeSeriesMocapData = new Map<
   }>
 >()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
-
+let lastFootOffset = 0
 const execute = () => {
   // for now, it is unnecessary to compute anything on the server
   if (!isClient) return
@@ -193,7 +195,10 @@ const execute = () => {
 
     //hack to offset rig
     const hipParent = rigComponent.rig.hips.node.parent
-    if (hipParent) hipParent.position.setY(MotionCaptureRigComponent.footOffset[entity])
+    if (hipParent)
+      hipParent.position.setY(
+        lerp(hipParent.position.y, MotionCaptureRigComponent.footOffset[entity], getState(EngineState).deltaSeconds * 5)
+      )
 
     const avatarDebug = getState(RendererState).avatarDebug
     helperGroup.visible = avatarDebug
