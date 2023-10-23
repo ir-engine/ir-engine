@@ -71,8 +71,8 @@ const rightFootHistory = [] as number[]
 const leftFootHistory = [] as number[]
 const feetIndices = { rightFoot: 0, leftFoot: 1 }
 const feetGrounded = [false, false]
-const footAverageDifferenceThreshold = 0.04
-const footLevelDifferenceThreshold = 0.04
+const footAverageDifferenceThreshold = 0.05
+const footLevelDifferenceThreshold = 0.035
 /**calculates which feet are grounded. operates on the assumption that the user is on a plane,
  * such that the lowest foot with no vertical motion over the past 10 frames is always the grounded foot.
  */
@@ -269,6 +269,7 @@ export function solveMotionCapturePose(
     VRMHumanBoneName.RightLowerArm
   )
   if (estimatingLowerBody) {
+    calculateGroundedFeet(landmarks)
     solveLimb(
       entity,
       lowestWorldY,
