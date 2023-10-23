@@ -130,7 +130,7 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
     context.params!.provider &&
     !['password', 'email', 'sms'].includes((context!.data as IdentityProviderData).type)
   ) {
-    ;(context.data as IdentityProviderData).type = 'guest'
+    ;(context.data as IdentityProviderData).type = 'guest' //Non-password/magiclink create requests must always be for guests
   }
 
   const adminScopes = await context.app.service(scopePath).find({
@@ -139,7 +139,7 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
     }
   })
 
-  if (adminScopes.total === 0 && isDev && (context.data as IdentityProviderData).type !== 'guest') {
+  if (adminScopes.total === 0 && (isDev || (context.data as IdentityProviderData).type !== 'guest')) {
     ;(context.data as IdentityProviderData).type = 'admin'
   }
 }
