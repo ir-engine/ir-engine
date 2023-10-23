@@ -25,6 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { mergeConfig } from 'vite'
 
+const host = process.env['VITE_APP_HOST']
+
 export default {
   // managerEntries: [require('path').resolve(__dirname, './addons/RegisterAddons')],
   headers: {
@@ -83,28 +85,27 @@ export default {
         proxy: {
           ...userConfig?.server?.proxy,
           cors: false,
-          // proxy https://travis.shetland-turtle.ts.net:3000 to https://travis.shetland-turtle.ts.net:3030
           '^3030': {
-            target: 'https://travis.shetland-turtle.ts.net:3030',
+            target: `https://${host}:3030`,
             changeOrigin: true,
             secure: false,
             ws: true
           },
           '^3031': {
-            target: 'https://travis.shetland-turtle.ts.net:3031',
+            target: `https://${host}:3031`,
             changeOrigin: true,
             secure: false,
             ws: true
           },
           '/sfx': {
-            target: 'https://travis.shetland-turtle.ts.net:3000',
+            target: `https://${host}:3000`,
             changeOrigin: true,
             secure: false,
             // replace port 6006 with 3000
             pathRewrite: { '^6006': '3000' }
           },
           '/fonts': {
-            target: 'https://travis.shetland-turtle.ts.net:3000',
+            target: `https://${host}:3000`,
             changeOrigin: true,
             secure: false,
             // replace port 6006 with 3000
