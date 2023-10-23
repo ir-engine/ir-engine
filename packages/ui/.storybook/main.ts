@@ -23,18 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import type { StorybookConfig } from '@storybook/react-vite'
 import { mergeConfig } from 'vite'
 
 const host = process.env['VITE_APP_HOST']
 
-export default {
-  // managerEntries: [require('path').resolve(__dirname, './addons/RegisterAddons')],
-  headers: {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-    'Access-Control-Allow-Headers': '*',
-    'Access-Control-Allow-Credentials': 'true'
-  },
+const config: StorybookConfig = {
   env: (config) => ({
     ...config,
     ...require('dotenv').config({
@@ -43,6 +37,7 @@ export default {
   }),
   stories: ['../src/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: [
+    '@storybook/addon-links',
     '@storybook/addon-toolbars',
     '@storybook/manager-api',
     '@storybook/addon-essentials',
@@ -61,7 +56,7 @@ export default {
   features: {
     storyStoreV7: true
   },
-  async viteFinal(config) {
+  async viteFinal(config, options) {
     const userConfig = config
     return mergeConfig(config, {
       ...userConfig,
@@ -120,3 +115,5 @@ export default {
     autodocs: false
   }
 }
+
+export default config
