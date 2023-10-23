@@ -167,6 +167,12 @@ export default class BufferHandlerExtension extends ExporterExtension implements
     const options = writer.options
 
     if (!options?.binary) {
+      const images = writer.json.images || []
+      const basePath = LoaderUtils.extractUrlBase(writer.options.path!)
+      //make uris relative to model src
+      for (const image of images) {
+        image.uri = image.uri.replace(basePath, '')
+      }
       writer.buffers.map((buffer, index) => {
         const hash = sha3_256.create()
         const view = new DataView(buffer)
