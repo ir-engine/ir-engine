@@ -35,6 +35,7 @@ export const getTrackingSpaceOffset = (height: number) => {
   return height / avatarComponent.avatarHeight
 }
 
+/** @todo add a reactor looking for when the avatar model changes that calls this */
 export const setTrackingSpace = () => {
   const { xrFrame } = getState(XRState)
 
