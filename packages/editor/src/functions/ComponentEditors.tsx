@@ -82,6 +82,7 @@ import LoadVolumeNodeEditor from '../components/properties/LoadVolumeNodeEditor'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
+import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
@@ -94,6 +95,7 @@ import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
 import PositionalAudioNodeEditor from '../components/properties/PositionalAudioNodeEditor'
 import { PostProcessingSettingsEditor } from '../components/properties/PostProcessingSettingsEditor'
+import PrimitiveGeometryNodeEditor from '../components/properties/PrimitiveGeometryNodeEditor'
 import { RenderSettingsEditor } from '../components/properties/RenderSettingsEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
@@ -125,6 +127,8 @@ EntityNodeEditor.set(ModelComponent, ModelNodeEditor)
 EntityNodeEditor.set(ShadowComponent, ShadowProperties)
 EntityNodeEditor.set(LoopAnimationComponent, LoopAnimationNodeEditor)
 EntityNodeEditor.set(ParticleSystemComponent, ParticleSystemNodeEditor)
+EntityNodeEditor.set(PrimitiveGeometryComponent, PrimitiveGeometryNodeEditor)
+
 EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
 EntityNodeEditor.set(MountPointComponent, MountPointNodeEditor)
 EntityNodeEditor.set(ColliderComponent, ColliderNodeEditor)
