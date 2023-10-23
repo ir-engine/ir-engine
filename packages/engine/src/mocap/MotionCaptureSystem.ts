@@ -191,6 +191,10 @@ const execute = () => {
 
     hipBone.updateMatrixWorld(true)
 
+    //hack to offset rig
+    const hipParent = rigComponent.rig.hips.node.parent
+    if (hipParent) hipParent.position.setY(MotionCaptureRigComponent.footOffset[entity])
+
     const avatarDebug = getState(RendererState).avatarDebug
     helperGroup.visible = avatarDebug
     if (avatarDebug) {

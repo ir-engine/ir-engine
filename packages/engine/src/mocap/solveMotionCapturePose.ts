@@ -69,9 +69,10 @@ let prevLandmarks: NormalizedLandmarkList
 
 const rightFootHistory = [] as number[]
 const leftFootHistory = [] as number[]
+const feetIndices = { rightFoot: 0, leftFoot: 1 }
 const feetGrounded = [false, false]
-const footAverageDifferenceThreshold = 0.05
-const footLevelDifferenceThreshold = 0.15
+const footAverageDifferenceThreshold = 0.04
+const footLevelDifferenceThreshold = 0.04
 /**calculates which feet are grounded. operates on the assumption that the user is on a plane,
  * such that the lowest foot with no vertical motion over the past 10 frames is always the grounded foot.
  */
@@ -384,7 +385,8 @@ const vec3 = new Vector3()
  */
 
 const spineRotation = new Quaternion(),
-  shoulderRotation = new Quaternion()
+  shoulderRotation = new Quaternion(),
+  hipCenter = new Vector3()
 export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLandmarkList) => {
   const trackingLowerBody = MotionCaptureRigComponent.solvingLowerBody[entity]
   const rig = getComponent(entity, AvatarRigComponent)
@@ -414,9 +416,21 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   const hipright = trackingLowerBody
     ? new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
     : new Vector3(0, legLength, 0)
-  const hipcenter = trackingLowerBody
-    ? new Vector3().copy(hipleft).add(hipright).multiplyScalar(0.5)
-    : new Vector3(0, legLength, 0)
+
+  if (trackingLowerBody) {
+    for (let i = 0; i < 2; i++) {
+      if (feetGrounded[i]) {
+        const footLandmark =
+          landmarks[i == feetIndices.rightFoot ? POSE_LANDMARKS_RIGHT.RIGHT_ANKLE : POSE_LANDMARKS_LEFT.LEFT_ANKLE].y
+        const footY = footLandmark * -1 + rig.rig.hips.node.position.y
+        MotionCaptureRigComponent.footOffset[entity] = footY
+        console.log(MotionCaptureRigComponent.footOffset[entity])
+      }
+    }
+    hipCenter.copy(hipleft).add(hipright).multiplyScalar(0.5)
+  } else {
+    hipCenter.copy(new Vector3(0, legLength, 0))
+  }
 
   const shoulderLeft = new Vector3(rightShoulder.x, lowestWorldY - rightShoulder.y, rightShoulder.z)
   const shoulderRight = new Vector3(leftShoulder.x, lowestWorldY - leftShoulder.y, leftShoulder.z)
@@ -425,7 +439,7 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
 
   const hipToShoulderQuaternion = new Quaternion().setFromUnitVectors(
     V_010,
-    vec3.subVectors(shoulderCenter, hipcenter).normalize()
+    vec3.subVectors(shoulderCenter, hipCenter).normalize()
   )
 
   const hipWorldQuaterion = getQuaternionFromPointsAlongPlane(hipright, hipleft, shoulderCenter, new Quaternion(), true)
@@ -433,7 +447,7 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   // multiply the hip normal quaternion by the rotation of the hips around this ne
   const hipPositionAlongPlane = new Vector3(0, -averageHipToLegHeight, 0)
     .applyQuaternion(hipToShoulderQuaternion)
-    .add(hipcenter)
+    .add(hipCenter)
 
   MotionCaptureRigComponent.hipPosition.x[entity] = hipPositionAlongPlane.x
   MotionCaptureRigComponent.hipPosition.y[entity] = hipPositionAlongPlane.y
