@@ -153,6 +153,7 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
     // WebXR Emulator does not support XRReferenceSpace events
     if ('addEventListener' in space)
       space.addEventListener('reset', (ev) => {
+        /** @todo we need to use the event's `transform` property to modify our origin reference space to align with the space prior to the reset event */
         setTrackingSpace()
       })
     ReferenceSpace.localFloor = space
