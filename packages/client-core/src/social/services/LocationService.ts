@@ -29,6 +29,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { API } from '../../API'
@@ -39,7 +40,7 @@ export const LocationSeed: LocationType = {
   name: '',
   slugifiedName: '',
   maxUsersPerInstance: 10,
-  sceneId: '',
+  sceneId: '' as SceneID,
   isLobby: false,
   isFeatured: false,
   locationSetting: {

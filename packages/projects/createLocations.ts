@@ -29,6 +29,7 @@ import fs from 'fs'
 import path from 'path'
 import { v4 as generateUUID } from 'uuid'
 
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { LocationData, locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -64,7 +65,7 @@ export const createLocations = async (app: Application, projectName: string) => 
           name: locationName,
           slugifiedName: sceneName,
           maxUsersPerInstance: 30,
-          sceneId: `${projectName}/${sceneName}`,
+          sceneId: `${projectName}/${sceneName}` as SceneID,
           locationSetting,
           isLobby: false,
           isFeatured: false
