@@ -61,8 +61,10 @@ export const XRState = defineState({
       scenePosition: new Vector3(),
       sceneRotation: new Quaternion(),
       sceneScale: 1,
+      sceneScaleAutoMode: true,
+      sceneScaleTarget: 1,
       sceneRotationOffset: 0,
-      scenePlacementMode: 'unplaced' as 'unplaced' | 'placing' | 'placed',
+      scenePlacementMode: 'placing' as 'unplaced' | 'placing' | 'placed',
       supportedSessionModes: {
         inline: false,
         'immersive-ar': false,

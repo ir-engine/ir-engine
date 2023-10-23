@@ -56,6 +56,7 @@ import {
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { InputComponent } from '../input/components/InputComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
@@ -131,38 +132,6 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 //   }
 // }
 
-/** AR placement for non immersive / mobile session */
-// export const getHitTestFromViewer = () => {
-//   const xrState = getMutableState(XRState)
-
-//   const viewerHitTestEntity = xrState.viewerHitTestEntity.value
-
-//   computeTransformMatrix(viewerHitTestEntity)
-
-//   const hitTestComponent = getComponent(viewerHitTestEntity, XRHitTestComponent)
-
-/** Swipe to rotate */
-// TODO; move into interactable after spatial input refactor
-// const deltaState = getState(EngineState).deltaSeconds
-// if (hitTestComponent?.hitTestResult) {
-//   const placementInputSource = xrState.scenePlacementMode.value!
-//   const swipe = placementInputSource.gamepad?.axes ?? []
-//   if (swipe.length) {
-//     const delta = swipe[0] - (lastSwipeValue ?? 0)
-//     if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (deltaSeconds * 20)))
-//     lastSwipeValue = swipe[0]
-//   } else {
-//     lastSwipeValue = null
-//   }
-// } else {
-//   lastSwipeValue = null
-// }
-
-//   return getComponent(viewerHitTestEntity, TransformComponent)
-// }
-
-// let lastSwipeValue = null! as null | number
-
 /**
  * Lock lifesize to 1:1, whereas dollhouse mode uses
  * the distance from the camera to the hit test plane.
@@ -216,7 +185,14 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   const deltaSeconds = getState(EngineState).deltaSeconds
   const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
 
-  const targetScale = getTargetWorldSize(localTransform)
+  const sceneScaleAutoMode = xrState.sceneScaleAutoMode
+
+  if (sceneScaleAutoMode) {
+    const targetScale = getTargetWorldSize(localTransform)
+    getMutableState(XRState).sceneScaleTarget.set(targetScale)
+  }
+
+  const targetScale = xrState.sceneScaleTarget
   if (targetScale !== xrState.sceneScale) {
     const newScale = MathUtils.lerp(xrState.sceneScale, targetScale, lerpAlpha)
     getMutableState(XRState).sceneScale.set(newScale > 0.9 ? 1 : newScale)
@@ -260,6 +236,7 @@ const XRAnchorSystemState = defineState({
     setComponent(scenePlacementEntity, LocalTransformComponent)
     setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(scenePlacementEntity, VisibleComponent, true)
+    setComponent(scenePlacementEntity, InputComponent, { highlight: false, grow: false })
 
     // const originAxesHelper = new AxesHelper(10000)
     // setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
@@ -378,6 +355,14 @@ const reactor = () => {
       active = false
     }
   }, [scenePlacementMode, xrSession, hitTest])
+
+  // useEffect(() => {
+  //   if (scenePlacementMode.value !== 'placing' || !xrSession.value) return
+  //   InputSourceComponent.captureAxes(scenePlacementEntity)
+  //   return () => {
+  //     InputSourceComponent.releaseAxes()
+  //   }
+  // }, [scenePlacementMode, xrSession])
 
   return null
 }
