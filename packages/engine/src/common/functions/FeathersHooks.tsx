@@ -168,13 +168,25 @@ export type PaginationQuery = Partial<PaginationProps> & Query
 export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Params<PaginationQuery> = {}) => {
   const paginate = usePaginate(params.query)
 
-  const response = useService(serviceName, 'find', {
-    ...params,
-    query: {
-      ...params.query,
-      ...paginate.query
+  let requestParams
+  if (params.query?.paginate === false || params.query?.$paginate === false) {
+    requestParams = {
+      ...params,
+      query: {
+        ...params.query
+      }
     }
-  })
+  } else {
+    requestParams = {
+      ...params,
+      query: {
+        ...params.query,
+        ...paginate.query
+      }
+    }
+  }
+
+  const response = useService(serviceName, 'find', requestParams)
 
   const data = response?.data
     ? Array.isArray(response.data)

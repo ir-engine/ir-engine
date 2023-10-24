@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
+import { SceneID } from '../projects/scene.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { instanceSchema } from './instance.schema'
 
@@ -48,7 +50,14 @@ export const instanceActiveQuerySchema = Type.Intersect(
   [
     querySyntax(instanceActiveQueryProperties),
     // Add additional query properties here
-    Type.Object({ sceneId: Type.String() }, { additionalProperties: false })
+    Type.Object(
+      {
+        sceneId: TypedString<SceneID>({
+          format: 'uuid'
+        })
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

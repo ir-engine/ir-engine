@@ -24,11 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { oembedPath, OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
-import { API } from '../../API'
 import { NotificationService } from './NotificationService'
 
 const logger = multiLogger.child({ component: 'client-core:OEmbedService' })
@@ -38,43 +37,16 @@ export const OEmbedState = defineState({
   initial: () => ({
     oEmbed: undefined as OembedType | undefined,
     pathname: ''
-  })
-})
+  }),
 
-export const OEmbedServiceReceptor = (action) => {
-  const s = getMutableState(OEmbedState)
-  matches(action)
-    .when(OEmbedActions.fetchData.matches, (action) => {
-      return s.merge({ oEmbed: undefined, pathname: action.pathname })
-    })
-    .when(OEmbedActions.fetchedData.matches, (action) => {
-      if (s.pathname.value === action.pathname) {
-        return s.merge({ oEmbed: action.oEmbed })
-      }
-    })
-}
-
-export const OEmbedService = {
   fetchData: async (pathname: string, queryUrl: string) => {
     try {
-      dispatchAction(OEmbedActions.fetchData({ pathname }))
-      const oEmbed = (await API.instance.client.service(oembedPath).find({ query: { url: queryUrl } })) as OembedType
-      dispatchAction(OEmbedActions.fetchedData({ oEmbed, pathname }))
+      getMutableState(OEmbedState).merge({ oEmbed: undefined, pathname })
+      const oEmbed = (await Engine.instance.api.service(oembedPath).find({ query: { url: queryUrl } })) as OembedType
+      getMutableState(OEmbedState).merge({ oEmbed, pathname })
     } catch (err) {
       logger.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
-}
-
-export class OEmbedActions {
-  static fetchData = defineAction({
-    type: 'ee.client.OEmbed.FETCH_DATA' as const,
-    pathname: matches.string
-  })
-  static fetchedData = defineAction({
-    type: 'ee.client.OEmbed.FETCHED_DATA' as const,
-    oEmbed: matches.object as Validator<unknown, OembedType>,
-    pathname: matches.string
-  })
-}
+})

@@ -30,8 +30,9 @@ import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { EditorState } from '../../services/EditorServices'
-import { EditorActiveInstanceService } from './EditorActiveInstanceService'
+import { EditorActiveInstanceState } from './EditorActiveInstanceService'
 
 let accumulator = 0
 
@@ -43,8 +44,8 @@ const execute = () => {
 
   if (accumulator > 5) {
     accumulator = 0
-    const sceneId = `${editorState.projectName}/${editorState.sceneName}`
-    EditorActiveInstanceService.getActiveInstances(sceneId)
+    const sceneId = `${editorState.projectName}/${editorState.sceneName}` as SceneID
+    EditorActiveInstanceState.getActiveInstances(sceneId)
   }
 }
 

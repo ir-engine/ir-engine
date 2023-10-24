@@ -360,30 +360,6 @@ function removeActionsForTopic(topic: string) {
   delete HyperFlux.store.actions.outgoing[topic]
 }
 
-/**
- * Adds an action receptor to the store
- * @param receptor
- * @deprecated use defineActionQueue instead
- */
-function addActionReceptor(receptor: ActionReceptor) {
-  logger.info(`Added Receptor ${receptor.name}`)
-  ;(HyperFlux.store.receptors as Array<ActionReceptor>).push(receptor)
-}
-
-/**
- * Removes an action receptor from the store
- * @param store
- * @param receptor
- * @deprecated use defineActionQueue instead
- */
-function removeActionReceptor(receptor: ActionReceptor) {
-  const idx = HyperFlux.store.receptors.indexOf(receptor)
-  if (idx >= 0) {
-    logger.info(`Removed Receptor ${receptor.name}`)
-    ;(HyperFlux.store.receptors as Array<ActionReceptor>).splice(idx, 1)
-  }
-}
-
 const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
   if (incomingAction.$cache) {
     const cachedActions = HyperFlux.store.actions.cached
@@ -464,7 +440,6 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     } catch (err) {
       console.log('error in logging action', action)
     }
-    for (const receptor of [...HyperFlux.store.receptors]) receptor(action)
     if (HyperFlux.store.forwardIncomingActions(action)) {
       addOutgoingTopicIfNecessary(action.$topic)
       HyperFlux.store.actions.outgoing[action.$topic].queue.push(action)
@@ -564,8 +539,6 @@ const removeActionQueue = (queueFunction: ActionQueueDefinition) => {
 export {
   defineAction,
   dispatchAction,
-  addActionReceptor,
-  removeActionReceptor,
   createActionQueue,
   defineActionQueue,
   removeActionQueue,

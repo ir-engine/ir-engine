@@ -32,11 +32,9 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { gltfToSceneJson, sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import Inventory2Icon from '@mui/icons-material/Inventory2'
@@ -58,6 +56,7 @@ import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
+import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorHistoryState } from '../services/EditorHistory'
 import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
@@ -66,7 +65,6 @@ import AssetDropZone from './assets/AssetDropZone'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import ScenesPanel from './assets/ScenesPanel'
 import { ControlText } from './controlText/ControlText'
-import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
 import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
@@ -202,19 +200,6 @@ const EditorContainer = () => {
   const dockPanelRef = useRef<DockLayout>(null)
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
-
-  const importScene = async (sceneFile: SceneJson) => {
-    try {
-      loadProjectScene({
-        project: projectName.value!,
-        scene: sceneFile,
-        thumbnailUrl: null!,
-        name: ''
-      })
-    } catch (error) {
-      logger.error(error)
-    }
-  }
 
   useEffect(() => {
     if (!editorState.sceneModified.value) return
@@ -366,51 +351,6 @@ const EditorContainer = () => {
     el.remove()
   }
 
-  const onImportScene = async () => {
-    const confirm = await new Promise((resolve) => {
-      setDialogComponent(
-        <ConfirmDialog
-          title={t('editor:importLegacy')}
-          message={t('editor:importLegacyMsg')}
-          confirmLabel="Yes, Continue"
-          onConfirm={() => resolve(true)}
-          onCancel={() => resolve(false)}
-        />
-      )
-    })
-    setDialogComponent(null)
-    if (!confirm) return
-    const el = document.createElement('input')
-    el.type = 'file'
-    el.accept = '.gltf'
-    el.style.display = 'none'
-    el.onchange = () => {
-      if (el.files && el.files.length > 0) {
-        const fileReader: any = new FileReader()
-        fileReader.onload = () => {
-          const json = JSON.parse(fileReader.result)
-          importScene(gltfToSceneJson(json))
-        }
-        fileReader.readAsText(el.files[0])
-      }
-    }
-    el.click()
-    el.remove()
-  }
-
-  const onExportScene = async () => {
-    const projectFile = await sceneToGLTF([Engine.instance.scene as any])
-    const projectJson = JSON.stringify(projectFile)
-    const projectBlob = new Blob([projectJson])
-    const el = document.createElement('a')
-    const fileName = Engine.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
-    el.download = fileName + '.xre.gltf'
-    el.href = URL.createObjectURL(projectBlob)
-    document.body.appendChild(el)
-    el.click()
-    document.body.removeChild(el)
-  }
-
   const onSaveScene = async () => {
     console.log('onSaveScene')
 
@@ -454,7 +394,8 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        if (result) {
+        const isGenerateThumbnailsEnabled = getState(EditorHelperState).isGenerateThumbnailsEnabled
+        if (isGenerateThumbnailsEnabled) {
           const blob = await takeScreenshot(512, 320, 'ktx2')
           const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
 
@@ -524,14 +465,6 @@ const EditorContainer = () => {
       {
         name: t('editor:menubar.importAsset'),
         action: onImportAsset
-      },
-      {
-        name: t('editor:menubar.importScene'),
-        action: onImportScene
-      },
-      {
-        name: t('editor:menubar.exportScene'),
-        action: onExportScene
       },
       {
         name: t('editor:menubar.quit'),

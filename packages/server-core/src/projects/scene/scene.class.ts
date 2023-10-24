@@ -47,7 +47,7 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { cleanString } from '../../util/cleanString'
-import { downloadAssetsFromScene, getSceneData } from './scene-helper'
+import { getSceneData } from './scene-helper'
 const NEW_SCENE_NAME = 'New-Scene'
 
 const sceneAssetFiles = ['.scene.json', '.thumbnail.ktx2', '.envmap.ktx2']
@@ -235,8 +235,6 @@ export class SceneService
         .service(projectPath)
         .find({ ...params, query: { name: project }, paginate: false })) as ProjectType[]
       if (projectResult.length === 0) throw new Error(`No project named ${project} exists`)
-
-      await downloadAssetsFromScene(this.app, project!, parsedSceneData!)
 
       const newSceneJsonPath = `projects/${project}/${name}.scene.json`
       await storageProvider.putObject({
