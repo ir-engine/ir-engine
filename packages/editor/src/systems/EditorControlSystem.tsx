@@ -668,13 +668,9 @@ const execute = () => {
       dragging = false
     }
 
+    // go out of our way to make sure a snapshot takes place after the user releases the mouse button
     const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
-    for (let i = 0; i < nodes.length; i++) {
-      const entity = nodes[i]
-      if (typeof entity === 'string') continue
-      //const entityUUID = getComponent(entity, UUIDComponent)
-      EditorControlFunctions.commitTransformSave(entity)
-    }
+    EditorControlFunctions.commitTransformSave(nodes)
   }
 
   if (editorHelperState.isFlyModeEnabled) return
