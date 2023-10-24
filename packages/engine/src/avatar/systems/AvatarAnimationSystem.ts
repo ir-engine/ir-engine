@@ -60,6 +60,7 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRRigComponent } from '../../xr/XRRigComponent'
+import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { XRControlsState, XRState, isMobileXRHeadset } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
@@ -362,6 +363,7 @@ const reactor = () => {
   const session = useHookstate(xrState.session)
   const renderState = useHookstate(getMutableState(RendererState))
   const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
+  const userReady = useHookstate(getMutableState(EngineState).userReady)
 
   useEffect(() => {
     setVisualizers()
@@ -389,6 +391,10 @@ const reactor = () => {
       removeComponent(entity, AvatarHeadDecapComponent)
     }
   }, [isCameraAttachedToAvatar, session])
+
+  useEffect(() => {
+    setTrackingSpace()
+  }, [userReady])
 
   return null
 }
