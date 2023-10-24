@@ -27,7 +27,6 @@ import { t } from 'i18next'
 import React from 'react'
 
 import { CameraMode } from '@etherealengine/engine/src/camera/types/CameraMode'
-import { ProjectionType } from '@etherealengine/engine/src/camera/types/ProjectionType'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 
@@ -35,7 +34,7 @@ import { InputGroup } from '../inputs/InputGroup'
 import { NumericInputGroup } from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /** Types copied from Camera Modes of engine. */
 const cameraModeSelect = [
@@ -88,7 +87,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           // placeholder={projectionTypeSelect[0].label}
           value={cameraSettings.projectionType.value}
-          onChange={(val: ProjectionType) => cameraSettings.projectionType.set(val)}
+          onChange={commitProperty(CameraSettingsComponent, 'projectionType')}
           options={projectionTypeSelect}
         />
       </InputGroup>
@@ -96,7 +95,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           // placeholder={cameraModeSelect[0].label}
           value={cameraSettings.cameraMode.value}
-          onChange={(val: CameraMode) => cameraSettings.cameraMode.set(val)}
+          onChange={commitProperty(CameraSettingsComponent, 'cameraMode')}
           options={cameraModeSelect}
         />
       </InputGroup>
@@ -104,7 +103,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       <NumericInputGroup
         name="Field Of View"
         label={'FOV'}
-        onChange={(val) => cameraSettings.fov.set(val)}
+        onChange={updateProperty(CameraSettingsComponent, 'fov')}
+        onRelease={commitProperty(CameraSettingsComponent, 'fov')}
         min={1}
         max={180}
         default={50}
@@ -117,7 +117,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       <NumericInputGroup
         name="cameraNearClip"
         label={'Min Projection Distance'}
-        onChange={(val) => cameraSettings.cameraNearClip.set(val)}
+        onChange={updateProperty(CameraSettingsComponent, 'cameraNearClip')}
+        onRelease={commitProperty(CameraSettingsComponent, 'cameraNearClip')}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
@@ -129,7 +130,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       <NumericInputGroup
         name="cameraFarClip"
         label={'Max Projection Distance'}
-        onChange={(val) => cameraSettings.cameraFarClip.set(val)}
+        onChange={updateProperty(CameraSettingsComponent, 'cameraFarClip')}
+        onRelease={commitProperty(CameraSettingsComponent, 'cameraFarClip')}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
@@ -140,7 +142,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       <NumericInputGroup
         name="minCameraDistance"
         label={'Min Camera Distance'}
-        onChange={(val) => cameraSettings.minCameraDistance.set(val)}
+        onChange={updateProperty(CameraSettingsComponent, 'minCameraDistance')}
+        onRelease={commitProperty(CameraSettingsComponent, 'minCameraDistance')}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
@@ -152,7 +155,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       <NumericInputGroup
         name="maxCameraDistance"
         label={'Max Camera Distance'}
-        onChange={(val) => cameraSettings.maxCameraDistance.set(val)}
+        onChange={updateProperty(CameraSettingsComponent, 'maxCameraDistance')}
+        onRelease={commitProperty(CameraSettingsComponent, 'maxCameraDistance')}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
@@ -163,7 +167,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       <NumericInputGroup
         name="startCameraDistance"
         label={'Start Camera Distance'}
-        onChange={(val) => cameraSettings.startCameraDistance.set(val)}
+        onChange={updateProperty(CameraSettingsComponent, 'startCameraDistance')}
+        onRelease={commitProperty(CameraSettingsComponent, 'startCameraDistance')}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
@@ -175,7 +180,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       <NumericInputGroup
         name="minPhi"
         label={'Min Phi'}
-        onChange={(val) => cameraSettings.minPhi.set(val)}
+        onChange={updateProperty(CameraSettingsComponent, 'minPhi')}
+        onRelease={commitProperty(CameraSettingsComponent, 'minPhi')}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
@@ -187,7 +193,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       <NumericInputGroup
         name="maxPhi"
         label={'Max Phi'}
-        onChange={(val) => cameraSettings.maxPhi.set(val)}
+        onChange={updateProperty(CameraSettingsComponent, 'maxPhi')}
+        onRelease={commitProperty(CameraSettingsComponent, 'maxPhi')}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}

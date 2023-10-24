@@ -24,17 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert, { strictEqual } from 'assert'
-import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import {
-  ActionRecipients,
-  addActionReceptor,
-  applyIncomingActions,
-  getMutableState,
-  getState
-} from '@etherealengine/hyperflux'
+import { ActionRecipients, applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
@@ -76,21 +69,18 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: (typeof action)[] = []
-      addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
-
       /* run */
       applyIncomingActions()
 
       /* assert */
-      strictEqual(recepted.length, 0)
+      strictEqual(Engine.instance.store.actions.history.length, 0)
 
       // fixed tick update
       engineState.simulationTime.set(2)
       applyIncomingActions()
 
       /* assert */
-      strictEqual(recepted.length, 1)
+      strictEqual(Engine.instance.store.actions.history.length, 1)
     })
 
     it('should immediately apply incoming action from the past or present', () => {
@@ -107,14 +97,11 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: (typeof action)[] = []
-      addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
-
       /* run */
       applyIncomingActions()
 
       /* assert */
-      strictEqual(recepted.length, 1)
+      strictEqual(Engine.instance.store.actions.history.length, 1)
     })
   })
 
@@ -134,14 +121,11 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: (typeof action)[] = []
-      addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
-
       /* run */
       applyIncomingActions()
 
       /* assert */
-      strictEqual(recepted.length, 1)
+      strictEqual(Engine.instance.store.actions.history.length, 1)
       assert(Engine.instance.store.actions.cached.indexOf(action) !== -1)
     })
   })

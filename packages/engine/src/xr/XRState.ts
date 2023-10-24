@@ -34,6 +34,21 @@ import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { DepthDataTexture } from './DepthDataTexture'
 
+export class XRAction {
+  static sessionChanged = defineAction({
+    type: 'xre.xr.sessionChanged' as const,
+    active: matches.boolean,
+    $cache: { removePrevious: true }
+  })
+
+  // todo, support more haptic formats other than just vibrating controllers
+  static vibrateController = defineAction({
+    type: 'xre.xr.vibrateController',
+    handedness: matches.literals('left', 'right'),
+    value: matches.number,
+    duration: matches.number
+  })
+}
 // TODO: divide this up into the systems that manage these states
 export const XRState = defineState({
   name: 'XRState',
@@ -55,7 +70,7 @@ export const XRState = defineState({
       session: null as XRSession | null,
       sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
       avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
-      localAvatarScale: 1,
+      userAvatarHeightDifference: null as number | null,
       /** Stores the depth map data - will exist if depth map is supported */
       depthDataTexture: null as DepthDataTexture | null,
       is8thWallActive: false,
@@ -92,28 +107,16 @@ export const ReferenceSpace = {
 }
 globalThis.ReferenceSpace = ReferenceSpace
 
-export class XRAction {
-  static sessionChanged = defineAction({
-    type: 'xre.xr.sessionChanged' as const,
-    active: matches.boolean,
-    $cache: { removePrevious: true }
-  })
-
-  // todo, support more haptic formats other than just vibrating controllers
-  static vibrateController = defineAction({
-    type: 'xre.xr.vibrateController',
-    handedness: matches.literals('left', 'right'),
-    value: matches.number,
-    duration: matches.number
-  })
-}
-
+/**
+ * Gets the camera mode - either 'attached' or 'detached'
+ * @returns the camera mode
+ */
 export const getCameraMode = () => {
-  const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState)
+  const { avatarCameraMode, sceneScale, scenePlacementMode, session, sessionMode } = getState(XRState)
   if (!session || scenePlacementMode === 'placing') return 'detached'
   if (avatarCameraMode === 'auto') {
     if (session.interactionMode === 'screen-space') return 'detached'
-    return sceneScale !== 1 ? 'detached' : 'attached'
+    return sceneScale === 1 || sessionMode == 'immersive-vr' ? 'attached' : 'detached'
   }
   return avatarCameraMode
 }
@@ -121,14 +124,14 @@ export const getCameraMode = () => {
 /**
  * Specifies that the user has movement controls if:
  * - they are not in an immersive session
- * - they are in an immersive session with a screen-space interaction mode
+ * - they are in an immersive session with a world-space interaction mode
  * - they are in an immersive-ar session with a scene scale of 1
  * @returns {boolean} true if the user has movement controls
  */
 export const hasMovementControls = () => {
   const { sessionActive, sceneScale, sessionMode, session } = getState(XRState)
   if (!sessionActive) return true
-  if (session && session.interactionMode === 'screen-space') return true
+  if (session && session.interactionMode === 'world-space') return true
   return sessionMode === 'immersive-ar' ? sceneScale !== 1 : true
 }
 
@@ -152,14 +155,14 @@ export const getPreferredInputSource = (offhand = false) => {
   }
 }
 
+const userAgent = 'navigator' in globalThis ? navigator.userAgent : ''
+
 /**
  * Wheter or not this is a mobile XR headset
  **/
 export const isMobileXRHeadset =
-  'navigator' in globalThis === false
-    ? false
-    : navigator.userAgent.includes('Oculus') ||
-      navigator.userAgent.includes('VR') ||
-      navigator.userAgent.includes('AR') ||
-      navigator.userAgent.includes('Reality') ||
-      navigator.userAgent.includes('Wolvic')
+  userAgent.includes('Oculus') ||
+  userAgent.includes('VR') ||
+  userAgent.includes('AR') ||
+  userAgent.includes('Reality') ||
+  userAgent.includes('Wolvic')

@@ -51,6 +51,19 @@ import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import PaginatedList from '../layout/PaginatedList'
 
+type ThumbnailData = {
+  src: string
+  blob: string
+}
+
+const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, string> => {
+  const blobs = {}
+  Object.entries(thumbnails).map(([k, { blob }]) => {
+    blobs[k] = blob
+  })
+  return blobs
+}
+
 export default function MaterialEditor({ material, ...rest }: { material: Material }) {
   if (material === undefined) return <></>
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
@@ -61,42 +74,57 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
     label: prototype.prototypeId,
     value: prototype.prototypeId
   }))
-  const thumbnails = useState<Record<string, string>>({})
+  const thumbnails = useState<Record<string, ThumbnailData>>({})
 
-  const createThumbnails = useCallback(async () => {
-    const result = {} as Record<string, string>
-    await Promise.allSettled(
-      Object.entries(material).map(([k, field]: [string, Texture]) => {
-        if (field?.isTexture) {
-          try {
-            return createReadableTexture(field, { maxDimensions: { width: 256, height: 256 }, url: true }).then(
-              (src) => {
-                result[k] = src as string
-              }
-            )
-          } catch (e) {
-            console.warn('failed loading thumbnail: ' + e)
-          }
+  const createThumbnail = async (field: string, texture: Texture) => {
+    if (texture?.isTexture) {
+      try {
+        const blob: string = (await createReadableTexture(texture, {
+          maxDimensions: { width: 256, height: 256 },
+          url: true
+        })) as string
+        const thumbData: ThumbnailData = {
+          src: texture.image?.src ?? 'BLOB',
+          blob
         }
-      })
-    )
-    return result
-  }, [materialComponent.parameters, materialComponent.material, materialComponent.prototype])
+        thumbnails[field].set(thumbData)
+        return Promise.resolve()
+      } catch (e) {
+        console.warn('failed loading thumbnail: ' + e)
+      }
+    }
+  }
 
-  const checkThumbs = useCallback(async () => {
+  const createThumbnails = async () => {
+    const promises = Object.entries(material).map(([field, texture]: [string, Texture]) =>
+      createThumbnail(field, texture)
+    )
+    return Promise.all(promises)
+  }
+
+  const checkThumbs = async () => {
     thumbnails.promised && (await thumbnails.promise)
     const thumbnailVals = thumbnails.value
-    Object.entries(thumbnailVals).map(([k, v]) => {
+    Object.entries(thumbnailVals).map(([k, { blob }]) => {
       if (!material[k]) {
-        URL.revokeObjectURL(v)
+        URL.revokeObjectURL(blob)
         thumbnails[k].set(none)
       }
     })
-  }, [])
+    loadingData.set(true)
+    await Promise.all(
+      Object.entries(material).map(async ([field, texture]: [string, Texture]) => {
+        if (texture?.isTexture) {
+          if (!thumbnails[field]?.value || thumbnails[field]?.value?.src !== texture.image?.src)
+            await createThumbnail(field, texture)
+        }
+      })
+    )
+    loadingData.set(false)
+  }
 
   const clearThumbs = useCallback(async () => {
-    thumbnails.promised && (await thumbnails.promise)
-    Object.values(thumbnails.value).map(URL.revokeObjectURL)
+    Object.values(thumbnails.value).map(({ blob }) => URL.revokeObjectURL(blob))
     thumbnails.set({})
   }, [])
 
@@ -104,15 +132,15 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
     loadingData.set(true)
     clearThumbs()
       .then(createThumbnails)
-      .then((nuThumbs) => {
-        thumbnails.set(nuThumbs)
+      .then(() => {
         loadingData.set(false)
       })
-  }, [materialComponent.prototype, materialComponent.material, materialComponent.parameters])
+  }, [materialComponent.prototype, materialComponent.material.uuid])
 
   useEffect(() => {
+    if (loadingData.value) return
     checkThumbs()
-  }, [materialComponent.parameters])
+  }, [materialComponent.parameters, materialComponent.material])
 
   const selectedPlugin = useState('vegetation')
 
@@ -157,80 +185,87 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
       )}
       <Divider className={styles.divider} />
       <br />
-      <ParameterInput
-        entity={material.uuid}
-        values={loadingData.value ? {} : materialComponent.parameters.value}
-        onChange={(k) => async (val) => {
-          let prop
-          if (prototypeComponent.arguments[k].type === 'texture' && typeof val === 'string') {
-            if (val) {
-              prop = await AssetLoader.loadAsync(val)
-            } else {
-              prop = undefined
-            }
-          } else {
-            prop = val
-          }
-          EditorControlFunctions.modifyMaterial(
-            getState(SelectionState).selectedEntities.filter((val) => typeof val === 'string') as string[],
-            entryId(materialComponent.value, LibraryEntryType.MATERIAL),
-            [{ [k]: prop }]
-          )
-          materialComponent.parameters[k].set(prop)
-        }}
-        defaults={loadingData.value ? {} : prototypeComponent.arguments}
-        thumbnails={thumbnails.value}
-      />
-      <br />
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          border: '1px solid #fff',
-          borderRadius: '4px',
-          padding: '4px'
-        }}
-      >
-        <SelectInput
-          value={selectedPlugin.value}
-          options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
-          onChange={selectedPlugin.set}
-        />
-        <Button
-          onClick={() => {
-            materialComponent.plugins.set(materialComponent.plugins.value.concat(selectedPlugin.value))
-          }}
-        >
-          Add Plugin
-        </Button>
-      </div>
-      <PaginatedList
-        list={materialComponent.plugins}
-        element={(plugin: State<string>) => {
-          return (
-            <div className={styles.contentContainer}>
-              <InputGroup name="Plugin" label="Plugin">
-                <SelectInput
-                  value={plugin.value}
-                  options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
-                  onChange={plugin.set}
-                />
-              </InputGroup>
-              <Button
-                onClick={() => {
-                  removeMaterialPlugin(material, plugin.value)
-                  materialComponent.plugins.set(materialComponent.plugins.value.filter((val) => val !== plugin.value))
-                }}
-                style={{ backgroundColor: '#f00' }}
-              >
-                x
-              </Button>
-            </div>
-          )
-        }}
-      />
+      {loadingData.value && <div>Loading...</div>}
+      {!loadingData.value && (
+        <>
+          <ParameterInput
+            entity={material.uuid}
+            values={materialComponent.parameters.value}
+            onChange={(k) => async (val) => {
+              let prop
+              if (prototypeComponent.arguments[k].type === 'texture' && typeof val === 'string') {
+                if (val) {
+                  prop = await AssetLoader.loadAsync(val)
+                } else {
+                  prop = null
+                }
+              } else {
+                prop = val
+              }
+              EditorControlFunctions.modifyMaterial(
+                getState(SelectionState).selectedEntities.filter((val) => typeof val === 'string') as string[],
+                entryId(materialComponent.value, LibraryEntryType.MATERIAL),
+                [{ [k]: prop }]
+              )
+              materialComponent.parameters[k].set(prop)
+            }}
+            defaults={prototypeComponent.arguments}
+            thumbnails={toBlobs(thumbnails.value)}
+          />
+          <br />
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              border: '1px solid #fff',
+              borderRadius: '4px',
+              padding: '4px'
+            }}
+          >
+            <SelectInput
+              value={selectedPlugin.value}
+              options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
+              onChange={selectedPlugin.set}
+            />
+            <Button
+              onClick={() => {
+                materialComponent.plugins.set(materialComponent.plugins.value.concat(selectedPlugin.value))
+              }}
+            >
+              Add Plugin
+            </Button>
+          </div>
+          <PaginatedList
+            list={materialComponent.plugins}
+            element={(plugin: State<string>) => {
+              return (
+                <div className={styles.contentContainer}>
+                  <InputGroup name="Plugin" label="Plugin">
+                    <SelectInput
+                      value={plugin.value}
+                      options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
+                      onChange={plugin.set}
+                    />
+                  </InputGroup>
+                  <Button
+                    onClick={() => {
+                      removeMaterialPlugin(material, plugin.value)
+                      materialComponent.plugins.set(
+                        materialComponent.plugins.value.filter((val) => val !== plugin.value)
+                      )
+                    }}
+                    style={{ backgroundColor: '#f00' }}
+                  >
+                    x
+                  </Button>
+                </div>
+              )
+            }}
+          />
+        </>
+      )}
     </div>
   )
 }

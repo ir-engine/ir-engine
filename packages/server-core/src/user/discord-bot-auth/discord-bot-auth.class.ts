@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { errors } from '@feathersjs/errors'
-import { Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
-import { SequelizeServiceOptions } from 'feathers-sequelize/types'
+import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 import fetch from 'node-fetch'
 
 import {
@@ -33,21 +32,19 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 
-export class DicscordBotAuth<T = any> implements Partial<ServiceMethods<T>> {
+export class DiscordBotAuthService implements ServiceInterface<UserType, KnexAdapterParams> {
   app: Application
-  docs: any
-  options: Partial<SequelizeServiceOptions>
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    this.options = options
+  constructor(app: Application) {
     this.app = app
   }
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: KnexAdapterParams) {
     const url = `https://discord.com/api/users/@me`
     try {
       const authResponse = await fetch(url, {

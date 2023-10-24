@@ -35,12 +35,14 @@ import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/a
 import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { generateTokenPath } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
 import { magicLinkPath } from '@etherealengine/engine/src/schemas/user/magic-link.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
@@ -332,7 +334,7 @@ export const AuthService = {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
     const path = location?.state?.from || location.pathname
-    const instanceId = new URL(window.location.href).searchParams.get('instanceId')
+    const instanceId = (new URL(window.location.href).searchParams.get('instanceId') as InstanceID) || null
     const redirectObject = {
       path: path
     } as any
@@ -605,7 +607,15 @@ export const AuthService = {
   },
 
   async updateApiKey() {
-    const apiKey = (await API.instance.client.service(userApiKeyPath).patch(null, {})) as UserApiKeyType
+    const userApiKey = (await Engine.instance.api.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
+
+    let apiKey: UserApiKeyType | undefined
+    if (userApiKey.data.length > 0) {
+      apiKey = await Engine.instance.api.service(userApiKeyPath).patch(userApiKey.data[0].id, {})
+    } else {
+      apiKey = await Engine.instance.api.service(userApiKeyPath).create({})
+    }
+
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
@@ -615,6 +625,10 @@ export const AuthService = {
       .patch(userId, { name: name })) as UserType
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
+  },
+
+  async createLoginToken() {
+    return Engine.instance.api.service(loginTokenPath).create({})
   },
 
   useAPIListeners: () => {

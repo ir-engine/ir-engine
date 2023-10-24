@@ -115,7 +115,6 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
 
 const addFileToStorageProvider = async (file: Buffer, mimeType: string, key: string) => {
   logger.info(`Uploading ${key} to storage provider`)
-  console.log(file, mimeType, key)
   const provider = getStorageProvider()
   try {
     await provider.createInvalidation([key])
@@ -143,7 +142,11 @@ export type UploadAssetArgs = {
 }
 
 export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
-  console.log('uploadAsset', args)
+  logger.info('uploadAsset', {
+    project: args.project,
+    name: args.name,
+    path: args.path
+  })
   const { hash } = await getFileMetadata({
     file: args.file,
     name: args.file.originalname
@@ -205,10 +208,14 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
   }
 }
 
-export const createStaticResourceHash = (file: Buffer | string, props: { name?: string; assetURL?: string }) => {
+export const createStaticResourceHash = (
+  file: Buffer | string,
+  props: { mimeType: string; name?: string; assetURL?: string }
+) => {
   return createHash('sha3-256')
     .update(typeof file === 'string' ? file : file.length.toString())
-    .update(props.name || props.assetURL!.split('/').pop()!.split('.')[0])
+    .update(props.name || props.assetURL!.split('/').pop()!)
+    .update(props.mimeType)
     .digest('hex')
 }
 
@@ -223,7 +230,9 @@ export const addAssetAsStaticResource = async (
   file: UploadFile,
   args: AdminAssetUploadArgumentsType
 ): Promise<StaticResourceType> => {
-  console.log('addAssetAsStaticResource', file, args)
+  logger.info('addAssetAsStaticResource %o', args)
+  // console.log(file)
+
   const provider = getStorageProvider()
 
   const isFromOrigin = isFromOriginURL(args.path)
@@ -255,7 +264,8 @@ export const addAssetAsStaticResource = async (
 
   const stats = await getStats(file.buffer, file.mimetype)
 
-  const hash = args.hash || createStaticResourceHash(file.buffer, { name: args.name, assetURL: url })
+  const hash =
+    args.hash || createStaticResourceHash(file.buffer, { mimeType: file.mimetype, name: args.name, assetURL: url })
   const body: Partial<StaticResourceType> = {
     hash,
     url,

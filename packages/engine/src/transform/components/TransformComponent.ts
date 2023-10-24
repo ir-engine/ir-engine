@@ -32,20 +32,21 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
-  getComponent,
   getOptionalComponent,
   hasComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 
 export type TransformComponentType = {
   position: Vector3
   rotation: Quaternion
   scale: Vector3
   matrix: Matrix4
+  matrixInverse: Matrix4
 }
 
 const { f64 } = Types
@@ -65,69 +66,49 @@ const matrix = new Matrix4()
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
-  jsonID: 'transform',
   schema: TransformSchema,
 
   onInit: (entity) => {
-    return {
-      position: null! as Vector3,
-      rotation: null! as Quaternion,
-      scale: null! as Vector3,
+    const dirtyTransforms = TransformComponent.dirtyTransforms
+    const component = {
+      position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms) as Vector3,
+      rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms) as Quaternion,
+      scale: proxifyVector3WithDirty(
+        TransformComponent.scale,
+        entity,
+        dirtyTransforms,
+        new Vector3(1, 1, 1)
+      ) as Vector3,
       matrix: new Matrix4(),
       matrixInverse: new Matrix4()
-    }
+    } as TransformComponentType
+    return component
   },
 
   onSet: (entity, component, json) => {
-    const dirtyTransforms = TransformComponent.dirtyTransforms
-
-    if (!component.position.value)
-      component.position.set(
-        proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms, new Vector3())
-      )
-    if (!component.rotation.value)
-      component.rotation.set(
-        proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms, new Quaternion())
-      )
-    if (!component.scale.value)
-      component.scale.set(
-        proxifyVector3WithDirty(TransformComponent.scale, entity, dirtyTransforms, new Vector3(1, 1, 1))
-      )
-
-    if (!json) return
-
-    const rotation = json.rotation
+    const rotation = json?.rotation
       ? typeof json.rotation.w === 'number'
         ? json.rotation
         : new Quaternion().setFromEuler(new Euler().setFromVector3(json.rotation as any as Vector3))
       : undefined
 
-    if (json.position) component.position.value.copy(json.position)
+    if (json?.position) component.position.value.copy(json.position)
     if (rotation) component.rotation.value.copy(rotation)
-    if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
+    if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
 
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
     component.matrixInverse.value.copy(component.matrix.value).invert()
 
+    /** Update local transform */
     const localTransform = getOptionalComponent(entity, LocalTransformComponent)
-    if (localTransform) {
-      const parentEntity = localTransform.parentEntity
+    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+    if (localTransform && entityTree?.parentEntity) {
+      const parentEntity = entityTree.parentEntity
       const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
       if (parentTransform) {
-        const localMatrix = matrix.copy(component.matrix.value).premultiply(parentTransform.matrixInverse)
-        localMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+        localTransform.matrix.copy(component.matrix.value).premultiply(parentTransform.matrixInverse)
+        localTransform.matrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
       }
-    }
-  },
-
-  toJSON(entity, comp) {
-    const component = hasComponent(entity, LocalTransformComponent)
-      ? getComponent(entity, LocalTransformComponent)
-      : comp.value
-    return {
-      position: new Vector3().copy(component.position),
-      rotation: new Quaternion().copy(component.rotation),
-      scale: new Vector3().copy(component.scale)
     }
   },
 
@@ -140,82 +121,76 @@ export const TransformComponent = defineComponent({
 
 export const LocalTransformComponent = defineComponent({
   name: 'LocalTransformComponent',
+  jsonID: 'transform',
   schema: TransformSchema,
 
   onInit: (entity) => {
-    return {
-      parentEntity: UndefinedEntity as Entity,
-      position: new Vector3(),
-      rotation: new Quaternion(),
-      scale: new Vector3(1, 1, 1),
+    const dirtyTransforms = TransformComponent.dirtyTransforms
+
+    const component = {
+      position: proxifyVector3WithDirty(LocalTransformComponent.position, entity, dirtyTransforms) as Vector3,
+      rotation: proxifyQuaternionWithDirty(LocalTransformComponent.rotation, entity, dirtyTransforms) as Quaternion,
+      scale: proxifyVector3WithDirty(
+        LocalTransformComponent.scale,
+        entity,
+        dirtyTransforms,
+        new Vector3(1, 1, 1)
+      ) as Vector3,
       matrix: new Matrix4()
+    } as TransformComponentType
+
+    return component
+  },
+
+  toJSON: (entity, component) => {
+    return {
+      position: {
+        x: component.position.value.x,
+        y: component.position.value.y,
+        z: component.position.value.z
+      } as Vector3,
+      rotation: {
+        x: component.rotation.value.x,
+        y: component.rotation.value.y,
+        z: component.rotation.value.z,
+        w: component.rotation.value.w
+      } as Quaternion,
+      scale: {
+        x: component.scale.value.x,
+        y: component.scale.value.y,
+        z: component.scale.value.z
+      } as Vector3
     }
   },
 
-  onSet: (entity, component, json: Partial<DeepReadonly<TransformComponentType>> & { parentEntity: Entity }) => {
-    if (!json) return
-
-    const position = json.position ?? new Vector3()
-    const rotation = json.rotation ?? new Quaternion()
-    const scale = json.scale ?? new Vector3(1, 1, 1)
-    const parentEntity = json.parentEntity
-
-    const dirtyTransforms = TransformComponent.dirtyTransforms
-
-    if (entity === parentEntity!) throw new Error('Tried to parent entity to self - this is not allowed')
+  onSet: (entity, component, json: Partial<DeepReadonly<TransformComponentType>> = {}) => {
     if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
-
     getMutableState(EngineState).transformsNeedSorting.set(true)
 
-    component.parentEntity.set(parentEntity)
+    const position = json.position?.isVector3
+      ? json.position
+      : json.position
+      ? new Vector3(json.position.x, json.position.y, json.position.z)
+      : null
 
-    // clone incoming transform properties, because we don't want to accidentally bind obj properties to local transform
-    component.position.set(
-      proxifyVector3WithDirty(LocalTransformComponent.position, entity, dirtyTransforms, position.clone())
-    )
-    component.rotation.set(
-      proxifyQuaternionWithDirty(LocalTransformComponent.rotation, entity, dirtyTransforms, rotation.clone())
-    )
-    component.scale.set(proxifyVector3WithDirty(LocalTransformComponent.scale, entity, dirtyTransforms, scale.clone()))
+    if (position) component.position.value.copy(position)
+
+    const rotation = json.rotation?.isQuaternion
+      ? json.rotation
+      : json.rotation
+      ? new Quaternion(json.rotation.x, json.rotation.y, json.rotation.z, json.rotation.w)
+      : null
+
+    if (rotation) component.rotation.value.copy(rotation)
+
+    const scale = json.scale?.isVector3
+      ? json.scale
+      : json.scale
+      ? new Vector3(json.scale.x, json.scale.y, json.scale.z)
+      : null
+
+    if (scale) component.scale.value.copy(scale)
 
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
   }
 })
-
-globalThis.TransformComponent = TransformComponent
-
-/**
- * @deprecated - now included in TransfromComponent.onSet
- * Sets the transform component.
- * Used for objects that exist as part of the world - such as avatars and scene objects
- * @param entity
- * @param parentEntity
- * @param position
- * @param rotation
- * @param scale
- * @returns
- */
-export function setTransformComponent(entity: Entity, position?: Vector3, rotation?: Quaternion, scale?: Vector3) {
-  setComponent(entity, TransformComponent, { position, rotation, scale })
-}
-
-/**
- * @deprecated - now included in LocalTransfromComponent.onSet
- * Sets the local transform component. This is used to calculate relative transforms.
- * Used for objects that exist as part of a specific coordinate system - such as avatars and scene objects
- * @param entity
- * @param parentEntity
- * @param position
- * @param rotation
- * @param scale
- * @returns
- */
-export function setLocalTransformComponent(
-  entity: Entity,
-  parentEntity: Entity,
-  position = new Vector3(),
-  rotation = new Quaternion(),
-  scale = new Vector3(1, 1, 1)
-) {
-  setComponent(entity, LocalTransformComponent, { parentEntity, position, rotation, scale })
-}

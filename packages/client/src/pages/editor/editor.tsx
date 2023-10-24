@@ -28,17 +28,34 @@ import { t } from 'i18next'
 import React, { Suspense, useEffect, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
-import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
 import { UserUISystem } from '@etherealengine/client-core/src/user/UserUISystem'
-import { EditorPage } from '@etherealengine/editor/src/pages/EditorPage'
+import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/EditorPage'
 import { ProjectPage } from '@etherealengine/editor/src/pages/ProjectPage'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
+
+const EditorRouter = () => {
+  const ready = useStudioEditor()
+
+  if (!ready) return <LoadingCircle message={t('common:loader.loadingEditor')} />
+
+  return (
+    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingEditor')} />}>
+      <PopupMenuInline />
+      <Routes>
+        <Route path=":projectName/:sceneName" element={<EditorPage />} />
+        <Route path=":projectName" element={<EditorPage />} />
+        <Route path="*" element={<ProjectPage />} />
+      </Routes>
+    </Suspense>
+  )
+}
 
 const EditorProtectedRoutes = () => {
   const authState = useHookstate(getMutableState(AuthState))
@@ -51,7 +68,7 @@ const EditorProtectedRoutes = () => {
     if (user.scopes.value) {
       const hasAccess = userHasAccess('editor:write')
       if (!hasAccess) {
-        RouterService.navigate('/')
+        RouterState.navigate('/')
         setAuthorized(false)
       } else setAuthorized(true)
     }
@@ -59,16 +76,7 @@ const EditorProtectedRoutes = () => {
 
   if (!isAuthorized) return <LoadingCircle message={t('common:loader.auth')} />
 
-  return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingEditor')} />}>
-      <PopupMenuInline />
-      <Routes>
-        <Route path=":projectName/:sceneName" element={<EditorPage />} />
-        <Route path=":projectName" element={<EditorPage />} />
-        <Route path="*" element={<ProjectPage />} />
-      </Routes>
-    </Suspense>
-  )
+  return <EditorRouter />
 }
 
 export default EditorProtectedRoutes

@@ -224,6 +224,7 @@
       "playmode": "Play Mode",
       "playtitle": "Play",
       "pausetitle": "Pause",
+      "resettitle": "Reset",
       "lbl-controls": "controls",
       "info-controls": "Toggle the visibility of the media controls.",
       "lbl-autoplay": "Autoplay",
@@ -232,7 +233,8 @@
       "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
       "lbl-volume": "Volume",
       "lbl-isMusic": "Is Music",
-      "lbl-size": "Size"
+      "lbl-size": "Size",
+      "seektime": "Start Time"
     },
     "audio": {
       "name": "Positional Audio",
@@ -695,9 +697,10 @@
       "title": "Transform",
       "lbl-position": "Position",
       "lbl-rotation": "Rotation",
-      "lbl-scale": "Scale"
+      "lbl-scale": "Scale",
+      "lbl-useGlobalTransform": "Use Global Transform"
     },
-    "triggereVolume": {
+    "triggerVolume": {
       "description": "Sets a property on the target object on enter and leave.",
       "lbl-target": "Object",
       "lbl-onenter": "On Enter",
@@ -820,7 +823,6 @@
         "EE_image": "Imports an image into the scene",
         "GroundPlaneComponent": "Create collision ground plane.",
         "GroupComponent": "Collection of models or assets.",
-        "PrefabComponent": "Create prefabs from groups or objects that are saved to the assets folder. Saving requires specific naming: 'assetName'.xre.gltf",
         "ColliderComponent": "Creates a collision ball, cuboid, capsule, or cylinder to be manually placement.",
         "SpawnPointComponent": "A point where people will appear when they enter your scene.",
         "PortalComponent": "A portal to teleport a player to a port in a different location.",

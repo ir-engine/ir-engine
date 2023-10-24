@@ -289,6 +289,7 @@ const execute = () => {
   for (const action of cameraSpawnActions()) cameraSpawnReceptor(action)
 
   for (const action of spectateUserActions()) {
+    getMutableState(EngineState).userReady.set(true)
     const cameraEntity = Engine.instance.cameraEntity
     if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserID })
     else

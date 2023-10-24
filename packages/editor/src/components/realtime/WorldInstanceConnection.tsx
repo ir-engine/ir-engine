@@ -33,17 +33,17 @@ import {
   SocketWebRTCClientNetwork,
   leaveNetwork
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import DirectionsRun from '@mui/icons-material/DirectionsRun'
 import DoneIcon from '@mui/icons-material/Done'
 
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { EditorState } from '../../services/EditorServices'
 import SelectInput from '../inputs/SelectInput'
 import { InfoTooltip } from '../layout/Tooltip'
 import * as styles from '../toolbar/styles.module.scss'
-import { EditorActiveInstanceService, EditorActiveInstanceState } from './EditorActiveInstanceService'
+import { EditorActiveInstanceState } from './EditorActiveInstanceService'
 
 export const WorldInstanceConnection = () => {
   const { t } = useTranslation()
@@ -69,17 +69,17 @@ export const WorldInstanceConnection = () => {
 
   const onSelectInstance = (selectedInstance: string) => {
     if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {
-      if (worldNetworkHostId) leaveNetwork(Engine.instance.worldNetwork as SocketWebRTCClientNetwork)
+      if (worldNetworkHostId) leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
       return
     }
     const instance = activeInstanceState.activeInstances.value.find(({ id }) => id === selectedInstance)
     if (!instance) return
-    EditorActiveInstanceService.provisionServer(instance.locationId!, instance.id, sceneId)
+    EditorActiveInstanceState.provisionServer(instance.locationId!, instance.id, sceneId)
   }
   // const decrementPage = () => { }
   // const incrementPage = () => { }
 
-  const worldNetworkHostId = Engine.instance.worldNetwork?.id
+  const worldNetworkHostId = NetworkState.worldNetwork?.id
   const networkState = useWorldNetwork()
 
   const getIcon = () => {

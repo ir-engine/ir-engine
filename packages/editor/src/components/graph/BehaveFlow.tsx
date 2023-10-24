@@ -33,12 +33,12 @@ import {
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { isEqual } from 'lodash'
 import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import 'reactflow/dist/style.css'
 import { SelectionState } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
+import { commitProperty } from '../properties/Util'
 import { Flow } from './ee-flow'
 import './ee-flow/styles.css'
 
@@ -81,13 +81,10 @@ const BehaveFlow = () => {
           )}
           {validEntity && (
             <Flow
-              initialGraph={graphComponent?.value?.graph}
+              initialGraph={graphComponent?.get(NO_PROXY)?.graph}
               examples={{}}
               registry={behaveGraphState.registries.get(NO_PROXY)[graphComponent?.domain.value]}
-              onChangeGraph={(newGraph) => {
-                if (!graphComponent.graph || isEqual(graphComponent.graph.get(NO_PROXY), newGraph)) return
-                graphComponent.graph.set(JSON.parse(JSON.stringify(newGraph)))
-              }}
+              onChangeGraph={commitProperty(BehaveGraphComponent, 'graph')}
             />
           )}
         </div>

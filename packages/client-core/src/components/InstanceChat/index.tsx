@@ -31,7 +31,6 @@ import { ChannelService, ChannelState } from '@etherealengine/client-core/src/so
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
@@ -45,8 +44,10 @@ import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
-import { AppAction } from '../../common/services/AppService'
+import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -146,7 +147,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   }
 
   const packageMessage = (): void => {
-    const instanceId = Engine.instance.worldNetwork.id
+    const instanceId = NetworkState.worldNetwork.id as InstanceID
     if (composingMessage?.value?.length && instanceId) {
       if (usersTyping) {
         dispatchAction(
@@ -265,9 +266,11 @@ export const InstanceChat = ({
   }, [chatState.messageCreated.value])
 
   const hideOtherMenus = () => {
-    dispatchAction(AppAction.showTopShelf({ show: false }))
-    dispatchAction(AppAction.showBottomShelf({ show: false }))
-    dispatchAction(AppAction.showTouchPad({ show: false }))
+    getMutableState(AppState).merge({
+      showTopShelf: false,
+      showBottomShelf: false,
+      showTouchPad: false
+    })
   }
 
   const toggleChatWindow = () => {
@@ -344,7 +347,7 @@ export const InstanceChat = ({
         onClick={() => {
           chatWindowOpen.set(false)
           unreadMessages.set(false)
-          dispatchAction(AppAction.showTouchPad({ show: true }))
+          getMutableState(AppState).showTouchPad.set(true)
         }}
         className={styles.backdrop + ' ' + (!chatWindowOpen.value ? styles.hideBackDrop : '')}
       ></div>
@@ -432,7 +435,7 @@ export const InstanceChat = ({
                 ) : (
                   <CloseButton
                     onClick={() => {
-                      dispatchAction(AppAction.showTouchPad({ show: true }))
+                      getMutableState(AppState).showTouchPad.set(true)
                     }}
                   />
                 )}

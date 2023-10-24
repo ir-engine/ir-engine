@@ -26,11 +26,11 @@ import {
   StaticResourceFiltersType
 } from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface StaticResourceFiltersParams extends RootParams<StaticResourceFiltersQuery> {}
+export interface StaticResourceFiltersParams extends KnexAdapterParams<StaticResourceFiltersQuery> {}
 
 export class StaticResourceFiltersService
   implements ServiceInterface<StaticResourceFiltersType, StaticResourceFiltersParams>

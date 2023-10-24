@@ -34,9 +34,11 @@ import {
   InstanceAttendanceType,
   instanceAttendancePath
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import { LocationBanType, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import {
   IdentityProviderType,
@@ -47,11 +49,52 @@ import { UserSettingType, userSettingPath } from '@etherealengine/engine/src/sch
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const userResolver = resolve<UserType, HookContext>({
-  avatar: virtual(async (user, context) => {
-    if (user.avatarId) {
-      const avatar = await context.app.service(avatarPath).get(user.avatarId)
-      return avatar
+  identityProviders: virtual(async (user, context) => {
+    return (await context.app.service(identityProviderPath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as IdentityProviderType[]
+  }),
+  scopes: virtual(async (user, context) => {
+    return (await context.app.service(scopePath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as ScopeType[]
+  }),
+  instanceAttendance: virtual(async (user, context) => {
+    if (context.params.user?.id === context.id) {
+      const instanceAttendance = (await context.app.service(instanceAttendancePath).find({
+        query: {
+          userId: user.id,
+          ended: false
+        },
+        paginate: false
+      })) as InstanceAttendanceType[]
+
+      for (const attendance of instanceAttendance || []) {
+        if (attendance.instanceId)
+          attendance.instance = await context.app.service(instancePath).get(attendance.instanceId)
+        if (attendance.instance && attendance.instance.locationId) {
+          attendance.instance.location = await context.app.service(locationPath).get(attendance.instance.locationId)
+        }
+      }
+
+      return instanceAttendance
     }
+
+    return []
+  }),
+  createdAt: virtual(async (user) => fromDateTimeSql(user.createdAt)),
+  updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt))
+})
+
+export const userExternalResolver = resolve<UserType, HookContext>({
+  avatar: virtual(async (user, context) => {
+    if (context.event !== 'removed' && user.avatarId) return await context.app.service(avatarPath).get(user.avatarId)
   }),
   userSetting: virtual(async (user, context) => {
     const userSetting = (await context.app.service(userSettingPath).find({
@@ -73,62 +116,22 @@ export const userResolver = resolve<UserType, HookContext>({
 
     return apiKey.length > 0 ? apiKey[0] : undefined
   }),
-  identityProviders: virtual(async (user, context) => {
-    const identityProviders = (await context.app.service(identityProviderPath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as IdentityProviderType[]
-
-    return identityProviders
-  }),
   locationAdmins: virtual(async (user, context) => {
-    const locationAdmins = (await context.app.service(locationAdminPath).find({
+    return (await context.app.service(locationAdminPath).find({
       query: {
         userId: user.id
       },
       paginate: false
     })) as LocationAdminType[]
-    return locationAdmins
   }),
   locationBans: virtual(async (user, context) => {
-    const locationBans = (await context.app.service(locationBanPath).find({
+    return (await context.app.service(locationBanPath).find({
       query: {
         userId: user.id
       },
       paginate: false
     })) as LocationBanType[]
-    return locationBans
   }),
-  scopes: virtual(async (user, context) => {
-    const scopes = (await context.app.service(scopePath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as ScopeType[]
-    return scopes
-  }),
-  instanceAttendance: virtual(async (user, context) => {
-    if (context.params.user?.id === context.arguments[0]) {
-      const instanceAttendance = (await context.app.service(instanceAttendancePath).find({
-        query: {
-          userId: user.id,
-          ended: false
-        },
-        paginate: false
-      })) as InstanceAttendanceType[]
-      return instanceAttendance
-    }
-
-    return []
-  }),
-  createdAt: virtual(async (user) => fromDateTimeSql(user.createdAt)),
-  updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt))
-})
-
-export const userExternalResolver = resolve<UserType, HookContext>({
   isGuest: async (value, user) => !!user.isGuest // https://stackoverflow.com/a/56523892/2077741
 })
 
@@ -138,6 +141,12 @@ export const userDataResolver = resolve<UserType, HookContext>({
   },
   name: async (name) => {
     return name || 'Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)
+  },
+  inviteCode: async (inviteCode) => {
+    return inviteCode || Math.random().toString(36).slice(2)
+  },
+  avatarId: async (avatarId) => {
+    return avatarId || undefined
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

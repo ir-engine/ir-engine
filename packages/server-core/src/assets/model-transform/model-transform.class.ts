@@ -25,14 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { Application } from '@etherealengine/server-core/declarations'
-import { ServiceInterface } from '@feathersjs/feathers'
+import { ServiceInterface } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
 import path from 'path'
 import config from '../../appconfig'
 
-import { BadRequest } from '@feathersjs/errors'
 import { createExecutorJob } from '../../projects/project/project-helper'
 import { getModelTransformJobBody, transformModel } from './model-transform.helpers'
+
+import { BadRequest } from '@feathersjs/errors/lib'
+import { KnexAdapterParams } from '@feathersjs/knex/lib'
+
+export interface ModelTransformParams extends KnexAdapterParams {
+  transformParameters: ModelTransformParameters
+}
 
 /**
  * A class for Model Transform service
@@ -55,7 +61,8 @@ export class ModelTransformService implements ServiceInterface<void> {
 
   async create(data: any): Promise<void> {
     const createParams: ModelTransformParameters = data
-    if (!config.kubernetes.enabled) {
+    console.log('config', config)
+    if (!config.kubernetes?.enabled) {
       return transformModel(this.app, createParams)
     }
     try {
@@ -70,7 +77,8 @@ export class ModelTransformService implements ServiceInterface<void> {
       const jobLabelSelector = `etherealengine/jobName=${jobBody.metadata!.name},etherealengine/release=${
         process.env.RELEASE_NAME
       },etherealengine/modelTransformer=true`
-      const jobFinishedPromise = createExecutorJob(this.app, jobBody, jobLabelSelector, 600)
+      const jobId = `model-transform-${inPath}-${outPath}-${resourceUri}`
+      const jobFinishedPromise = createExecutorJob(this.app, jobBody, jobLabelSelector, 600, jobId)
       await jobFinishedPromise
       return
     } catch (e) {

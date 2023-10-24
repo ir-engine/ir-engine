@@ -39,7 +39,7 @@ import {
   Primitive,
   Texture
 } from '@gltf-transform/core'
-import { EXTMeshGPUInstancing, KHRTextureBasisu } from '@gltf-transform/extensions'
+import { EXTMeshGPUInstancing } from '@gltf-transform/extensions'
 import { dedup, draco, flatten, join, palette, partition, prune, reorder, weld } from '@gltf-transform/functions'
 import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
@@ -48,7 +48,6 @@ import { createHash } from 'crypto'
 import fs from 'fs'
 import { MeshoptEncoder } from 'meshoptimizer'
 import path from 'path'
-import sharp from 'sharp'
 import { MathUtils } from 'three'
 
 import { objectToArgs } from '@etherealengine/common/src/utils/objectToCommandLineArgs'
@@ -504,6 +503,17 @@ export async function transformModel(app: Application, args: ModelTransformParam
         ...args,
         ...(resourceParms ? extractParameters(resourceParms) : {})
       } as ExtractedImageTransformParameters
+
+      const imgDoc = new Document()
+      const imgRoot = imgDoc.getRoot()
+      const nuTexture = imgDoc.createTexture(texture.getName())
+      nuTexture.setImage(oldImg!)
+      nuTexture.setMimeType(texture.getMimeType())
+
+      /*
+
+      Old command line processing for image resizing
+
       const fileName = toPath(texture)
       const oldPath = toTmp(fileName)
       const resizeExtension = mergedParms.textureFormat === 'ktx2' ? 'png' : mergedParms.textureFormat
@@ -550,11 +560,14 @@ export async function transformModel(app: Application, args: ModelTransformParam
       } catch (e) {
         console.error('error while handling image ' + oldPath)
         console.error(e)
-      }
+      }*/
 
+      /*
       if (mergedParms.textureFormat === 'ktx2') {
         //KTX2 Basisu Compression
         document.createExtension(KHRTextureBasisu).setRequired(true)
+
+        
         const basisArgs = `-ktx2 ${resizedPath} -q ${mergedParms.textureCompressionQuality} ${
           mergedParms.textureCompressionType === 'uastc' ? '-uastc' : ''
         } ${mergedParms.textureCompressionType === 'uastc' ? '-uastc_level ' + mergedParms.uastcLevel : ''} ${
@@ -576,6 +589,7 @@ export async function transformModel(app: Application, args: ModelTransformParam
       }
       texture.setImage(fs.readFileSync(nuPath))
       texture.setMimeType(fileTypeToMime(mergedParms.textureFormat) ?? texture.getMimeType())
+      */
     }
   }
   let result

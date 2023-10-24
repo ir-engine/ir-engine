@@ -28,7 +28,7 @@ import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
@@ -40,13 +40,13 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { v1 as uuidv1 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AcceptInviteParams extends RootParams {
+export interface AcceptInviteParams extends KnexAdapterParams {
   preventUserRelationshipRemoval?: boolean
 }
 
@@ -163,14 +163,14 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
       }
 
       if (invite.inviteType === 'friend') {
-        const inviter = await this.app.service(userPath)._get(invite.userId)
+        const inviter = await this.app.service(userPath).get(invite.userId)
 
         if (inviter == null) {
           await this.app.service(invitePath).remove(invite.id)
           throw new BadRequest('Invalid user ID')
         }
 
-        const existingRelationshipResult = await this.app.service(userRelationshipPath)._find({
+        const existingRelationshipResult = await this.app.service(userRelationshipPath).find({
           query: {
             $or: [
               {
@@ -204,7 +204,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
           )
         }
 
-        const relationshipToPatch = await this.app.service(userRelationshipPath)._find({
+        const relationshipToPatch = await this.app.service(userRelationshipPath).find({
           query: {
             $or: [
               {
@@ -230,7 +230,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
       } else if (invite.inviteType === 'channel') {
         const channel = (await this.app
           .service(channelPath)
-          ._find({ query: { id: invite.targetObjectId, $limit: 1 } })) as Paginated<ChannelType>
+          .find({ query: { id: invite.targetObjectId, $limit: 1 } })) as Paginated<ChannelType>
 
         if (channel.total === 0) {
           await this.app.service(invitePath).remove(invite.id)
@@ -261,11 +261,11 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         const instance =
-          invite.inviteType === 'instance' ? await this.app.service(instancePath)._get(invite.targetObjectId) : null
+          invite.inviteType === 'instance' ? await this.app.service(instancePath).get(invite.targetObjectId) : null
         const locationId = instance ? instance.locationId : invite.targetObjectId
         const location = await this.app.service(locationPath).get(locationId)
         returned.locationName = location.slugifiedName
-        if (instance) returned.instanceId = instance.id
+        if (instance) returned.instanceId = instance.id as InstanceID
 
         if (location.locationSetting?.locationType === 'private') {
           const userId = inviteeIdentityProvider.userId

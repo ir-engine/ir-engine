@@ -44,16 +44,23 @@ import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkState } from '../../networking/NetworkState'
 import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
 import { dropEntity, grabEntity } from './GrabbableSystem'
 
@@ -97,14 +104,14 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 
-    addComponent(item, GrabbedComponent, {
+    setComponent(item, GrabbedComponent, {
       grabberEntity: player,
       attachmentPoint: 'none'
     })
     const grabbedComponent = getComponent(player, GrabbedComponent)
-    addComponent(player, GrabberComponent, { grabbedEntity: item })
+    setComponent(player, GrabberComponent, { grabbedEntity: item })
 
-    setTransformComponent(item)
+    setComponent(item, TransformComponent)
     const equippableTransform = getComponent(item, TransformComponent)
     const attachmentPoint = grabbedComponent.attachmentPoint
     const { position, rotation } = getHandTarget(item, attachmentPoint)!
@@ -128,10 +135,10 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
   it('Can equip and unequip', async () => {
     const hostUserId = 'world' as UserID & PeerID
-    ;(Engine.instance.worldNetwork as Network).hostId = hostUserId
+    ;(NetworkState.worldNetwork as Network).hostId = hostUserId
     const hostIndex = 0
 
-    Engine.instance.worldNetwork.peers[hostUserId] = {
+    NetworkState.worldNetwork.peers[hostUserId] = {
       peerID: hostUserId,
       peerIndex: hostIndex,
       userId: hostUserId,
@@ -145,7 +152,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     const grabbableEntity = createEntity()
 
-    setTransformComponent(grabbableEntity)
+    setComponent(grabbableEntity, TransformComponent)
 
     // physics mock stuff
     const type = ShapeType.Cuboid
@@ -162,22 +169,22 @@ describe.skip('EquippableSystem Integration Tests', () => {
     Physics.createRigidBodyForGroup(grabbableEntity, getState(PhysicsState).physicsWorld, bodyOptions)
     // network mock stuff
     // initially the object is owned by server
-    addComponent(grabbableEntity, NetworkObjectComponent, {
-      ownerId: Engine.instance.worldNetwork.hostId,
+    setComponent(grabbableEntity, NetworkObjectComponent, {
+      ownerId: NetworkState.worldNetwork.hostId,
       authorityPeerID: Engine.instance.peerID,
       networkId: 0 as NetworkId
     })
 
     // Equipper
     const grabberEntity = createEntity()
-    setTransformComponent(grabberEntity)
+    setComponent(grabberEntity, TransformComponent)
 
     grabEntity(grabberEntity, grabbableEntity, 'none')
 
     // world.receptors.push(
     //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
-    clearOutgoingActions(Engine.instance.worldNetwork.topic)
+    clearOutgoingActions(NetworkState.worldNetwork.topic)
     applyIncomingActions()
 
     // equipperQueryEnter(grabberEntity)
@@ -192,7 +199,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     // unequip stuff
     dropEntity(grabberEntity)
 
-    clearOutgoingActions(Engine.instance.worldNetwork.topic)
+    clearOutgoingActions(NetworkState.worldNetwork.topic)
     applyIncomingActions()
 
     // validations for unequip

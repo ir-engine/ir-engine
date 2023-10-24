@@ -25,20 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { Edge, Node } from 'reactflow'
 
-import { GraphJSON, NodeJSON, NodeSpecJSON } from '@behave-graph/core'
+import { GraphJSON, NodeJSON, ValueJSON } from '@behave-graph/core'
+import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 
 const isNullish = (value: any): value is null | undefined => value === undefined || value === null
 
-export const flowToBehave = (nodes: Node[], edges: Edge[], nodeSpecJSON: NodeSpecJSON[]): GraphJSON => {
+export const flowToBehave = (nodes: Node[], edges: Edge[], specGenerator: NodeSpecGenerator): GraphJSON => {
   const graph: GraphJSON = { nodes: [], variables: [], customEvents: [] }
 
   nodes.forEach((node) => {
     if (node.type === undefined) return
 
-    const nodeSpec = nodeSpecJSON.find((nodeSpec) => nodeSpec.type === node.type)
-
+    const nodeSpec = specGenerator.getNodeSpec(node.type, node.data.configuration)
     if (nodeSpec === undefined) return
-
     const behaveNode: NodeJSON = {
       id: node.id,
       type: node.type,
@@ -47,8 +46,14 @@ export const flowToBehave = (nodes: Node[], edges: Edge[], nodeSpecJSON: NodeSpe
         positionY: String(node.position.y)
       }
     }
+    Object.entries(node.data.configuration).forEach(([key, value]) => {
+      if (behaveNode.configuration === undefined) {
+        behaveNode.configuration = {}
+      }
+      behaveNode.configuration[key] = value as ValueJSON
+    })
 
-    Object.entries(node.data).forEach(([key, value]) => {
+    Object.entries(node.data.values).forEach(([key, value]) => {
       if (behaveNode.parameters === undefined) {
         behaveNode.parameters = {}
       }

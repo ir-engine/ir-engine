@@ -32,13 +32,14 @@ import { SplineComponent } from '@etherealengine/engine/src/scene/components/Spl
 import ClearIcon from '@mui/icons-material/Clear'
 import TimelineIcon from '@mui/icons-material/Timeline'
 
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
 import { PropertiesPanelButton } from '../inputs/Button'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 /**
  * SplineNodeEditor used to create and customize splines in the scene.
@@ -57,7 +58,8 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
         <PropertiesPanelButton
           onClick={() => {
             const elem = { position: new Vector3(), quaternion: new Quaternion() }
-            component.elements.merge([elem])
+            const newElements = [...elements.get(NO_PROXY), elem]
+            commitProperty(SplineComponent, 'elements')(newElements)
           }}
         >
           {t('editor:properties.spline.lbl-addNode')}
@@ -69,10 +71,8 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
           <div style={{ display: 'flex-row' }}>
             <ClearIcon
               onClick={() => {
-                elements.set((p) => {
-                  p.splice(index, 1)
-                  return p
-                })
+                const newElements = [...elements.get(NO_PROXY)].filter((_, i) => i !== index)
+                commitProperty(SplineComponent, 'elements')(newElements)
               }}
               style={{ color: 'white' }}
             />
@@ -84,7 +84,10 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                 mediumStep={0.1}
                 largeStep={1}
                 onChange={(position) => {
-                  elem.position.set(new Vector3(position.x, position.y, position.z))
+                  commitProperty(
+                    SplineComponent,
+                    `elements.${index}.position` as any
+                  )(new Vector3(position.x, position.y, position.z))
                 }}
               />
             </InputGroup>
@@ -94,8 +97,10 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                 quaternion={elem.quaternion.value}
                 unit="°"
                 onChange={(euler) => {
-                  const quaternion = new Quaternion().setFromEuler(euler)
-                  elem.quaternion.set(quaternion)
+                  commitProperty(
+                    SplineComponent,
+                    `elements.${index}.quaternion` as any
+                  )(new Quaternion().setFromEuler(euler))
                 }}
               />
             </InputGroup>

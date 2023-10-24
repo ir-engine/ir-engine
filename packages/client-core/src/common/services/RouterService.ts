@@ -36,7 +36,10 @@ export const RouterState = defineState({
   name: 'RouterState',
   initial: () => ({
     pathname: location.pathname
-  })
+  }),
+  navigate: (pathname: string) => {
+    getMutableState(RouterState).pathname.set(pathname)
+  }
 })
 
 export type CustomRoute = {
@@ -51,7 +54,9 @@ export type CustomRoute = {
  * @return {Promise}
  */
 export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
-  const routes = (await Engine.instance.api.service(routePath).find({ query: { paginate: false } })) as RouteType[]
+  const routes = (await Engine.instance.api
+    .service(routePath)
+    .find({ query: { paginate: false } })) as any as RouteType[]
   console.log(routes)
 
   const elements: CustomRoute[] = []
@@ -99,10 +104,4 @@ export const useCustomRoutes = () => {
   }, [routerState.pathname])
 
   return customRoutes.get(NO_PROXY)
-}
-
-export const RouterService = {
-  navigate: (pathname: string) => {
-    getMutableState(RouterState).pathname.set(pathname)
-  }
 }

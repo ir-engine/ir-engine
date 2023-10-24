@@ -23,21 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineActionQueue, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { useEffect } from 'react'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { PortalState } from '../components/PortalComponent'
 import { revertAvatarToMovingStateFromTeleport } from '../functions/loaders/PortalFunctions'
 import { HyperspacePortalSystem } from './HyperspacePortalSystem'
 
-const sceneLoadedQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
+const reactor = () => {
+  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+  const activePortalEntity = useHookstate(getState(PortalState).activePortalEntity)
 
-const execute = () => {
-  if (sceneLoadedQueue().length && getState(EngineState).isTeleporting) revertAvatarToMovingStateFromTeleport()
+  useEffect(() => {
+    if (sceneLoaded.value && activePortalEntity.value) {
+      revertAvatarToMovingStateFromTeleport()
+    }
+  }, [sceneLoaded, activePortalEntity])
+
+  return null
 }
 
 export const PortalSystem = defineSystem({
   uuid: 'ee.engine.PortalSystem',
-  execute,
+  reactor,
   subSystems: [HyperspacePortalSystem]
 })

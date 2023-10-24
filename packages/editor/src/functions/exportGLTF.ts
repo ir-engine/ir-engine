@@ -37,7 +37,7 @@ export default async function exportGLTF(entity: Entity, path: string) {
     embedImages: !isGLTF,
     includeCustomExtensions: true
   }) //, {binary: false, embedImages: false, includeCustomExtensions: true})
-  const [, , pName, fileName] = pathResolver().exec(path)!
+  const [, pName, fileName] = pathResolver().exec(path)!
   const blob = isGLTF ? [JSON.stringify(gltf)] : [gltf]
   const file = new File(blob, fileName)
   const urls = await Promise.all(uploadProjectFiles(pName, [file]).promises)

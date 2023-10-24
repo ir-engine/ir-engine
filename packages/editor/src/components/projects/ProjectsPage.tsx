@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -92,7 +92,7 @@ const OfficialProjectData = [
     id: '1570ae12-889a-11ec-886e-b126f7590685',
     name: 'ee-productivity',
     repositoryPath: 'https://github.com/etherealengine/ee-productivity',
-    thumbnail: '/static/etherealengine.png',
+    thumbnail: '/static/etherealengine_thumbnail.jpg',
     description: 'Utility and productivity tools for Virtual and Augmented Reality',
     needsRebuild: true
   },
@@ -100,7 +100,7 @@ const OfficialProjectData = [
     id: '1570ae00-889a-11ec-886e-b126f7590685',
     name: 'ee-development-test-suite',
     repositoryPath: 'https://github.com/etherealengine/ee-development-test-suite',
-    thumbnail: '/static/etherealengine.png',
+    thumbnail: '/static/etherealengine_thumbnail.jpg',
     description: 'Assets and tests for Ethereal Engine core development',
     needsRebuild: true
   },
@@ -108,7 +108,7 @@ const OfficialProjectData = [
     id: '1570ae01-889a-11ec-886e-b126f7590685',
     name: 'ee-i18n',
     repositoryPath: 'https://github.com/etherealengine/ee-i18n',
-    thumbnail: '/static/etherealengine.png',
+    thumbnail: '/static/etherealengine_thumbnail.jpg',
     description: 'Complete language translations in over 100 languages',
     needsRebuild: true
   },
@@ -116,7 +116,7 @@ const OfficialProjectData = [
     id: '1570ae02-889a-11ec-886e-b126f7590685',
     name: 'ee-bot',
     repositoryPath: 'https://github.com/etherealengine/ee-bot',
-    thumbnail: '/static/etherealengine.png',
+    thumbnail: '/static/etherealengine_thumbnail.jpg',
     description: 'A test bot using puppeteer',
     needsRebuild: true
   },
@@ -124,7 +124,7 @@ const OfficialProjectData = [
     id: '1570ae11-889a-11ec-886e-b126f7590685',
     name: 'ee-maps  ',
     repositoryPath: 'https://github.com/etherealengine/ee-maps',
-    thumbnail: '/static/etherealengine.png',
+    thumbnail: '/static/etherealengine_thumbnail.jpg',
     description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js',
     needsRebuild: true
   }
@@ -132,7 +132,7 @@ const OfficialProjectData = [
   //   id: '1570ae12-889a-11ec-886e-b126f7590685',
   //   name: 'Inventory',
   //   repositoryPath: 'https://github.com/etherealengine/ee-inventory',
-  //   thumbnail: '/static/etherealengine.png',
+  //   thumbnail: '/static/etherealengine_thumbnail.jpg',
   //   description:
   //     'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
   //   needsRebuild: true
@@ -269,7 +269,7 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
-    RouterService.navigate(`/studio/${project.name}`)
+    RouterState.navigate(`/studio/${project.name}`)
   }
 
   const onCreateProject = async (name) => {

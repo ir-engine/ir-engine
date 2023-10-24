@@ -27,6 +27,7 @@ import { Color, Material } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import matches from 'ts-matches'
 import {
   materialIdToDefaultArgs,
   protoIdToFactory,
@@ -34,7 +35,11 @@ import {
   PrototypeNotFoundError
 } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
 import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
-import { EEMaterialExtensionType } from '../../../exporters/gltf/extensions/EEMaterialExporterExtension'
+import {
+  EEMaterialExtensionType,
+  isOldEEMaterial,
+  OldEEMaterialExtensionType
+} from '../../../exporters/gltf/extensions/EEMaterialExporterExtension'
 import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
@@ -100,6 +105,25 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     //if we found a prototype, we populate the materialParams as normal.
     //if we didn't find a prototype, we populate the materialDef.extras.args to hold for later.
     const parseTarget = foundPrototype ? materialParams : materialDef.extras.args
+    if (isOldEEMaterial(extension)) {
+      const oldExtension: OldEEMaterialExtensionType = extension
+      return Promise.all(
+        Object.entries(oldExtension.args).map(async ([k, v]) => {
+          //check if the value is a texture
+          if (matches.shape({ index: matches.number }).test(v)) {
+            await parser.assignTexture(parseTarget, k, v)
+          }
+          //check if the value is a color by checking key
+          else if ((k.toLowerCase().includes('color') || k === 'emissive') && typeof v === 'number') {
+            parseTarget[k] = new Color(v)
+          }
+          //otherwise, just assign the value
+          else {
+            parseTarget[k] = v
+          }
+        })
+      )
+    }
     return Promise.all(
       Object.entries(extension.args).map(async ([k, v]) => {
         switch (v.type) {

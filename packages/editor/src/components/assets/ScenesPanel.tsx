@@ -27,13 +27,13 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CompressedTexture } from 'three'
 
-import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
@@ -112,8 +112,8 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     if (activeScene) {
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
-        dispatchAction(EngineActions.sceneUnloaded({}))
-        RouterService.navigate(`/studio/${editorState.projectName.value}`)
+        getMutableState(EngineState).sceneLoaded.set(false)
+        RouterState.navigate(`/studio/${editorState.projectName.value}`)
       }
 
       fetchItems()
@@ -151,7 +151,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
-    RouterService.navigate(`/studio/${editorState.projectName.value}/${newName}`)
+    RouterState.navigate(`/studio/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()
   }

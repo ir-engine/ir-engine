@@ -23,75 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import { ScopeData, ScopePatch, ScopeQuery, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 
-import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
-
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ScopeParams extends RootParams<ScopeQuery> {}
+export interface ScopeParams extends KnexAdapterParams<ScopeQuery> {}
 
 /**
  * A class for Scope service
  */
 
-export class ScopeService<T = ScopeType, ServiceParams extends Params = ScopeParams> extends KnexAdapter<
-  ScopeType,
+export class ScopeService<T = ScopeType, ServiceParams extends Params = ScopeParams> extends KnexService<
+  ScopeType | ScopeData,
   ScopeData,
   ScopeParams,
   ScopePatch
-> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  async find(params?: ScopeParams) {
-    if (params?.query?.paginate != null) {
-      if (params.query.paginate === false) params.paginate = params.query.paginate
-      delete params.query.paginate
-    }
-    return super._find(params)
-  }
-
-  async create(data: ScopeData | ScopeData[], params?: ScopeParams) {
-    if (!Array.isArray(data)) {
-      data = [data]
-    }
-    const queryParams = { userId: data[0].userId }
-
-    const oldScopes = (await super._find({
-      query: queryParams,
-      paginate: false
-    })) as any as ScopeType[]
-
-    const existingData: ScopeData[] = []
-    const createData: ScopeData[] = []
-
-    for (const item of data) {
-      const existingScope = oldScopes && oldScopes.find((el) => el.type === item.type)
-      if (existingScope) {
-        existingData.push(existingScope)
-      } else {
-        createData.push(item)
-      }
-    }
-
-    if (createData.length > 0) {
-      const createdData: any = await super._create(data)
-      return [...existingData, ...createdData]
-    }
-
-    return existingData
-  }
-
-  async remove(id: Id, _params?: ScopeParams) {
-    return super._remove(id, _params)
-  }
-}
+> {}

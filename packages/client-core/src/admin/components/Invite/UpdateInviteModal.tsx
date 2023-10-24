@@ -47,7 +47,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InvitePatch, InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -79,7 +79,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const makeAdmin = useHookstate(false)
   const oneTimeUse = useHookstate(true)
   const locationId = useHookstate('')
-  const instanceId = useHookstate('')
+  const instanceId = useHookstate('' as InstanceID)
   const userInviteCode = useHookstate('')
   const spawnPointUUID = useHookstate('')
   const setSpawn = useHookstate(false)
@@ -200,7 +200,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
 
   const handleLocationChange = async (e) => {
     locationId.set(e.target.value)
-    const location = await Engine.instance.api.service('location').get(e.target.value)
+    const location = await Engine.instance.api.service(locationPath).get(e.target.value)
     if (location && location.sceneId) {
       const sceneName = location.sceneId.split('/')
       AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
@@ -212,7 +212,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     const instance = adminInstances.find((instance) => instance.id === e.target.value)
 
     if (!instance) return
-    const location = await Engine.instance.api.service('location').get(instance.locationId as Id)
+    const location = await Engine.instance.api.service(locationPath).get(instance.locationId as Id)
 
     if (!location) return
     const sceneName = location.sceneId.split('/')
@@ -255,7 +255,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         sendData.endTime = toDateTimeSql(endTime.value)
       }
       await patchInvite(invite.id, sendData)
-      instanceId.set('')
+      instanceId.set('' as InstanceID)
       locationId.set('')
       textValue.set('')
       makeAdmin.set(false)
