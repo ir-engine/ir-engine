@@ -39,6 +39,8 @@ export default async function exportModelGLTF(
 ) {
   const scene = getComponent(entity, ModelComponent).scene!
   const exporter = createGLTFExporter()
+  const modelName = options.path.split('/').at(-1)!.split('.').at(0)!
+  const resourceURI = `model-resources/${modelName}`
   const gltf: ArrayBuffer = await new Promise((resolve) => {
     exporter.parse(
       scene,
@@ -52,7 +54,7 @@ export default async function exportModelGLTF(
         ...options,
         animations: scene.animations ?? [],
         flipY: scene.userData.src.endsWith('.usdz'),
-        resourceURI: 'model-resources'
+        resourceURI
       }
     )
   })

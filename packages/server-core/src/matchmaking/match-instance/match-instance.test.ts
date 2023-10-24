@@ -34,6 +34,7 @@ import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match
 import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -108,7 +109,7 @@ describe.skip('matchmaking match-instance service', () => {
       name: `game-${gameMode}`,
       slugifiedName: `game-${gameMode}`,
       maxUsersPerInstance: 30,
-      sceneId: `test/game-${gameMode}`,
+      sceneId: `test/game-${gameMode}` as SceneID,
       locationSetting: commonlocationSetting,
       isLobby: false,
       isFeatured: false

@@ -219,7 +219,7 @@ export default {
       () => schemaHooks.validateData(identityProviderPatchValidator),
       schemaHooks.resolveData(identityProviderPatchResolver)
     ],
-    remove: [iff(isProvider('external'), checkIdentityProvider), checkOnlyIdentityProvider]
+    remove: [iff(isProvider('external'), checkIdentityProvider, checkOnlyIdentityProvider)]
   },
   after: {
     all: [],
