@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { inviteTypes } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
 import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
@@ -92,6 +93,7 @@ describe('invite.service', () => {
         userId: testUser.id
       }
     })
+    await destroyEngine()
   })
 
   inviteTypes.forEach((inviteType) => {
