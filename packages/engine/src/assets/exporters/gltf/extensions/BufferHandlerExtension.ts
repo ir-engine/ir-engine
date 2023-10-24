@@ -27,11 +27,12 @@ import { sha3_256 } from 'js-sha3'
 import { Event, LoaderUtils, MathUtils, Mesh, Object3D } from 'three'
 import matches, { Validator } from 'ts-matches'
 
-import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineAction, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { AssetLoader } from '../../../classes/AssetLoader'
 import { getProjectName, getRelativeURI, modelResourcesPath } from '../../../functions/pathResolver'
+import { UploadRequestState } from '../../../state/UploadRequestState'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -138,21 +139,15 @@ export default class BufferHandlerExtension extends ExporterExtension implements
         const projectSpaceModelName = this.resourceURI
           ? LoaderUtils.resolveURL(uri, LoaderUtils.extractUrlBase(modelName))
           : modelName
-        const saveParms: BufferJson & { buffer: ArrayBuffer } = {
-          name,
-          byteLength: buffer.byteLength,
-          uri: this.resourceURI ? projectSpaceModelName.replace(/^assets\//, '') : uri,
-          buffer
-        }
+        const finalURI = this.resourceURI ? projectSpaceModelName.replace(/^assets\//, '') : uri
         imageDef.uri = uri
         imageDef.mimeType = `image/${AssetLoader.getAssetType(uri)}`
-        dispatchAction(
-          BufferHandlerExtension.saveBuffer({
-            saveParms,
-            projectName,
-            modelName: projectSpaceModelName
-          })
-        )
+        const blob = new Blob([buffer])
+        const file = new File([blob], finalURI)
+        const uploadRequestState = getMutableState(UploadRequestState)
+        const queue = uploadRequestState.queue.get(NO_PROXY)
+        const nuQueue = [...queue, { file, projectName }]
+        uploadRequestState.queue.set(nuQueue)
       })
     )
   }
@@ -190,20 +185,14 @@ export default class BufferHandlerExtension extends ExporterExtension implements
           uri
         }
         json.buffers[index] = bufferDef
-
-        const saveParms = {
-          ...bufferDef,
-          uri: this.resourceURI ? projectSpaceModelName.replace(/^assets\//, '') : uri,
-          buffer: buffers[index]
-        }
         if (!this.bufferCache[name]) {
-          dispatchAction(
-            BufferHandlerExtension.saveBuffer({
-              projectName,
-              modelName: projectSpaceModelName,
-              saveParms
-            })
-          )
+          const finalURI = this.resourceURI ? projectSpaceModelName.replace(/^assets\//, '') : uri
+          const blob = new Blob([buffers[index]])
+          const file = new File([blob], finalURI)
+          const uploadRequestState = getMutableState(UploadRequestState)
+          const queue = uploadRequestState.queue.get(NO_PROXY)
+          const nuQueue = [...queue, { file, projectName }]
+          uploadRequestState.queue.set(nuQueue)
           this.bufferCache[name] = uri
         } else {
           bufferDef.uri = this.bufferCache[name]
