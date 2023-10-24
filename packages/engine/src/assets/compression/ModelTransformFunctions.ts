@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getContentType } from '@etherealengine/common/src/utils/getContentType'
-
 import {
   ExtractedImageTransformParameters,
   extractParameters,
@@ -55,6 +53,8 @@ import { EEResourceID } from './extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from './ModelTransformLoader'
 
 import config from '@etherealengine/common/src/config'
+import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
+import { UploadRequestState } from '../state/UploadRequestState'
 
 /**
  *
@@ -383,7 +383,7 @@ export async function transformModel(args: ModelTransformParameters) {
 
   const fileUploadPath = (fUploadPath: string) => {
     const relativePath = fUploadPath.replace(config.client.fileServer, '')
-    const pathCheck = /projects\/([^/]+)\/assets\/([\w\d\s\-_.]*)$/
+    const pathCheck = /projects\/([^/]+)\/assets\/([\w\d\s\-_./]*)$/
     const [_, projectName, fileName] =
       pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(LoaderUtils.extractUrlBase(args.src), fUploadPath))!
     return [projectName, fileName]
@@ -642,7 +642,7 @@ export async function transformModel(args: ModelTransformParameters) {
 
     json.images?.map((image) => {
       const nuURI = pathJoin(
-        args.resourceUri ? args.resourceUri : resourceName,
+        args.resourceUri ? args.resourceUri : resourceName + '_resources',
         `${image.name}.${mimeToFileType(image.mimeType)}`
       )
       resources[nuURI] = resources[image.uri!]
@@ -651,13 +651,14 @@ export async function transformModel(args: ModelTransformParameters) {
     })
     const defaultBufURI = MathUtils.generateUUID() + '.bin'
     json.buffers?.map((buffer) => {
-      buffer.uri = pathJoin(args.resourceUri ? args.resourceUri : resourceName, baseName(buffer.uri ?? defaultBufURI))
+      buffer.uri = pathJoin(args.resourceUri ? args.resourceUri : resourcePath, baseName(buffer.uri ?? defaultBufURI))
     })
     Object.keys(resources).map((uri) => {
       const localPath = pathJoin(resourcePath, baseName(uri))
       resources[localPath] = resources[uri]
       delete resources[uri]
     })
+    /*
     const doUpload = async (uri, data) => {
       const [savePath, fileName] = fileUploadPath(uri)
       const args = {
@@ -670,6 +671,23 @@ export async function transformModel(args: ModelTransformParameters) {
     }
     await Promise.all(Object.entries(resources).map(([uri, data]) => doUpload(uri, data)))
     result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))
+    */
+    const doUpload = (buffer, uri) => {
+      const [projectName, fileName] = fileUploadPath(uri)
+      const file = new File([buffer], fileName)
+      const uploadRequestState = getMutableState(UploadRequestState)
+      const queue = uploadRequestState.queue.get(NO_PROXY)
+      uploadRequestState.queue.set([...queue, { file, projectName }])
+    }
+    Object.entries(resources).map(([uri, data]) => {
+      doUpload(new Blob([data]), uri)
+    })
+    let finalPath = args.dst.replace(/\.glb$/, '.gltf')
+    if (!finalPath.endsWith('.gltf')) {
+      finalPath += '.gltf'
+    }
+    doUpload(new Blob([JSON.stringify(json)], { type: 'application/json' }), finalPath)
+
     console.log('Handled gltf file')
   }
   return result
