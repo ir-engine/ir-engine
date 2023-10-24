@@ -28,6 +28,7 @@ import {
   CreateFunctionCommand,
   CreateInvalidationCommand,
   DescribeFunctionCommand,
+  FunctionRuntime,
   FunctionSummary,
   GetDistributionCommand,
   ListFunctionsCommand,
@@ -46,6 +47,7 @@ import {
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
+  ObjectCannedACL,
   ObjectIdentifier,
   PutObjectCommand,
   S3Client,
@@ -173,7 +175,7 @@ export class S3Provider implements StorageProviderInterface {
   private blob: typeof S3BlobStore = new S3BlobStore({
     client: this.provider,
     bucket: config.aws.s3.staticResourceBucket,
-    ACL: 'public-read'
+    ACL: ObjectCannedACL.public_read
   })
 
   private cloudfront: CloudFrontClient = new CloudFrontClient({
@@ -301,14 +303,14 @@ export class S3Provider implements StorageProviderInterface {
 
     const args = params.isDirectory
       ? {
-          ACL: 'public-read',
+          ACL: ObjectCannedACL.public_read,
           Body: Buffer.alloc(0),
           Bucket: this.bucket,
           ContentType: 'application/x-empty',
           Key: key + '/'
         }
       : {
-          ACL: 'public-read',
+          ACL: ObjectCannedACL.public_read,
           Body: data.Body,
           Bucket: this.bucket,
           ContentType: data.ContentType,
@@ -337,7 +339,7 @@ export class S3Provider implements StorageProviderInterface {
       return response
     } else if (data.Body?.length > MULTIPART_CUTOFF_SIZE) {
       const multiPartStartArgs = {
-        ACL: 'public-read',
+        ACL: ObjectCannedACL.public_read,
         Bucket: this.bucket,
         Key: key,
         ContentType: data.ContentType
@@ -499,7 +501,7 @@ export class S3Provider implements StorageProviderInterface {
       FunctionCode: new TextEncoder().encode(code),
       FunctionConfig: {
         Comment: 'Function to handle routing of Ethereal Engine client',
-        Runtime: 'cloudfront-js-1.0'
+        Runtime: FunctionRuntime.cloudfront_js_1_0
       }
     }
     const command = new CreateFunctionCommand(params)
@@ -568,7 +570,7 @@ export class S3Provider implements StorageProviderInterface {
       FunctionCode: new TextEncoder().encode(code),
       FunctionConfig: {
         Comment: 'Function to handle routing of Ethereal Engine client',
-        Runtime: 'cloudfront-js-1.0'
+        Runtime: FunctionRuntime.cloudfront_js_1_0
       }
     }
     const command = new UpdateFunctionCommand(params)
@@ -709,7 +711,7 @@ export class S3Provider implements StorageProviderInterface {
     const result = await Promise.all([
       ...listResponse.Contents.map(async (file) => {
         const input = {
-          ACL: 'public-read',
+          ACL: ObjectCannedACL.public_read,
           Bucket: this.bucket,
           CopySource: `/${this.bucket}/${file.Key}`,
           Key: path.join(newFilePath, file.Key.replace(oldFilePath, ''))
