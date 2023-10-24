@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,10 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-
-module.exports = {
-  presets: [
-    "@babel/preset-react",
-    ['@babel/preset-env', {targets: {node: 'current'}}]
-  ],
-};
+export enum GeometryTypeEnum {
+  'BoxGeometry',
+  'SphereGeometry',
+  'CylinderGeometry',
+  'CapsuleGeometry',
+  'PlaneGeometry',
+  'CircleGeometry',
+  'RingGeometry',
+  'TorusGeometry',
+  'DodecahedronGeometry',
+  'IcosahedronGeometry',
+  'OctahedronGeometry',
+  'TetrahedronGeometry',
+  'TorusKnotGeometry'
+}

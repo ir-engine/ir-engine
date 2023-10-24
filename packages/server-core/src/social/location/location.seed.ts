@@ -28,6 +28,7 @@ import { Knex } from 'knex'
 import { LocationDatabaseType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getDateTimeSql } from '../../util/datetime-sql'
 
 export async function seed(knex: Knex): Promise<void> {
@@ -41,7 +42,7 @@ export async function seed(knex: Knex): Promise<void> {
         name: 'Default',
         slugifiedName: 'default',
         maxUsersPerInstance: 30,
-        sceneId: 'default-project/default',
+        sceneId: 'default-project/default' as SceneID,
         isFeatured: false,
         isLobby: false
       },
@@ -50,7 +51,7 @@ export async function seed(knex: Knex): Promise<void> {
         name: 'Sky Station',
         slugifiedName: 'sky-station',
         maxUsersPerInstance: 30,
-        sceneId: 'default-project/sky-station',
+        sceneId: 'default-project/sky-station' as SceneID,
         isFeatured: false,
         isLobby: false
       },
@@ -59,7 +60,7 @@ export async function seed(knex: Knex): Promise<void> {
         name: 'Apartment',
         slugifiedName: 'apartment',
         maxUsersPerInstance: 30,
-        sceneId: 'default-project/apartment',
+        sceneId: 'default-project/apartment' as SceneID,
         isFeatured: false,
         isLobby: false
       }
