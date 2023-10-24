@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AuthenticationRequest } from '@feathersjs/authentication'
+import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { RedirectConfig } from '../../types/OauthStrategies'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import makeInitialAdmin from '../../util/make-initial-admin'
 import CustomOAuthStrategy, { CustomOAuthParams } from './custom-oauth'
@@ -80,7 +80,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
         scopes: []
       })
       entity.userId = newUser.id
-      await this.app.service(identityProviderPath)._patch(entity.id, {
+      await this.app.service(identityProviderPath).patch(entity.id, {
         userId: newUser.id
       })
     }
@@ -101,7 +101,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
-      await this.app.service(identityProviderPath)._remove(identityProvider.id)
+      await this.app.service(identityProviderPath).remove(identityProvider.id)
       await this.app.service(userPath).remove(identityProvider.userId)
       return super.updateEntity(entity, profile, params)
     }
@@ -109,7 +109,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
     if (!existingEntity) {
       profile.userId = user.id
       const newIP = await super.createEntity(profile, params)
-      if (entity.type === 'guest') await this.app.service(identityProviderPath)._remove(entity.id)
+      if (entity.type === 'guest') await this.app.service(identityProviderPath).remove(entity.id)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) return existingEntity
     else {
@@ -117,28 +117,31 @@ export class FacebookStrategy extends CustomOAuthStrategy {
     }
   }
 
-  async getRedirect(data: any, params: CustomOAuthParams): Promise<string> {
-    const redirectHost = config.authentication.callback.facebook
-    const type = params?.query?.userId ? 'connection' : 'login'
+  async getRedirect(data: AuthenticationResult | Error, params: CustomOAuthParams): Promise<string> {
+    let redirectConfig: RedirectConfig
+    try {
+      redirectConfig = JSON.parse(params.redirect!)
+    } catch {
+      redirectConfig = {}
+    }
+    let { domain: redirectDomain, path: redirectPath, instanceId: redirectInstanceId } = redirectConfig
+    redirectDomain = `${redirectDomain}/auth/oauth/facebook` || config.authentication.callback.facebook
+
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string
-      return redirectHost + `?error=${err}`
-    } else {
-      const token = data.accessToken as string
-      const redirect = params.redirect!
-      let parsedRedirect
-      try {
-        parsedRedirect = JSON.parse(redirect)
-      } catch (err) {
-        parsedRedirect = {}
-      }
-      const path = parsedRedirect.path
-      const instanceId = parsedRedirect.instanceId as InstanceID
-      let returned = redirectHost + `?token=${token}&type=${type}`
-      if (path != null) returned = returned.concat(`&path=${path}`)
-      if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`)
-      return returned
+      return redirectDomain + `?error=${err}`
     }
+
+    const loginType = params.query?.userId ? 'connection' : 'login'
+    let redirectUrl = `${redirectDomain}?token=${data.accessToken}&type=${loginType}`
+    if (redirectPath) {
+      redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
+    }
+    if (redirectInstanceId) {
+      redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
+    }
+
+    return redirectUrl
   }
 
   async authenticate(authentication: AuthenticationRequest, originalParams: Params) {

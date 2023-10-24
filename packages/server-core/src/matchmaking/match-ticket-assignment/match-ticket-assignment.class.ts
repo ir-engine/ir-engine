@@ -23,21 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NotFound } from '@feathersjs/errors'
-import { Id, Params } from '@feathersjs/feathers'
-import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex/lib'
+import { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex/lib'
 
-import { getTicketsAssignment } from '@etherealengine/matchmaking/src/functions'
 import {
   MatchTicketAssignmentQuery,
   MatchTicketAssignmentType
 } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
-import config from '@etherealengine/server-core/src/appconfig'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
-import { Application } from '../../../declarations'
-import { emulate_getTicketsAssignment } from '../emulate'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface MatchTicketAssignmentParams extends KnexAdapterParams<MatchTicketAssignmentQuery> {}
@@ -48,27 +42,4 @@ export interface MatchTicketAssignmentParams extends KnexAdapterParams<MatchTick
 export class MatchTicketAssignmentService<
   T = MatchTicketAssignmentType,
   ServiceParams extends Params = MatchTicketAssignmentParams
-> extends KnexAdapter<MatchTicketAssignmentType, MatchTicketAssignmentParams> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  async get(id: Id, params: MatchTicketAssignmentParams) {
-    let assignment: MatchTicketAssignmentType
-    try {
-      if (config.server.matchmakerEmulationMode) {
-        assignment = await emulate_getTicketsAssignment(this.app, id, params[identityProviderPath].userId)
-      } else {
-        assignment = await getTicketsAssignment(String(id))
-      }
-    } catch (e) {
-      // todo: handle other errors. like no connection, etc....
-      throw new NotFound(e.message, e)
-    }
-
-    return assignment
-  }
-}
+> extends KnexService<MatchTicketAssignmentType, MatchTicketAssignmentParams> {}
