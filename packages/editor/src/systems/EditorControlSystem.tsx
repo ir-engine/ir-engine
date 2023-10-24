@@ -668,7 +668,7 @@ const execute = () => {
       dragging = false
     }
 
-    // go out of our way to make sure a snapshot takes place after the user releases the mouse button
+    // commit transform changes upon releasing the gizmo
     const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
     EditorControlFunctions.commitTransformSave(nodes)
   }
