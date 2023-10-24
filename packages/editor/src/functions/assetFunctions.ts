@@ -29,7 +29,8 @@ import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
   uploadToFeathersService
-} from '@etherealengine/client-core/src/util/upload'
+} from '@etherealengine/engine/src/assets/functions/upload'
+
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'

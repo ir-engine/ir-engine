@@ -29,8 +29,8 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { uploadToFeathersService } from '@etherealengine/engine/src/assets/functions/upload'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { uploadToFeathersService } from '../../util/upload'
 
 import { AvatarState as AvatarNetworkState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 

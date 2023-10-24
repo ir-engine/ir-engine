@@ -37,7 +37,6 @@ import {
   FILES_PAGE_LIMIT
 } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
@@ -45,6 +44,7 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
+import { uploadToFeathersService } from '@etherealengine/engine/src/assets/functions/upload'
 import { getMutableState, NO_PROXY, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'

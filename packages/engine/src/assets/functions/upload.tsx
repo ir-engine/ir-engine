@@ -26,10 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 
 import config from '@etherealengine/common/src/config'
-import { getMutableState } from '@etherealengine/hyperflux'
 
-import { AuthState } from '../user/services/AuthService'
-import { RethrownError } from './errors'
+import { RethrownError } from '@etherealengine/common/src/utils/errors'
+import { Engine } from '../../ecs/classes/Engine'
 
 export type CancelableUploadPromiseReturnType<T = any> = { cancel: () => void; promise: Promise<T | T[]> }
 export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => void; promises: Array<Promise<T | T[]>> }
@@ -40,7 +39,8 @@ export const uploadToFeathersService = (
   params: any = {},
   onUploadProgress?: (progress: number) => any
 ): CancelableUploadPromiseReturnType => {
-  const token = getMutableState(AuthState).authUser.accessToken.value
+  const token = Engine.instance.api.authentication?.getAccessToken()
+  if (!token) throw new Error('Not authenticated')
   const request = new XMLHttpRequest()
   request.timeout = 10 * 60 * 1000 // 10 minutes - need to support big files on slow connections
   let aborted = false

@@ -66,7 +66,7 @@ export class API {
     API.instance = new API()
     API.instance.client = feathersClient as any
 
-    Engine.instance.api = feathersClient
+    Engine.instance.api = feathersClient as any
   }
 }
 

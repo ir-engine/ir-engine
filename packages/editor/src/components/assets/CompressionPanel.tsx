@@ -29,11 +29,11 @@ import React from 'react'
 import { API } from '@etherealengine/client-core/src/API'
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
 } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { uploadToFeathersService } from '@etherealengine/engine/src/assets/functions/upload'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'

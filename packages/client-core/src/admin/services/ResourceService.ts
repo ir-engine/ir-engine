@@ -28,6 +28,7 @@ import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { uploadToFeathersService } from '@etherealengine/engine/src/assets/functions/upload'
 import {
   StaticResourceFiltersType,
   staticResourceFiltersPath
@@ -35,7 +36,6 @@ import {
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { NotificationService } from '../../common/services/NotificationService'
-import { uploadToFeathersService } from '../../util/upload'
 
 const logger = multiLogger.child({ component: 'client-core:ResourcesService' })
 

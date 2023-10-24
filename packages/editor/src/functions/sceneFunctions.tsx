@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 
 import { API } from '@etherealengine/client-core/src/API'
-import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { uploadToFeathersService } from '@etherealengine/engine/src/assets/functions/upload'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'

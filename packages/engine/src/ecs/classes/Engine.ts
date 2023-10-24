@@ -51,7 +51,12 @@ import { Entity, UndefinedEntity } from './Entity'
 export class Engine {
   static instance: Engine
 
-  api: FeathersApplication<ServiceTypes>
+  /** @todo figure out how to add proper authentication typings */
+  api: FeathersApplication<ServiceTypes> & {
+    authentication?: {
+      getAccessToken: () => string
+    }
+  }
 
   /** The uuid of the logged-in user */
   userID: UserID
