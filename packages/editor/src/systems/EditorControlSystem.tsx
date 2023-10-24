@@ -664,9 +664,16 @@ const execute = () => {
           EditorControlFunctions.replaceSelection([])
         }
       }
-
       gizmoObj.deselectAxis()
       dragging = false
+    }
+
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+    for (let i = 0; i < nodes.length; i++) {
+      const entity = nodes[i]
+      if (typeof entity === 'string') continue
+      //const entityUUID = getComponent(entity, UUIDComponent)
+      EditorControlFunctions.commitTransformSave(entity)
     }
   }
 
