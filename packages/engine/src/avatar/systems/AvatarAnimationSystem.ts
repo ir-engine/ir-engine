@@ -386,7 +386,7 @@ const reactor = () => {
     if (!entity) return
 
     if (isCameraAttachedToAvatar.value) {
-      setComponent(entity, AvatarHeadDecapComponent)
+      setComponent(entity, AvatarHeadDecapComponent, true)
     } else {
       removeComponent(entity, AvatarHeadDecapComponent)
     }
