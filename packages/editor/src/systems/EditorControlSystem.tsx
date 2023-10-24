@@ -147,7 +147,7 @@ let prevRotationAngle = 0
 
 let selectedEntities: (Entity | string)[]
 let selectedParentEntities: (Entity | string)[]
-let selectionCounter = 0
+let lastSelectedEntities = [] as (Entity | string)[]
 // let gizmoObj: TransformGizmo
 let transformMode: TransformModeType
 let transformPivot: TransformPivotType
@@ -343,6 +343,14 @@ const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount = 0): v
   }
 }
 
+const compareArrays = (a: any[], b: any[]) => {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+
 const doZoom = (zoom) => {
   const zoomDelta = typeof zoom === 'number' ? zoom - lastZoom : 0
   lastZoom = zoom
@@ -383,10 +391,7 @@ const execute = () => {
       : getOptionalComponent(lastSelection as Entity, TransformComponent)
 
     if (lastSelectedTransform) {
-      const isChanged =
-        selectionCounter !== selectionState.selectionCounter ||
-        transformModeChanged ||
-        selectionState.transformPropertyChanged
+      const isChanged = !compareArrays(lastSelectedEntities, selectionState.selectedEntities) || transformModeChanged
 
       if (isChanged || transformPivotChanged) {
         if (transformPivot === TransformPivot.Selection) {
@@ -637,7 +642,7 @@ const execute = () => {
     }
   }
 
-  selectionCounter = selectionState.selectionCounter
+  lastSelectedEntities = [...selectionState.selectedEntities]
   const shift = buttons.ShiftLeft?.pressed
 
   if (isPrimaryClickUp) {
