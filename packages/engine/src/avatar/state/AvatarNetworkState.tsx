@@ -26,7 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineState, dispatchAction, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  none,
+  useHookstate,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { Paginated } from '@feathersjs/feathers'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -49,11 +57,23 @@ export const AvatarState = defineState({
     EntityUUID,
     {
       avatarID?: string
-      userAvatarDetails: AvatarType
+      userAvatarDetails?: AvatarType
     }
   >,
 
   receptors: [
+    [
+      AvatarNetworkAction.spawn,
+      (state, action: typeof AvatarNetworkAction.spawn.matches._TYPE) => {
+        const s = getState(AvatarState)
+        spawnAvatarReceptor(action.entityUUID)
+      }
+    ],
+
+    AvatarNetworkAction.spawn.receive((action) => {
+      getMutableState(AvatarState)[action.entityUUID].merge({ avatarID: action.avatarID })
+    }),
+
     [
       AvatarNetworkAction.setAvatarID,
       (state, action: typeof AvatarNetworkAction.setAvatarID.matches._TYPE) => {
@@ -106,9 +126,7 @@ export const AvatarState = defineState({
 const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(AvatarState)[entityUUID])
 
-  useEffect(() => {
-    spawnAvatarReceptor(entityUUID)
-  }, [])
+  useEffect(() => {}, [])
 
   useEffect(() => {
     const avatarEntity = UUIDComponent.entitiesByUUID[entityUUID]

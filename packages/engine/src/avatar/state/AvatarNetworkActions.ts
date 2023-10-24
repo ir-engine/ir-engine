@@ -31,10 +31,11 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { matchesIkTarget } from '../animation/Util'
 
 export class AvatarNetworkAction {
-  static spawn = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'avatar'
-  })
+  static spawn = defineAction(
+    WorldNetworkAction.spawnObject.extend({
+      type: 'ee.engine.avatar.SPAWN'
+    })
+  )
 
   static setAnimationState = defineAction({
     type: 'ee.engine.avatar.SET_ANIMATION_STATE',
@@ -64,14 +65,11 @@ export class AvatarNetworkAction {
     $topic: NetworkTopics.world
   })
 
-  static spawnIKTarget = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'ik-target',
-    name: matchesIkTarget,
-    blendWeight: matches.number,
-    $cache: {
-      removePrevious: false
-    },
-    $topic: NetworkTopics.world
-  })
+  static spawnIKTarget = defineAction(
+    WorldNetworkAction.spawnObject.extend({
+      type: 'ee.engine.avatar.SPAWN_IK_TARGET',
+      name: matchesIkTarget,
+      blendWeight: matches.number
+    })
+  )
 }

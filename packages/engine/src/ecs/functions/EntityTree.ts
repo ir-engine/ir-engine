@@ -224,8 +224,7 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIn
     const uuid = getComponent(entity, UUIDComponent)
     dispatchAction(
       WorldNetworkAction.spawnObject({
-        entityUUID: uuid,
-        prefab: ''
+        entityUUID: uuid
       })
     )
   }

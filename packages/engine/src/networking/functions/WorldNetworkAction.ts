@@ -47,7 +47,6 @@ export class WorldNetworkAction {
 
   static spawnObject = defineAction({
     type: 'ee.engine.world.SPAWN_OBJECT',
-    prefab: matches.string,
     entityUUID: matchesEntityUUID,
     networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
     position: matchesVector3.optional(),
@@ -56,11 +55,11 @@ export class WorldNetworkAction {
     $topic: NetworkTopics.world
   })
 
-  static spawnCamera = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'camera',
-    $topic: NetworkTopics.world
-  })
+  static spawnCamera = defineAction(
+    WorldNetworkAction.spawnObject.extend({
+      type: 'ee.engine.world.SPAWN_CAMERA'
+    })
+  )
 
   static destroyObject = defineAction({
     type: 'ee.engine.world.DESTROY_OBJECT',

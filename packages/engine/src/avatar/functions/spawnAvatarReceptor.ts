@@ -68,7 +68,7 @@ export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.entitiesByUUID[entityUUID]
-  if (!entity) return
+  if (!entity) throw new Error(`Entity with UUID ${entityUUID} does not exist.`)
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
   const primary = ownerID === (entityUUID as string as UserID)

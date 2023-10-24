@@ -86,12 +86,10 @@ describe('EntityNetworkState', () => {
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
       const objNetId = 3 as NetworkId
-      const objPrefab = 'generic prefab'
 
       dispatchAction(
         WorldNetworkAction.spawnObject({
           $from: NetworkState.worldNetwork.hostId, // from  host
-          prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.peerID,
@@ -132,12 +130,10 @@ describe('EntityNetworkState', () => {
 
       const objParams = 123
       const objNetId = 3 as NetworkId
-      const objPrefab = 'generic prefab'
 
       dispatchAction(
         WorldNetworkAction.spawnObject({
           $from: userId, // from  user
-          prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $peer: Engine.instance.peerID,
           entityUUID: Engine.instance.peerID as any as EntityUUID
@@ -178,12 +174,10 @@ describe('EntityNetworkState', () => {
       NetworkPeerFunctions.createPeer(network, peerID3, 2, userId2, 2, 'second user name')
 
       const objNetId = 3 as NetworkId
-      const objPrefab = 'avatar'
 
       dispatchAction(
-        WorldNetworkAction.spawnObject({
+        AvatarNetworkAction.spawn({
           $from: userId2, // from other user
-          prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $peer: peerID3,
           $topic: NetworkTopics.world,
@@ -256,12 +250,10 @@ describe('EntityNetworkState', () => {
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
       const objNetId = 3 as NetworkId
-      const objPrefab = 'generic prefab'
 
       dispatchAction(
         WorldNetworkAction.spawnObject({
           $from: userId,
-          prefab: objPrefab,
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.peerID,
@@ -330,12 +322,10 @@ describe('EntityNetworkState', () => {
     NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
     const objNetId = 3 as NetworkId
-    const objPrefab = 'generic prefab'
 
     dispatchAction(
       WorldNetworkAction.spawnObject({
         $from: hostUserId, // from  host
-        prefab: objPrefab, // generic prefab
         networkId: objNetId,
         $topic: NetworkTopics.world,
         $peer: Engine.instance.peerID,

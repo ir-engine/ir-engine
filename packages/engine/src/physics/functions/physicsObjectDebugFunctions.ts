@@ -187,7 +187,6 @@ export const generatePhysicsObject = (
     if (entity) {
       dispatchAction(
         WorldNetworkAction.spawnObject({
-          prefab: 'physics_debug',
           position: transform.position,
           rotation: transform.rotation,
           entityUUID: getUUID() as EntityUUID

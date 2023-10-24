@@ -49,7 +49,6 @@ export const EntityNetworkState = defineState({
       ownerId: UserID
       networkId: NetworkId
       peerId: PeerID
-      prefab: string
       spawnPosition: Vector3
       spawnRotation: Quaternion
     }
@@ -72,7 +71,6 @@ export const EntityNetworkState = defineState({
           ownerId: action.$from,
           networkId: action.networkId,
           peerId: action.$peer,
-          prefab: action.prefab,
           spawnPosition: action.position ?? new Vector3(),
           spawnRotation: action.rotation ?? new Quaternion()
         })

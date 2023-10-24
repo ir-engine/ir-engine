@@ -43,7 +43,7 @@ export type Action = {
   /**
    * The type of action
    */
-  type: string
+  type: string | string[]
 } & ActionOptions
 
 export type ActionReceptor = (action: ResolvedActionType) => void
@@ -127,7 +127,7 @@ export type ActionOptions = {
 }
 
 export type ActionShape<ActionType extends Action> = {
-  [key in keyof ActionType]: key extends ActionType
+  [key in keyof ActionType]: key extends 'type'
     ? ActionType[key]
     : ActionType[key] extends Validator<unknown, unknown>
     ? ActionType[key]
@@ -224,11 +224,11 @@ export type PartialActionType<Shape extends ActionShape<any>> = Omit<
  */
 export const ActionDefinitions = {} as Record<string, any>
 
-function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
+function defineAction<Shape extends Omit<ActionShape<Action>, keyof ActionOptions>>(shape: Shape & ActionOptions) {
   type ResolvedAction = ResolvedActionType<Shape>
   type PartialAction = PartialActionType<Shape>
 
-  const shapeEntries = Object.entries(actionShape)
+  const shapeEntries = Object.entries(shape)
 
   // handle default callback properties
   const defaultEntries = shapeEntries.filter(
@@ -253,14 +253,19 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
     optionEntries.map(([k, v]) => [k, matches.guard<unknown, typeof v>((val): val is typeof v => deepEqual(val, v))])
   )
 
+  const type = shape.type
+  const primaryType = Array.isArray(type) ? type[0] : type
+
   // create resolved action shape
-  const resolvedActionShape = Object.assign(
-    {},
-    actionShape,
-    optionValidators,
-    literalValidators,
-    defaultValidators
-  ) as any
+  const resolvedActionShape = Object.assign({}, shape, optionValidators, literalValidators, defaultValidators, {
+    type: matches.guard<string, any>(function (val): val is any {
+      console.log('primaryType', primaryType)
+      console.log(val)
+      console.log(Array.isArray(val) ? val.findIndex((t) => val == primaryType) : 'not array')
+      console.log(Array.isArray(val) ? val.includes(primaryType) : 'not array')
+      return Array.isArray(val) ? val.includes(primaryType) : val === primaryType
+    })
+  }) as any
   delete resolvedActionShape.$cache
   delete resolvedActionShape.$topic
 
@@ -280,15 +285,22 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
       ...allValuesNull,
       ...Object.fromEntries([...optionEntries, ...literalEntries]),
       ...defaultValues,
-      ...partialAction
+      ...partialAction,
+      type
     }
     return matchesShape.unsafeCast(action) as ResolvedAction
   }
 
-  actionCreator.actionShape = actionShape
+  actionCreator.actionShape = shape as Omit<typeof shape, keyof ActionOptions>
   actionCreator.resolvedActionShape = resolvedActionShape as ResolvedActionShape<Shape>
-  actionCreator.type = actionShape.type as Shape['type']
+  actionCreator.type = shape.type as Shape['type']
   actionCreator.matches = matchesShape
+  actionCreator.extend = <ExtendShape extends ActionShape<Action>>(extendShape: ExtendShape & ActionOptions) => {
+    return { ...shape, ...extendShape, type: [extendShape.type, ...(Array.isArray(type) ? type : [type])] }
+  }
+  actionCreator.receive = (actionReceptor: (action: ResolvedAction) => void) => {
+    return [matchesShape, actionReceptor]
+  }
 
   ActionDefinitions[actionCreator.type as string] = actionCreator
   return actionCreator
