@@ -70,7 +70,7 @@ const LocationTable = ({ className, search }: Props) => {
         },
         {
           sceneId: {
-            $like: `%${search}%`
+            $like: `%${search}%` as SceneID
           }
         }
       ]

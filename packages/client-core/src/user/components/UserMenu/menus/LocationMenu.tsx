@@ -40,6 +40,7 @@ import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { API } from '../../../../API'
 import { LocationSeed } from '../../../../social/services/LocationService'
 import styles from '../index.module.scss'
@@ -82,7 +83,7 @@ const LocationMenu = (props: Props) => {
             },
             {
               sceneId: {
-                $like: `%${search}%`
+                $like: `%${search}%` as SceneID
               }
             }
           ]
