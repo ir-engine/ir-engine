@@ -67,6 +67,7 @@ import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkC
 import { LoadVolumeComponent } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { Vector3 } from 'three'
+import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -92,7 +93,13 @@ type SceneElementListItemType = {
 
 export const ComponentShelfCategories: Record<string, Component[]> = {
   Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
-  'Scene Composition': [GroundPlaneComponent, GroupComponent, ColliderComponent, LoadVolumeComponent],
+  'Scene Composition': [
+    PrimitiveGeometryComponent,
+    GroundPlaneComponent,
+    GroupComponent,
+    ColliderComponent,
+    LoadVolumeComponent
+  ],
   Interaction: [SpawnPointComponent, PortalComponent, LinkComponent],
   Lighting: [
     AmbientLightComponent,
@@ -228,7 +235,7 @@ export function ElementList() {
               <SceneElementListItem
                 key={item.jsonID}
                 item={{
-                  componentJsonID: item.jsonID!,
+                  componentJsonID: item.name!,
                   label: startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase()),
                   Icon: EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon,
                   type: ItemTypes.Component

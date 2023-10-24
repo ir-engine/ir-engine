@@ -42,6 +42,7 @@ import {
   LocationType
 } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { locationAdminPath, LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import {
   locationAuthorizedUserPath,
@@ -98,7 +99,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
           },
           {
             sceneId: {
-              $like: `%${search}%`
+              $like: `%${search}%` as SceneID
             }
           }
         ]
@@ -141,7 +142,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
     const trx = await (this.app.get('knexClient') as Knex).transaction()
 
     try {
-      const selfUser = params?.user!
+      const selfUser = params?.user
 
       if (data.isLobby) {
         await this.makeLobby(trx, selfUser)
