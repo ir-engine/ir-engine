@@ -777,14 +777,16 @@ const addToSelection = (nodes: EntityOrObjectUUID[]) => {
   // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
-const commitTransformSave = (entity: Entity) => {
+const commitTransformSave = (nodes: EntityOrObjectUUID[]) => {
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
-  LocalTransformComponent.stateMap[entity]!.set(LocalTransformComponent.valueMap[entity])
-
-  const entityData = newSnapshot.data.scene.entities[getComponent(entity, UUIDComponent)]
-  const component = entityData.components.find((c) => c.name === LocalTransformComponent.jsonID)!
-  component.props = serializeComponent(entity, LocalTransformComponent)
-
+  for (let i = 0; i < nodes.length; i++) {
+    const entity = nodes[i]
+    if (typeof entity === 'string') continue
+    LocalTransformComponent.stateMap[entity]!.set(LocalTransformComponent.valueMap[entity])
+    const entityData = newSnapshot.data.scene.entities[getComponent(entity, UUIDComponent)]
+    const component = entityData.components.find((c) => c.name === LocalTransformComponent.jsonID)!
+    component.props = serializeComponent(entity, LocalTransformComponent)
+  }
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 

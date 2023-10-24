@@ -295,8 +295,8 @@
       "name": "Ground Plane",
       "description": "A flat ground plane that extends into the distance.",
       "lbl-color": "Color",
-      "lbl-receiveShadow": "Receive Shadow",
-      "lbl-generateNavmesh": "Generate Navmesh"
+      "lbl-visible": "Visible",
+      "info-visible": "Toggle the visibility of the ground plane. Setting to false will still allow shadows to be received, rather than setting the entity visibility."
     },
     "loopAnimation": {
       "title": "Loop Animation",
