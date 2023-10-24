@@ -30,7 +30,7 @@ import { twMerge } from 'tailwind-merge'
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-interface SettingsProps {
+export interface SettingsProps {
   className?: string
 }
 

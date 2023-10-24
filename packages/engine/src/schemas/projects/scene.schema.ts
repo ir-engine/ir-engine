@@ -20,6 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { TypedRecord, TypedString } from '../../common/types/TypeboxUtils'
@@ -28,6 +29,8 @@ import { dataValidator } from '../validators'
 export const scenePath = 'scene'
 
 export const sceneMethods = ['get', 'update', 'create', 'find', 'patch', 'remove'] as const
+
+export type SceneID = OpaqueType<'SceneID'> & string
 
 export const componentJsonSchema = Type.Object(
   {
