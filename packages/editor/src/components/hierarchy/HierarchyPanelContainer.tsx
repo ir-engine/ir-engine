@@ -205,11 +205,7 @@ export default function HierarchyPanel({
   }, [collapsedNodes])
 
   useEffect(updateNodeHierarchy, [collapsedNodes])
-  useEffect(updateNodeHierarchy, [
-    showObject3DInHierarchy,
-    selectionState.selectedEntities,
-    selectionState.sceneGraphChangeCounter
-  ])
+  useEffect(updateNodeHierarchy, [showObject3DInHierarchy, selectionState.selectedEntities])
 
   const setSelectedNode = (selection) => !editorState.lockPropertiesPanel.value && _setSelectedNode(selection)
 
@@ -251,18 +247,6 @@ export default function HierarchyPanel({
     },
     [collapsedNodes]
   )
-  /* Expand & Collapse Functions */
-
-  const onObjectChanged = useCallback(
-    (propertyName) => {
-      if (propertyName === 'name' || !propertyName) updateNodeHierarchy()
-    },
-    [collapsedNodes]
-  )
-
-  useEffect(() => {
-    onObjectChanged(selectionState.propertyName.value)
-  }, [selectionState.objectChangeCounter])
 
   /* Event handlers */
   const onMouseDown = useCallback(

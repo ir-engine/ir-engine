@@ -71,7 +71,7 @@ import { SceneObjectComponent } from '@etherealengine/engine/src/scene/component
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { serializeEntity } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import { EditorHistoryAction, EditorHistoryState } from '../services/EditorHistory'
-import { SelectionAction, SelectionState } from '../services/SelectionServices'
+import { SelectionState } from '../services/SelectionServices'
 import { cancelGrabOrPlacement } from './cancelGrabOrPlacement'
 import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
@@ -714,11 +714,7 @@ const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
     })
     .filter(Boolean) as EntityUUID[]
 
-  dispatchAction(
-    SelectionAction.updateSelection({
-      selectedEntities: nodes
-    })
-  )
+  SelectionState.updateSelection(nodes)
   // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
@@ -744,11 +740,7 @@ const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
     })
     .filter(Boolean) as EntityUUID[]
 
-  dispatchAction(
-    SelectionAction.updateSelection({
-      selectedEntities
-    })
-  )
+  SelectionState.updateSelection(nodes)
   // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
@@ -769,11 +761,7 @@ const addToSelection = (nodes: EntityOrObjectUUID[]) => {
     })
     .filter(Boolean) as EntityUUID[]
 
-  dispatchAction(
-    SelectionAction.updateSelection({
-      selectedEntities
-    })
-  )
+  SelectionState.updateSelection(nodes)
   // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
