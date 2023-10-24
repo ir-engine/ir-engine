@@ -399,7 +399,7 @@ export const removeAllComponents = (entity: Entity) => {
 
 export const serializeComponent = <C extends Component<any, any, any>>(entity: Entity, Component: C) => {
   const component = getMutableComponent(entity, Component)
-  return Component.toJSON(entity, component) as ReturnType<C['toJSON']>
+  return JSON.parse(JSON.stringify(Component.toJSON(entity, component))) as ReturnType<C['toJSON']>
 }
 
 export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier)[]) {

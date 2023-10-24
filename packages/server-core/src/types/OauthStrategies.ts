@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-
-module.exports = {
-  presets: [
-    "@babel/preset-react",
-    ['@babel/preset-env', {targets: {node: 'current'}}]
-  ],
-};
+export type RedirectConfig = {
+  domain?: string
+  path?: string
+  instanceId?: string
+  [key: string]: string | undefined
+}
