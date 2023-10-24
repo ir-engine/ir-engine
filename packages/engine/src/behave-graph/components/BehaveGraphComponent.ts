@@ -43,7 +43,7 @@ export enum BehaveGraphDomain {
 export const BehaveGraphComponent = defineComponent({
   name: 'EE_behaveGraph',
 
-  jsonID: 'behave-graph',
+  jsonID: 'BehaveGraph',
 
   onInit: (entity) => {
     const domain = BehaveGraphDomain.ECS

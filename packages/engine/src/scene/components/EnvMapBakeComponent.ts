@@ -61,7 +61,7 @@ import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './Group
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',
-  jsonID: 'env-map-bake',
+  jsonID: 'envmapbake',
 
   onInit: (entity) => {
     return {
