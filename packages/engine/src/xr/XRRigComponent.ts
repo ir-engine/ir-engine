@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,24 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineComponent } from '../ecs/functions/ComponentFunctions'
 
-module.exports = {
-  failZero: false,
-  parallel: false,
-  spec: [
-    '**/*.test.ts'
-  ],
-  require: [
-    'tests/mocha.env', // init env here
-    'jsdom-global/register'
-  ],
-  extension: [
-    'ts',
-    'tsx'
-  ],
-  bail: true,
-  exit: true,
-  recursive: true,
-  jobs: '1',
-  timeout: '20000'
-};
+export const XRRigComponent = defineComponent({
+  name: 'XRRigComponent',
+  onInit: () => true
+})

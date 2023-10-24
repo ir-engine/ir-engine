@@ -39,11 +39,12 @@ import DirectionsRun from '@mui/icons-material/DirectionsRun'
 import DoneIcon from '@mui/icons-material/Done'
 
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { EditorState } from '../../services/EditorServices'
 import SelectInput from '../inputs/SelectInput'
 import { InfoTooltip } from '../layout/Tooltip'
 import * as styles from '../toolbar/styles.module.scss'
-import { EditorActiveInstanceService, EditorActiveInstanceState } from './EditorActiveInstanceService'
+import { EditorActiveInstanceState } from './EditorActiveInstanceService'
 
 export const WorldInstanceConnection = () => {
   const { t } = useTranslation()
@@ -65,7 +66,7 @@ export const WorldInstanceConnection = () => {
   )
 
   const editorState = useHookstate(getMutableState(EditorState))
-  const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}`
+  const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}` as SceneID
 
   const onSelectInstance = (selectedInstance: string) => {
     if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {
@@ -74,7 +75,7 @@ export const WorldInstanceConnection = () => {
     }
     const instance = activeInstanceState.activeInstances.value.find(({ id }) => id === selectedInstance)
     if (!instance) return
-    EditorActiveInstanceService.provisionServer(instance.locationId!, instance.id, sceneId)
+    EditorActiveInstanceState.provisionServer(instance.locationId!, instance.id, sceneId)
   }
   // const decrementPage = () => { }
   // const incrementPage = () => { }

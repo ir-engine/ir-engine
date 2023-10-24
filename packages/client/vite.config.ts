@@ -247,6 +247,7 @@ export default defineConfig(async () => {
 
   const returned = {
     server: {
+      proxy: {},
       cors: isDevOrLocal ? false : true,
       hmr:
         process.env.VITE_HMR === 'true'

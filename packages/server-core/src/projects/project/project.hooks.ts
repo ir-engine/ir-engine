@@ -45,6 +45,7 @@ import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubCon
 import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { ProjectBuildUpdateItemType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
@@ -417,7 +418,7 @@ const removeLocationFromProject = async (context: HookContext<ProjectService>) =
   await context.app.service(locationPath).remove(null, {
     query: {
       sceneId: {
-        $like: `${context.name}/%`
+        $like: `${context.name}/%` as SceneID
       }
     }
   })

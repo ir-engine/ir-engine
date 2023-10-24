@@ -135,15 +135,24 @@ export default class BufferHandlerExtension extends ExporterExtension implements
     }
     this.writer.pending.push(
       bufferPromise.then(() => {
+        const projectSpaceModelName = this.resourceURI
+          ? LoaderUtils.resolveURL(uri, LoaderUtils.extractUrlBase(modelName))
+          : modelName
         const saveParms: BufferJson & { buffer: ArrayBuffer } = {
           name,
           byteLength: buffer.byteLength,
-          uri,
+          uri: this.resourceURI ? projectSpaceModelName.replace(/^assets\//, '') : uri,
           buffer
         }
         imageDef.uri = uri
         imageDef.mimeType = `image/${AssetLoader.getAssetType(uri)}`
-        dispatchAction(BufferHandlerExtension.saveBuffer({ saveParms, projectName, modelName }))
+        dispatchAction(
+          BufferHandlerExtension.saveBuffer({
+            saveParms,
+            projectName,
+            modelName: projectSpaceModelName
+          })
+        )
       })
     )
   }
@@ -158,6 +167,12 @@ export default class BufferHandlerExtension extends ExporterExtension implements
     const options = writer.options
 
     if (!options?.binary) {
+      const images = writer.json.images || []
+      const basePath = LoaderUtils.extractUrlBase(writer.options.path!)
+      //make uris relative to model src
+      for (const image of images) {
+        image.uri = image.uri.replace(basePath, '')
+      }
       writer.buffers.map((buffer, index) => {
         const hash = sha3_256.create()
         const view = new DataView(buffer)

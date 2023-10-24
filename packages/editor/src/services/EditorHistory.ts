@@ -39,6 +39,7 @@ import {
 import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { Topic, defineActionQueue, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineQuery, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
@@ -77,9 +78,17 @@ export const EditorHistoryState = defineState({
 
   resetHistory: () => {
     const sceneData = getState(SceneState).sceneData!
+    let migratedSceneData
+    try {
+      migratedSceneData = migrateSceneData(sceneData)
+    } catch (e) {
+      console.error(e)
+      migratedSceneData = JSON.parse(JSON.stringify(sceneData))
+      NotificationService.dispatchNotify('Failed to migrate scene.', { variant: 'error' })
+    }
     getMutableState(EditorHistoryState).set({
       index: 0,
-      history: [{ data: migrateSceneData(sceneData), selectedEntities: [] }]
+      history: [{ data: migratedSceneData, selectedEntities: [] }]
     })
     EditorHistoryState.applyCurrentSnapshot()
   },
@@ -164,24 +173,30 @@ const appendSnapshotQueue = defineActionQueue(EditorHistoryAction.appendSnapshot
 const modifyQueue = defineActionQueue(EditorHistoryAction.createSnapshot.matches)
 
 const execute = () => {
+  const isEditing = getState(EngineState).isEditing
+
   const state = getMutableState(EditorHistoryState)
   for (const action of undoQueue()) {
+    if (!isEditing) return
     if (state.index.value <= 0) continue
     state.index.set(Math.max(state.index.value - action.count, 0))
     EditorHistoryState.applyCurrentSnapshot()
   }
 
   for (const action of redoQueue()) {
+    if (!isEditing) return
     if (state.index.value >= state.history.value.length - 1) continue
     state.index.set(Math.min(state.index.value + action.count, state.history.value.length - 1))
     EditorHistoryState.applyCurrentSnapshot()
   }
 
   for (const action of clearHistoryQueue()) {
+    if (!isEditing) return
     EditorHistoryState.resetHistory()
   }
 
   for (const action of appendSnapshotQueue()) {
+    if (!isEditing) return
     if (action.$from !== Engine.instance.userID) {
       const json = action.json
       /**
@@ -199,6 +214,7 @@ const execute = () => {
 
   /** Local only - serialize world then push to CRDT */
   for (const action of modifyQueue()) {
+    if (!isEditing) return
     const editorHistory = getState(EditorHistoryState)
     const { data, selectedEntities } = action
     state.history.set([...editorHistory.history.slice(0, state.index.value + 1), { data, selectedEntities }])

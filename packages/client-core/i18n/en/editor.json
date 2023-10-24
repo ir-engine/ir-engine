@@ -697,7 +697,8 @@
       "title": "Transform",
       "lbl-position": "Position",
       "lbl-rotation": "Rotation",
-      "lbl-scale": "Scale"
+      "lbl-scale": "Scale",
+      "lbl-useGlobalTransform": "Use Global Transform"
     },
     "triggerVolume": {
       "description": "Sets a property on the target object on enter and leave.",
@@ -746,6 +747,21 @@
       "lbl-enableServer": "Server",
       "lbl-args": "Args",
       "error-url": "Error Loading Script From URL"
+    },
+    "primitiveGeometry":{
+      "name": "Primitive Geometry",
+      "description":"3D models of Basic Geometry shapes",
+      "lbl-geometryType": "Geometry Type",
+      "lbl-box": "Box",
+      "lbl-sphere":"Sphere",
+      "lbl-cylinder":"Cylinder",
+      "lbl-capsule":"Capsule",
+      "lbl-plane":"Plane",
+      "lbl-circle":"Circle",
+      "lbl-ring":"Ring",
+      "lbl-torus":"Torus",
+      "lbl-polyhedron":"Polyhedron",
+      "lbl-torusknot":"Torus Knot"
     },
     "portal": {
       "lbl-portal": "Linked Portal",
@@ -818,6 +834,7 @@
         "EE_model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
         "EE_volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
         "EE_video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
+        "EE_variant": "Add model variant for level of detail",
         "EE_positionalAudio": "Import audio clips, .mp3, .flac, .ogg, .wav, .m4a",
         "EE_image": "Imports an image into the scene",
         "GroundPlaneComponent": "Create collision ground plane.",
@@ -839,7 +856,9 @@
         "SplineTrackComponent": "Creates a spline track.",
         "SplineComponent": "Create and customize curves.",
         "EnvmapComponent": "Add environment map to your scene",
-        "PostProcessingComponent":"Add postprocessing effects to your scene"
+        "PostProcessingComponent":"Add postprocessing effects to your scene",
+        "PrimitiveGeometryComponent":"Add basic Geometry to the scene",
+        "LinkComponent":"Add clickable Link to entity to route to different webpage"
       }
     },
     "filebrowser": {
