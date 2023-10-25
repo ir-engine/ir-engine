@@ -33,7 +33,8 @@ import { matchesIkTarget } from '../animation/Util'
 export class AvatarNetworkAction {
   static spawn = defineAction(
     WorldNetworkAction.spawnObject.extend({
-      type: 'ee.engine.avatar.SPAWN'
+      type: 'ee.engine.avatar.SPAWN',
+      avatarID: matches.string.optional()
     })
   )
 

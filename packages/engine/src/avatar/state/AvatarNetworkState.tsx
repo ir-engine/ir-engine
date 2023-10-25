@@ -26,15 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import {
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  none,
-  useHookstate,
-  useState
-} from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import { Paginated } from '@feathersjs/feathers'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -56,46 +48,21 @@ export const AvatarState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
-      avatarID?: string
+      avatarID?: string | null
       userAvatarDetails?: AvatarType
     }
   >,
 
   receptors: [
-    [
-      AvatarNetworkAction.spawn,
-      (state, action: typeof AvatarNetworkAction.spawn.matches._TYPE) => {
-        const s = getState(AvatarState)
-        spawnAvatarReceptor(action.entityUUID)
-      }
-    ],
-
     AvatarNetworkAction.spawn.receive((action) => {
       getMutableState(AvatarState)[action.entityUUID].merge({ avatarID: action.avatarID })
     }),
-
-    [
-      AvatarNetworkAction.setAvatarID,
-      (state, action: typeof AvatarNetworkAction.setAvatarID.matches._TYPE) => {
-        state[action.entityUUID].merge({ avatarID: action.avatarID })
-      }
-    ],
-
-    [
-      WorldNetworkAction.destroyObject,
-      (state, action: typeof WorldNetworkAction.destroyObject.matches._TYPE) => {
-        const cachedActions = Engine.instance.store.actions.cached
-        const peerCachedActions = cachedActions.filter(
-          (cachedAction) =>
-            AvatarNetworkAction.setAvatarID.matches.test(cachedAction) && cachedAction.entityUUID === action.entityUUID
-        )
-        for (const cachedAction of peerCachedActions) {
-          cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
-        }
-
-        state[action.entityUUID].set(none)
-      }
-    ]
+    AvatarNetworkAction.setAvatarID.receive((action) => {
+      getMutableState(AvatarState)[action.entityUUID].merge({ avatarID: action.avatarID })
+    }),
+    WorldNetworkAction.destroyObject.receive((action) => {
+      getMutableState(AvatarState)[action.entityUUID].set(none)
+    })
   ],
 
   selectRandomAvatar() {
@@ -126,7 +93,9 @@ export const AvatarState = defineState({
 const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(AvatarState)[entityUUID])
 
-  useEffect(() => {}, [])
+  useEffect(() => {
+    spawnAvatarReceptor(entityUUID)
+  }, [])
 
   useEffect(() => {
     const avatarEntity = UUIDComponent.entitiesByUUID[entityUUID]
@@ -180,10 +149,12 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
 
 export const AvatarStateReactor = () => {
   const avatarState = useState(getMutableState(AvatarState))
+  const uuidState = useState(UUIDComponent.entitiesByUUIDState)
   return (
     <>
       {avatarState.keys.map((entityUUID: EntityUUID) => {
-        return <AvatarReactor key={entityUUID} entityUUID={entityUUID} />
+        const entity = uuidState[entityUUID].value
+        return entity ? <AvatarReactor key={entityUUID} entityUUID={entityUUID} /> : null
       })}
     </>
   )

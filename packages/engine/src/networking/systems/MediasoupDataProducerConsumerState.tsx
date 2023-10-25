@@ -24,7 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { defineAction, defineState, getState, none, receiveActions } from '@etherealengine/hyperflux'
+import {
+  defineAction,
+  defineActionReceptor,
+  defineState,
+  getMutableState,
+  getState,
+  none,
+  receiveActions
+} from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -146,90 +154,85 @@ export const MediasoupDataProducerConsumerState = defineState({
     if (!producer) return
 
     return getState(MediasoupDataProducersConsumersObjectsState).producers[producer.producerID]
-  },
-
-  receptors: [
-    [
-      MediasoupDataProducerActions.producerCreated,
-      (state, action: typeof MediasoupDataProducerActions.producerCreated.matches._TYPE) => {
-        const networkID = action.$network as InstanceID
-        if (!state.value[networkID]) {
-          state.merge({ [networkID]: { producers: {}, consumers: {} } })
-        }
-        state[networkID].producers.merge({
-          [action.producerID]: {
-            producerID: action.producerID,
-            transportID: action.transportID,
-            protocol: action.protocol,
-            sctpStreamParameters: action.sctpStreamParameters as any,
-            dataChannel: action.dataChannel,
-            appData: action.appData as any
-          }
-        })
-      }
-    ],
-    [
-      MediasoupDataProducerActions.producerClosed,
-      (state, action: typeof MediasoupDataProducerActions.producerClosed.matches._TYPE) => {
-        // removed create/close cached actions for this producer
-        const cachedActions = Engine.instance.store.actions.cached
-        const peerCachedActions = cachedActions.filter(
-          (cachedAction) =>
-            (MediasoupDataProducerActions.producerCreated.matches.test(cachedAction) ||
-              MediasoupDataProducerActions.producerClosed.matches.test(cachedAction)) &&
-            cachedAction.producerID === action.producerID
-        )
-        for (const cachedAction of peerCachedActions) {
-          cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
-        }
-
-        const networkID = action.$network as InstanceID
-        if (!state.value[networkID]) return
-
-        state[networkID].producers[action.producerID].set(none)
-
-        if (!Object.keys(state[networkID].producers).length && !Object.keys(state[networkID].consumers).length) {
-          state[networkID].set(none)
-        }
-      }
-    ],
-    [
-      MediasoupDataConsumerActions.consumerCreated,
-      (state, action: typeof MediasoupDataConsumerActions.consumerCreated.matches._TYPE) => {
-        const networkID = action.$network as InstanceID
-        if (!state.value[networkID]) {
-          state.merge({ [networkID]: { producers: {}, consumers: {} } })
-        }
-        state[networkID].consumers.merge({
-          [action.consumerID]: {
-            consumerID: action.consumerID,
-            transportID: action.transportID,
-            dataChannel: action.dataChannel,
-            sctpStreamParameters: action.sctpStreamParameters as any,
-            appData: action.appData as any,
-            protocol: action.protocol
-          }
-        })
-      }
-    ],
-    [
-      MediasoupDataConsumerActions.consumerClosed,
-      (state, action: typeof MediasoupDataConsumerActions.consumerClosed.matches._TYPE) => {
-        const networkID = action.$network as InstanceID
-        if (!state.value[networkID]) return
-
-        state[networkID].consumers[action.consumerID].set(none)
-
-        if (!Object.keys(state[networkID].consumers).length && !Object.keys(state[networkID].consumers).length) {
-          state[networkID].set(none)
-        }
-      }
-    ]
-  ]
+  }
 })
 
+const MediasoupDataProducerConsumerReceptor = defineActionReceptor(
+  MediasoupDataProducerActions.producerCreated.receive((action) => {
+    const state = getMutableState(MediasoupDataProducerConsumerState)
+    const networkID = action.$network as InstanceID
+    if (!state.value[networkID]) {
+      state.merge({ [networkID]: { producers: {}, consumers: {} } })
+    }
+    state[networkID].producers.merge({
+      [action.producerID]: {
+        producerID: action.producerID,
+        transportID: action.transportID,
+        protocol: action.protocol,
+        sctpStreamParameters: action.sctpStreamParameters as any,
+        dataChannel: action.dataChannel,
+        appData: action.appData as any
+      }
+    })
+  }),
+
+  MediasoupDataProducerActions.producerClosed.receive((action) => {
+    const state = getMutableState(MediasoupDataProducerConsumerState)
+    // removed create/close cached actions for this producer
+    const cachedActions = Engine.instance.store.actions.cached
+    const peerCachedActions = cachedActions.filter(
+      (cachedAction) =>
+        (MediasoupDataProducerActions.producerCreated.matches.test(cachedAction) ||
+          MediasoupDataProducerActions.producerClosed.matches.test(cachedAction)) &&
+        cachedAction.producerID === action.producerID
+    )
+    for (const cachedAction of peerCachedActions) {
+      cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
+    }
+
+    const networkID = action.$network as InstanceID
+    if (!state.value[networkID]) return
+
+    state[networkID].producers[action.producerID].set(none)
+
+    if (!Object.keys(state[networkID].producers).length && !Object.keys(state[networkID].consumers).length) {
+      state[networkID].set(none)
+    }
+  }),
+
+  MediasoupDataConsumerActions.consumerCreated.receive((action) => {
+    const state = getMutableState(MediasoupDataProducerConsumerState)
+    const networkID = action.$network as InstanceID
+    if (!state.value[networkID]) {
+      state.merge({ [networkID]: { producers: {}, consumers: {} } })
+    }
+    state[networkID].consumers.merge({
+      [action.consumerID]: {
+        consumerID: action.consumerID,
+        transportID: action.transportID,
+        dataChannel: action.dataChannel,
+        sctpStreamParameters: action.sctpStreamParameters as any,
+        appData: action.appData as any,
+        protocol: action.protocol
+      }
+    })
+  }),
+
+  MediasoupDataConsumerActions.consumerClosed.receive((action) => {
+    const state = getMutableState(MediasoupDataProducerConsumerState)
+    const networkID = action.$network as InstanceID
+    if (!state.value[networkID]) return
+
+    state[networkID].consumers[action.consumerID].set(none)
+
+    if (!Object.keys(state[networkID].consumers).length && !Object.keys(state[networkID].consumers).length) {
+      state[networkID].set(none)
+    }
+  })
+)
+
 const execute = () => {
-  receiveActions(MediasoupDataProducerConsumerState)
+  receiveActions(MediasoupDataProducerConsumerReceptor)
 }
 
 export const MediasoupDataProducerConsumerStateSystem = defineSystem({

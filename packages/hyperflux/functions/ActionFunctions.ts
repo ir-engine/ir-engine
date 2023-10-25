@@ -46,8 +46,6 @@ export type Action = {
   type: string | string[]
 } & ActionOptions
 
-export type ActionReceptor = (action: ResolvedActionType) => void
-
 export type ActionRecipients = PeerID | PeerID[] | 'all' | 'others'
 
 export type ActionCacheOptions =
@@ -259,10 +257,6 @@ function defineAction<Shape extends Omit<ActionShape<Action>, keyof ActionOption
   // create resolved action shape
   const resolvedActionShape = Object.assign({}, shape, optionValidators, literalValidators, defaultValidators, {
     type: matches.guard<string, any>(function (val): val is any {
-      console.log('primaryType', primaryType)
-      console.log(val)
-      console.log(Array.isArray(val) ? val.findIndex((t) => val == primaryType) : 'not array')
-      console.log(Array.isArray(val) ? val.includes(primaryType) : 'not array')
       return Array.isArray(val) ? val.includes(primaryType) : val === primaryType
     })
   }) as any
@@ -299,7 +293,7 @@ function defineAction<Shape extends Omit<ActionShape<Action>, keyof ActionOption
     return { ...shape, ...extendShape, type: [extendShape.type, ...(Array.isArray(type) ? type : [type])] }
   }
   actionCreator.receive = (actionReceptor: (action: ResolvedAction) => void) => {
-    return [matchesShape, actionReceptor]
+    return [matchesShape, actionReceptor] as [Validator<unknown, ResolvedAction>, typeof actionReceptor]
   }
 
   ActionDefinitions[actionCreator.type as string] = actionCreator

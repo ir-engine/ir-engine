@@ -95,17 +95,15 @@ export const GrabbableState = defineState({
   >,
 
   receptors: [
-    [
-      GrabbableNetworkAction.setGrabbedObject,
-      (state, action: typeof GrabbableNetworkAction.setGrabbedObject.matches._TYPE) => {
-        if (action.grabbed)
-          state[action.entityUUID].set({
-            attachmentPoint: action.attachmentPoint ?? 'right',
-            grabberUserId: action.grabberUserId
-          })
-        else state[action.entityUUID].set(none)
-      }
-    ]
+    GrabbableNetworkAction.setGrabbedObject.receive((action) => {
+      const state = getMutableState(GrabbableState)
+      if (action.grabbed)
+        state[action.entityUUID].set({
+          attachmentPoint: action.attachmentPoint ?? 'right',
+          grabberUserId: action.grabberUserId
+        })
+      else state[action.entityUUID].set(none)
+    })
   ]
 })
 

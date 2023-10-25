@@ -141,37 +141,29 @@ export const RecordingState = defineState({
   },
 
   receptors: [
-    [
-      ECSRecordingActions.startRecording,
-      (state, action: typeof ECSRecordingActions.startRecording.matches._TYPE) => {
-        state.active.set(true)
-        state.startedAt.set(null)
-        state.recordingID.set(null)
-      }
-    ],
-    [
-      ECSRecordingActions.recordingStarted,
-      (state, action: typeof ECSRecordingActions.recordingStarted.matches._TYPE) => {
-        state.startedAt.set(Date.now())
-        state.recordingID.set(action.recordingID)
-      }
-    ],
-    [
-      ECSRecordingActions.stopRecording,
-      (state, action: typeof ECSRecordingActions.stopRecording.matches._TYPE) => {
-        state.active.set(false)
-        state.startedAt.set(null)
-        state.recordingID.set(null)
-      }
-    ],
-    [
-      ECSRecordingActions.error,
-      (state, action: typeof ECSRecordingActions.error.matches._TYPE) => {
-        state.active.set(false)
-        state.startedAt.set(null)
-        state.recordingID.set(null)
-      }
-    ]
+    ECSRecordingActions.startRecording.receive((action) => {
+      const state = getMutableState(RecordingState)
+      state.active.set(true)
+      state.startedAt.set(null)
+      state.recordingID.set(null)
+    }),
+    ECSRecordingActions.recordingStarted.receive((action) => {
+      const state = getMutableState(RecordingState)
+      state.startedAt.set(Date.now())
+      state.recordingID.set(action.recordingID)
+    }),
+    ECSRecordingActions.stopRecording.receive((action) => {
+      const state = getMutableState(RecordingState)
+      state.active.set(false)
+      state.startedAt.set(null)
+      state.recordingID.set(null)
+    }),
+    ECSRecordingActions.error.receive((action) => {
+      const state = getMutableState(RecordingState)
+      state.active.set(false)
+      state.startedAt.set(null)
+      state.recordingID.set(null)
+    })
   ],
 
   requestRecording: async (peerSchema: RecordingConfigSchema) => {
@@ -251,14 +243,12 @@ export const PlaybackState = defineState({
   },
 
   receptors: [
-    [
-      ECSRecordingActions.playbackChanged,
-      (state, action: typeof ECSRecordingActions.playbackChanged.matches._TYPE) => {
-        state.playing.set(action.playing)
-        state.recordingID.set(action.playing ? action.recordingID : null)
-        state.currentTime.set(action.playing ? 0 : null)
-      }
-    ]
+    ECSRecordingActions.playbackChanged.receive((action) => {
+      const state = getMutableState(PlaybackState)
+      state.playing.set(action.playing)
+      state.recordingID.set(action.playing ? action.recordingID : null)
+      state.currentTime.set(action.playing ? 0 : null)
+    })
   ],
 
   startPlaybackOnServer(args: { recordingID: RecordingID; targetUser?: UserID }) {

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { defineAction, defineState, none, receiveActions } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, none, receiveActions } from '@etherealengine/hyperflux'
 
 export class AvatarUIActions {
   static setUserTyping = defineAction({
@@ -46,7 +46,8 @@ export const AvatarUIState = defineState({
   receptors: [
     [
       AvatarUIActions.setUserTyping,
-      (state, action) => {
+      (action) => {
+        const state = getMutableState(AvatarUIState)
         state.usersTyping[action.$from].set(action.typing ? true : none)
       }
     ]

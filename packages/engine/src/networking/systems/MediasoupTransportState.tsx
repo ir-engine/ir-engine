@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { defineAction, defineState, getState, none, receiveActions } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, none, receiveActions } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
@@ -127,58 +127,53 @@ export const MediasoupTransportState = defineState({
   },
 
   receptors: [
-    [
-      MediasoupTransportActions.transportCreated,
-      (state, action: typeof MediasoupTransportActions.transportCreated.matches._TYPE) => {
-        const networkID = action.$network
-        if (!state.value[networkID]) {
-          state.merge({ [networkID]: {} })
-        }
-        const network = getState(NetworkState).networks[networkID] as Network
-        state[networkID].merge({
-          [action.transportID]: {
-            /** Mediasoup is always client-server, so the peerID is always the host for clients */
-            peerID: isClient ? network.hostPeerID : action.peerID,
-            transportID: action.transportID,
-            direction: action.direction,
-            connected: false
-          }
-        })
+    MediasoupTransportActions.transportCreated.receive((action) => {
+      const state = getMutableState(MediasoupTransportState)
+      const networkID = action.$network
+      if (!state.value[networkID]) {
+        state.merge({ [networkID]: {} })
       }
-    ],
-    [
-      MediasoupTransportActions.transportConnected,
-      (state, action: typeof MediasoupTransportActions.transportConnected.matches._TYPE) => {
-        const networkID = action.$network
-        if (!state.value[networkID]) return
-        state[networkID][action.transportID].connected.set(true)
-      }
-    ],
-    [
-      MediasoupTransportActions.transportClosed,
-      (state, action: typeof MediasoupTransportActions.transportClosed.matches._TYPE) => {
-        // removed create/close cached actions for this producer
-        const cachedActions = Engine.instance.store.actions.cached
-        const peerCachedActions = cachedActions.filter(
-          (cachedAction) =>
-            (MediasoupTransportActions.transportCreated.matches.test(cachedAction) ||
-              MediasoupTransportActions.transportClosed.matches.test(cachedAction)) &&
-            cachedAction.transportID === action.transportID
-        )
-        for (const cachedAction of peerCachedActions) {
-          cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
+      const network = getState(NetworkState).networks[networkID] as Network
+      state[networkID].merge({
+        [action.transportID]: {
+          /** Mediasoup is always client-server, so the peerID is always the host for clients */
+          peerID: isClient ? network.hostPeerID : action.peerID,
+          transportID: action.transportID,
+          direction: action.direction,
+          connected: false
         }
+      })
+    }),
+    MediasoupTransportActions.transportConnected.receive((action) => {
+      const state = getMutableState(MediasoupTransportState)
+      const networkID = action.$network
+      if (!state.value[networkID]) return
+      state[networkID][action.transportID].connected.set(true)
+    }),
+    MediasoupTransportActions.transportClosed.receive((action) => {
+      const state = getMutableState(MediasoupTransportState)
 
-        const networkID = action.$network
-        if (!state.value[networkID]) return
-
-        state[networkID].transports[action.transportID].set(none)
-
-        if (!Object.keys(state[networkID].transports).length && !Object.keys(state[networkID].consumers).length) {
-          state[networkID].set(none)
-        }
+      // removed create/close cached actions for this producer
+      const cachedActions = Engine.instance.store.actions.cached
+      const peerCachedActions = cachedActions.filter(
+        (cachedAction) =>
+          (MediasoupTransportActions.transportCreated.matches.test(cachedAction) ||
+            MediasoupTransportActions.transportClosed.matches.test(cachedAction)) &&
+          cachedAction.transportID === action.transportID
+      )
+      for (const cachedAction of peerCachedActions) {
+        cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
       }
-    ]
+
+      const networkID = action.$network
+      if (!state.value[networkID]) return
+
+      state[networkID].transports[action.transportID].set(none)
+
+      if (!Object.keys(state[networkID].transports).length && !Object.keys(state[networkID].consumers).length) {
+        state[networkID].set(none)
+      }
+    })
   ]
 })
 
