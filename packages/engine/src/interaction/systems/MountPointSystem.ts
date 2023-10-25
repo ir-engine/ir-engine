@@ -25,20 +25,23 @@ Ethereal Engine. All Rights Reserved.
 
 import { Box3, Vector3 } from 'three'
 
-import { defineActionQueue, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 
+import { animationStates, defaultAnimationPath } from '../../avatar/animation/Util'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
+import { teleportAvatar } from '../../avatar/functions/moveAvatar'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import {
-  addComponent,
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -50,6 +53,7 @@ import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { createInteractUI } from '../functions/interactUI'
@@ -71,7 +75,7 @@ const execute = () => {
 
   for (const entity of mountPointQuery.enter()) {
     const mountPoint = getComponent(entity, MountPointComponent)
-    addComponent(entity, BoundingBoxComponent, {
+    setComponent(entity, BoundingBoxComponent, {
       box: new Box3().setFromCenterAndSize(
         getComponent(entity, TransformComponent).position,
         new Vector3(0.1, 0.1, 0.1)
@@ -88,6 +92,7 @@ const execute = () => {
     const avatarEntity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
 
     const mountPoint = getComponent(action.targetEntity!, MountPointComponent)
+    const mountPointTransform = getComponent(action.targetEntity!, TransformComponent)
     if (mountPoint.type === MountPoint.seat) {
       const avatar = getComponent(avatarEntity, AvatarComponent)
 
@@ -103,18 +108,23 @@ const execute = () => {
         },
         true
       )
+      teleportAvatar(avatarEntity, mountPointTransform.position)
       rigidBody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
-      addComponent(avatarEntity, SittingComponent, {
+      rigidBody.body.setEnabled(false)
+      setComponent(avatarEntity, SittingComponent, {
         mountPointEntity: action.targetEntity!
-        //state: AvatarStates.SIT_ENTER
       })
       const sitting = getComponent(avatarEntity, SittingComponent)
       getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
-
-      const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
-
-      // changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_IDLE)
-      //sitting.state = AvatarStates.SIT_IDLE
+      dispatchAction(
+        AvatarNetworkAction.setAnimationState({
+          filePath: defaultAnimationPath + animationStates.seated + '.fbx',
+          clipName: animationStates.dance1,
+          loop: true,
+          layer: 1,
+          entityUUID: getComponent(avatarEntity, UUIDComponent)
+        })
+      )
     }
   }
 
@@ -125,10 +135,6 @@ const execute = () => {
     const sitting = getComponent(entity, SittingComponent)
 
     if (controller.gamepadWorldMovement.lengthSq() > 0.1) {
-      //sitting.state = AvatarStates.SIT_LEAVE
-
-      // changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_LEAVE)
-
       const avatarTransform = getComponent(entity, TransformComponent)
       const newPos = avatarTransform.position
         .clone()

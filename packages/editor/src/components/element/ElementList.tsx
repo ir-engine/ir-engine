@@ -65,6 +65,7 @@ import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/co
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { LoadVolumeComponent } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
+import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { Vector3 } from 'three'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
@@ -100,7 +101,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     ColliderComponent,
     LoadVolumeComponent
   ],
-  Interaction: [SpawnPointComponent, PortalComponent, LinkComponent],
+  Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
   Lighting: [
     AmbientLightComponent,
     PointLightComponent,

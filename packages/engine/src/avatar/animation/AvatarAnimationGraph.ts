@@ -66,7 +66,7 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
       continue
     }
     const graph = getMutableComponent(targetEntity, AvatarAnimationComponent).animationGraph
-    if (newAnimation.needsSkip) graph.fadingOut.set(true)
+    graph.fadingOut.set(newAnimation.needsSkip ?? false)
     graph.layer.set(newAnimation.layer ?? 0)
     loadAvatarAnimation(targetEntity, newAnimation.filePath, newAnimation.clipName!, newAnimation.loop!)
   }

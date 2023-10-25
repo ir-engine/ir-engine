@@ -63,7 +63,8 @@ export const animationStates = {
   laugh: 'laugh',
   defeat: 'defeat',
   locomotion: 'locomotion',
-  falling: 'falling'
+  falling: 'falling',
+  seated: 'seated'
 }
 
 export const defaultAnimationPath = `${config.client.fileServer}/projects/default-project/assets/animations/`
