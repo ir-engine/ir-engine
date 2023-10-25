@@ -27,7 +27,7 @@ import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
 
 import 'rc-dock/dist/rc-dock.css'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 
@@ -44,6 +44,7 @@ import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunc
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import { t } from 'i18next'
 import { useDrop } from 'react-dnd'
 import { Vector2, Vector3 } from 'three'
 import { ItemTypes } from '../constants/AssetTypes'
@@ -65,6 +66,7 @@ import AssetDropZone from './assets/AssetDropZone'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import ScenesPanel from './assets/ScenesPanel'
 import { ControlText } from './controlText/ControlText'
+import { DialogState } from './dialogs/DialogState'
 import ErrorDialog from './dialogs/ErrorDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
 import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
@@ -76,7 +78,6 @@ import GraphPanel from './graph/GraphPanel'
 import { GraphPanelTitle } from './graph/GraphPanelTitle'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { HierarchyPanelTitle } from './hierarchy/HierarchyPanelTitle'
-import { DialogContext } from './hooks/useDialog'
 import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
 import MaterialLibraryPanel from './materials/MaterialLibraryPanel'
 import { MaterialLibraryPanelTitle } from './materials/MaterialLibraryPanelTitle'
@@ -178,12 +179,215 @@ const SceneLoadingProgress = () => {
   )
 }
 
+const reRouteToLoadScene = async (newSceneName: string) => {
+  const { projectName, sceneName } = getState(EditorState)
+  if (sceneName === newSceneName) return
+  if (!projectName || !newSceneName) return
+  RouterState.navigate(`/studio/${projectName}/${newSceneName}`)
+}
+
+const loadScene = async (sceneName: string) => {
+  const { projectName } = getState(EditorState)
+  try {
+    if (!projectName) {
+      return
+    }
+    const project = await getScene(projectName, sceneName, false)
+
+    if (!project.scene) {
+      return
+    }
+    loadProjectScene(project)
+  } catch (error) {
+    logger.error(error)
+  }
+}
+
+const onNewScene = async () => {
+  const { projectName } = getState(EditorState)
+  if (!projectName) return
+
+  try {
+    const sceneData = await createNewScene(projectName)
+    if (!sceneData) return
+
+    reRouteToLoadScene(sceneData.name)
+  } catch (error) {
+    logger.error(error)
+  }
+}
+
+/**
+ * Scene Event Handlers
+ */
+
+const onEditorError = (error) => {
+  logger.error(error)
+  if (error['aborted']) {
+    DialogState.setDialog(null)
+    return
+  }
+
+  DialogState.setDialog(
+    <ErrorDialog
+      title={error.title || t('editor:error')}
+      message={error.message || t('editor:errorMsg')}
+      error={error}
+    />
+  )
+}
+
+const onCloseProject = () => {
+  const editorState = getMutableState(EditorState)
+  editorState.sceneModified.set(false)
+  editorState.projectName.set(null)
+  editorState.sceneName.set(null)
+  EditorHistoryState.unloadScene()
+  RouterState.navigate('/studio')
+}
+
+const onSaveAs = async () => {
+  const { projectName, sceneName } = getState(EditorState)
+  const editorState = getMutableState(EditorState)
+  const sceneLoaded = getState(EngineState).sceneLoaded
+
+  // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
+  if (!sceneLoaded) {
+    DialogState.setDialog(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
+    return
+  }
+
+  const abortController = new AbortController()
+  try {
+    if (sceneName || editorState.sceneModified.value) {
+      const blob = await takeScreenshot(512, 320, 'ktx2')
+      const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
+      const result: { name: string } | void = await new Promise((resolve) => {
+        DialogState.setDialog(
+          <SaveNewSceneDialog
+            thumbnailUrl={URL.createObjectURL(blob!)}
+            initialName={Engine.instance.scene.name}
+            onConfirm={resolve}
+            onCancel={resolve}
+          />
+        )
+      })
+      if (result?.name && projectName) {
+        await saveScene(projectName, result.name, file, abortController.signal)
+        editorState.sceneModified.set(false)
+        RouterState.navigate(`/studio/${projectName}/${result.name}`)
+      }
+    }
+    DialogState.setDialog(null)
+  } catch (error) {
+    logger.error(error)
+    DialogState.setDialog(
+      <ErrorDialog title={t('editor:savingError')} message={error?.message || t('editor:savingErrorMsg')} />
+    )
+  }
+}
+
+const onImportAsset = async () => {
+  const { projectName } = getState(EditorState)
+
+  const el = document.createElement('input')
+  el.type = 'file'
+  el.multiple = true
+  el.accept = '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
+  el.style.display = 'none'
+  el.onchange = async () => {
+    if (el.files && el.files.length > 0 && projectName) {
+      const fList = el.files
+      const files = [...Array(el.files.length).keys()].map((i) => fList[i])
+      const nuUrl = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map((url) => url[0])
+
+      //process zipped files
+      const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
+      const extractPromises = [...zipFiles.map((zipped) => extractZip(zipped))]
+      Promise.all(extractPromises).then(() => {
+        logger.info('extraction complete')
+      })
+    }
+  }
+  el.click()
+  el.remove()
+}
+
+const onSaveScene = async () => {
+  const { projectName, sceneName } = getState(EditorState)
+  const { sceneModified } = getState(EditorState)
+  const { sceneLoaded } = getState(EngineState)
+  console.log('onSaveScene')
+
+  // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
+  if (!sceneLoaded) {
+    DialogState.setDialog(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
+    return
+  }
+
+  if (!sceneName) {
+    if (sceneModified) {
+      onSaveAs()
+    }
+    return
+  }
+
+  const result = (await new Promise((resolve) => {
+    DialogState.setDialog(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
+  })) as any
+
+  if (!result) {
+    DialogState.setDialog(null)
+    return
+  }
+
+  const abortController = new AbortController()
+
+  DialogState.setDialog(
+    <ProgressDialog
+      message={t('editor:saving')}
+      cancelable={true}
+      onCancel={() => {
+        abortController.abort()
+        DialogState.setDialog(null)
+      }}
+    />
+  )
+
+  // Wait for 5ms so that the ProgressDialog shows up.
+  await new Promise((resolve) => setTimeout(resolve, 5))
+
+  try {
+    if (projectName) {
+      const isGenerateThumbnailsEnabled = getState(EditorHelperState).isGenerateThumbnailsEnabled
+      if (isGenerateThumbnailsEnabled) {
+        const blob = await takeScreenshot(512, 320, 'ktx2')
+        const file = new File([blob!], sceneName + '.thumbnail.ktx2')
+
+        await uploadSceneBakeToServer()
+        await saveScene(projectName, sceneName, file, abortController.signal)
+      } else {
+        await saveScene(projectName, sceneName, null, abortController.signal)
+      }
+    }
+
+    getMutableState(EditorState).sceneModified.set(false)
+
+    DialogState.setDialog(null)
+  } catch (error) {
+    logger.error(error)
+
+    DialogState.setDialog(
+      <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
+    )
+  }
+}
+
 /**
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
   const editorState = useHookstate(getMutableState(EditorState))
-  const projectName = editorState.projectName
   const sceneName = editorState.sceneName
   const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
 
@@ -195,8 +399,7 @@ const EditorContainer = () => {
   const [searchHierarchy, setSearchHierarchy] = React.useState('')
 
   const { t } = useTranslation()
-  const [DialogComponent, setDialogComponent] = useState<JSX.Element | null>(null)
-  const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
+  const dialogComponent = useHookstate(getMutableState(DialogState).dialog).value
   const dockPanelRef = useRef<DockLayout>(null)
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
@@ -222,218 +425,6 @@ const EditorContainer = () => {
       loadScene(sceneName.value)
     }
   }, [sceneName])
-
-  const reRouteToLoadScene = async (newSceneName: string) => {
-    if (sceneName.value === newSceneName) return
-    if (!projectName.value || !newSceneName) return
-    RouterState.navigate(`/studio/${projectName.value}/${newSceneName}`)
-  }
-
-  const loadScene = async (sceneName: string) => {
-    try {
-      if (!projectName.value) {
-        return
-      }
-      const project = await getScene(projectName.value, sceneName, false)
-
-      if (!project.scene) {
-        return
-      }
-      loadProjectScene(project)
-    } catch (error) {
-      logger.error(error)
-    }
-  }
-
-  const onNewScene = async () => {
-    if (!projectName.value) return
-
-    try {
-      const sceneData = await createNewScene(projectName.value)
-      if (!sceneData) return
-
-      reRouteToLoadScene(sceneData.name)
-    } catch (error) {
-      logger.error(error)
-    }
-  }
-
-  /**
-   * Scene Event Handlers
-   */
-
-  const onEditorError = (error) => {
-    logger.error(error)
-    if (error['aborted']) {
-      setDialogComponent(null)
-      return
-    }
-
-    setDialogComponent(
-      <ErrorDialog
-        title={error.title || t('editor:error')}
-        message={error.message || t('editor:errorMsg')}
-        error={error}
-      />
-    )
-  }
-
-  const onCloseProject = () => {
-    editorState.sceneModified.set(false)
-    editorState.projectName.set(null)
-    editorState.sceneName.set(null)
-    EditorHistoryState.unloadScene()
-    RouterState.navigate('/studio')
-  }
-
-  const onSaveAs = async () => {
-    const sceneLoaded = getState(EngineState).sceneLoaded
-
-    // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!sceneLoaded) {
-      setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
-      return
-    }
-
-    const abortController = new AbortController()
-    try {
-      if (sceneName.value || editorState.sceneModified.value) {
-        const blob = await takeScreenshot(512, 320, 'ktx2')
-        const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
-        const result: { name: string } | void = await new Promise((resolve) => {
-          setDialogComponent(
-            <SaveNewSceneDialog
-              thumbnailUrl={URL.createObjectURL(blob!)}
-              initialName={Engine.instance.scene.name}
-              onConfirm={resolve}
-              onCancel={resolve}
-            />
-          )
-        })
-        if (result?.name && projectName.value) {
-          await saveScene(projectName.value, result.name, file, abortController.signal)
-          editorState.sceneModified.set(false)
-        }
-      }
-      setDialogComponent(null)
-    } catch (error) {
-      logger.error(error)
-      setDialogComponent(
-        <ErrorDialog title={t('editor:savingError')} message={error?.message || t('editor:savingErrorMsg')} />
-      )
-    }
-    setToggleRefetchScenes(!toggleRefetchScenes)
-  }
-
-  const onImportAsset = async () => {
-    const el = document.createElement('input')
-    el.type = 'file'
-    el.multiple = true
-    el.accept =
-      '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
-    el.style.display = 'none'
-    el.onchange = async () => {
-      const pName = projectName.value
-      if (el.files && el.files.length > 0 && pName) {
-        const fList = el.files
-        const files = [...Array(el.files.length).keys()].map((i) => fList[i])
-        const nuUrl = (await Promise.all(uploadProjectFiles(pName, files, true).promises)).map((url) => url[0])
-
-        //process zipped files
-        const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
-        const extractPromises = [...zipFiles.map((zipped) => extractZip(zipped))]
-        Promise.all(extractPromises).then(() => {
-          logger.info('extraction complete')
-        })
-      }
-    }
-    el.click()
-    el.remove()
-  }
-
-  const onSaveScene = async () => {
-    console.log('onSaveScene')
-
-    // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!sceneLoaded.value) {
-      setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
-      return
-    }
-
-    if (!sceneName.value) {
-      if (editorState.sceneModified.value) {
-        onSaveAs()
-      }
-      return
-    }
-
-    const result = (await new Promise((resolve) => {
-      setDialogComponent(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
-    })) as any
-
-    if (!result) {
-      setDialogComponent(null)
-      return
-    }
-
-    const abortController = new AbortController()
-
-    setDialogComponent(
-      <ProgressDialog
-        message={t('editor:saving')}
-        cancelable={true}
-        onCancel={() => {
-          abortController.abort()
-          setDialogComponent(null)
-        }}
-      />
-    )
-
-    // Wait for 5ms so that the ProgressDialog shows up.
-    await new Promise((resolve) => setTimeout(resolve, 5))
-
-    try {
-      if (projectName.value) {
-        const isGenerateThumbnailsEnabled = getState(EditorHelperState).isGenerateThumbnailsEnabled
-        if (isGenerateThumbnailsEnabled) {
-          const blob = await takeScreenshot(512, 320, 'ktx2')
-          const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
-
-          await uploadSceneBakeToServer()
-          await saveScene(projectName.value, sceneName.value, file, abortController.signal)
-        } else {
-          await saveScene(projectName.value, sceneName.value, null, abortController.signal)
-        }
-      }
-
-      editorState.sceneModified.set(false)
-
-      setDialogComponent(null)
-    } catch (error) {
-      logger.error(error)
-
-      setDialogComponent(
-        <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
-      )
-    }
-    setToggleRefetchScenes(!toggleRefetchScenes)
-  }
-
-  useEffect(() => {
-    dockPanelRef.current &&
-      dockPanelRef.current.updateTab('scenePanel', {
-        id: 'scenePanel',
-        title: (
-          <PanelDragContainer>
-            <PanelIcon as={Inventory2Icon} size={12} />
-            <PanelTitle>Scenes</PanelTitle>
-          </PanelDragContainer>
-        ),
-        content: (
-          <ScenesPanel newScene={onNewScene} toggleRefetchScenes={toggleRefetchScenes} loadScene={reRouteToLoadScene} />
-        )
-      })
-  }, [toggleRefetchScenes])
 
   useEffect(() => {
     if (!dockPanelRef.current) return
@@ -493,13 +484,7 @@ const EditorContainer = () => {
                       <PanelTitle>Scenes</PanelTitle>
                     </PanelDragContainer>
                   ),
-                  content: (
-                    <ScenesPanel
-                      newScene={onNewScene}
-                      toggleRefetchScenes={toggleRefetchScenes}
-                      loadScene={reRouteToLoadScene}
-                    />
-                  )
+                  content: <ScenesPanel newScene={onNewScene} loadScene={reRouteToLoadScene} />
                 },
                 {
                   id: 'filesPanel',
@@ -581,34 +566,32 @@ const EditorContainer = () => {
         className={styles.editorContainer}
         style={sceneName.value ? { background: 'transparent' } : {}}
       >
-        <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
-          <DndWrapper id="editor-container">
-            <DragLayer />
-            <ToolBar menu={toolbarMenu} />
-            <ElementList />
-            <ControlText />
-            {sceneLoading && <SceneLoadingProgress />}
-            <div className={styles.workspaceContainer}>
-              <AssetDropZone />
-              <AppContext.Provider value={{ searchElement, searchHierarchy }}>
-                <DockContainer>
-                  <DockLayout
-                    ref={dockPanelRef}
-                    defaultLayout={defaultLayout}
-                    style={{ position: 'absolute', left: 5, top: 55, right: 130, bottom: 5 }}
-                  />
-                </DockContainer>
-              </AppContext.Provider>
-            </div>
-            <Dialog
-              open={!!DialogComponent}
-              onClose={() => setDialogComponent(null)}
-              classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
-            >
-              {DialogComponent}
-            </Dialog>
-          </DndWrapper>
-        </DialogContext.Provider>
+        <DndWrapper id="editor-container">
+          <DragLayer />
+          <ToolBar menu={toolbarMenu} />
+          <ElementList />
+          <ControlText />
+          {sceneLoading && <SceneLoadingProgress />}
+          <div className={styles.workspaceContainer}>
+            <AssetDropZone />
+            <AppContext.Provider value={{ searchElement, searchHierarchy }}>
+              <DockContainer>
+                <DockLayout
+                  ref={dockPanelRef}
+                  defaultLayout={defaultLayout}
+                  style={{ position: 'absolute', left: 5, top: 55, right: 130, bottom: 5 }}
+                />
+              </DockContainer>
+            </AppContext.Provider>
+          </div>
+          <Dialog
+            open={!!dialogComponent}
+            onClose={() => DialogState.setDialog(null)}
+            classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
+          >
+            {getState(DialogState).dialog}
+          </Dialog>
+        </DndWrapper>
       </div>
     </>
   )
