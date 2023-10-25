@@ -498,6 +498,7 @@ const defaultLayout: LayoutData = {
     ]
   }
 }
+
 /**
  * EditorContainer class used for creating container for Editor
  */
@@ -510,7 +511,6 @@ const EditorContainer = () => {
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
-  const { t } = useTranslation()
   const dialogComponent = useHookstate(getMutableState(DialogState).dialog).value
   const dockPanelRef = useRef<DockLayout>(null)
 
