@@ -29,8 +29,8 @@
   },
   "version": "1.4.0",
   "dependencies": {
-    "@behave-graph/core": "https://gitpkg.now.sh/EtherealEngine/behave-graph/packages/core?dev",
-    "@behave-graph/scene": "https://gitpkg.now.sh/EtherealEngine/behave-graph/packages/scene?dev",
+    "@behave-graph/core": "https://gitpkg.now.sh/EtherealEngine/behave-graph/packages/core?ee-1.4.0-LTS",
+    "@behave-graph/scene": "https://gitpkg.now.sh/EtherealEngine/behave-graph/packages/scene?ee-1.4.0-LTS",
     "@dimforge/rapier3d-compat": "0.11.1",
     "@etherealengine/common": "^1.4.0",
     "@etherealengine/hyperflux": "^1.4.0",
