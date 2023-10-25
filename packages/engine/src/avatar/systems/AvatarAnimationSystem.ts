@@ -393,7 +393,7 @@ const reactor = () => {
   }, [isCameraAttachedToAvatar, session])
 
   useEffect(() => {
-    setTrackingSpace()
+    if (userReady.value) setTrackingSpace()
   }, [userReady])
 
   return null

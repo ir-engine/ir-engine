@@ -28,8 +28,10 @@ import { Material, Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { PluginObjectType, addOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { GroupQueryReactor, Object3DWithEntity } from '../scene/components/GroupComponent'
+import { SceneObjectComponent } from '../scene/components/SceneObjectComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { XRState } from './XRState'
 
@@ -42,19 +44,33 @@ type ScenePlacementMaterialType = {
   }
 }
 
+const ShaderID = 'ee.engine.XRScenePlacementShaderSystem.shaderPlugin'
+
+const XRScenePlacementShaderPlugin = {
+  id: ShaderID,
+  compile: (shader) => {
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <clipping_planes_pars_fragment>',
+      'uniform float scenePlacementOpacity;'
+    )
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <output_fragment>',
+      `#include <output_fragment>
+      gl_FragColor.a *= scenePlacementOpacity;`
+    )
+    shader.uniforms.scenePlacementOpacity = { value: 0.4 }
+  }
+} as PluginObjectType
+
 const addShaderToObject = (object: Object3DWithEntity) => {
   const obj = object as any as Mesh<any, Material & ScenePlacementMaterialType>
   if (obj.material) {
     if (!obj.material.userData) obj.material.userData = {}
     const userData = obj.material.userData
-    if (!userData.ScenePlacement) {
-      userData.ScenePlacement = {
-        previouslyTransparent: obj.material.transparent,
-        previousOpacity: obj.material.opacity
-      }
+    if (!userData[ShaderID]) {
+      userData[ShaderID] = XRScenePlacementShaderPlugin
+      addOBCPlugin(obj.material, userData[ShaderID])
     }
-    obj.material.transparent = true
-    obj.material.opacity = 0.4
   }
 }
 
@@ -62,10 +78,13 @@ const removeShaderFromObject = (object: Object3DWithEntity) => {
   const obj = object as any as Mesh<any, Material & ScenePlacementMaterialType>
   if (obj.material) {
     const userData = obj.material.userData
-    if (userData?.ScenePlacement) {
-      obj.material.transparent = userData.ScenePlacement.previouslyTransparent
-      obj.material.opacity = userData.ScenePlacement.previousOpacity
-      delete userData.ScenePlacement
+    if (userData?.[ShaderID] && obj.material.shader?.uniforms?.scenePlacementOpacity) {
+      obj.material.shader.uniforms.scenePlacementOpacity.value = 1
+      obj.material.needsUpdate = true
+      const key = Math.random()
+      obj.material.customProgramCacheKey = () => key.toString()
+      // removeOBCPlugin(obj.material, userData[ShaderID])
+      // delete userData[ShaderID]
     }
   }
 }
@@ -95,7 +114,12 @@ function XRScenePLacementReactor({ obj }) {
 }
 
 const reactor = () => {
-  return <GroupQueryReactor GroupChildReactor={XRScenePLacementReactor} Components={[VisibleComponent]} />
+  return (
+    <GroupQueryReactor
+      GroupChildReactor={XRScenePLacementReactor}
+      Components={[VisibleComponent, SceneObjectComponent]}
+    />
+  )
 }
 
 export const XRScenePlacementShaderSystem = defineSystem({
