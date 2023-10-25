@@ -8,7 +8,12 @@
   width: calc(100vw - 50px);
   max-width: 450px;
   font-family: var(--lato);
-  font-size: 10px;
+  font-size: 12px;
+
+  h1{
+    font-size: 100%;
+    font-weight: normal;
+  }
 
   & > * + * {
     margin-top: 10px;
@@ -24,7 +29,7 @@
   background: var(--panelBackground);
   padding: 10px;
   border-radius: 5px;
-
+ 
   .optionBlock {
     display: flex;
     justify-content: space-between;
