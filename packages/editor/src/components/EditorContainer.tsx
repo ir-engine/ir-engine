@@ -61,7 +61,6 @@ import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorHistoryState } from '../services/EditorHistory'
 import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
-import { AppContext } from './Search/context'
 import AssetDropZone from './assets/AssetDropZone'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import ScenesPanel from './assets/ScenesPanel'
@@ -383,6 +382,122 @@ const onSaveScene = async () => {
   }
 }
 
+const generateToolbarMenu = () => {
+  return [
+    {
+      name: t('editor:menubar.newScene'),
+      action: onNewScene
+    },
+    {
+      name: t('editor:menubar.saveScene'),
+      hotkey: `${cmdOrCtrlString}+s`,
+      action: onSaveScene
+    },
+    {
+      name: t('editor:menubar.saveAs'),
+      action: onSaveAs
+    },
+    {
+      name: t('editor:menubar.importAsset'),
+      action: onImportAsset
+    },
+    {
+      name: t('editor:menubar.quit'),
+      action: onCloseProject
+    }
+  ]
+}
+
+const toolbarMenu = generateToolbarMenu()
+
+const defaultLayout: LayoutData = {
+  dockbox: {
+    mode: 'horizontal' as DockMode,
+    children: [
+      {
+        mode: 'vertical' as DockMode,
+        size: 2,
+        children: [
+          {
+            tabs: [
+              {
+                id: 'scenePanel',
+                title: (
+                  <PanelDragContainer>
+                    <PanelIcon as={Inventory2Icon} size={12} />
+                    <PanelTitle>Scenes</PanelTitle>
+                  </PanelDragContainer>
+                ),
+                content: <ScenesPanel newScene={onNewScene} loadScene={reRouteToLoadScene} />
+              },
+              {
+                id: 'filesPanel',
+                title: (
+                  <PanelDragContainer>
+                    <PanelIcon as={Inventory2Icon} size={12} />
+                    <PanelTitle>Files</PanelTitle>
+                  </PanelDragContainer>
+                ),
+                content: <ProjectBrowserPanel />
+              }
+            ]
+          }
+        ]
+      },
+      {
+        mode: 'vertical' as DockMode,
+        size: 8,
+        children: [
+          {
+            id: '+5',
+            tabs: [
+              {
+                id: 'viewPanel',
+                title: 'Viewport',
+                content: <ViewPortPanelContent />
+              }
+            ],
+            size: 1
+          }
+        ]
+      },
+      {
+        mode: 'vertical' as DockMode,
+        size: 2,
+        children: [
+          {
+            tabs: [
+              {
+                id: 'hierarchyPanel',
+                title: <HierarchyPanelTitle />,
+                content: <HierarchyPanelContainer />
+              },
+              {
+                id: 'materialLibraryPanel',
+                title: <MaterialLibraryPanelTitle />,
+                content: <MaterialLibraryPanel />
+              }
+            ]
+          },
+          {
+            tabs: [
+              {
+                id: 'propertiesPanel',
+                title: <PropertiesPanelTitle />,
+                content: <PropertiesPanelContainer />
+              },
+              {
+                id: 'graphPanel',
+                title: <GraphPanelTitle />,
+                content: <GraphPanel />
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
 /**
  * EditorContainer class used for creating container for Editor
  */
@@ -394,9 +509,6 @@ const EditorContainer = () => {
   const sceneLoading = sceneName.value && !sceneLoaded.value
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
-
-  const [searchElement, setSearchElement] = React.useState('')
-  const [searchHierarchy, setSearchHierarchy] = React.useState('')
 
   const { t } = useTranslation()
   const dialogComponent = useHookstate(getMutableState(DialogState).dialog).value
@@ -438,127 +550,6 @@ const EditorContainer = () => {
     }
   }, [errorState])
 
-  const generateToolbarMenu = () => {
-    return [
-      {
-        name: t('editor:menubar.newScene'),
-        action: onNewScene
-      },
-      {
-        name: t('editor:menubar.saveScene'),
-        hotkey: `${cmdOrCtrlString}+s`,
-        action: onSaveScene
-      },
-      {
-        name: t('editor:menubar.saveAs'),
-        action: onSaveAs
-      },
-      {
-        name: t('editor:menubar.importAsset'),
-        action: onImportAsset
-      },
-      {
-        name: t('editor:menubar.quit'),
-        action: onCloseProject
-      }
-    ]
-  }
-
-  const toolbarMenu = generateToolbarMenu()
-
-  const defaultLayout: LayoutData = {
-    dockbox: {
-      mode: 'horizontal' as DockMode,
-      children: [
-        {
-          mode: 'vertical' as DockMode,
-          size: 2,
-          children: [
-            {
-              tabs: [
-                {
-                  id: 'scenePanel',
-                  title: (
-                    <PanelDragContainer>
-                      <PanelIcon as={Inventory2Icon} size={12} />
-                      <PanelTitle>Scenes</PanelTitle>
-                    </PanelDragContainer>
-                  ),
-                  content: <ScenesPanel newScene={onNewScene} loadScene={reRouteToLoadScene} />
-                },
-                {
-                  id: 'filesPanel',
-                  title: (
-                    <PanelDragContainer>
-                      <PanelIcon as={Inventory2Icon} size={12} />
-                      <PanelTitle>Files</PanelTitle>
-                    </PanelDragContainer>
-                  ),
-                  content: <ProjectBrowserPanel />
-                }
-              ]
-            }
-          ]
-        },
-        {
-          mode: 'vertical' as DockMode,
-          size: 8,
-          children: [
-            {
-              id: '+5',
-              tabs: [
-                {
-                  id: 'viewPanel',
-                  title: 'Viewport',
-                  content: <ViewPortPanelContent />
-                }
-              ],
-              size: 1
-            }
-          ]
-        },
-        {
-          mode: 'vertical' as DockMode,
-          size: 2,
-          children: [
-            {
-              tabs: [
-                {
-                  id: 'hierarchyPanel',
-                  title: <HierarchyPanelTitle />,
-                  content: (
-                    <HierarchyPanelContainer
-                      setSearchElement={setSearchElement}
-                      setSearchHierarchy={setSearchHierarchy}
-                    />
-                  )
-                },
-                {
-                  id: 'materialLibraryPanel',
-                  title: <MaterialLibraryPanelTitle />,
-                  content: <MaterialLibraryPanel />
-                }
-              ]
-            },
-            {
-              tabs: [
-                {
-                  id: 'propertiesPanel',
-                  title: <PropertiesPanelTitle />,
-                  content: <PropertiesPanelContainer />
-                },
-                {
-                  id: 'graphPanel',
-                  title: <GraphPanelTitle />,
-                  content: <GraphPanel />
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  }
   return (
     <>
       <div
@@ -574,15 +565,13 @@ const EditorContainer = () => {
           {sceneLoading && <SceneLoadingProgress />}
           <div className={styles.workspaceContainer}>
             <AssetDropZone />
-            <AppContext.Provider value={{ searchElement, searchHierarchy }}>
-              <DockContainer>
-                <DockLayout
-                  ref={dockPanelRef}
-                  defaultLayout={defaultLayout}
-                  style={{ position: 'absolute', left: 5, top: 55, right: 130, bottom: 5 }}
-                />
-              </DockContainer>
-            </AppContext.Provider>
+            <DockContainer>
+              <DockLayout
+                ref={dockPanelRef}
+                defaultLayout={defaultLayout}
+                style={{ position: 'absolute', left: 5, top: 55, right: 130, bottom: 5 }}
+              />
+            </DockContainer>
           </div>
           <Dialog
             open={!!dialogComponent}
