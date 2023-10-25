@@ -73,12 +73,18 @@ export default (app: Application): void => {
    */
   service.publish('patched', async (data: UserType, context) => {
     try {
-      let targetIds = [data.id!]
+      const userID = data.id
+      const dataToSend = {
+        id: data.id,
+        name: data.name,
+        avatarId: data.avatarId
+      }
+      let targetIds = [userID!]
       const updatePromises: any[] = []
 
       const instances = (await app.service(instanceAttendancePath).find({
         query: {
-          userId: data.id,
+          userId: userID,
           ended: false
         },
         paginate: false
@@ -93,7 +99,7 @@ export default (app: Application): void => {
           `${instanceAttendancePath}.instanceId`,
           instances.map((instance) => instance.instanceId)
         )
-        .whereNot(`${userPath}.id`, data.id)
+        .whereNot(`${userPath}.id`, userID)
         .select()
         .options({ nestTables: true })
 
@@ -101,7 +107,7 @@ export default (app: Application): void => {
 
       await Promise.all(updatePromises)
       targetIds = _.uniq(targetIds)
-      return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
+      return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(dataToSend)))
     } catch (err) {
       logger.error(err)
       throw err
