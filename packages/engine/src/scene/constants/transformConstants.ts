@@ -66,10 +66,8 @@ export const SnapMode = {
 }
 
 export const TransformSpace = {
-  world: 'world',
-  local: 'local'
-  // LocalSelection // The local space of the last selected object
-  // TODO: Viewport, Cursor?
+  world: 'world' as const,
+  local: 'local' as const
 }
 
 export type TransformAxisActionType = (typeof TransformAxisAction)[keyof typeof TransformAxisAction]

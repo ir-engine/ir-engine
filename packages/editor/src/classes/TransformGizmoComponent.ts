@@ -36,6 +36,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
@@ -85,6 +86,7 @@ export const TransformGizmoComponent = defineComponent({
       const dummy = new Object3D()
       dummy.name = 'gizmoProxy'
       const localTransform = getComponent(entity, LocalTransformComponent)
+      const entityTree = getComponent(entity, EntityTreeComponent)
       removeComponent(entity, LocalTransformComponent) /// band aid fix until we can make gizmo handle local transform
 
       // create dummy Entity for gizmo helper
@@ -106,7 +108,7 @@ export const TransformGizmoComponent = defineComponent({
         removeObjectFromGroup(entity, dummy)
         removeEntity(dummyEntity)
         const matrix = new Matrix4()
-        const parentTransform = getComponent(localTransform.parentEntity, TransformComponent)
+        const parentTransform = getComponent(entityTree.parentEntity!, TransformComponent)
         const entityTransform = getComponent(entity, TransformComponent)
 
         const localMatrix = matrix.copy(entityTransform.matrix).premultiply(parentTransform.matrixInverse)

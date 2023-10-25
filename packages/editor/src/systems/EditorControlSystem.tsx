@@ -70,7 +70,6 @@ import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorHistoryAction, EditorHistoryReceptorSystem, EditorHistoryState } from '../services/EditorHistory'
 import { EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
 
-//const gizmoEntity = createTransformGizmo()
 const raycaster = new Raycaster()
 const raycasterResults: Intersection<Object3D>[] = []
 const raycastIgnoreLayers = new Layers()
