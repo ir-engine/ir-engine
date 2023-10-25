@@ -41,7 +41,7 @@ import {
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
-import { LoadState, PrefabComponent } from '../components/PrefabComponent'
+import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 
 export const serializeEntity = (entity: Entity) => {
@@ -57,7 +57,7 @@ export const serializeEntity = (entity: Entity) => {
       if (data) {
         jsonComponents.push({
           name: sceneComponentID,
-          props: Object.assign({}, JSON.parse(JSON.stringify(data)))
+          props: data
         })
       }
     }
@@ -79,6 +79,8 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false) => 
   iterateEntityNode(
     traverseNode,
     (entity, index) => {
+      if (!hasComponent(entity, SceneObjectComponent)) return
+
       const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
 
       if (ignoreComponents?.includes('entity')) return
@@ -100,13 +102,6 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false) => 
       entityJson.name = getComponent(entity, NameComponent)
 
       entityJson.components = serializeEntity(entity)
-
-      if (hasComponent(entity, PrefabComponent)) {
-        const asset = getComponent(entity, PrefabComponent)
-        if (asset.loaded === LoadState.LOADED) {
-          asset.roots.map((root) => loadedAssets.add(root))
-        }
-      }
     },
     (node) => !loadedAssets.has(node),
     true

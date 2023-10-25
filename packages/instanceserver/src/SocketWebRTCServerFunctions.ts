@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Consumer, DataProducer, Producer, TransportInternal, WebRtcTransport } from 'mediasoup/node/lib/types'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { MediaStreamAppData } from '@etherealengine/engine/src/networking/NetworkState'
+import { MediaStreamAppData, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
@@ -125,5 +124,5 @@ export type SocketWebRTCServerNetwork = Awaited<ReturnType<typeof initializeNetw
 
 export const getServerNetwork = (app: Application) =>
   (getState(InstanceServerState).isMediaInstance
-    ? Engine.instance.mediaNetwork
-    : Engine.instance.worldNetwork) as SocketWebRTCServerNetwork
+    ? NetworkState.mediaNetwork
+    : NetworkState.worldNetwork) as SocketWebRTCServerNetwork

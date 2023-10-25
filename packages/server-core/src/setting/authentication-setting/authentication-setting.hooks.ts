@@ -27,20 +27,134 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
+  AuthenticationSettingPatch,
+  AuthenticationSettingType,
   authenticationSettingDataValidator,
   authenticationSettingPatchValidator,
+  authenticationSettingPath,
   authenticationSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+import * as k8s from '@kubernetes/client-node'
 
-import authenticate from '../../hooks/authenticate'
+import { getState } from '@etherealengine/hyperflux'
+import { BadRequest } from '@feathersjs/errors'
+import { HookContext } from '../../../declarations'
+import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
+import config from '../../appconfig'
 import verifyScope from '../../hooks/verify-scope'
+import { AuthenticationSettingService } from './authentication-setting.class'
 import {
   authenticationSettingDataResolver,
   authenticationSettingExternalResolver,
   authenticationSettingPatchResolver,
   authenticationSettingQueryResolver,
-  authenticationSettingResolver
+  authenticationSettingResolver,
+  authenticationSettingSchemaToDb
 } from './authentication-setting.resolvers'
+
+/**
+ * Maps settings for admin
+ * @param context
+ * @returns
+ */
+const mapSettingsAdmin = async (context: HookContext<AuthenticationSettingService>) => {
+  const loggedInUser = context.params!.user!
+  if (context.result && (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))) {
+    const auth: AuthenticationSettingType[] = context.result['data'] ? context.result['data'] : context.result
+    const data = auth.map((el) => {
+      return {
+        id: el.id,
+        entity: el.entity,
+        service: el.service,
+        authStrategies: el.authStrategies,
+        createdAt: el.createdAt,
+        updatedAt: el.updatedAt,
+        secret: ''
+      }
+    })
+    context.result =
+      context.params.paginate === false
+        ? data
+        : {
+            data: data,
+            total: data.length,
+            limit: context.params?.query?.$limit || 0,
+            skip: context.params?.query?.$skip || 0
+          }
+  }
+}
+
+/**
+ * Updates OAuth in data
+ * @param context
+ * @returns
+ */
+const ensureOAuth = async (context: HookContext<AuthenticationSettingService>) => {
+  if (!context.data || context.method !== 'patch') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data: AuthenticationSettingPatch = context.data as AuthenticationSettingPatch
+  const authSettings = await context.app.service(authenticationSettingPath).get(context.id!)
+
+  const newOAuth = data.oauth!
+  data.callback = authSettings.callback
+
+  for (const key of Object.keys(newOAuth)) {
+    if (config.authentication.oauth[key]?.scope) newOAuth[key].scope = config.authentication.oauth[key].scope
+    if (config.authentication.oauth[key]?.custom_data)
+      newOAuth[key].custom_data = config.authentication.oauth[key].custom_data
+    if (key !== 'defaults' && data.callback && !data.callback[key])
+      data.callback[key] = `${config.client.url}/auth/oauth/${key}`
+  }
+
+  context.data = authenticationSettingSchemaToDb(data) as any
+}
+
+/**
+ * Refreshes API pods
+ * @param context
+ * @returns
+ */
+const refreshAPIPods = async (context: HookContext<AuthenticationSettingService>) => {
+  const k8AppsClient = getState(ServerState).k8AppsClient
+
+  if (k8AppsClient) {
+    try {
+      logger.info('Attempting to refresh API pods')
+      const refreshApiPodResponse = await k8AppsClient.patchNamespacedDeployment(
+        `${config.server.releaseName}-etherealengine-api`,
+        'default',
+        {
+          spec: {
+            template: {
+              metadata: {
+                annotations: {
+                  'kubectl.kubernetes.io/restartedAt': new Date().toISOString()
+                }
+              }
+            }
+          }
+        },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        {
+          headers: {
+            'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH
+          }
+        }
+      )
+      logger.info(refreshApiPodResponse, 'updateBuilderTagResponse')
+    } catch (e) {
+      logger.error(e)
+      return e
+    }
+  }
+}
 
 export default {
   around: {
@@ -52,7 +166,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(authenticationSettingQueryValidator),
       schemaHooks.resolveQuery(authenticationSettingQueryResolver)
     ],
@@ -67,18 +180,19 @@ export default {
     patch: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(authenticationSettingPatchValidator),
-      schemaHooks.resolveData(authenticationSettingPatchResolver)
+      schemaHooks.resolveData(authenticationSettingPatchResolver),
+      ensureOAuth
     ],
     remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))]
   },
 
   after: {
     all: [],
-    find: [],
+    find: [mapSettingsAdmin],
     get: [],
     create: [],
     update: [],
-    patch: [],
+    patch: [refreshAPIPods],
     remove: []
   },
 

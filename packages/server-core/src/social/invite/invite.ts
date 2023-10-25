@@ -51,7 +51,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(invitePath, new InviteService(options, app), {
+  app.use(invitePath, new InviteService(options), {
     // A list of all methods this service exposes externally
     methods: inviteMethods,
     // You can add additional custom events to be sent to clients here

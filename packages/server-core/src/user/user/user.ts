@@ -53,7 +53,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(userPath, new UserService(options, app), {
+  app.use(userPath, new UserService(options), {
     // A list of all methods this service exposes externally
     methods: userMethods,
     // You can add additional custom events to be sent to clients here
@@ -76,7 +76,7 @@ export default (app: Application): void => {
       let targetIds = [data.id!]
       const updatePromises: any[] = []
 
-      const instances = (await app.service(instanceAttendancePath)._find({
+      const instances = (await app.service(instanceAttendancePath).find({
         query: {
           userId: data.id,
           ended: false

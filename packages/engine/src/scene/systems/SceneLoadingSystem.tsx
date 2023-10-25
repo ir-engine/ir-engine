@@ -29,12 +29,12 @@ import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { State, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import React from 'react'
-import { AppLoadingAction, AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
+import { AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
 import logger from '../../common/functions/logger'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -48,10 +48,11 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
+  serializeComponent,
   setComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import {
   EntityTreeComponent,
   addEntityNodeChild,
@@ -60,6 +61,7 @@ import {
 } from '../../ecs/functions/EntityTree'
 import { SystemDefinitions, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { CameraSettingsComponent } from '../components/CameraSettingsComponent'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { MediaSettingsComponent } from '../components/MediaSettingsComponent'
@@ -73,20 +75,45 @@ import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getUniqueName } from '../functions/getUniqueName'
 
-export const createNewEditorNode = (entityNode: Entity, componentName: string, parentEntity: Entity): void => {
+export const createNewEditorNode = (
+  entityNode: Entity,
+  componentJson: Array<ComponentJson>,
+  parentEntity = getState(SceneState).sceneEntity as Entity
+): void => {
   const components = [
-    { name: ComponentMap.get(componentName)!.jsonID! },
+    ...componentJson,
     { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
-    { name: ComponentMap.get(TransformComponent.name)!.jsonID! }
+    { name: ComponentMap.get(LocalTransformComponent.name)!.jsonID! }
   ]
-  const name = getUniqueName(entityNode, `New ${startCase(components[0].name.toLowerCase())}`)
+
+  const name = getUniqueName(
+    entityNode,
+    componentJson.length ? `New ${startCase(componentJson[0].name.toLowerCase())}` : `New Entity`
+  )
+  const uuid = componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? MathUtils.generateUUID()
 
   addEntityNodeChild(entityNode, parentEntity)
+
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, {
     name,
-    type: componentName.toLowerCase().replace(/\s/, '_'),
     components: cloneDeep(components)
+  })
+
+  setComponent(entityNode, UUIDComponent, uuid)
+
+  const localTransform = getComponent(entityNode, LocalTransformComponent)
+  setComponent(entityNode, TransformComponent, {
+    position: localTransform.position,
+    rotation: localTransform.rotation,
+    scale: localTransform.scale
+  })
+
+  const transform = getComponent(entityNode, TransformComponent)
+  setComponent(entityNode, LocalTransformComponent, {
+    position: transform.position,
+    rotation: transform.rotation,
+    scale: transform.scale
   })
 }
 
@@ -188,7 +215,12 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
       .children.filter((child) => hasComponent(child, TransformComponent))
       .map((child) => {
         const transform = getComponent(child, TransformComponent)
-        setLocalTransformComponent(child, rootEntity, transform.position, transform.rotation, transform.scale)
+        setComponent(child, EntityTreeComponent, { parentEntity: rootEntity })
+        setComponent(child, LocalTransformComponent, {
+          position: transform.position,
+          rotation: transform.rotation,
+          scale: transform.scale
+        })
       })
   return result
 }
@@ -239,8 +271,12 @@ export const removeSceneEntitiesFromOldJSON = () => {
 export const updateSceneFromJSON = async () => {
   const sceneState = getState(SceneState)
 
-  if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
-    dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
+  if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS) {
+    getMutableState(AppLoadingState).merge({
+      state: AppLoadingStates.SCENE_LOADING,
+      loaded: false
+    })
+  }
 
   const sceneData = getState(SceneState).sceneData
 
@@ -340,16 +376,27 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
     if (existingEntity) {
       setComponent(existingEntity, SceneObjectComponent)
       deserializeSceneEntity(existingEntity, entityJson)
-      /** @todo handle reparenting due to changes in scene json */
-      // const parent = existingEntity.parentEntity
-      // if (parent && getComponent(parent, UUIDComponent) !== entityJson.parent)
-      //   reparentEntityNode(existingEntity, UUIDComponent.entitiesBy[entityJson.parent])
+      /** handle reparenting due to changes in scene json */
+      const currentParent = getComponent(existingEntity, EntityTreeComponent)
+      if (currentParent?.parentEntity) {
+        const currentParentEntityUUID = getComponent(currentParent.parentEntity, UUIDComponent)
+        if (
+          currentParentEntityUUID !== entityJson.parent ||
+          entityJson.index !== currentParent.children.indexOf(existingEntity)
+        ) {
+          const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
+          setComponent(existingEntity, EntityTreeComponent, {
+            parentEntity: parentEntity,
+            uuid,
+            childIndex: entityJson.index
+          })
+        }
+      }
     } else {
       const entity = createEntity()
       const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
       setComponent(entity, SceneObjectComponent)
       setComponent(entity, EntityTreeComponent, { parentEntity, uuid, childIndex: entityJson.index })
-      setLocalTransformComponent(entity, parentEntity)
       addEntityNodeChild(entity, parentEntity)
       deserializeSceneEntity(entity, entityJson)
     }
@@ -386,6 +433,48 @@ export const deserializeComponent = (entity: Entity, component: ComponentJson): 
   setComponent(entity, Component, component.props)
 }
 
+export const migrateSceneData = (sceneData: SceneData) => {
+  const migratedSceneData = JSON.parse(JSON.stringify(sceneData)) as SceneData
+
+  for (const [key, value] of Object.entries(migratedSceneData.scene.entities)) {
+    const tempEntity = createEntity()
+    for (const comp of Object.values(value.components)) {
+      const { name, props } = comp
+      const component = ComponentJSONIDMap.get(name)
+      if (!component) {
+        console.warn(`Component ${name} not found`)
+        continue
+      }
+      setComponent(tempEntity, component, props)
+      const data = serializeComponent(tempEntity, component)
+      comp.props = data
+    }
+    /** ensure all scenes have all setting components */
+    if (key === migratedSceneData.scene.root) {
+      const ensureComponent = (component: any) => {
+        if (!value.components.find((comp) => comp.name === component.jsonID)) {
+          setComponent(tempEntity, component)
+          value.components.push({
+            name: component.jsonID,
+            props: serializeComponent(tempEntity, component)
+          })
+          console.log(`Added ${component.jsonID} to scene root`)
+        }
+      }
+      ;[
+        CameraSettingsComponent,
+        PostProcessingComponent,
+        FogSettingsComponent,
+        MediaSettingsComponent,
+        RenderSettingsComponent
+      ].map(ensureComponent)
+    }
+    removeEntity(tempEntity)
+  }
+
+  return JSON.parse(JSON.stringify(migratedSceneData))
+}
+
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
 const reactor = () => {
@@ -413,18 +502,7 @@ const reactor = () => {
       dispatchAction(EngineActions.sceneLoaded({}))
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }
-  }, [sceneAssetPendingTagQuery, assetLoadingState])
-
-  // useEffect(() => {
-  //   updateSceneFromJSON
-  // }, [sceneData])
-
-  // useEffect(() => {
-  //   addActionReceptor(AppLoadingServiceReceptor)
-  //   return () => {
-  //     removeActionReceptor(AppLoadingServiceReceptor)
-  //   }
-  // }, [])
+  }, [sceneAssetPendingTagQuery.length, assetLoadingState])
 
   const entityMaps = Object.entries(sceneData.scenes).map(([sceneId, scene]) => {
     return scene.load ? scene.data.ornull?.scene.entities ?? [] : []
@@ -457,6 +535,6 @@ const EntityLoadReactor = React.memo((props: { uuid: EntityUUID; json: State<Ent
 
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',
-  execute: () => {},
+  execute,
   reactor
 })

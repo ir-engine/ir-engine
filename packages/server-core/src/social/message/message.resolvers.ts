@@ -34,17 +34,17 @@ import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const messageResolver = resolve<MessageType, HookContext>({
-  sender: virtual(async (message, context) => {
-    if (message.senderId) {
-      const sender = await context.app.service(userPath)._get(message.senderId)
-      return sender
-    }
-  }),
   createdAt: virtual(async (message) => fromDateTimeSql(message.createdAt)),
   updatedAt: virtual(async (message) => fromDateTimeSql(message.updatedAt))
 })
 
-export const messageExternalResolver = resolve<MessageType, HookContext>({})
+export const messageExternalResolver = resolve<MessageType, HookContext>({
+  sender: virtual(async (message, context) => {
+    if (message.senderId) {
+      return await context.app.service(userPath).get(message.senderId)
+    }
+  })
+})
 
 export const messageDataResolver = resolve<MessageType, HookContext>({
   id: async () => {

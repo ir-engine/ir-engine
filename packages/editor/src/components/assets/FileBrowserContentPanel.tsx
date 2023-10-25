@@ -66,6 +66,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { bytesToSize, unique } from '../../functions/utils'
@@ -205,7 +206,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       props.onSelectionChanged({
         resourceUrl: params.url,
         name: params.name,
-        contentType: params.type
+        contentType: params.type,
+        size: params.size
       })
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
@@ -302,7 +304,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     isLoading.set(true)
     openConfirm.set(false)
     await FileBrowserService.deleteContent(contentToDeletePath.value)
-    props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '' })
+    props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '', size: '' })
     await refreshDirectory()
   }
 
@@ -315,8 +317,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const handleDownloadProject = async () => {
     const url = selectedDirectory.value
     const data = await Engine.instance.api
-      .service('archiver')
-      .get(url)
+      .service(archiverPath)
+      .get(null, { query: { directory: url } })
       .catch((err: Error) => {
         NotificationService.dispatchNotify(err.message, { variant: 'warning' })
         return null
@@ -510,7 +512,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           variant="body2"
         />
       )}
-      <div id="file-browser-panel" style={{ overflowY: 'auto' }}>
+      <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
         <DndWrapper id="file-browser-panel">
           <DropArea />
         </DndWrapper>

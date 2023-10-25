@@ -27,8 +27,9 @@ import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 
+import matches from 'ts-matches'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
@@ -46,7 +47,7 @@ import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { GroupComponent } from './GroupComponent'
@@ -70,22 +71,26 @@ export const ColliderComponent = defineComponent({
       collisionLayer: CollisionGroups.Default,
       collisionMask: DefaultCollisionMask,
       restitution: 0.5,
-      /**
-       * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
-       */
-      onEnter: null as null | string | undefined,
-      /**
-       * The function to call on the CallbackComponent of the targetEntity when the trigger volume is exited.
-       */
-      onExit: null as null | string | undefined,
-      /**
-       * uuid (null as null | string)
-       *
-       * empty string represents self
-       *
-       * TODO: how do we handle non-scene entities?
-       */
-      target: null as null | string | undefined
+      triggers: [
+        {
+          /**
+           * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
+           */
+          onEnter: null as null | string | undefined,
+          /**
+           * The function to call on the CallbackComponent of the targetEntity when the trigger volume is exited.
+           */
+          onExit: null as null | string | undefined,
+          /**
+           * uuid (null as null | string)
+           *
+           * empty string represents self
+           *
+           * TODO: how do we handle non-scene entities?
+           */
+          target: null as null | string | undefined
+        }
+      ]
     }
   },
 
@@ -101,9 +106,28 @@ export const ColliderComponent = defineComponent({
     if (typeof json.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
     if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
     if (typeof json.restitution === 'number') component.restitution.set(json.restitution)
-    if (typeof json.onEnter === 'string') component.onEnter.set(json.onEnter)
-    if (typeof json.onExit === 'string') component.onExit.set(json.onExit)
-    if (typeof json.target === 'string') component.target.set(json.target)
+
+    // backwards compatibility
+    const onEnter = (json as any).onEnter ?? null
+    const onExit = (json as any).onExit ?? null
+    const target = (json as any).target ?? null
+    if (!!onEnter || !!onExit || !!target) {
+      component.triggers.set([{ onEnter, onExit, target }])
+    } else if (typeof json.triggers === 'object') {
+      if (
+        matches
+          .arrayOf(
+            matches.shape({
+              onEnter: matches.nill.orParser(matches.string),
+              onExit: matches.nill.orParser(matches.string),
+              target: matches.nill.orParser(matches.string)
+            })
+          )
+          .test(json.triggers)
+      ) {
+        component.triggers.set(json.triggers)
+      }
+    }
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -121,38 +145,23 @@ export const ColliderComponent = defineComponent({
   onRemove(entity, component) {},
 
   toJSON(entity, component) {
-    const response = {
+    return {
       bodyType: component.bodyType.value,
       shapeType: component.shapeType.value,
       isTrigger: component.isTrigger.value,
       removeMesh: component.removeMesh.value,
       collisionLayer: component.collisionLayer.value,
       collisionMask: component.collisionMask.value,
-      restitution: component.restitution.value
-    } as {
-      bodyType: RigidBodyType
-      shapeType: ShapeType
-      isTrigger: boolean
-      removeMesh: boolean
-      collisionLayer: number
-      collisionMask: number
-      restitution: number
-      onEnter?: string | null
-      onExit?: string | null
-      target?: string | null
+      restitution: component.restitution.value,
+      triggers: component.triggers.get(NO_PROXY)
     }
-    if (component.isTrigger.value) {
-      response.onEnter = component.onEnter.value
-      response.onExit = component.onExit.value
-      response.target = component.target.value
-    }
-    return response
   },
 
   reactor: function () {
     const entity = useEntityContext()
 
     const transformComponent = useComponent(entity, TransformComponent)
+    const localTransformComponent = useOptionalComponent(entity, LocalTransformComponent)
     const colliderComponent = useComponent(entity, ColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
@@ -257,7 +266,7 @@ export const ColliderComponent = defineComponent({
       }
 
       if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
-    }, [isLoadedFromGLTF, transformComponent, colliderComponent, groupComponent?.length])
+    }, [isLoadedFromGLTF, transformComponent, localTransformComponent, colliderComponent, groupComponent?.length])
 
     return null
   }

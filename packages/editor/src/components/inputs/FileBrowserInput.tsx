@@ -23,9 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import IconButton from '@mui/material/IconButton'
 import React from 'react'
 import { useDrop } from 'react-dnd'
 
+import config from '@etherealengine/common/src/config'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from '../assets/useUpload'
 import { ControlledStringInput, StringInputProps } from './StringInput'
@@ -54,6 +57,32 @@ export function FileBrowserInput({
   }
   const onUpload = useUpload(uploadOptions)
 
+  // todo fix for invalid URLs
+  const assetIsExternal = value && !value?.includes(config.client.fileServer)
+  const uploadExternalAsset = () => {
+    onUpload([
+      {
+        isFile: true,
+        name: value?.split('/').pop(),
+        file: async (onSuccess, onFail) => {
+          try {
+            const asset = await fetch(value!)
+            const blob = await asset.blob()
+            const file = new File([blob], value!.split('/').pop()!)
+            onSuccess(file)
+          } catch (error) {
+            if (onFail) onFail(error)
+            else throw error
+          }
+        }
+      } as Partial<FileSystemFileEntry>
+    ] as any).then((assets) => {
+      if (assets) {
+        onChange?.(assets[0])
+      }
+    })
+  }
+
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [...acceptDropItems, ItemTypes.File],
     async drop(item: any, monitor) {
@@ -65,7 +94,7 @@ export function FileBrowserInput({
           url += item.fullName
         }
 
-        onChange?.(url, item)
+        onChange?.(url)
       } else {
         // https://github.com/react-dnd/react-dnd/issues/1345#issuecomment-538728576
         const dndItem: any = monitor.getItem()
@@ -73,9 +102,7 @@ export function FileBrowserInput({
 
         onUpload(entries).then((assets) => {
           if (assets) {
-            for (let index = 0; index < assets.length; index++) {
-              onChange?.(assets[index], item)
-            }
+            onChange?.(assets[0])
           }
         })
       }
@@ -91,11 +118,22 @@ export function FileBrowserInput({
       <ControlledStringInput
         ref={dropRef}
         value={value}
-        onChange={(value, e) => onChange?.(value, e)}
+        onChange={(value) => onChange?.(value)}
         error={isOver && !canDrop}
         canDrop={isOver && canDrop}
         {...rest}
       />
+      {assetIsExternal && (
+        <IconButton
+          disableRipple
+          style={{
+            padding: 0
+          }}
+          onClick={uploadExternalAsset}
+        >
+          <Icon type="Download" style={{ color: 'var(--textColor)' }} />
+        </IconButton>
+      )}
     </>
   )
 }

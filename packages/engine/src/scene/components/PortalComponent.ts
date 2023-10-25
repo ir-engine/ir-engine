@@ -38,23 +38,25 @@ import {
   Vector3
 } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
+import { UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
+  SerializedComponentType,
   defineComponent,
   getComponent,
-  hasComponent,
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RendererState } from '../../renderer/RendererState'
+import { portalPath } from '../../schemas/projects/portal.schema'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { portalTriggerEnter } from '../functions/loaders/PortalFunctions'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -74,16 +76,29 @@ PortalPreviewTypes.add(PortalPreviewTypeSpherical)
 export const PortalEffects = new Map<string, ComponentType<any>>()
 PortalEffects.set('None', null!)
 
-export const portalColliderValues = {
+export const portalColliderValues: SerializedComponentType<typeof ColliderComponent> = {
   bodyType: RigidBodyType.Fixed,
   shapeType: ShapeType.Cuboid,
   isTrigger: true,
   removeMesh: true,
   collisionLayer: CollisionGroups.Trigger,
   collisionMask: CollisionGroups.Avatars,
-  target: '',
-  onEnter: 'teleport'
+  restitution: 0,
+  triggers: [
+    {
+      onEnter: 'teleport',
+      onExit: null,
+      target: ''
+    }
+  ]
 }
+
+export const PortalState = defineState({
+  name: 'PortalState',
+  initial: {
+    activePortalEntity: UndefinedEntity
+  }
+})
 
 export const PortalComponent = defineComponent({
   name: 'PortalComponent',
@@ -133,8 +148,17 @@ export const PortalComponent = defineComponent({
       effectType: component.effectType.value,
       previewType: component.previewType.value,
       previewImageURL: component.previewImageURL.value,
-      spawnPosition: component.spawnPosition.value,
-      spawnRotation: component.spawnRotation.value
+      spawnPosition: {
+        x: component.spawnPosition.value.x,
+        y: component.spawnPosition.value.y,
+        z: component.spawnPosition.value.z
+      } as Vector3,
+      spawnRotation: {
+        x: component.spawnRotation.value.x,
+        y: component.spawnRotation.value.y,
+        z: component.spawnRotation.value.z,
+        w: component.spawnRotation.value.w
+      } as Quaternion
     }
   },
 
@@ -150,7 +174,7 @@ export const PortalComponent = defineComponent({
 
     useEffect(() => {
       setCallback(entity, 'teleport', portalTriggerEnter)
-      if (!hasComponent(entity, ColliderComponent)) setComponent(entity, ColliderComponent, { ...portalColliderValues })
+      setComponent(entity, ColliderComponent, JSON.parse(JSON.stringify(portalColliderValues)))
     }, [])
 
     useEffect(() => {
@@ -237,10 +261,10 @@ export const PortalComponent = defineComponent({
       } else {
         /** Portal is not in the scene yet */
         Engine.instance.api
-          .service('portal')
+          .service(portalPath)
           .get(portalComponent.linkedPortalId.value, { query: { locationName: portalComponent.location.value } })
           .then((data) => {
-            const portalDetails = data.data!
+            const portalDetails = data
             if (portalDetails) applyPortalDetails(portalDetails)
           })
           .catch((e) => {

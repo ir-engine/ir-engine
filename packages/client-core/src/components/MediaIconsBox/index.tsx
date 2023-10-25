@@ -38,7 +38,6 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import logger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { endXRSession, requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
@@ -56,7 +55,7 @@ import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/engine/src/
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 import { useTranslation } from 'react-i18next'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
-import { RecordingTimer, RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
+import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
 import { useUserHasAccessHook } from '../../user/userHasAccess'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -77,7 +76,7 @@ export const MediaIconsBox = () => {
   const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
   const networkState = useHookstate(getMutableState(NetworkState))
   const mediaNetworkState = useMediaNetwork()
-  const mediaNetworkID = Engine.instance.mediaNetwork?.id
+  const mediaNetworkID = NetworkState.mediaNetwork?.id
   const mediaNetworkReady = mediaNetworkState?.ready?.value
   const currentChannelInstanceConnection = mediaNetworkID && channelConnectionState.instances[mediaNetworkID].ornull
   const videoEnabled = currentLocation?.locationSetting?.value
@@ -247,7 +246,7 @@ export const MediaIconsBox = () => {
           Exit Spectate
         </button>
       )}
-      {recordScopes && (
+      {/* {recordScopes && (
         <>
           {recordingState.recordingID.value || playbackState.recordingID.value ? (
             <button
@@ -273,7 +272,7 @@ export const MediaIconsBox = () => {
             />
           )}
         </>
-      )}
+      )} */}
     </section>
   )
 }

@@ -31,6 +31,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { AuthState } from '../../user/services/AuthService'
@@ -49,7 +50,7 @@ const sortScreensBeforeCameras = (a: WindowType, b: WindowType) => {
 export const useMediaWindows = () => {
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
   const mediaNetworkInstanceState = useMediaNetwork()
-  const mediaNetwork = Engine.instance.mediaNetwork
+  const mediaNetwork = NetworkState.mediaNetwork
   const selfUser = useHookstate(getMutableState(AuthState).user)
   const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.ready?.value
 
@@ -99,7 +100,7 @@ export const useMediaWindows = () => {
     .filter(({ peerID }) => peerMediaChannelState[peerID].value)
 
   // if window doesnt exist for self, add it
-  if (!windows.find(({ peerID }) => peerID === selfPeerID)) {
+  if (mediaNetworkConnected && !windows.find(({ peerID }) => mediaNetwork.users[selfUserID]?.includes(peerID))) {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
   }
 
@@ -156,7 +157,7 @@ export const UserMediaWindowsWidget = () => {
 
   const selfPeerID = Engine.instance.peerID
   const selfUserID = Engine.instance.userID
-  const mediaNetwork = Engine.instance.mediaNetwork
+  const mediaNetwork = NetworkState.mediaNetwork
 
   // if window doesnt exist for self, add it
   if (!mediaNetwork || !windows.find(({ peerID }) => mediaNetwork.peers[peerID]?.userId === selfUserID)) {

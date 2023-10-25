@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   LocationAdminData,
@@ -32,10 +32,9 @@ import {
   LocationAdminQuery,
   LocationAdminType
 } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface LocationAdminParams extends RootParams<LocationAdminQuery> {}
+export interface LocationAdminParams extends KnexAdapterParams<LocationAdminQuery> {}
 
 export class LocationAdminService<
   T = LocationAdminType,

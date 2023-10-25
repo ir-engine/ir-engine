@@ -32,7 +32,7 @@ import { v4 as uuid } from 'uuid'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { RouteType, routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { Paginated } from '@feathersjs/feathers/lib'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -44,7 +44,7 @@ const cleanup = async (app: Application, projectName: string) => {
   const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
   deleteFolderRecursive(projectDir)
   try {
-    await app.service(projectPath)._remove(null, { query: { name: projectName } })
+    await app.service(projectPath).remove(null, { query: { name: projectName } })
   } catch (e) {
     //
   }
@@ -106,7 +106,7 @@ describe('route.test', () => {
   })
 
   it('should not be activated by default (the installed project)', async () => {
-    const route = (await app.service('route').find({ query: { project: testProject } })) as Paginated<RouteType>
+    const route = (await app.service(routePath).find({ query: { project: testProject } })) as Paginated<RouteType>
     assert.equal(route.total, 0)
   })
 
@@ -114,7 +114,7 @@ describe('route.test', () => {
     const activateResult = await app
       .service('route-activate')
       .create({ project: testProject, route: testRoute, activate: true }, params)
-    const fetchResult = (await app.service('route').find({ query: { project: testProject } })) as Paginated<RouteType>
+    const fetchResult = (await app.service(routePath).find({ query: { project: testProject } })) as Paginated<RouteType>
     const route = fetchResult.data.find((d) => d.project === testProject)
 
     assert.ok(activateResult)
@@ -127,7 +127,7 @@ describe('route.test', () => {
   it('should deactivate a route', async () => {
     await app.service('route-activate').create({ project: testProject, route: testRoute, activate: false }, params)
 
-    const route = (await app.service('route').find({ query: { project: testProject } })) as Paginated<RouteType>
+    const route = (await app.service(routePath).find({ query: { project: testProject } })) as Paginated<RouteType>
     assert.equal(route.total, 0)
   })
 })

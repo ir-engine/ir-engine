@@ -66,7 +66,18 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
 
   const invitesQuery = useFind(invitePath, {
     query: {
-      search,
+      $or: [
+        {
+          inviteType: {
+            $like: '%' + search + '%'
+          }
+        },
+        {
+          passcode: {
+            $like: '%' + search + '%'
+          }
+        }
+      ],
       $sort: { id: 1 },
       $limit: 20
     }
@@ -181,7 +192,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
       />
       <ConfirmDialog
         open={openConfirm.value}
-        description={`${t('admin:components.invite.confirmInviteDelete')} '${inviteId.set}'?`}
+        description={`${t('admin:components.invite.confirmInviteDelete')} ${inviteId.value}?`}
         onClose={() => openConfirm.set(false)}
         onSubmit={deleteInvite}
       />

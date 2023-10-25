@@ -47,7 +47,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(avatarPath, new AvatarService(options, app), {
+  app.use(avatarPath, new AvatarService(options), {
     // A list of all methods this service exposes externally
     methods: avatarMethods,
     // You can add additional custom events to be sent to clients here
@@ -63,7 +63,7 @@ export default (app: Application): void => {
       const { params } = context
       let targetIds = [params.user?.id]
       const usersWithAvatar = (
-        (await app.service(userPath)._find({
+        (await app.service(userPath).find({
           query: {
             avatarId: data.id
           }

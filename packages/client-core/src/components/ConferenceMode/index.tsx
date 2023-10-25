@@ -29,7 +29,7 @@ import React from 'react'
 import { MediaInstanceState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { screenshareVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState, screenshareVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { MediasoupMediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
@@ -40,7 +40,7 @@ import styles from './index.module.scss'
 const ConferenceMode = (): JSX.Element => {
   const authState = useHookstate(getMutableState(AuthState))
   const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
-  const network = Engine.instance.mediaNetwork
+  const network = NetworkState.mediaNetwork
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.id].ornull
   const displayedUsers =
     network?.id && currentChannelInstanceConnection

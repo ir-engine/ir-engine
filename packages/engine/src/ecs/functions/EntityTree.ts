@@ -31,14 +31,10 @@ import { dispatchAction, getMutableState, getState, hookstate, NO_PROXY, none } 
 
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { NetworkState } from '../../networking/NetworkState'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { serializeEntity } from '../../scene/functions/serializeWorld'
-import {
-  LocalTransformComponent,
-  setLocalTransformComponent,
-  TransformComponent
-} from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
@@ -193,20 +189,17 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIn
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex })
     setComponent(entity, UUIDComponent, uuid || (MathUtils.generateUUID() as EntityUUID))
   }
-
+  setComponent(entity, LocalTransformComponent)
   const parentTransform = getComponent(parentEntity, TransformComponent)
   const childTransform = getComponent(entity, TransformComponent)
   getMutableState(EngineState).transformsNeedSorting.set(true)
   if (parentTransform && childTransform) {
-    computeTransformMatrix(parentEntity)
-    computeTransformMatrix(entity)
     const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
-    setLocalTransformComponent(entity, parentEntity)
     const localTransform = getComponent(entity, LocalTransformComponent)
     childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
   }
 
-  if (Engine.instance.worldNetwork?.isHosting) {
+  if (NetworkState.worldNetwork?.isHosting) {
     const uuid = getComponent(entity, UUIDComponent)
     dispatchAction(
       WorldNetworkAction.spawnObject({

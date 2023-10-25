@@ -337,22 +337,7 @@ const revertXRSessionFunctions = () => {
 const execute = () => {
   if (!XR8) return
 
-  const xrState = getState(XRState)
-
-  /** Update the camera transform from the 8thwall camera */
-  const sessionActive = xrState.sessionActive
-  const xr8scene = XR8.Threejs.xrScene()
-  if (sessionActive && xr8scene) {
-    const { camera } = xr8scene
-    const engineCamera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-    /** update the camera in world space as updateXRInput will update it to local space */
-    engineCamera.position.copy(camera.position)
-    engineCamera.quaternion.copy(camera.quaternion).normalize()
-    /** 8thwall always expects the camera to be unscaled */
-    engineCamera.scale.set(1, 1, 1)
-  }
-
-  getMutableState(XRState).xrFrame.set(new XRFrameProxy() as any as XRFrame)
+  getState(XRState).xrFrame = new XRFrameProxy() as any as XRFrame
 }
 
 const reactor = () => {

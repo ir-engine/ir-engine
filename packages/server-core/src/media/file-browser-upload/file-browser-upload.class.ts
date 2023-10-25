@@ -26,11 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface FileBrowserUploadParams extends RootParams {
+export interface FileBrowserUploadParams extends KnexAdapterParams {
   files: UploadFile[]
 }
 
@@ -49,7 +50,7 @@ export class FileBrowserUploadService implements ServiceInterface<string[], File
 
     const result = (await Promise.all(
       params.files.map((file) =>
-        this.app.service('file-browser').patch(null, {
+        this.app.service(fileBrowserPath).patch(null, {
           fileName: data.fileName,
           path: data.path,
           body: file.buffer as Buffer,

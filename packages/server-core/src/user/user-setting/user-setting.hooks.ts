@@ -38,7 +38,6 @@ import {
   userSettingPath,
   userSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
-import authenticate from '../../hooks/authenticate'
 import {
   userSettingDataResolver,
   userSettingExternalResolver,
@@ -64,8 +63,7 @@ const ensureUserThemeModes = () => {
     if (clientSettings && clientSettings.data.length > 0) {
       result.themeModes = clientSettings.data[0].themeModes
 
-      // @ts-ignore
-      await app.service(userSettingPath)._patch(result.id, result)
+      await app.service(userSettingPath).patch(result.id, result)
     }
 
     return context
@@ -79,7 +77,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(userSettingQueryValidator),
       schemaHooks.resolveQuery(userSettingQueryResolver)
     ],

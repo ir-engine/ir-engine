@@ -192,6 +192,9 @@
       "usernameError": "Invalid username",
       "update-msg": "Username updated",
       "inviteCode": "Invite Code",
+      "createLoginLink": "Create Login Link",
+      "loginLink": "Login Link",
+      "loginLinkCopied": "Login Link Copied",
       "youAreAn": "You are an",
       "youAreA": "You are a",
       "showUserId": "Show User ID",
@@ -419,6 +422,9 @@
     "noUsers": "No users to display",
     "requestReceived": "has requested to be your friend",
     "requestAccepted": "has accepted your request to be friends"
+  },
+  "messages": {
+    "enterMessage": "Enter Message"
   },
   "roomMenu": {
     "createRoom": "Create a room",

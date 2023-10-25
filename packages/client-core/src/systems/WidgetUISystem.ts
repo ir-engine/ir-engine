@@ -34,7 +34,8 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -48,7 +49,6 @@ import {
 } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
 import {
   LocalTransformComponent,
-  setLocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { isMobileXRHeadset, ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
@@ -72,7 +72,7 @@ import {
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
-import { createRecordingsWidget } from './createRecordingsWidget'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
 const widgetLeftMenuGripOffset = new Vector3(0.08, 0, -0.05)
@@ -91,6 +91,7 @@ const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
+    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
     removeComponent(widgetMenuUI.entity, VisibleComponent)
 
     addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
@@ -106,7 +107,7 @@ const WidgetUISystemState = defineState({
 
 const createWidgetMenus = () => {
   createAnchorWidget()
-  createRecordingsWidget()
+  // createRecordingsWidget()
   // createHeightAdjustmentWidget
   // createMediaWidget
 }
@@ -158,7 +159,8 @@ const execute = () => {
   }
   for (const action of registerWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
-    setLocalTransformComponent(widget.ui.entity, widgetMenuUI.entity)
+    setComponent(widget.ui.entity, LocalTransformComponent)
+    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: widgetMenuUI.entity })
   }
   for (const action of unregisterWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
@@ -174,7 +176,7 @@ const execute = () => {
   if (activeInputSourceEntity) {
     const activeInputSource = getComponent(activeInputSourceEntity, InputSourceComponent)?.source
     const referenceSpace = ReferenceSpace.origin!
-    const pose = getState(XRState).xrFrame!.getPose(
+    const pose = getState(XRState).xrFrame?.getPose(
       activeInputSource.gripSpace ?? activeInputSource.targetRaySpace,
       referenceSpace
     )

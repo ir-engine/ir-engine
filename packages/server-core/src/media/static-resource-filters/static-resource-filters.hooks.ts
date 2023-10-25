@@ -20,7 +20,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { staticResourceFiltersQueryValidator } from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import authenticate from '../../hooks/authenticate'
 
 import verifyScope from '../../hooks/verify-scope'
 import {
@@ -39,7 +38,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       verifyScope('admin', 'admin'),
       () => schemaHooks.validateQuery(staticResourceFiltersQueryValidator),
       schemaHooks.resolveQuery(staticResourceFiltersQueryResolver)
