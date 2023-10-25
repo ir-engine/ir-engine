@@ -41,7 +41,7 @@ import {
   PresentationSystemGroup,
   SimulationSystemGroup
 } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { ButtonCleanupSystem } from '@etherealengine/engine/src/input/systems/ButtonCleanupSystem'
 import { ClientInputSystem } from '@etherealengine/engine/src/input/systems/ClientInputSystem'
 import { GrabbableSystem } from '@etherealengine/engine/src/interaction/systems/GrabbableSystem'
@@ -65,22 +65,22 @@ import { XRAnchorSystem } from '@etherealengine/engine/src/xr/XRAnchorSystem'
 import { XRSystem } from '@etherealengine/engine/src/xr/XRSystem'
 import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
 
-export const startClientSystems = () => {
+export const useClientSystems = () => {
   /** Input */
-  startSystems([XRSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem, BehaveGraphSystem], {
+  useSystems([XRSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem, BehaveGraphSystem], {
     with: InputSystemGroup
   })
 
   /** Fixed */
-  startSystems([IncomingNetworkSystem, EntityNetworkStateSystem, GrabbableSystem, AvatarSimulationSystemGroup], {
+  useSystems([IncomingNetworkSystem, EntityNetworkStateSystem, GrabbableSystem, AvatarSimulationSystemGroup], {
     with: SimulationSystemGroup
   })
 
   /** Physics */
-  startSystems([PhysicsSystem, OutgoingNetworkSystem], { after: SimulationSystemGroup })
+  useSystems([PhysicsSystem, OutgoingNetworkSystem], { after: SimulationSystemGroup })
 
   /** Avatar / Animation */
-  startSystems(
+  useSystems(
     [
       ReferenceSpaceTransformSystem,
       XRAnchorSystem,
@@ -95,20 +95,20 @@ export const startClientSystems = () => {
   )
 
   /** Post Animation / Pre Transform */
-  startSystems([XRUISystem, InteractiveSystem, MediaControlSystem], { before: TransformSystem })
+  useSystems([XRUISystem, InteractiveSystem, MediaControlSystem], { before: TransformSystem })
 
   /** Post Transform / Pre Render */
-  startSystems([MediaSystem, DebugRendererSystem, SceneSystemUpdateGroup], {
+  useSystems([MediaSystem, DebugRendererSystem, SceneSystemUpdateGroup], {
     before: PresentationSystemGroup
   })
 
   /** Render */
-  startSystems([WebGLRendererSystem], {
+  useSystems([WebGLRendererSystem], {
     with: PresentationSystemGroup
   })
 
   /** Post Render */
-  startSystems(
+  useSystems(
     [
       ButtonCleanupSystem,
       PortalSystem,

@@ -28,14 +28,14 @@ import { useParams } from 'react-router-dom'
 
 import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
-import { startClientSystems } from '@etherealengine/client-core/src/world/startClientSystems'
+import { useClientSystems } from '@etherealengine/client-core/src/world/useClientSystems'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
   PresentationSystemGroup,
   SimulationSystemGroup
 } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { RenderInfoSystem } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
@@ -55,13 +55,13 @@ import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world
 // ensure all our systems are imported, #9077
 const EditorSystemsReferenced = [useDefaultLocationSystems]
 
-const editorSystems = () => {
-  startSystems([EditorFlyControlSystem, EditorControlSystem, EditorCameraSystem, GizmoSystem], {
+const useEditorSystems = () => {
+  useSystems([EditorFlyControlSystem, EditorControlSystem, EditorCameraSystem, GizmoSystem], {
     before: PresentationSystemGroup
   })
-  startSystems([ModelHandlingSystem], { with: SimulationSystemGroup })
+  useSystems([ModelHandlingSystem], { with: SimulationSystemGroup })
 
-  startSystems([EditorInstanceNetworkingSystem, ClientNetworkingSystem, RenderInfoSystem], {
+  useSystems([EditorInstanceNetworkingSystem, ClientNetworkingSystem, RenderInfoSystem], {
     after: PresentationSystemGroup
   })
 }
@@ -74,9 +74,7 @@ export const useStudioEditor = () => {
     getMutableState(EngineState).isEditor.set(true)
     getMutableState(EngineState).isEditing.set(true)
     const projects = Engine.instance.api.service(projectsPath).find()
-    startClientSystems()
 
-    editorSystems()
     if (engineReady) return
     projects.then((proj) => {
       loadEngineInjection(proj).then(() => {
@@ -85,6 +83,9 @@ export const useStudioEditor = () => {
       })
     })
   }, [])
+
+  useClientSystems()
+  useEditorSystems()
 
   return engineReady
 }

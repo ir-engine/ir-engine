@@ -67,7 +67,7 @@ import { ComputedTransformComponent } from '@etherealengine/engine/src/transform
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { startClientSystems } from '../../world/startClientSystems'
+import { useClientSystems } from '../../world/useClientSystems'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
@@ -76,7 +76,6 @@ export const initClient = async () => {
 
   const projects = Engine.instance.api.service(projectsPath).find()
 
-  startClientSystems()
   await loadEngineInjection(await projects)
 
   getMutableState(EngineState).isEngineInitialized.set(true)
@@ -86,6 +85,8 @@ export const useLoadEngine = () => {
   useEffect(() => {
     initClient()
   }, [])
+
+  useClientSystems()
 }
 
 export const useLocationSpawnAvatar = (spectate = false) => {

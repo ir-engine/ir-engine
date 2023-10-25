@@ -37,15 +37,15 @@ import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSyste
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { useSystem, useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
-const startChatSystems = () => {
-  startSystem(MediaSystem, { before: PresentationSystemGroup })
-  startSystems([ClientNetworkingSystem], { after: PresentationSystemGroup })
+const useChatSystems = () => {
+  useSystem(MediaSystem, { before: PresentationSystemGroup })
+  useSystems([ClientNetworkingSystem], { after: PresentationSystemGroup })
 }
 
 export const initializeEngineForChat = async () => {
@@ -53,7 +53,6 @@ export const initializeEngineForChat = async () => {
 
   const projects = Engine.instance.api.service(projectsPath).find()
 
-  startChatSystems()
   await loadEngineInjection(await projects)
 
   getMutableState(EngineState).isEngineInitialized.set(true)
@@ -73,6 +72,8 @@ export function ChatPage() {
       roomID: false
     })
   }, [])
+
+  useChatSystems()
 
   return (
     <div className="w-full container mx-auto pointer-events-auto">

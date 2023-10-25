@@ -42,7 +42,7 @@ import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSyste
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { useSystem, useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -59,10 +59,10 @@ import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
 
-const startCaptureSystems = () => {
-  startSystem(MotionCaptureSystem, { with: InputSystemGroup })
-  startSystem(MediaSystem, { before: PresentationSystemGroup })
-  startSystems([ClientNetworkingSystem], { after: PresentationSystemGroup })
+const useCaptureSystems = () => {
+  useSystem(MotionCaptureSystem, { with: InputSystemGroup })
+  useSystem(MediaSystem, { before: PresentationSystemGroup })
+  useSystems([ClientNetworkingSystem], { after: PresentationSystemGroup })
 }
 
 const initializeEngineForRecorder = async () => {
@@ -70,7 +70,6 @@ const initializeEngineForRecorder = async () => {
 
   // const projects = API.instance.client.service(projectsPath).find()
 
-  startCaptureSystems()
   // await loadEngineInjection(await projects)
 
   getMutableState(EngineState).isEngineInitialized.set(true)
@@ -94,6 +93,8 @@ const decorators = [
     useEffect(() => {
       notificationstate.snackbar.set(notistackRef.current)
     }, [notistackRef.current])
+
+    useCaptureSystems()
 
     useEffect(() => {
       if (selfUser?.id.value && projectState.updateNeeded.value) {

@@ -23,10 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 
 import { ClientNetworkingSystem } from '../networking/ClientNetworkingSystem'
@@ -38,13 +36,10 @@ import { FilteredUsersSystem } from '../transports/FilteredUsersSystem'
 import { UserUISystem } from '../user/UserUISystem'
 
 export const useDefaultLocationSystems = (online: boolean) => {
-  useEffect(() => {
-    startSystems([LoadingUISystem, AvatarUISystem, WidgetUISystem], { before: TransformSystem })
+  useSystems([LoadingUISystem, AvatarUISystem, WidgetUISystem], { before: TransformSystem })
 
-    const postPresentationSystems = [UserUISystem, FilteredUsersSystem, WarningUISystem]
+  const postPresentationSystems = [UserUISystem, FilteredUsersSystem, WarningUISystem]
+  if (online) postPresentationSystems.push(ClientNetworkingSystem)
 
-    if (online) postPresentationSystems.push(ClientNetworkingSystem)
-
-    startSystems(postPresentationSystems, { after: PresentationSystemGroup })
-  }, [])
+  useSystems(postPresentationSystems, { after: PresentationSystemGroup })
 }
