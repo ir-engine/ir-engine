@@ -33,7 +33,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { discard, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import {
@@ -44,6 +44,7 @@ import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api
 import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
+import isSkipServiceHooks from '../../hooks/is-skip-service-hooks'
 import persistData from '../../hooks/persist-data'
 import verifyScope from '../../hooks/verify-scope'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -264,8 +265,14 @@ export default {
   before: {
     all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
     find: [
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'), handleUserSearch),
-      iff(isProvider('external'), discardQuery('search', '$sort.accountIdentifier'))
+      iffElse(
+        isSkipServiceHooks(),
+        [],
+        [
+          iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'), handleUserSearch),
+          iff(isProvider('external'), discardQuery('search', '$sort.accountIdentifier') as any)
+        ]
+      )
     ],
     get: [],
     create: [
