@@ -31,11 +31,12 @@ import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/component
 
 import SquareIcon from '@mui/icons-material/Square'
 
+import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
 import ShadowProperties from './ShadowProperties'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -49,7 +50,21 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.groundPlane.description')}
     >
       <InputGroup name="Color" label={t('editor:properties.groundPlane.lbl-color')}>
-        <ColorInput value={groundPlaneComponent.color.value} onChange={updateProperty(GroundPlaneComponent, 'color')} />
+        <ColorInput
+          value={groundPlaneComponent.color.value}
+          onChange={updateProperty(GroundPlaneComponent, 'color')}
+          onRelease={commitProperty(GroundPlaneComponent, 'color')}
+        />
+      </InputGroup>
+      <InputGroup
+        name="Visible"
+        label={t('editor:properties.groundPlane.lbl-visible')}
+        info={t('editor:properties.groundPlane.info-visible')}
+      >
+        <BooleanInput
+          value={groundPlaneComponent.visible.value}
+          onChange={commitProperty(GroundPlaneComponent, 'visible')}
+        />
       </InputGroup>
       <ShadowProperties entity={props.entity} />
     </NodeEditor>

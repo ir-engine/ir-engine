@@ -58,7 +58,6 @@ import { SystemComponent } from '@etherealengine/engine/src/scene/components/Sys
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { PersistentAnchorComponent } from '@etherealengine/engine/src/xr/XRAnchorComponents'
 
 // import ChairIcon from '@mui/icons-material/Chair'
@@ -83,6 +82,7 @@ import LoadVolumeNodeEditor from '../components/properties/LoadVolumeNodeEditor'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
+import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
@@ -95,6 +95,7 @@ import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
 import PositionalAudioNodeEditor from '../components/properties/PositionalAudioNodeEditor'
 import { PostProcessingSettingsEditor } from '../components/properties/PostProcessingSettingsEditor'
+import PrimitiveGeometryNodeEditor from '../components/properties/PrimitiveGeometryNodeEditor'
 import { RenderSettingsEditor } from '../components/properties/RenderSettingsEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
@@ -105,14 +106,12 @@ import { SplineNodeEditor } from '../components/properties/SplineNodeEditor'
 import { SplineTrackNodeEditor } from '../components/properties/SplineTrackNodeEditor'
 import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
-import TransformPropertyGroup from '../components/properties/TransformPropertyGroup'
 import { EditorComponentType } from '../components/properties/Util'
 import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 
 export const EntityNodeEditor = new Map<Component, EditorComponentType>()
-EntityNodeEditor.set(TransformComponent, TransformPropertyGroup)
 EntityNodeEditor.set(PostProcessingComponent, PostProcessingSettingsEditor)
 EntityNodeEditor.set(MediaSettingsComponent, MediaSettingsEditor)
 EntityNodeEditor.set(RenderSettingsComponent, RenderSettingsEditor)
@@ -128,6 +127,8 @@ EntityNodeEditor.set(ModelComponent, ModelNodeEditor)
 EntityNodeEditor.set(ShadowComponent, ShadowProperties)
 EntityNodeEditor.set(LoopAnimationComponent, LoopAnimationNodeEditor)
 EntityNodeEditor.set(ParticleSystemComponent, ParticleSystemNodeEditor)
+EntityNodeEditor.set(PrimitiveGeometryComponent, PrimitiveGeometryNodeEditor)
+
 EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
 EntityNodeEditor.set(MountPointComponent, MountPointNodeEditor)
 EntityNodeEditor.set(ColliderComponent, ColliderNodeEditor)

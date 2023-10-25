@@ -233,7 +233,7 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
     return
   }
 
-  const instances = (await app.service(instancePath)._find({
+  const instances = (await app.service(instancePath).find({
     query: {
       ended: false
     },

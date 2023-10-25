@@ -30,12 +30,12 @@ import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/n
 import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface InstanceFriendsParams extends RootParams {}
+export interface InstanceFriendsParams extends KnexAdapterParams {}
 
 /**
  * A class for InstanceFriends service
@@ -51,7 +51,7 @@ export class InstanceFriendsService implements ServiceInterface<InstanceType, In
   async find(params?: InstanceFriendsParams) {
     if (params!.user) throw new Error('User not found')
     try {
-      const instances = (await this.app.service(instancePath)._find({
+      const instances = (await this.app.service(instancePath).find({
         query: {
           ended: false
         },

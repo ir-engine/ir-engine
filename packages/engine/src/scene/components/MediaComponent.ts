@@ -133,12 +133,12 @@ export const MediaComponent = defineComponent({
       resources: [] as string[],
       playMode: PlayMode.loop as PlayMode,
       isMusic: false,
+      seekTime: 0,
       /**@deprecated */
       paths: [] as string[],
       // runtime props
       paused: true,
       ended: true,
-      seekTime: 0,
       waiting: false,
       track: 0,
       trackDurations: [] as number[],
@@ -162,7 +162,7 @@ export const MediaComponent = defineComponent({
     return {
       controls: component.controls.value,
       autoplay: component.autoplay.value,
-      resources: component.resources.value.filter(Boolean), // filter empty strings
+      resources: [...component.resources.value].filter(Boolean), // filter empty strings
       volume: component.volume.value,
       synchronize: component.synchronize.value,
       playMode: component.playMode.value,
@@ -217,6 +217,8 @@ export const MediaComponent = defineComponent({
 
       if (typeof json.isMusic === 'boolean' && component.isMusic.value !== json.isMusic)
         component.isMusic.set(json.isMusic)
+
+      if (typeof json.volume === 'number') component.volume.set(json.volume)
 
       // @ts-ignore deprecated autoplay field
       if (typeof json.paused === 'boolean') component.autoplay.set(!json.paused)
@@ -443,7 +445,7 @@ export function MediaReactor() {
         mediaElementState.value.element.play()
       }
     },
-    [media.resources, media.track, media.ended, media.playMode]
+    [media.resources, media.ended, media.playMode]
   )
 
   useEffect(

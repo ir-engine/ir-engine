@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createContext, useContext } from 'react'
+import React, { useEffect } from 'react'
+import { RouterState } from '../services/RouterService'
 
-export const DialogContext = createContext<[JSX.Element | null, (c: JSX.Element | null) => void]>([null, () => {}])
-
-export const useDialog = () => {
-  return useContext(DialogContext)
+export const Redirect = (props: { to: string }) => {
+  useEffect(() => {
+    RouterState.navigate(props.to)
+  })
+  return <></>
 }

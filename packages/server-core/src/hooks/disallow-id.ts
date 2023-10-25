@@ -23,28 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect, useState } from 'react'
+import { HookContext } from '@feathersjs/feathers'
 
-import { Dependencies, NodeDefinitionsMap, NodeSpecJSON, ValueTypeMap, writeNodeSpecsToJSON } from '@behave-graph/core'
+import { BadRequest } from '@feathersjs/errors'
+import { AsyncLocalStorage } from 'async_hooks'
 
-export const useNodeSpecJson = ({
-  values,
-  nodes,
-  dependencies
-}: {
-  values: ValueTypeMap
-  nodes: NodeDefinitionsMap
-  dependencies: Dependencies | undefined
-}) => {
-  const [specJson, setSpecJson] = useState<NodeSpecJSON[]>()
+export const asyncLocalStorage = new AsyncLocalStorage<{ headers: any }>()
 
-  useEffect(() => {
-    if (!nodes || !values || !dependencies) {
-      setSpecJson(undefined)
-      return
-    }
-    setSpecJson(writeNodeSpecsToJSON({ nodes, values, dependencies }))
-  }, [nodes, values, dependencies])
-
-  return specJson
+/**
+ * A method that disallows the use of id in request.
+ */
+export default async (context: HookContext) => {
+  if (context.id) {
+    throw new BadRequest(`Can only ${context.method} via query`)
+  }
 }

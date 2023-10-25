@@ -41,7 +41,6 @@ import config from '@etherealengine/common/src/config'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -87,8 +86,8 @@ import { State, dispatchAction, getMutableState, getState, none } from '@etherea
 import {
   Action,
   Topic,
-  addActionReceptor,
-  removeActionReceptor
+  defineActionQueue,
+  removeActionQueue
 } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { MathUtils } from 'three'
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
@@ -106,6 +105,10 @@ import { clearPeerMediaChannels } from './PeerMediaChannelState'
 import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/functions/NetworkActionFunctions'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { encode } from 'msgpackr'
+
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { defineSystem, disableSystem, startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
@@ -234,8 +237,10 @@ export const connectToNetwork = async (
   port: string,
   locationId?: string | null,
   channelId?: ChannelID | null,
-  roomCode?: string | null
+  roomCode?: RoomCode | null
 ) => {
+  logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, locationId, channelId, roomCode })
+
   const authState = getState(AuthState)
   const token = authState.authUser.accessToken
 
@@ -249,7 +254,7 @@ export const connectToNetwork = async (
     instanceID: InstanceID
     locationId?: string
     channelId?: ChannelID
-    roomCode?: string
+    roomCode?: RoomCode
     address?: string
     port?: string
     token: string
@@ -317,7 +322,7 @@ export const connectToNetwork = async (
 
 export const getChannelIdFromTransport = (network: SocketWebRTCClientNetwork) => {
   const channelConnectionState = getState(MediaInstanceState)
-  const mediaNetwork = Engine.instance.mediaNetwork
+  const mediaNetwork = NetworkState.mediaNetwork
   const currentChannelInstanceConnection = mediaNetwork && channelConnectionState.instances[mediaNetwork.id]
   const isWorldConnection = network.topic === NetworkTopics.world
   return isWorldConnection ? null : currentChannelInstanceConnection?.channelId
@@ -493,24 +498,34 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
 
       //  TODO - this is an anti pattern, how else can we resolve this? inject a system?
       try {
-        const transportConnected = await new Promise<typeof MediasoupTransportActions.transportConnected.matches._TYPE>(
-          (resolve, reject) => {
-            const onAction = (action) => {
-              if (action.requestID !== requestID) return
-              matches(action)
-                .when(MediasoupTransportActions.transportConnected.matches, (action) => {
-                  removeActionReceptor(onAction)
-                  resolve(action)
-                })
-                .when(MediasoupTransportActions.requestTransportConnectError.matches, (action) => {
-                  removeActionReceptor(onAction)
-                  logger.error(action.error)
-                  reject(new Error(action.error))
-                })
-            }
-            addActionReceptor(onAction)
+        const transportConnected = await new Promise<any>((resolve, reject) => {
+          const actionQueue = defineActionQueue(MediasoupTransportActions.transportConnected.matches)
+          const errorQueue = defineActionQueue(MediasoupTransportActions.requestTransportConnectError.matches)
+
+          const cleanup = () => {
+            disableSystem(systemUUID)
+            removeActionQueue(actionQueue)
+            removeActionQueue(errorQueue)
           }
-        )
+
+          const systemUUID = defineSystem({
+            uuid: 'action-receptor-' + requestID,
+            execute: () => {
+              for (const action of actionQueue()) {
+                if (action.requestID !== requestID) return
+                cleanup()
+                resolve(action)
+              }
+              for (const action of errorQueue()) {
+                if (action.requestID !== requestID) return
+                cleanup()
+                logger.error(action.error)
+                reject(new Error(action.error))
+              }
+            }
+          })
+          startSystem(systemUUID, { after: PresentationSystemGroup })
+        })
         callback()
       } catch (e) {
         logger.error('Transport connect error', e)
@@ -572,24 +587,34 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
 
         //  TODO - this is an anti pattern, how else can we resolve this? inject a system?
         try {
-          const producerPromise = await new Promise<typeof MediaProducerActions.producerCreated.matches._TYPE>(
-            (resolve, reject) => {
-              const onAction = (action) => {
-                if (action.requestID !== requestID) return
-                matches(action)
-                  .when(MediaProducerActions.producerCreated.matches, (action) => {
-                    removeActionReceptor(onAction)
-                    resolve(action)
-                  })
-                  .when(MediaProducerActions.requestProducerError.matches, (action) => {
-                    removeActionReceptor(onAction)
-                    logger.error(action.error)
-                    reject(new Error(action.error))
-                  })
-              }
-              addActionReceptor(onAction)
+          const producerPromise = await new Promise<any>((resolve, reject) => {
+            const actionQueue = defineActionQueue(MediaProducerActions.producerCreated.matches)
+            const errorQueue = defineActionQueue(MediaProducerActions.requestProducerError.matches)
+
+            const cleanup = () => {
+              disableSystem(systemUUID)
+              removeActionQueue(actionQueue)
+              removeActionQueue(errorQueue)
             }
-          )
+
+            const systemUUID = defineSystem({
+              uuid: 'action-receptor-' + requestID,
+              execute: () => {
+                for (const action of actionQueue()) {
+                  if (action.requestID !== requestID) return
+                  cleanup()
+                  resolve(action)
+                }
+                for (const action of errorQueue()) {
+                  if (action.requestID !== requestID) return
+                  cleanup()
+                  logger.error(action.error)
+                  reject(new Error(action.error))
+                }
+              }
+            })
+            startSystem(systemUUID, { after: PresentationSystemGroup })
+          })
           callback({ id: producerPromise.producerID })
         } catch (e) {
           errback(e)
@@ -629,25 +654,34 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
 
         //  TODO - this is an anti pattern, how else can we resolve this? inject a system?
         try {
-          const producerPromise = await new Promise<typeof MediasoupDataProducerActions.producerCreated.matches._TYPE>(
-            (resolve, reject) => {
-              const onAction = (action) => {
-                if (action.requestID !== requestID) return
-                matches(action)
-                  .when(MediasoupDataProducerActions.producerCreated.matches, (action) => {
-                    removeActionReceptor(onAction)
-                    resolve(action)
-                  })
-                  .when(MediasoupDataProducerActions.requestProducerError.matches, (action) => {
-                    removeActionReceptor(onAction)
-                    logger.error(action.error)
-                    reject(new Error(action.error))
-                  })
-              }
-              addActionReceptor(onAction)
-            }
-          )
+          const producerPromise = await new Promise<any>((resolve, reject) => {
+            const actionQueue = defineActionQueue(MediasoupDataProducerActions.producerCreated.matches)
+            const errorQueue = defineActionQueue(MediasoupDataProducerActions.requestProducerError.matches)
 
+            const cleanup = () => {
+              disableSystem(systemUUID)
+              removeActionQueue(actionQueue)
+              removeActionQueue(errorQueue)
+            }
+
+            const systemUUID = defineSystem({
+              uuid: 'action-receptor-' + requestID,
+              execute: () => {
+                for (const action of actionQueue()) {
+                  if (action.requestID !== requestID) return
+                  cleanup()
+                  resolve(action)
+                }
+                for (const action of errorQueue()) {
+                  if (action.requestID !== requestID) return
+                  cleanup()
+                  logger.error(action.error)
+                  reject(new Error(action.error))
+                }
+              }
+            })
+            startSystem(systemUUID, { after: PresentationSystemGroup })
+          })
           callback({ id: producerPromise.producerID })
         } catch (e) {
           errback(e)
@@ -1058,7 +1092,7 @@ export const toggleFaceTracking = async () => {
     stopFaceTracking()
     stopLipsyncTracking()
   } else {
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (await configureMediaTransports(['video', 'audio'])) {
       mediaStreamState.faceTracking.set(true)
       startFaceTracking()
@@ -1069,7 +1103,7 @@ export const toggleFaceTracking = async () => {
 
 export const toggleMicrophonePaused = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   if (await configureMediaTransports(['audio'])) {
     if (!mediaStreamState.camAudioProducer.value) await createCamAudioProducer(mediaNetwork)
     else {
@@ -1084,7 +1118,7 @@ export const toggleMicrophonePaused = async () => {
 export const toggleWebcamPaused = async () => {
   console.log('toggleWebcamPaused')
   const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   if (await configureMediaTransports(['video'])) {
     if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
     else {
@@ -1099,14 +1133,14 @@ export const toggleWebcamPaused = async () => {
 
 export const toggleScreenshare = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   if (mediaStreamState.screenVideoProducer.value) await stopScreenshare(mediaNetwork)
   else await startScreenshare(mediaNetwork)
 }
 
 export const toggleScreenshareAudioPaused = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   const audioPaused = mediaStreamState.screenShareAudioPaused.value
   if (audioPaused) resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
   else pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
@@ -1115,7 +1149,7 @@ export const toggleScreenshareAudioPaused = async () => {
 
 export const toggleScreenshareVideoPaused = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   const videoPaused = mediaStreamState.screenShareVideoPaused.value
   if (videoPaused) await startScreenshare(mediaNetwork)
   else await stopScreenshare(mediaNetwork)
@@ -1137,8 +1171,8 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork) {
       getMutableState(NetworkState).hostIds.world.set(none)
       getMutableState(LocationInstanceState).instances[network.id].set(none)
       // if world has a media server connection
-      if (Engine.instance.mediaNetwork) {
-        leaveNetwork(Engine.instance.mediaNetwork as SocketWebRTCClientNetwork)
+      if (NetworkState.mediaNetwork) {
+        leaveNetwork(NetworkState.mediaNetwork as SocketWebRTCClientNetwork)
       }
       const parsed = new URL(window.location.href)
       const query = parsed.searchParams

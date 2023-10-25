@@ -49,14 +49,10 @@ import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/Infinit
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { defineActionQueue, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { SceneState } from '../../../engine/src/ecs/classes/Scene'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
@@ -70,22 +66,9 @@ import {
   toggleTransformSpace
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
-import { EditorHistoryAction, EditorHistoryReceptorSystem } from '../services/EditorHistory'
+import { EditorHelperState } from '../services/EditorHelperState'
+import { EditorHistoryAction, EditorHistoryReceptorSystem, EditorHistoryState } from '../services/EditorHistory'
 import { EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
-
-const SELECT_SENSITIVITY = 0.001
-const createTransformGizmo = () => {
-  const gizmoEntity = createEntity()
-  setComponent(gizmoEntity, NameComponent, 'gizmoEntity')
-
-  setComponent(gizmoEntity, TransformComponent)
-
-  setComponent(gizmoEntity, TransformGizmoComponent)
-
-  setComponent(gizmoEntity, VisibleComponent)
-  return gizmoEntity
-}
 
 //const gizmoEntity = createTransformGizmo()
 const raycaster = new Raycaster()
@@ -151,9 +134,12 @@ const onKeyX = () => {
 
 const onKeyZ = (control: boolean, shift: boolean) => {
   if (control) {
+    const state = getState(EditorHistoryState)
     if (shift) {
+      if (state.index >= state.history.length - 1) return
       dispatchAction(EditorHistoryAction.redo({ count: 1 }))
     } else {
+      if (state.index <= 0) return
       dispatchAction(EditorHistoryAction.undo({ count: 1 }))
     }
   } else {
@@ -267,6 +253,14 @@ const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount = 0): v
   }
 }
 
+const compareArrays = (a: any[], b: any[]) => {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+
 const doZoom = (zoom) => {
   const zoomDelta = typeof zoom === 'number' ? zoom - lastZoom : 0
   lastZoom = zoom
@@ -275,15 +269,12 @@ const doZoom = (zoom) => {
 
 const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
-const changedTransformMode = defineActionQueue(EditorHelperAction.changedTransformMode.matches)
-
 const execute = () => {
   if (Engine.instance.localClientEntity) return // we are in live mode
 
   const editorHelperState = getState(EditorHelperState)
   const selectionState = getMutableState(SelectionState)
   const pointerState = getState(InputState).pointerState
-  const cursorPosition = pointerState.position
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
@@ -349,7 +340,6 @@ const SceneObjectEntityReactor = (props: { entity: Entity }) => {
 
 const reactor = () => {
   const sceneObjectEntities = useQuery([SceneObjectComponent])
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const selectionState = useHookstate(getMutableState(SelectionState))
   const sceneState = useHookstate(getMutableState(SceneState))
 
@@ -380,7 +370,7 @@ const reactor = () => {
     setComponent(lastSelection as Entity, TransformGizmoComponent)
 
     // handle gizmo attachment
-  }, [selectionState.selectionCounter, selectionState.selectedParentEntities])
+  }, [selectionState.selectedParentEntities])
 
   // there is no deterministic ordering for react useeffect better to club them togther
 

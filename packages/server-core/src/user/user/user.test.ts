@@ -138,17 +138,9 @@ describe('user service', () => {
     const newName = v1()
     const user1 = users[0]
     const user2 = users[1]
-    await app.service(userPath).patch(
-      null,
-      {
-        name: newName
-      },
-      {
-        query: {
-          id: user1.id
-        }
-      }
-    )
+    await app.service(userPath).patch(user1.id, {
+      name: newName
+    })
     const updatedUser1 = await app.service(userPath).get(user1.id)
     const updatedUser2 = await app.service(userPath).get(user2.id)
     assert.equal(newName, updatedUser1.name)

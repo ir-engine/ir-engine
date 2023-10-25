@@ -31,8 +31,6 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { RingBuffer } from '../common/classes/RingBuffer'
 
-import { Engine } from '../ecs/classes/Engine'
-
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
@@ -42,7 +40,7 @@ import { NormalizedLandmarkList } from '@mediapipe/pose'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
 import { getState } from '@etherealengine/hyperflux'
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
+import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import {
   BufferAttribute,
   BufferGeometry,
@@ -58,7 +56,9 @@ import {
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { V_010 } from '../common/constants/MathConstants'
 import { isClient } from '../common/functions/getEnvironment'
+import { Engine } from '../ecs/classes/Engine'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { NetworkState } from '../networking/NetworkState'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
@@ -121,7 +121,7 @@ const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 const execute = () => {
   // for now, it is unnecessary to compute anything on the server
   if (!isClient) return
-  const network = Engine.instance.worldNetwork
+  const network = NetworkState.worldNetwork
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
@@ -129,15 +129,15 @@ const execute = () => {
     }
   }
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    const data = mocapData.popLast()
+    const data = mocapData.getFirst()
     const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
-    if (data && entity) {
-      timeSeriesMocapLastSeen.set(peerID, Date.now())
-      setComponent(entity, MotionCaptureRigComponent)
-      solveMotionCapturePose(data.results.poseWorldLandmarks, userID, entity)
-    }
+    timeSeriesMocapLastSeen.set(peerID, Date.now())
+    setComponent(entity, MotionCaptureRigComponent)
+    solveMotionCapturePose(entity, data?.results.poseWorldLandmarks, data?.results.poseLandmarks)
+
+    mocapData.clear() // TODO: add a predictive filter and remove this
   }
 
   for (const entity of motionCaptureQuery()) {
@@ -151,7 +151,17 @@ const execute = () => {
     for (const boneName of VRMHumanBoneList) {
       const localbone = rigComponent.localRig[boneName]?.node
       if (!localbone) continue
-
+      if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
+        if (
+          boneName == VRMHumanBoneName.LeftUpperLeg ||
+          boneName == VRMHumanBoneName.RightUpperLeg ||
+          boneName == VRMHumanBoneName.LeftLowerLeg ||
+          boneName == VRMHumanBoneName.RightLowerLeg ||
+          boneName == VRMHumanBoneName.LeftFoot ||
+          boneName == VRMHumanBoneName.RightFoot
+        )
+          continue
+      }
       if (
         MotionCaptureRigComponent.rig[boneName].x[entity] === 0 &&
         MotionCaptureRigComponent.rig[boneName].y[entity] === 0 &&
@@ -192,7 +202,8 @@ const execute = () => {
           // mesh.add(new AxesHelper(0.1))
           if (key === 'hips') mesh.material.color.setHex(0xff0000)
           if (key === 'spine') mesh.material.color.setHex(0x00ff00)
-          if (key === 'chest') mesh.material.color.setHex(0x0000ff)
+          if (key === 'chest') mesh.material.color.setHex(0x4488ff)
+          if (key === 'upperChest') mesh.material.color.setHex(0x0000ff)
           boneHelpers[key] = mesh
           helperGroup.add(mesh)
           if (!helperGroup.parent) Engine.instance.scene.add(helperGroup)

@@ -36,6 +36,8 @@ import {
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
+import { computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { previewScreenshot } from '../../functions/takeScreenshot'
 import { PropertiesPanelButton } from '../inputs/Button'
 import ImagePreviewInput from '../inputs/ImagePreviewInput'
@@ -57,7 +59,9 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     const transform = getComponent(props.entity, LocalTransformComponent)
     transform.position.copy(position)
     transform.rotation.copy(rotation)
-    LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
+    computeTransformMatrix(props.entity)
+
+    EditorControlFunctions.commitTransformSave([props.entity])
   }
 
   const updateScenePreview = async () => {

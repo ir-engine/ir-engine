@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent, useOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import {
   MediaComponent,
@@ -45,7 +45,7 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 const PlayModeOptions = [
   {
@@ -70,7 +70,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const media = useComponent(props.entity, MediaComponent)
-  const element = useComponent(props.entity, MediaElementComponent)
+  const element = useOptionalComponent(props.entity, MediaElementComponent)
   const errors = getEntityErrors(props.entity, MediaComponent)
 
   const toggle = () => {
@@ -78,7 +78,9 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   }
 
   const reset = () => {
-    setTime(element.element, media.seekTime.value)
+    if (element) {
+      setTime(element.element, media.seekTime.value)
+    }
   }
 
   return (
@@ -101,6 +103,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           step={0.01}
           value={media.volume.value}
           onChange={updateProperty(MediaComponent, 'volume')}
+          onRelease={commitProperty(MediaComponent, 'volume')}
         />
       </InputGroup>
       <NumericInputGroup
@@ -108,36 +111,37 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.seektime')}
         value={media.seekTime.value}
         onChange={updateProperty(MediaComponent, 'seekTime')}
+        onRelease={commitProperty(MediaComponent, 'seekTime')}
       />
       <InputGroup name="Is Music" label={t('editor:properties.media.lbl-isMusic')}>
-        <BooleanInput value={media.isMusic.value} onChange={updateProperty(MediaComponent, 'isMusic')} />
+        <BooleanInput value={media.isMusic.value} onChange={commitProperty(MediaComponent, 'isMusic')} />
       </InputGroup>
       <InputGroup
         name="Controls"
         label={t('editor:properties.media.lbl-controls')}
         info={t('editor:properties.media.info-controls')}
       >
-        <BooleanInput value={media.controls.value} onChange={updateProperty(MediaComponent, 'controls')} />
+        <BooleanInput value={media.controls.value} onChange={commitProperty(MediaComponent, 'controls')} />
       </InputGroup>
       <InputGroup
         name="Auto Play"
         label={t('editor:properties.media.lbl-autoplay')}
         info={t('editor:properties.media.info-autoplay')}
       >
-        <BooleanInput value={media.autoplay.value} onChange={updateProperty(MediaComponent, 'autoplay')} />
+        <BooleanInput value={media.autoplay.value} onChange={commitProperty(MediaComponent, 'autoplay')} />
       </InputGroup>
       <InputGroup
         name="Synchronize"
         label={t('editor:properties.media.lbl-synchronize')}
         info={t('editor:properties.media.info-synchronize')}
       >
-        <BooleanInput value={media.synchronize.value} onChange={updateProperty(MediaComponent, 'synchronize')} />
+        <BooleanInput value={media.synchronize.value} onChange={commitProperty(MediaComponent, 'synchronize')} />
       </InputGroup>
       <ArrayInputGroup
         name="Source Paths"
         prefix="Content"
         values={media.resources.value}
-        onChange={updateProperty(MediaComponent, 'resources')}
+        onChange={commitProperty(MediaComponent, 'resources')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={AllFileTypes}
         acceptDropItems={SupportedFileTypes}
@@ -147,18 +151,18 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={PlayModeOptions}
           value={media.playMode.value}
-          onChange={updateProperty(MediaComponent, 'playMode')}
+          onChange={commitProperty(MediaComponent, 'playMode')}
         />
       </InputGroup>
       {media.resources.length > 0 && (
-        <PropertiesPanelButton type="submit" onClick={toggle}>
-          {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
-        </PropertiesPanelButton>
-      )}
-      {media.resources.length > 0 && (
-        <PropertiesPanelButton type="submit" onClick={reset}>
-          {t('editor:properties.media.resettitle')}
-        </PropertiesPanelButton>
+        <InputGroup name="media-controls" label="media-controls">
+          <PropertiesPanelButton type="submit" onClick={toggle}>
+            {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
+          </PropertiesPanelButton>
+          <PropertiesPanelButton type="submit" onClick={reset}>
+            {t('editor:properties.media.resettitle')}
+          </PropertiesPanelButton>
+        </InputGroup>
       )}
     </NodeEditor>
   )

@@ -46,7 +46,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(messagePath, new MessageService(options, app), {
+  app.use(messagePath, new MessageService(options), {
     // A list of all methods this service exposes externally
     methods: messageMethods,
     // You can add additional custom events to be sent to clients here
@@ -74,6 +74,7 @@ export default (app: Application): void => {
       })
       return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     }
+
   service.publish('created', onCRUD(app))
   service.publish('removed', onCRUD(app))
   service.publish('patched', onCRUD(app))

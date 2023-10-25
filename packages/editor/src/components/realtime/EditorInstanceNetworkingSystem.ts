@@ -27,11 +27,12 @@ import { useEffect } from 'react'
 
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { addActionReceptor, getMutableState, getState, removeActionReceptor } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { EditorState } from '../../services/EditorServices'
-import { EditorActiveInstanceService, EditorActiveInstanceServiceReceptor } from './EditorActiveInstanceService'
+import { EditorActiveInstanceState } from './EditorActiveInstanceService'
 
 let accumulator = 0
 
@@ -43,8 +44,8 @@ const execute = () => {
 
   if (accumulator > 5) {
     accumulator = 0
-    const sceneId = `${editorState.projectName}/${editorState.sceneName}`
-    EditorActiveInstanceService.getActiveInstances(sceneId)
+    const sceneId = `${editorState.projectName}/${editorState.sceneName}` as SceneID
+    EditorActiveInstanceState.getActiveInstances(sceneId)
   }
 }
 
@@ -57,12 +58,6 @@ const reactor = () => {
       instanceID: false,
       roomID: false
     })
-
-    addActionReceptor(EditorActiveInstanceServiceReceptor)
-
-    return () => {
-      removeActionReceptor(EditorActiveInstanceServiceReceptor)
-    }
   }, [])
   return null
 }

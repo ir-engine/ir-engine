@@ -44,14 +44,14 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
 import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
 import { useTranslation } from 'react-i18next'
-import { EditorHelperAction, EditorHelperState } from '../../../services/EditorHelperState'
+import { EditorHistoryState } from '../../../services/EditorHistory'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const PlayModeTool = () => {
   const { t } = useTranslation()
 
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+  const isEditing = useHookstate(getMutableState(EngineState).isEditing)
   const authState = useHookstate(getMutableState(AuthState))
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
 
@@ -65,8 +65,10 @@ const PlayModeTool = () => {
       removeComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
       removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
-      dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: false }))
+      getMutableState(EngineState).isEditing.set(true)
       graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.stop({ entity })))
+
+      EditorHistoryState.applyCurrentSnapshot()
       // stop all behave graph logic
     } else {
       const avatarDetails = authState.user.avatar.value
@@ -80,7 +82,7 @@ const PlayModeTool = () => {
           name: authState.user.name.value
         })
 
-      dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: true }))
+      getMutableState(EngineState).isEditing.set(false)
       // run all behave graph logic
       graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.execute({ entity })))
     }
@@ -90,26 +92,18 @@ const PlayModeTool = () => {
     <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="preview">
       <InfoTooltip
         title={
-          editorHelperState.isPlayModeEnabled.value
-            ? t('editor:toolbar.command.lbl-stopPreview')
-            : t('editor:toolbar.command.lbl-playPreview')
+          isEditing.value ? t('editor:toolbar.command.lbl-playPreview') : t('editor:toolbar.command.lbl-stopPreview')
         }
         info={
-          editorHelperState.isPlayModeEnabled.value
-            ? t('editor:toolbar.command.info-stopPreview')
-            : t('editor:toolbar.command.info-playPreview')
+          isEditing.value ? t('editor:toolbar.command.info-playPreview') : t('editor:toolbar.command.info-stopPreview')
         }
       >
         <button
           disabled={!sceneLoaded}
           onClick={onTogglePlayMode}
-          className={styles.toolButton + ' ' + (editorHelperState.isPlayModeEnabled.value ? styles.selected : '')}
+          className={styles.toolButton + ' ' + (isEditing.value ? '' : styles.selected)}
         >
-          {editorHelperState.isPlayModeEnabled.value ? (
-            <PauseIcon fontSize="small" />
-          ) : (
-            <PlayArrowIcon fontSize="small" />
-          )}
+          {isEditing.value ? <PlayArrowIcon fontSize="small" /> : <PauseIcon fontSize="small" />}
         </button>
       </InfoTooltip>
     </div>

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   Camera,
+  CompressedTexture,
   CubeTexture,
   Mesh,
   NoColorSpace,
@@ -44,9 +45,14 @@ export type BlitTextureOptions = {
   flipX?: boolean
   flipY?: boolean
 }
+let canvas: HTMLCanvasElement
 
 function initializeTemporaryRenderer() {
-  return new WebGLRenderer({ antialias: false })
+  if (!canvas) {
+    canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas') as HTMLCanvasElement
+    canvas.style.display = 'block'
+  }
+  return new WebGLRenderer({ antialias: false, canvas })
 }
 
 let blitMaterial: ShaderMaterial
@@ -90,7 +96,7 @@ function initializeTemporaryScene() {
   return temporaryScene
 }
 
-function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
+async function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
   let blit: Texture = map.clone()
   if ((map as CubeTexture).isCubeTexture) {
     blit = new Texture(map.source.data[0])
@@ -129,19 +135,30 @@ function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
     blit.dispose()
   }
 
-  return new Promise<Blob | null>((resolve) =>
+  const blob = await new Promise<Blob | null>((resolve) =>
     (temporaryRenderer.domElement.getContext('webgl2')!.canvas as HTMLCanvasElement).toBlob(resolve)
   )
+
+  temporaryRenderer.dispose()
+
+  if (blob) {
+    return blob
+  }
 }
 
 export default async function createReadableTexture(
-  map: Texture,
+  map: Texture | CompressedTexture,
   options?: {
     url?: boolean
     canvas?: boolean
   } & BlitTextureOptions
 ): Promise<Texture | string> {
-  if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
+  if (
+    map instanceof CompressedTexture &&
+    map.isCompressedTexture &&
+    typeof map.source?.data?.src === 'string' &&
+    !/ktx2$/.test(map.source.data.src)
+  ) {
     return options?.url ? map.source.data.src : map
   }
   const result = await blitTexture(map, options)

@@ -31,7 +31,7 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
@@ -52,7 +52,7 @@ import {
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
@@ -86,16 +86,12 @@ const LoadingUISystemState = defineState({
     setObjectLayers(mesh, ObjectLayers.UI)
 
     return {
-      metadataLoaded: false,
       ui,
       mesh,
       transition
     }
   }
 })
-
-const avatarModelChangedQueue = defineActionQueue(EngineActions.avatarModelChanged.matches)
-const spectateUserQueue = defineActionQueue(EngineActions.spectateUser.matches)
 
 /** Scene Colors */
 function setDefaultPalette() {
@@ -117,48 +113,37 @@ const setColors = (image: HTMLImageElement) => {
   }
 }
 
-const blurTexture = (texture: Texture, blur = 4) => {
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-  canvas.width = texture.image.width
-  canvas.height = texture.image.height
-  ctx.drawImage(texture.image, 0, 0)
-  ctx.filter = `blur(${blur}px)`
-  ctx.drawImage(canvas, 0, 0)
-  texture.image = canvas
-  texture.needsUpdate = true
-  return texture
-}
-
 function LoadingReactor() {
   const loadingState = useHookstate(getMutableState(AppLoadingState))
   const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress)
+  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+  const userReady = useHookstate(getMutableState(EngineState).userReady)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const sceneData = useHookstate(getMutableState(SceneState).sceneData)
   const mesh = state.mesh.value
-  const metadataLoaded = state.metadataLoaded
 
   /** Handle loading state changes */
   useEffect(() => {
     const transition = getState(LoadingUISystemState).transition
+    if (loadingState.state.value === AppLoadingStates.SCENE_LOADING && transition.state === 'OUT')
+      return transition.setState('IN')
+
+    if (loadingState.state.value === AppLoadingStates.FAIL && transition.state === 'IN')
+      return transition.setState('OUT')
+
     if (
-      loadingState.state.value === AppLoadingStates.SCENE_LOADING &&
-      transition.state === 'OUT' &&
-      metadataLoaded.value
-    ) {
-      transition.setState('IN')
-    }
-    if (loadingState.state.value === AppLoadingStates.FAIL && transition.state === 'IN') {
-      transition.setState('OUT')
-    }
-  }, [loadingState.state, metadataLoaded])
+      loadingState.state.value === AppLoadingStates.SUCCESS &&
+      transition.state === 'IN' &&
+      userReady.value &&
+      sceneLoaded.value
+    )
+      return transition.setState('OUT')
+  }, [loadingState.state, userReady, sceneLoaded])
 
   /** Scene data changes */
   useEffect(() => {
     if (!sceneData.value) return
-    const envmapURL = sceneData.value.thumbnailUrl
-      .replace('thumbnail.jpeg', 'envmap.png')
-      .replace('thumbnail.ktx2', 'envmap.ktx2')
+    const envmapURL = sceneData.value.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
     if (envmapURL && mesh.userData.url !== envmapURL) {
       mesh.userData.url = envmapURL
       setDefaultPalette()
@@ -168,16 +153,14 @@ function LoadingReactor() {
         envmapURL,
         {},
         (texture: Texture | CompressedTexture) => {
+          mesh.material.map = texture
           const compressedTexture = texture as CompressedTexture
           if (compressedTexture.isCompressedTexture) {
             try {
               createReadableTexture(compressedTexture).then((texture: Texture) => {
                 const image = texture.image
-                blurTexture(texture)
-                mesh.material.map = texture
-                texture.needsUpdate = true
                 setColors(image)
-                compressedTexture.dispose()
+                texture.dispose()
               })
             } catch (e) {
               console.error(e)
@@ -185,9 +168,6 @@ function LoadingReactor() {
             }
           } else {
             const image = texture.image
-            blurTexture(texture)
-            mesh.material.map = texture
-            texture.needsUpdate = true
             setColors(image)
           }
         },
@@ -224,24 +204,10 @@ const mainThemeColor = new Color()
 const defaultColor = new Color()
 
 const execute = () => {
-  const { transition, ui, mesh, metadataLoaded } = getState(LoadingUISystemState)
+  const { transition, ui, mesh } = getState(LoadingUISystemState)
   if (!transition) return
 
-  const appLoadingState = getState(AppLoadingState)
   const engineState = getState(EngineState)
-
-  for (const action of spectateUserQueue()) {
-    if (appLoadingState.state === AppLoadingStates.SUCCESS && engineState.sceneLoaded) transition.setState('OUT')
-  }
-
-  for (const action of avatarModelChangedQueue()) {
-    if (
-      (action.entity === Engine.instance.localClientEntity || engineState.spectating) &&
-      appLoadingState.state === AppLoadingStates.SUCCESS &&
-      engineState.sceneLoaded
-    )
-      transition.setState('OUT')
-  }
 
   if (transition.state === 'OUT' && transition.alpha === 0) {
     removeComponent(ui.entity, ComputedTransformComponent)
@@ -319,7 +285,6 @@ const reactor = () => {
     //   removeEntity(ui.entity)
     //   mesh.removeFromParent()
     //   getMutableState(LoadingUISystemState).set({
-    //     metadataLoaded: false,
     //     ui: null!,
     //     mesh: null!,
     //     transition: null!

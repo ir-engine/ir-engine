@@ -47,10 +47,10 @@ import {
   instancePath
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
-import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { RoomCode, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -76,11 +76,11 @@ interface PrimusConnectionType {
   provider: string
   headers: any
   socketQuery?: {
-    sceneId: string
+    sceneId: SceneID
     locationId?: string
     instanceID?: InstanceID
     channelId?: string
-    roomCode?: string
+    roomCode?: RoomCode
     token: string
     EIO: string
     transport: string
@@ -233,7 +233,7 @@ const initializeInstance = async (
  * @param sceneId
  */
 
-const loadEngine = async (app: Application, sceneId: string) => {
+const loadEngine = async (app: Application, sceneId: SceneID) => {
   const instanceServerState = getState(InstanceServerState)
 
   const hostId = instanceServerState.instance.id as UserID & InstanceID
@@ -261,7 +261,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     getMutableState(NetworkState).hostIds.media.set(hostId)
     startMediaServerSystems()
     await loadEngineInjection(projects)
-    dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+    getMutableState(EngineState).isEngineInitialized.set(true)
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
@@ -274,7 +274,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     startWorldServerSystems()
     await loadEngineInjection(projects)
-    dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+    getMutableState(EngineState).isEngineInitialized.set(true)
 
     const sceneUpdatedListener = async () => {
       const sceneData = await sceneResultPromise
@@ -385,7 +385,7 @@ const createOrUpdateInstance = async (
   status: InstanceserverStatus,
   locationId: string,
   channelId: ChannelID,
-  sceneId: string,
+  sceneId: SceneID,
   userId?: UserID
 ) => {
   const instanceServerState = getState(InstanceServerState)
@@ -511,7 +511,7 @@ const handleUserDisconnect = async (
     }
   )
 
-  app.channel(`instanceIds/${instanceId as string}`).leave(connection)
+  app.channel(`instanceIds/${instanceId}`).leave(connection)
 
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
@@ -633,7 +633,10 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
       return logger.warn('got a connection to the wrong room code', instanceServerState.instance.roomCode, roomCode)
   }
 
-  const sceneId = locationId ? (await app.service(locationPath).get(locationId)).sceneId : ''
+  let sceneId = '' as SceneID
+  if (locationId) {
+    sceneId = (await app.service(locationPath).get(locationId)).sceneId
+  }
 
   /**
    * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance
@@ -662,7 +665,7 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
   } catch (err) {
     if (err.code === 401 && err.data.name === 'TokenExpiredError') {
       const jwtDecoded = decode(token)!
-      const idProvider = await app.service(identityProviderPath)._get(jwtDecoded.sub as string)
+      const idProvider = await app.service(identityProviderPath).get(jwtDecoded.sub as string)
       authResult = {
         [identityProviderPath]: idProvider
       }
@@ -708,7 +711,8 @@ export default (app: Application): void => {
   }
 
   app.service('instanceserver-load').on('patched', async (params) => {
-    const { id, ipAddress, podName, locationId, sceneId } = params
+    const { id, ipAddress, podName, locationId, sceneId }: { id; ipAddress; podName; locationId; sceneId: SceneID } =
+      params
 
     const serverState = getState(ServerState)
     const instanceServerState = getState(InstanceServerState)
@@ -731,16 +735,16 @@ export default (app: Application): void => {
 
   const kickCreatedListener = async (data: UserKickType) => {
     // TODO: only run for instanceserver
-    if (!Engine.instance.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
+    if (!NetworkState.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
 
     logger.info('kicking user id %s', data.userId)
 
-    const peerId = Engine.instance.worldNetwork.users[data.userId]
+    const peerId = NetworkState.worldNetwork.users[data.userId]
     if (!peerId || !peerId[0]) return
 
     logger.info('kicking peerId %o', peerId)
 
-    const peer = Engine.instance.worldNetwork.peers[peerId[0]]
+    const peer = NetworkState.worldNetwork.peers[peerId[0]]
     if (!peer || !peer.spark) return
 
     handleDisconnect(getServerNetwork(app), peer.peerID)

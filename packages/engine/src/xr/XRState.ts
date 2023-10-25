@@ -34,6 +34,21 @@ import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { DepthDataTexture } from './DepthDataTexture'
 
+export class XRAction {
+  static sessionChanged = defineAction({
+    type: 'xre.xr.sessionChanged' as const,
+    active: matches.boolean,
+    $cache: { removePrevious: true }
+  })
+
+  // todo, support more haptic formats other than just vibrating controllers
+  static vibrateController = defineAction({
+    type: 'xre.xr.vibrateController',
+    handedness: matches.literals('left', 'right'),
+    value: matches.number,
+    duration: matches.number
+  })
+}
 // TODO: divide this up into the systems that manage these states
 export const XRState = defineState({
   name: 'XRState',
@@ -92,32 +107,16 @@ export const ReferenceSpace = {
 }
 globalThis.ReferenceSpace = ReferenceSpace
 
-export class XRAction {
-  static sessionChanged = defineAction({
-    type: 'xre.xr.sessionChanged' as const,
-    active: matches.boolean,
-    $cache: { removePrevious: true }
-  })
-
-  // todo, support more haptic formats other than just vibrating controllers
-  static vibrateController = defineAction({
-    type: 'xre.xr.vibrateController',
-    handedness: matches.literals('left', 'right'),
-    value: matches.number,
-    duration: matches.number
-  })
-}
-
 /**
  * Gets the camera mode - either 'attached' or 'detached'
  * @returns the camera mode
  */
 export const getCameraMode = () => {
-  const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState)
+  const { avatarCameraMode, sceneScale, scenePlacementMode, session, sessionMode } = getState(XRState)
   if (!session || scenePlacementMode === 'placing') return 'detached'
   if (avatarCameraMode === 'auto') {
     if (session.interactionMode === 'screen-space') return 'detached'
-    return sceneScale === 1 ? 'attached' : 'detached'
+    return sceneScale === 1 || sessionMode == 'immersive-vr' ? 'attached' : 'detached'
   }
   return avatarCameraMode
 }

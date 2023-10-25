@@ -31,44 +31,37 @@ import {
   TransformSpace,
   TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
+import { EditorHelperState } from '../services/EditorHelperState'
 
 export const setTransformMode = (mode: TransformModeType): void => {
-  dispatchAction(EditorHelperAction.changedTransformMode({ mode }))
+  getMutableState(EditorHelperState).transformMode.set(mode)
 }
 
 export const toggleSnapMode = (): void => {
-  dispatchAction(
-    EditorHelperAction.changedSnapMode({
-      snapMode: getState(EditorHelperState).snapMode === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled
-    })
+  getMutableState(EditorHelperState).snapMode.set((value) =>
+    value === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled
   )
 }
 
 export const setTransformPivot = (transformPivot: TransformPivotType) => {
-  dispatchAction(EditorHelperAction.changedTransformPivotMode({ transformPivot }))
+  getMutableState(EditorHelperState).transformPivot.set(transformPivot)
 }
 
 export const toggleTransformPivot = () => {
   const pivots = Object.keys(TransformPivot)
   const nextIndex = (pivots.indexOf(getState(EditorHelperState).transformPivot) + 1) % pivots.length
 
-  dispatchAction(EditorHelperAction.changedTransformPivotMode({ transformPivot: TransformPivot[pivots[nextIndex]] }))
+  getMutableState(EditorHelperState).transformPivot.set(TransformPivot[pivots[nextIndex]])
 }
 
 export const setTransformSpace = (transformSpace: TransformSpaceType) => {
-  dispatchAction(EditorHelperAction.changedTransformSpaceMode({ transformSpace }))
+  getMutableState(EditorHelperState).transformSpace.set(transformSpace)
 }
 
 export const toggleTransformSpace = () => {
-  dispatchAction(
-    EditorHelperAction.changedTransformSpaceMode({
-      transformSpace:
-        getState(EditorHelperState).transformSpace === TransformSpace.world
-          ? TransformSpace.local
-          : TransformSpace.world
-    })
+  getMutableState(EditorHelperState).transformSpace.set((transformSpace) =>
+    transformSpace === TransformSpace.world ? TransformSpace.local : TransformSpace.world
   )
 }
