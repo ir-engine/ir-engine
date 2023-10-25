@@ -96,8 +96,25 @@ const ensureUserAccessibleAvatars = async (context: HookContext<AvatarService>) 
       isPublic: true
     }
   }
+}
 
-  return context
+const sortByUserName = async (context: HookContext<AvatarService>) => {
+  if (!context.params.query || !context.params.query.$sort?.['user']) return
+
+  const userSort = context.params.query.$sort['user']
+  delete context.params.query.$sort['user']
+
+  if (context.params.query.name) {
+    context.params.query[`${avatarPath}.name`] = context.params.query.name
+    delete context.params.query.name
+  }
+
+  const query = context.service.createQuery(context.params)
+
+  query.leftJoin(userPath, `${userPath}.id`, `${avatarPath}.userId`)
+  query.orderBy(`${userPath}.name`, userSort === 1 ? 'asc' : 'desc')
+
+  context.params.knex = query
 }
 
 /**
@@ -119,8 +136,6 @@ const removeAvatarResources = async (context: HookContext<AvatarService>) => {
   } catch (err) {
     logger.error(err)
   }
-
-  return context
 }
 
 /**
@@ -164,7 +179,8 @@ export default {
     all: [() => schemaHooks.validateQuery(avatarQueryValidator), schemaHooks.resolveQuery(avatarQueryResolver)],
     find: [
       iffElse(isAction('admin'), verifyScope('admin', 'admin'), ensureUserAccessibleAvatars),
-      discardQuery('action')
+      discardQuery('action'),
+      sortByUserName
     ],
     get: [],
     create: [
