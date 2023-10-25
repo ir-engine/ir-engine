@@ -23,14 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperflux'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { EditorHelperServiceReceptor } from './EditorHelperState'
+import {
+  apiJobDataSchema,
+  apiJobPatchSchema,
+  apiJobQuerySchema,
+  apiJobSchema
+} from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 
-export const registerEditorReceptors = () => {
-  addActionReceptor(EditorHelperServiceReceptor)
-}
-
-export const unregisterEditorReceptors = () => {
-  removeActionReceptor(EditorHelperServiceReceptor)
-}
+export default createSwaggerServiceOptions({
+  schemas: {
+    apiJobDataSchema,
+    apiJobPatchSchema,
+    apiJobQuerySchema,
+    apiJobSchema
+  },
+  docs: {
+    description: 'Build status service description',
+    securities: ['all']
+  }
+})

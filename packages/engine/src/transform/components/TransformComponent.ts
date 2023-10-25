@@ -46,6 +46,7 @@ export type TransformComponentType = {
   rotation: Quaternion
   scale: Vector3
   matrix: Matrix4
+  matrixInverse: Matrix4
 }
 
 const { f64 } = Types
@@ -68,54 +69,45 @@ export const TransformComponent = defineComponent({
   schema: TransformSchema,
 
   onInit: (entity) => {
-    return {
-      position: null! as Vector3,
-      rotation: null! as Quaternion,
-      scale: null! as Vector3,
+    const dirtyTransforms = TransformComponent.dirtyTransforms
+    const component = {
+      position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms) as Vector3,
+      rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms) as Quaternion,
+      scale: proxifyVector3WithDirty(
+        TransformComponent.scale,
+        entity,
+        dirtyTransforms,
+        new Vector3(1, 1, 1)
+      ) as Vector3,
       matrix: new Matrix4(),
       matrixInverse: new Matrix4()
-    }
+    } as TransformComponentType
+    return component
   },
 
   onSet: (entity, component, json) => {
-    const dirtyTransforms = TransformComponent.dirtyTransforms
-
-    if (!component.position.value)
-      component.position.set(
-        proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms, new Vector3())
-      )
-    if (!component.rotation.value)
-      component.rotation.set(
-        proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms, new Quaternion())
-      )
-    if (!component.scale.value)
-      component.scale.set(
-        proxifyVector3WithDirty(TransformComponent.scale, entity, dirtyTransforms, new Vector3(1, 1, 1))
-      )
-
-    if (!json) return
-
-    const rotation = json.rotation
+    const rotation = json?.rotation
       ? typeof json.rotation.w === 'number'
         ? json.rotation
         : new Quaternion().setFromEuler(new Euler().setFromVector3(json.rotation as any as Vector3))
       : undefined
 
-    if (json.position) component.position.value.copy(json.position)
+    if (json?.position) component.position.value.copy(json.position)
     if (rotation) component.rotation.value.copy(rotation)
-    if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
+    if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
 
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
     component.matrixInverse.value.copy(component.matrix.value).invert()
 
+    /** Update local transform */
     const localTransform = getOptionalComponent(entity, LocalTransformComponent)
     const entityTree = getOptionalComponent(entity, EntityTreeComponent)
     if (localTransform && entityTree?.parentEntity) {
       const parentEntity = entityTree.parentEntity
       const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
       if (parentTransform) {
-        const localMatrix = matrix.copy(component.matrix.value).premultiply(parentTransform.matrixInverse)
-        localMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+        localTransform.matrix.copy(component.matrix.value).premultiply(parentTransform.matrixInverse)
+        localTransform.matrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
       }
     }
   },
@@ -152,9 +144,22 @@ export const LocalTransformComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      position: component.position.value,
-      rotation: component.rotation.value,
-      scale: component.scale.value
+      position: {
+        x: component.position.value.x,
+        y: component.position.value.y,
+        z: component.position.value.z
+      } as Vector3,
+      rotation: {
+        x: component.rotation.value.x,
+        y: component.rotation.value.y,
+        z: component.rotation.value.z,
+        w: component.rotation.value.w
+      } as Quaternion,
+      scale: {
+        x: component.scale.value.x,
+        y: component.scale.value.y,
+        z: component.scale.value.z
+      } as Vector3
     }
   },
 
@@ -189,5 +194,3 @@ export const LocalTransformComponent = defineComponent({
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
   }
 })
-
-globalThis.TransformComponent = TransformComponent

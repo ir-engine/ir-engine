@@ -29,7 +29,6 @@ import { matches, matchesWithDefault } from '@etherealengine/engine/src/common/f
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import {
-  addActionReceptor,
   applyIncomingActions,
   clearOutgoingActions,
   createHyperStore,
@@ -37,8 +36,8 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
-  registerState,
-  removeActionReceptor
+  getState,
+  registerState
 } from '..'
 
 describe('Hyperflux Unit Tests', () => {
@@ -216,49 +215,6 @@ describe('Hyperflux Unit Tests', () => {
     assert(store.actions.outgoing[store.defaultTopic].queue[0].$cache === false)
   })
 
-  it('should be able to add and remove action receptors in a store', () => {
-    const store = createHyperStore({
-      getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
-      getDispatchTime: () => Date.now()
-    })
-    const receptor = () => {}
-    addActionReceptor(receptor)
-    assert.equal(store.receptors[0], receptor)
-    removeActionReceptor(receptor)
-    assert.equal(store.receptors.length, 0)
-  })
-
-  it('should be able to apply incoming actions to receptors in a local store', () => {
-    const store = createHyperStore({
-      getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
-      getDispatchTime: () => Date.now()
-    })
-    const greet = defineAction({
-      type: 'TEST_GREETING',
-      greeting: matchesWithDefault(matches.string, () => 'hi')
-    })
-    let receivedCount = 0
-    const receptor = (action) => {
-      assert(greet.matches.test(action))
-      receivedCount++
-    }
-    addActionReceptor(receptor)
-    dispatchAction(greet({}))
-    applyIncomingActions()
-    assert.equal(receivedCount, 1)
-
-    const action = greet({})
-    dispatchAction(action)
-    applyIncomingActions()
-    assert.equal(receivedCount, 2)
-    // ensure that the same action is not applied twice
-    dispatchAction(action)
-    applyIncomingActions()
-    assert.equal(receivedCount, 2)
-  })
-
   it('should add incoming actions to cache as indicated', () => {
     const store = createHyperStore({
       getDispatchId: () => 'id',
@@ -270,14 +226,6 @@ describe('Hyperflux Unit Tests', () => {
       greeting: matchesWithDefault(matches.string, () => 'hi')
     })
 
-    let receivedCount = 0
-    const receptor = (action) => {
-      assert(greet.matches.test(action))
-      receivedCount++
-    }
-
-    addActionReceptor(receptor)
-
     dispatchAction(greet({ $cache: true }))
     dispatchAction(greet({ $cache: false }))
     dispatchAction(greet({ $cache: true }))
@@ -285,12 +233,12 @@ describe('Hyperflux Unit Tests', () => {
     dispatchAction(greet({ $cache: true }))
     applyIncomingActions()
 
-    assert.equal(receivedCount, 5)
+    assert.equal(store.actions.history.length, 5)
     assert.equal(store.actions.cached.length, 4)
 
     dispatchAction(greet({ $cache: { removePrevious: true } }))
     applyIncomingActions()
-    assert.equal(receivedCount, 6)
+    assert.equal(store.actions.history.length, 6)
     assert.equal(store.actions.cached.length, 1)
 
     dispatchAction(greet({ $cache: true }))
@@ -299,30 +247,30 @@ describe('Hyperflux Unit Tests', () => {
     let greetAction = greet({ greeting: 'welcome', $cache: true })
     dispatchAction(greetAction)
     applyIncomingActions()
-    assert.equal(receivedCount, 10)
+    assert.equal(store.actions.history.length, 10)
     assert.equal(store.actions.cached.length, 5)
     assert.equal(store.actions.history.at(-1)!['greeting'], 'welcome')
 
     greetAction = greet({ greeting: 'welcome', $cache: { removePrevious: ['greeting'], disable: true } })
     dispatchAction(greetAction)
     applyIncomingActions()
-    assert.equal(receivedCount, 11)
+    assert.equal(store.actions.history.length, 11)
     assert.equal(store.actions.cached.length, 4)
     assert.equal(store.actions.history.at(-1)!['greeting'], 'welcome')
 
     dispatchAction(greet({ $from: 'differentUser' as UserID, $cache: { removePrevious: true } }))
     applyIncomingActions()
-    assert.equal(receivedCount, 12)
+    assert.equal(store.actions.history.length, 12)
     assert.equal(store.actions.cached.length, 5)
 
     dispatchAction(greet({ $cache: { removePrevious: true, disable: true } }))
     applyIncomingActions()
-    assert.equal(receivedCount, 13)
+    assert.equal(store.actions.history.length, 13)
     assert.equal(store.actions.cached.length, 1)
 
     dispatchAction(greet({ $from: 'differentUser' as UserID, $cache: { removePrevious: true, disable: true } }))
     applyIncomingActions()
-    assert.equal(receivedCount, 14)
+    assert.equal(store.actions.history.length, 14)
     assert.equal(store.actions.cached.length, 0)
   })
 
@@ -337,12 +285,6 @@ describe('Hyperflux Unit Tests', () => {
       type: 'TEST_GREETING',
       greeting: matchesWithDefault(matches.string, () => 'hi')
     })
-    let receivedAction = false
-    const receptor = (action) => {
-      assert(greet.matches.test(action))
-      receivedAction = true
-    }
-    addActionReceptor(receptor)
     dispatchAction(greet({}))
     assert(greet.matches.test(store.actions.outgoing[store.defaultTopic].queue[0]))
     store.actions.incoming.push(...store.actions.outgoing[store.defaultTopic].queue)
@@ -350,7 +292,7 @@ describe('Hyperflux Unit Tests', () => {
     assert(store.actions.outgoing[store.defaultTopic].queue.length === 0)
     assert(greet.matches.test(store.actions.incoming[0]))
     applyIncomingActions()
-    assert(receivedAction)
+    assert(store.actions.history.length)
   })
 
   it('should be able to apply multiple actions at once to a peer store', () => {
@@ -364,29 +306,23 @@ describe('Hyperflux Unit Tests', () => {
       type: 'TEST_GREETING',
       greeting: matchesWithDefault(matches.string, () => 'hi')
     })
-    let receivedCount = 0
-    const receptor = (action) => {
-      assert(greet.matches.test(action))
-      receivedCount++
-    }
-    addActionReceptor(receptor)
     dispatchAction(greet({}))
     dispatchAction(greet({}))
     dispatchAction(greet({}))
     dispatchAction(greet({}))
-    assert.equal(receivedCount, 0)
+    assert.equal(store.actions.history.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 4)
     clearOutgoingActions(store.defaultTopic)
-    assert.equal(receivedCount, 0)
+    assert.equal(store.actions.history.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 4)
     assert.equal(store.actions.incoming.length, 4)
     applyIncomingActions()
-    assert.equal(receivedCount, 4)
+    assert.equal(store.actions.history.length, 4)
     assert.equal(store.actions.history.length, 4)
     assert.equal(store.actions.knownUUIDs.size, 4)
     store.actions.incoming.push(...store.actions.outgoing[store.defaultTopic].history)
     applyIncomingActions()
-    assert.equal(receivedCount, 4)
+    assert.equal(store.actions.history.length, 4)
     assert.equal(store.actions.history.length, 4)
     assert.equal(store.actions.knownUUIDs.size, 4)
   })
@@ -402,27 +338,20 @@ describe('Hyperflux Unit Tests', () => {
       type: 'TEST_GREETING',
       greeting: matchesWithDefault(matches.string, () => 'hi')
     })
-    let receivedCount = 0
-    const receptor = (action) => {
-      assert(greet.matches.test(action))
-      receivedCount++
-    }
-    addActionReceptor(receptor)
     dispatchAction(greet({}))
     dispatchAction(greet({}))
     dispatchAction(greet({}))
     dispatchAction(greet({}))
-    assert.equal(receivedCount, 0)
+    assert.equal(store.actions.history.length, 0)
     assert.equal(store.actions.incoming.length, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
     clearOutgoingActions(store.defaultTopic)
-    assert.equal(receivedCount, 0)
+    assert.equal(store.actions.history.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 0)
     assert.equal(store.actions.incoming.length, 4)
     assert.equal(store.actions.history.length, 0)
     applyIncomingActions()
-    assert.equal(receivedCount, 4)
     assert.equal(store.actions.history.length, 4)
     assert.equal(store.actions.knownUUIDs.size, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 4)
@@ -439,10 +368,10 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(history[2], store.actions.outgoing[store.defaultTopic].history[2])
     assert.equal(history[3], store.actions.outgoing[store.defaultTopic].history[3])
     assert.equal(history[4], store.actions.outgoing[store.defaultTopic].history[4])
-    assert.equal(receivedCount, 4)
+    assert.equal(store.actions.history.length, 4)
     store.actions.incoming.push(...store.actions.outgoing[store.defaultTopic].history)
     applyIncomingActions()
-    assert.equal(receivedCount, 4)
+    assert.equal(store.actions.history.length, 4)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
     assert.equal(store.actions.history.length, 4)
@@ -508,18 +437,13 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(hospitality.greetingCount, 0)
   })
 
-  it('should be able to mutate registered state inside a receptor', () => {
+  it('should be able to mutate registered state', () => {
     const HospitalityState = defineState({
       name: 'test.hospitality.3',
       initial: () => ({
         greetingCount: 0,
         lastGreeting: null as string | null
       })
-    })
-
-    const greet = defineAction({
-      type: 'TEST_GREETING',
-      greeting: matchesWithDefault(matches.string, () => 'hi')
     })
 
     const store = createHyperStore({
@@ -530,14 +454,9 @@ describe('Hyperflux Unit Tests', () => {
     registerState(HospitalityState)
     assert(store.stateMap['test.hospitality.3'])
 
-    addActionReceptor((action) => {
-      matches(action).when(greet.matches, () => {})
-      const hospitality = getMutableState(HospitalityState)
-      hospitality.greetingCount.set(100)
-    })
+    const hospitality = getMutableState(HospitalityState)
+    hospitality.greetingCount.set(100)
 
-    dispatchAction(greet({}))
-    applyIncomingActions()
-    assert.equal(getMutableState(HospitalityState).greetingCount.value, 100)
+    assert.equal(getState(HospitalityState).greetingCount, 100)
   })
 })

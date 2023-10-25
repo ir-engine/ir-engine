@@ -117,7 +117,10 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
         label={t('editor:properties.renderSettings.lbl-csm')}
         info={t('editor:properties.renderSettings.info-csm')}
       >
-        <BooleanInput value={rendererSettingsState.csm.value} onChange={(val) => rendererSettingsState.csm.set(val)} />
+        <BooleanInput
+          value={rendererSettingsState.csm.value}
+          onChange={commitProperty(RenderSettingsComponent, 'csm')}
+        />
       </InputGroup>
       <InputGroup
         name="Tone Mapping"

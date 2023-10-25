@@ -23,11 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { AdapterQuery } from '@feathersjs/adapter-commons'
-import { KnexAdapterParams } from '@feathersjs/knex'
-
-export interface RootParams<Q = AdapterQuery> extends KnexAdapterParams<Q> {
-  user?: UserType
-  isInternal?: boolean
+export type RedirectConfig = {
+  domain?: string
+  path?: string
+  instanceId?: string
+  [key: string]: string | undefined
 }

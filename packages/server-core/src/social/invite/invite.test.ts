@@ -23,170 +23,189 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { inviteTypes } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
 import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Paginated } from '@feathersjs/feathers'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-let invites: any = []
-let user: any = null
-
-describe.skip('invite service', () => {
+describe('invite.service', () => {
   let app: Application
+  let testUser: UserType
+  let testLocation: LocationType
+  const invites: InviteType[] = []
 
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
+  })
 
-    await app.service(invitePath).hooks({
-      before: {
-        find: []
-      }
+  before(async () => {
+    const name = 'test-invite-user-name-' + v1()
+    const avatarName = 'test-invite-avatar-name-' + v1()
+
+    const avatar = await app.service(avatarPath).create({
+      name: avatarName
     })
 
-    // Create test user
-    const type = 'password'
-    const token = `${v1()}@etherealengine.io`
+    testUser = await app.service(userPath).create({
+      name,
+      avatarId: avatar.id,
+      isGuest: false,
+      scopes: []
+    })
 
-    user = await app.service(identityProviderPath).create(
+    testLocation = await app.service(locationPath).create(
       {
-        type,
-        token,
-        userId: '' as UserID
+        name: `test-location-name-${v1()}`,
+        slugifiedName: '',
+        sceneId: `test-invite-scene-${v1()}` as SceneID,
+        maxUsersPerInstance: 30,
+        locationSetting: {
+          id: '',
+          locationType: 'public',
+          audioEnabled: true,
+          videoEnabled: true,
+          faceStreamingEnabled: false,
+          screenSharingEnabled: false,
+          locationId: '',
+          createdAt: '',
+          updatedAt: ''
+        },
+        isLobby: false,
+        isFeatured: false
       },
-      {}
+      { isInternal: true }
     )
   })
 
   after(async () => {
     // Remove test user
-    await app.service(identityProviderPath)._remove(null, {
+    await app.service(identityProviderPath).remove(null, {
       query: {
-        userId: user.userId
+        userId: testUser.id
       }
+    })
+    await destroyEngine()
+  })
+
+  inviteTypes.forEach((inviteType) => {
+    it(`should create an invite with type ${inviteType}`, async () => {
+      const inviteType = 'friend'
+      const token = `${v1()}@etherealengine.io`
+      const identityProviderType = 'email'
+
+      const createdInvite = await app.service(invitePath).create(
+        {
+          inviteType,
+          token,
+          targetObjectId: testLocation.id,
+          identityProviderType,
+          deleteOnUse: true,
+          inviteeId: testUser.id
+        },
+        { user: testUser }
+      )
+
+      invites.push(createdInvite)
+
+      assert.ok(createdInvite.id)
+      assert.ok(createdInvite.passcode)
+      assert.equal(createdInvite.inviteType, inviteType)
+      assert.equal(createdInvite.token, token)
+      assert.equal(createdInvite.targetObjectId, testLocation.id)
+      assert.equal(createdInvite.inviteeId, testUser.id)
+      assert.equal(createdInvite.identityProviderType, identityProviderType)
     })
   })
 
-  it('registered the service', async () => {
-    const service = await app.service(invitePath)
-    assert.ok(service, 'Registered the service')
-  })
+  it('should find invites by searching', async () => {
+    const lastInvite = invites.at(-1)!
+    const foundInvites = await app.service(invitePath).find({
+      query: {
+        $or: [
+          {
+            inviteType: {
+              $like: '%' + lastInvite.passcode + '%'
+            }
+          },
+          {
+            passcode: {
+              $like: '%' + lastInvite.passcode + '%'
+            }
+          }
+        ]
+      },
+      isInternal: true
+    })
 
-  it('should create an invite with friend', async () => {
-    const inviteType = 'friend'
-    const token = `${v1()}@etherealengine.io`
-    const identityProviderType = 'email'
-
-    const item = (await app.service(invitePath).create({
-      inviteType,
-      token,
-      targetObjectId: user.userId,
-      identityProviderType,
-      deleteOnUse: true
-    })) as InviteType
-    invites.push(item)
-
-    assert.equal(item.inviteType, inviteType)
-    assert.equal(item.token, token)
-    assert.equal(item.targetObjectId, user.userId)
-    assert.equal(item.identityProviderType, identityProviderType)
-    assert.ok(item.id)
-    assert.ok(item.passcode)
-  })
-
-  it('should create an invite with group', async () => {
-    const inviteType = 'group'
-    const token = `${v1()}@etherealengine.io`
-    const identityProviderType = 'email'
-
-    const item = (await app.service(invitePath).create({
-      inviteType,
-      token,
-      targetObjectId: user.userId,
-      identityProviderType,
-      deleteOnUse: true
-    })) as InviteType
-    invites.push(item)
-
-    assert.equal(item.inviteType, inviteType)
-    assert.equal(item.token, token)
-    assert.equal(item.targetObjectId, user.userId)
-    assert.equal(item.identityProviderType, identityProviderType)
-    assert.ok(item.id)
-    assert.ok(item.passcode)
-  })
-
-  it('should create an invite with party', async () => {
-    const inviteType = 'party'
-    const token = `${v1()}@etherealengine.io`
-    const identityProviderType = 'email'
-
-    const item = (await app.service(invitePath).create({
-      inviteType,
-      token,
-      targetObjectId: user.userId,
-      identityProviderType,
-      deleteOnUse: true
-    })) as InviteType
-    invites.push(item)
-
-    assert.equal(item.inviteType, inviteType)
-    assert.equal(item.token, token)
-    assert.equal(item.targetObjectId, user.userId)
-    assert.equal(item.identityProviderType, identityProviderType)
-    assert.ok(item.id)
-    assert.ok(item.passcode)
-  })
-
-  it('should find invites with empty search string', async () => {
-    const items = await app.service(invitePath).find({ query: { search: '' } })
-    assert.ok(items)
-    assert.equal((items as Paginated<InviteType>).data.length, invites.length)
-  })
-
-  it('should find invites with search string present', async () => {
-    const lastInvite = invites.at(-1)
-    const item = await app.service(invitePath).find({ query: { search: invites.passcode } })
-
-    assert.equal((item as Paginated<InviteType>).data[0].passcode, lastInvite.passcode)
+    assert.equal(foundInvites.data[0].passcode, lastInvite?.passcode)
   })
 
   it('should find received invites', async () => {
-    const item = await app.service(invitePath).find({
+    const receivedInvites = await app.service(invitePath).find({
       query: {
-        type: 'received',
-        userId: user.userId
-      }
+        action: 'received'
+      },
+      user: testUser
     })
 
-    assert.ok(item, 'invite item is found')
+    assert.ok(receivedInvites.total > 0)
   })
 
   it('should find sent invites', async () => {
-    const item = await app.service(invitePath).find({
+    const sentInvites = await app.service(invitePath).find({
       query: {
-        type: 'sent',
-        userId: user.userId
-      }
+        action: 'sent'
+      },
+      user: testUser
     })
 
-    assert.ok(item, 'invite item is found')
+    assert.ok(sentInvites.total > 0)
+  })
+
+  it('should find invites by searching and query action present', async () => {
+    const secondLastInvite = invites.at(-2)!
+    const foundInvites = await app.service(invitePath).find({
+      query: {
+        action: 'sent',
+        $or: [
+          {
+            inviteType: {
+              $like: '%' + secondLastInvite.passcode + '%'
+            }
+          },
+          {
+            passcode: {
+              $like: '%' + secondLastInvite.passcode + '%'
+            }
+          }
+        ]
+      },
+      user: testUser
+    })
+
+    assert.equal(foundInvites.data[0].passcode, secondLastInvite?.passcode)
   })
 
   it('should have "total" in find method', async () => {
-    const item = await app.service(invitePath).find({})
+    const item = await app.service(invitePath).find({ isInternal: true })
 
     assert.ok('total' in item)
   })
 
   it('should remove invites', async () => {
     for (const invite of invites) {
-      const item = await app.service(invitePath).remove(invite.id, {})
-      assert.ok(item, 'invite item is removed')
+      await app.service(invitePath).remove(invite.id)
+      const foundInvites = await app.service(invitePath).find({ query: { id: invite.id }, isInternal: true })
+      assert.equal(foundInvites.total, 0)
     }
   })
 })

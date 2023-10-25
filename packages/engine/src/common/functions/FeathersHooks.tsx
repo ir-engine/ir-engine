@@ -87,7 +87,11 @@ export const FeathersState = defineState({
 
 type Args = MethodArgs[Methods]
 
-export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(serviceName: S, method: M, ...args: Args) => {
+export const useService = <S extends keyof ServiceTypes, M extends Methods>(
+  serviceName: S,
+  method: M,
+  ...args: Args
+) => {
   const service = Engine.instance.api.service(serviceName)
   const state = useHookstate(getMutableState(FeathersState))
 
@@ -156,7 +160,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
 }
 
 export const useGet = <S extends keyof ServiceTypes>(serviceName: S, id: string | undefined, params: Params = {}) => {
-  return useQuery(serviceName, 'get', id, params)
+  return useService(serviceName, 'get', id, params)
 }
 
 export type PaginationQuery = Partial<PaginationProps> & Query
@@ -164,13 +168,25 @@ export type PaginationQuery = Partial<PaginationProps> & Query
 export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Params<PaginationQuery> = {}) => {
   const paginate = usePaginate(params.query)
 
-  const response = useQuery(serviceName, 'find', {
-    ...params,
-    query: {
-      ...params.query,
-      ...paginate.query
+  let requestParams
+  if (params.query?.paginate === false || params.query?.$paginate === false) {
+    requestParams = {
+      ...params,
+      query: {
+        ...params.query
+      }
     }
-  })
+  } else {
+    requestParams = {
+      ...params,
+      query: {
+        ...params.query,
+        ...paginate.query
+      }
+    }
+  }
+
+  const response = useService(serviceName, 'find', requestParams)
 
   const data = response?.data
     ? Array.isArray(response.data)

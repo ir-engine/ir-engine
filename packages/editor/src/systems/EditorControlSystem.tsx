@@ -79,7 +79,7 @@ import {
   LocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
@@ -96,7 +96,7 @@ import {
   toggleTransformSpace
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
+import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorHistoryAction, EditorHistoryReceptorSystem, EditorHistoryState } from '../services/EditorHistory'
 import { EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
 
@@ -147,7 +147,7 @@ let prevRotationAngle = 0
 
 let selectedEntities: (Entity | string)[]
 let selectedParentEntities: (Entity | string)[]
-let selectionCounter = 0
+let lastSelectedEntities = [] as (Entity | string)[]
 // let gizmoObj: TransformGizmo
 let transformMode: TransformModeType
 let transformPivot: TransformPivotType
@@ -343,6 +343,14 @@ const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount = 0): v
   }
 }
 
+const compareArrays = (a: any[], b: any[]) => {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+
 const doZoom = (zoom) => {
   const zoomDelta = typeof zoom === 'number' ? zoom - lastZoom : 0
   lastZoom = zoom
@@ -352,10 +360,8 @@ const doZoom = (zoom) => {
 const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
 const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent)
-const changedTransformMode = defineActionQueue(EditorHelperAction.changedTransformMode.matches)
 
 const execute = () => {
-  for (const action of changedTransformMode()) gizmoObj.setTransformMode(action.mode)
   if (Engine.instance.localClientEntity) return
 
   const selectionState = getState(SelectionState)
@@ -385,10 +391,7 @@ const execute = () => {
       : getOptionalComponent(lastSelection as Entity, TransformComponent)
 
     if (lastSelectedTransform) {
-      const isChanged =
-        selectionCounter !== selectionState.selectionCounter ||
-        transformModeChanged ||
-        selectionState.transformPropertyChanged
+      const isChanged = !compareArrays(lastSelectedEntities, selectionState.selectedEntities) || transformModeChanged
 
       if (isChanged || transformPivotChanged) {
         if (transformPivot === TransformPivot.Selection) {
@@ -639,7 +642,7 @@ const execute = () => {
     }
   }
 
-  selectionCounter = selectionState.selectionCounter
+  lastSelectedEntities = [...selectionState.selectedEntities]
   const shift = buttons.ShiftLeft?.pressed
 
   if (isPrimaryClickUp) {
@@ -666,10 +669,13 @@ const execute = () => {
           EditorControlFunctions.replaceSelection([])
         }
       }
-
       gizmoObj.deselectAxis()
       dragging = false
     }
+
+    // commit transform changes upon releasing the gizmo
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+    EditorControlFunctions.commitTransformSave(nodes)
   }
 
   if (editorHelperState.isFlyModeEnabled) return
@@ -727,6 +733,7 @@ const SceneObjectEntityReactor = (props: { entity: Entity }) => {
 
 const reactor = () => {
   const sceneObjectEntities = useQuery([SceneObjectComponent])
+  const transformMode = useHookstate(getMutableState(EditorHelperState).transformMode)
 
   useEffect(() => {
     // todo figure out how to do these with our input system
@@ -738,6 +745,10 @@ const reactor = () => {
       window.removeEventListener('paste', paste)
     }
   }, [])
+
+  useEffect(() => {
+    gizmoObj.setTransformMode(transformMode.value)
+  }, [transformMode])
 
   return (
     <>

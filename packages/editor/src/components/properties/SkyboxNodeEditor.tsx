@@ -42,7 +42,7 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
 const hoursToRadians = (hours: number) => hours / 24
 const radiansToHours = (rads: number) => rads * 24
@@ -84,14 +84,14 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
 
   const onChangeEquirectangularPathOption = (equirectangularPath) => {
     if (equirectangularPath !== skyboxComponent.equirectangularPath.value) {
-      updateProperties(SkyboxComponent, { equirectangularPath })
+      commitProperties(SkyboxComponent, { equirectangularPath })
     }
   }
 
   const onChangeCubemapPathOption = (path) => {
     const directory = path[path.length - 1] === '/' ? path.substring(0, path.length - 1) : path
     if (directory !== skyboxComponent.cubemapPath.value) {
-      updateProperties(SkyboxComponent, { cubemapPath: directory })
+      commitProperties(SkyboxComponent, { cubemapPath: directory })
     }
   }
 

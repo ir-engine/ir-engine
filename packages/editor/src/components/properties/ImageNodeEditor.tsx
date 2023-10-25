@@ -37,7 +37,7 @@ import InputGroup from '../inputs/InputGroup'
 import ImageSourceProperties from './ImageSourceProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 export const ImageNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -52,7 +52,11 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.image.description')}
     >
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
-        <ImageInput value={imageComponent.source.value ?? ''} onChange={updateProperty(ImageComponent, 'source')} />
+        <ImageInput
+          value={imageComponent.source.value ?? ''}
+          onChange={updateProperty(ImageComponent, 'source')}
+          onRelease={commitProperty(ImageComponent, 'source')}
+        />
       </InputGroup>
       {errors ? (
         Object.entries(errors).map(([err, message]) => (

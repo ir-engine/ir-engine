@@ -27,7 +27,11 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { useState } from '@etherealengine/hyperflux'
@@ -52,21 +56,20 @@ import { EditorComponentType, commitProperties, commitProperty, updateProperty }
 export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
-  const modelComponent = useComponent(entity, ModelComponent)
+  const modelComponent = useOptionalComponent(entity, ModelComponent)
   const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
   const animationOptions = useState([] as { label: string; value: number }[])
 
   const errors = getEntityErrors(props.entity, ModelComponent)
 
   useEffect(() => {
-    const obj3d = modelComponent.value.scene
     const animationComponent = getComponent(entity, AnimationComponent)
     if (animationComponent && animationComponent.animations)
       animationOptions.set([
         { label: 'None', value: -1 },
         ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
       ])
-  }, [modelComponent.scene, loopAnimationComponent.hasAvatarAnimations])
+  }, [modelComponent?.scene, loopAnimationComponent.hasAvatarAnimations])
 
   const onChangePlayingAnimation = (index) => {
     commitProperties(LoopAnimationComponent, {

@@ -32,7 +32,6 @@ import {
   taskServerSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   taskServerSettingDataResolver,
@@ -52,7 +51,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(taskServerSettingQueryValidator),
       schemaHooks.resolveQuery(taskServerSettingQueryResolver)

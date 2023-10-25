@@ -32,8 +32,8 @@ import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
@@ -42,8 +42,8 @@ import { LoadingCircle } from '@etherealengine/client-core/src/components/Loadin
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
+import { DialogState } from '../dialogs/DialogState'
 import ErrorDialog from '../dialogs/ErrorDialog'
-import { useDialog } from '../hooks/useDialog'
 import { Button } from '../inputs/Button'
 import { InfoTooltip } from '../layout/Tooltip'
 import { DeleteDialog } from '../projects/DeleteDialog'
@@ -54,7 +54,7 @@ const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
 /**
  * Displays the scenes that exist in the current project.
  */
-export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }) {
+export default function ScenesPanel({ loadScene, newScene }) {
   const { t } = useTranslation()
   const [scenes, setScenes] = useState<SceneData[]>([])
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
@@ -64,7 +64,6 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const [isRenaming, setRenaming] = useState(false)
   const [activeScene, setActiveScene] = useState<SceneData | null>(null)
   const editorState = useHookstate(getMutableState(EditorState))
-  const [DialogComponent, setDialogComponent] = useDialog()
   const [scenesLoading, setScenesLoading] = useState(true)
 
   const [thumbnails, setThumbnails] = useState<Map<string, string>>(new Map<string, string>())
@@ -84,7 +83,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
 
   useEffect(() => {
     fetchItems()
-  }, [toggleRefetchScenes])
+  }, [editorState.sceneName])
 
   const onCreateScene = async () => {
     await newScene()
@@ -112,7 +111,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     if (activeScene) {
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
-        dispatchAction(EngineActions.sceneUnloaded({}))
+        getMutableState(EngineState).sceneLoaded.set(false)
         RouterState.navigate(`/studio/${editorState.projectName.value}`)
       }
 
@@ -137,7 +136,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
 
   const startRenaming = () => {
     if (editorState.sceneModified.value) {
-      setDialogComponent(
+      DialogState.setDialog(
         <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
       )
       return

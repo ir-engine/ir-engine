@@ -23,10 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createContext, useContext } from 'react'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-export const DialogContext = createContext<[JSX.Element | null, (c: JSX.Element | null) => void]>([null, () => {}])
+import {
+  ApiJobData,
+  ApiJobPatch,
+  ApiJobQuery,
+  ApiJobType
+} from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 
-export const useDialog = () => {
-  return useContext(DialogContext)
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ApiJobParams extends KnexAdapterParams<ApiJobQuery> {}
+
+export class ApiJobService<T = ApiJobType, ServiceParams extends Params = ApiJobParams> extends KnexService<
+  ApiJobType,
+  ApiJobData,
+  ApiJobParams,
+  ApiJobPatch
+> {}

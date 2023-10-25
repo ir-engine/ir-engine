@@ -26,15 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import {
-  State,
-  addActionReceptor,
-  defineActionQueue,
-  getMutableState,
-  getState,
-  removeActionReceptor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { State, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { NetworkActions, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
@@ -47,7 +39,6 @@ import {
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { PeerMediaConsumers } from '../media/PeerMedia'
-import { FriendServiceReceptor } from '../social/services/FriendService'
 import {
   SocketWebRTCClientNetwork,
   WebRTCTransportExtension,
@@ -93,15 +84,6 @@ const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
 }
 
 const reactor = () => {
-  useEffect(() => {
-    addActionReceptor(FriendServiceReceptor)
-
-    return () => {
-      // todo replace with subsystems
-      removeActionReceptor(FriendServiceReceptor)
-    }
-  }, [])
-
   const networkIDs = Object.keys(useHookstate(getMutableState(NetworkState).networks).value)
 
   return (

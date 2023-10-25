@@ -71,7 +71,7 @@ import { SceneObjectComponent } from '@etherealengine/engine/src/scene/component
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { serializeEntity } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import { EditorHistoryAction, EditorHistoryState } from '../services/EditorHistory'
-import { SelectionAction, SelectionState } from '../services/SelectionServices'
+import { SelectionState } from '../services/SelectionServices'
 import { cancelGrabOrPlacement } from './cancelGrabOrPlacement'
 import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
@@ -92,8 +92,8 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   for (let i = 0; i < nodes.length; i++) {
     const entity = nodes[i]
     if (typeof entity === 'string') continue
-    const enttiyUUID = getComponent(entity, UUIDComponent)
-    const componentData = newSnapshot.data.scene.entities[enttiyUUID].components
+    const entityUUID = getComponent(entity, UUIDComponent)
+    const componentData = newSnapshot.data.scene.entities[entityUUID].components
 
     if (add) {
       const tempEntity = createEntity()
@@ -112,7 +112,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
-const modifyName = <C extends Component<any, any>>(nodes: EntityOrObjectUUID[], name: string) => {
+const modifyName = (nodes: EntityOrObjectUUID[], name: string) => {
   cancelGrabOrPlacement()
 
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
@@ -202,10 +202,12 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
     const props = properties[i] ?? properties[0]
     Object.entries(props).map(([k, v]) => {
       if (!material) throw new Error('Updating properties on undefined material')
-      if (typeof v?.copy === 'function') {
-        if (!material[k]) material[k] = new v.constructor()
-        material[k].copy(v)
-      } else if (typeof v !== 'undefined' && typeof material[k] === 'object' && typeof material[k].set === 'function') {
+      if (
+        ![undefined, null].includes(v) &&
+        ![undefined, null].includes(material[k]) &&
+        typeof material[k] === 'object' &&
+        typeof material[k].set === 'function'
+      ) {
         material[k].set(v)
       } else {
         material[k] = v
@@ -221,23 +223,27 @@ const createObjectFromSceneElement = (
   beforeEntity = null as Entity | null,
   updateSelection = true
 ) => {
+  parentEntity = parentEntity ?? getState(SceneState).sceneEntity
   cancelGrabOrPlacement()
 
   const newEntity = createEntity()
-  let childIndex = undefined as undefined | number
-  if (beforeEntity) {
+  let childIndex = 0
+  if (typeof beforeEntity === 'number') {
     const beforeNode = getComponent(beforeEntity, EntityTreeComponent)
     if (beforeNode?.parentEntity && hasComponent(beforeNode.parentEntity, EntityTreeComponent)) {
       childIndex = getComponent(beforeNode.parentEntity, EntityTreeComponent).children.indexOf(beforeEntity)
     }
+  } else {
+    const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
+    childIndex = parentEntityTreeComponent.children.length
   }
 
-  const entityUUID = MathUtils.generateUUID() as EntityUUID
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
-  setComponent(newEntity, UUIDComponent, entityUUID)
   setComponent(newEntity, SceneObjectComponent)
 
   createNewEditorNode(newEntity, componentJson)
+
+  const entityUUID = getComponent(newEntity, UUIDComponent)
 
   const serializedEntity = serializeEntity(newEntity)
 
@@ -255,8 +261,6 @@ const createObjectFromSceneElement = (
   }
 
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
-
-  return newEntity
 }
 
 /**
@@ -710,11 +714,7 @@ const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
     })
     .filter(Boolean) as EntityUUID[]
 
-  dispatchAction(
-    SelectionAction.updateSelection({
-      selectedEntities: nodes
-    })
-  )
+  SelectionState.updateSelection(nodes)
   // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
@@ -723,7 +723,7 @@ const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
 
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
-    let index = selectedEntities.indexOf(node)
+    const index = selectedEntities.indexOf(node)
 
     if (index > -1) {
       selectedEntities.splice(index, 1)
@@ -740,11 +740,7 @@ const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
     })
     .filter(Boolean) as EntityUUID[]
 
-  dispatchAction(
-    SelectionAction.updateSelection({
-      selectedEntities
-    })
-  )
+  SelectionState.updateSelection(nodes)
   // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
@@ -765,22 +761,20 @@ const addToSelection = (nodes: EntityOrObjectUUID[]) => {
     })
     .filter(Boolean) as EntityUUID[]
 
-  dispatchAction(
-    SelectionAction.updateSelection({
-      selectedEntities
-    })
-  )
+  SelectionState.updateSelection(nodes)
   // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
-const commitTransformSave = (entity: Entity) => {
+const commitTransformSave = (nodes: EntityOrObjectUUID[]) => {
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
-  LocalTransformComponent.stateMap[entity]!.set(LocalTransformComponent.valueMap[entity])
-
-  const entityData = newSnapshot.data.scene.entities[getComponent(entity, UUIDComponent)]
-  const component = entityData.components.find((c) => c.name === LocalTransformComponent.jsonID)!
-  component.props = serializeComponent(entity, LocalTransformComponent)
-
+  for (let i = 0; i < nodes.length; i++) {
+    const entity = nodes[i]
+    if (typeof entity === 'string') continue
+    LocalTransformComponent.stateMap[entity]!.set(LocalTransformComponent.valueMap[entity])
+    const entityData = newSnapshot.data.scene.entities[getComponent(entity, UUIDComponent)]
+    const component = entityData.components.find((c) => c.name === LocalTransformComponent.jsonID)!
+    component.props = serializeComponent(entity, LocalTransformComponent)
+  }
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 

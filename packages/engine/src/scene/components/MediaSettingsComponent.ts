@@ -35,8 +35,10 @@ export const MediaSettingsComponent = defineComponent({
   name: 'MediaSettingsComponent',
   jsonID: 'media-settings',
 
-  onInit(entity) {
-    return JSON.parse(JSON.stringify(getState(MediaSettingsState))) as typeof MediaSettingsState._TYPE
+  onInit(entity): typeof MediaSettingsState._TYPE {
+    return typeof MediaSettingsState.initial === 'function'
+      ? (MediaSettingsState.initial as any)()
+      : JSON.parse(JSON.stringify(MediaSettingsState.initial))
   },
 
   onSet: (entity, component, json) => {

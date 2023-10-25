@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { ServiceInterface } from '@feathersjs/feathers'
 
 import config from '@etherealengine/common/src/config'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import { logger } from '../../ServerLogger'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface LogsApiParams extends RootParams {}
+export interface LogsApiParams extends KnexAdapterParams {}
 
 /**
  * A class for LogsApi service

@@ -47,6 +47,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import { PanelIcon } from '../layout/Panel'
 import NameInputGroup from './NameInputGroup'
+import TransformPropertyGroup from './TransformPropertyGroup'
 
 const propertiesHeaderStyle = {
   border: 'none !important',
@@ -111,7 +112,7 @@ export const CoreNodeEditor = (props) => {
         </button>
       </div>
       <div style={nameInputGroupContainerStyle}>
-        <NameInputGroup entity={props.entity} key={props.entity} />
+        <NameInputGroup entity={props.entity} />
         {!hasComponent(props.entity, SceneTagComponent) && (
           <>
             <InputGroup
@@ -123,6 +124,7 @@ export const CoreNodeEditor = (props) => {
             </InputGroup>
           </>
         )}
+        <TransformPropertyGroup entity={props.entity} />
       </div>
     </div>
   )
