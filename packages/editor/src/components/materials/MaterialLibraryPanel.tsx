@@ -108,7 +108,6 @@ export default function MaterialLibraryPanel() {
   const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
     if (!editorState.lockPropertiesPanel.get()) {
       EditorControlFunctions.replaceSelection([entryId(node.entry, node.type)])
-      selectionState.objectChangeCounter.set(selectionState.objectChangeCounter.value + 1)
     }
   }, [])
 

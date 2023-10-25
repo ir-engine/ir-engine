@@ -236,7 +236,7 @@ export function ElementList() {
               <SceneElementListItem
                 key={item.jsonID}
                 item={{
-                  componentJsonID: item.name!,
+                  componentJsonID: item.jsonID!,
                   label: startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase()),
                   Icon: EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon,
                   type: ItemTypes.Component

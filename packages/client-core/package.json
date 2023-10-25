@@ -90,6 +90,7 @@
     "css-modules-require-hook": "4.2.3",
     "esbuild": "0.17.12",
     "mocha": "10.2.0",
+    "node-sass": "^9.0.0",
     "react-dom": "18.2.0",
     "rimraf": "4.4.0",
     "sass": "1.59.3",

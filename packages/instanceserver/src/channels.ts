@@ -47,7 +47,7 @@ import {
   instancePath
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
-import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { RoomCode, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
@@ -76,7 +76,7 @@ interface PrimusConnectionType {
   provider: string
   headers: any
   socketQuery?: {
-    sceneId: string
+    sceneId: SceneID
     locationId?: string
     instanceID?: InstanceID
     channelId?: string
@@ -233,7 +233,7 @@ const initializeInstance = async (
  * @param sceneId
  */
 
-const loadEngine = async (app: Application, sceneId: string) => {
+const loadEngine = async (app: Application, sceneId: SceneID) => {
   const instanceServerState = getState(InstanceServerState)
 
   const hostId = instanceServerState.instance.id as UserID & InstanceID
@@ -385,7 +385,7 @@ const createOrUpdateInstance = async (
   status: InstanceserverStatus,
   locationId: string,
   channelId: ChannelID,
-  sceneId: string,
+  sceneId: SceneID,
   userId?: UserID
 ) => {
   const instanceServerState = getState(InstanceServerState)
@@ -633,7 +633,10 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
       return logger.warn('got a connection to the wrong room code', instanceServerState.instance.roomCode, roomCode)
   }
 
-  const sceneId = locationId ? (await app.service(locationPath).get(locationId)).sceneId : ''
+  let sceneId = '' as SceneID
+  if (locationId) {
+    sceneId = (await app.service(locationPath).get(locationId)).sceneId
+  }
 
   /**
    * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance
@@ -708,7 +711,8 @@ export default (app: Application): void => {
   }
 
   app.service('instanceserver-load').on('patched', async (params) => {
-    const { id, ipAddress, podName, locationId, sceneId } = params
+    const { id, ipAddress, podName, locationId, sceneId }: { id; ipAddress; podName; locationId; sceneId: SceneID } =
+      params
 
     const serverState = getState(ServerState)
     const instanceServerState = getState(InstanceServerState)
