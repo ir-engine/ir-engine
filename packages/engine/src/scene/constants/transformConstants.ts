@@ -72,9 +72,9 @@ export const TransformSpace = {
   // TODO: Viewport, Cursor?
 }
 
-export type TransformAxisActionType = keyof typeof TransformAxisAction
-export type TransformModeType = keyof typeof TransformMode
-export type TransformSpaceType = keyof typeof TransformSpace
-export type TransformPivotType = keyof typeof TransformPivot
-export type TransformAxisType = keyof typeof TransformAxis
-export type SnapModeType = keyof typeof SnapMode
+export type TransformAxisActionType = (typeof TransformAxisAction)[keyof typeof TransformAxisAction]
+export type TransformModeType = (typeof TransformMode)[keyof typeof TransformMode]
+export type TransformSpaceType = (typeof TransformSpace)[keyof typeof TransformSpace]
+export type TransformPivotType = (typeof TransformPivot)[keyof typeof TransformPivot]
+export type TransformAxisType = (typeof TransformAxis)[keyof typeof TransformAxis]
+export type SnapModeType = (typeof SnapMode)[keyof typeof SnapMode]
