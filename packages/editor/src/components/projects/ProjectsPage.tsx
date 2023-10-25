@@ -148,7 +148,7 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
         id={props.id}
         classes={{
           root: styles.expansionSummary,
-          content: styles.expansionSummary,
+          content: styles.expansionSummaryContent,
           expanded: styles.expansionSummaryExpanded
         }}
       >

@@ -52,13 +52,14 @@
 .projectPage {
   width: 100%;
   display: flex;
-  pointer-events: auto;
-  max-height: 100%;
   flex-direction: column;
   flex: 1;
   font-family: var(--lato);
   font-size: 12px;
-  background-color: var(--background);
+  background-color: var(--mainBackground);
+  pointer-events: auto;
+  max-height: 100%;
+  color: var(--textColor);
 }
 
 .projectPageContainer {
@@ -198,6 +199,8 @@
           }
 
           h3 {
+            margin:0;
+            padding:0;
             line-height: 30px;
             margin-left: -5px;
             font-size:100%;
@@ -213,6 +216,11 @@
 
         .expansionDetail {
           padding: 8px 0;
+
+          h3{
+            margin:0;
+            padding:0;
+          }
         }
       }
 
