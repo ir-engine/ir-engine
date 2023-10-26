@@ -144,8 +144,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
     locationId.set(e.target.value)
     const location = adminLocations.find((location) => location.id === e.target.value)
     if (location && location.sceneId) {
-      const sceneName = location.sceneId.split('/')
-      AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
+      AdminSceneService.fetchAdminScene(location.sceneId)
     }
   }
 
@@ -155,8 +154,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
     if (instance) {
       const location = adminLocations.find((location) => location.id === instance.locationId)
       if (location) {
-        const sceneName = location.sceneId.split('/')
-        AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
+        AdminSceneService.fetchAdminScene(location.sceneId)
       }
     }
   }

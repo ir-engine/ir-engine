@@ -32,7 +32,7 @@ import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
-import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneDataType, SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
@@ -59,11 +59,11 @@ export const getScenes = async (projectName: string): Promise<SceneData[]> => {
  * @param projectId
  * @returns
  */
-export const getScene = async (projectName: string, sceneName: string, metadataOnly = true): Promise<SceneData> => {
+export const getScene = async (sceneId: string, sceneName: string, metadataOnly = true): Promise<SceneDataType> => {
   try {
-    return await API.instance.client
+    return (await API.instance.client
       .service(scenePath)
-      .get(null, { query: { project: projectName, name: sceneName, metadataOnly: metadataOnly } })
+      .get(sceneId, { query: { name: sceneName, metadataOnly: metadataOnly } })) as SceneDataType
   } catch (error) {
     logger.error(error, 'Error in getting project getScene()')
     throw error
@@ -76,9 +76,9 @@ export const getScene = async (projectName: string, sceneName: string, metadataO
  * @param  {SceneID}  sceneId
  * @return {Promise}
  */
-export const deleteScene = async (projectName, sceneName): Promise<any> => {
+export const deleteScene = async (sceneName): Promise<any> => {
   try {
-    await API.instance.client.service(scenePath).remove(null, { query: { project: projectName, name: sceneName } })
+    await API.instance.client.service(scenePath).remove(null, { query: { name: sceneName } })
   } catch (error) {
     logger.error(error, 'Error in deleting project')
     throw error
@@ -86,9 +86,9 @@ export const deleteScene = async (projectName, sceneName): Promise<any> => {
   return true
 }
 
-export const renameScene = async (projectName: string, newSceneName: string, oldSceneName: string): Promise<any> => {
+export const renameScene = async (newSceneName: string, oldSceneName: string): Promise<any> => {
   try {
-    await API.instance.client.service(scenePath).patch(null, { newSceneName, oldSceneName, project: projectName })
+    await API.instance.client.service(scenePath).patch(null, {}, { query: { newSceneName, oldSceneName } })
   } catch (error) {
     logger.error(error, 'Error in renaming project')
     throw error
@@ -127,9 +127,9 @@ export const saveScene = async (
   }
 }
 
-export const createNewScene = async (projectName: string) => {
+export const createNewScene = async () => {
   try {
-    return API.instance.client.service(scenePath).create({ project: projectName })
+    return API.instance.client.service(scenePath).create({})
   } catch (error) {
     logger.error(error, 'Error in creating project')
     throw error

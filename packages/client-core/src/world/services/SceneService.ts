@@ -29,7 +29,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneDataType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { LocationState } from '../../social/services/LocationService'
 
 export const SceneService = {
@@ -37,10 +37,10 @@ export const SceneService = {
     useEffect(() => {
       const sceneUpdatedListener = async () => {
         const locationState = getMutableState(LocationState)
-        const [projectName, sceneName] = locationState.currentLocation.location.sceneId.value.split('/')
-        const sceneData = await Engine.instance.api
+
+        const sceneData = (await Engine.instance.api
           .service(scenePath)
-          .get(null, { query: { project: projectName, name: sceneName } })
+          .get(locationState.currentLocation.location.sceneId.value)) as SceneDataType
         getMutableState(SceneState).sceneData.set(sceneData)
       }
       // for testing

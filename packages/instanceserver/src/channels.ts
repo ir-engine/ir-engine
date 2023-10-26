@@ -47,7 +47,7 @@ import {
   instancePath
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
-import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneDataType, SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { RoomCode, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
@@ -266,18 +266,14 @@ const loadEngine = async (app: Application, sceneId: SceneID) => {
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
-    const [projectName, sceneName] = sceneId.split('/')
-
-    const sceneResultPromise = app
-      .service(scenePath)
-      .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
+    const sceneResultPromise = app.service(scenePath).get(sceneId, { query: { metadataOnly: false } })
 
     startWorldServerSystems()
     await loadEngineInjection(projects)
     getMutableState(EngineState).isEngineInitialized.set(true)
 
     const sceneUpdatedListener = async () => {
-      const sceneData = await sceneResultPromise
+      const sceneData = (await sceneResultPromise) as SceneDataType
       getMutableState(SceneState).sceneData.set(sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 

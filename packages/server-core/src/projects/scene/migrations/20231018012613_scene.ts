@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { sceneFilesPath } from '@etherealengine/engine/src/schemas/projects/scene-files.schema'
+import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import type { Knex } from 'knex'
 
 /**
@@ -34,15 +34,16 @@ export async function up(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(sceneFilesPath)
+  const tableExists = await trx.schema.hasTable(scenePath)
 
   if (tableExists === false) {
-    await trx.schema.createTable(sceneFilesPath, (table) => {
+    await trx.schema.createTable(scenePath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('name', 255).notNullable()
-      table.string('scene', 255).notNullable()
-      table.string('thumbnail', 255).notNullable()
+      table.string('scenePath', 255).notNullable()
+      table.string('thumbnailPath', 255).notNullable()
+      table.string('envMapPath', 255).notNullable()
       //@ts-ignore
       table.uuid('projectId').collate('utf8mb4_bin').defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
@@ -64,10 +65,10 @@ export async function down(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(sceneFilesPath)
+  const tableExists = await trx.schema.hasTable(scenePath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(sceneFilesPath)
+    await trx.schema.dropTable(scenePath)
   }
 
   await trx.raw('SET FOREIGN_KEY_CHECKS=1')

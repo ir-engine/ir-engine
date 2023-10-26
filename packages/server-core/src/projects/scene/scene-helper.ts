@@ -25,11 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import koa from '@feathersjs/koa'
 
-import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-
 import { Application } from '../../../declarations'
 // import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { SceneDataType, SceneID, SceneType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -45,27 +44,23 @@ export const getEnvMapBake = (app: Application) => {
 }
 
 export const getSceneData = async (
-  scenePath: string,
-  sceneName: string,
-  projectName: string,
+  app: Application,
+  sceneId: SceneID,
   metadataOnly?: boolean,
   internal = false,
   storageProviderName?: string
 ) => {
+  let { name, thumbnailPath } = (await app.service(scenePath)._get(sceneId)) as SceneType
   const storageProvider = getStorageProvider(storageProviderName)
-  const pathArray = scenePath.split('/')
-  const sceneFile = pathArray.pop()
-  const directory = pathArray.join('/')
+  const directory = `scenes/${name}/`
 
-  const sceneExists = await storageProvider.doesExist(sceneFile!, directory)
-  if (!sceneExists) throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
-
-  let thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.ktx2`
+  const sceneExists = await storageProvider.doesExist(`${name}.scene.json`, directory)
+  if (!sceneExists) throw new Error(`No scene named ${name} exists`)
 
   //if no ktx2 is found, fallback on legacy jpg thumbnail format, if still not found, fallback on ethereal logo
-  if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.ktx2`, `projects/${projectName}`))) {
-    thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
-    if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.jpeg`, `projects/${projectName}`))) thumbnailPath = ``
+  if (!(await storageProvider.doesExist(`${name}.thumbnail.ktx2`, directory))) {
+    thumbnailPath = `${directory}/${name}.thumbnail.jpeg`
+    if (!(await storageProvider.doesExist(`${name}.thumbnail.jpeg`, directory))) thumbnailPath = ``
   }
 
   const cacheDomain = getCacheDomain(storageProvider, internal)
@@ -73,9 +68,9 @@ export const getSceneData = async (
     thumbnailPath !== `` ? getCachedURL(thumbnailPath, cacheDomain) : `/static/etherealengine_thumbnail.jpg`
 
   const sceneResult = await storageProvider.getObject(scenePath)
-  const sceneData: SceneData = {
-    name: sceneName,
-    project: projectName,
+  const sceneData: SceneDataType = {
+    id: sceneId,
+    name: name,
     thumbnailUrl: thumbnailUrl,
     scene: metadataOnly ? undefined! : parseStorageProviderURLs(JSON.parse(sceneResult.Body.toString()))
   }

@@ -23,34 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Texture } from 'three'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve, virtual } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { SceneID, SceneQuery, SceneType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 
-import { SceneDataType, scenePath } from '../../schemas/projects/scene.schema'
-import { Engine } from './Engine'
-import { UndefinedEntity } from './Entity'
-
-export const SceneState = defineState({
-  name: 'SceneState',
-  initial: () => ({
-    sceneData: null as SceneDataType | null,
-    sceneEntity: UndefinedEntity,
-    /** @todo support multiple scenes */
-    // sceneEntities: {} as Record<string /* SceneID */, EntityUUID>,
-    background: null as null | Color | Texture
-  })
+export const sceneResolver = resolve<SceneType, HookContext>({
+  createdAt: virtual(async (scene) => fromDateTimeSql(scene.createdAt)),
+  updatedAt: virtual(async (scene) => fromDateTimeSql(scene.updatedAt))
 })
 
-export const SceneServices = {
-  setCurrentScene: async (sceneId: string) => {
-    const sceneData = (await Engine.instance.api.service(scenePath).get(sceneId)) as SceneDataType
-    getMutableState(SceneState).sceneData.set(sceneData)
-  }
-}
-// export const
+export const sceneExternalResolver = resolve<SceneType, HookContext>({})
 
-// export const getActiveSceneEntity = () => {
-//   const state = getState(SceneState)
-//   return UUIDComponent.entitiesByUUID[state.sceneEntities[state.sceneEntity]]
-// }
+export const sceneDataResolver = resolve<SceneType, HookContext>({
+  id: async (id) => {
+    return id || (v4() as SceneID)
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const scenePatchResolver = resolve<SceneType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const sceneQueryResolver = resolve<SceneQuery, HookContext>({})
