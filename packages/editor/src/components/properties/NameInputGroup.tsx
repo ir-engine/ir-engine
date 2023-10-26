@@ -26,18 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  getComponent,
-  getOptionalComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getOptionalComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { SelectionState } from '../../services/SelectionServices'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import { EditorComponentType } from './Util'
@@ -59,21 +54,17 @@ const styledNameInputGroupStyle = {
  * @type {class component}
  */
 export const NameInputGroup: EditorComponentType = (props) => {
-  const selectionState = useHookstate(getMutableState(SelectionState))
-  const nodeName = useComponent(props.entity, NameComponent)
+  const nameComponent = useComponent(props.entity, NameComponent)
 
   // temp name is used to store the name of the entity, which is then updated upon onBlur event
-  const tempName = useHookstate(nodeName.value)
-  const focusedNode = useHookstate<EntityOrObjectUUID | undefined>(undefined)
-  const { t } = useTranslation()
+  const tempName = useHookstate('')
 
   useEffect(() => {
-    onObjectChange(selectionState.propertyName.value)
-  }, [selectionState.objectChangeCounter])
+    tempName.set(nameComponent.value)
+  }, [nameComponent.value])
 
-  const onObjectChange = (propertyName: string) => {
-    if (propertyName === 'name') tempName.set(getComponent(props.entity, NameComponent))
-  }
+  const focusedNode = useHookstate<EntityOrObjectUUID | undefined>(undefined)
+  const { t } = useTranslation()
 
   //function to handle change in name property
   const updateName = () => {
@@ -86,14 +77,14 @@ export const NameInputGroup: EditorComponentType = (props) => {
   //function called when element get focused
   const onFocus = () => {
     focusedNode.set(props.entity)
-    tempName.set(nodeName.value)
+    tempName.set(nameComponent.value)
   }
 
   // function to handle onBlur event on name property
   const onBlurName = () => {
     // Check that the focused node is current node before setting the property.
     // This can happen when clicking on another node in the HierarchyPanel
-    if (nodeName.value !== tempName.value && props.entity === focusedNode.value) {
+    if (nameComponent.value !== tempName.value && props.entity === focusedNode.value) {
       updateName()
     }
 
