@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
+import { startCase } from 'lodash'
 import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
 import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
 import { Component, ComponentMap, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
@@ -74,9 +75,9 @@ export function getComponentSetters() {
       continue
     }
     const node = makeFlowNodeDefinition({
-      typeName: `engine/component/set${componentName}`,
+      typeName: `engine/component/set${startCase(componentName)}`,
       category: NodeCategory.Action,
-      label: `set ${componentName}`,
+      label: `set ${startCase(componentName)}`,
       in: {
         flow: 'flow',
         entity: 'entity',
@@ -116,9 +117,9 @@ export function getComponentGetters() {
       continue
     }
     const node = makeFlowNodeDefinition({
-      typeName: `engine/component/get${componentName}`,
+      typeName: `engine/component/get${startCase(componentName)}`,
       category: NodeCategory.Query,
-      label: `get ${componentName}`,
+      label: `get ${startCase(componentName)}`,
       in: {
         flow: 'flow',
         entity: 'entity'

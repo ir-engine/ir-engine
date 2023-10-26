@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
 import { NO_PROXY } from '@etherealengine/hyperflux'
+import { startCase } from 'lodash'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
@@ -60,9 +61,9 @@ export function getStateSetters() {
       continue
     }
     const node = makeFlowNodeDefinition({
-      typeName: `engine/state/set${stateName}`,
+      typeName: `engine/state/set${startCase(stateName)}`,
       category: NodeCategory.Action,
-      label: `set ${stateName}`,
+      label: `set ${startCase(stateName)}`,
       in: {
         flow: 'flow',
         ...inputsockets

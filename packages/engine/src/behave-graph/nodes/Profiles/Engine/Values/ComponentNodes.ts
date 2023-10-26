@@ -30,7 +30,7 @@ import { ComponentMap, removeComponent, setComponent } from '../../../../../ecs/
 export const addComponent = makeFlowNodeDefinition({
   typeName: 'engine/component/addComponent',
   category: NodeCategory.Action,
-  label: 'Add Component',
+  label: 'add Component',
   in: {
     flow: 'flow',
     entity: 'entity',
@@ -58,7 +58,7 @@ export const addComponent = makeFlowNodeDefinition({
 export const deleteComponent = makeFlowNodeDefinition({
   typeName: 'engine/component/deleteComponent',
   category: NodeCategory.Action,
-  label: 'Delete Component',
+  label: 'delete Component',
   in: {
     flow: 'flow',
     entity: 'entity',

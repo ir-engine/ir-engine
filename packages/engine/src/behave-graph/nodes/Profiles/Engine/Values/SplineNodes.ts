@@ -44,7 +44,7 @@ const splineQuery = defineQuery([SplineComponent])
 export const getSpline = makeFunctionNodeDefinition({
   typeName: 'engine/spline/getSpline',
   category: NodeCategory.Query,
-  label: 'Get Spline Entity',
+  label: 'get Spline Entity',
   in: {
     spline: (_, graphApi) => {
       const choices = splineQuery().map((entity) => ({
@@ -76,7 +76,7 @@ const initialState = (): State => ({
 export const addSplineTrack = makeAsyncNodeDefinition({
   typeName: 'engine/spline/addSplineTrack',
   category: NodeCategory.Action,
-  label: 'Add spline track',
+  label: 'add Spline Track',
   in: {
     flow: 'flow',
     entity: 'entity',

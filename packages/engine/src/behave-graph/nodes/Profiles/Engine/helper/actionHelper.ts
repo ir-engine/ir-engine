@@ -31,6 +31,13 @@ import { NodetoEnginetype } from './commonHelper'
 
 const skipAction = ['']
 
+function capitalizeFirstLetter(input: string): string {
+  if (input.length === 0) {
+    return input
+  }
+  return input.charAt(0).toUpperCase() + input.slice(1)
+}
+
 const getParserType = (value) => {
   switch (value) {
     case matches.boolean:

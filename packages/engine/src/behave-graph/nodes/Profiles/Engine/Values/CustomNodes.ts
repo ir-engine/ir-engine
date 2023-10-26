@@ -64,7 +64,7 @@ import { addMediaComponent } from '../helper/assetHelper'
 export const playVideo = makeFlowNodeDefinition({
   typeName: 'engine/media/playVideo',
   category: NodeCategory.Action,
-  label: 'Play video',
+  label: 'play Video',
   in: {
     flow: 'flow',
     entity: 'entity',
@@ -126,7 +126,7 @@ export const playVideo = makeFlowNodeDefinition({
 export const playAudio = makeFlowNodeDefinition({
   typeName: 'engine/media/playAudio',
   category: NodeCategory.Action,
-  label: 'Play audio',
+  label: 'play Audio',
   in: {
     flow: 'flow',
     entity: 'entity',
@@ -226,7 +226,7 @@ export const makeRaycast = makeFlowNodeDefinition({
 export const getAvatarAnimations = makeFunctionNodeDefinition({
   typeName: 'engine/media/getAvatarAnimations',
   category: NodeCategory.Query,
-  label: 'Get Avatar Animations',
+  label: 'get Avatar Animations',
   in: {
     animationName: (_, graphApi) => {
       const animations = getState(AnimationState).loadedAnimations
@@ -248,7 +248,7 @@ export const getAvatarAnimations = makeFunctionNodeDefinition({
 export const playAnimation = makeFlowNodeDefinition({
   typeName: 'engine/media/playAnimation',
   category: NodeCategory.Action,
-  label: 'Play animation',
+  label: 'play Animation',
   in: {
     flow: 'flow',
     entity: 'entity',
@@ -283,7 +283,7 @@ export const playAnimation = makeFlowNodeDefinition({
 export const setAnimationAction = makeFlowNodeDefinition({
   typeName: 'engine/media/setAnimationAction',
   category: NodeCategory.Action,
-  label: 'Set animation action',
+  label: 'set Animation Action',
   in: {
     flow: 'flow',
     entity: 'entity',
@@ -344,7 +344,7 @@ const initialState = () => {}
 export const loadAsset = makeAsyncNodeDefinition({
   typeName: 'engine/asset/loadAsset',
   category: NodeCategory.Action,
-  label: 'Load asset',
+  label: 'load Asset',
   in: {
     flow: 'flow',
     assetPath: 'string'
@@ -375,7 +375,7 @@ export const loadAsset = makeAsyncNodeDefinition({
 export const fadeCamera = makeFlowNodeDefinition({
   typeName: 'engine/camera/cameraFade',
   category: NodeCategory.Action,
-  label: 'Camera fade',
+  label: 'camera Fade',
   in: {
     flow: 'flow',
     toBlack: 'boolean',
@@ -397,7 +397,7 @@ export const fadeCamera = makeFlowNodeDefinition({
 export const setCameraZoom = makeFlowNodeDefinition({
   typeName: 'engine/camera/setCameraZoom',
   category: NodeCategory.Action,
-  label: 'Set camera zoom',
+  label: 'set Camera Zoom',
   in: {
     flow: 'flow',
     zoom: 'float'
@@ -415,7 +415,7 @@ export const setCameraZoom = makeFlowNodeDefinition({
 export const startXRSession = makeFlowNodeDefinition({
   typeName: 'engine/xr/startSession',
   category: NodeCategory.Action,
-  label: 'Start XR Session',
+  label: 'start XR Session',
   in: {
     flow: 'flow',
     XRmode: (_, graphApi) => {
@@ -438,7 +438,7 @@ export const startXRSession = makeFlowNodeDefinition({
 export const finishXRSession = makeFlowNodeDefinition({
   typeName: 'engine/xr/endSession',
   category: NodeCategory.Action,
-  label: 'End XR Session',
+  label: 'end XR Session',
   in: {
     flow: 'flow'
   },
@@ -453,7 +453,7 @@ export const finishXRSession = makeFlowNodeDefinition({
 export const switchScene = makeFlowNodeDefinition({
   typeName: 'engine/switchScene',
   category: NodeCategory.Action,
-  label: 'Switch Scene',
+  label: 'switch Scene',
   in: {
     flow: 'flow',
     projectName: 'string',
