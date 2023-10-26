@@ -40,9 +40,11 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { AvatarInputSettingsState } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { StandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
+import { XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
 import { useEffect } from 'react'
+import { MathUtils } from 'three'
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
 
 export function createAnchorWidget() {
@@ -53,6 +55,7 @@ export function createAnchorWidget() {
   const xrSessionQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
   let lastX = 0
+  let lastY = 0
 
   const widget: Widget = {
     ui,
@@ -60,6 +63,7 @@ export function createAnchorWidget() {
     icon: 'Anchor',
     onOpen: () => {
       xrState.scenePlacementMode.set('placing')
+      dispatchAction(WidgetAppActions.showWidgetMenu({ shown: false }))
     },
     system: () => {
       if (xrState.session.value?.interactionMode !== 'world-space') return
@@ -73,15 +77,16 @@ export function createAnchorWidget() {
         const inputComponent = getComponent(entity, InputSourceComponent)
         if (inputComponent.source.gamepad?.mapping !== 'xr-standard') continue
 
-        const buttonInputPressed =
-          inputComponent.buttons[flipped ? StandardGamepadButton.ButtonX : StandardGamepadButton.ButtonA]?.pressed
+        const buttonInputPressed = inputComponent.buttons[XRStandardGamepadButton.Trigger]?.down
 
         if (buttonInputPressed) {
           xrState.scenePlacementMode.set('placed')
         }
 
-        const xAxisInput = inputComponent.source.gamepad.axes[flipped ? 0 : 2]
-        const yAxisInput = inputComponent.source.gamepad.axes[flipped ? 1 : 3]
+        const { deltaSeconds } = getState(EngineState)
+
+        const xAxisInput = inputComponent.source.gamepad.axes[flipped ? 0 : 2] * deltaSeconds
+        const yAxisInput = inputComponent.source.gamepad.axes[flipped ? 1 : 3] * deltaSeconds
 
         if (lastX) {
           const xDelta = (lastX - xAxisInput) * Math.PI
@@ -89,14 +94,22 @@ export function createAnchorWidget() {
         }
         lastX = xAxisInput
 
-        if (!getState(XRState).sceneScaleAutoMode) {
-          getMutableState(XRState).sceneScaleTarget.set(yAxisInput * yAxisInput * 0.19 + 0.01) // exponentially scale from 0.01 to 0.2
+        if (!xrState.sceneScaleAutoMode.value) {
+          if (lastY) {
+            const yDelta = lastY - yAxisInput
+            xrState.sceneScaleTarget.set((currentValue) => MathUtils.clamp(currentValue + yDelta, 0.01, 0.2))
+          }
+          lastY = yAxisInput
         }
 
-        const triggerButtonPressed =
-          inputComponent.buttons[flipped ? StandardGamepadButton.LeftStick : StandardGamepadButton.RightStick]?.pressed
+        const triggerButtonPressed = inputComponent.buttons[XRStandardGamepadButton.Stick]?.down
 
-        if (triggerButtonPressed) xrState.sceneScaleAutoMode.set(!xrState.sceneScaleAutoMode.value)
+        if (triggerButtonPressed) {
+          xrState.sceneScaleAutoMode.set(!xrState.sceneScaleAutoMode.value)
+          if (!xrState.sceneScaleAutoMode.value) {
+            xrState.sceneScaleTarget.set(0.2)
+          }
+        }
       }
     },
     cleanup: async () => {

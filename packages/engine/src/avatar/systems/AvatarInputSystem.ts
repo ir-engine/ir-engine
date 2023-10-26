@@ -297,7 +297,7 @@ const execute = () => {
     controller.gamepadJumpActive = !!buttons.Space?.pressed || gamepadJump || doubleClicked
 
     const controlScheme =
-      inputSource.source.handedness === 'none'
+      inputSource.source.handedness === 'none' || !isCameraAttachedToAvatar
         ? AvatarAxesControlScheme.Move
         : inputSource.source.handedness === avatarInputSettings.preferredHand
         ? avatarInputSettings.rightAxesControlScheme

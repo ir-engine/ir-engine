@@ -101,43 +101,7 @@ export const updateAnchor = (entity: Entity) => {
 
 const _plane = new Plane()
 const _vecPosition = new Vector3()
-const _vecScale = new Vector3()
 const _quat = new Quaternion()
-const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
-
-// const _vec = new Vector3()
-// const _vec2 = new Vector3()
-// const _quat2 = new Quaternion()
-// const _ray = new Ray()
-
-// const pos = new Vector3()
-// const orient = new Quaternion()
-
-/** AR placement for immersive session */
-// export const getHitTestFromController = () => {
-//   const referenceSpace = ReferenceSpace.origin!
-//   const pose = getState(XRState).xrFrame!.getPose(Engine.instance.inputSources[0].targetRaySpace, referenceSpace)!
-//   const { position, orientation } = pose.transform
-
-//   pos.copy(position as any as Vector3)
-//   orient.copy(orientation as any as Quaternion)
-
-//   // raycast controller to ground
-//   _ray.set(pos, _vec2.set(0, 0, -1).applyQuaternion(orient))
-//   const hit = _ray.intersectPlane(_plane.set(V_010, 0), _vec)
-
-//   if (!hit) return
-
-//   /** swing twist quaternion decomposition to get the rotation around Y axis */
-//   extractRotationAboutAxis(orient, V_010, _quat2)
-
-//   _quat2.multiply(_quat180)
-
-//   return {
-//     position: _vec,
-//     rotation: _quat2
-//   }
-// }
 
 /**
  * Lock lifesize to 1:1, whereas dollhouse mode uses
@@ -166,9 +130,14 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
     .setFromNormalAndCoplanarPoint(upDir, localTransform.position)
     .distanceToPoint(viewerPose.transform.position as any)
 
+  /**
+   * For immersive AR, always use life size in auto scale mode, and always use miniature size in manual scale mode
+   * For non-immerse AR, use miniature size when the camera is close to the hit test plane and the camera is looking down
+   * */
   const lifeSize =
-    xrState.session!.interactionMode === 'world-space' ||
-    (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
+    xrState.session!.interactionMode === 'world-space'
+      ? xrState.sceneScaleAutoMode
+      : dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02
 
   if (lifeSize) return 1
 
@@ -207,11 +176,11 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
 
   const inverseWorldScale = 1 / XRState.worldScale
 
-  const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(inverseWorldScale)
-  const targetRotation = localTransform.rotation.multiply(_quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset))
-
-  xrState.scenePosition.copy(targetPosition)
-  xrState.sceneRotation.copy(targetRotation)
+  xrState.scenePosition.copy(localTransform.position).multiplyScalar(inverseWorldScale)
+  xrState.sceneRotation.multiplyQuaternions(
+    localTransform.rotation,
+    _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset)
+  )
 }
 
 const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
@@ -274,7 +243,7 @@ const execute = () => {
   for (const entity of xrAnchorQuery()) updateAnchor(entity)
   for (const entity of xrHitTestQuery()) updateHitTest(entity)
 
-  if (xrState.scenePlacementMode !== 'unplaced') {
+  if (xrState.scenePlacementMode === 'placing') {
     updateScenePlacement(scenePlacementEntity)
     updateWorldOriginFromScenePlacement()
 
@@ -312,13 +281,6 @@ const reactor = () => {
           entityTypes: ['plane', 'point', 'mesh']
         })
       }
-
-      // for scene placement in 'world-space', we should request a hit test source when an input source is gripped,
-      // and assign it to the scene placement entity
-      if (xrSession.value.interactionMode === 'world-space') {
-        // @todo: handle world-space scene placement
-      }
-      return
     }
 
     if (scenePlacementMode.value === 'placed') {
@@ -361,7 +323,7 @@ const reactor = () => {
     return () => {
       active = false
     }
-  }, [scenePlacementMode, xrSession, hitTest])
+  }, [scenePlacementMode, xrSession])
 
   const inputSourceEntities = useQuery([InputSourceComponent])
 

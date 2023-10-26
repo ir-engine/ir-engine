@@ -55,7 +55,7 @@ const addShaderToObject = (object: Object3DWithEntity) => {
       }
     }
     obj.material.transparent = true
-    obj.material.opacity = 0.4
+    obj.material.opacity = 0.3
     obj.material.needsUpdate = true
   }
 }

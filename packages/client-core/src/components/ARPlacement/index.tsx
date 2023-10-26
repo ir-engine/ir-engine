@@ -49,13 +49,13 @@ const AxisComponent = () => {
     if (lastX) {
       // screen width range from 0 to 360 degrees in radians, add delta where one whole swipe is a rotation
       const touchXDelta = ((lastX - e.touches[0].clientX) / window.innerWidth) * Math.PI
-      getMutableState(XRState).sceneRotationOffset.set((currentValue) => currentValue + touchXDelta)
+      getMutableState(XRState).sceneRotationOffset.set((currentValue) => currentValue - touchXDelta)
     }
     lastX = e.touches[0].clientX
 
     if (!getState(XRState).sceneScaleAutoMode) {
       const touchY = e.touches[0].clientY / window.innerHeight
-      getMutableState(XRState).sceneScaleTarget.set(touchY * touchY * 0.19 + 0.01) // exponentially scale from 0.01 to 0.2
+      getMutableState(XRState).sceneScaleTarget.set(touchY * touchY * 0.19 + 0.01) // exponentially scale from 0.2 to 0.01
     }
   }
 
