@@ -88,7 +88,7 @@ export class InstanceFriendsService implements ServiceInterface<InstanceType, In
         .map((instance) => (instance?.locationId ? instance.locationId : undefined))
         .filter((instance) => instance !== undefined) as string[]
 
-      const locations = (await this.app.service(locationPath)._find({
+      const locations = (await this.app.service(locationPath).find({
         query: {
           id: {
             $in: locationIds
