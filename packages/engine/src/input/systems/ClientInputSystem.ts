@@ -376,12 +376,12 @@ export function updateGamepadInput(eid: Entity) {
   const buttons = inputSource.buttons as ButtonStateMap
 
   // log buttons
-  if (source.gamepad) {
-    for (let i = 0; i < source.gamepad.buttons.length; i++) {
-      const button = source.gamepad.buttons[i]
-      if (button.pressed) console.log('button ' + i + ' pressed: ' + button.pressed)
-    }
-  }
+  // if (source.gamepad) {
+  //   for (let i = 0; i < source.gamepad.buttons.length; i++) {
+  //     const button = source.gamepad.buttons[i]
+  //     if (button.pressed) console.log('button ' + i + ' pressed: ' + button.pressed)
+  //   }
+  // }
 
   if (!source.gamepad) return
   const gamepadButtons = source.gamepad.buttons

@@ -38,8 +38,9 @@ import {
 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { defineActionQueue, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
@@ -51,12 +52,14 @@ import {
   getMutableComponent,
   removeComponent,
   setComponent,
-  useOptionalComponent
+  useOptionalComponent,
+  useQuery
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { InputComponent } from '../input/components/InputComponent'
+import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
@@ -67,18 +70,22 @@ import { ReferenceSpace, XRAction, XRState } from './XRState'
 export const updateHitTest = (entity: Entity) => {
   const xrFrame = getState(XRState).xrFrame!
   const hitTest = getMutableComponent(entity, XRHitTestComponent)
-  const localTransform = getComponent(entity, LocalTransformComponent)
-  const hitTestResults = (hitTest.source.value && xrFrame.getHitTestResults(hitTest.source.value!)) ?? []
+  if (!hitTest.source.value) return
+
+  const hitTestResults = xrFrame.getHitTestResults(hitTest.source.value)
   hitTest.results.set(hitTestResults)
-  const space = ReferenceSpace.localFloor // xrFrame.session.interactionMode === 'world-space' ? ReferenceSpace.localFloor! : ReferenceSpace.viewer!
-  const pose = space && hitTestResults?.length && hitTestResults[0].getPose(space)
-  if (pose) {
-    const parentEntity =
-      space === ReferenceSpace.localFloor ? Engine.instance.originEntity : Engine.instance.cameraEntity
-    setComponent(entity, EntityTreeComponent, { parentEntity })
-    localTransform.position.copy(pose.transform.position as any)
-    localTransform.rotation.copy(pose.transform.orientation as any)
-  }
+
+  if (!hitTestResults?.length) return
+
+  const pose = hitTestResults[0].getPose(ReferenceSpace.localFloor!)
+  if (!pose) return
+
+  const parentEntity = Engine.instance.originEntity
+  setComponent(entity, EntityTreeComponent, { parentEntity })
+
+  const localTransform = getComponent(entity, LocalTransformComponent)
+  localTransform.position.copy(pose.transform.position as any)
+  localTransform.rotation.copy(pose.transform.orientation as any)
 }
 
 export const updateAnchor = (entity: Entity) => {
@@ -280,8 +287,8 @@ const execute = () => {
 const reactor = () => {
   const xrState = getMutableState(XRState)
   const scenePlacementEntity = getState(XRAnchorSystemState).scenePlacementEntity
-  const scenePlacementMode = useState(xrState.scenePlacementMode)
-  const xrSession = useState(xrState.session)
+  const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
+  const xrSession = useHookstate(xrState.session)
   const hitTest = useOptionalComponent(scenePlacementEntity, XRHitTestComponent)
 
   useEffect(() => {
@@ -355,6 +362,34 @@ const reactor = () => {
       active = false
     }
   }, [scenePlacementMode, xrSession, hitTest])
+
+  const inputSourceEntities = useQuery([InputSourceComponent])
+
+  /** Immersive AR controller placement */
+  useEffect(() => {
+    if (!xrSession.value || xrSession.value.interactionMode !== 'world-space' || scenePlacementMode.value !== 'placing')
+      return
+
+    for (const entity of inputSourceEntities) {
+      if (!entity) return
+
+      const inputSourceComponent = getComponent(entity, InputSourceComponent)
+
+      const avatarInputSettings = getState(AvatarInputSettingsState)
+      if (
+        inputSourceComponent.source.targetRayMode !== 'tracked-pointer' ||
+        inputSourceComponent.source.gamepad?.mapping !== 'xr-standard' ||
+        inputSourceComponent.source.handedness !== avatarInputSettings.preferredHand
+      )
+        continue
+
+      Engine.instance.scene.add(worldOriginPinpointAnchor)
+      setComponent(scenePlacementEntity, XRHitTestComponent, {
+        space: inputSourceComponent.source.targetRaySpace,
+        entityTypes: ['plane', 'point', 'mesh']
+      })
+    }
+  }, [scenePlacementMode, xrSession, inputSourceEntities.length])
 
   // useEffect(() => {
   //   if (scenePlacementMode.value !== 'placing' || !xrSession.value) return
