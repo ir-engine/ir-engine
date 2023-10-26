@@ -43,6 +43,7 @@ describe('file browser service', () => {
     app = createFeathersKoaApp()
     await app.setup()
   })
+
   after(() => {
     return destroyEngine()
   })
@@ -230,7 +231,6 @@ describe('file browser service', () => {
       const foundIncrementedFile = directoryContents.data.filter(
         (file) => file.name.match(testFileName) && file.name.match('(1)')
       )
-
       assert.equal(foundIncrementedFile.length, 1)
     })
 

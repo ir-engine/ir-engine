@@ -117,6 +117,7 @@ else
   NODE_ENV=$NODE_ENV
 fi
 
+# ./generate-certs.sh
 docker start etherealengine_minikube_db
 
 mkdir -p ./project-package-jsons/projects/default-project
