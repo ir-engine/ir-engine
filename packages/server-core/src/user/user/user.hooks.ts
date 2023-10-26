@@ -33,7 +33,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { discard, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import {
@@ -43,8 +43,8 @@ import {
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { HookContext } from '../../../declarations'
+import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import disallowNonId from '../../hooks/disallow-non-id'
-import isSkipServiceHooks from '../../hooks/is-skip-service-hooks'
 import persistData from '../../hooks/persist-data'
 import verifyScope from '../../hooks/verify-scope'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -257,61 +257,58 @@ const handleUserSearch = async (context: HookContext<UserService>) => {
   }
 }
 
-export default {
-  around: {
-    all: [schemaHooks.resolveExternal(userExternalResolver), schemaHooks.resolveResult(userResolver)]
-  },
+export default createSkippableHooks(
+  {
+    around: {
+      all: [schemaHooks.resolveExternal(userExternalResolver), schemaHooks.resolveResult(userResolver)]
+    },
 
-  before: {
-    all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
-    find: [
-      iffElse(
-        isSkipServiceHooks(),
-        [],
-        [
-          iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'), handleUserSearch),
-          iff(isProvider('external'), discardQuery('search', '$sort.accountIdentifier') as any)
-        ]
-      )
-    ],
-    get: [],
-    create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
-      () => schemaHooks.validateData(userDataValidator),
-      schemaHooks.resolveData(userDataResolver),
-      persistData,
-      discard('scopes')
-    ],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write'))],
-    patch: [
-      iff(isProvider('external'), restrictUserPatch),
-      () => schemaHooks.validateData(userPatchValidator),
-      schemaHooks.resolveData(userPatchResolver),
-      disallowNonId,
-      removeUserScopes,
-      addUserScopes(false),
-      discard('scopes')
-    ],
-    remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
-  },
+    before: {
+      all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
+      find: [
+        iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'), handleUserSearch),
+        iff(isProvider('external'), discardQuery('search', '$sort.accountIdentifier') as any)
+      ],
+      get: [],
+      create: [
+        iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
+        () => schemaHooks.validateData(userDataValidator),
+        schemaHooks.resolveData(userDataResolver),
+        persistData,
+        discard('scopes')
+      ],
+      update: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write'))],
+      patch: [
+        iff(isProvider('external'), restrictUserPatch),
+        () => schemaHooks.validateData(userPatchValidator),
+        schemaHooks.resolveData(userPatchResolver),
+        disallowNonId,
+        removeUserScopes,
+        addUserScopes(false),
+        discard('scopes')
+      ],
+      remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
+    },
 
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode],
-    update: [],
-    patch: [updateInviteCode],
-    remove: []
-  },
+    after: {
+      all: [],
+      find: [],
+      get: [],
+      create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode],
+      update: [],
+      patch: [updateInviteCode],
+      remove: []
+    },
 
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+    error: {
+      all: [],
+      find: [],
+      get: [],
+      create: [],
+      update: [],
+      patch: [],
+      remove: []
+    }
+  },
+  ['find', 'remove']
+)
