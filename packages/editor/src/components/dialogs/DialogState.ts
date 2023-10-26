@@ -23,10 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createContext, useContext } from 'react'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-export const DialogContext = createContext<[JSX.Element | null, (c: JSX.Element | null) => void]>([null, () => {}])
+export const DialogState = defineState({
+  name: 'DialogState',
+  initial: () => ({
+    dialog: null as JSX.Element | null
+  }),
 
-export const useDialog = () => {
-  return useContext(DialogContext)
-}
+  setDialog: (dialog: JSX.Element | null) => {
+    getMutableState(DialogState).dialog.set(dialog)
+  }
+})

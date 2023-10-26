@@ -68,7 +68,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const useGlobalTransformComponent = useHookstate(false)
 
   const onRelease = () => {
-    EditorControlFunctions.commitTransformSave(props.entity)
+    EditorControlFunctions.commitTransformSave([props.entity])
   }
 
   const onChangeDynamicLoad = (value) => {

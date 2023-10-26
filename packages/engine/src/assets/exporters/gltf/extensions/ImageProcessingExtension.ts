@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CompressedTexture, Event, Material, Mesh, Object3D, Texture } from 'three'
+import { CompressedTexture, Material, Mesh, Object3D, Texture } from 'three'
 
 import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import createReadableTexture from '../../../functions/createReadableTexture'
@@ -44,7 +44,7 @@ export default class ImageProcessingExtension extends ExporterExtension implemen
     this.originalImages = []
   }
 
-  beforeParse(input: Object3D<Event> | Object3D<Event>[]) {
+  beforeParse(input: Object3D | Object3D[]) {
     const writer = this.writer
     const inputs = Array.isArray(input) ? input : [input]
     inputs.forEach((input) =>
@@ -72,7 +72,7 @@ export default class ImageProcessingExtension extends ExporterExtension implemen
     )
   }
 
-  afterParse(input: Object3D<Event> | Object3D<Event>[]) {
+  afterParse(input: Object3D | Object3D[]) {
     this.originalImages.forEach(({ material, field, texture }) => {
       URL.revokeObjectURL(material[field].image.src)
       material[field] = texture
