@@ -61,7 +61,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     transform.rotation.copy(rotation)
     computeTransformMatrix(props.entity)
 
-    EditorControlFunctions.commitTransformSave(props.entity)
+    EditorControlFunctions.commitTransformSave([props.entity])
   }
 
   const updateScenePreview = async () => {

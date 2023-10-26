@@ -46,7 +46,6 @@ import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/En
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import { useEffect } from 'react'
 import { EditorState } from './EditorServices'
-import { SelectionAction } from './SelectionServices'
 
 export const EditorTopic = 'editor' as Topic
 
@@ -120,15 +119,9 @@ export const EditorHistoryState = defineState({
           if (!getState(EngineState).sceneLoaded) dispatchAction(EngineActions.sceneLoaded({}))
         }
       }
-
-      dispatchAction(SelectionAction.changedSceneGraph({}))
     }
     // if (snapshot.selectedEntities)
-    //   dispatchAction(
-    //     SelectionAction.updateSelection({
-    //       selectedEntities: snapshot.selectedEntities.map((uuid) => UUIDComponent.entitiesByUUID[uuid] ?? uuid)
-    //     })
-    //   )
+    //   SelectionState.updateSelection(snapshot.selectedEntities.map((uuid) => UUIDComponent.entitiesByUUID[uuid] ?? uuid))
   }
 })
 
