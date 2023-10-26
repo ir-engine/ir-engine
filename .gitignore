@@ -166,3 +166,5 @@ project-package-jsons/*
 feathers/*
 /packages/ui/tests/jest-test-results.json
 packages/ui/tests/jest-test-results.json
+
+/newcerts
