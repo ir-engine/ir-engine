@@ -46,7 +46,7 @@ import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
-import { XRControlsState, XRState, getCameraMode, hasMovementControls } from '../../xr/XRState'
+import { XRControlsState, XRState } from '../../xr/XRState'
 import { animationStates, defaultAnimationPath } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -93,8 +93,9 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
 
   desiredMovement.copy(V_000)
 
-  const attached = getCameraMode() === 'attached'
-  if (attached) {
+  const { isMovementControlsEnabled, isCameraAttachedToAvatar } = getState(XRControlsState)
+
+  if (isCameraAttachedToAvatar) {
     const viewerPose = xrState.viewerPose
     /** move head position forward a bit to not be inside the avatar's body */
     avatarHeadPosition
@@ -116,7 +117,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     viewerMovement.copy(V_000)
   }
 
-  if (!hasMovementControls()) {
+  if (isMovementControlsEnabled) {
     rigidbody.targetKinematicPosition.copy(rigidbody.position).add(desiredMovement)
     updateLocalAvatarPositionAttachedMode()
     return
@@ -178,14 +179,15 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
         )
       }
       beganFalling = false
-      if (attached) originTransform.position.y = hit.position.y
+      if (isCameraAttachedToAvatar) originTransform.position.y = hit.position.y
       /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
     }
   }
 
   if (!controller.isInAir) controller.verticalVelocity = 0
 
-  if (attached) updateReferenceSpaceFromAvatarMovement(finalAvatarMovement.subVectors(computedMovement, viewerMovement))
+  if (isCameraAttachedToAvatar)
+    updateReferenceSpaceFromAvatarMovement(finalAvatarMovement.subVectors(computedMovement, viewerMovement))
 }
 
 export const updateReferenceSpaceFromAvatarMovement = (movement: Vector3) => {
@@ -344,7 +346,8 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
   rigidBody.targetKinematicPosition.add(translation)
   rigidBody.targetKinematicRotation.multiply(rotation)
 
-  if (getCameraMode() === 'attached') {
+  const { isCameraAttachedToAvatar } = getState(XRControlsState)
+  if (isCameraAttachedToAvatar) {
     const avatarTransform = getComponent(entity, TransformComponent)
     const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
 
@@ -448,8 +451,9 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3, force = 
     const newPosition = raycastHit ? (raycastHit.position as Vector3) : targetPosition
     rigidbody.targetKinematicPosition.copy(newPosition)
     rigidbody.position.copy(newPosition)
-    const attached = getCameraMode() === 'attached'
-    if (attached) updateReferenceSpaceFromAvatarMovement(new Vector3().subVectors(newPosition, transform.position))
+    const { isCameraAttachedToAvatar } = getState(XRControlsState)
+    if (isCameraAttachedToAvatar)
+      updateReferenceSpaceFromAvatarMovement(new Vector3().subVectors(newPosition, transform.position))
   } else {
     console.log('invalid position', targetPosition, raycastHit)
   }

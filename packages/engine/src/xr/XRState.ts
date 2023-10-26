@@ -182,16 +182,7 @@ export const ReferenceSpace = {
 }
 globalThis.ReferenceSpace = ReferenceSpace
 
-/** @deprecated - use getState(XRMovementState).isCameraAttachedToAvatar */
-export const getCameraMode = () => (getState(XRControlsState).isCameraAttachedToAvatar ? 'attached' : 'detached')
-
-/** @deprecated - use getState(XRMovementState).isMovementControlsEnabled */
-export const hasMovementControls = () => getState(XRControlsState).isMovementControlsEnabled
-
 const inputSourceQuery = defineQuery([InputSourceComponent])
-
-/** @deprecated - use XRState.getPreferredInputSource */
-export const getPreferredInputSource = XRState.getPreferredInputSource
 
 const userAgent = 'navigator' in globalThis ? navigator.userAgent : ''
 
