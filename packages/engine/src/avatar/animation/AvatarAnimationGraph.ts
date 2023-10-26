@@ -83,7 +83,8 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
       const locomotionBlend = animationGraph.blendStrength
       currentAction.value.setEffectiveWeight(locomotionBlend.value)
       if (
-        currentAction.value.time >= currentAction.value.getClip().duration - epsilon ||
+        (currentAction.value.time >= currentAction.value.getClip().duration - epsilon &&
+          currentAction.value.loop != LoopRepeat) ||
         animationGraph.fadingOut.value
       ) {
         currentAction.value.timeScale = 0
@@ -166,6 +167,7 @@ export const playAvatarAnimationFromMixamo = (
     currentAction.value.loop = loop ? LoopRepeat : LoopOnce
     currentAction.value.play()
   }
+  console.log(currentAction.value, 'needs to be ' + LoopRepeat)
 }
 
 const moveLength = new Vector3()
