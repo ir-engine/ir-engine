@@ -28,7 +28,6 @@ import { Box3, Vector3 } from 'three'
 import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { animationStates, defaultAnimationPath } from '../../avatar/animation/Util'
-import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
@@ -45,12 +44,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { PhysicsState } from '../../physics/state/PhysicsState'
-import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -119,7 +113,7 @@ const execute = () => {
       dispatchAction(
         AvatarNetworkAction.setAnimationState({
           filePath: defaultAnimationPath + animationStates.seated + '.fbx',
-          clipName: animationStates.dance1,
+          clipName: animationStates.seated,
           loop: true,
           layer: 1,
           entityUUID: getComponent(avatarEntity, UUIDComponent)
@@ -130,43 +124,27 @@ const execute = () => {
 
   for (const entity of sittingIdleQuery()) {
     const controller = getComponent(entity, AvatarControllerComponent)
-    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     const avatarComponent = getComponent(entity, AvatarComponent)
     const sitting = getComponent(entity, SittingComponent)
-
-    if (controller.gamepadWorldMovement.lengthSq() > 0.1) {
+    const rigidBody = getComponent(entity, RigidBodyComponent)
+    console.log(controller.gamepadLocalInput.lengthSq())
+    if (controller.gamepadLocalInput.lengthSq() > 0.01) {
       const avatarTransform = getComponent(entity, TransformComponent)
       const newPos = avatarTransform.position
         .clone()
         .add(new Vector3(0, 0, 1).applyQuaternion(avatarTransform.rotation))
 
-      const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
-      const raycastComponentData = {
-        type: SceneQueryType.Closest,
-        origin: newPos,
-        direction: new Vector3(0, -1, 0),
-        maxDistance: 2,
-        groups: interactionGroups
-      }
-      const physicsWorld = getState(PhysicsState).physicsWorld
-      const hits = Physics.castRay(physicsWorld, raycastComponentData)
-
-      if (hits.length > 0) {
-        const raycastHit = hits[0] as RaycastHit
-        if (raycastHit.normal.y > 0.9) {
-          newPos.y -= raycastHit.distance
-        }
-      } else {
-        newPos.copy(avatarTransform.position)
-        newPos.y += avatarComponent.avatarHalfHeight
-      }
-
-      const rigidbody = getComponent(entity, RigidBodyComponent)
-      rigidbody.body.setTranslation(newPos, true)
-
-      // changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
       removeComponent(entity, SittingComponent)
       getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
+      dispatchAction(
+        AvatarNetworkAction.setAnimationState({
+          filePath: defaultAnimationPath + animationStates.seated + '.fbx',
+          clipName: animationStates.seated,
+          needsSkip: true,
+          entityUUID: getComponent(entity, UUIDComponent)
+        })
+      )
+      rigidBody.body.setEnabled(true)
     }
   }
 }
