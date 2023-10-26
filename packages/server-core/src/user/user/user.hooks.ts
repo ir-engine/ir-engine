@@ -159,7 +159,7 @@ const addUserScopes = (useActualData = false) => {
       if (item?.scopes) {
         const scopeData = item.scopes.map((el) => {
           return {
-            type: el.type,
+            ...el,
             userId: useActualData ? item.id : (context.id as UserID)
           }
         })
