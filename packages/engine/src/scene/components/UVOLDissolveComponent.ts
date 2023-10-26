@@ -61,7 +61,7 @@ export const UVOLDissolveComponent = defineComponent({
     vertexHeaderTemplate: string | RegExp = '#include <clipping_planes_pars_vertex>',
     vertexTemplate: string | RegExp = '#include <fog_vertex>',
     fragmentHeaderTemplate: string | RegExp = '#include <clipping_planes_pars_fragment>',
-    fragmentTemplate: string | RegExp = '#include <output_fragment>'
+    fragmentTemplate: string | RegExp = '#include <opaque_fragment>'
   ) {
     const material = mesh.material
     const isShaderMaterial = 'isShaderMaterial' in material
