@@ -55,21 +55,19 @@ import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
 import styles from '../../styles/admin.module.scss'
 
-const SCOPE_PAGE_LIMIT = 100
-
 export enum UserDrawerMode {
   Create,
   ViewEdit
 }
 
-interface Props {
+export interface UserDrawerProps {
   open: boolean
   mode: UserDrawerMode
   selectedUser?: UserType
   onClose: () => void
 }
 
-const defaultState = {
+export const defaultState = {
   id: '',
   name: '',
   avatar: '',
@@ -188,7 +186,7 @@ export const LinkedProviders = (props: { selectedUser?: UserType }) => {
   )
 }
 
-const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }: Props) => {
+const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }: UserDrawerProps) => {
   const { t } = useTranslation()
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
@@ -200,7 +198,7 @@ const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }
   }).data
   const scopeTypes = useFind(scopeTypePath, {
     query: {
-      $limit: SCOPE_PAGE_LIMIT /** @todo - this should not be paginated */
+      paginate: false
     }
   }).data
   const userMutation = useMutation(userPath)
