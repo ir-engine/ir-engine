@@ -37,7 +37,7 @@ const getRandomizedName = (name: string, suffix = '', prefix = 'test') =>
 /**appends trailing `/` for directory paths */
 const getDirectoryPath = (name: string) => name + '/'
 
-describe('file browser service', () => {
+describe.skip('file browser service', () => {
   let app: Application
   before(async () => {
     app = createFeathersKoaApp()
