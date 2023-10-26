@@ -23,11 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext } from '../../declarations'
+import { Application, HookContext } from '../../declarations'
 
-export default (...params: string[]) => {
-  const args = Array.from(params)
-  return (context: HookContext): boolean => {
-    return args.includes(context.path)
+/**
+ * A hook used to execute service hooks
+ */
+export default (hooks: any, servicePath?: string | string[]) => {
+  return async (context: HookContext<Application>) => {
+    if (servicePath) {
+      servicePath = Array.isArray(servicePath) ? servicePath : [servicePath]
+    }
+
+    if (!servicePath || servicePath.includes(context.path)) {
+      // First we need to call before hook so that
+      for (const hook of hooks[context.type][context.method]) {
+        context = await hook(context)
+      }
+
+      context.params.skipServiceHooks = true
+    }
   }
 }
