@@ -144,7 +144,11 @@ describe('project-permission.test', () => {
       userId: user4.id
     })
     await app.service(scopePath).create({
-      type: 'admin:admin',
+      type: 'project:read',
+      userId: user4.id
+    })
+    await app.service(scopePath).create({
+      type: 'project:write',
       userId: user4.id
     })
   })

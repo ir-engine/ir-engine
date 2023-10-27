@@ -33,7 +33,7 @@ export default {
     get: [],
     create: [],
     update: [],
-    patch: [iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate('write'))],
+    patch: [iff(isProvider('external'), verifyScope('projects', 'write'), projectPermissionAuthenticate('write'))],
     remove: []
   },
   after: {

@@ -21,6 +21,7 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import { projectBuildPatchValidator } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import {
   projectBuildExternalResolver,
@@ -35,14 +36,14 @@ export default {
 
   before: {
     all: [],
-    find: [verifyScope('admin', 'admin')],
+    find: [iff(isProvider('external'), verifyScope('projects', 'read'))],
     get: [],
     create: [],
     update: [],
     patch: [
+      iff(isProvider('external'), verifyScope('projects', 'write')),
       () => schemaHooks.validateData(projectBuildPatchValidator),
-      schemaHooks.resolveData(projectBuildPatchResolver),
-      verifyScope('admin', 'admin')
+      schemaHooks.resolveData(projectBuildPatchResolver)
     ],
     remove: []
   },

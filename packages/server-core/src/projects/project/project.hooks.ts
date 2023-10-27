@@ -42,6 +42,7 @@ import verifyScope from '../../hooks/verify-scope'
 import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { ProjectBuildUpdateItemType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
@@ -125,7 +126,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
       .select()
       .options({ nestTables: true })
 
-    const allowedProjects = await projectPermissions.map((permission) => permission.project)
+    const allowedProjects = projectPermissions.map((permission) => permission.project)
     const repoAccess =
       githubIdentityProvider.data.length > 0
         ? ((await context.app.service(githubRepoAccessPath).find({
@@ -175,7 +176,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
       context.projectPushIds = context.projectPushIds.concat(matchingAllowedRepos.map((repo) => repo.id))
     }
 
-    if (!context.params.user!.scopes?.find((scope) => scope.type === 'admin:admin'))
+    if (!(await checkScope(context.params.user!, 'projects', 'read')))
       context.params.query.id = { $in: [...new Set(allowedProjects.map((project) => project.id))] }
   }
 }
@@ -551,7 +552,7 @@ export default {
     find: [enableClientPagination(), ensurePushStatus, addLimitToParams],
     get: [],
     create: [
-      iff(isProvider('external'), verifyScope('editor', 'write')),
+      iff(isProvider('external'), verifyScope('projects', 'write')),
       () => schemaHooks.validateData(projectDataValidator),
       schemaHooks.resolveData(projectDataResolver),
       checkIfProjectExists,
@@ -560,18 +561,18 @@ export default {
       updateCreateData
     ],
     update: [
-      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+      iff(isProvider('external'), verifyScope('projects', 'write'), projectPermissionAuthenticate(false)),
       () => schemaHooks.validateData(projectPatchValidator),
       updateProjectJob
     ],
     patch: [
-      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+      iff(isProvider('external'), verifyScope('projects', 'write'), projectPermissionAuthenticate(false)),
       () => schemaHooks.validateData(projectPatchValidator),
       schemaHooks.resolveData(projectPatchResolver),
       iff(isProvider('external'), linkGithubToProject)
     ],
     remove: [
-      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+      iff(isProvider('external'), verifyScope('projects', 'write'), projectPermissionAuthenticate(false)),
       getProjectName,
       runProjectUninstallScript,
       removeProjectFiles,

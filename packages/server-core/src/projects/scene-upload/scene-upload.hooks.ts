@@ -18,6 +18,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 
 export default {
@@ -29,7 +30,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [verifyScope('editor', 'write')],
+    create: [iff(isProvider('external'), verifyScope('scene', 'write'))],
     update: [],
     patch: [],
     remove: []
