@@ -46,7 +46,7 @@ import { EditorControlFunctions } from './EditorControlFunctions'
  */
 export async function addMediaNode(
   url: string,
-  parent: Entity = getState(SceneState).sceneEntity,
+  parent: Entity | null = getState(SceneState).sceneEntity,
   before: Entity | null = null,
   extraComponentJson: ComponentJson[] = []
 ) {
