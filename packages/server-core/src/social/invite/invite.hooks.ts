@@ -101,7 +101,7 @@ export default {
       iffElse(
         (context) => !!context.params.query?.action,
         [iff(isAction('received'), handleInvitee), iff(isAction('sent'), attachOwnerIdInQuery('userId'))],
-        [verifyScope('admin', 'admin')]
+        [verifyScope('invite', 'read')]
       ),
       discardQuery('action')
     ],
@@ -111,9 +111,9 @@ export default {
       () => schemaHooks.validateData(inviteDataValidator),
       schemaHooks.resolveData(inviteDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    update: [iff(isProvider('external'), verifyScope('invite', 'write'))],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('invite', 'write')),
       () => schemaHooks.validateData(invitePatchValidator),
       schemaHooks.resolveData(invitePatchResolver)
     ],
