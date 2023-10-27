@@ -89,31 +89,27 @@ export default {
   before: {
     all: [() => schemaHooks.validateQuery(recordingQueryValidator), schemaHooks.resolveQuery(recordingQueryResolver)],
     find: [
-      iff(isProvider('external'), verifyScope('recording', 'read')),
       iff(
         isProvider('external'),
-        iffElse(isAction('admin'), verifyScope('admin', 'admin'), setLoggedinUserInQuery('userId'))
+        iffElse(isAction('admin'), verifyScope('recording', 'read'), setLoggedinUserInQuery('userId'))
       ),
       discardQuery('action'),
       sortByUserName
     ],
     get: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     create: [
-      setLoggedinUserInBody('userId'),
       iff(isProvider('external'), verifyScope('recording', 'write')),
+      setLoggedinUserInBody('userId'),
       () => schemaHooks.validateData(recordingDataValidator),
       schemaHooks.resolveData(recordingDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('recording', 'write'))],
+    update: [],
     patch: [
       iff(isProvider('external'), verifyScope('recording', 'write')),
       () => schemaHooks.validateData(recordingPatchValidator),
       schemaHooks.resolveData(recordingPatchResolver)
     ],
-    remove: [
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('recording', 'write')),
-      ensureRecording
-    ]
+    remove: [iff(isProvider('external'), verifyScope('recording', 'write')), ensureRecording]
   },
 
   after: {

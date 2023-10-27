@@ -56,7 +56,7 @@ export default {
     find: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     get: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
+      iff(isProvider('external'), verifyScope('recording', 'write'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(recordingResourceDataValidator),
       schemaHooks.resolveData(recordingResourceDataResolver)
     ],
