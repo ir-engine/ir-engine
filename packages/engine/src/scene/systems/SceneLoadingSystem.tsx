@@ -31,9 +31,17 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/engine/src/common/functions/logger'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { defineActionQueue, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  defineActionQueue,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useHookstate
+} from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
+import React from 'react'
 import { AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -60,6 +68,7 @@ import {
   removeEntityNodeRecursively
 } from '../../ecs/functions/EntityTree'
 import { SystemDefinitions, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
+import { SceneID } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsComponent } from '../components/CameraSettingsComponent'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
@@ -72,6 +81,7 @@ import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
+import { SceneTagComponent } from '../components/SceneTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getUniqueName } from '../functions/getUniqueName'
@@ -489,7 +499,7 @@ export const migrateSceneData = (sceneData: SceneData) => {
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
 const reactor = () => {
-  const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+  const scenes = useHookstate(getMutableState(SceneState).scenes)
   const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
@@ -515,11 +525,136 @@ const reactor = () => {
     }
   }, [sceneAssetPendingTagQuery.length, assetLoadingState])
 
+  // useEffect(() => {
+  //   if (!isEngineInitialized.value) return
+  //   /** editor loading is done in  EditorHistory via snapshots */
+  //   if (!getState(EngineState).isEditor) updateSceneFromJSON()
+  // }, [sceneData, isEngineInitialized])
+
+  return (
+    <>
+      {Object.keys(scenes.value).map((sceneID: SceneID) => (
+        <SceneReactor key={sceneID} sceneID={sceneID} />
+      ))}
+    </>
+  )
+}
+
+const SceneReactor = (props: { sceneID: SceneID }) => {
+  const entities = useHookstate(getMutableState(SceneState).scenes[props.sceneID].data.scene.entities)
+  const rootUUID = getState(SceneState).scenes[props.sceneID].data.scene.root
+
   useEffect(() => {
-    if (!isEngineInitialized.value) return
-    /** editor loading is done in  EditorHistory via snapshots */
-    if (!getState(EngineState).isEditor) updateSceneFromJSON()
-  }, [sceneData, isEngineInitialized])
+    if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS) {
+      getMutableState(AppLoadingState).merge({
+        state: AppLoadingStates.SCENE_LOADING,
+        loaded: false
+      })
+    }
+    getMutableState(EngineState).merge({
+      sceneLoading: true,
+      sceneLoaded: false
+    })
+  }, [])
+
+  return (
+    <>
+      {Object.keys(entities.value).map((entityUUID: EntityUUID) =>
+        entityUUID === rootUUID ? (
+          <EntitySceneRootLoadReactor key={entityUUID} sceneID={props.sceneID} entityUUID={entityUUID} />
+        ) : (
+          <EntityLoadReactor key={entityUUID} sceneID={props.sceneID} entityUUID={entityUUID} />
+        )
+      )}
+    </>
+  )
+}
+
+const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
+  const entityState = useHookstate(
+    getMutableState(SceneState).scenes[props.sceneID].data.scene.entities[props.entityUUID]
+  )
+
+  useEffect(() => {
+    const entity = createEntity()
+    setComponent(entity, NameComponent, 'scene')
+    setComponent(entity, VisibleComponent, true)
+    setComponent(entity, UUIDComponent, props.entityUUID)
+    setComponent(entity, SceneTagComponent, true)
+    setComponent(entity, TransformComponent)
+    setComponent(entity, EntityTreeComponent, { parentEntity: null })
+
+    return () => {
+      removeEntity(entity)
+    }
+  }, [])
+
+  useEffect(() => {
+    const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
+    deserializeSceneEntity(entity, entityState.get(NO_PROXY))
+  }, [entityState])
+
+  return null
+}
+
+const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
+  const entityState = useHookstate(
+    getMutableState(SceneState).scenes[props.sceneID].data.scene.entities[props.entityUUID]
+  )
+  const parentEntityState = useHookstate(UUIDComponent.entitiesByUUIDState[entityState.value.parent!])
+  const isDynamic = !!entityState.value.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID)
+  const isDynamicallyLoaded = useHookstate(SceneDynamicLoadTagComponent.entityUUIDLoadedState[props.entityUUID])
+
+  useEffect(() => {
+    if (isDynamic && !isDynamicallyLoaded) return
+
+    const entity = createEntity()
+    const parentEntity = parentEntityState.value
+    setComponent(entity, SceneObjectComponent)
+    setComponent(entity, EntityTreeComponent, {
+      parentEntity,
+      uuid: props.entityUUID,
+      childIndex: entityState.index.value
+    })
+    addEntityNodeChild(entity, parentEntity)
+
+    /** handle reparenting due to changes in scene json */
+    return () => {
+      removeEntity(entity)
+    }
+  }, [isDynamicallyLoaded])
+
+  useEffect(() => {
+    // const currentParent = getComponent(existingEntity, EntityTreeComponent)
+    // if (currentParent?.parentEntity) {
+    //   const currentParentEntityUUID = getComponent(currentParent.parentEntity, UUIDComponent)
+    //   if (
+    //     currentParentEntityUUID !== entityJson.parent ||
+    //     entityJson.index !== currentParent.children.indexOf(existingEntity)
+    //   ) {
+    //     const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
+    //     setComponent(existingEntity, EntityTreeComponent, {
+    //       parentEntity: parentEntity,
+    //       uuid,
+    //       childIndex: entityJson.index
+    //     })
+    //   }
+    // }
+
+    const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
+    const parentEntity = UUIDComponent.entitiesByUUID[entityState.parent.value!]
+    const uuid = props.entityUUID
+    setComponent(entity, EntityTreeComponent, {
+      parentEntity: parentEntity,
+      uuid,
+      childIndex: entityState.index.value
+    })
+  }, [entityState.parent, entityState.index])
+
+  useEffect(() => {
+    const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
+    deserializeSceneEntity(entity, entityState.get(NO_PROXY))
+  }, [entityState])
 
   return null
 }

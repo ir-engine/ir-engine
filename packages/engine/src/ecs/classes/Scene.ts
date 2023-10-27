@@ -25,22 +25,34 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, Texture } from 'three'
 
-import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { scenePath } from '../../schemas/projects/scene.schema'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { Engine } from './Engine'
-import { UndefinedEntity } from './Entity'
+
+export interface StagedScene {
+  data: SceneDataType
+}
 
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
-    sceneData: null as SceneData | null,
-    sceneEntity: UndefinedEntity,
-    /** @todo support multiple scenes */
-    // sceneEntities: {} as Record<string /* SceneID */, EntityUUID>,
+    scenes: {} as Record<SceneID, StagedScene>,
+    /** @todo replace activeScene with proper multi-scene support */
+    activeScene: null as null | SceneID,
     background: null as null | Color | Texture
-  })
+  }),
+
+  loadScene: (sceneID: SceneID, data: SceneDataType) => {
+    getMutableState(SceneState).scenes[sceneID].set({ data })
+    getMutableState(SceneState).activeScene.set(sceneID)
+  },
+
+  getRootEntity: (sceneID: SceneID) => {
+    const scene = getState(SceneState).scenes[sceneID]
+    return UUIDComponent.entitiesByUUID[scene.data.scene.root]
+  }
 })
 
 export const SceneServices = {
@@ -48,12 +60,7 @@ export const SceneServices = {
     const sceneData = await Engine.instance.api
       .service(scenePath)
       .get(null, { query: { project: projectName, name: sceneName } })
-    getMutableState(SceneState).sceneData.set(sceneData)
+    /**@todo replace projectName/sceneName with sceneID once #9119 */
+    SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, sceneData)
   }
 }
-// export const
-
-// export const getActiveSceneEntity = () => {
-//   const state = getState(SceneState)
-//   return UUIDComponent.entitiesByUUID[state.sceneEntities[state.sceneEntity]]
-// }

@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { createState } from '@etherealengine/hyperflux'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+
+const entityUUIDLoaded = {} as Record<EntityUUID, boolean>
 
 export const SceneDynamicLoadTagComponent = defineComponent({
   name: 'SceneDynamicLoadTagComponent',
@@ -45,5 +49,8 @@ export const SceneDynamicLoadTagComponent = defineComponent({
     return {
       distance: component.distance.value
     }
-  }
+  },
+
+  entityUUIDLoadedState: createState(entityUUIDLoaded),
+  entityUUIDLoaded: entityUUIDLoaded as Readonly<typeof entityUUIDLoaded>
 })

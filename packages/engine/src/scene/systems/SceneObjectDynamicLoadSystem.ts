@@ -24,20 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { EntityJson, SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { getState } from '@etherealengine/hyperflux'
+import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getState, none } from '@etherealengine/hyperflux'
 
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { SceneState } from '../../ecs/classes/Scene'
 import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
-import { removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
-import { updateSceneEntitiesFromJSON, updateSceneEntity } from '../systems/SceneLoadingSystem'
 
 let accumulator = 0
 
@@ -58,7 +56,10 @@ const execute = () => {
   const avatarPosition = getOptionalComponent(Engine.instance.localClientEntity, TransformComponent)?.position
   if (!avatarPosition) return
 
-  const sceneData = getState(SceneState).sceneData as SceneData
+  const { scenes, activeScene } = getState(SceneState)
+  if (!activeScene) return
+
+  const sceneData = scenes[activeScene].data
   const dynamicEntities = Object.entries(sceneData.scene.entities).filter(([uuid, entityJson]) =>
     entityJson.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID)
   )
@@ -78,8 +79,7 @@ const execute = () => {
 
     /** Load unloaded entities */
     if (distanceToAvatar < loadDistance) {
-      updateSceneEntity(uuid, entityJson)
-      updateSceneEntitiesFromJSON(uuid)
+      SceneDynamicLoadTagComponent.entityUUIDLoadedState[uuid].set(true)
     }
   }
 
@@ -94,7 +94,7 @@ const execute = () => {
 
     /** Unload loaded entities */
     if (distanceToAvatar > loadDistance) {
-      removeEntityNodeRecursively(entity)
+      SceneDynamicLoadTagComponent.entityUUIDLoadedState[uuid].set(none)
     }
   }
 }

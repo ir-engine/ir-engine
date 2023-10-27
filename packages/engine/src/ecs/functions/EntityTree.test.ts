@@ -45,7 +45,6 @@ import {
   destroyEntityTree,
   findIndexOfEntityNode,
   getEntityNodeArrayFromEntities,
-  initializeSceneEntity,
   iterateEntityNode,
   removeFromEntityTree,
   reparentEntityNode,
