@@ -127,7 +127,6 @@ const execute = () => {
     const avatarComponent = getComponent(entity, AvatarComponent)
     const sitting = getComponent(entity, SittingComponent)
     const rigidBody = getComponent(entity, RigidBodyComponent)
-    console.log(controller.gamepadLocalInput.lengthSq())
     if (controller.gamepadLocalInput.lengthSq() > 0.01) {
       const avatarTransform = getComponent(entity, TransformComponent)
       const newPos = avatarTransform.position

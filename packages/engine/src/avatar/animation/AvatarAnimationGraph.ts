@@ -114,12 +114,18 @@ export const loadAvatarAnimation = (entity: Entity, filePath: string, clipName?:
     //load from default-project/assets/animations
     AssetLoader.loadAsync(filePath).then((animationsAsset: GLTF) => {
       //if no clipname specified, set first animation name to state name for lookup
-      if (!clipName)
-        if (fileType == 'fbx') animationsAsset.scene.animations[0].name = stateName
-        else animationsAsset.animations[0].name = stateName
-      //if it's a glb, set the scene's animations to the asset's animations
-      //this lets us assume they are in the same location for both fbx and glb files
-      if (fileType == 'glb') animationsAsset.scene.animations = animationsAsset.animations
+      animationsAsset.scene.animations[0].name = clipName!
+      switch (fileType) {
+        case 'fbx':
+          animationsAsset.scene.animations[0].name = clipName ?? stateName
+          break
+        case 'glb':
+          //if it's a glb, set the scene's animations to the asset's animations
+          //this lets us assume they are in the same location for both fbx and glb files
+          animationsAsset.animations[0].name = clipName ?? stateName
+          animationsAsset.scene.animations = animationsAsset.animations
+          break
+      }
       animationState.loadedAnimations[stateName] = animationsAsset
       playAvatarAnimationFromMixamo(entity, animationsAsset.scene, loop, clipName)
     })
@@ -143,6 +149,7 @@ export const playAvatarAnimationFromMixamo = (
   )
   //otherwise retarget and push to animation component's animations
   if (!retargetedAnimation) {
+    console.log('gotta retarget :)')
     retargetedAnimation = retargetMixamoAnimation(
       cloneDeep(
         clipName
@@ -167,7 +174,6 @@ export const playAvatarAnimationFromMixamo = (
     currentAction.value.loop = loop ? LoopRepeat : LoopOnce
     currentAction.value.play()
   }
-  console.log(currentAction.value, 'needs to be ' + LoopRepeat)
 }
 
 const moveLength = new Vector3()
