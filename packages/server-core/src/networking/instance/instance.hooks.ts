@@ -140,25 +140,25 @@ export default {
   before: {
     all: [() => schemaHooks.validateQuery(instanceQueryValidator), schemaHooks.resolveQuery(instanceQueryResolver)],
     find: [
-      iff(isProvider('external') && isAction('admin'), verifyScope('admin', 'admin'), addLocationSearchToQuery),
+      iff(isProvider('external') && isAction('admin'), verifyScope('instance', 'read'), addLocationSearchToQuery),
       discardQuery('search'),
       discardQuery('action'),
       sortByLocationName
     ],
     get: [],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('instance', 'write')),
       () => schemaHooks.validateData(instanceDataValidator),
       schemaHooks.resolveData(instanceDataResolver),
       addRoomCode
     ],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    update: [],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('instance', 'write')),
       () => schemaHooks.validateData(instancePatchValidator),
       schemaHooks.resolveData(instancePatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]
+    remove: [iff(isProvider('external'), verifyScope('instance', 'write'))]
   },
 
   after: {

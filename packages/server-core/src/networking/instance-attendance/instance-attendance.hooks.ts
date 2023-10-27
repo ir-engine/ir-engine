@@ -51,22 +51,24 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('instance', 'read')),
       () => schemaHooks.validateQuery(instanceAttendanceQueryValidator),
       schemaHooks.resolveQuery(instanceAttendanceQueryResolver)
     ],
     find: [],
     get: [],
     create: [
+      iff(isProvider('external'), verifyScope('instance', 'write')),
       () => schemaHooks.validateData(instanceAttendanceDataValidator),
       schemaHooks.resolveData(instanceAttendanceDataResolver)
     ],
     update: [],
     patch: [
+      iff(isProvider('external'), verifyScope('instance', 'write')),
       () => schemaHooks.validateData(instanceAttendancePatchValidator),
       schemaHooks.resolveData(instanceAttendancePatchResolver)
     ],
-    remove: []
+    remove: [iff(isProvider('external'), verifyScope('instance', 'write'))]
   },
 
   after: {

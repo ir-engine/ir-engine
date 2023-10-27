@@ -74,7 +74,7 @@ export default (app: Application): void => {
     try {
       const adminScopes = (await app.service(scopePath).find({
         query: {
-          type: 'admin:admin'
+          type: 'instance:read'
         },
         paginate: false
       })) as ScopeType[]
