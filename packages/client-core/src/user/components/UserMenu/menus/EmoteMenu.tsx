@@ -146,7 +146,7 @@ export const useEmoteMenuHooks = () => {
     const entity = Engine.instance.localClientEntity
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
-        filePath: defaultAnimationPath + +'.fbx',
+        filePath: defaultAnimationPath + stateName + '.fbx',
         loop: false,
         layer: 0,
         entityUUID: getComponent(entity, UUIDComponent)
