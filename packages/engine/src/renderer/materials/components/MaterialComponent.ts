@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material } from 'three'
 
+import { MaterialPluginType } from '@etherealengine/engine/src/renderer/materials/components/MaterialPluginComponent'
 import { Entity } from '../../../ecs/classes/Entity'
 import { MaterialSource } from './MaterialSource'
 
@@ -36,7 +37,8 @@ export type MaterialComponentType = {
   prototype: string
   material: Material
   parameters: { [field: string]: any }
-  plugins: string[]
+  plugins: MaterialPluginType[]
+  //plugins: Record<string,any>
   src: MaterialSource
   status: MaterialStatus
 }

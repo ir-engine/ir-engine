@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { defineState, getMutableState, getState, StateDefinition } from '@etherealengine/hyperflux'
 
 import { MaterialComponentType } from './components/MaterialComponent'
-import { MaterialPluginType } from './components/MaterialPluginComponent'
+import { PluginPrototypeComponentType } from './components/MaterialPluginPrototypeComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
 import { MaterialSourceComponentType } from './components/MaterialSource'
 import MeshBasicMaterial from './constants/material-prototypes/MeshBasicMaterial.mat'
@@ -45,7 +45,7 @@ import { registerMaterialPlugin } from './functions/MaterialPluginFunctions'
 export type MaterialLibraryType = {
   prototypes: Record<string, MaterialPrototypeComponentType>
   materials: Record<string, MaterialComponentType>
-  plugins: Record<string, MaterialPluginType>
+  pluginPrototypes: Record<string, PluginPrototypeComponentType>
   sources: Record<string, MaterialSourceComponentType>
   initialized: boolean
 }
@@ -55,7 +55,7 @@ export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = define
   initial: {
     prototypes: {},
     materials: {},
-    plugins: {},
+    pluginPrototypes: {},
     sources: {},
     initialized: false
   } as MaterialLibraryType
