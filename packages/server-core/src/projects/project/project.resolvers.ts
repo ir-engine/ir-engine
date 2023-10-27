@@ -38,20 +38,32 @@ import {
   ProjectType
 } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
+const logger = multiLogger.child({ component: 'server:project.resolvers' })
+
 export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => {
-  let settings = JSON.parse(rawData.settings) as ProjectSettingType[]
+  let settings: any
+  try {
+    settings = JSON.parse(rawData.settings) as ProjectSettingType[]
 
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof settings === 'string') {
-    settings = JSON.parse(settings)
-
-    // There are some old records in our database that requires further parsing.
+    // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+    // was serialized multiple times, therefore we need to parse it twice.
     if (typeof settings === 'string') {
       settings = JSON.parse(settings)
+
+      // There are some old records in our database that requires further parsing.
+      if (typeof settings === 'string') {
+        settings = JSON.parse(settings)
+      }
     }
+  } catch (err) {
+    logger.error(rawData)
+    logger.error(typeof rawData)
+    logger.error(rawData.settings)
+    logger.error(typeof rawData.settings)
+    logger.error('Error parsing project settings', err)
   }
 
   return {
