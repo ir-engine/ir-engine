@@ -21,6 +21,7 @@ Ethereal Engine. All Rights Reserved.
 import { staticResourceFiltersQueryValidator } from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
+import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import {
   staticResourceFiltersExternalResolver,
@@ -38,7 +39,7 @@ export default {
 
   before: {
     all: [
-      verifyScope('admin', 'admin'),
+      iff(isProvider('external'), verifyScope('static_resource', 'read')),
       () => schemaHooks.validateQuery(staticResourceFiltersQueryValidator),
       schemaHooks.resolveQuery(staticResourceFiltersQueryResolver)
     ],

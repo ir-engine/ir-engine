@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   staticResourceDataValidator,
@@ -76,27 +76,25 @@ export default {
 
   before: {
     all: [
+      iff(isProvider('external'), verifyScope('static_resource', 'read')),
       () => schemaHooks.validateQuery(staticResourceQueryValidator),
       schemaHooks.resolveQuery(staticResourceQueryResolver)
     ],
     find: [collectAnalytics()],
     get: [disallow('external')],
     create: [
+      iff(isProvider('external'), verifyScope('static_resource', 'write')),
       setLoggedinUserInBody('userId'),
-      verifyScope('admin', 'admin'),
       () => schemaHooks.validateData(staticResourceDataValidator),
       schemaHooks.resolveData(staticResourceDataResolver)
     ],
-    update: [verifyScope('admin', 'admin')],
+    update: [iff(isProvider('external'), verifyScope('static_resource', 'write'))],
     patch: [
-      verifyScope('admin', 'admin'),
+      iff(isProvider('external'), verifyScope('static_resource', 'write')),
       () => schemaHooks.validateData(staticResourcePatchValidator),
       schemaHooks.resolveData(staticResourcePatchResolver)
     ],
-    remove: [
-      // iff(isProvider('external'), verifyScope('admin', 'admin') as any),
-      ensureResource
-    ]
+    remove: [iff(isProvider('external'), verifyScope('static_resource', 'write')), ensureResource]
   },
 
   after: {
