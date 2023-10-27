@@ -78,7 +78,7 @@ export class LoginService implements ServiceInterface {
         logger.info('Login Token has expired')
         return { error: 'Login link has expired' }
       }
-      const identityProvider = await this.app.service(identityProviderPath)._get(result.data[0].identityProviderId)
+      const identityProvider = await this.app.service(identityProviderPath).get(result.data[0].identityProviderId)
       await makeInitialAdmin(this.app, identityProvider.userId)
       const apiKey = (await this.app.service(userApiKeyPath).find({
         query: {

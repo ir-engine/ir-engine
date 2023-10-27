@@ -35,3 +35,11 @@ require("ts-node").register({
 })
 
 require("fix-esm").register()
+
+const hook = require('css-modules-require-hook')
+const sass = require('node-sass')
+
+hook({
+  extensions: [ '.scss' ],
+  preprocessCss: data => sass.renderSync({ data }).css
+})

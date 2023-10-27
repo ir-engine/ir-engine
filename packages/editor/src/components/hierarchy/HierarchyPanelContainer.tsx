@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react'
+import React, { memo, useCallback, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import Hotkeys from 'react-hot-keys'
 import { useTranslation } from 'react-i18next'
@@ -64,7 +64,6 @@ import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import Search from '../Search/Search'
-import { AppContext } from '../Search/context'
 import useUpload from '../assets/useUpload'
 import { ContextMenu } from '../layout/ContextMenu'
 import { updateProperties } from '../properties/Util'
@@ -149,13 +148,7 @@ function getModelNodesFromTreeWalker(
  *
  * @constructor
  */
-export default function HierarchyPanel({
-  setSearchElement,
-  setSearchHierarchy
-}: {
-  setSearchElement: (_: string) => void
-  setSearchHierarchy: (_: string) => void
-}) {
+export default function HierarchyPanel() {
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
@@ -170,13 +163,15 @@ export default function HierarchyPanel({
   const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const editorState = useHookstate(getMutableState(EditorState))
-  const { searchHierarchy } = useContext(AppContext)
+  const [searchHierarchy, setSearchHierarchy] = useState<string>('')
   const showObject3DInHierarchy = editorState.showObject3DInHierarchy
 
   useHookstate(UUIDComponent.entitiesByUUIDState.keys.length)
 
   const MemoTreeNode = memo(
-    (props: HierarchyTreeNodeProps) => <HierarchyTreeNode {...props} onContextMenu={onContextMenu} />,
+    (props: HierarchyTreeNodeProps) => (
+      <HierarchyTreeNode {...props} key={props.data.nodes[props.index].entityNode} onContextMenu={onContextMenu} />
+    ),
     areEqual
   )
 
@@ -205,11 +200,7 @@ export default function HierarchyPanel({
   }, [collapsedNodes])
 
   useEffect(updateNodeHierarchy, [collapsedNodes])
-  useEffect(updateNodeHierarchy, [
-    showObject3DInHierarchy,
-    selectionState.selectedEntities,
-    selectionState.sceneGraphChangeCounter
-  ])
+  useEffect(updateNodeHierarchy, [showObject3DInHierarchy, selectionState.selectedEntities])
 
   const setSelectedNode = (selection) => !editorState.lockPropertiesPanel.value && _setSelectedNode(selection)
 
@@ -251,18 +242,6 @@ export default function HierarchyPanel({
     },
     [collapsedNodes]
   )
-  /* Expand & Collapse Functions */
-
-  const onObjectChanged = useCallback(
-    (propertyName) => {
-      if (propertyName === 'name' || !propertyName) updateNodeHierarchy()
-    },
-    [collapsedNodes]
-  )
-
-  useEffect(() => {
-    onObjectChanged(selectionState.propertyName.value)
-  }, [selectionState.objectChangeCounter])
 
   /* Event handlers */
   const onMouseDown = useCallback(

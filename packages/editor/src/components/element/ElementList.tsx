@@ -66,7 +66,9 @@ import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/Env
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { LoadVolumeComponent } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
+import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { Vector3 } from 'three'
+import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -92,7 +94,13 @@ type SceneElementListItemType = {
 
 export const ComponentShelfCategories: Record<string, Component[]> = {
   Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
-  'Scene Composition': [GroundPlaneComponent, GroupComponent, ColliderComponent, LoadVolumeComponent],
+  'Scene Composition': [
+    PrimitiveGeometryComponent,
+    GroundPlaneComponent,
+    GroupComponent,
+    ColliderComponent,
+    LoadVolumeComponent
+  ],
   Interaction: [SpawnPointComponent, PortalComponent, LinkComponent],
   Lighting: [
     AmbientLightComponent,
@@ -105,6 +113,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
   Scripting: [SystemComponent, BehaveGraphComponent],
   Misc: [
     VariantComponent,
+    SceneDynamicLoadTagComponent,
     EnvMapBakeComponent,
     ScenePreviewCameraComponent,
     SkyboxComponent,

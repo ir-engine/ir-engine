@@ -57,7 +57,7 @@ export const serializeEntity = (entity: Entity) => {
       if (data) {
         jsonComponents.push({
           name: sceneComponentID,
-          props: Object.assign({}, JSON.parse(JSON.stringify(data)))
+          props: data
         })
       }
     }

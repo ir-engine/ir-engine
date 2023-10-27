@@ -23,16 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, NullableId, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
+import { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
 import { Knex } from 'knex'
-import slugify from 'slugify'
 
-import {
-  locationSettingPath,
-  LocationSettingType
-} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import {
   LocationData,
   LocationDatabaseType,
@@ -42,15 +36,8 @@ import {
   LocationType
 } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-import { locationAdminPath, LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
-import {
-  locationAuthorizedUserPath,
-  LocationAuthorizedUserType
-} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
-import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LocationParams extends KnexAdapterParams<LocationQuery> {}
@@ -61,223 +48,12 @@ export interface LocationParams extends KnexAdapterParams<LocationQuery> {}
 
 export const locationSettingSorts = ['locationType', 'audioEnabled', 'videoEnabled']
 
-export class LocationService<T = LocationType, ServiceParams extends Params = LocationParams> extends KnexAdapter<
+export class LocationService<T = LocationType, ServiceParams extends Params = LocationParams> extends KnexService<
   LocationType,
   LocationData,
   LocationParams,
   LocationPatch
 > {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  async get(id: Id, params?: LocationParams) {
-    return super._get(id, params)
-  }
-
-  /**
-   * A function which help to find and display all locations
-   *
-   * @param params of query with limit number and skip number
-   * @returns {@Array} of all locations
-   */
-  async find(params: LocationParams) {
-    const { adminnedLocations, search } = params.query || {}
-
-    if (adminnedLocations && search) {
-      params.query = {
-        ...params.query,
-        $or: [
-          {
-            name: {
-              $like: `%${search}%`
-            }
-          },
-          {
-            sceneId: {
-              $like: `%${search}%`
-            }
-          }
-        ]
-      }
-    }
-
-    const paramsWithoutExtras = {
-      ...params,
-      // Explicitly cloned sort object because otherwise it was affecting default params object as well.
-      query: params.query ? JSON.parse(JSON.stringify(params.query)) : {}
-    }
-
-    // Remove extra params
-    if (paramsWithoutExtras.query?.adminnedLocations) delete paramsWithoutExtras.query.adminnedLocations
-    if (paramsWithoutExtras.query?.search || paramsWithoutExtras.query?.search === '')
-      delete paramsWithoutExtras.query.search
-
-    // Remove location setting sorts
-    if (paramsWithoutExtras.query?.$sort) {
-      for (const sort of locationSettingSorts) {
-        const hasLocationSettingSort = Object.keys(paramsWithoutExtras.query.$sort).find((item) => item === sort)
-
-        if (hasLocationSettingSort) {
-          delete paramsWithoutExtras.query.$sort[sort]
-        }
-      }
-    }
-
-    return super._find(paramsWithoutExtras)
-  }
-
-  /**
-   * A function which is used to create new location
-   *
-   * @param data of location
-   * @param params
-   * @returns new location object
-   */
-  async create(data: LocationData, params?: LocationParams) {
-    const trx = await (this.app.get('knexClient') as Knex).transaction()
-
-    try {
-      const selfUser = params?.user!
-
-      if (data.isLobby) {
-        await this.makeLobby(trx, selfUser)
-      }
-
-      data.slugifiedName = slugify(data.name, { lower: true })
-
-      const insertData = JSON.parse(JSON.stringify(data))
-      delete insertData.locationSetting
-      delete insertData.locationAdmin
-
-      await trx.from<LocationDatabaseType>(locationPath).insert(insertData)
-
-      await trx.from<LocationSettingType>(locationSettingPath).insert({
-        ...data.locationSetting,
-        locationId: (data as LocationType).id
-      })
-
-      if ((data as LocationType).locationAdmin) {
-        await trx.from<LocationAdminType>(locationAdminPath).insert({
-          ...(data as LocationType).locationAdmin,
-          userId: selfUser?.id,
-          locationId: (data as LocationType).id
-        })
-
-        await trx.from<LocationAuthorizedUserType>(locationAuthorizedUserPath).insert({
-          ...(data as LocationType).locationAdmin,
-          userId: selfUser?.id,
-          locationId: (data as LocationType).id
-        })
-      }
-
-      await trx.commit()
-
-      const location = await this.get((data as LocationType).id)
-
-      return location
-    } catch (err) {
-      logger.error(err)
-      await trx.rollback()
-      if (err.code === 'ER_DUP_ENTRY') {
-        throw new Error('Name is in use.')
-      }
-      throw err
-    }
-  }
-
-  /**
-   * A function which is used to update location
-   *
-   * @param id of location to update
-   * @param data of location going to be updated
-   * @returns updated location
-   */
-  async patch(id: Id, data: LocationPatch, params?: LocationParams) {
-    const trx = await (this.app.get('knexClient') as Knex).transaction()
-
-    try {
-      const selfUser = params?.user
-
-      const oldLocation = await this.app.service(locationPath).get(id)
-
-      if (!oldLocation.isLobby && data.isLobby) {
-        await this.makeLobby(trx, selfUser)
-      }
-
-      if (data.name) {
-        data.slugifiedName = slugify(data.name, { lower: true })
-      }
-
-      const updateData = JSON.parse(JSON.stringify(data))
-      delete updateData.locationSetting
-
-      await trx.from<LocationDatabaseType>(locationPath).update(updateData).where({ id: id.toString() })
-
-      if (data.locationSetting) {
-        await trx
-          .from<LocationSettingType>(locationSettingPath)
-          .update({
-            videoEnabled: data.locationSetting.videoEnabled,
-            audioEnabled: data.locationSetting.audioEnabled,
-            faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
-            screenSharingEnabled: data.locationSetting.screenSharingEnabled,
-            locationType: data.locationSetting.locationType || 'private'
-          })
-          .where({ id: oldLocation.locationSetting.id })
-      }
-
-      await trx.commit()
-
-      const location = await this.get(id)
-
-      return location
-    } catch (err) {
-      logger.error(err)
-      await trx.rollback()
-      if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
-        throw new Error('That name is already in use')
-      }
-      throw err
-    }
-  }
-
-  /**
-   * A function which is used to remove location
-   *
-   * @param id of location which is going to be removed
-   * @param params which contain user information
-   * @returns {@function} of remove data
-   */
-  async remove(id: NullableId, params?: LocationParams) {
-    if (id) {
-      const location = await this.app.service(locationPath).get(id)
-
-      if (location && location.isLobby) {
-        throw new Error("Lobby can't be deleted")
-      }
-
-      const selfUser = params!.user
-      if (location.locationSetting) await this.app.service(locationSettingPath).remove(location.locationSetting.id)
-
-      try {
-        await this.app.service(locationAdminPath).remove(null, {
-          query: {
-            locationId: id.toString(),
-            userId: selfUser?.id
-          }
-        })
-      } catch (err) {
-        logger.error(err, `Could not remove location-admin: ${err.message}`)
-      }
-    }
-
-    return await super._remove(id, params)
-  }
-
   async makeLobby(trx: Knex.Transaction, selfUser?: UserType) {
     if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin')) {
       throw new Error('Only Admin can set Lobby')

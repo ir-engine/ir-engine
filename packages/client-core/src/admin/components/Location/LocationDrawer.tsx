@@ -38,6 +38,7 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -170,7 +171,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
     const data: LocationData = {
       name: state.name.value,
       slugifiedName: '',
-      sceneId: state.scene.value,
+      sceneId: state.scene.value as SceneID,
       maxUsersPerInstance: state.maxUsers.value,
       locationSetting: {
         id: '',

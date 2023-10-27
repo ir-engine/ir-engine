@@ -31,7 +31,8 @@ import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schem
 
 import { BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { LocationType, RoomCode, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -58,7 +59,7 @@ describe('bot.service', () => {
       {
         name: 'test-bot-location-' + v1(),
         slugifiedName: '',
-        sceneId: 'test-bot-scene-id-' + v1(),
+        sceneId: ('test-bot-scene-id-' + v1()) as SceneID,
         maxUsersPerInstance: 30,
         locationSetting: {
           id: '',
@@ -79,7 +80,7 @@ describe('bot.service', () => {
 
     testInstance = await app
       .service(instancePath)
-      .create({ locationId: testLocation.id, roomCode: '', currentUsers: 0 })
+      .create({ locationId: testLocation.id, roomCode: '' as RoomCode, currentUsers: 0 })
   })
 
   before(async () => {

@@ -23,10 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { inviteTypes } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
 import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import assert from 'assert'
 import { v1 } from 'uuid'
@@ -37,7 +40,7 @@ describe('invite.service', () => {
   let app: Application
   let testUser: UserType
   let testLocation: LocationType
-  let invites: InviteType[] = []
+  const invites: InviteType[] = []
 
   before(async () => {
     app = createFeathersKoaApp()
@@ -63,7 +66,7 @@ describe('invite.service', () => {
       {
         name: `test-location-name-${v1()}`,
         slugifiedName: '',
-        sceneId: `test-invite-scene-${v1()}`,
+        sceneId: `test-invite-scene-${v1()}` as SceneID,
         maxUsersPerInstance: 30,
         locationSetting: {
           id: '',
@@ -81,6 +84,16 @@ describe('invite.service', () => {
       },
       { isInternal: true }
     )
+  })
+
+  after(async () => {
+    // Remove test user
+    await app.service(identityProviderPath).remove(null, {
+      query: {
+        userId: testUser.id
+      }
+    })
+    await destroyEngine()
   })
 
   inviteTypes.forEach((inviteType) => {

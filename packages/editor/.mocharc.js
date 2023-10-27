@@ -36,7 +36,8 @@ module.exports = {
     'jsdom-global/register'
   ],
   extension: [
-    'ts'
+    'ts',
+    'tsx'
   ],
   bail: true,
   exit: true,
