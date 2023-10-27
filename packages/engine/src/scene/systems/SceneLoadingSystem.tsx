@@ -33,6 +33,7 @@ import logger from '@etherealengine/engine/src/common/functions/logger'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   NO_PROXY,
+  State,
   defineActionQueue,
   dispatchAction,
   getMutableState,
@@ -525,12 +526,6 @@ const reactor = () => {
     }
   }, [sceneAssetPendingTagQuery.length, assetLoadingState])
 
-  // useEffect(() => {
-  //   if (!isEngineInitialized.value) return
-  //   /** editor loading is done in  EditorHistory via snapshots */
-  //   if (!getState(EngineState).isEditor) updateSceneFromJSON()
-  // }, [sceneData, isEngineInitialized])
-
   return (
     <>
       {Object.keys(scenes.value).map((sceneID: SceneID) => (
@@ -602,11 +597,12 @@ const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) 
     getMutableState(SceneState).scenes[props.sceneID].data.scene.entities[props.entityUUID]
   )
   const parentEntityState = useHookstate(UUIDComponent.entitiesByUUIDState[entityState.value.parent!])
+  const selfEntityState = useHookstate(UUIDComponent.entitiesByUUIDState[props.entityUUID])
   const isDynamic = !!entityState.value.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID)
-  const isDynamicallyLoaded = useHookstate(SceneDynamicLoadTagComponent.entityUUIDLoadedState[props.entityUUID])
+  const isUnloaded = useHookstate(SceneDynamicLoadTagComponent.entityUUIDUnloadedState[props.entityUUID])
 
   useEffect(() => {
-    if (isDynamic && !isDynamicallyLoaded) return
+    if (isDynamic && !isUnloaded.value) return
 
     const entity = createEntity()
     const parentEntity = parentEntityState.value
@@ -622,26 +618,11 @@ const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) 
     return () => {
       removeEntity(entity)
     }
-  }, [isDynamicallyLoaded])
+  }, [isUnloaded])
 
   useEffect(() => {
-    // const currentParent = getComponent(existingEntity, EntityTreeComponent)
-    // if (currentParent?.parentEntity) {
-    //   const currentParentEntityUUID = getComponent(currentParent.parentEntity, UUIDComponent)
-    //   if (
-    //     currentParentEntityUUID !== entityJson.parent ||
-    //     entityJson.index !== currentParent.children.indexOf(existingEntity)
-    //   ) {
-    //     const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
-    //     setComponent(existingEntity, EntityTreeComponent, {
-    //       parentEntity: parentEntity,
-    //       uuid,
-    //       childIndex: entityJson.index
-    //     })
-    //   }
-    // }
-
     const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
+    if (!entity) return
     const parentEntity = UUIDComponent.entitiesByUUID[entityState.parent.value!]
     const uuid = props.entityUUID
     setComponent(entity, EntityTreeComponent, {
@@ -649,12 +630,45 @@ const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) 
       uuid,
       childIndex: entityState.index.value
     })
-  }, [entityState.parent, entityState.index])
+  }, [entityState.parent, entityState.index, selfEntityState])
 
+  return (
+    <>
+      {selfEntityState.value &&
+        entityState.components.map((compState) => (
+          <ComponentLoadReactor
+            key={compState.name.value}
+            componentState={compState}
+            entityUUID={props.entityUUID}
+            sceneID={props.sceneID}
+          />
+        ))}
+    </>
+  )
+}
+
+const ComponentLoadReactor = (props: {
+  componentState: State<ComponentJson>
+  entityUUID: EntityUUID
+  sceneID: SceneID
+}) => {
   useEffect(() => {
     const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
-    deserializeSceneEntity(entity, entityState.get(NO_PROXY))
-  }, [entityState])
+    const component = props.componentState.get(NO_PROXY)
+
+    try {
+      deserializeComponent(entity, component)
+    } catch (e) {
+      console.error(`Error loading scene entity: `, entity, props.entityUUID, component)
+      console.error(e)
+      return
+    }
+
+    return () => {
+      if (!props.componentState.value) return
+      removeComponent(entity, ComponentJSONIDMap.get(component.name)!)
+    }
+  }, [props.componentState])
 
   return null
 }

@@ -47,7 +47,7 @@ const execute = () => {
 
   accumulator += engineState.deltaSeconds
 
-  if (accumulator < 0.1) {
+  if (accumulator < 1) {
     return
   }
 
@@ -79,7 +79,7 @@ const execute = () => {
 
     /** Load unloaded entities */
     if (distanceToAvatar < loadDistance) {
-      SceneDynamicLoadTagComponent.entityUUIDLoadedState[uuid].set(true)
+      SceneDynamicLoadTagComponent.entityUUIDUnloadedState[uuid].set(true)
     }
   }
 
@@ -94,7 +94,7 @@ const execute = () => {
 
     /** Unload loaded entities */
     if (distanceToAvatar > loadDistance) {
-      SceneDynamicLoadTagComponent.entityUUIDLoadedState[uuid].set(none)
+      SceneDynamicLoadTagComponent.entityUUIDUnloadedState[uuid].set(none)
     }
   }
 }
