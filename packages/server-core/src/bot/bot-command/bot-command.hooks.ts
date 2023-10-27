@@ -28,14 +28,12 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   botCommandDataValidator,
-  botCommandPatchValidator,
   botCommandQueryValidator
 } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import verifyScope from '../../hooks/verify-scope'
 import {
   botCommandDataResolver,
   botCommandExternalResolver,
-  botCommandPatchResolver,
   botCommandQueryResolver,
   botCommandResolver
 } from './bot-command.resolvers'
@@ -47,20 +45,20 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('bot', 'read')),
       () => schemaHooks.validateQuery(botCommandQueryValidator),
       schemaHooks.resolveQuery(botCommandQueryResolver)
     ],
     find: [],
     get: [],
-    create: [() => schemaHooks.validateData(botCommandDataValidator), schemaHooks.resolveData(botCommandDataResolver)],
-    update: [disallow()],
-    patch: [
-      disallow(),
-      () => schemaHooks.validateData(botCommandPatchValidator),
-      schemaHooks.resolveData(botCommandPatchResolver)
+    create: [
+      iff(isProvider('external'), verifyScope('bot', 'write')),
+      () => schemaHooks.validateData(botCommandDataValidator),
+      schemaHooks.resolveData(botCommandDataResolver)
     ],
-    remove: []
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [iff(isProvider('external'), verifyScope('bot', 'write'))]
   },
 
   after: {

@@ -76,21 +76,26 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('bot', 'read')),
       () => schemaHooks.validateQuery(botQueryValidator),
       schemaHooks.resolveQuery(botQueryResolver)
     ],
     find: [],
     get: [],
     create: [
+      iff(isProvider('external'), verifyScope('bot', 'write')),
       () => schemaHooks.validateData(botDataValidator),
       schemaHooks.resolveData(botDataResolver),
       persistData,
       discard('botCommands')
     ],
     update: [disallow()],
-    patch: [() => schemaHooks.validateData(botPatchValidator), schemaHooks.resolveData(botPatchResolver)],
-    remove: []
+    patch: [
+      iff(isProvider('external'), verifyScope('bot', 'write')),
+      () => schemaHooks.validateData(botPatchValidator),
+      schemaHooks.resolveData(botPatchResolver)
+    ],
+    remove: [iff(isProvider('external'), verifyScope('bot', 'write'))]
   },
 
   after: {
