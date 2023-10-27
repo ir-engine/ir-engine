@@ -51,22 +51,24 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('projects', 'read')),
       () => schemaHooks.validateQuery(githubRepoAccessQueryValidator),
       schemaHooks.resolveQuery(githubRepoAccessQueryResolver)
     ],
     find: [],
     get: [],
     create: [
+      iff(isProvider('external'), verifyScope('projects', 'write')),
       () => schemaHooks.validateData(githubRepoAccessDataValidator),
       schemaHooks.resolveData(githubRepoAccessDataResolver)
     ],
-    update: [],
+    update: [iff(isProvider('external'), verifyScope('projects', 'write'))],
     patch: [
+      iff(isProvider('external'), verifyScope('projects', 'write')),
       () => schemaHooks.validateData(githubRepoAccessPatchValidator),
       schemaHooks.resolveData(githubRepoAccessPatchResolver)
     ],
-    remove: []
+    remove: [iff(isProvider('external'), verifyScope('projects', 'write'))]
   },
   after: {
     all: [],

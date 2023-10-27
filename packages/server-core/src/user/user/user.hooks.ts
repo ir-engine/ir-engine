@@ -35,6 +35,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import { discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import {
   IdentityProviderType,
@@ -62,17 +63,12 @@ import {
  * @param context
  * @returns
  */
-const restrictUserPatch = (context: HookContext<UserService>) => {
+const restrictUserPatch = async (context: HookContext<UserService>) => {
   if (context.params.isInternal) return context
 
-  // allow admins for all patch actions
   const loggedInUser = context.params.user as UserType
-  if (
-    loggedInUser.scopes &&
-    loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
-    loggedInUser.scopes.find((scope) => scope.type === 'user:write')
-  )
-    return context
+
+  if (await checkScope(loggedInUser, 'user', 'write')) return
 
   // only allow a user to patch it's own data
   if (loggedInUser.id !== context.id)
@@ -96,17 +92,11 @@ const restrictUserPatch = (context: HookContext<UserService>) => {
  * @param context
  * @returns
  */
-const restrictUserRemove = (context: HookContext<UserService>) => {
+const restrictUserRemove = async (context: HookContext<UserService>) => {
   if (context.params.isInternal) return context
 
-  // allow admins for all patch actions
   const loggedInUser = context.params.user as UserType
-  if (
-    loggedInUser.scopes &&
-    loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
-    loggedInUser.scopes.find((scope) => scope.type === 'user:write')
-  )
-    return context
+  if (await checkScope(loggedInUser, 'user', 'write')) return
 
   // only allow a user to patch it's own data
   if (loggedInUser.id !== context.id) throw new Error('Must be an admin with user:write scope to delete another user')
@@ -266,18 +256,18 @@ export default createSkippableHooks(
     before: {
       all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
       find: [
-        iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'), handleUserSearch),
+        iff(isProvider('external'), verifyScope('user', 'read'), handleUserSearch),
         iff(isProvider('external'), discardQuery('search', '$sort.accountIdentifier') as any)
       ],
       get: [],
       create: [
-        iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
+        iff(isProvider('external'), verifyScope('user', 'write')),
         () => schemaHooks.validateData(userDataValidator),
         schemaHooks.resolveData(userDataResolver),
         persistData,
         discard('scopes')
       ],
-      update: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write'))],
+      update: [iff(isProvider('external'), verifyScope('user', 'write'))],
       patch: [
         iff(isProvider('external'), restrictUserPatch),
         () => schemaHooks.validateData(userPatchValidator),

@@ -158,7 +158,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
         if (existingAdminScope.total === 0)
           await this.app.service(scopePath).create({
             userId: inviteeIdentityProvider.userId,
-            type: 'admin:admin'
+            type: 'admin:admin' // DOUBT: what happens here
           })
       }
 
