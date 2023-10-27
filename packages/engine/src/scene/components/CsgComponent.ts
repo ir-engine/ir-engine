@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { GeometryTypeEnum } from '../constants/GeometryTypeEnum'
 
 export const CsgComponent = defineComponent({
   name: 'CsgComponent',
@@ -33,7 +32,7 @@ export const CsgComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      operationType: GeometryTypeEnum.BoxGeometry as GeometryTypeEnum,
+      operationType: '' as string,
       groupA: null,
       groupB: null
     }
