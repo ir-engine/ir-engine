@@ -96,7 +96,7 @@ export async function previewScreenshot(
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
-      addEntityNodeChild(entity, getState(SceneState).sceneEntity)
+      addEntityNodeChild(entity, SceneState.getRootEntity())
       scenePreviewCamera.updateMatrixWorld(true)
     }
   }
@@ -179,7 +179,7 @@ export async function takeScreenshot(
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
-      addEntityNodeChild(entity, getState(SceneState).sceneEntity)
+      addEntityNodeChild(entity, SceneState.getRootEntity())
       scenePreviewCamera.updateMatrixWorld(true)
     }
   }

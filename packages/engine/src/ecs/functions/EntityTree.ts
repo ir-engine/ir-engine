@@ -213,10 +213,12 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIn
 export function serializeNodeToWorld(entity: Entity) {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
   const nodeUUID = getComponent(entity, UUIDComponent)
-  const jsonEntity = getState(SceneState).sceneData!.scene.entities[nodeUUID] as EntityJson
+  const jsonEntity = getState(SceneState).scenes[getState(SceneState).activeScene!].data.scene.entities[
+    nodeUUID
+  ] as EntityJson
   if (jsonEntity) {
     jsonEntity.components = serializeEntity(entity)
-    if (entityTreeNode.parentEntity && entityTreeNode.parentEntity !== getState(SceneState).sceneEntity) {
+    if (entityTreeNode.parentEntity && entityTreeNode.parentEntity !== SceneState.getRootEntity()) {
       const parentNodeUUID = getComponent(entityTreeNode.parentEntity, UUIDComponent)
       jsonEntity.parent = parentNodeUUID
     }

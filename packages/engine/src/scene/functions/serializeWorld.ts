@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { getState } from '@etherealengine/hyperflux'
+import { ComponentJson, EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
@@ -65,14 +64,15 @@ export const serializeEntity = (entity: Entity) => {
   return jsonComponents
 }
 
-export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false) => {
+/** @deprecated */
+export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false): SceneJson => {
   const sceneJson = {
     version: 0,
     entities: {},
     root: null! as EntityUUID
   }
 
-  const sceneEntity = getState(SceneState).sceneEntity
+  const sceneEntity = SceneState.getRootEntity()
 
   const traverseNode = rootEntity ?? sceneEntity
   const loadedAssets = new Set<Entity>()

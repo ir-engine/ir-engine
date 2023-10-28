@@ -30,6 +30,7 @@ import { defineState, getMutableState, getState, none } from '@etherealengine/hy
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { Engine } from './Engine'
+import { UndefinedEntity } from './Entity'
 
 export interface StagedScene {
   data: SceneDataType
@@ -56,8 +57,10 @@ export const SceneState = defineState({
     }
   },
 
-  getRootEntity: (sceneID: SceneID) => {
-    const scene = getState(SceneState).scenes[sceneID]
+  getRootEntity: (sceneID?: SceneID) => {
+    const activeScene = getState(SceneState).activeScene
+    if (!sceneID && !activeScene) return UndefinedEntity
+    const scene = getState(SceneState).scenes[sceneID ?? activeScene!]
     return UUIDComponent.entitiesByUUID[scene.data.scene.root]
   }
 })
