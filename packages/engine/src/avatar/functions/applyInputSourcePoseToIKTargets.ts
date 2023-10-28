@@ -35,7 +35,7 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHand, XRLeftHandComponent, XRRightHandComponent } from '../../xr/XRComponents'
-import { ReferenceSpace, XRState, getCameraMode } from '../../xr/XRState'
+import { ReferenceSpace, XRControlsState, XRState } from '../../xr/XRState'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -271,7 +271,9 @@ export const applyInputSourcePoseToIKTargets = () => {
 
   const xrFrame = getState(XRState).xrFrame!
 
-  const inAttachedControlMode = getCameraMode() === 'attached'
+  const inverseWorldScale = 1 / XRState.worldScale
+
+  const { isCameraAttachedToAvatar } = getState(XRControlsState)
 
   const referenceSpace = ReferenceSpace.origin
 
@@ -286,7 +288,7 @@ export const applyInputSourcePoseToIKTargets = () => {
     const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
 
     /** Head */
-    if (inAttachedControlMode && ikTargetHead) {
+    if (isCameraAttachedToAvatar && ikTargetHead) {
       const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
       const ikTransform = getComponent(ikTargetHead, TransformComponent)
       ikTransform.position.copy(cameraTransform.position)
@@ -318,7 +320,7 @@ export const applyInputSourcePoseToIKTargets = () => {
               ikTransform.position
                 .copy(jointPose.transform.position as unknown as Vector3)
                 .sub(player.position)
-                .multiplyScalar(1 / getState(XRState).sceneScale)
+                .multiplyScalar(inverseWorldScale)
                 .add(player.position)
               ikTransform.rotation.copy(jointPose.transform.orientation as unknown as Quaternion)
               ikTransform.rotation.multiply(handedness === 'right' ? rightHandOffset : leftHandOffset)
@@ -333,7 +335,7 @@ export const applyInputSourcePoseToIKTargets = () => {
               ikTransform.position
                 .copy(pose.transform.position as any as Vector3)
                 .sub(player.position)
-                .multiplyScalar(1 / getState(XRState).sceneScale)
+                .multiplyScalar(inverseWorldScale)
                 .add(player.position)
               ikTransform.rotation
                 .copy(pose.transform.orientation as any as Quaternion)
