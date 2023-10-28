@@ -59,8 +59,10 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent, addEntityNodeChild } from '../../ecs/functions/EntityTree'
-import { defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { QueryReactor, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
+import { NetworkState } from '../../networking/NetworkState'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsComponent } from '../components/CameraSettingsComponent'
@@ -94,7 +96,7 @@ export const createNewEditorNode = (
   )
   const uuid = componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? MathUtils.generateUUID()
 
-  addEntityNodeChild(entityNode, parentEntity)
+  setComponent(entityNode, EntityTreeComponent, { parentEntity })
 
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, {
@@ -176,9 +178,6 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
     const parent = eJson.parent ? UUIDComponent.entitiesByUUID[eJson.parent] : rootEntity
     setComponent(eNode, EntityTreeComponent, { parentEntity: parent })
     setComponent(eNode, UUIDComponent, uuid)
-    if (eJson.parent && loadedEntities[eJson.parent]) {
-      addEntityNodeChild(eNode, parent)
-    }
     entityMap[uuid] = eNode
   })
   entities.forEach(([_uuid, _data]) => {
@@ -207,10 +206,13 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
         result.push(node)
       }
     }
-    addEntityNodeChild(
-      node,
-      parentId ? (parentId === getComponent(rootEntity, UUIDComponent) ? rootEntity : entityMap[parentId]) : rootEntity
-    )
+    setComponent(node, EntityTreeComponent, {
+      parentEntity: parentId
+        ? parentId === getComponent(rootEntity, UUIDComponent)
+          ? rootEntity
+          : entityMap[parentId]
+        : rootEntity
+    })
   })
   hasComponent(rootEntity, TransformComponent) &&
     getComponent(rootEntity, EntityTreeComponent)
@@ -312,11 +314,32 @@ const reactor = () => {
 
   return (
     <>
+      <QueryReactor
+        Components={[EntityTreeComponent, SceneObjectComponent]}
+        ChildEntityReactor={NetworkedSceneObjectReactor}
+      />
       {Object.keys(scenes.value).map((sceneID: SceneID) => (
         <SceneReactor key={sceneID} sceneID={sceneID} />
       ))}
     </>
   )
+}
+
+/** @todo - this needs to be rework according to #9105 # */
+const NetworkedSceneObjectReactor = (props: { entity: Entity }) => {
+  useEffect(() => {
+    if (NetworkState.worldNetwork?.isHosting) {
+      const uuid = getComponent(props.entity, UUIDComponent)
+      dispatchAction(
+        WorldNetworkAction.spawnObject({
+          entityUUID: uuid,
+          prefab: ''
+        })
+      )
+    }
+  }, [])
+
+  return null
 }
 
 const SceneReactor = (props: { sceneID: SceneID }) => {
@@ -478,7 +501,6 @@ const EntityChildLoadReactor = (props: {
       childIndex: entityJSONState.index.value
     })
     setComponent(entity, NameComponent, entityJSONState.name.value)
-    addEntityNodeChild(entity, parentEntity)
     return () => {
       console.log('removing entity', props.entityUUID, entity)
       removeEntity(entity)

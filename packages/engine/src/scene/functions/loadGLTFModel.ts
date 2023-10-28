@@ -38,9 +38,9 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
@@ -118,7 +118,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   for (const mesh of meshesToProcess) {
     const e = createEntity()
 
-    addEntityNodeChild(e, entity, undefined, mesh.uuid as EntityUUID)
+    setComponent(e, EntityTreeComponent, { parentEntity: entity, uuid: mesh.uuid as EntityUUID })
 
     if (hasComponent(entity, SceneObjectComponent)) setComponent(e, SceneObjectComponent)
 
@@ -127,13 +127,11 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
 
-    // setTransformComponent(e, mesh.position, mesh.quaternion, mesh.scale)
     setComponent(e, LocalTransformComponent, {
       position: mesh.position,
       rotation: mesh.quaternion,
       scale: mesh.scale
     })
-    computeLocalTransformMatrix(entity)
     computeTransformMatrix(entity)
 
     addObjectToGroup(e, mesh)

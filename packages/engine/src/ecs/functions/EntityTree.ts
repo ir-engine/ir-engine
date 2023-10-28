@@ -23,18 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MathUtils } from 'three'
-
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { dispatchAction, getMutableState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
+import { hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
 
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { NetworkState } from '../../networking/NetworkState'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Engine } from '../classes/Engine'
-import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
 import {
   defineComponent,
@@ -167,44 +161,6 @@ export function removeFromEntityTree(rootEntity: Entity): void {
     removeFromEntityTree(child)
   }
   removeComponent(rootEntity, EntityTreeComponent)
-}
-
-/**
- * Adds `entity` as a child of `parentEntity`
- * @param entity Child node to be added
- * @param parentEntity Node in which child node will be added
- * @param childIndex Index at which child node will be added
- */
-export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIndex?: number, uuid?: EntityUUID): void {
-  const entityTreeComponent = getComponent(entity, EntityTreeComponent)
-  if (
-    !hasComponent(entity, EntityTreeComponent) ||
-    parentEntity !== entityTreeComponent.parentEntity ||
-    (typeof childIndex !== 'undefined' &&
-      childIndex !== findIndexOfEntityNode(getComponent(parentEntity, EntityTreeComponent).children, entity))
-  ) {
-    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex })
-    setComponent(entity, UUIDComponent, uuid || (MathUtils.generateUUID() as EntityUUID))
-  }
-  setComponent(entity, LocalTransformComponent)
-  const parentTransform = getComponent(parentEntity, TransformComponent)
-  const childTransform = getComponent(entity, TransformComponent)
-  getMutableState(EngineState).transformsNeedSorting.set(true)
-  if (parentTransform && childTransform) {
-    const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
-    const localTransform = getComponent(entity, LocalTransformComponent)
-    childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
-  }
-
-  if (NetworkState.worldNetwork?.isHosting) {
-    const uuid = getComponent(entity, UUIDComponent)
-    dispatchAction(
-      WorldNetworkAction.spawnObject({
-        entityUUID: uuid,
-        prefab: ''
-      })
-    )
-  }
 }
 
 /**

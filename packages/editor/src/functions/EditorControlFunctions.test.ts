@@ -41,7 +41,7 @@ import { addEntityNodeChild, EntityTreeComponent } from '@etherealengine/engine/
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
+import { applyIncomingActions } from '@etherealengine/hyperflux'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 class TempProp {
@@ -96,7 +96,7 @@ describe.skip('EditorControlFunctions', () => {
 
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      const rootNode = getState(SceneState).sceneEntity
+      const rootNode = SceneState.getRootEntity()
       nodes = [createEntity(), createEntity()]
 
       for (let i = 0; i < 2; i++) {
@@ -129,7 +129,7 @@ describe.skip('EditorControlFunctions', () => {
       createEngine()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      rootNode = getState(SceneState).sceneEntity
+      rootNode = SceneState.getRootEntity()
     })
 
     afterEach(() => {
@@ -144,8 +144,7 @@ describe.skip('EditorControlFunctions', () => {
       createEngine()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      const world = getState(SceneState)
-      rootNode = world.sceneEntity
+      rootNode = SceneState.getRootEntity()
     })
 
     afterEach(() => {
@@ -198,7 +197,7 @@ describe.skip('EditorControlFunctions', () => {
       createEngine()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      const rootNode = getState(SceneState).sceneEntity
+      const rootNode = SceneState.getRootEntity()
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       beforeNodes = [createEntity(), createEntity()]
@@ -219,7 +218,7 @@ describe.skip('EditorControlFunctions', () => {
       EditorControlFunctions.duplicateObject(nodes)
       applyIncomingActions()
 
-      const rootEntity = getState(SceneState).sceneEntity
+      const rootEntity = SceneState.getRootEntity()
       const rootNode = getComponent(rootEntity, EntityTreeComponent)
       rootNode.children.forEach((entity) => {
         assert(hasComponent(entity, EntityTreeComponent))
@@ -236,9 +235,7 @@ describe.skip('EditorControlFunctions', () => {
       createEngine()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      const world = getState(SceneState)
-
-      const rootNode = world.sceneEntity
+      const rootNode = SceneState.getRootEntity()
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       beforeNodes = [createEntity(), createEntity()]
@@ -276,7 +273,7 @@ describe.skip('EditorControlFunctions', () => {
       createEngine()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      const rootNode = getState(SceneState).sceneEntity
+      const rootNode = SceneState.getRootEntity()
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       ;[...nodes, ...parentNodes].map((node) =>
@@ -302,7 +299,7 @@ describe.skip('EditorControlFunctions', () => {
     })
 
     it('will not remove root node', () => {
-      EditorControlFunctions.removeObject([getState(SceneState).sceneEntity])
+      EditorControlFunctions.removeObject([SceneState.getRootEntity()])
 
       nodes.forEach((node: Entity) => {
         assert(hasComponent(node, EntityTreeComponent))
