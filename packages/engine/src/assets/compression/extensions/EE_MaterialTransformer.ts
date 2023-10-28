@@ -193,6 +193,8 @@ export class EEMaterialExtension extends Extension {
   public readonly extensionName = EXTENSION_NAME
   public static readonly EXTENSION_NAME = EXTENSION_NAME
 
+  textures: Texture[] = []
+
   textureInfoMap: Map<string, TextureInfo> = new Map()
   materialInfoMap: Map<string, string[]> = new Map()
   public read(readerContext: ReaderContext): this {
@@ -232,6 +234,12 @@ export class EEMaterialExtension extends Extension {
               if (texture) {
                 const textureInfo = new TextureInfo(this.document.getGraph())
                 readerContext.setTextureInfo(textureInfo, value)
+                const uuid = textureUuidIndex.toString()
+                if (texture.getExtras().uuid === undefined) {
+                  texture.setExtras({ uuid })
+                  textureUuidIndex++
+                  this.textures.push(texture)
+                }
                 if (texture && value.extensions?.KHR_texture_transform) {
                   const extensionData = value.extensions.KHR_texture_transform
                   const transform = new KHRTextureTransform(this.document).createTransform()
@@ -241,9 +249,6 @@ export class EEMaterialExtension extends Extension {
                   extensionData.texCoord && transform.setTexCoord(extensionData.texCoord)
                   textureInfo.setExtension('KHR_texture_transform', transform)
                 }
-                const uuid = textureUuidIndex.toString()
-                textureUuidIndex++
-                texture.setExtras({ uuid })
                 this.textureInfoMap.set(uuid, textureInfo)
               }
               nuArgDef.contents = texture
@@ -297,7 +302,11 @@ export class EEMaterialExtension extends Extension {
                 if (texture) {
                   const uuid = texture.getExtras().uuid as string
                   const textureInfo = this.textureInfoMap.get(uuid)!
-                  argEntry.contents = writerContext.createTextureInfoDef(texture, textureInfo)
+                  const docTexture = this.document
+                    .getRoot()
+                    .listTextures()
+                    .find((t) => t.getExtras().uuid === uuid)!
+                  argEntry.contents = writerContext.createTextureInfoDef(docTexture, textureInfo)
                 } else {
                   argEntry.contents = null
                 }
