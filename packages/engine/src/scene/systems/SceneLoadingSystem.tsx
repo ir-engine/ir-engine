@@ -29,7 +29,6 @@ import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import logger from '@etherealengine/engine/src/common/functions/logger'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   NO_PROXY,
@@ -44,7 +43,6 @@ import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/proje
 
 import React from 'react'
 import { AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
@@ -52,29 +50,21 @@ import {
   ComponentJSONIDMap,
   ComponentMap,
   defineQuery,
-  getAllComponents,
   getComponent,
-  getOptionalComponent,
   hasComponent,
   removeComponent,
   serializeComponent,
   setComponent,
+  useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import {
-  EntityTreeComponent,
-  addEntityNodeChild,
-  getAllEntitiesInTree,
-  removeEntityNodeRecursively
-} from '../../ecs/functions/EntityTree'
-import { SystemDefinitions, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
+import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent, addEntityNodeChild } from '../../ecs/functions/EntityTree'
+import { defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
 import { SceneID } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsComponent } from '../components/CameraSettingsComponent'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
-import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroupComponent } from '../components/GroupComponent'
 import { MediaSettingsComponent } from '../components/MediaSettingsComponent'
 import { NameComponent } from '../components/NameComponent'
 import { PostProcessingComponent } from '../components/PostProcessingComponent'
@@ -90,7 +80,7 @@ import { getUniqueName } from '../functions/getUniqueName'
 export const createNewEditorNode = (
   entityNode: Entity,
   componentJson: Array<ComponentJson>,
-  parentEntity = getState(SceneState).sceneEntity as Entity
+  parentEntity = SceneState.getRootEntity(getState(SceneState).activeScene!) as Entity
 ): void => {
   const components = [
     ...componentJson,
@@ -237,224 +227,6 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
   return result
 }
 
-/**
- * @param parent
- * @param world
- */
-export const updateSceneEntitiesFromJSON = (parent: string) => {
-  const sceneData = getState(SceneState).sceneData as SceneData
-  const entitiesToLoad = Object.entries(sceneData.scene.entities).filter(
-    ([uuid, entity]) => entity.parent === parent
-  ) as [EntityUUID, EntityJson][]
-  for (const [uuid, entityJson] of entitiesToLoad) {
-    /** Dynamic loading handled by SceneObejctDynamicLoadSystem */
-    const JSONEntityIsDynamic = !!entityJson.components.find(
-      (comp) => comp.name === SceneDynamicLoadTagComponent.jsonID
-    )
-    if (JSONEntityIsDynamic && !getMutableState(EngineState).isEditor.value) continue
-    /** Deserialize */
-    updateSceneEntity(uuid, entityJson)
-    /** Iterate Children */
-    updateSceneEntitiesFromJSON(uuid)
-  }
-}
-
-/** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
-export const removeSceneEntitiesFromOldJSON = () => {
-  const sceneState = getState(SceneState)
-  const sceneData = sceneState.sceneData
-  const oldLoadedEntityNodesToRemove = getAllEntitiesInTree(sceneState.sceneEntity).filter(
-    (entity) =>
-      !sceneData ||
-      (!sceneData.scene.entities[getComponent(entity, UUIDComponent)] &&
-        !getOptionalComponent(entity, GLTFLoadedComponent)?.includes('entity'))
-  )
-  /** @todo this will not  */
-  for (const node of oldLoadedEntityNodesToRemove) {
-    if (node === sceneState.sceneEntity) continue
-    removeEntityNodeRecursively(node)
-  }
-}
-
-/**
- * Updates the scene based on serialized json data
- * @param sceneData
- */
-export const updateSceneFromJSON = async () => {
-  const sceneState = getState(SceneState)
-
-  if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS) {
-    getMutableState(AppLoadingState).merge({
-      state: AppLoadingStates.SCENE_LOADING,
-      loaded: false
-    })
-  }
-
-  const sceneData = getState(SceneState).sceneData
-
-  getMutableState(EngineState).merge({
-    sceneLoading: true,
-    sceneLoaded: false
-  })
-
-  const systemsToLoad = [] as SystemImportType[]
-
-  if (!getState(EngineState).isEditor && sceneData) {
-    /** get systems that have changed */
-    const sceneSystems = await getSystemsFromSceneData(sceneData.project, sceneData.scene)
-    systemsToLoad.push(
-      ...sceneSystems.filter(
-        (systemToLoad) => !Array.from(Engine.instance.activeSystems).find((uuid) => uuid === systemToLoad.systemUUID)
-      )
-    )
-    const systemsToUnload = Array.from(Engine.instance.activeSystems)
-      .filter(
-        (systemUUID) =>
-          SystemDefinitions.get(systemUUID)?.sceneSystem && !sceneSystems.find((s) => s.systemUUID === systemUUID)
-      )
-      .map((s) => s)
-
-    /** 1. unload old systems */
-    disableSystems(systemsToUnload)
-  }
-
-  removeSceneEntitiesFromOldJSON()
-
-  if (!sceneData) {
-    getMutableState(EngineState).merge({
-      sceneLoading: false,
-      sceneLoaded: false
-    })
-    const sceneUuid = getComponent(sceneState.sceneEntity, UUIDComponent)
-    updateSceneEntity(sceneUuid, {
-      name: 'scene',
-      components: []
-    })
-    return
-  }
-
-  /** 3. load new systems */
-  if (!getState(EngineState).isEditor) {
-    for (const system of systemsToLoad) {
-      startSystem(system.systemUUID, { [system.insertOrder]: system.insertUUID })
-    }
-  }
-
-  /** 4. update scene entities with new data, and load new ones */
-  setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null!, uuid: sceneData.scene.root })
-  updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root])
-  updateSceneEntitiesFromJSON(sceneData.scene.root)
-
-  // backwards compatibility
-  if ((sceneData.scene as any).metadata) {
-    for (const [key, val] of Object.entries((sceneData.scene as any).metadata) as any) {
-      switch (key) {
-        case 'renderSettings':
-          setComponent(sceneState.sceneEntity, RenderSettingsComponent, val)
-          break
-        case 'postprocessing':
-          setComponent(sceneState.sceneEntity, PostProcessingComponent, val)
-          break
-        case 'mediaSettings':
-          setComponent(sceneState.sceneEntity, MediaSettingsComponent, val)
-          break
-        case 'fog':
-          setComponent(sceneState.sceneEntity, FogSettingsComponent, val)
-          break
-      }
-    }
-  }
-
-  if (!sceneAssetPendingTagQuery().length) {
-    if (getState(EngineState).sceneLoading) {
-      getMutableState(EngineState).merge({
-        sceneLoading: false,
-        sceneLoaded: true
-      })
-      dispatchAction(EngineActions.sceneLoaded({}))
-    }
-  }
-}
-
-/**
- * Updates or creates a scene entity and deserializes it's components
- * @param uuid
- * @param entityJson
- * @param world
- */
-export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
-  try {
-    const existingEntity = UUIDComponent.entitiesByUUID[uuid]
-    if (existingEntity) {
-      setComponent(existingEntity, SceneObjectComponent)
-      deserializeSceneEntity(existingEntity, entityJson)
-      /** handle reparenting due to changes in scene json */
-      const currentParent = getComponent(existingEntity, EntityTreeComponent)
-      if (currentParent?.parentEntity) {
-        const currentParentEntityUUID = getComponent(currentParent.parentEntity, UUIDComponent)
-        if (
-          currentParentEntityUUID !== entityJson.parent ||
-          entityJson.index !== currentParent.children.indexOf(existingEntity)
-        ) {
-          const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
-          setComponent(existingEntity, EntityTreeComponent, {
-            parentEntity: parentEntity,
-            uuid,
-            childIndex: entityJson.index
-          })
-        }
-      }
-    } else {
-      const entity = createEntity()
-      const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
-      setComponent(entity, SceneObjectComponent)
-      setComponent(entity, EntityTreeComponent, { parentEntity, uuid, childIndex: entityJson.index })
-      addEntityNodeChild(entity, parentEntity)
-      deserializeSceneEntity(entity, entityJson)
-    }
-  } catch (e) {
-    logger.error(e, `Failed to update scene entity ${uuid}`)
-  }
-}
-
-/**
- * Loads all the components from scene json for an entity
- * @param {Entity} entityNode
- * @param {EntityJson} sceneEntity
- * @param {World} world
- */
-export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson): Entity => {
-  setComponent(entity, NameComponent, sceneEntity.name ?? 'entity-' + sceneEntity.index)
-
-  /** remove ECS components that are in the scene register but not in the json */
-  const componentsToRemove = getAllComponents(entity).filter(
-    (C) =>
-      C.jsonID && ComponentJSONIDMap.has(C.jsonID) && !sceneEntity.components.find((json) => C.jsonID === json.name)
-  )
-  for (const C of componentsToRemove) {
-    if (entity === getState(SceneState).sceneEntity && C === VisibleComponent) continue
-    if (C === GroupComponent || C === TransformComponent) continue
-    removeComponent(entity, C)
-  }
-  for (const component of sceneEntity.components) {
-    try {
-      deserializeComponent(entity, component)
-    } catch (e) {
-      console.error(`Error loading scene entity: `, JSON.stringify(sceneEntity, null, '\t'))
-      console.error(e)
-    }
-  }
-
-  return entity
-}
-
-export const deserializeComponent = (entity: Entity, component: ComponentJson): void => {
-  const Component = ComponentJSONIDMap.get(component.name)
-  if (!Component) return console.warn('[ SceneLoading] could not find component name', component.name)
-
-  setComponent(entity, Component, component.props)
-}
-
 export const migrateSceneData = (sceneData: SceneData) => {
   const migratedSceneData = JSON.parse(JSON.stringify(sceneData)) as SceneData
 
@@ -539,6 +311,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const entities = useHookstate(getMutableState(SceneState).scenes[props.sceneID].data.scene.entities)
   const rootUUID = getState(SceneState).scenes[props.sceneID].data.scene.root
 
+  const ready = useHookstate(false)
+  const systemsLoaded = useHookstate([] as SystemImportType[])
+
   useEffect(() => {
     if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS) {
       getMutableState(AppLoadingState).merge({
@@ -550,25 +325,50 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
       sceneLoading: true,
       sceneLoaded: false
     })
+
+    const { project, scene } = getState(SceneState).scenes[props.sceneID].data
+
+    getSystemsFromSceneData(project, scene).then((systems) => {
+      if (systems.length) {
+        systemsLoaded.set(systems)
+      } else {
+        ready.set(true)
+      }
+    })
   }, [])
+
+  useEffect(() => {
+    for (const system of systemsLoaded.value) {
+      startSystem(system.systemUUID, { [system.insertOrder]: system.insertUUID })
+    }
+    ready.set(true)
+    return () => {
+      for (const system of systemsLoaded.value) {
+        disableSystems([system.systemUUID])
+      }
+    }
+  }, [systemsLoaded.length])
 
   return (
     <>
-      {Object.keys(entities.value).map((entityUUID: EntityUUID) =>
-        entityUUID === rootUUID ? (
-          <EntitySceneRootLoadReactor key={entityUUID} sceneID={props.sceneID} entityUUID={entityUUID} />
-        ) : (
-          <EntityLoadReactor key={entityUUID} sceneID={props.sceneID} entityUUID={entityUUID} />
-        )
-      )}
+      {ready.value &&
+        Object.keys(entities.value).map((entityUUID: EntityUUID) =>
+          entityUUID === rootUUID ? (
+            <EntitySceneRootLoadReactor key={entityUUID} sceneID={props.sceneID} entityUUID={entityUUID} />
+          ) : (
+            <EntityLoadReactor key={entityUUID} sceneID={props.sceneID} entityUUID={entityUUID} />
+          )
+        )}
     </>
   )
 }
 
+/** @todo eventually, this will become redundant */
 const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
   const entityState = useHookstate(
     getMutableState(SceneState).scenes[props.sceneID].data.scene.entities[props.entityUUID]
   )
+  const selfEntityState = useHookstate(UUIDComponent.entitiesByUUIDState[props.entityUUID])
 
   useEffect(() => {
     const entity = createEntity()
@@ -577,6 +377,7 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     setComponent(entity, UUIDComponent, props.entityUUID)
     setComponent(entity, SceneTagComponent, true)
     setComponent(entity, TransformComponent)
+    setComponent(entity, SceneObjectComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity: null })
 
     return () => {
@@ -584,12 +385,14 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     }
   }, [])
 
-  useEffect(() => {
-    const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
-    deserializeSceneEntity(entity, entityState.get(NO_PROXY))
-  }, [entityState])
-
-  return null
+  return (
+    <>
+      {selfEntityState.value &&
+        entityState.components.map((compState) => (
+          <ComponentLoadReactor key={compState.name.value} componentState={compState} entity={selfEntityState.value} />
+        ))}
+    </>
+  )
 }
 
 const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
@@ -597,12 +400,43 @@ const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) 
     getMutableState(SceneState).scenes[props.sceneID].data.scene.entities[props.entityUUID]
   )
   const parentEntityState = useHookstate(UUIDComponent.entitiesByUUIDState[entityState.value.parent!])
-  const selfEntityState = useHookstate(UUIDComponent.entitiesByUUIDState[props.entityUUID])
   const isDynamic = !!entityState.value.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID)
-  const isUnloaded = useHookstate(SceneDynamicLoadTagComponent.entityUUIDUnloadedState[props.entityUUID])
+
+  return (
+    <>
+      {/* Ensure parent has loaded */}
+      {parentEntityState.value && (
+        <EntityChildLoadReactor
+          isDynamic={isDynamic}
+          parentEntity={parentEntityState.value}
+          entityUUID={props.entityUUID}
+          sceneID={props.sceneID}
+        />
+      )}
+    </>
+  )
+}
+
+const EntityChildLoadReactor = (props: {
+  parentEntity: Entity
+  isDynamic: boolean
+  entityUUID: EntityUUID
+  sceneID: SceneID
+}) => {
+  const selfEntityState = useHookstate(UUIDComponent.entitiesByUUIDState[props.entityUUID])
+  const entityJSONState = useHookstate(
+    getMutableState(SceneState).scenes[props.sceneID].data.scene.entities[props.entityUUID]
+  )
+  const parentEntityState = useHookstate(UUIDComponent.entitiesByUUIDState[entityJSONState.value.parent!])
+  const parentLoaded = !!useOptionalComponent(props.parentEntity, SceneObjectComponent)
+  const dynamicParentState = useOptionalComponent(props.parentEntity, SceneDynamicLoadTagComponent)
 
   useEffect(() => {
-    if (isDynamic && !isUnloaded.value) return
+    // ensure parent has been deserialized before checking if dynamically loaded
+    if (!parentLoaded) return
+
+    // if parent is dynamically loaded, wait for it to be loaded
+    if (dynamicParentState?.value && !dynamicParentState.loaded.value) return
 
     const entity = createEntity()
     const parentEntity = parentEntityState.value
@@ -610,56 +444,52 @@ const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) 
     setComponent(entity, EntityTreeComponent, {
       parentEntity,
       uuid: props.entityUUID,
-      childIndex: entityState.index.value
+      childIndex: entityJSONState.index.value
     })
+    setComponent(entity, NameComponent, entityJSONState.name.value)
     addEntityNodeChild(entity, parentEntity)
-
-    /** handle reparenting due to changes in scene json */
     return () => {
       removeEntity(entity)
     }
-  }, [isUnloaded])
+  }, [dynamicParentState?.loaded, parentLoaded])
 
   useEffect(() => {
     const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
     if (!entity) return
-    const parentEntity = UUIDComponent.entitiesByUUID[entityState.parent.value!]
+    const parentEntity = UUIDComponent.entitiesByUUID[entityJSONState.parent.value!]
     const uuid = props.entityUUID
     setComponent(entity, EntityTreeComponent, {
       parentEntity: parentEntity,
       uuid,
-      childIndex: entityState.index.value
+      childIndex: entityJSONState.index.value
     })
-  }, [entityState.parent, entityState.index, selfEntityState])
+  }, [entityJSONState.parent, entityJSONState.index, selfEntityState])
 
   return (
     <>
       {selfEntityState.value &&
-        entityState.components.map((compState) => (
-          <ComponentLoadReactor
-            key={compState.name.value}
-            componentState={compState}
-            entityUUID={props.entityUUID}
-            sceneID={props.sceneID}
-          />
+        entityJSONState.components.map((compState) => (
+          <ComponentLoadReactor key={compState.name.value} componentState={compState} entity={selfEntityState.value} />
         ))}
     </>
   )
 }
 
-const ComponentLoadReactor = (props: {
-  componentState: State<ComponentJson>
-  entityUUID: EntityUUID
-  sceneID: SceneID
-}) => {
+const ComponentLoadReactor = (props: { componentState: State<ComponentJson>; entity: Entity }) => {
   useEffect(() => {
-    const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
+    const entity = props.entity
+    /** @todo - we have to check for existence here, as the dynamic loading parent component takes a re-render to load in */
+    if (!entity || !entityExists(entity)) return
+
     const component = props.componentState.get(NO_PROXY)
 
+    const Component = ComponentJSONIDMap.get(component.name)
+    if (!Component) return console.warn('[SceneLoading] could not find component name', component.name)
+
     try {
-      deserializeComponent(entity, component)
+      setComponent(entity, Component, component.props)
     } catch (e) {
-      console.error(`Error loading scene entity: `, entity, props.entityUUID, component)
+      console.error(`Error loading scene entity: `, getComponent(entity, UUIDComponent), entity, component)
       console.error(e)
       return
     }

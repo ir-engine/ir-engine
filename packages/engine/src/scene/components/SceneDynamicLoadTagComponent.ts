@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { createState } from '@etherealengine/hyperflux'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-
-const entityUUIDUnloaded = {} as Record<EntityUUID, boolean>
+import { useEffect } from 'react'
+import { defineComponent, hasComponent, removeComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { CallbackComponent, setCallback } from './CallbackComponent'
 
 export const SceneDynamicLoadTagComponent = defineComponent({
   name: 'SceneDynamicLoadTagComponent',
@@ -35,22 +34,55 @@ export const SceneDynamicLoadTagComponent = defineComponent({
 
   onInit(entity) {
     return {
-      distance: 20
+      mode: 'distance' as 'distance' | 'trigger',
+      distance: 20,
+      // runtime
+      loaded: false
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
 
-    if (json.distance) component.distance.set(json.distance)
+    if (typeof json.mode === 'string') component.mode.set(json.mode)
+    if (typeof json.distance === 'number') component.distance.set(json.distance)
   },
 
   toJSON: (entity, component) => {
     return {
+      mode: component.mode.value,
       distance: component.distance.value
     }
   },
 
-  entityUUIDUnloadedState: createState(entityUUIDUnloaded),
-  entityUUIDUnloaded: entityUUIDUnloaded as Readonly<typeof entityUUIDUnloaded>
+  reactor: () => {
+    const entity = useEntityContext()
+    const component = useComponent(entity, SceneDynamicLoadTagComponent)
+
+    /** Trigger mode */
+    useEffect(() => {
+      if (component.mode.value !== 'trigger') return
+
+      function doLoad() {
+        component.loaded.set(true)
+      }
+
+      function doUnload() {
+        component.loaded.set(false)
+      }
+
+      if (hasComponent(entity, CallbackComponent)) {
+        removeComponent(entity, CallbackComponent)
+      }
+
+      setCallback(entity, 'doLoad', doLoad)
+      setCallback(entity, 'doUnload', doUnload)
+
+      return () => {
+        removeComponent(entity, CallbackComponent)
+      }
+    }, [component.mode])
+
+    return null
+  }
 })

@@ -47,7 +47,6 @@ import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { deserializeComponent } from '../systems/SceneLoadingSystem'
 import { enableObjectLayer } from './setObjectLayers'
 
 export const parseECSData = (entity: Entity, data: [string, any][]): void => {

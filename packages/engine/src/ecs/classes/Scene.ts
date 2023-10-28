@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, Texture } from 'three'
 
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
@@ -47,6 +47,13 @@ export const SceneState = defineState({
   loadScene: (sceneID: SceneID, data: SceneDataType) => {
     getMutableState(SceneState).scenes[sceneID].set({ data })
     getMutableState(SceneState).activeScene.set(sceneID)
+  },
+
+  unloadScene: (sceneID: SceneID) => {
+    getMutableState(SceneState).scenes[sceneID].set(none)
+    if (getState(SceneState).activeScene === sceneID) {
+      getMutableState(SceneState).activeScene.set(null)
+    }
   },
 
   getRootEntity: (sceneID: SceneID) => {
