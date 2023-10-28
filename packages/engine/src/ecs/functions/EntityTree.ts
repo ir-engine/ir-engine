@@ -26,19 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { dispatchAction, getMutableState, getState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
 
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NetworkState } from '../../networking/NetworkState'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { serializeEntity } from '../../scene/functions/serializeWorld'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import { SceneState } from '../classes/Scene'
 import {
   defineComponent,
   getComponent,
@@ -210,21 +207,6 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIn
   }
 }
 
-export function serializeNodeToWorld(entity: Entity) {
-  const entityTreeNode = getComponent(entity, EntityTreeComponent)
-  const nodeUUID = getComponent(entity, UUIDComponent)
-  const jsonEntity = getState(SceneState).scenes[getState(SceneState).activeScene!].data.scene.entities[
-    nodeUUID
-  ] as EntityJson
-  if (jsonEntity) {
-    jsonEntity.components = serializeEntity(entity)
-    if (entityTreeNode.parentEntity && entityTreeNode.parentEntity !== SceneState.getRootEntity()) {
-      const parentNodeUUID = getComponent(entityTreeNode.parentEntity, UUIDComponent)
-      jsonEntity.parent = parentNodeUUID
-    }
-  }
-}
-
 /**
  * Removes an entity node from it's parent, and remove it's entity and all it's children nodes and entities
  * @param node
@@ -234,43 +216,6 @@ export function removeEntityNodeRecursively(entity: Entity) {
   traverseEntityNodeChildFirst(entity, (childEntity) => {
     removeEntity(childEntity)
   })
-}
-
-/**
- * Removes an entity node from it's parent, and remove it's entity and all it's children nodes and entities
- * @param entity
- * @param tree
- */
-export function removeEntityNode(entity: Entity, serialize = false) {
-  const entityTreeNode = getComponent(entity, EntityTreeComponent)
-
-  for (const childEntity of entityTreeNode.children) {
-    reparentEntityNode(childEntity, entityTreeNode.parentEntity)
-  }
-  if (serialize) serializeNodeToWorld(entity)
-  removeEntity(entity)
-}
-
-/**
- * Reparent passed entity tree node to new parent node
- * @param node Node to be reparented
- * @param newParent Parent node
- * @param index Index at which passed node will be set as child in parent node's children arrays
- */
-export function reparentEntityNode(entity: Entity, parentEntity: Entity | null, index?: number): void {
-  if (parentEntity) addEntityNodeChild(entity, parentEntity, index)
-  else setComponent(entity, EntityTreeComponent, { parentEntity: null, childIndex: index })
-}
-
-/**
- * Returns all entities in the tree
- */
-export function getAllEntitiesInTree(entity: Entity) {
-  const entities = [] as Entity[]
-  traverseEntityNode(entity, (childEntity) => {
-    entities.push(childEntity)
-  })
-  return entities
 }
 
 /**
