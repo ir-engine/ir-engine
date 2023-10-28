@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Material } from 'three'
+import { Color, Material, SRGBColorSpace } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -111,7 +111,11 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
         Object.entries(oldExtension.args).map(async ([k, v]) => {
           //check if the value is a texture
           if (matches.shape({ index: matches.number }).test(v)) {
-            await parser.assignTexture(parseTarget, k, v)
+            if (k === 'map') {
+              await parser.assignTexture(parseTarget, k, v, SRGBColorSpace)
+            } else {
+              await parser.assignTexture(parseTarget, k, v)
+            }
           }
           //check if the value is a color by checking key
           else if ((k.toLowerCase().includes('color') || k === 'emissive') && typeof v === 'number') {
@@ -131,7 +135,11 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
             break
           case 'texture':
             if (v.contents) {
-              await parser.assignTexture(parseTarget, k, v.contents)
+              if (k === 'map') {
+                await parser.assignTexture(parseTarget, k, v.contents, SRGBColorSpace)
+              } else {
+                await parser.assignTexture(parseTarget, k, v.contents)
+              }
             } else {
               parseTarget[k] = null
             }
