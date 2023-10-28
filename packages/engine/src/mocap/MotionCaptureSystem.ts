@@ -39,7 +39,7 @@ import { NormalizedLandmarkList } from '@mediapipe/pose'
 
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
-import { getState } from '@etherealengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import {
   BufferAttribute,
@@ -69,6 +69,13 @@ export type MotionCaptureResults = {
   poseWorldLandmarks: NormalizedLandmarkList
   poseLandmarks: NormalizedLandmarkList
 }
+
+export const MotionCaptureState = defineState({
+  name: 'MotionCaptureState',
+  initial: {
+    isCapturePage: false
+  }
+})
 
 export const sendResults = (results: MotionCaptureResults) => {
   return encode({

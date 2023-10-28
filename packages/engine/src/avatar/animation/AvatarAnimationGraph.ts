@@ -149,7 +149,6 @@ export const playAvatarAnimationFromMixamo = (
   )
   //otherwise retarget and push to animation component's animations
   if (!retargetedAnimation) {
-    console.log('gotta retarget :)')
     retargetedAnimation = retargetMixamoAnimation(
       cloneDeep(
         clipName

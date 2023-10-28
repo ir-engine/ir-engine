@@ -124,8 +124,6 @@ const execute = () => {
 
   for (const entity of sittingIdleQuery()) {
     const controller = getComponent(entity, AvatarControllerComponent)
-    const avatarComponent = getComponent(entity, AvatarComponent)
-    const sitting = getComponent(entity, SittingComponent)
     const rigidBody = getComponent(entity, RigidBodyComponent)
     if (controller.gamepadLocalInput.lengthSq() > 0.01) {
       const avatarTransform = getComponent(entity, TransformComponent)

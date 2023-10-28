@@ -44,6 +44,7 @@ import { SceneService } from '@etherealengine/client-core/src/world/services/Sce
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { MotionCaptureState } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { ECSRecordingActions } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
@@ -90,6 +91,7 @@ export const CaptureLocation = () => {
   SceneService.useAPIListeners()
 
   useEffect(() => {
+    getMutableState(MotionCaptureState).isCapturePage.set(true)
     startCaptureSystems()
   }, [])
 
