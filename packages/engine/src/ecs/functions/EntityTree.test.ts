@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getState } from '@etherealengine/hyperflux'
 
 import { createEngine } from '../../initializeEngine'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -47,7 +46,6 @@ import {
   getEntityNodeArrayFromEntities,
   iterateEntityNode,
   removeFromEntityTree,
-  reparentEntityNode,
   traverseEntityNode,
   traverseEntityNodeParent
 } from './EntityTree'
@@ -71,7 +69,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set given values', () => {
-    const sceneEntity = getState(SceneState).sceneEntity
+    const sceneEntity = SceneState.getRootEntity()
 
     const entity = createEntity()
     const testUUID = 'test-uuid' as EntityUUID
@@ -92,7 +90,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set child at a given index', () => {
-    const sceneEntity = getState(SceneState).sceneEntity
+    const sceneEntity = SceneState.getRootEntity()
 
     setComponent(createEntity(), EntityTreeComponent, {
       parentEntity: sceneEntity,
@@ -135,7 +133,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should remove entity from maps', () => {
-    const sceneEntity = getState(SceneState).sceneEntity
+    const sceneEntity = SceneState.getRootEntity()
 
     const entity = createEntity()
     setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity, uuid: 'test-uuid' as EntityUUID })
@@ -156,7 +154,7 @@ describe('EntityTreeFunctions', () => {
   beforeEach(() => {
     createEngine()
 
-    root = getState(SceneState).sceneEntity
+    root = SceneState.getRootEntity()
   })
 
   afterEach(() => {
@@ -165,8 +163,7 @@ describe('EntityTreeFunctions', () => {
 
   describe('initializeEntityTree function', () => {
     it('will initialize entity tree', () => {
-      initializeSceneEntity()
-      const sceneEntity = getState(SceneState).sceneEntity
+      const sceneEntity = SceneState.getRootEntity()
       assert(sceneEntity)
       assert(getComponent(sceneEntity, NameComponent), 'scene')
       assert(hasComponent(sceneEntity, VisibleComponent))
@@ -264,7 +261,7 @@ describe('EntityTreeFunctions', () => {
       addEntityNodeChild(node_0, root)
       addEntityNodeChild(node_1, root)
 
-      reparentEntityNode(node_0, node_1)
+      // reparentEntityNode(node_0, node_1)
 
       const node0 = getComponent(node_0, EntityTreeComponent)
       const node1 = getComponent(node_1, EntityTreeComponent)

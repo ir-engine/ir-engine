@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { Group, Layers, Mesh, Scene } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { destroyEngine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
@@ -41,6 +40,7 @@ import {
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { createEngine } from '../../initializeEngine'
+import { SceneID } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
@@ -52,6 +52,21 @@ describe('loadGLTFModel', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
+    SceneState.loadScene('test' as SceneID, {
+      name: '',
+      thumbnailUrl: '',
+      project: '',
+      scene: {
+        entities: {
+          ['root' as EntityUUID]: {
+            name: 'Root',
+            components: []
+          }
+        },
+        version: 0,
+        root: 'root' as EntityUUID
+      }
+    })
   })
 
   afterEach(() => {
@@ -60,7 +75,7 @@ describe('loadGLTFModel', () => {
 
   // TODO: - this needs to be broken down and more comprehensive
   it('loadGLTFModel', async () => {
-    const sceneEntity = getState(SceneState).sceneEntity
+    const sceneEntity = SceneState.getRootEntity()
 
     const mockComponentData = { src: '' } as any
     const CustomComponent = defineComponent({

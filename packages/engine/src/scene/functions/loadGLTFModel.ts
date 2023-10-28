@@ -76,23 +76,20 @@ export const parseECSData = (entity: Entity, data: [string, any][]): void => {
     const component = ComponentMap.get(key)
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
-    } else {
-      setComponent(entity, component, value)
-      getComponent(entity, GLTFLoadedComponent).push(component)
+      continue
     }
+    setComponent(entity, component, value)
+    getComponent(entity, GLTFLoadedComponent).push(component)
   }
 
   for (const [key, value] of Object.entries(prefabs)) {
-    const component = Array.from(ComponentJSONIDMap.keys()).find((jsonID) => jsonID === key)
-    if (typeof component === 'undefined') {
-      console.warn(`Could not load component '${component}'`)
-    } else {
-      getComponent(entity, GLTFLoadedComponent).push(component)
-      deserializeComponent(entity, {
-        name: key,
-        props: value
-      })
+    const Component = ComponentJSONIDMap.get(key)!
+    if (typeof Component === 'undefined') {
+      console.warn(`Could not load component '${Component}'`)
+      continue
     }
+    getComponent(entity, GLTFLoadedComponent).push(Component)
+    setComponent(entity, Component, value)
   }
 }
 

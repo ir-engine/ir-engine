@@ -23,25 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MathUtils } from 'three'
-
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
-import {
-  getAllComponents,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  serializeComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
+import { getAllComponents, getOptionalComponent, serializeComponent } from '../../ecs/functions/ComponentFunctions'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { NameComponent } from '../components/NameComponent'
-import { SceneObjectComponent } from '../components/SceneObjectComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
 
 export const serializeEntity = (entity: Entity) => {
   const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
@@ -62,50 +48,4 @@ export const serializeEntity = (entity: Entity) => {
     }
   }
   return jsonComponents
-}
-
-/** @deprecated */
-export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false): SceneJson => {
-  const sceneJson = {
-    version: 0,
-    entities: {},
-    root: null! as EntityUUID
-  }
-
-  const sceneEntity = SceneState.getRootEntity()
-
-  const traverseNode = rootEntity ?? sceneEntity
-  const loadedAssets = new Set<Entity>()
-  iterateEntityNode(
-    traverseNode,
-    (entity, index) => {
-      if (!hasComponent(entity, SceneObjectComponent)) return
-
-      const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
-
-      if (ignoreComponents?.includes('entity')) return
-
-      const uuid = generateNewUUID ? (MathUtils.generateUUID() as EntityUUID) : getComponent(entity, UUIDComponent)
-      const entityJson = (sceneJson.entities[uuid] = { components: [] as ComponentJson[] } as EntityJson)
-
-      const entityTree = getComponent(entity, EntityTreeComponent)
-
-      if (entity !== sceneEntity) {
-        entityJson.parent = getComponent(entityTree.parentEntity!, UUIDComponent)
-        entityJson.index = index
-      }
-
-      if (entity === rootEntity || !entityTree.parentEntity) {
-        sceneJson.root = uuid
-      }
-
-      entityJson.name = getComponent(entity, NameComponent)
-
-      entityJson.components = serializeEntity(entity)
-    },
-    (node) => !loadedAssets.has(node),
-    true
-  )
-
-  return sceneJson
 }

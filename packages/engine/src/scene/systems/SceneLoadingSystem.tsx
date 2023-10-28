@@ -43,13 +43,13 @@ import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/proje
 
 import React from 'react'
 import { AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
   ComponentMap,
-  defineQuery,
   getComponent,
   hasComponent,
   removeComponent,
@@ -61,7 +61,7 @@ import {
 import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent, addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
-import { SceneID } from '../../schemas/projects/scene.schema'
+import { SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsComponent } from '../components/CameraSettingsComponent'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
@@ -283,8 +283,6 @@ export const migrateSceneData = (sceneData: SceneData) => {
   return JSON.parse(JSON.stringify(migratedSceneData))
 }
 
-const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
-
 const reactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
   const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
@@ -349,6 +347,24 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
         ready.set(true)
       }
     })
+
+    const sceneUpdatedListener = async () => {
+      const [projectName, sceneName] = props.sceneID.split('/')
+      const sceneData = await Engine.instance.api
+        .service(scenePath)
+        .get(null, { query: { project: projectName, name: sceneName } })
+      SceneState.loadScene(props.sceneID, sceneData)
+    }
+    // for testing
+    // window.addEventListener('keydown', (ev) => {
+    //   if (ev.code === 'KeyN') sceneUpdatedListener()
+    // })
+
+    Engine.instance.api.service(scenePath).on('updated', sceneUpdatedListener)
+
+    return () => {
+      Engine.instance.api.service(scenePath).off('updated', sceneUpdatedListener)
+    }
   }, [])
 
   useEffect(() => {
