@@ -117,7 +117,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     viewerMovement.copy(V_000)
   }
 
-  if (isMovementControlsEnabled) {
+  if (!isMovementControlsEnabled) {
     rigidbody.targetKinematicPosition.copy(rigidbody.position).add(desiredMovement)
     updateLocalAvatarPositionAttachedMode()
     return
