@@ -89,6 +89,7 @@ export const VolumetricComponent = defineComponent({
       paths: [] as string[],
       useLoadingEffect: true,
       autoplay: true,
+      startTime: 0,
       paused: true,
       initialBuffersLoaded: false,
       hasAudio: true,
@@ -123,10 +124,6 @@ export const VolumetricComponent = defineComponent({
 
     if (typeof json.autoplay === 'boolean') {
       component.autoplay.set(json.autoplay)
-    }
-
-    if (typeof json.paused === 'boolean') {
-      component.paused.set(json.paused)
     }
 
     if (typeof json.volume === 'number') {

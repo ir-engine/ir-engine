@@ -109,6 +109,8 @@ export const UVOL2Component = defineComponent({
 
   onInit: (entity) => {
     return {
+      canPlay: false,
+      playbackStartTime: 0,
       manifestPath: '',
       isBuffering: false,
       data: {} as PlayerManifest,
@@ -366,13 +368,13 @@ function UVOL2Reactor() {
     }
     component.geometryTarget.set(geometryTargets.current[0])
     component.textureTarget.set(textureTargets.current[0])
+    currentTime.current = volumetric.startTime.value
     const intervalId = setInterval(bufferLoop, 3000)
     bufferLoop() // calling now because setInterval will call after 3 seconds
 
     return () => {
       removeObjectFromGroup(entity, group)
       clearInterval(intervalId)
-      mesh.geometry.dispose()
       for (const texture of textureBuffer.values()) {
         texture.dispose()
       }
@@ -383,9 +385,12 @@ function UVOL2Reactor() {
           value.geometry.dispose()
         } else if (value instanceof BufferGeometry) {
           value.dispose()
+        } else if (value instanceof InterleavedBufferAttribute) {
+          mesh.geometry.setAttribute(value.name, value)
         }
       }
 
+      mesh.geometry.dispose()
       geometryBuffer.clear()
       mesh.material.dispose()
       audio.src = ''
@@ -417,7 +422,7 @@ function UVOL2Reactor() {
         geometryBuffer.set(createKey(target, i), model)
         geometryBufferHealth.current += 1 / targetData.frameRate
         pendingGeometryRequests.current--
-        if (i === 0) {
+        if (!component.firstGeometryFrameLoaded.value) {
           component.firstGeometryFrameLoaded.set(true)
         }
         if (geometryBufferHealth.current >= minBufferToPlay && !component.initialGeometryBuffersLoaded.value) {
@@ -445,7 +450,6 @@ function UVOL2Reactor() {
       promises.push(loadGeometryAsync(segmentURL, targetData))
     }
 
-    console.log(`VDEBUG Fetching segments ${startSegment} to ${endSegment}`)
     Promise.allSettled(promises).then((values) => {
       values.forEach((result, j) => {
         const model = result.status === 'fulfilled' ? (result.value as Mesh) : null
@@ -464,7 +468,7 @@ function UVOL2Reactor() {
         })
 
         model.geometry.morphAttributes = {}
-        if (i === 0) {
+        if (!component.firstGeometryFrameLoaded.value) {
           // @ts-ignore
           mesh.copy(model)
           repeat.copy((model.material as MeshStandardMaterial).map?.repeat ?? repeat)
@@ -489,39 +493,35 @@ function UVOL2Reactor() {
   }
 
   const adjustGeometryTarget = (metric: number) => {
-    if (metric >= 0.1) {
+    if (metric >= 0.25) {
       const currentTargetIndex = geometryTargets.current.indexOf(component.geometryTarget.value)
       if (currentTargetIndex > 0) {
-        console.log(`VDEBUGadjustGeometryTarget: ${currentTargetIndex} to ${currentTargetIndex - 1}`)
         component.geometryTarget.set(geometryTargets.current[currentTargetIndex - 1])
       }
-    } else if (metric < 0.01) {
+    } else if (metric < 0.1) {
       const currentTargetIndex = geometryTargets.current.indexOf(component.geometryTarget.value)
       if (currentTargetIndex < geometryTargets.current.length - 1) {
-        console.log(`VDEBUGadjustGeometryTarget: ${currentTargetIndex} to ${currentTargetIndex + 1}`)
         component.geometryTarget.set(geometryTargets.current[currentTargetIndex + 1])
       }
     }
   }
 
   const adjustTextureTarget = (metric: number) => {
-    if (metric >= 0.1) {
+    if (metric >= 0.25) {
       const currentTargetIndex = textureTargets.current.indexOf(component.textureTarget.value)
       if (currentTargetIndex > 0) {
-        console.log(`VDEBUGadjustTextureTarget: ${currentTargetIndex} to ${currentTargetIndex - 1}`)
         component.textureTarget.set(textureTargets.current[currentTargetIndex - 1])
       }
-    } else if (metric < 0.01) {
+    } else if (metric < 0.1) {
       const currentTargetIndex = textureTargets.current.indexOf(component.textureTarget.value)
       if (currentTargetIndex < textureTargets.current.length - 1) {
-        console.log(`VDEBUGadjustTextureTarget: ${currentTargetIndex} to ${currentTargetIndex + 1}`)
         component.textureTarget.set(textureTargets.current[currentTargetIndex + 1])
       }
     }
   }
 
   const fetchGeometry = () => {
-    const currentBufferLength = geometryBufferHealth.current - currentTime.current
+    const currentBufferLength = geometryBufferHealth.current - (currentTime.current - volumetric.startTime.value)
     if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) || pendingGeometryRequests.current > 0) {
       return
     }
@@ -531,7 +531,7 @@ function UVOL2Reactor() {
     const frameRate = targetData.frameRate
     const frameCount = targetData.frameCount
 
-    const startFrame = Math.round(geometryBufferHealth.current * frameRate)
+    const startFrame = Math.round((geometryBufferHealth.current + volumetric.startTime.value) * frameRate)
     if (startFrame >= frameCount) {
       // fetched all frames
       return
@@ -551,14 +551,14 @@ function UVOL2Reactor() {
   }
 
   const fetchTextures = () => {
-    const currentBufferLength = textureBufferHealth.current - currentTime.current
+    const currentBufferLength = textureBufferHealth.current - (currentTime.current - volumetric.startTime.value)
     if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) || pendingTextureRequests.current > 0) {
       return
     }
     const target = component.textureTarget.value ? component.textureTarget.value : textureTargets.current[0]
     const targetData = manifest.current.texture.baseColor.targets[target]
     const frameRate = targetData.frameRate
-    const startFrame = Math.round(textureBufferHealth.current * frameRate)
+    const startFrame = Math.round((textureBufferHealth.current + volumetric.startTime.value) * frameRate)
     if (startFrame >= targetData.frameCount) {
       // fetched all frames
       return
@@ -602,7 +602,7 @@ function UVOL2Reactor() {
         if (textureBufferHealth.current >= minBufferToPlay && !component.initialTextureBuffersLoaded.value) {
           component.initialTextureBuffersLoaded.set(true)
         }
-        if (i === 0) {
+        if (!component.firstTextureFrameLoaded.value) {
           component.firstTextureFrameLoaded.set(true)
         }
       })
@@ -637,8 +637,8 @@ function UVOL2Reactor() {
     if (!component.firstGeometryFrameLoaded.value || !component.firstTextureFrameLoaded.value) {
       return
     }
-    setGeometry(component.geometryTarget.value, 0)
-    setTexture(component.textureTarget.value, 0)
+    updateGeometry(currentTime.current)
+    updateTexture(currentTime.current)
 
     if (volumetric.useLoadingEffect.value) {
       let headerTemplate: RegExp | undefined = /\/\/\sHEADER_REPLACE_START([\s\S]*?)\/\/\sHEADER_REPLACE_END/
@@ -683,11 +683,18 @@ function UVOL2Reactor() {
   }, [volumetric.autoplay, volumetric.initialBuffersLoaded, component.loadingEffectEnded])
 
   useEffect(() => {
-    if (volumetric.paused.value || !volumetric.initialBuffersLoaded.value) {
+    if (volumetric.paused.value) {
+      component.canPlay.set(false)
       if (component.hasAudio.value) {
         audio.pause()
       }
+      return
     }
+    component.playbackStartTime.set(Date.now())
+    volumetric.startTime.set(currentTime.current)
+    geometryBufferHealth.current -= currentTime.current
+    textureBufferHealth.current -= currentTime.current
+
     if (mesh.material !== material) {
       mesh.material = material
       mesh.material.needsUpdate = true
@@ -695,6 +702,7 @@ function UVOL2Reactor() {
     if (component.hasAudio.value) {
       handleAutoplay(audioContext, audio, volumetric)
     }
+    component.canPlay.set(true)
   }, [volumetric.paused])
 
   const getAttribute = (name: string, target: string, index: number) => {
@@ -777,13 +785,15 @@ function UVOL2Reactor() {
     if (!geometryBuffer.has(key)) {
       const frameRate = targetData.frameRate
       const targets = Object.keys(manifest.current.geometry.targets)
-      targets.forEach((_target) => {
+      for (let i = 0; i < targets.length; i++) {
+        const _target = targets[i]
         const _frameRate = manifest.current.geometry.targets[_target].frameRate
         const _index = Math.round((index * _frameRate) / frameRate)
         if (geometryBuffer.has(createKey(_target, _index))) {
           setGeometry(_target, _index)
+          return
         }
-      })
+      }
     } else {
       if (targetData.format === 'draco') {
         const geometry = geometryBuffer.get(key)! as BufferGeometry
@@ -825,13 +835,14 @@ function UVOL2Reactor() {
     if (!textureBuffer.has(key)) {
       const targets = Object.keys(manifest.current.texture.baseColor.targets)
       const frameRate = manifest.current.texture.baseColor.targets[target].frameRate
-      targets.forEach((_target) => {
-        const _frameRate = manifest.current.texture.baseColor.targets[_target].frameRate
+      for (let i = 0; i < targets.length; i++) {
+        const _frameRate = manifest.current.texture.baseColor.targets[targets[i]].frameRate
         const _index = Math.round((index * _frameRate) / frameRate)
-        if (textureBuffer.has(createKey(_target, _index))) {
-          setTexture(_target, _index)
+        if (textureBuffer.has(createKey(targets[i], _index))) {
+          setTexture(targets[i], _index)
+          return
         }
-      })
+      }
     } else {
       const texture = textureBuffer.get(key)!
       if (mesh.material instanceof ShaderMaterial) {
@@ -899,23 +910,22 @@ function UVOL2Reactor() {
     setGeometry(geometryTarget, geometryFrame)
   }
 
+  const updateGeometry = (currentTime: number) => {
+    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
+      updateUniformSolve(currentTime)
+    } else {
+      updateNonUniformSolve(currentTime)
+    }
+  }
+
+  const updateTexture = (currentTime: number) => {
+    const textureTarget = component.textureTarget.value
+    const textureFrame = Math.round(currentTime * manifest.current.texture.baseColor.targets[textureTarget].frameRate)
+    setTexture(textureTarget, textureFrame)
+  }
+
   const update = () => {
     const delta = getState(EngineState).deltaSeconds
-    const canPlay =
-      (geometryBufferHealth.current - currentTime.current >= minBufferToPlay ||
-        geometryBufferHealth.current + EPSILON >= manifest.current.duration) &&
-      (textureBufferHealth.current - currentTime.current >= minBufferToPlay ||
-        textureBufferHealth.current + EPSILON >= manifest.current.duration)
-    if (!canPlay) {
-      if (!component.isBuffering.value) {
-        component.isBuffering.set(true)
-      }
-      return
-    } else {
-      if (component.isBuffering.value) {
-        component.isBuffering.set(false)
-      }
-    }
 
     if (
       component.loadingEffectStarted.value &&
@@ -930,29 +940,21 @@ function UVOL2Reactor() {
       return
     }
 
-    if (volumetric.paused.value || !volumetric.initialBuffersLoaded.value) {
+    if (!component.canPlay.value || !volumetric.initialBuffersLoaded.value) {
       return
     }
     if (manifest.current.audio) {
       currentTime.current = audio.currentTime
     } else {
-      currentTime.current += delta
+      currentTime.current = volumetric.startTime.value + (Date.now() - component.playbackStartTime.value) / 1000
     }
     if (currentTime.current > manifest.current.duration || audio.ended) {
       volumetric.ended.set(true)
       return
     }
 
-    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
-      updateUniformSolve(currentTime.current)
-    } else {
-      updateNonUniformSolve(currentTime.current)
-    }
-    const textureTarget = component.textureTarget.value
-    const textureFrame = Math.round(
-      currentTime.current * manifest.current.texture.baseColor.targets[textureTarget].frameRate
-    )
-    setTexture(textureTarget, textureFrame)
+    updateGeometry(currentTime.current)
+    updateTexture(currentTime.current)
   }
 
   useExecute(update, {
