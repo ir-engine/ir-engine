@@ -24,11 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 
-import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
@@ -40,14 +39,14 @@ import {
 import { MaterialComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
-import { SelectionAction, SelectionState } from '../../services/SelectionServices'
+import { SelectionState } from '../../services/SelectionServices'
 import MaterialEditor from '../materials/MaterialEditor'
 import { CoreNodeEditor } from './CoreNodeEditor'
 import Object3DNodeEditor from './Object3DNodeEditor'
@@ -95,7 +94,6 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
       const component = ComponentJSONIDMap.get(item.componentJsonID)
       if (!component || hasComponent(entity, component)) return
       EditorControlFunctions.addOrRemoveComponent([entity], component, true)
-      dispatchAction(SelectionAction.forceUpdate({}))
     },
     collect: (monitor) => {
       if (monitor.getItem() === null || !monitor.canDrop() || !monitor.isOver()) return { isDragging: false }
@@ -141,13 +139,6 @@ export const PropertiesPanelContainer = () => {
   const editorState = useHookstate(getMutableState(EditorState))
   const selectedEntities = selectionState.selectedEntities.value
   const { t } = useTranslation()
-
-  const forceUpdate = useForceUpdate()
-
-  // force react to re-render upon any object changing
-  useEffect(() => {
-    forceUpdate()
-  }, [selectionState.objectChangeCounter])
 
   const materialLibrary = getState(MaterialLibraryState)
 

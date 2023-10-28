@@ -26,7 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineState, dispatchAction, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  none,
+  useHookstate,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { Paginated } from '@feathersjs/feathers'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -151,9 +159,13 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     const entity = UUIDComponent.entitiesByUUID[entityUUID]
     if (!entity || !entityExists(entity)) return
 
+    const avatarDetails = state.userAvatarDetails.get(NO_PROXY)
+
     loadAvatarForUser(entity, url).catch((e) => {
-      console.error('Failed to load avatar for user', e)
-      AvatarState.selectRandomAvatar()
+      console.error('Failed to load avatar for user', e, avatarDetails)
+      if (entityUUID === (Engine.instance.userID as any)) {
+        AvatarState.selectRandomAvatar()
+      }
     })
   }, [state.userAvatarDetails])
 

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, LineSegments, Mesh, Vector3 } from 'three'
+import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, LineSegments, Mesh } from 'three'
 import { MeshBVHVisualizer } from 'three-mesh-bvh'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -104,17 +104,17 @@ const execute = () => {
     _lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
 
     for (const { raycastQuery, hits } of (physicsWorld as any).raycastDebugs as RaycastDebugs[]) {
-      const line = new Line(
-        new BufferGeometry().setFromPoints([
-          new Vector3(0, 0, 0),
-          raycastQuery.direction.clone().multiplyScalar(raycastQuery.maxDistance)
-        ]),
-        new LineBasicMaterial({ color: 0x0000ff })
-      )
-      line.position.copy(raycastQuery.origin)
-      Engine.instance.scene.add(line)
-      debugLines.add(line)
-      line.userData.originTime = Date.now()
+      // const line = new Line(
+      //   new BufferGeometry().setFromPoints([
+      //     new Vector3(0, 0, 0),
+      //     raycastQuery.direction.clone().multiplyScalar(raycastQuery.maxDistance)
+      //   ]),
+      //   new LineBasicMaterial({ color: 0x0000ff })
+      // )
+      // line.position.copy(raycastQuery.origin)
+      // Engine.instance.scene.add(line)
+      // debugLines.add(line)
+      // line.userData.originTime = Date.now()
     }
   } else {
     for (const line of debugLines) {

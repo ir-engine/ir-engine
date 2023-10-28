@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { sha3_256 } from 'js-sha3'
-import { Event, LoaderUtils, MathUtils, Mesh, Object3D } from 'three'
+import { LoaderUtils, MathUtils, Mesh, Object3D } from 'three'
 import matches, { Validator } from 'ts-matches'
 
 import { NO_PROXY, defineAction, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
@@ -73,7 +73,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
     this.comparisonCanvas = document.createElement('canvas')
   }
 
-  beforeParse(input: Object3D<Event> | Object3D<Event>[]) {
+  beforeParse(input: Object3D | Object3D[]) {
     const writer = this.writer
     if (writer.options.embedImages) return
     this.projectName = getProjectName(writer.options.path!)

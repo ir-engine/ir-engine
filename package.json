@@ -56,7 +56,7 @@
     "dev-docker-windows": "cd scripts && docker-compose up -d && docker-compose up -d -f docker-compose-minio.yml",
     "dev-tabs": "cd scripts && ./dev-tabs.sh",
     "fetch-projects": "lerna exec 'git fetch -p && git rebase' --parallel --ignore @etherealengine/*",
-    "dev-reinit": "npm run dev-docker && cd packages/server && npm run dev-reinit-db",
+    "dev-reinit": "npm run dev-docker && cd packages/server && npm run dev-reinit-db && cd ../../scripts && ./generate-certs.sh",
     "dev-server": "cd packages/server && npm run dev",
     "dev-windows": "npm run dev-docker-windows && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
     "diff": "lerna diff",
@@ -144,7 +144,7 @@
     "fix-esm": "^1.0.1",
     "minio": "7.1.3",
     "patch-package": "^6.5.1",
-    "three": "0.153.0",
+    "three": "0.157.0",
     "ts-node": "10.9.1",
     "typescript": "5.0.2"
   }
