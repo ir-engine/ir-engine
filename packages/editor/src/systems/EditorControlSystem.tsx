@@ -673,9 +673,11 @@ const execute = () => {
       dragging = false
     }
 
-    // commit transform changes upon releasing the gizmo
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
-    EditorControlFunctions.commitTransformSave(nodes)
+    if (dragging) {
+      // commit transform changes upon releasing the gizmo
+      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+      EditorControlFunctions.commitTransformSave(nodes)
+    }
   }
 
   if (editorHelperState.isFlyModeEnabled) return

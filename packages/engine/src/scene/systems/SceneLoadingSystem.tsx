@@ -162,7 +162,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
   const idMap = new Map<EntityUUID, EntityUUID>()
   const loadedEntities = UUIDComponent.entitiesByUUID
 
-  const rootEntity = assetRoot ?? getState(SceneState).sceneEntity
+  const rootEntity = assetRoot ?? SceneState.getRootEntity(getState(SceneState).activeScene!)
   const rootId = sceneData.root
 
   entities.forEach(([_uuid, eJson]) => {
@@ -225,6 +225,20 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
         })
       })
   return result
+}
+
+export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson) => {
+  setComponent(entity, NameComponent, sceneEntity.name ?? 'entity-' + sceneEntity.index)
+  for (const component of sceneEntity.components) {
+    try {
+      const Component = ComponentJSONIDMap.get(component.name)
+      if (!Component) return console.warn('[ SceneLoading] could not find component name', component.name)
+      setComponent(entity, Component, component.props)
+    } catch (e) {
+      console.error(`Error loading scene entity: `, JSON.stringify(sceneEntity, null, '\t'))
+      console.error(e)
+    }
+  }
 }
 
 export const migrateSceneData = (sceneData: SceneData) => {
@@ -439,6 +453,7 @@ const EntityChildLoadReactor = (props: {
     if (dynamicParentState?.value && !dynamicParentState.loaded.value) return
 
     const entity = createEntity()
+    console.log('adding entity', props.entityUUID, entity)
     const parentEntity = parentEntityState.value
     setComponent(entity, SceneObjectComponent)
     setComponent(entity, EntityTreeComponent, {
@@ -449,6 +464,7 @@ const EntityChildLoadReactor = (props: {
     setComponent(entity, NameComponent, entityJSONState.name.value)
     addEntityNodeChild(entity, parentEntity)
     return () => {
+      console.log('removing entity', props.entityUUID, entity)
       removeEntity(entity)
     }
   }, [dynamicParentState?.loaded, parentLoaded])
@@ -495,7 +511,10 @@ const ComponentLoadReactor = (props: { componentState: State<ComponentJson>; ent
     }
 
     return () => {
-      if (!props.componentState.value) return
+      // if entity has been removed, we don't need to remove components
+      if (!entity || !entityExists(entity)) return
+      // if component still exists, we don't need to remove it in the return
+      if (props.componentState.value) return
       removeComponent(entity, ComponentJSONIDMap.get(component.name)!)
     }
   }, [props.componentState])
