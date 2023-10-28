@@ -40,10 +40,10 @@ export const logError = async (context: HookContext, next: NextFunction) => {
     await next()
   } catch (error) {
     logger.error(
-      `Error in ${context.path}, ${context.type}, ${context.method} method. ${structuredClone(
-        context.error
-      )}, stacktrace: ${context.error.stack}`,
-      context.error
+      `Error in ${context.path} service, ${context.type} hook, ${context.method} method. ${structuredClone(
+        error
+      )}, stacktrace: ${error.stack}`,
+      error
     )
 
     throw error
