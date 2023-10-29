@@ -97,11 +97,11 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
   parseECSData(entity, Object.entries(obj3d.userData))
 }
 
-export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3D): void => {
+export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3D): Entity[] => {
   const scene = object3d ?? getComponent(entity, ModelComponent).scene
   const meshesToProcess: Mesh[] = []
 
-  if (!scene) return
+  if (!scene) return []
 
   scene.traverse((mesh: Mesh) => {
     if ('xrengine.entity' in mesh.userData) {
@@ -112,11 +112,14 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   if (meshesToProcess.length === 0) {
     setComponent(entity, GLTFLoadedComponent)
     scene.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
-    return
+    return []
   }
+
+  const entities: Entity[] = []
 
   for (const mesh of meshesToProcess) {
     const e = createEntity()
+    entities.push(e)
 
     setComponent(e, EntityTreeComponent, { parentEntity: entity, uuid: mesh.uuid as EntityUUID })
 
@@ -140,16 +143,18 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     mesh.visible = false
   }
+
+  return entities
 }
 
 export const parseGLTFModel = (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
-  if (!model.scene) return
+  if (!model.scene) return []
   const scene = model.scene
   scene.updateMatrixWorld(true)
 
   // always parse components first
-  parseObjectComponentsFromGLTF(entity, scene)
+  const spawnedEntities = parseObjectComponentsFromGLTF(entity, scene)
 
   enableObjectLayer(scene, ObjectLayers.Scene, true)
 
@@ -162,4 +167,6 @@ export const parseGLTFModel = (entity: Entity) => {
       animations: scene.animations
     })
   }
+
+  return spawnedEntities
 }

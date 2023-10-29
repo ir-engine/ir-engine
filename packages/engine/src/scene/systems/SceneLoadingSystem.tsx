@@ -58,7 +58,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { QueryReactor, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
@@ -315,7 +315,7 @@ const reactor = () => {
   return (
     <>
       <QueryReactor
-        Components={[EntityTreeComponent, SceneObjectComponent]}
+        Components={[EntityTreeComponent, TransformComponent, UUIDComponent, SceneObjectComponent]}
         ChildEntityReactor={NetworkedSceneObjectReactor}
       />
       {Object.keys(scenes.value).map((sceneID: SceneID) => (
@@ -326,19 +326,23 @@ const reactor = () => {
 }
 
 /** @todo - this needs to be rework according to #9105 # */
-const NetworkedSceneObjectReactor = (props: { entity: Entity }) => {
+const NetworkedSceneObjectReactor = () => {
+  const entity = useEntityContext()
   useEffect(() => {
     if (NetworkState.worldNetwork?.isHosting) {
-      const uuid = getComponent(props.entity, UUIDComponent)
+      if (!entityExists(entity)) return
+      const uuid = getComponent(entity, UUIDComponent)
+      const transform = getComponent(entity, TransformComponent)
       dispatchAction(
         WorldNetworkAction.spawnObject({
           entityUUID: uuid,
-          prefab: ''
+          prefab: '',
+          position: transform.position,
+          rotation: transform.rotation
         })
       )
     }
   }, [])
-
   return null
 }
 

@@ -35,6 +35,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
+  getComponent,
   getOptionalComponent,
   hasComponent,
   setComponent
@@ -167,6 +168,8 @@ export const LocalTransformComponent = defineComponent({
     if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
     getMutableState(EngineState).transformsNeedSorting.set(true)
 
+    console.trace('local transform onset', entity, json.scale)
+
     const position = json.position?.isVector3
       ? json.position
       : json.position
@@ -192,5 +195,18 @@ export const LocalTransformComponent = defineComponent({
     if (scale) component.scale.value.copy(scale)
 
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
+
+    // ensure TransformComponent is updated immediately, raising warnings if it does not have a parent
+    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+    if (!entityTree) return console.warn('Entity does not have EntityTreeComponent', entity)
+
+    const parentTransform = entityTree?.parentEntity
+      ? getOptionalComponent(entityTree.parentEntity, TransformComponent)
+      : undefined
+    if (!parentTransform) return console.warn('Entity does not have parent TransformComponent', entity)
+
+    const transform = getComponent(entity, TransformComponent)
+    transform.matrix.multiplyMatrices(parentTransform.matrix, component.matrix.value)
+    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
   }
 })
