@@ -287,7 +287,6 @@ export const migrateSceneData = (sceneData: SceneData) => {
 
 const reactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
-  const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
 
@@ -301,6 +300,7 @@ const reactor = () => {
 
     getMutableState(EngineState).loadingProgress.set(progress)
 
+    console.log(sceneAssetPendingTagQuery.length, total, loaded, progress)
     if (!sceneAssetPendingTagQuery.length && !getState(EngineState).sceneLoaded) {
       for (const entity of sceneAssetPendingTagQuery) removeComponent(entity, SceneAssetPendingTagComponent)
       getMutableState(EngineState).merge({
