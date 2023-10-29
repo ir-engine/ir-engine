@@ -493,10 +493,9 @@ const EntityChildLoadReactor = (props: {
     if (!parentLoaded) return
 
     // if parent is dynamically loaded, wait for it to be loaded
-    if (dynamicParentState?.value && !dynamicParentState.loaded.value) return
+    if (!getState(EngineState).isEditor && dynamicParentState?.value && !dynamicParentState.loaded.value) return
 
     const entity = createEntity()
-    console.log('adding entity', props.entityUUID, entity)
     const parentEntity = parentEntityState.value
     setComponent(entity, SceneObjectComponent)
     setComponent(entity, EntityTreeComponent, {
@@ -506,7 +505,6 @@ const EntityChildLoadReactor = (props: {
     })
     setComponent(entity, NameComponent, entityJSONState.name.value)
     return () => {
-      console.log('removing entity', props.entityUUID, entity)
       removeEntity(entity)
     }
   }, [dynamicParentState?.loaded, parentLoaded])
