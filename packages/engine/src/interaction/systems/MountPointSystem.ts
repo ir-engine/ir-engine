@@ -102,6 +102,15 @@ const execute = () => {
         },
         true
       )
+      rigidBody.body.setRotation(
+        {
+          x: transform.rotation.x,
+          y: transform.rotation.y,
+          z: transform.rotation.z,
+          w: transform.rotation.w
+        },
+        true
+      )
       teleportAvatar(avatarEntity, mountPointTransform.position)
       rigidBody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
       rigidBody.body.setEnabled(false)
@@ -127,9 +136,6 @@ const execute = () => {
     const rigidBody = getComponent(entity, RigidBodyComponent)
     if (controller.gamepadLocalInput.lengthSq() > 0.01) {
       const avatarTransform = getComponent(entity, TransformComponent)
-      const newPos = avatarTransform.position
-        .clone()
-        .add(new Vector3(0, 0, 1).applyQuaternion(avatarTransform.rotation))
 
       removeComponent(entity, SittingComponent)
       getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
