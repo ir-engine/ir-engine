@@ -168,8 +168,6 @@ export const LocalTransformComponent = defineComponent({
     if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
     getMutableState(EngineState).transformsNeedSorting.set(true)
 
-    console.trace('local transform onset', entity, json.scale)
-
     const position = json.position?.isVector3
       ? json.position
       : json.position
