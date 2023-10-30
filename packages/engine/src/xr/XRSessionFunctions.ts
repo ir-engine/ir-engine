@@ -28,17 +28,16 @@ import { Quaternion, Vector3 } from 'three'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { V_000 } from '../common/constants/MathConstants'
-import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { computeAndUpdateWorldOrigin, updateEyeHeight } from '../transform/updateWorldOrigin'
+import { computeAndUpdateWorldOrigin } from '../transform/updateWorldOrigin'
 import { Engine } from './../ecs/classes/Engine'
-import { addComponent, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
+import { getComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { ReferenceSpace, XRAction, XRState, getCameraMode } from './XRState'
+import { setTrackingSpace } from './XRScaleAdjustmentFunctions'
+import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
@@ -65,7 +64,6 @@ export const onSessionEnd = () => {
 
   dispatchAction(XRAction.sessionChanged({ active: false }))
 
-  xrState.userAvatarHeightDifference.set(null)
   xrState.session.set(null)
 }
 
@@ -155,7 +153,8 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
     // WebXR Emulator does not support XRReferenceSpace events
     if ('addEventListener' in space)
       space.addEventListener('reset', (ev) => {
-        updateEyeHeight()
+        /** @todo we need to use the event's `transform` property to modify our origin reference space to align with the space prior to the reset event */
+        setTrackingSpace()
       })
     ReferenceSpace.localFloor = space
     computeAndUpdateWorldOrigin()
@@ -198,13 +197,4 @@ export const endXRSession = createHookableFunction(async () => {
  * A hookable function that is fired when the XR Session has changed
  * @returns
  */
-export const xrSessionChanged = createHookableFunction((action: typeof XRAction.sessionChanged.matches._TYPE) => {
-  const entity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
-  if (!entity) return
-
-  if (action.active) {
-    if (getCameraMode() === 'attached') {
-      if (!hasComponent(entity, AvatarHeadDecapComponent)) addComponent(entity, AvatarHeadDecapComponent, true)
-    }
-  }
-})
+export const xrSessionChanged = createHookableFunction((action: typeof XRAction.sessionChanged.matches._TYPE) => {})

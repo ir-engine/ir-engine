@@ -562,7 +562,6 @@ export default {
     ],
     update: [
       iff(isProvider('external'), verifyScope('projects', 'write'), projectPermissionAuthenticate(false)),
-      () => schemaHooks.validateData(projectPatchValidator),
       updateProjectJob
     ],
     patch: [
