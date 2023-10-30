@@ -25,27 +25,31 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material } from 'three'
 
-import { NO_PROXY, getMutableState, none } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
+import { addOBCPlugin, removeOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialPluginType } from '../components/MaterialPluginComponent'
-import { addMaterialSource, getSourceItems, hashMaterialSource } from './MaterialLibraryFunctions'
-export function registerMaterialPlugin(component: MaterialPluginType) {
+import { PluginPrototypeComponentType } from '../components/MaterialPluginPrototypeComponent'
+import { addMaterialSource, getSourceItems } from './MaterialLibraryFunctions'
+
+export function pluginPrototypeFromId(pluginId: string) {
+  const materialLibrary = getState(MaterialLibraryState)
+  return materialLibrary.pluginPrototypes[pluginId]
+}
+
+export function registerMaterialPluginPrototype(component: PluginPrototypeComponentType) {
   const materialLibrary = getMutableState(MaterialLibraryState)
   const src = component.src
   addMaterialSource(src)
   const srcItems = getSourceItems(src)!
-  !srcItems.includes(component.pluginID) &&
-    materialLibrary.sources[hashMaterialSource(component.src)].entries.set([...srcItems, component.pluginID])
-  materialLibrary.pluginPrototypes[component.pluginID].set(component)
+  materialLibrary.pluginPrototypes[component.prototypeId].set(component)
 }
 
-export function unregisterMaterialPlugin(component: MaterialPluginType) {
+export function unregisterMaterialPlugin(component: PluginPrototypeComponentType) {
   const materialLibrary = getMutableState(MaterialLibraryState)
   const srcItems = getSourceItems(component.src)!
-  materialLibrary.sources[component.pluginID].entries.set(srcItems.filter((item) => item !== component.pluginID))
-  materialLibrary.pluginPrototypes[component.pluginID].set(none)
+  materialLibrary.pluginPrototypes[component.prototypeId].set(none)
 }
 /*
 export function pluginPrototypeFromId(protoId: string): PluginPrototypeComponentType {
@@ -82,20 +86,32 @@ export function pluginProtoIdToFactory(pluginProtoId: string): (parms: any) => P
 
 export function applyMaterialPlugin(material: Material, plugin: MaterialPluginType) {
   const materialLibrary = getMutableState(MaterialLibraryState)
-  const pluginPrototype = getPluginPrototype(plugin.pluginProtoID)
-  const internal_state = getInternalState(plugin.internal_state)
+  const pluginPrototype = pluginPrototypeFromId(plugin.pluginProtoID)
+  //const internal_state = getInternalState(plugin.internal_state)
   if (!pluginPrototype) {
     console.warn('Unsupported material plugin ' + plugin)
     return
   }
   //attach internal_state to onbefore compile
-  addOBCPlugin(material, pluginPrototype.plugin.get(NO_PROXY))
+  addOBCPlugin(material, pluginPrototype.pluginObject)
 }
 
-export function removeMaterialPlugin(material: Material, pluginId: string) {
-  const materialLibrary = getMutableState(MaterialLibraryState)
-  const pluginComponent = materialLibrary.pluginPrototypes[pluginId].value
-  if (!pluginComponent) return
-  //removeOBCPlugin(material, pluginComponent.)
+export function removeMaterialPlugin(material: Material, plugin: MaterialPluginType) {
+  const pluginPrototype = pluginPrototypeFromId(plugin.pluginProtoID)
+  removeOBCPlugin(material, pluginPrototype.pluginObject)
   material.needsUpdate = true
+}
+
+export function serializeMaterialPlugin(plugin: MaterialPluginType) {
+  const prototype = pluginPrototypeFromId(plugin.pluginProtoID)
+  return {
+    prototype: plugin.pluginProtoID,
+    parameters: Object.entries(plugin.parameters).map(([k, v]) => {
+      const schema = prototype.parameters[k]
+      return {
+        type: schema.type,
+        contents: v
+      }
+    })
+  }
 }
