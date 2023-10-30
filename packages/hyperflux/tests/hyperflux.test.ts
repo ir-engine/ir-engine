@@ -33,6 +33,7 @@ import {
   clearOutgoingActions,
   createHyperStore,
   defineAction,
+  defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
@@ -459,4 +460,64 @@ describe('Hyperflux Unit Tests', () => {
 
     assert.equal(getState(HospitalityState).greetingCount, 100)
   })
+
+  it('should be able to create action queues', () => {
+    const greet = defineAction({
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    const goodbye = defineAction({
+      type: 'TEST_GOODBYE',
+      greeting: matchesWithDefault(matches.string, () => 'bye')
+    })
+    const store = createHyperStore({
+      forwardIncomingActions: () => true,
+      getDispatchId: () => 'id',
+      getPeerId: () => 'peer',
+      getDispatchTime: () => Date.now()
+    })
+    const queue = defineActionQueue([greet.matches, goodbye.matches])
+    assert.equal(queue().length, 0)
+    dispatchAction(greet({}))
+    dispatchAction(goodbye({}))
+    assert.equal(queue().length, 0)
+    dispatchAction(greet({}))
+    dispatchAction(goodbye({}))
+    applyIncomingActions()
+    const actions = queue()
+    assert.equal(actions.length, 4)
+    assert(greet.matches.test(actions[0]))
+    assert(goodbye.matches.test(actions[1]))
+    assert(greet.matches.test(actions[2]))
+    assert(goodbye.matches.test(actions[3]))
+  })
+
+  it('should be able to create action queues with out-of-order action handling', () => {
+    const greet = defineAction({
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    const goodbye = defineAction({
+      type: 'TEST_GOODBYE',
+      greeting: matchesWithDefault(matches.string, () => 'bye')
+    })
+    const store = createHyperStore({
+      forwardIncomingActions: () => true,
+      getDispatchId: () => 'id',
+      getPeerId: () => 'peer',
+      getDispatchTime: () => Date.now()
+    })
+
+    const queue = defineActionQueue([greet.matches, goodbye.matches])
+    dispatchAction(goodbye({ $time: 200 }))
+    dispatchAction(greet({ $time: 100 }))
+    applyIncomingActions()
+
+    const actions = queue()
+    assert.equal(actions.length, 2)
+    assert(greet.matches.test(actions[0]))
+    assert(goodbye.matches.test(actions[1]))
+  })
+
+  it('should be able to create multiple action queues of the same type, that are independently managed', () => {})
 })

@@ -80,7 +80,14 @@ export function registerState<S>(StateDefinition: StateDefinition<S>) {
   if (StateDefinition.onCreate) StateDefinition.onCreate(HyperFlux.store, getMutableState(StateDefinition))
 
   if (StateDefinition.receptors) {
-    StateDefinition.receptorActionQueue = defineActionQueue(StateDefinition.receptors.map((r) => r[0] as any))
+    StateDefinition.receptorActionQueue = defineActionQueue(
+      StateDefinition.receptors.map((r) => r[0] as any),
+      {
+        onReset: () => {
+          HyperFlux.store.stateMap[StateDefinition.name].set(initial)
+        }
+      }
+    )
     HyperFlux.store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
       removeActionQueue(StateDefinition.receptorActionQueue!)
     })

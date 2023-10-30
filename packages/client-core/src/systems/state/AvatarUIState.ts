@@ -44,13 +44,10 @@ export const AvatarUIState = defineState({
   },
 
   receptors: [
-    [
-      AvatarUIActions.setUserTyping,
-      (action) => {
-        const state = getMutableState(AvatarUIState)
-        state.usersTyping[action.$from].set(action.typing ? true : none)
-      }
-    ]
+    AvatarUIActions.setUserTyping.receive((action) => {
+      const state = getMutableState(AvatarUIState)
+      state.usersTyping[action.$from].set(action.typing ? true : none)
+    })
   ]
 })
 

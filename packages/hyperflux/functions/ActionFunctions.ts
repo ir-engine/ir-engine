@@ -256,9 +256,12 @@ function defineAction<Shape extends Omit<ActionShape<Action>, keyof ActionOption
 
   // create resolved action shape
   const resolvedActionShape = Object.assign({}, shape, optionValidators, literalValidators, defaultValidators, {
-    type: matches.guard<string, any>(function (val): val is any {
-      return Array.isArray(val) ? val.includes(primaryType) : val === primaryType
-    })
+    type: matches.some(
+      matches.literal(primaryType),
+      matches.guard<string, any>(function (val): val is any {
+        return Array.isArray(val) ? val.includes(primaryType) : val === primaryType
+      })
+    )
   }) as any
   delete resolvedActionShape.$cache
   delete resolvedActionShape.$topic
@@ -393,11 +396,17 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
 }
 
 const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>) => {
-  for (const [shapeHash, queueDefintions] of HyperFlux.store.actions.queueDefinitions) {
-    if (queueDefintions[0]?.test(action)) {
-      for (const queues of queueDefintions) {
-        if (!HyperFlux.store.actions.queues.has(queues)) continue
-        HyperFlux.store.actions.queues.get(queues)!.push(action)
+  for (const [shapeHash, queueInstances] of HyperFlux.store.actions.queues) {
+    if (queueInstances[0]?.test(action)) {
+      for (const queueInstance of queueInstances) {
+        // if the queue can handle being reset, and the action is out of order, reset the queue
+        if (queueInstance.onReset && queueInstance.lastActionTime > action.$time) {
+          // reset the queue, forcing it to be rebuilt the next time it's getter is called
+          queueInstance.queue = null
+          continue
+        }
+        queueInstance.queue!.push(action)
+        queueInstance.lastActionTime = action.$time
       }
     }
   }
@@ -480,40 +489,49 @@ const clearOutgoingActions = (topic: string) => {
   queue.length = 0
 }
 
-function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(shape: V[] | V) {
+function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(
+  shape: V[] | V,
+  options: { onReset?: () => void } = {}
+) {
   const shapes = Array.isArray(shape) ? shape : [shape]
   const shapeHash = shapes.map(Parser.parserAsString).join('|')
 
-  const actionQueueDefinition = (): V['_TYPE'][] => {
-    if (!HyperFlux.store.actions.queueDefinitions.has(shapeHash))
-      HyperFlux.store.actions.queueDefinitions.set(shapeHash, [])
+  const actionQueueGetter = (): V['_TYPE'][] => {
+    if (!HyperFlux.store.actions.queues.has(shapeHash)) HyperFlux.store.actions.queues.set(shapeHash, [])
 
-    if (!HyperFlux.store.actions.queueDefinitions.get(shapeHash)!.includes(actionQueueDefinition))
-      HyperFlux.store.actions.queueDefinitions.get(shapeHash)!.push(actionQueueDefinition)
+    const queueInstances = HyperFlux.store.actions.queues.get(shapeHash)!
 
-    if (!HyperFlux.store.actions.queues.has(actionQueueDefinition)) {
-      HyperFlux.store.actions.queues.set(
-        actionQueueDefinition,
-        HyperFlux.store.actions.history.filter(actionQueueDefinition.test)
-      )
+    if (!queueInstances.includes(actionQueueGetter)) {
+      queueInstances.push(actionQueueGetter)
       HyperFlux.store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
-        removeActionQueue(actionQueueDefinition)
+        removeActionQueue(actionQueueGetter)
       })
     }
 
-    const queue = HyperFlux.store.actions.queues.get(actionQueueDefinition)!
-    const result = [...queue]
-    queue.length = 0
+    // if queue is null, we need to rebuild it
+    if (actionQueueGetter.queue === null) {
+      // make sure actions are sorted by time, earliest first
+      HyperFlux.store.actions.history.sort((a, b) => a.$time - b.$time)
+      actionQueueGetter.queue = HyperFlux.store.actions.history.filter(actionQueueGetter.test)
+      actionQueueGetter.onReset?.() // TODO: pass in a snapshot?
+    }
+
+    const result = [...actionQueueGetter.queue!]
+    actionQueueGetter.queue!.length = 0
     return result
   }
 
-  actionQueueDefinition.test = (a: Action) => {
+  actionQueueGetter.queue = [] as V['_TYPE'][] | null
+  actionQueueGetter.onReset = options.onReset
+  actionQueueGetter.lastActionTime = 0
+
+  actionQueueGetter.test = (a: Action) => {
     return shapes.some((s) => s.test(a))
   }
 
-  actionQueueDefinition.shapeHash = shapeHash
+  actionQueueGetter.shapeHash = shapeHash
 
-  return actionQueueDefinition
+  return actionQueueGetter
 }
 
 /**
@@ -524,10 +542,9 @@ const createActionQueue = defineActionQueue
 export type ActionQueueDefinition = ReturnType<typeof defineActionQueue>
 
 const removeActionQueue = (queueFunction: ActionQueueDefinition) => {
-  const queueDefinitions = HyperFlux.store.actions.queueDefinitions.get(queueFunction.shapeHash)
-  if (queueDefinitions) queueDefinitions.splice(queueDefinitions.indexOf(queueFunction), 1)
-  if (!queueDefinitions?.length) HyperFlux.store.actions.queueDefinitions.delete(queueFunction.shapeHash)
-  HyperFlux.store.actions.queues.delete(queueFunction)
+  const queueInstances = HyperFlux.store.actions.queues.get(queueFunction.shapeHash)
+  if (queueInstances) queueInstances.splice(queueInstances.indexOf(queueFunction), 1)
+  if (!queueInstances?.length) HyperFlux.store.actions.queues.delete(queueFunction.shapeHash)
 }
 
 export {

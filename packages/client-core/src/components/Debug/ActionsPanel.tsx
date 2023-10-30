@@ -32,7 +32,7 @@ const labelRenderer = (data: Record<string | number, any>) => {
   return (keyPath: (string | number)[]) => {
     const key = keyPath[0]
     if (keyPath.length === 2 && typeof key === 'number') {
-      return <strong>{data[key].type}</strong>
+      return <strong>{Array.isArray(data[key].type) ? data[key].type[0] : data[key].type}</strong>
     }
     return <strong>{key}</strong>
   }

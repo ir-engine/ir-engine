@@ -294,17 +294,19 @@ export const enableSystem = (systemUUID: SystemUUID) => {
     enableSystem(preSystem)
   }
 
-  Engine.instance.activeSystems.add(systemUUID)
-
-  const reactor = startReactor(system.reactor)
-  Engine.instance.activeSystemReactors.set(system.uuid as SystemUUID, reactor)
-
   for (const subSystem of system.subSystems) {
     enableSystem(subSystem)
   }
 
   for (const postSystem of system.postSystems) {
     enableSystem(postSystem)
+  }
+
+  Engine.instance.activeSystems.add(systemUUID)
+
+  if (!Engine.instance.activeSystemReactors.has(system.uuid as SystemUUID)) {
+    const reactor = startReactor(system.reactor)
+    Engine.instance.activeSystemReactors.set(system.uuid as SystemUUID, reactor)
   }
 }
 
@@ -340,19 +342,19 @@ export const disableSystem = (systemUUID: SystemUUID) => {
     disableSystem(subSystem)
   }
 
-  Engine.instance.activeSystems.delete(systemUUID)
-  const reactor = Engine.instance.activeSystemReactors.get(system.uuid as SystemUUID)!
-  if (reactor) {
-    Engine.instance.activeSystemReactors.delete(system.uuid as SystemUUID)
-    reactor.stop()
-  }
-
   for (const postSystem of system.postSystems) {
     disableSystem(postSystem)
   }
 
   for (const preSystem of system.preSystems) {
     disableSystem(preSystem)
+  }
+
+  Engine.instance.activeSystems.delete(systemUUID)
+  const reactor = Engine.instance.activeSystemReactors.get(system.uuid as SystemUUID)!
+  if (reactor) {
+    Engine.instance.activeSystemReactors.delete(system.uuid as SystemUUID)
+    reactor.stop()
   }
 }
 
