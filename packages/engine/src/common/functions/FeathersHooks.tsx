@@ -352,7 +352,7 @@ export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
   const store = useHookstate(resetPaginationProps(defaultProps))
 
   const query = store.get(NO_PROXY)
-  const storedPagination = useHookstate(query)
+  const storedPagination = useHookstate({ stored: false, query })
 
   const setSort = (sort: Record<string, FeathersOrder>) => {
     store.$sort.set(sort)
@@ -371,12 +371,15 @@ export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
   }
 
   const storePagination = () => {
+    if (!storedPagination.stored.value) {
+      storedPagination.set({ stored: true, query: structuredClone(query) })
+    }
     reset()
-    storedPagination.set(query)
   }
 
   const restorePagination = () => {
-    store.set(storedPagination.value)
+    store.set(structuredClone(storedPagination.get(NO_PROXY).query))
+    storedPagination.merge({ stored: false })
   }
 
   return {
