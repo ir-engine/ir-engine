@@ -10,13 +10,13 @@ case "$(uname -s)" in
     rm -rf $DIR
     mkdir -p $DIR
     mkcert -install
-    mkcert $VITE_APP_HOST -cert-file $DIR/server-cert.pem -key-file $DIR/server-key.pem
+    mkcert -cert-file $DIR/server-cert.pem -key-file $DIR/server-key.pem $VITE_APP_HOST 
      ;;
    Linux)
     rm -rf $DIR
     mkdir -p $DIR
     mkcert -install
-    mkcert -cert-file $DIR/server-cert.pem -key-file $DIR/server-key.pem $VITE_APP_HOST
+    mkcert -cert-file $DIR/server-cert.pem -key-file $DIR/server-key.pem $VITE_APP_HOST local1.etherealengine.com local2.etherealengine.cm
      ;;
    CYGWIN*|MINGW32*|MSYS*|MINGW*)
      echo 'MS Windows'

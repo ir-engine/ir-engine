@@ -11,6 +11,8 @@ then
         exit 1
     fi
 
+    set -a; source ../.env.local; set +a #load shared .env
+
     echo "✅ Docker & Docker-Compose Detected:"
     echo -e "\e[32m💾 Initializing docker containers..."
 
