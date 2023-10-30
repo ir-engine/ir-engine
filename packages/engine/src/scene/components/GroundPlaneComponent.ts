@@ -123,7 +123,6 @@ export const GroundPlaneComponent = defineComponent({
       return () => {
         if (!entityExists(entity)) return
         Physics.removeRigidBody(entity, physicsWorld)
-        console.log(entity, mesh)
         removeObjectFromGroup(entity, mesh)
       }
     }, [])
@@ -131,6 +130,13 @@ export const GroundPlaneComponent = defineComponent({
     useEffect(() => {
       if (component.mesh.value) component.mesh.value.material.color.set(component.color.value)
     }, [component.color])
+
+    useEffect(() => {
+      if (component.mesh.value)
+        component.mesh.value.material = component.visible.value
+          ? new MeshLambertMaterial()
+          : new ShadowMaterial({ opacity: 0.5 })
+    }, [component.visible])
 
     return null
   }
