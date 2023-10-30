@@ -57,7 +57,7 @@ export const InteractState = defineState({
       /**
        * closest interactable to the player, in view of the camera, sorted by distance
        */
-      maxDistance: 4,
+      maxDistance: 1.5,
       available: [] as Entity[]
     }
   }

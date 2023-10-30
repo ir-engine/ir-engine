@@ -97,7 +97,7 @@ const execute = () => {
       rigidBody.body.setTranslation(
         {
           x: transform.position.x,
-          y: transform.position.y + avatar.avatarHalfHeight,
+          y: transform.position.y - avatar.avatarHalfHeight * 0.5,
           z: transform.position.z
         },
         true
