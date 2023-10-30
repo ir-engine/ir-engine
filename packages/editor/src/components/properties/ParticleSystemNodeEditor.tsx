@@ -251,7 +251,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
                 value={burst.probability.value}
                 onChange={onSetState(burst.probability)}
               />
-              <Button onClick={onRemoveBurst(burst)}>Remove Burst</Button>
+              <Button onClick={onRemoveBurst(burst as any)}>Remove Burst</Button>
             </div>
           )
         }}
@@ -329,7 +329,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
             <ValueGenerator
               value={particleSystem.systemParameters.rendererEmitterSettings.startLength as ValueGeneratorJSON}
               scope={
-                particleSystemState.systemParameters.rendererEmitterSettings
+                (particleSystemState.systemParameters.rendererEmitterSettings as any)
                   .startLength as unknown as State<ValueGeneratorJSON>
               }
               onChange={onSetState}
