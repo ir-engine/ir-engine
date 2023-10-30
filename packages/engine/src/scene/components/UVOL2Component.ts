@@ -437,7 +437,7 @@ function UVOL2Reactor() {
     })
   }
 
-  const fetchUniformSolveGeometry = (startSegment: number, endSegment: number, target: string) => {
+  const fetchUniformSolveGeometry = (startSegment: number, endSegment: number, target: string, extraTime: number) => {
     const targetData = manifest.current.geometry.targets[target] as UniformSolveTarget
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
@@ -489,6 +489,9 @@ function UVOL2Reactor() {
       const fetchTime = (Date.now() - startTime) / 1000
       const metric = fetchTime / playTime
       adjustGeometryTarget(metric)
+      if (extraTime >= 0) {
+        geometryBufferHealth.current -= extraTime
+      }
     })
   }
 
@@ -544,7 +547,16 @@ function UVOL2Reactor() {
       const segmentFrameCount = targetData.segmentFrameCount
       const startSegment = Math.floor(startFrame / segmentFrameCount)
       const endSegment = Math.floor(endFrame / segmentFrameCount)
-      fetchUniformSolveGeometry(startSegment, endSegment, target)
+      const startFrameTime = startFrame / frameRate
+      const startSegmentTime = startSegment * targetData.settings.segmentSize
+
+      /**
+       * 'extraTime' worth buffers are fetched again, possibly with different target
+       * this happens when there is a change in segment size
+       * to avoid adding this part to bufferHealth again, subtract it.
+       */
+      const extraTime = startFrameTime - startSegmentTime
+      fetchUniformSolveGeometry(startSegment, endSegment, target, extraTime)
     } else {
       fetchNonUniformSolveGeometry(startFrame, endFrame, target)
     }
@@ -854,6 +866,10 @@ function UVOL2Reactor() {
           texture.offset.copy(offset)
           mesh.material.uniforms.repeat.value = repeat
           mesh.material.uniforms.offset.value = offset
+          const oldTexture = textureBuffer.get(oldTextureKey)
+          if (oldTexture) {
+            oldTexture.dispose()
+          }
           textureBuffer.delete(oldTextureKey)
         }
       } else {
@@ -863,6 +879,10 @@ function UVOL2Reactor() {
           texture.offset.copy(offset)
           mesh.material.map = texture
           mesh.material.map.needsUpdate = true
+          const oldTexture = textureBuffer.get(oldTextureKey)
+          if (oldTexture) {
+            oldTexture.dispose()
+          }
           textureBuffer.delete(oldTextureKey)
         }
       }
