@@ -62,12 +62,21 @@ export function defineState<S, StateExtras = unknown>(definition: StateDefinitio
 export function registerState<S>(StateDefinition: StateDefinition<S>) {
   logger.info(`registerState ${StateDefinition.name}`)
 
-  const initial =
-    typeof StateDefinition.initial === 'function'
-      ? (StateDefinition.initial as any)()
-      : JSON.parse(JSON.stringify(StateDefinition.initial))
-  HyperFlux.store.valueMap[StateDefinition.name] = initial
-  HyperFlux.store.stateMap[StateDefinition.name] = createState(initial)
+  const setInitial = () => {
+    const initial =
+      typeof StateDefinition.initial === 'function'
+        ? (StateDefinition.initial as any)()
+        : JSON.parse(JSON.stringify(StateDefinition.initial))
+    HyperFlux.store.valueMap[StateDefinition.name] = initial
+    if (HyperFlux.store.stateMap[StateDefinition.name]) {
+      HyperFlux.store.stateMap[StateDefinition.name].set(initial)
+    } else {
+      HyperFlux.store.stateMap[StateDefinition.name] = createState(HyperFlux.store.valueMap[StateDefinition.name])
+    }
+  }
+
+  setInitial()
+
   HyperFlux.store.stateMap[StateDefinition.name].attach(() => ({
     id: Symbol('update root state value map'),
     init: () => ({
@@ -84,7 +93,7 @@ export function registerState<S>(StateDefinition: StateDefinition<S>) {
       StateDefinition.receptors.map((r) => r[0] as any),
       {
         onReset: () => {
-          HyperFlux.store.stateMap[StateDefinition.name].set(initial)
+          setInitial()
         }
       }
     )

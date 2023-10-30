@@ -38,6 +38,7 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  receiveActions,
   registerState,
   removeActionQueue
 } from '..'
@@ -604,5 +605,63 @@ describe('Hyperflux Unit Tests', () => {
     assert(greet.matches.test(actions3[1]))
     assert(goodbye.matches.test(actions3[2]))
     assert(greet.matches.test(actions3[3]))
+  })
+
+  it('should be able to create networked state with receptors', () => {
+    const greet = defineAction({
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    const goodbye = defineAction({
+      type: 'TEST_GOODBYE',
+      greeting: matchesWithDefault(matches.string, () => 'bye')
+    })
+
+    const HospitalityState = defineState({
+      name: 'test.hospitality',
+
+      initial: () => ({
+        greetingCount: 0,
+        firstGreeting: null as string | null
+      }),
+
+      receptors: [
+        greet.receive((action) => {
+          const state = getMutableState(HospitalityState)
+          state.greetingCount.set((v) => v + 1)
+          if (!state.firstGreeting.value) state.firstGreeting.set(action.greeting)
+        }),
+        goodbye.receive((action) => {
+          const state = getMutableState(HospitalityState)
+          state.greetingCount.set((v) => v - 1)
+          if (!state.firstGreeting.value) state.firstGreeting.set(action.greeting)
+        })
+      ]
+    })
+
+    const store = createHyperStore({
+      forwardIncomingActions: () => true,
+      getDispatchId: () => 'id',
+      getPeerId: () => 'peer',
+      getDispatchTime: () => Date.now()
+    })
+
+    const hospitality = getMutableState(HospitalityState)
+
+    dispatchAction(greet({ $time: 100 }))
+    dispatchAction(goodbye({ $time: 100 }))
+    dispatchAction(greet({ $time: 100 }))
+    applyIncomingActions()
+    receiveActions(HospitalityState)
+
+    assert.equal(hospitality.greetingCount.value, 1)
+    assert.equal(hospitality.firstGreeting.value, 'hi')
+
+    dispatchAction(goodbye({ $time: 50 }))
+    applyIncomingActions()
+    receiveActions(HospitalityState)
+
+    assert.equal(hospitality.greetingCount.value, 0)
+    assert.equal(hospitality.firstGreeting.value, 'bye')
   })
 })

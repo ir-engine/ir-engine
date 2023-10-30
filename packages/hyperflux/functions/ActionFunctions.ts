@@ -517,6 +517,7 @@ function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(
       // make sure actions are sorted by time, earliest first
       HyperFlux.store.actions.history.sort((a, b) => a.$time - b.$time)
       queueInstance.actions = HyperFlux.store.actions.history.filter(actionQueueGetter.test)
+      queueInstance.lastActionTime = queueInstance.actions.at(-1)?.$time ?? 0
       actionQueueGetter.onReset?.() // TODO: pass in a snapshot?
     }
 
@@ -526,8 +527,6 @@ function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(
   }
 
   actionQueueGetter.onReset = options.onReset
-  actionQueueGetter.lastActionTime = 0
-
   actionQueueGetter.test = (a: Action) => {
     return shapes.some((s) => s.test(a))
   }
