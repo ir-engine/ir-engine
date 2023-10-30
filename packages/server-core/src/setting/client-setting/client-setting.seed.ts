@@ -35,48 +35,53 @@ import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/datetime-sql'
 
+export const clientSettingSeedData = {
+  logo: process.env.APP_LOGO || '',
+  title: process.env.APP_TITLE || '',
+  shortTitle: process.env.APP_TITLE || '',
+  startPath: '/',
+  releaseName: process.env.RELEASE_NAME || 'local',
+  siteDescription: process.env.SITE_DESC || 'Ethereal Engine',
+  url:
+    process.env.APP_URL ||
+    (process.env.VITE_LOCAL_BUILD
+      ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
+      : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
+  appleTouchIcon: 'apple-touch-icon.png',
+  favicon32px: '/favicon-32x32.png',
+  favicon16px: '/favicon-16x16.png',
+  icon192px: '/android-chrome-192x192.png',
+  icon512px: '/android-chrome-512x512.png',
+  appBackground: 'static/main-background.png',
+  appTitle: 'static/ethereal_watermark_small.png',
+  appSubtitle: 'EtherealEngine.org',
+  appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
+  appSocialLinks: JSON.stringify([
+    { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
+    { icon: 'static/github.svg', link: 'https://github.com/etherealengine' }
+  ]),
+  themeSettings: JSON.stringify(defaultThemeSettings),
+  themeModes: JSON.stringify(defaultThemeModes),
+  key8thWall: process.env.VITE_8TH_WALL || '',
+  privacyPolicy: 'https://www.etherealengine.com/privacy',
+  homepageLinkButtonEnabled: false,
+  homepageLinkButtonRedirect: '',
+  homepageLinkButtonText: '',
+  webmanifestLink: '',
+  swScriptLink: ''
+}
+
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
   const seedData: ClientSettingDatabaseType[] = await Promise.all(
-    [
-      {
-        logo: process.env.APP_LOGO || '',
-        title: process.env.APP_TITLE || '',
-        shortTitle: process.env.APP_TITLE || '',
-        startPath: '/',
-        releaseName: process.env.RELEASE_NAME || 'local',
-        siteDescription: process.env.SITE_DESC || 'Ethereal Engine',
-        url:
-          process.env.APP_URL ||
-          (process.env.VITE_LOCAL_BUILD
-            ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
-            : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
-        appleTouchIcon: 'apple-touch-icon.png',
-        favicon32px: '/favicon-32x32.png',
-        favicon16px: '/favicon-16x16.png',
-        icon192px: '/android-chrome-192x192.png',
-        icon512px: '/android-chrome-512x512.png',
-        appBackground: 'static/main-background.png',
-        appTitle: 'static/ethereal_watermark_small.png',
-        appSubtitle: 'EtherealEngine.org',
-        appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
-        appSocialLinks: JSON.stringify([
-          { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
-          { icon: 'static/github.svg', link: 'https://github.com/etherealengine' }
-        ]),
-        themeSettings: JSON.stringify(defaultThemeSettings),
-        themeModes: JSON.stringify(defaultThemeModes),
-        key8thWall: process.env.VITE_8TH_WALL || '',
-        privacyPolicy: 'https://www.etherealengine.com/privacy',
-        homepageLinkButtonEnabled: false,
-        homepageLinkButtonRedirect: '',
-        homepageLinkButtonText: '',
-        webmanifestLink: '',
-        swScriptLink: ''
-      }
-    ].map(async (item) => ({ ...item, id: v4(), createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
+    [clientSettingSeedData].map(async (item) => ({
+      ...item,
+      id: v4(),
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
   )
 
   if (forceRefresh || testEnabled) {
