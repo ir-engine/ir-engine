@@ -81,3 +81,28 @@ export const useModifyNodeSocket = (
     )
   }, [instance, id, type, change])
 }
+
+export const useChangeNodeConfiguration = (id: string) => {
+  const instance = useReactFlow()
+
+  return useCallback(
+    (key: string, value: any) => {
+      instance.setNodes((nodes) =>
+        nodes.map((n) => {
+          if (n.id !== id) return n
+          return {
+            ...n,
+            data: {
+              ...n.data,
+              configuration: {
+                ...n.data.configuration,
+                [key]: value
+              }
+            }
+          }
+        })
+      )
+    },
+    [instance, id]
+  )
+}
