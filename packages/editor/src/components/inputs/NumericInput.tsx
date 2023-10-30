@@ -96,24 +96,27 @@ const StyledNumericInput = React.forwardRef(({ className = '', ...rest }: styled
   return <input ref={ref as any} className={`StyledNumericInput ${className}`} {...rest} />
 })
 const NumericInput = React.forwardRef(
-  ({
-    className,
-    unit,
-    prefix,
-    displayPrecision,
-    value,
-    convertFrom,
-    precision,
-    mediumStep,
-    onChange,
-    onRelease,
-    smallStep,
-    largeStep,
-    min,
-    max,
-    convertTo,
-    ...rest
-  }: NumericInputProp) => {
+  (
+    {
+      className,
+      unit,
+      prefix,
+      displayPrecision,
+      value,
+      convertFrom,
+      precision,
+      mediumStep,
+      onChange,
+      onRelease,
+      smallStep,
+      largeStep,
+      min,
+      max,
+      convertTo,
+      ...rest
+    }: NumericInputProp,
+    ref
+  ) => {
     const [tempValue, setTempValue] = useState<string | null>(null)
     const [focused, setFocused] = useState(false)
     const inputEl = useRef<HTMLInputElement>(null)
