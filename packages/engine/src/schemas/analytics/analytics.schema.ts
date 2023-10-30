@@ -45,7 +45,7 @@ export const analyticsSchema = Type.Object(
   },
   { $id: 'analytics', additionalProperties: false }
 )
-export type AnalyticsType = Static<typeof analyticsSchema>
+export interface AnalyticsType extends Static<typeof analyticsSchema> {}
 
 // Schema for creating new entries
 export const analyticsDataSchema = Type.Pick(analyticsSchema, ['count', 'type'], {

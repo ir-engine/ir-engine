@@ -23,7 +23,6 @@ import { NullableId, ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 //export interface ProjectInvalidateParams extends KnexAdapterParams<ProjectInvalidateQuery> {}
 
 export class ProjectInvalidateService implements ServiceInterface<void, ProjectInvalidatePatch> {

@@ -28,7 +28,6 @@ import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
 import { getSceneData } from '../scene/scene-helper'
 import { parseScenePortals } from '../scene/scene-parser'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PortalParams extends Params<PortalQuery> {
   paginate?: false
 }

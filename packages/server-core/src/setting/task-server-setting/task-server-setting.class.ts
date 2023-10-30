@@ -33,7 +33,6 @@ import {
   TaskServerSettingType
 } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TaskServerSettingParams extends KnexAdapterParams<TaskServerSettingQuery> {}
 
 export class TaskServerSettingService<
