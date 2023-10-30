@@ -48,7 +48,8 @@ function RouterComp({ route }: { route: string }) {
     AuthService.doLoginAuto()
   }, [])
 
-  if (!customRoutes.length || !isLoggedIn.value) {
+  // still allow admin even if no custom routes are loaded in case routes fail to load
+  if ((route !== 'admin' && !customRoutes.length) || !isLoggedIn.value) {
     return <LoadingCircle message={t('common:loader.loadingRoutes')} />
   }
 
@@ -64,11 +65,11 @@ function RouterComp({ route }: { route: string }) {
     case 'studio':
       RouteElement = $studio
       break
-    case 'admin':
-      RouteElement = $admin
-      break
     case 'location':
       RouteElement = $location
+      break
+    case 'admin':
+      RouteElement = $admin
       break
   }
 

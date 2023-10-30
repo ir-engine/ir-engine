@@ -86,7 +86,7 @@
     "@types/node": "18.15.5",
     "@types/react": "18.0.28",
     "@types/react-router-dom": "5.3.3",
-    "@types/three": "0.153.0",
+    "@types/three": "0.157.0",
     "css-modules-require-hook": "4.2.3",
     "esbuild": "0.17.12",
     "mocha": "10.2.0",
