@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AuthenticationRequest } from '@feathersjs/authentication'
+import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
@@ -35,6 +35,7 @@ import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schem
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { RedirectConfig } from '../../types/OauthStrategies'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import makeInitialAdmin from '../../util/make-initial-admin'
 import CustomOAuthStrategy, { CustomOAuthParams } from './custom-oauth'
@@ -127,28 +128,32 @@ export class GithubStrategy extends CustomOAuthStrategy {
     }
   }
 
-  async getRedirect(data: any, params: CustomOAuthParams): Promise<string> {
-    const redirectHost = config.authentication.callback.github
-    const type = params?.query?.userId ? 'connection' : 'login'
+  async getRedirect(data: AuthenticationResult | Error, params: CustomOAuthParams): Promise<string> {
+    let redirectConfig: RedirectConfig
+    try {
+      redirectConfig = JSON.parse(params.redirect!)
+    } catch {
+      redirectConfig = {}
+    }
+    let { domain: redirectDomain, path: redirectPath, instanceId: redirectInstanceId } = redirectConfig
+
+    redirectDomain = `${redirectDomain}/auth/oauth/github` || config.authentication.callback.github
+
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string
-      return redirectHost + `?error=${err}`
-    } else {
-      const token = data.accessToken as string
-      const redirect = params.redirect!
-      let parsedRedirect
-      try {
-        parsedRedirect = JSON.parse(redirect)
-      } catch (err) {
-        parsedRedirect = {}
-      }
-      const path = parsedRedirect.path
-      const instanceId = parsedRedirect.instanceId
-      let returned = redirectHost + `?token=${token}&type=${type}`
-      if (path != null) returned = returned.concat(`&path=${path}`)
-      if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`)
-      return returned
+      return redirectDomain + `?error=${err}`
     }
+
+    const loginType = params.query?.userId ? 'connection' : 'login'
+    let redirectUrl = `${redirectDomain}?token=${data.accessToken}&type=${loginType}`
+    if (redirectPath) {
+      redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
+    }
+    if (redirectInstanceId) {
+      redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
+    }
+
+    return redirectUrl
   }
 
   async authenticate(authentication: AuthenticationRequest, originalParams: CustomOAuthParams) {

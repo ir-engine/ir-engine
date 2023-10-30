@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createContext, useContext } from 'react'
-
-export const DialogContext = createContext<[JSX.Element | null, (c: JSX.Element | null) => void]>([null, () => {}])
-
-export const useDialog = () => {
-  return useContext(DialogContext)
+export type RedirectConfig = {
+  domain?: string
+  path?: string
+  instanceId?: string
+  [key: string]: string | undefined
 }

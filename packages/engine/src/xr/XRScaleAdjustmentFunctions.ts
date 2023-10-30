@@ -23,20 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { XRState } from './XRState'
+import { ReferenceSpace, XRState } from './XRState'
 
 export const getTrackingSpaceOffset = (height: number) => {
   const avatarComponent = getComponent(Engine.instance.localClientEntity, AvatarComponent)
   return height / avatarComponent.avatarHeight
 }
 
+/** @todo add a reactor looking for when the avatar model changes that calls this */
 export const setTrackingSpace = () => {
-  const xrState = getMutableState(XRState)
-  const offset = xrState.viewerPose.value ? getTrackingSpaceOffset(xrState.viewerPose.value.transform.position.y) : 1
-  xrState.userAvatarHeightDifference.set(offset)
+  const { xrFrame } = getState(XRState)
+
+  if (!xrFrame) return
+
+  const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
+
+  const scale = viewerPose ? getTrackingSpaceOffset(viewerPose.transform.position.y) : 1
+  getMutableState(XRState).userAvatarHeightScale.set(scale)
 }

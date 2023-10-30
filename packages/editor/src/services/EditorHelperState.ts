@@ -41,7 +41,6 @@ import { defineState, getMutableState, startReactor, syncStateWithLocalStorage }
 export const EditorHelperState = defineState({
   name: 'EditorHelperState',
   initial: () => ({
-    isPlayModeEnabled: false,
     isFlyModeEnabled: false,
     transformMode: TransformMode.Translate as TransformModeType,
     transformModeOnCancel: TransformMode.Translate as TransformModeType,

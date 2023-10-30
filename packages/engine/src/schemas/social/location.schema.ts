@@ -27,6 +27,9 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { TypedString } from '../../common/types/TypeboxUtils'
+import { SceneID } from '../projects/scene.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { locationAdminSchema } from './location-admin.schema'
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
@@ -37,6 +40,8 @@ export const locationPath = 'location'
 
 export const locationMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
 
+export type RoomCode = OpaqueType<'RoomCode'> & string
+
 // Main data model schema
 export const locationSchema = Type.Object(
   {
@@ -44,7 +49,7 @@ export const locationSchema = Type.Object(
       format: 'uuid'
     }),
     name: Type.String(),
-    sceneId: Type.String({
+    sceneId: TypedString<SceneID>({
       format: 'uuid'
     }),
     slugifiedName: Type.String(),
@@ -97,17 +102,13 @@ export const locationQuerySchema = Type.Intersect(
         $like: Type.String()
       },
       sceneId: {
-        $like: Type.String()
+        $like: TypedString<SceneID>({
+          format: 'uuid'
+        })
       }
     }),
     // Add additional query properties here
-    Type.Object(
-      {
-        adminnedLocations: Type.Optional(Type.Boolean()),
-        search: Type.Optional(Type.String())
-      },
-      { additionalProperties: false }
-    )
+    Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )

@@ -71,7 +71,7 @@ import { SceneObjectComponent } from '@etherealengine/engine/src/scene/component
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { serializeEntity } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import { EditorHistoryAction, EditorHistoryState } from '../services/EditorHistory'
-import { SelectionAction, SelectionState } from '../services/SelectionServices'
+import { SelectionState } from '../services/SelectionServices'
 import { cancelGrabOrPlacement } from './cancelGrabOrPlacement'
 import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
@@ -202,7 +202,12 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
     const props = properties[i] ?? properties[0]
     Object.entries(props).map(([k, v]) => {
       if (!material) throw new Error('Updating properties on undefined material')
-      if (typeof v !== 'undefined' && typeof material[k] === 'object' && typeof material[k].set === 'function') {
+      if (
+        ![undefined, null].includes(v) &&
+        ![undefined, null].includes(material[k]) &&
+        typeof material[k] === 'object' &&
+        typeof material[k].set === 'function'
+      ) {
         material[k].set(v)
       } else {
         material[k] = v
@@ -709,11 +714,7 @@ const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
     })
     .filter(Boolean) as EntityUUID[]
 
-  dispatchAction(
-    SelectionAction.updateSelection({
-      selectedEntities: nodes
-    })
-  )
+  SelectionState.updateSelection(nodes)
   // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
@@ -739,11 +740,7 @@ const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
     })
     .filter(Boolean) as EntityUUID[]
 
-  dispatchAction(
-    SelectionAction.updateSelection({
-      selectedEntities
-    })
-  )
+  SelectionState.updateSelection(nodes)
   // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
@@ -764,22 +761,20 @@ const addToSelection = (nodes: EntityOrObjectUUID[]) => {
     })
     .filter(Boolean) as EntityUUID[]
 
-  dispatchAction(
-    SelectionAction.updateSelection({
-      selectedEntities
-    })
-  )
+  SelectionState.updateSelection(nodes)
   // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
-const commitTransformSave = (entity: Entity) => {
+const commitTransformSave = (nodes: EntityOrObjectUUID[]) => {
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
-  LocalTransformComponent.stateMap[entity]!.set(LocalTransformComponent.valueMap[entity])
-
-  const entityData = newSnapshot.data.scene.entities[getComponent(entity, UUIDComponent)]
-  const component = entityData.components.find((c) => c.name === LocalTransformComponent.jsonID)!
-  component.props = serializeComponent(entity, LocalTransformComponent)
-
+  for (let i = 0; i < nodes.length; i++) {
+    const entity = nodes[i]
+    if (typeof entity === 'string') continue
+    LocalTransformComponent.stateMap[entity]!.set(LocalTransformComponent.valueMap[entity])
+    const entityData = newSnapshot.data.scene.entities[getComponent(entity, UUIDComponent)]
+    const component = entityData.components.find((c) => c.name === LocalTransformComponent.jsonID)!
+    component.props = serializeComponent(entity, LocalTransformComponent)
+  }
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 

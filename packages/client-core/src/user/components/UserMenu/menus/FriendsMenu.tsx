@@ -122,7 +122,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
 
   const handleOpenChat = (id: string) => {
     if (selectedTab.value === 'messages') {
-      PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: id })
+      PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: id as ChannelID })
     } else {
       const channelWithFriend = privateChannels.find(
         (channel) =>

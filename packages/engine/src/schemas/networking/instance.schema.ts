@@ -29,7 +29,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { ChannelID } from '../social/channel.schema'
-import { locationSchema } from '../social/location.schema'
+import { locationSchema, RoomCode } from '../social/location.schema'
 import { dataValidator, queryValidator } from '../validators'
 
 export const instancePath = 'instance'
@@ -44,7 +44,7 @@ export const instanceSchema = Type.Object(
     id: TypedString<InstanceID>({
       format: 'uuid'
     }),
-    roomCode: Type.String(),
+    roomCode: TypedString<RoomCode>({ format: 'uuid' }),
     ipAddress: Type.Optional(Type.String()),
     channelId: Type.Optional(
       TypedString<ChannelID>({

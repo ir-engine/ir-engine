@@ -31,6 +31,7 @@ import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/sta
 import { AvatarDatabaseType, AvatarQuery, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const avatarResolver = resolve<AvatarType, HookContext>({
@@ -39,6 +40,11 @@ export const avatarResolver = resolve<AvatarType, HookContext>({
 })
 
 export const avatarExternalResolver = resolve<AvatarType, HookContext>({
+  user: virtual(async (avatar, context) => {
+    if (avatar.userId) {
+      return context.app.service(userPath).get(avatar.userId)
+    }
+  }),
   modelResource: virtual(async (avatar, context) => {
     if (context.event !== 'removed' && avatar.modelResourceId)
       return context.app.service(staticResourcePath).get(avatar.modelResourceId)

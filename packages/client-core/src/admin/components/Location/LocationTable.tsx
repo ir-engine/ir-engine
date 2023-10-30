@@ -35,6 +35,7 @@ import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 import TableComponent from '../../common/Table'
 import { locationColumns } from '../../common/variables/location'
@@ -61,8 +62,18 @@ const LocationTable = ({ className, search }: Props) => {
     query: {
       $sort: { name: 1 },
       $limit: 20,
-      adminnedLocations: true,
-      search: search
+      $or: [
+        {
+          name: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          sceneId: {
+            $like: `%${search}%` as SceneID
+          }
+        }
+      ]
     }
   })
 
@@ -90,7 +101,7 @@ const LocationTable = ({ className, search }: Props) => {
     el: LocationType,
     id: string,
     name: string,
-    sceneId: string,
+    sceneId: SceneID,
     maxUsersPerInstance: string,
     scene: string,
     locationType: string,
@@ -132,7 +143,7 @@ const LocationTable = ({ className, search }: Props) => {
       el,
       el.id,
       el.name,
-      el.sceneId,
+      el.sceneId as SceneID,
       el.maxUsersPerInstance.toString(),
       el.slugifiedName,
       //@ts-ignore
