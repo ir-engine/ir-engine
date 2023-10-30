@@ -44,8 +44,6 @@ interface Props {
   search: string
 }
 
-const INSTANCE_PAGE_LIMIT = 100
-
 const InstanceTable = ({ className, search }: Props) => {
   const { t } = useTranslation()
   const refetch = useHookstate(false)
@@ -63,6 +61,15 @@ const InstanceTable = ({ className, search }: Props) => {
       search
     }
   })
+
+  useEffect(() => {
+    if (search) {
+      instancesQuery.paginateState.store()
+    } else {
+      instancesQuery.paginateState.restore()
+    }
+  }, [search])
+
   const removeInstance = useMutation(instancePath).remove
 
   const submitRemoveInstance = async () => {

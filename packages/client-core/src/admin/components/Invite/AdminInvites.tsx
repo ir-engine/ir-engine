@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
@@ -83,6 +83,14 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
     }
   })
   const removeInvite = useMutation(invitePath).remove
+
+  useEffect(() => {
+    if (search) {
+      invitesQuery.paginateState.store()
+    } else {
+      invitesQuery.paginateState.restore()
+    }
+  }, [search])
 
   const deleteInvite = () => {
     removeInvite(inviteId.value)

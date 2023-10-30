@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
@@ -59,6 +59,14 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
       ]
     }
   })
+  useEffect(() => {
+    if (search) {
+      channelsQuery.paginateState.store()
+    } else {
+      channelsQuery.paginateState.restore()
+    }
+  }, [search])
+
   const removeChannel = useMutation(channelPath).remove
 
   const submitRemoveChannel = async () => {

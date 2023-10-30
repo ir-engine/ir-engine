@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
@@ -67,6 +67,15 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
       $limit: 20
     }
   })
+
+  useEffect(() => {
+    if (search) {
+      adminUserQuery.paginateState.store()
+    } else {
+      adminUserQuery.paginateState.restore()
+    }
+  }, [search])
+
   const removeUser = useMutation(userPath).remove
 
   const submitDeleteUser = async () => {
