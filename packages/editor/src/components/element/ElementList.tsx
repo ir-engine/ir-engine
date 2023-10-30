@@ -67,6 +67,7 @@ import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkC
 import { LoadVolumeComponent } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
+import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { Vector3 } from 'three'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -113,6 +114,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
   Scripting: [SystemComponent, BehaveGraphComponent],
   Misc: [
     VariantComponent,
+    SceneDynamicLoadTagComponent,
     EnvMapBakeComponent,
     ScenePreviewCameraComponent,
     SkyboxComponent,

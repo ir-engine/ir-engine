@@ -154,7 +154,7 @@ export function VolumetricReactor() {
 
           volumetric.player.set(
             new VolumetricPlayer({
-              renderer: EngineRenderer.instance.renderer,
+              renderer: EngineRenderer.instance.renderer as any,
               onTrackEnd: () => {
                 volumetric.hasTrackStopped.set(true)
                 volumetric.track.set(
@@ -170,7 +170,7 @@ export function VolumetricReactor() {
               playMode: PlayMode.loop
             })
           )
-          addObjectToGroup(entity, volumetric.player.value.mesh)
+          addObjectToGroup(entity, volumetric.player.value.mesh as any)
 
           const handleAutoplay = () => {
             if (!volumetric.player.value.paused) volumetric.player.value.play()
@@ -198,8 +198,9 @@ export function VolumetricReactor() {
             const transform = getComponent(entity, TransformComponent)
             if (!transform) return
             if (volumetric.loadingEffectActive.value) {
-              volumetric.height.set(calculateHeight(volumetric.player.value.mesh) * transform.scale.y)
-              if (volumetric.loadingEffectTime.value === 0) setupLoadingEffect(entity, volumetric.player.value!.mesh)
+              volumetric.height.set(calculateHeight(volumetric.player.value.mesh as any) * transform.scale.y)
+              if (volumetric.loadingEffectTime.value === 0)
+                setupLoadingEffect(entity, volumetric.player.value!.mesh as any)
             }
           })
 
