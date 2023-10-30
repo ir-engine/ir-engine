@@ -81,10 +81,20 @@ export interface NumericInputProp {
   convertTo?: any
 }
 
-const StyledNumericInput = ({ className = '', ...rest }) => {
-  return <input className={`StyledNumericInput ${className}`} {...rest} />
+export interface styledNumericInputProp {
+  className?: string
+  value?: number
+  onKeyUp?: any
+  onKeyDown?: any
+  onChange?: any
+  onFocus?: any
+  onBlur?: any
+  unit?: string
 }
 
+const StyledNumericInput = React.forwardRef(({ className = '', ...rest }: styledNumericInputProp, ref) => {
+  return <input ref={ref as any} className={`StyledNumericInput ${className}`} {...rest} />
+})
 const NumericInput = React.forwardRef(
   ({
     className,
