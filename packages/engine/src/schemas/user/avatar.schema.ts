@@ -27,6 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
@@ -35,11 +36,12 @@ import { dataValidator, queryValidator } from '../validators'
 export const avatarPath = 'avatar'
 
 export const avatarMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export type AvatarID = OpaqueType<'AvatarID'> & string
 
 // Main data model schema
 export const avatarSchema = Type.Object(
   {
-    id: Type.String({
+    id: TypedString<AvatarID>({
       format: 'uuid'
     }),
     name: Type.String(),

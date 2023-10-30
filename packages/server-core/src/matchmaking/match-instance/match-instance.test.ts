@@ -36,6 +36,7 @@ import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/sr
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
@@ -122,7 +123,7 @@ describe.skip('matchmaking match-instance service', () => {
         const userPromise = app.service(userPath).create({
           name: 'Test #' + Math.random(),
           isGuest: true,
-          avatarId: '',
+          avatarId: '' as AvatarID,
           inviteCode: '',
           scopes: []
         })
