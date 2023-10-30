@@ -86,7 +86,7 @@ function convertGeometryToIndexed(buffer: THREE.BufferGeometry) {
   }
 
   const indexAttr = new THREE.Uint16BufferAttribute(faceCount * 3, 3) // should item siz not be one? internallly (array.length/ itemsize) =count
-  indexAttr.count = faceCount * 3 // @todo without this the mesh does not show all faces
+  // indexAttr.count = faceCount * 3 // @todo without this the mesh does not show all faces
 
   for (let faceIndex = 0; faceIndex < faceCount; faceIndex += 1) {
     const vStart = faceIndex * 3
