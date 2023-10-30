@@ -56,32 +56,22 @@ export type PluginObjectType = {
 
 export type PluginType = PluginObjectType | typeof Material.prototype.onBeforeCompile
 
-export type CustomMaterial = Material & {
-  shader: Shader
-  plugins?: PluginType[]
-  _onBeforeCompile: typeof Material.prototype.onBeforeCompile
-  onBeforeCompile: PluginType
-  needsUpdate: boolean
-}
-
 export function addOBCPlugin(material: Material, plugin: PluginType): void {
   material.onBeforeCompile = plugin as any
   material.needsUpdate = true
 }
 
 export function removeOBCPlugin(material: Material, plugin: PluginType): void {
-  const mat = material as any as CustomMaterial
-  if (mat.plugins) {
-    const index = indexOfPlugin(plugin, mat.plugins)
-    if (index > -1) mat.plugins.splice(index, 1)
-    mat.plugins?.sort(sortPluginsByPriority)
+  if (material.plugins) {
+    const index = indexOfPlugin(plugin, material.plugins)
+    if (index > -1) material.plugins.splice(index, 1)
+    material.plugins?.sort(sortPluginsByPriority)
   }
 }
 
 export function hasOBCPlugin(material: Material, plugin: PluginType): boolean {
-  const mat = material as any as CustomMaterial
-  if (!mat.plugins) return false
-  return indexOfPlugin(plugin, mat.plugins) > -1
+  if (!material.plugins) return false
+  return indexOfPlugin(plugin, material.plugins) > -1
 }
 
 function indexOfPlugin(plugin: PluginType, arr: PluginType[]): number {
@@ -104,7 +94,7 @@ function sortPluginsByPriority(a: PluginType, b: PluginType): number {
 }
 
 const onBeforeCompile = {
-  get: function (this: CustomMaterial) {
+  get: function (this: Material) {
     if (!this._onBeforeCompile.toString) {
       // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this
@@ -125,7 +115,7 @@ const onBeforeCompile = {
 
     return this._onBeforeCompile
   },
-  set: function (this: CustomMaterial, plugins: PluginType | PluginType[]) {
+  set: function (this: Material, plugins: PluginType | PluginType[]) {
     if (plugins === null) {
       if (this.plugins) {
         while (this.plugins.length) removeOBCPlugin(this, this.plugins[0])
@@ -182,16 +172,16 @@ export function overrideOnBeforeCompile() {
   for (let i = 0, l = Materials.length; i < l; i++) {
     const Material = Materials[i]
 
-    ;(Material.prototype as any)._onBeforeCompile = function (shader, renderer) {
-      if (!this.plugins) return
+    Material.prototype._onBeforeCompile = function (shader, renderer) {
       if (!this.shader) this.shader = shader
+      if (!this.plugins) return
 
       for (let i = 0, l = this.plugins.length; i < l; i++) {
         const plugin = this.plugins[i]
         ;(plugin instanceof Function ? plugin : plugin.compile).call(this, shader, renderer)
       }
     }
-    ;(Material.prototype as any)._onBeforeCompile.toString = null!
+    Material.prototype._onBeforeCompile.toString = null!
 
     const dispose = Material.prototype.dispose
 
@@ -201,5 +191,14 @@ export function overrideOnBeforeCompile() {
     }
 
     Object.defineProperty(Material.prototype, 'onBeforeCompile', onBeforeCompile)
+  }
+}
+
+declare module 'three/src/materials/Material' {
+  export interface Material {
+    shader: Shader
+    plugins?: PluginType[]
+    _onBeforeCompile: typeof Material.prototype.onBeforeCompile
+    needsUpdate: boolean
   }
 }

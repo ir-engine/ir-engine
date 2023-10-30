@@ -85,6 +85,8 @@ export const WidgetAppService = {
   }
 }
 
+/** @todo convert to functions */
+
 export class WidgetAppActions {
   static showWidgetMenu = defineAction({
     type: 'xre.xrui.WidgetAppActions.SHOW_WIDGET_MENU' as const,
