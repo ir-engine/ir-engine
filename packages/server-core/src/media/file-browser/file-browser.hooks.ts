@@ -35,29 +35,24 @@ import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
-    all: [iff(isProvider('external'), verifyScope('editor', 'read'))],
+    all: [iff(isProvider('external'), verifyScope('editor', 'write'))],
     find: [],
     get: [],
     create: [
-      iff(isProvider('external'), verifyScope('editor', 'write')),
       (context) => {
         context[SYNC] = false
         return context
       }
     ],
-    update: [
-      iff(isProvider('external'), verifyScope('editor', 'write')),
-      () => schemaHooks.validateData(fileBrowserUpdateValidator)
-    ],
+    update: [() => schemaHooks.validateData(fileBrowserUpdateValidator)],
     patch: [
-      iff(isProvider('external'), verifyScope('editor', 'write')),
       (context) => {
         context[SYNC] = false
         return context
       },
       () => schemaHooks.validateData(fileBrowserPatchValidator)
     ],
-    remove: [iff(isProvider('external'), verifyScope('editor', 'write'))]
+    remove: []
   },
 
   after: {
