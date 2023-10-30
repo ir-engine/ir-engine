@@ -38,7 +38,8 @@ import {
   dispatchAction,
   getMutableState,
   getState,
-  registerState
+  registerState,
+  removeActionQueue
 } from '..'
 
 describe('Hyperflux Unit Tests', () => {
@@ -519,5 +520,89 @@ describe('Hyperflux Unit Tests', () => {
     assert(goodbye.matches.test(actions[1]))
   })
 
-  it('should be able to create multiple action queues of the same type, that are independently managed', () => {})
+  it('should be able to create multiple action queues of the same type, that are independently managed', () => {
+    const greet = defineAction({
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    const goodbye = defineAction({
+      type: 'TEST_GOODBYE',
+      greeting: matchesWithDefault(matches.string, () => 'bye')
+    })
+    const store = createHyperStore({
+      forwardIncomingActions: () => true,
+      getDispatchId: () => 'id',
+      getPeerId: () => 'peer',
+      getDispatchTime: () => Date.now()
+    })
+
+    const queue1 = defineActionQueue([greet.matches, goodbye.matches])
+    const queue2 = defineActionQueue([greet.matches, goodbye.matches])
+    dispatchAction(goodbye({ $time: 200 }))
+    dispatchAction(greet({ $time: 100 }))
+    applyIncomingActions()
+
+    const actions1 = queue1()
+    assert.equal(actions1.length, 2)
+    assert(greet.matches.test(actions1[0]))
+    assert(goodbye.matches.test(actions1[1]))
+    removeActionQueue(queue1)
+
+    const actions2 = queue2()
+    assert.equal(actions2.length, 2)
+    assert(greet.matches.test(actions2[0]))
+    assert(goodbye.matches.test(actions2[1]))
+  })
+
+  it('should be able to create action queues that reset when given actions out of order', () => {
+    const greet = defineAction({
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    const goodbye = defineAction({
+      type: 'TEST_GOODBYE',
+      greeting: matchesWithDefault(matches.string, () => 'bye')
+    })
+    const store = createHyperStore({
+      forwardIncomingActions: () => true,
+      getDispatchId: () => 'id',
+      getPeerId: () => 'peer',
+      getDispatchTime: () => Date.now()
+    })
+
+    let didReset = false
+    const queue = defineActionQueue([greet.matches, goodbye.matches], {
+      onReset: () => {
+        didReset = true
+      }
+    })
+    dispatchAction(goodbye({ $time: 200 }))
+    dispatchAction(greet({ $time: 100 }))
+    applyIncomingActions()
+
+    const actions1 = queue()
+    assert.equal(actions1.length, 2)
+    assert(greet.matches.test(actions1[0]))
+    assert(goodbye.matches.test(actions1[1]))
+    assert(didReset)
+
+    didReset = false
+    dispatchAction(greet({ $time: 300 }))
+    applyIncomingActions()
+    const actions2 = queue()
+    assert(didReset === false)
+    assert.equal(actions2.length, 1)
+    assert(greet.matches.test(actions2[0]))
+
+    didReset = false
+    dispatchAction(goodbye({ $time: 50 }))
+    applyIncomingActions()
+    const actions3 = queue()
+    assert(didReset)
+    assert.equal(actions3.length, 4)
+    assert(goodbye.matches.test(actions3[0]))
+    assert(greet.matches.test(actions3[1]))
+    assert(goodbye.matches.test(actions3[2]))
+    assert(greet.matches.test(actions3[3]))
+  })
 })

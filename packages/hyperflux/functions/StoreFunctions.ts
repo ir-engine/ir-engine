@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Downgraded, State } from '@hookstate/core'
 import { merge } from 'lodash'
 
-import { ActionQueueDefinition, addOutgoingTopicIfNecessary, ResolvedActionType, Topic } from './ActionFunctions'
+import { ActionQueueHandle, addOutgoingTopicIfNecessary, ResolvedActionType, Topic } from './ActionFunctions'
 import { ReactorRoot } from './ReactorFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
@@ -71,7 +71,10 @@ export interface HyperStore {
   valueMap: { [type: string]: any }
 
   actions: {
-    queues: Map<string, Array<ActionQueueDefinition>>
+    queues: Map<
+      string,
+      Map<ActionQueueHandle, { actions: Required<ResolvedActionType>[] | null; lastActionTime: number }>
+    >
     /** Cached actions */
     cached: Array<Required<ResolvedActionType>>
     /** Incoming actions */

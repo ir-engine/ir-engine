@@ -32,7 +32,7 @@ import { isClient } from '@etherealengine/engine/src/common/functions/getEnviron
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
 import { Validator } from 'ts-matches'
-import { Action, ActionQueueDefinition, ActionShape, defineActionQueue, removeActionQueue } from './ActionFunctions'
+import { Action, ActionQueueHandle, ActionShape, defineActionQueue, removeActionQueue } from './ActionFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
 export * from '@hookstate/core'
@@ -47,7 +47,7 @@ export type StateDefinition<S> = {
   name: string
   initial: SetInitialStateAction<S>
   receptors?: StateActionReceptor<S, any>[]
-  receptorActionQueue?: ActionQueueDefinition
+  receptorActionQueue?: ActionQueueHandle
   onCreate?: (store: HyperStore, state: State<S>) => void
 }
 

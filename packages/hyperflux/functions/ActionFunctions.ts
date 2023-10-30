@@ -396,17 +396,18 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
 }
 
 const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>) => {
-  for (const [shapeHash, queueInstances] of HyperFlux.store.actions.queues) {
-    if (queueInstances[0]?.test(action)) {
-      for (const queueInstance of queueInstances) {
+  for (const [shapeHash, queueHandles] of HyperFlux.store.actions.queues) {
+    const queueHandle = queueHandles.keys().next().value as ActionQueueHandle
+    if (queueHandle?.test(action)) {
+      for (const [queueHandle, queue] of queueHandles) {
         // if the queue can handle being reset, and the action is out of order, reset the queue
-        if (queueInstance.onReset && queueInstance.lastActionTime > action.$time) {
+        if (queueHandle.onReset && queue.lastActionTime > action.$time) {
           // reset the queue, forcing it to be rebuilt the next time it's getter is called
-          queueInstance.queue = null
+          queue.actions = null
           continue
         }
-        queueInstance.queue!.push(action)
-        queueInstance.lastActionTime = action.$time
+        queue.actions?.push(action)
+        queue.lastActionTime = action.$time
       }
     }
   }
@@ -497,31 +498,33 @@ function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(
   const shapeHash = shapes.map(Parser.parserAsString).join('|')
 
   const actionQueueGetter = (): V['_TYPE'][] => {
-    if (!HyperFlux.store.actions.queues.has(shapeHash)) HyperFlux.store.actions.queues.set(shapeHash, [])
+    if (!HyperFlux.store.actions.queues.has(shapeHash)) HyperFlux.store.actions.queues.set(shapeHash, new Map())
 
-    const queueInstances = HyperFlux.store.actions.queues.get(shapeHash)!
+    const queueMap = HyperFlux.store.actions.queues.get(shapeHash)!
 
-    if (!queueInstances.includes(actionQueueGetter)) {
-      queueInstances.push(actionQueueGetter)
+    if (!queueMap.has(actionQueueGetter)) {
+      queueMap.set(actionQueueGetter, {
+        actions: null,
+        lastActionTime: 0
+      })
       HyperFlux.store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
         removeActionQueue(actionQueueGetter)
       })
     }
 
-    // if queue is null, we need to rebuild it
-    if (actionQueueGetter.queue === null) {
+    const queueInstance = queueMap.get(actionQueueGetter)!
+    if (queueInstance.actions === null) {
       // make sure actions are sorted by time, earliest first
       HyperFlux.store.actions.history.sort((a, b) => a.$time - b.$time)
-      actionQueueGetter.queue = HyperFlux.store.actions.history.filter(actionQueueGetter.test)
+      queueInstance.actions = HyperFlux.store.actions.history.filter(actionQueueGetter.test)
       actionQueueGetter.onReset?.() // TODO: pass in a snapshot?
     }
 
-    const result = [...actionQueueGetter.queue!]
-    actionQueueGetter.queue!.length = 0
-    return result
+    const result = [...queueInstance.actions]
+    queueInstance.actions.length = 0
+    return result as V['_TYPE'][]
   }
 
-  actionQueueGetter.queue = [] as V['_TYPE'][] | null
   actionQueueGetter.onReset = options.onReset
   actionQueueGetter.lastActionTime = 0
 
@@ -539,12 +542,12 @@ function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(
  */
 const createActionQueue = defineActionQueue
 
-export type ActionQueueDefinition = ReturnType<typeof defineActionQueue>
+export type ActionQueueHandle = ReturnType<typeof defineActionQueue>
 
-const removeActionQueue = (queueFunction: ActionQueueDefinition) => {
-  const queueInstances = HyperFlux.store.actions.queues.get(queueFunction.shapeHash)
-  if (queueInstances) queueInstances.splice(queueInstances.indexOf(queueFunction), 1)
-  if (!queueInstances?.length) HyperFlux.store.actions.queues.delete(queueFunction.shapeHash)
+const removeActionQueue = (queueHandle: ActionQueueHandle) => {
+  const queueMap = HyperFlux.store.actions.queues.get(queueHandle.shapeHash)
+  if (queueMap) queueMap.delete(queueHandle)
+  if (!queueMap?.size) HyperFlux.store.actions.queues.delete(queueHandle.shapeHash)
 }
 
 export {
