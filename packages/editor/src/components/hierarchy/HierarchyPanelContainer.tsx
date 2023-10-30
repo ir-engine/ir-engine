@@ -170,11 +170,7 @@ export default function HierarchyPanel() {
 
   const MemoTreeNode = memo(
     (props: HierarchyTreeNodeProps) => (
-      <HierarchyTreeNode
-        {...props}
-        key={`${props.data.nodes[props.index].depth} ${props.data.nodes[props.index].childIndex}`}
-        onContextMenu={onContextMenu}
-      />
+      <HierarchyTreeNode {...props} key={props.data.nodes[props.index].entityNode} onContextMenu={onContextMenu} />
     ),
     areEqual
   )

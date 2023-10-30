@@ -23,26 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import { NextFunction } from '@feathersjs/feathers'
+import type { HookContext } from '../../declarations'
 
-import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { Engine } from '../ecs/classes/Engine'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { ReferenceSpace, XRState } from './XRState'
+const logger = multiLogger.child({ component: 'server-core:log-error' })
 
-export const getTrackingSpaceOffset = (height: number) => {
-  const avatarComponent = getComponent(Engine.instance.localClientEntity, AvatarComponent)
-  return height / avatarComponent.avatarHeight
-}
+/**
+ * A logger to log errors in hooks to server logger
+ * Reference: https://github.com/feathersjs/feathers-chat/blob/dove/feathers-chat-ts/src/hooks/log-error.ts
+ * @param context
+ * @param next
+ */
+export const logError = async (context: HookContext, next: NextFunction) => {
+  try {
+    await next()
+  } catch (error) {
+    logger.error(
+      `Error in ${context.path} service, ${context.type} hook, ${context.method} method. ${structuredClone(
+        error
+      )}, stacktrace: ${error.stack}`,
+      error
+    )
 
-/** @todo add a reactor looking for when the avatar model changes that calls this */
-export const setTrackingSpace = () => {
-  const { xrFrame } = getState(XRState)
-
-  if (!xrFrame) return
-
-  const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
-
-  const scale = viewerPose ? getTrackingSpaceOffset(viewerPose.transform.position.y) : 1
-  getMutableState(XRState).userAvatarHeightScale.set(scale)
+    throw error
+  }
 }
