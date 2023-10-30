@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
@@ -33,14 +33,14 @@ import { computeTransformMatrix } from './systems/TransformSystem'
 
 // TODO: only update the world origin in one place; move logic for moving based on viewer hit into the function above
 export const updateWorldOriginFromScenePlacement = () => {
-  const xrState = getMutableState(XRState)
-  const scenePosition = xrState.scenePosition.value
-  const sceneRotation = xrState.sceneRotation.value
-  const sceneScale = xrState.sceneScale.value
+  const xrState = getState(XRState)
+  const scenePosition = xrState.scenePosition
+  const sceneRotation = xrState.sceneRotation
+  const worldScale = XRState.worldScale
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   originTransform.position.copy(scenePosition)
   originTransform.rotation.copy(sceneRotation)
-  originTransform.scale.setScalar(sceneScale)
+  originTransform.scale.setScalar(worldScale)
   originTransform.matrixInverse.compose(originTransform.position, originTransform.rotation, originTransform.scale)
   originTransform.matrix
     .copy(originTransform.matrixInverse)
@@ -64,14 +64,4 @@ export const computeAndUpdateWorldOrigin = () => {
   computeTransformMatrix(Engine.instance.originEntity)
   TransformComponent.dirtyTransforms[Engine.instance.originEntity] = false
   updateWorldOrigin()
-}
-
-export const updateEyeHeight = () => {
-  const xrFrame = getState(XRState).xrFrame
-  if (!xrFrame) return
-  const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
-  if (viewerPose) {
-    const xrState = getMutableState(XRState)
-    xrState.userEyeLevel.set(viewerPose.transform.position.y)
-  }
 }

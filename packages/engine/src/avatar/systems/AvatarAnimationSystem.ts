@@ -61,10 +61,10 @@ import { compareDistanceToCamera } from '../../transform/components/DistanceComp
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRRigComponent } from '../../xr/XRRigComponent'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
-import { XRState, isMobileXRHeadset } from '../../xr/XRState'
+import { XRControlsState, XRState, isMobileXRHeadset } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
-import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
+import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
@@ -104,8 +104,8 @@ const tipAxisRestriction = new Euler(0, 0, 0)
 
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
-  const { physicsDebug: debugEnable } = getMutableState(RendererState)
-  if (!debugEnable.value) {
+  const { physicsDebug } = getMutableState(RendererState)
+  if (!physicsDebug.value) {
     //remove visualizers
     for (let i = 0; i < visualizers.length; i++) {
       removeEntity(visualizers[i].value)
@@ -360,21 +360,15 @@ const execute = () => {
 
 const reactor = () => {
   const xrState = getMutableState(XRState)
-  const heightDifference = useHookstate(xrState.userAvatarHeightDifference)
-  const sessionMode = useHookstate(xrState.sessionMode)
-  const pose = useHookstate(xrState.viewerPose)
-  const active = useHookstate(xrState.sessionActive)
-  useEffect(() => {
-    if (xrState.sessionMode.value == 'immersive-vr' && heightDifference.value)
-      xrState.sceneScale.set(Math.max(heightDifference.value, 0.5))
-  }, [heightDifference, sessionMode])
-  useEffect(() => {
-    if (xrState.sessionMode.value == 'immersive-vr' && !heightDifference.value) setTrackingSpace()
-  }, [pose])
+  const session = useHookstate(xrState.session)
   const renderState = useHookstate(getMutableState(RendererState))
+  const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
+  const userReady = useHookstate(getMutableState(EngineState).userReady)
+
   useEffect(() => {
     setVisualizers()
   }, [renderState.physicsDebug])
+
   useEffect(() => {
     if (xrState.sessionMode.value == 'immersive-vr')
       dispatchAction(
@@ -383,7 +377,25 @@ const reactor = () => {
           entityUUID: Engine.instance.userID as any as EntityUUID
         })
       )
-  }, [active])
+  }, [session])
+
+  useEffect(() => {
+    if (!session.value) return
+
+    const entity = Engine.instance.localClientEntity
+    if (!entity) return
+
+    if (isCameraAttachedToAvatar.value) {
+      setComponent(entity, AvatarHeadDecapComponent, true)
+    } else {
+      removeComponent(entity, AvatarHeadDecapComponent)
+    }
+  }, [isCameraAttachedToAvatar, session])
+
+  useEffect(() => {
+    if (userReady.value) setTrackingSpace()
+  }, [userReady])
+
   return null
 }
 
