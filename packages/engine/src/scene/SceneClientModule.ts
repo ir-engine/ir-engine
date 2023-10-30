@@ -67,6 +67,7 @@ import { VideoComponent } from './components/VideoComponent'
 import { VisibleComponent } from './components/VisibleComponent'
 import { VolumetricComponent } from './components/VolumetricComponent'
 import { WaterComponent } from './components/WaterComponent'
+import { AttachmentPointSystem } from './systems/AttachmentPointSystem'
 import { FogSettingState } from './systems/FogSystem'
 import { LightSystem } from './systems/LightSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
@@ -123,7 +124,14 @@ export const SceneComponents = [
 
 export const SceneSystemUpdateGroup = defineSystem({
   uuid: 'ee.engine.scene.SceneSystemUpdateGroup',
-  subSystems: [BehaveGraphSystem, ParticleSystem, LightSystem, SceneObjectSystem, MountPointSystem]
+  subSystems: [
+    AttachmentPointSystem,
+    BehaveGraphSystem,
+    ParticleSystem,
+    LightSystem,
+    SceneObjectSystem,
+    MountPointSystem
+  ]
 })
 
 export const SceneSystemLoadGroup = defineSystem({
