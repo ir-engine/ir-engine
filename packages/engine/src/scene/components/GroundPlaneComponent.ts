@@ -134,7 +134,7 @@ export const GroundPlaneComponent = defineComponent({
     useEffect(() => {
       if (component.mesh.value)
         component.mesh.value.material = component.visible.value
-          ? new MeshLambertMaterial()
+          ? new MeshLambertMaterial({ color: component.color.value })
           : new ShadowMaterial({ opacity: 0.5 })
     }, [component.visible])
 
