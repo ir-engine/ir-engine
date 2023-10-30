@@ -28,7 +28,7 @@ import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, Shadow
 import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineAction, getMutableState, getState, State, useHookstate } from '@etherealengine/hyperflux'
+import { defineAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
@@ -191,7 +191,7 @@ function PersistentAnchorReactor() {
     if (active) {
       /** remove from scene and add to world origins */
       const originalParent = getComponent(
-        getComponent(entity, EntityTreeComponent).parentEntity ?? getState(SceneState).sceneEntity,
+        getComponent(entity, EntityTreeComponent).parentEntity ?? SceneState.getRootEntity(),
         UUIDComponent
       )
       originalParentEntityUUID.set(originalParent)
