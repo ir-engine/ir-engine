@@ -37,6 +37,6 @@ export const smsDataSchema = Type.Object(
   },
   { $id: 'SmsData', additionalProperties: false }
 )
-export type SmsData = Static<typeof smsDataSchema>
+export interface SmsData extends Static<typeof smsDataSchema> {}
 
 export const smsDataValidator = getValidator(smsDataSchema, dataValidator)
