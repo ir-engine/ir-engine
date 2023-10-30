@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -23,14 +24,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
-import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
-import { CORTOLoader } from '../loaders/corto/CORTOLoader'
 
-export const AssetLoaderState = defineState({
-  name: 'AssetLoaderState',
-  initial: () => ({
-    gltfLoader: createGLTFLoader(),
-    cortoLoader: null! as CORTOLoader
-  })
-})
+import { BufferGeometry, Loader, LoadingManager } from 'three'
+
+export class CORTOLoader {
+  constructor()
+  setDecoderPath(path: string): CORTOLoader
+  load(
+    url: string,
+    byteStart: number,
+    byteEnd: number,
+    onLoad: (geometry: BufferGeometry | null) => void,
+  ): void
+  preload(): Promise<void>
+  dispose(): CORTOLoader
+}
