@@ -39,7 +39,7 @@ import {
   Primitive,
   Texture
 } from '@gltf-transform/core'
-import { EXTMeshGPUInstancing, KHRTextureBasisu } from '@gltf-transform/extensions'
+import { EXTMeshGPUInstancing, EXTMeshoptCompression, KHRTextureBasisu } from '@gltf-transform/extensions'
 import {
   dedup,
   draco,
@@ -432,10 +432,42 @@ export async function transformModel(args: ModelTransformParameters) {
   /* /Meshopt Compression */
 
   const document = await io.read(initialSrc)
+  const root = document.getRoot()
 
   await MeshoptEncoder.ready
+  /*
+  let primitives = root.listMeshes()
+    .flatMap((mesh) => mesh.listPrimitives())
+  primitives = primitives.filter((primitive, index) => 
+    primitives.findIndex((primitive2) => primitive2.equals(primitive)) === index
+  )
+  for(const primitive of primitives) {
+    //STEP 1: Pre-process the mesh to improve index and vertex locality which increases compression ratio
+    const indices = new Uint32Array(primitive.getIndices()!.getArray()!)
+    const [remap, unique] = MeshoptEncoder.reorderMesh(indices, true, true)
+    const attributes = primitive.listAttributes()
+    for (const attribute of attributes) {
+      const oldAttributeArray = attribute.getArray()!
+      const reorderedAttributeArray = new Uint8Array(unique)
+      for (let i = 0; i < unique; i++) {
+        reorderedAttributeArray[i] = oldAttributeArray[remap[i]]
+      }
+      attribute.setArray(reorderedAttributeArray)
+      //STEP 2: Quantize data, either manually using integer or normalized integer format as a target, or using filter encoders
+  
+      //STEP 3: Encode data
 
-  const root = document.getRoot()
+    }
+    
+  }
+  */
+
+  if (args.meshoptCompression.enabled) {
+    const meshoptCompression = document.createExtension(EXTMeshoptCompression).setRequired(true)
+    meshoptCompression.setEncoderOptions({
+      method: EXTMeshoptCompression.EncoderMethod.FILTER
+    })
+  }
 
   /* ID unnamed resources */
   unInstanceSingletons(document)
