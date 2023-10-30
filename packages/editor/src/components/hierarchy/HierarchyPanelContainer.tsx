@@ -169,7 +169,9 @@ export default function HierarchyPanel() {
   useHookstate(UUIDComponent.entitiesByUUIDState.keys.length)
 
   const MemoTreeNode = memo(
-    (props: HierarchyTreeNodeProps) => <HierarchyTreeNode {...props} onContextMenu={onContextMenu} />,
+    (props: HierarchyTreeNodeProps) => (
+      <HierarchyTreeNode {...props} key={props.data.nodes[props.index].entityNode} onContextMenu={onContextMenu} />
+    ),
     areEqual
   )
 

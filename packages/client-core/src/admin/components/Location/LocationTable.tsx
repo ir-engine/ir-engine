@@ -62,8 +62,18 @@ const LocationTable = ({ className, search }: Props) => {
     query: {
       $sort: { name: 1 },
       $limit: 20,
-      adminnedLocations: true,
-      search: search
+      $or: [
+        {
+          name: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          sceneId: {
+            $like: `%${search}%` as SceneID
+          }
+        }
+      ]
     }
   })
 

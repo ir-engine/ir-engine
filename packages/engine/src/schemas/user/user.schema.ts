@@ -89,6 +89,8 @@ export const userPatchSchema = Type.Partial(userSchema, {
 })
 export type UserPatch = Static<typeof userPatchSchema>
 
+export type UserPublicPatch = Pick<UserType, 'name' | 'avatarId' | 'id'>
+
 // Schema for allowed query properties
 export const userQueryProperties = Type.Pick(userSchema, [
   'id',

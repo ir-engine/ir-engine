@@ -56,7 +56,7 @@ export async function up(knex: Knex): Promise<void> {
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      table.foreign('userId').references('id').inTable('user').onDelete('NO ACTION').onUpdate('CASCADE')
+      table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
     })
 
     await trx.raw('SET FOREIGN_KEY_CHECKS=1')

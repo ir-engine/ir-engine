@@ -108,7 +108,7 @@ else
 fi
 
 
-./generate-certs.sh
+# ./generate-certs.sh
 
 docker start etherealengine_minikube_db
 eval $(minikube docker-env)

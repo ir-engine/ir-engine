@@ -29,7 +29,6 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { Object3D } from 'three'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   getAllComponents,
   getComponent,
@@ -98,12 +97,11 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const data = props.data
   const selectionState = useHookstate(getMutableState(SelectionState))
-  useComponent(getMutableState(SceneState).sceneEntity.value, EntityTreeComponent)
 
   const nodeName = node.obj3d
     ? node.obj3d.name ?? node.obj3d.uuid
     : hasComponent(node.entityNode as Entity, NameComponent)
-    ? getComponent(node.entityNode as Entity, NameComponent)
+    ? useComponent(node.entityNode as Entity, NameComponent).value
     : ''
 
   const errors = node.entityNode ? useOptionalComponent(node.entityNode as Entity, ErrorComponent) : undefined

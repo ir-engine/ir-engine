@@ -43,13 +43,7 @@ describe('file browser service', () => {
     app = createFeathersKoaApp()
     await app.setup()
   })
-  after(async () => {
-    const directories = (await app.service(fileBrowserPath).find({ query: { directory: '/' } })).data.map(
-      (directory) => directory.key
-    )
 
-    await Promise.all(directories.map((directory) => app.service(fileBrowserPath).remove(directory)))
-  })
   after(() => {
     return destroyEngine()
   })
