@@ -429,7 +429,7 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
 
   useEffect(() => {
     const entity = createEntity()
-    setComponent(entity, NameComponent, 'scene')
+    setComponent(entity, NameComponent, entityState.name.value)
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, UUIDComponent, props.entityUUID)
     setComponent(entity, SceneTagComponent, true)

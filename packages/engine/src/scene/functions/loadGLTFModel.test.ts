@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { Group, Layers, Mesh, Scene } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
@@ -38,9 +38,8 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { createEngine } from '../../initializeEngine'
-import { SceneID } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
@@ -52,21 +51,7 @@ describe('loadGLTFModel', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
-    SceneState.loadScene('test' as SceneID, {
-      name: '',
-      thumbnailUrl: '',
-      project: '',
-      scene: {
-        entities: {
-          ['root' as EntityUUID]: {
-            name: 'Root',
-            components: []
-          }
-        },
-        version: 0,
-        root: 'root' as EntityUUID
-      }
-    })
+    loadEmptyScene()
   })
 
   afterEach(() => {
@@ -92,7 +77,7 @@ describe('loadGLTFModel', () => {
     })
 
     const entity = createEntity()
-    addEntityNodeChild(entity, sceneEntity)
+    setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity })
     setComponent(entity, ModelComponent, {
       ...mockComponentData
     })

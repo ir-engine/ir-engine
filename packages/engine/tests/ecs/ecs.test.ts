@@ -41,6 +41,7 @@ import { AnimationSystemGroup, executeSystems } from '../../src/ecs/functions/En
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
 import { defineSystem, startSystem } from '../../src/ecs/functions/SystemFunctions'
 import { createEngine } from '../../src/initializeEngine'
+import { loadEmptyScene } from '../util/loadEmptyScene'
 
 const mockDeltaMillis = 1000 / 60
 
@@ -86,6 +87,7 @@ describe('ECS', () => {
   beforeEach(async () => {
     createEngine()
     startSystem(MockSystem, { with: AnimationSystemGroup })
+    loadEmptyScene()
     MockSystemState.set(SceneState.getRootEntity(), [])
   })
 
