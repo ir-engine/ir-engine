@@ -35,6 +35,7 @@ import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/a
 import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { generateTokenPath } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
@@ -52,12 +53,17 @@ import {
   UserSettingType,
   userSettingPath
 } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
-import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import {
+  UserID,
+  UserPatch,
+  UserPublicPatch,
+  UserType,
+  userPath
+} from '@etherealengine/engine/src/schemas/user/user.schema'
 import { AuthenticationResult } from '@feathersjs/authentication'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
-import { userPatched } from '../functions/userPatched'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
@@ -328,7 +334,7 @@ export const AuthService = {
   /**
    * Logs in the current user based on an OAuth response.
    */
-  async loginUserByOAuth(service: string, location: import('react-router-dom').Location) {
+  async loginUserByOAuth(service: string, location: any) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
     const path = location?.state?.from || location.pathname
@@ -638,7 +644,23 @@ export const AuthService = {
 
   useAPIListeners: () => {
     useEffect(() => {
-      const userPatchedListener = (user: UserType) => userPatched(user)
+      const userPatchedListener = (user: UserPublicPatch | UserPatch) => {
+        console.log('USER PATCHED %o', user)
+
+        if (!user.id) return
+
+        const selfUser = getMutableState(AuthState).user
+
+        if (user.name) {
+          const worldState = getMutableState(WorldState)
+          worldState.userNames[user.id].set(user.name)
+        }
+
+        if (selfUser.id.value === user.id) {
+          getMutableState(AuthState).user.merge(user)
+        }
+      }
+
       const locationBanCreatedListener = async (params) => {
         const selfUser = getState(AuthState).user
         const currentLocation = getState(LocationState).currentLocation.location

@@ -213,6 +213,7 @@ const execute = () => {
 
 const reactor = () => {
   const xrState = useHookstate(getMutableState(XRState))
+
   useEffect(() => {
     if (!xrState.sessionActive.value) {
       WidgetAppService.closeWidgets()
@@ -220,6 +221,7 @@ const reactor = () => {
       dispatchAction(WidgetAppActions.showWidgetMenu({ shown: false, handedness: widgetState.handedness }))
     }
   }, [xrState.sessionActive])
+
   useEffect(() => {
     createWidgetMenus()
     return () => {
@@ -227,6 +229,7 @@ const reactor = () => {
       removeEntity(widgetMenuUI.entity)
     }
   }, [])
+
   return null
 }
 
