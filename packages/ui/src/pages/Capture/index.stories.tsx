@@ -37,7 +37,6 @@ import { useLoadLocationScene } from '@etherealengine/client-core/src/components
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
 import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -140,7 +139,6 @@ const decorators = [
     }, [])
 
     AuthService.useAPIListeners()
-    SceneService.useAPIListeners()
 
     useLoadLocationScene()
 

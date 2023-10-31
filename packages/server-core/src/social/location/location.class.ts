@@ -39,7 +39,6 @@ import {
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LocationParams extends KnexAdapterParams<LocationQuery> {}
 
 /**

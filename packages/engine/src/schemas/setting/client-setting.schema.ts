@@ -39,7 +39,7 @@ export const clientSocialLinkSchema = Type.Object(
   },
   { $id: 'ClientSocialLink', additionalProperties: false }
 )
-export type ClientSocialLinkType = Static<typeof clientSocialLinkSchema>
+export interface ClientSocialLinkType extends Static<typeof clientSocialLinkSchema> {}
 
 export const clientThemeOptionsSchema = Type.Object(
   {
@@ -84,7 +84,7 @@ export const clientThemeOptionsSchema = Type.Object(
   },
   { $id: 'ClientThemeOptions', additionalProperties: false }
 )
-export type ClientThemeOptionsType = Static<typeof clientThemeOptionsSchema>
+export interface ClientThemeOptionsType extends Static<typeof clientThemeOptionsSchema> {}
 
 // Main data model schema
 export const clientSettingSchema = Type.Object(
@@ -123,9 +123,10 @@ export const clientSettingSchema = Type.Object(
   },
   { $id: 'ClientSetting', additionalProperties: false }
 )
-export type ClientSettingType = Static<typeof clientSettingSchema>
+export interface ClientSettingType extends Static<typeof clientSettingSchema> {}
 
-export type ClientSettingDatabaseType = Omit<ClientSettingType, 'appSocialLinks' | 'themeSettings' | 'themeModes'> & {
+export interface ClientSettingDatabaseType
+  extends Omit<ClientSettingType, 'appSocialLinks' | 'themeSettings' | 'themeModes'> {
   appSocialLinks: string
   themeSettings: string
   themeModes: string
@@ -165,13 +166,13 @@ export const clientSettingDataSchema = Type.Pick(
     $id: 'ClientSettingData'
   }
 )
-export type ClientSettingData = Static<typeof clientSettingDataSchema>
+export interface ClientSettingData extends Static<typeof clientSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const clientSettingPatchSchema = Type.Partial(clientSettingSchema, {
   $id: 'ClientSettingPatch'
 })
-export type ClientSettingPatch = Static<typeof clientSettingPatchSchema>
+export interface ClientSettingPatch extends Static<typeof clientSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const clientSettingQueryProperties = Type.Pick(clientSettingSchema, [
@@ -210,7 +211,7 @@ export const clientSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type ClientSettingQuery = Static<typeof clientSettingQuerySchema>
+export interface ClientSettingQuery extends Static<typeof clientSettingQuerySchema> {}
 
 export const clientSocialLinkValidator = getValidator(clientSocialLinkSchema, dataValidator)
 export const clientThemeOptionsValidator = getValidator(clientThemeOptionsSchema, dataValidator)

@@ -47,6 +47,6 @@ export const instanceProvisionSchema = Type.Object(
   },
   { $id: 'InstanceProvision', additionalProperties: false }
 )
-export type InstanceProvisionType = Static<typeof instanceProvisionSchema>
+export interface InstanceProvisionType extends Static<typeof instanceProvisionSchema> {}
 
 export const instanceProvisionValidator = getValidator(instanceProvisionSchema, dataValidator)

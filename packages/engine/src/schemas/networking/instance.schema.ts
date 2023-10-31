@@ -67,7 +67,7 @@ export const instanceSchema = Type.Object(
   },
   { $id: 'Instance', additionalProperties: false }
 )
-export type InstanceType = Static<typeof instanceSchema>
+export interface InstanceType extends Static<typeof instanceSchema> {}
 
 // Schema for creating new entries
 export const instanceDataSchema = Type.Pick(
@@ -77,13 +77,13 @@ export const instanceDataSchema = Type.Pick(
     $id: 'InstanceData'
   }
 )
-export type InstanceData = Static<typeof instanceDataSchema>
+export interface InstanceData extends Static<typeof instanceDataSchema> {}
 
 // Schema for updating existing entries
 export const instancePatchSchema = Type.Partial(instanceSchema, {
   $id: 'InstancePatch'
 })
-export type InstancePatch = Static<typeof instancePatchSchema>
+export interface InstancePatch extends Static<typeof instancePatchSchema> {}
 
 // Schema for allowed query properties
 export const instanceQueryProperties = Type.Pick(instanceSchema, [
@@ -113,7 +113,7 @@ export const instanceQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type InstanceQuery = Static<typeof instanceQuerySchema>
+export interface InstanceQuery extends Static<typeof instanceQuerySchema> {}
 
 export const instanceValidator = getValidator(instanceSchema, dataValidator)
 export const instanceDataValidator = getValidator(instanceDataSchema, dataValidator)
