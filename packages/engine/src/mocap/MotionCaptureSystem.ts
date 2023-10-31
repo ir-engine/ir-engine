@@ -193,7 +193,7 @@ const execute = () => {
 
     hipBone.updateMatrixWorld(true)
 
-    const worldHips = rigComponent.rig.hips.node
+    const worldHips = rigComponent && rigComponent.rig ? rigComponent.rig.hips.node.parent : undefined
     if (worldHips)
       worldHips.position.setY(
         lerp(worldHips.position.y, MotionCaptureRigComponent.footOffset[entity], getState(EngineState).deltaSeconds * 5)
