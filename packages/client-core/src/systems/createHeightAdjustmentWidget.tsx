@@ -25,17 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
+import { setTrackingSpace } from '@etherealengine/engine/src/xr/XRScaleAdjustmentFunctions'
+import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 export function createHeightAdjustmentWidget() {
   const ui = createXRUI(() => null)
   removeComponent(ui.entity, VisibleComponent)
-
-  const xrState = getMutableState(XRState)
 
   const widget: Widget = {
     ui,
@@ -45,11 +44,7 @@ export function createHeightAdjustmentWidget() {
       dispatchAction(WidgetAppActions.showWidget({ id, shown: false }))
       const xrFrame = getState(XRState).xrFrame
       if (!xrFrame) return
-      // set user height from viewer pose relative to local floor
-      const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
-      if (viewerPose) {
-        xrState.userEyeLevel.set(viewerPose.transform.position.y)
-      }
+      setTrackingSpace()
     }
   }
 

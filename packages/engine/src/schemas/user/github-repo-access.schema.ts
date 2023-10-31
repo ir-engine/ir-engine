@@ -48,7 +48,7 @@ export const githubRepoAccessSchema = Type.Object(
   },
   { $id: 'GithubRepoAccess', additionalProperties: false }
 )
-export type GithubRepoAccessType = Static<typeof githubRepoAccessSchema>
+export interface GithubRepoAccessType extends Static<typeof githubRepoAccessSchema> {}
 
 // Schema for creating new entries
 export const githubRepoAccessDataSchema = Type.Pick(
@@ -58,13 +58,13 @@ export const githubRepoAccessDataSchema = Type.Pick(
     $id: 'GithubRepoAccessData'
   }
 )
-export type GithubRepoAccessData = Static<typeof githubRepoAccessDataSchema>
+export interface GithubRepoAccessData extends Static<typeof githubRepoAccessDataSchema> {}
 
 // Schema for updating existing entries
 export const githubRepoAccessPatchSchema = Type.Partial(githubRepoAccessSchema, {
   $id: 'GithubRepoAccessPatch'
 })
-export type GithubRepoAccessPatch = Static<typeof githubRepoAccessPatchSchema>
+export interface GithubRepoAccessPatch extends Static<typeof githubRepoAccessPatchSchema> {}
 
 // Schema for allowed query properties
 export const githubRepoAccessQueryProperties = Type.Pick(githubRepoAccessSchema, [
@@ -81,7 +81,7 @@ export const githubRepoAccessQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type GithubRepoAccessQuery = Static<typeof githubRepoAccessQuerySchema>
+export interface GithubRepoAccessQuery extends Static<typeof githubRepoAccessQuerySchema> {}
 
 export const githubRepoAccessValidator = getValidator(githubRepoAccessSchema, dataValidator)
 export const githubRepoAccessDataValidator = getValidator(githubRepoAccessDataSchema, dataValidator)

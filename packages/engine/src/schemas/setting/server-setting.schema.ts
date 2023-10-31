@@ -38,7 +38,7 @@ export const serverHubSchema = Type.Object(
   },
   { $id: 'ServerHub', additionalProperties: false }
 )
-export type ServerHubType = Static<typeof serverHubSchema>
+export interface ServerHubType extends Static<typeof serverHubSchema> {}
 
 // Main data model schema
 export const serverSettingSchema = Type.Object(
@@ -71,9 +71,11 @@ export const serverSettingSchema = Type.Object(
   },
   { $id: 'ServerSetting', additionalProperties: false }
 )
-export type ServerSettingType = Static<typeof serverSettingSchema>
+export interface ServerSettingType extends Static<typeof serverSettingSchema> {}
 
-export type ServerSettingDatabaseType = Omit<ServerSettingType, 'hub'> & { hub: string }
+export interface ServerSettingDatabaseType extends Omit<ServerSettingType, 'hub'> {
+  hub: string
+}
 
 // Schema for creating new entries
 export const serverSettingDataSchema = Type.Pick(
@@ -104,13 +106,13 @@ export const serverSettingDataSchema = Type.Pick(
     $id: 'ServerSettingData'
   }
 )
-export type ServerSettingData = Static<typeof serverSettingDataSchema>
+export interface ServerSettingData extends Static<typeof serverSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const serverSettingPatchSchema = Type.Partial(serverSettingSchema, {
   $id: 'ServerSettingPatch'
 })
-export type ServerSettingPatch = Static<typeof serverSettingPatchSchema>
+export interface ServerSettingPatch extends Static<typeof serverSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const serverSettingQueryProperties = Type.Pick(serverSettingSchema, [
@@ -144,7 +146,7 @@ export const serverSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type ServerSettingQuery = Static<typeof serverSettingQuerySchema>
+export interface ServerSettingQuery extends Static<typeof serverSettingQuerySchema> {}
 
 export const serverHubValidator = getValidator(serverHubSchema, dataValidator)
 export const serverSettingValidator = getValidator(serverSettingSchema, dataValidator)

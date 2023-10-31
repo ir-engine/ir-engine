@@ -39,7 +39,7 @@ export const awsKeysSchema = Type.Object(
   },
   { $id: 'AwsKeys', additionalProperties: false }
 )
-export type AwsKeysType = Static<typeof awsKeysSchema>
+export interface AwsKeysType extends Static<typeof awsKeysSchema> {}
 
 export const awsEksSchema = Type.Object(
   {
@@ -48,7 +48,7 @@ export const awsEksSchema = Type.Object(
   },
   { $id: 'AwsEks', additionalProperties: false }
 )
-export type AwsEksType = Static<typeof awsEksSchema>
+export interface AwsEksType extends Static<typeof awsEksSchema> {}
 
 export const awsS3Schema = Type.Object(
   {
@@ -62,7 +62,7 @@ export const awsS3Schema = Type.Object(
   },
   { $id: 'AwsS3', additionalProperties: false }
 )
-export type AwsS3Type = Static<typeof awsS3Schema>
+export interface AwsS3Type extends Static<typeof awsS3Schema> {}
 
 export const awsCloudFrontSchema = Type.Object(
   {
@@ -72,7 +72,7 @@ export const awsCloudFrontSchema = Type.Object(
   },
   { $id: 'AwsCloudFront', additionalProperties: false }
 )
-export type AwsCloudFrontType = Static<typeof awsCloudFrontSchema>
+export interface AwsCloudFrontType extends Static<typeof awsCloudFrontSchema> {}
 
 export const awsSmsSchema = Type.Object(
   {
@@ -84,7 +84,7 @@ export const awsSmsSchema = Type.Object(
   },
   { $id: 'AwsSms', additionalProperties: false }
 )
-export type AwsSmsType = Static<typeof awsSmsSchema>
+export interface AwsSmsType extends Static<typeof awsSmsSchema> {}
 
 // Main data model schema
 export const awsSettingSchema = Type.Object(
@@ -101,9 +101,9 @@ export const awsSettingSchema = Type.Object(
   },
   { $id: 'AwsSetting', additionalProperties: false }
 )
-export type AwsSettingType = Static<typeof awsSettingSchema>
+export interface AwsSettingType extends Static<typeof awsSettingSchema> {}
 
-export type AwsSettingDatabaseType = Omit<AwsSettingType, 'eks' | 's3' | 'cloudfront' | 'sms'> & {
+export interface AwsSettingDatabaseType extends Omit<AwsSettingType, 'eks' | 's3' | 'cloudfront' | 'sms'> {
   eks: string
   s3: string
   cloudfront: string
@@ -114,13 +114,13 @@ export type AwsSettingDatabaseType = Omit<AwsSettingType, 'eks' | 's3' | 'cloudf
 export const awsSettingDataSchema = Type.Pick(awsSettingSchema, ['eks', 's3', 'cloudfront', 'sms'], {
   $id: 'AwsSettingData'
 })
-export type AwsSettingData = Static<typeof awsSettingDataSchema>
+export interface AwsSettingData extends Static<typeof awsSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const awsSettingPatchSchema = Type.Partial(awsSettingSchema, {
   $id: 'AwsSettingPatch'
 })
-export type AwsSettingPatch = Static<typeof awsSettingPatchSchema>
+export interface AwsSettingPatch extends Static<typeof awsSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const awsSettingQueryProperties = Type.Pick(awsSettingSchema, [
@@ -138,7 +138,7 @@ export const awsSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type AwsSettingQuery = Static<typeof awsSettingQuerySchema>
+export interface AwsSettingQuery extends Static<typeof awsSettingQuerySchema> {}
 
 export const awsKeysValidator = getValidator(awsKeysSchema, dataValidator)
 export const awsEksValidator = getValidator(awsEksSchema, dataValidator)

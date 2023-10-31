@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 
-export default function traverseEarlyOut(node: EntityOrObjectUUID, cb: (node: EntityOrObjectUUID) => boolean): boolean {
-  let stopTravel = cb(node)
+export default function traverseEarlyOut(entity: Entity, cb: (entity: Entity) => boolean): boolean {
+  let stopTravel = cb(entity)
 
   if (stopTravel) return stopTravel
 
-  const entityTreeComponent = getComponent(node as Entity, EntityTreeComponent)
+  const entityTreeComponent = getComponent(entity as Entity, EntityTreeComponent)
 
   const children = entityTreeComponent.children
   if (!children) return stopTravel

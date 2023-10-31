@@ -38,6 +38,6 @@ export const projectInvalidatePatchSchema = Type.Object(
   }
 )
 
-export type ProjectInvalidatePatch = Static<typeof projectInvalidatePatchSchema>
+export interface ProjectInvalidatePatch extends Static<typeof projectInvalidatePatchSchema> {}
 
 export const projectInvalidatePatchValidator = getValidator(projectInvalidatePatchSchema, dataValidator)

@@ -29,7 +29,6 @@ import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/s
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface StaticResourceFiltersParams extends KnexAdapterParams<StaticResourceFiltersQuery> {}
 
 export class StaticResourceFiltersService

@@ -82,6 +82,7 @@
       padding: 2px 4px;
       outline: none;
       border-radius: 3px;
+      margin:0;
     }
   }
 
@@ -124,7 +125,8 @@
   border: none;
   background: transparent;
   color: var(--textColor);
-
+  margin:0;
+  
   &:hover {
     opacity: 0.8;
     color: var(--textColor);
