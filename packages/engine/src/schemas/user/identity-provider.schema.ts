@@ -68,7 +68,7 @@ export const identityProviderSchema = Type.Object(
   },
   { $id: 'IdentityProvider', additionalProperties: false }
 )
-export type IdentityProviderType = Static<typeof identityProviderSchema>
+export interface IdentityProviderType extends Static<typeof identityProviderSchema> {}
 
 // Schema for creating new entries
 export const identityProviderDataSchema = Type.Pick(
@@ -78,13 +78,13 @@ export const identityProviderDataSchema = Type.Pick(
     $id: 'IdentityProviderData'
   }
 )
-export type IdentityProviderData = Static<typeof identityProviderDataSchema>
+export interface IdentityProviderData extends Static<typeof identityProviderDataSchema> {}
 
 // Schema for updating existing entries
 export const identityProviderPatchSchema = Type.Partial(identityProviderSchema, {
   $id: 'IdentityProviderPatch'
 })
-export type IdentityProviderPatch = Static<typeof identityProviderPatchSchema>
+export interface IdentityProviderPatch extends Static<typeof identityProviderPatchSchema> {}
 
 // Schema for allowed query properties
 export const identityProviderQueryProperties = Type.Pick(identityProviderSchema, [
@@ -107,7 +107,7 @@ export const identityProviderQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type IdentityProviderQuery = Static<typeof identityProviderQuerySchema>
+export interface IdentityProviderQuery extends Static<typeof identityProviderQuerySchema> {}
 
 export const identityProviderValidator = getValidator(identityProviderSchema, dataValidator)
 export const identityProviderDataValidator = getValidator(identityProviderDataSchema, dataValidator)

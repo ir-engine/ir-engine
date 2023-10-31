@@ -33,7 +33,6 @@ import {
   BuildStatusType
 } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface BuildStatusParams extends KnexAdapterParams<BuildStatusQuery> {}
 
 export class BuildStatusService<

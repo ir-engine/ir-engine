@@ -35,7 +35,6 @@ import {
 
 import { KnexAdapterParams } from '@feathersjs/knex'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AnalyticsParams extends KnexAdapterParams<AnalyticsQuery> {}
 
 export class AnalyticsService<T = AnalyticsType, ServiceParams extends Params = AnalyticsParams> extends KnexService<
