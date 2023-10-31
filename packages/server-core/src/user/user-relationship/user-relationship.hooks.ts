@@ -109,7 +109,7 @@ const clearBlockingRelationships = async (context: HookContext<UserRelationshipS
   const user = context.params.user
 
   if (userRelationshipType === 'blocking') {
-    context.app.service(userRelationshipPath)._remove(null, {
+    await context.app.service(userRelationshipPath)._remove(null, {
       $or: [
         {
           userId: user?.id,
