@@ -282,8 +282,8 @@ export const MaterialPropertyTitle = () => {
       <PanelDragContainer>
         <PanelIcon as={MaterialLibraryIcon} size={12} />
         <PanelTitle>
-          <InfoTooltip title={t('editor:properties.info')}>
-            <span>{t('editor:properties.title')}</span>
+          <InfoTooltip title={t('editor:materialProperties.info')}>
+            <span>{t('editor:materialProperties.title')}</span>
           </InfoTooltip>
         </PanelTitle>
       </PanelDragContainer>

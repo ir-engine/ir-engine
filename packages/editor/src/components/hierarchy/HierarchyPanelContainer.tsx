@@ -81,7 +81,6 @@ export default function HierarchyPanel() {
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [prevClickedNode, setPrevClickedNode] = useState<HeirarchyTreeNodeType | null>(null)
-  const open = Boolean(anchorEl)
   const onUpload = useUpload(uploadOptions)
   const selectionState = useHookstate(getMutableState(SelectionState))
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
@@ -89,7 +88,7 @@ export default function HierarchyPanel() {
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
   const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
-  const editorState = useHookstate(getMutableState(EditorState))
+  const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const [searchHierarchy, setSearchHierarchy] = useState<string>('')
 
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
@@ -123,7 +122,7 @@ export default function HierarchyPanel() {
     )
   }, [collapsedNodes, activeScene, selectionState.selectedEntities, entities])
 
-  const setSelectedNode = (selection) => !editorState.lockPropertiesPanel.value && _setSelectedNode(selection)
+  const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
@@ -438,7 +437,7 @@ export default function HierarchyPanel() {
           {t('editor:hierarchy.lbl-addEntity')}
         </Button>
       </div>
-      <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
+      <ContextMenu open={!!anchorEl} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={() => onRenameNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
         <Hotkeys
           keyName={cmdOrCtrlString + '+d'}
