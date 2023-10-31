@@ -45,19 +45,19 @@ export const routeSchema = Type.Object(
   },
   { $id: 'Route', additionalProperties: false }
 )
-export type RouteType = Static<typeof routeSchema>
+export interface RouteType extends Static<typeof routeSchema> {}
 
 // Schema for creating new entries
 export const routeDataSchema = Type.Pick(routeSchema, ['route', 'project'], {
   $id: 'RouteData'
 })
-export type RouteData = Static<typeof routeDataSchema>
+export interface RouteData extends Static<typeof routeDataSchema> {}
 
 // Schema for updating existing entries
 export const routePatchSchema = Type.Partial(routeSchema, {
   $id: 'RoutePatch'
 })
-export type RoutePatch = Static<typeof routePatchSchema>
+export interface RoutePatch extends Static<typeof routePatchSchema> {}
 
 // Schema for allowed query properties
 export const routeQueryProperties = Type.Pick(routeSchema, ['id', 'route', 'project'])
@@ -69,7 +69,7 @@ export const routeQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type RouteQuery = Static<typeof routeQuerySchema>
+export interface RouteQuery extends Static<typeof routeQuerySchema> {}
 
 export const routeValidator = getValidator(routeSchema, dataValidator)
 export const routeDataValidator = getValidator(routeDataSchema, dataValidator)

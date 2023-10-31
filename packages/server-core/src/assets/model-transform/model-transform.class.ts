@@ -33,7 +33,6 @@ import { Application } from '@etherealengine/server-core/declarations'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { transformModel } from './model-transform.helpers'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ModelTransformParams extends KnexAdapterParams {
   src: string
   transformParameters: ModelTransformParameters

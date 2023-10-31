@@ -37,7 +37,7 @@ import {
   Vector3
 } from 'three'
 
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
@@ -144,7 +144,7 @@ export const EnvMapBakeComponent = defineComponent({
 
 export const prepareSceneForBake = (): Scene => {
   const scene = Engine.instance.scene.clone(false)
-  const sceneEntity = getState(SceneState).sceneEntity
+  const sceneEntity = SceneState.getRootEntity()
   const parents = {
     [sceneEntity]: scene
   } as { [key: Entity]: Object3D }

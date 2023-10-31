@@ -33,7 +33,6 @@ import {
   HelmSettingType
 } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface HelmSettingParams extends KnexAdapterParams<HelmSettingQuery> {}
 
 export class HelmSettingService<

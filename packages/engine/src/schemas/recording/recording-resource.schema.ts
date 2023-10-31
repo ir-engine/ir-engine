@@ -53,19 +53,19 @@ export const recordingResourceSchema = Type.Object(
   },
   { $id: 'RecordingResource', additionalProperties: false }
 )
-export type RecordingResourceType = Static<typeof recordingResourceSchema>
+export interface RecordingResourceType extends Static<typeof recordingResourceSchema> {}
 
 // Schema for creating new entries
 export const recordingResourceDataSchema = Type.Pick(recordingResourceSchema, ['recordingId', 'staticResourceId'], {
   $id: 'RecordingResourceData'
 })
-export type RecordingResourceData = Static<typeof recordingResourceDataSchema>
+export interface RecordingResourceData extends Static<typeof recordingResourceDataSchema> {}
 
 // Schema for updating existing entries
 export const recordingResourcePatchSchema = Type.Partial(recordingResourceSchema, {
   $id: 'RecordingResourcePatch'
 })
-export type RecordingResourcePatch = Static<typeof recordingResourcePatchSchema>
+export interface RecordingResourcePatch extends Static<typeof recordingResourcePatchSchema> {}
 
 // Schema for allowed query properties
 export const recordingResourceQueryProperties = Type.Pick(recordingResourceSchema, [
@@ -81,7 +81,7 @@ export const recordingResourceQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type RecordingResourceQuery = Static<typeof recordingResourceQuerySchema>
+export interface RecordingResourceQuery extends Static<typeof recordingResourceQuerySchema> {}
 
 export const recordingResourceValidator = getValidator(recordingResourceSchema, dataValidator)
 export const recordingResourceDataValidator = getValidator(recordingResourceDataSchema, dataValidator)

@@ -41,19 +41,19 @@ export const inviteTypeSchema = Type.Object(
   },
   { $id: 'InviteType', additionalProperties: false }
 )
-export type InviteTypeType = Static<typeof inviteTypeSchema>
+export interface InviteTypeType extends Static<typeof inviteTypeSchema> {}
 
 // Schema for creating new entries
 export const inviteTypeDataSchema = Type.Pick(inviteTypeSchema, ['type'], {
   $id: 'InviteTypeData'
 })
-export type InviteTypeData = Static<typeof inviteTypeDataSchema>
+export interface InviteTypeData extends Static<typeof inviteTypeDataSchema> {}
 
 // Schema for updating existing entries
 export const inviteTypePatchSchema = Type.Partial(inviteTypeSchema, {
   $id: 'InviteTypePatch'
 })
-export type InviteTypePatch = Static<typeof inviteTypePatchSchema>
+export interface InviteTypePatch extends Static<typeof inviteTypePatchSchema> {}
 
 // Schema for allowed query properties
 export const inviteTypeQueryProperties = Type.Pick(inviteTypeSchema, ['type'])
@@ -65,7 +65,7 @@ export const inviteTypeQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type InviteTypeQuery = Static<typeof inviteTypeQuerySchema>
+export interface InviteTypeQuery extends Static<typeof inviteTypeQuerySchema> {}
 
 export const inviteTypeValidator = getValidator(inviteTypeSchema, dataValidator)
 export const inviteTypeDataValidator = getValidator(inviteTypeDataSchema, dataValidator)
