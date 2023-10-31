@@ -114,13 +114,11 @@ const reactor = () => {
       }
       XRDetectedPlaneComponent.detectedPlanesMap.clear()
       XRDetectedPlaneComponent.planesLastChangedTimes.clear()
-      XRDetectedPlaneComponent.planesQueue.reset()
       for (const [, entity] of XRDetectedMeshComponent.detectedMeshesMap) {
         removeEntity(entity)
       }
       XRDetectedMeshComponent.detectedMeshesMap.clear()
       XRDetectedMeshComponent.meshesLastChangedTimes.clear()
-      XRDetectedMeshComponent.meshQueue.reset()
     }
   }, [session])
   return null
