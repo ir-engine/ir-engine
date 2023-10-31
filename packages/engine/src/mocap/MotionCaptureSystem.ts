@@ -119,7 +119,7 @@ const timeSeriesMocapData = new Map<
   }>
 >()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
-let lastFootOffset = 0
+//store foot offset from last frame to subtract from current calculation
 const execute = () => {
   // for now, it is unnecessary to compute anything on the server
   if (!isClient) return
@@ -193,11 +193,10 @@ const execute = () => {
 
     hipBone.updateMatrixWorld(true)
 
-    //hack to offset rig
-    const hipParent = rigComponent.rig.hips.node.parent
-    if (hipParent)
-      hipParent.position.setY(
-        lerp(hipParent.position.y, MotionCaptureRigComponent.footOffset[entity], getState(EngineState).deltaSeconds * 5)
+    const worldHips = rigComponent.rig.hips.node
+    if (worldHips)
+      worldHips.position.setY(
+        lerp(worldHips.position.y, MotionCaptureRigComponent.footOffset[entity], getState(EngineState).deltaSeconds * 5)
       )
 
     const avatarDebug = getState(RendererState).avatarDebug
