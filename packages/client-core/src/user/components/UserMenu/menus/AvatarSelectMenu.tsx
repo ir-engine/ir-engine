@@ -110,7 +110,7 @@ const AvatarMenu = () => {
       open
       showBackButton
       actions={
-        <Box display="flex" width="100%">
+        <Box display="flex" width="100%" justifyContent="center">
           {avatarLoading.value ? (
             <LoadingCircle />
           ) : (
