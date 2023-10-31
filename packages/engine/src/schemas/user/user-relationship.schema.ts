@@ -58,7 +58,7 @@ export const userRelationshipSchema = Type.Object(
   },
   { $id: 'UserRelationship', additionalProperties: false }
 )
-export type UserRelationshipType = Static<typeof userRelationshipSchema>
+export interface UserRelationshipType extends Static<typeof userRelationshipSchema> {}
 
 // Schema for creating new entries
 export const userRelationshipDataSchema = Type.Pick(
@@ -68,13 +68,13 @@ export const userRelationshipDataSchema = Type.Pick(
     $id: 'UserRelationshipData'
   }
 )
-export type UserRelationshipData = Static<typeof userRelationshipDataSchema>
+export interface UserRelationshipData extends Static<typeof userRelationshipDataSchema> {}
 
 // Schema for updating existing entries
 export const userRelationshipPatchSchema = Type.Partial(userRelationshipSchema, {
   $id: 'UserRelationshipPatch'
 })
-export type UserRelationshipPatch = Static<typeof userRelationshipPatchSchema>
+export interface UserRelationshipPatch extends Static<typeof userRelationshipPatchSchema> {}
 
 // Schema for allowed query properties
 export const userRelationshipQueryProperties = Type.Pick(userRelationshipSchema, [
@@ -90,7 +90,7 @@ export const userRelationshipQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type UserRelationshipQuery = Static<typeof userRelationshipQuerySchema>
+export interface UserRelationshipQuery extends Static<typeof userRelationshipQuerySchema> {}
 
 export const userRelationshipValidator = getValidator(userRelationshipSchema, dataValidator)
 export const userRelationshipDataValidator = getValidator(userRelationshipDataSchema, dataValidator)

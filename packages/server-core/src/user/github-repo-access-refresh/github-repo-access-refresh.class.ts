@@ -39,7 +39,6 @@ import { Application } from '../../../declarations'
 import { getUserRepos } from '../../projects/project/github-helper'
 import logger from '../../ServerLogger'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface GithubRepoAccessRefreshParams extends KnexAdapterParams {}
 
 /**
