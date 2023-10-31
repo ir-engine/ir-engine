@@ -133,18 +133,18 @@ export default {
     find: [],
     get: [],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
+      iff(isProvider('external'), verifyScope('settings_client', 'write')),
       () => schemaHooks.validateData(clientSettingDataValidator),
       schemaHooks.resolveData(clientSettingDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))],
+    update: [iff(isProvider('external'), verifyScope('settings_client', 'write'))],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
+      iff(isProvider('external'), verifyScope('settings_client', 'write')),
       () => schemaHooks.validateData(clientSettingPatchValidator),
       schemaHooks.resolveData(clientSettingPatchResolver),
       updateWebManifest
     ],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))]
+    remove: [iff(isProvider('external'), verifyScope('settings_client', 'write'))]
   },
 
   after: {
