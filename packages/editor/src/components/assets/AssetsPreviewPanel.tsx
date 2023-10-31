@@ -160,8 +160,6 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
     }
   }
 
-  console.log('debug1 the preview panel resource props', previewPanel.resourceProps)
-
   return (
     <>
       {!hideHeading && (
