@@ -186,18 +186,18 @@ const reRouteToLoadScene = async (newSceneName: string) => {
   RouterState.navigate(`/studio/${projectName}/${newSceneName}`)
 }
 
-const loadScene = async (sceneName: string) => {
+const loadScene = async (sceneId: SceneID) => {
   const { projectName } = getState(EditorState)
   try {
     if (!projectName) {
       return
     }
-    const project = await getScene(projectName, sceneName, false)
+    const project = await getScene(sceneId, false)
 
     if (!project.scene) {
       return
     }
-    SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, project)
+    SceneState.loadScene(sceneId, project)
   } catch (error) {
     logger.error(error)
   }
@@ -505,10 +505,10 @@ const defaultLayout: LayoutData = {
  */
 const EditorContainer = () => {
   const editorState = useHookstate(getMutableState(EditorState))
-  const sceneName = editorState.sceneName
+  const sceneId = editorState.sceneId
   const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
 
-  const sceneLoading = sceneName.value && !sceneLoaded.value
+  const sceneLoading = sceneId.value && !sceneLoaded.value
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -533,11 +533,11 @@ const EditorContainer = () => {
   }, [editorState.sceneModified])
 
   useEffect(() => {
-    if (sceneName.value) {
-      logger.info(`Loading scene ${sceneName.value} via given url`)
-      loadScene(sceneName.value)
+    if (sceneId.value) {
+      logger.info(`Loading scene ${sceneId.value} via given url`)
+      loadScene(sceneId.value)
     }
-  }, [sceneName])
+  }, [sceneId])
 
   useEffect(() => {
     if (!dockPanelRef.current) return
@@ -556,7 +556,7 @@ const EditorContainer = () => {
       <div
         id="editor-container"
         className={styles.editorContainer}
-        style={sceneName.value ? { background: 'transparent' } : {}}
+        style={sceneId.value ? { background: 'transparent' } : {}}
       >
         <DndWrapper id="editor-container">
           <DragLayer />

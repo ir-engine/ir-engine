@@ -51,6 +51,8 @@ import { GizmoSystem } from '../systems/GizmoSystem'
 import { ModelHandlingSystem } from '../systems/ModelHandlingSystem'
 
 import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { getScenes } from '../functions/sceneFunctions'
 
 // ensure all our systems are imported, #9077
 const EditorSystemsReferenced = [useDefaultLocationSystems]
@@ -96,7 +98,28 @@ export const EditorPage = () => {
 
   useEffect(() => {
     const { projectName, sceneName } = params
-    getMutableState(EditorState).merge({ projectName: projectName ?? null, sceneName: sceneName ?? null })
+    let projectId, sceneId
+
+    if (projectName) {
+      projectState.projects.value.forEach((project) => {
+        if (project.name === projectName) {
+          projectId = project.id
+        }
+      })
+      getScenes(projectId).then((scenes) => {
+        scenes.forEach((scene) => {
+          if (scene.name === sceneName) {
+            sceneId = scene.id
+          }
+        })
+      })
+    }
+    getMutableState(EditorState).merge({
+      projectName: projectName ?? null,
+      sceneName: sceneName ?? null,
+      projectId: (projectId as string) ?? null,
+      sceneId: (sceneId as SceneID) ?? null
+    })
   }, [params])
 
   return <>{projectState.projects.value.length && editorState.projectName.value && <EditorContainer />}</>

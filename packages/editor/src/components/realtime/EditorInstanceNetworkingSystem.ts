@@ -44,7 +44,7 @@ const execute = () => {
 
   if (accumulator > 5) {
     accumulator = 0
-    const sceneId = `${editorState.projectName}/${editorState.sceneName}` as SceneID
+    const sceneId = editorState.sceneId ?? (`${editorState.projectName}/${editorState.sceneName}` as SceneID)
     EditorActiveInstanceState.getActiveInstances(sceneId)
   }
 }

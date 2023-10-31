@@ -24,12 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { defineState } from '@etherealengine/hyperflux'
 
 export const EditorState = defineState({
   name: 'EditorState',
   initial: () => ({
     projectName: null as string | null,
+    projectId: null as string | null,
+    sceneId: null as SceneID | null,
     sceneName: null as string | null,
     sceneModified: false,
     showObject3DInHierarchy: false,

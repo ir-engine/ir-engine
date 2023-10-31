@@ -28,7 +28,7 @@ import { useEffect } from 'react'
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+// import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   NO_PROXY,
@@ -63,7 +63,14 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { QueryReactor, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { SceneID, scenePath } from '../../schemas/projects/scene.schema'
+import {
+  ComponentJsonType,
+  EntityJsonType,
+  SceneDataType,
+  SceneID,
+  SceneJsonType,
+  scenePath
+} from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsComponent } from '../components/CameraSettingsComponent'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
@@ -81,7 +88,7 @@ import { getUniqueName } from '../functions/getUniqueName'
 
 export const createNewEditorNode = (
   entityNode: Entity,
-  componentJson: Array<ComponentJson>,
+  componentJson: Array<ComponentJsonType>,
   parentEntity = SceneState.getRootEntity(getState(SceneState).activeScene!) as Entity
 ): void => {
   const components = [
@@ -121,9 +128,9 @@ export const createNewEditorNode = (
   })
 }
 
-export const splitLazyLoadedSceneEntities = (json: SceneJson) => {
-  const entityLoadQueue = {} as { [uuid: string]: EntityJson }
-  const entityDynamicQueue = {} as { [uuid: string]: EntityJson }
+export const splitLazyLoadedSceneEntities = (json: SceneJsonType) => {
+  const entityLoadQueue = {} as { [uuid: string]: EntityJsonType }
+  const entityDynamicQueue = {} as { [uuid: string]: EntityJsonType }
   for (const [uuid, entity] of Object.entries(json.entities)) {
     if (entity.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID))
       entityDynamicQueue[uuid] = entity
@@ -155,11 +162,11 @@ const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
   return data
 }
 
-export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Promise<Entity[]> => {
+export const loadECSData = async (sceneData: SceneJsonType, assetRoot?: Entity): Promise<Entity[]> => {
   const entityMap = {} as { [key: string]: Entity }
   const entities = Object.entries(sceneData.entities).filter(([uuid]) => uuid !== sceneData.root) as [
     EntityUUID,
-    EntityJson
+    EntityJsonType
   ][]
   const idMap = new Map<EntityUUID, EntityUUID>()
   const loadedEntities = UUIDComponent.entitiesByUUID
@@ -229,7 +236,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
   return result
 }
 
-export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson) => {
+export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJsonType) => {
   setComponent(entity, NameComponent, sceneEntity.name ?? 'entity-' + sceneEntity.index)
   for (const component of sceneEntity.components) {
     try {
@@ -243,8 +250,8 @@ export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson) 
   }
 }
 
-export const migrateSceneData = (sceneData: SceneData) => {
-  const migratedSceneData = JSON.parse(JSON.stringify(sceneData)) as SceneData
+export const migrateSceneData = (sceneData: SceneDataType) => {
+  const migratedSceneData = JSON.parse(JSON.stringify(sceneData)) as SceneDataType
 
   for (const [key, value] of Object.entries(migratedSceneData.scene.entities)) {
     const tempEntity = createEntity()
@@ -376,10 +383,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     })
 
     const sceneUpdatedListener = async () => {
-      const [projectName, sceneName] = props.sceneID.split('/')
-      const sceneData = await Engine.instance.api
-        .service(scenePath)
-        .get(null, { query: { project: projectName, name: sceneName } })
+      const sceneData = (await Engine.instance.api.service(scenePath).get(props.sceneID)) as SceneDataType
       SceneState.loadScene(props.sceneID, sceneData)
     }
     // for testing
@@ -531,7 +535,7 @@ const EntityChildLoadReactor = (props: {
   )
 }
 
-const ComponentLoadReactor = (props: { componentState: State<ComponentJson>; entity: Entity }) => {
+const ComponentLoadReactor = (props: { componentState: State<ComponentJsonType>; entity: Entity }) => {
   useEffect(() => {
     const entity = props.entity
     /** @todo - we have to check for existence here, as the dynamic loading parent component takes a re-render to load in */

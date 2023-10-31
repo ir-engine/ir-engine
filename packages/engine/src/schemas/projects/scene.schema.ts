@@ -111,6 +111,7 @@ export interface SceneMetadataType extends Static<typeof sceneMetadataSchema> {}
 export const sceneDataSchema = Type.Object(
   {
     ...sceneMetadataSchema.properties,
+    project: Type.String(),
     scene: Type.Ref(sceneJsonSchema)
   },
   { $id: 'SceneData', additionalProperties: false }
