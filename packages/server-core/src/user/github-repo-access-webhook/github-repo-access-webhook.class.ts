@@ -38,7 +38,6 @@ import { NotAuthenticated } from '@feathersjs/errors'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface GithubRepoAccessWebhookParams extends KnexAdapterParams {}
 
 /**

@@ -33,7 +33,6 @@ import {
   RecordingResourceType
 } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RecordingResourceParams extends KnexAdapterParams<RecordingResourceQuery> {}
 
 export class RecordingResourceService<

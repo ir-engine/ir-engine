@@ -219,11 +219,11 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
 
 const createObjectFromSceneElement = (
   componentJson: ComponentJson[] = [],
-  parentEntity = getState(SceneState).sceneEntity as Entity,
-  beforeEntity = null as Entity | null,
+  parentEntity?: Entity,
+  beforeEntity?: Entity,
   updateSelection = true
 ) => {
-  parentEntity = parentEntity ?? getState(SceneState).sceneEntity
+  parentEntity = parentEntity ?? SceneState.getRootEntity()
   cancelGrabOrPlacement()
 
   const newEntity = createEntity()
@@ -541,9 +541,10 @@ const scaleObject = (
 const reparentObject = (
   nodes: EntityOrObjectUUID[],
   before?: Entity | null,
-  parent = getState(SceneState).sceneEntity,
+  parent?: Entity | null,
   updateSelection = true
 ) => {
+  parent = parent ?? SceneState.getRootEntity()
   cancelGrabOrPlacement()
 
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
@@ -607,7 +608,7 @@ const groupObjects = (nodes: EntityOrObjectUUID[]) => {
 
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
 
-  const parentEntity = getState(SceneState).sceneEntity
+  const parentEntity = SceneState.getRootEntity()
   const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
   const childIndex = parentEntityTreeComponent.children.length
   const parentEntityUUID = getComponent(parentEntity, UUIDComponent)

@@ -33,7 +33,7 @@ export const sceneDataServiceSchema = Type.Object(
   },
   { $id: 'SceneDataService', additionalProperties: false }
 )
-export type SceneDataServiceType = Static<typeof sceneDataServiceSchema>
+export interface SceneDataServiceType extends Static<typeof sceneDataServiceSchema> {}
 
 // Schema for allowed query properties
 export const sceneDataQueryProperties = Type.Partial(sceneDataServiceSchema)
@@ -54,4 +54,4 @@ export const sceneDataQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type SceneDataQuery = Static<typeof sceneDataQuerySchema>
+export interface SceneDataQuery extends Static<typeof sceneDataQuerySchema> {}

@@ -28,7 +28,6 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getState } from '@etherealengine/hyperflux'
 
 /**
  * Filters the parent entities from the given entity list.
@@ -70,7 +69,7 @@ export const filterParentEntities = (
     }
   }
 
-  traverseParentOnly(getState(SceneState).sceneEntity)
+  traverseParentOnly(SceneState.getRootEntity())
 
   return parentEntityList
 }

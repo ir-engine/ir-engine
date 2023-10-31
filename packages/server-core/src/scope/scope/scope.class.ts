@@ -28,7 +28,6 @@ import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import { ScopeData, ScopePatch, ScopeQuery, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScopeParams extends KnexAdapterParams<ScopeQuery> {}
 
 /**

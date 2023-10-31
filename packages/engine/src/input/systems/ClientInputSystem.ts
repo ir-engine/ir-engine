@@ -503,8 +503,10 @@ const execute = () => {
         if (hits.length && hits[0].distance < hitDistance) {
           const object = hits[0].object
           const parentObject = Object3DUtils.findAncestor(object, (obj) => obj.parent === Engine.instance.scene)
-          assignedInputEntity = parentObject.entity
-          hitDistance = hits[0].distance
+          if (parentObject.entity) {
+            assignedInputEntity = parentObject.entity
+            hitDistance = hits[0].distance
+          }
         }
       } else {
         // 1st heuristic is XRUI

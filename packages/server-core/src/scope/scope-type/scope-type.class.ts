@@ -33,7 +33,6 @@ import {
   ScopeTypeType
 } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScopeTypeParams extends KnexAdapterParams<ScopeTypeQuery> {}
 
 export class ScopeTypeService<T = ScopeTypeType, ServiceParams extends Params = ScopeTypeParams> extends KnexService<

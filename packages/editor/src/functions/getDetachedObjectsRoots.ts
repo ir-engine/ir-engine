@@ -34,7 +34,6 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
-import { getState } from '@etherealengine/hyperflux'
 
 import traverseEarlyOut from './traverseEarlyOut'
 
@@ -101,7 +100,7 @@ export const isAncestor = (parent: EntityOrObjectUUID, potentialChild: EntityOrO
 }
 
 const getEntityNode = (uuid: string) => {
-  const sceneEntity = getState(SceneState).sceneEntity
+  const sceneEntity = SceneState.getRootEntity()
   let obj3d = obj3dFromUuid(uuid) as Object3DWithEntity
   while (obj3d) {
     if (
