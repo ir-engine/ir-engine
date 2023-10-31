@@ -29,7 +29,7 @@ services:
       MYSQL_USER: server
       MYSQL_PASSWORD: password
     ports:
-      - '3306'
+      - '3304:3306'
   redis:
     image: redis
     container_name: etherealengine_redis
