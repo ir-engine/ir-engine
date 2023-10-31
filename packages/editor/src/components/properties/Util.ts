@@ -36,7 +36,7 @@ import {
   iterateEntityNode
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
@@ -116,6 +116,6 @@ export function traverseScene<T>(
   snubChildren = false
 ): T[] {
   const result: T[] = []
-  iterateEntityNode(getState(SceneState).sceneEntity, (node) => result.push(callback(node)), predicate, snubChildren)
+  iterateEntityNode(SceneState.getRootEntity(), (node) => result.push(callback(node)), predicate, snubChildren)
   return result
 }

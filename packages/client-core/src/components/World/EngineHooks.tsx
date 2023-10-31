@@ -198,7 +198,6 @@ export const usePortalTeleport = () => {
   useEffect(() => {
     if (!portalState.activePortalEntity.value) return
 
-    logger.info('Resetting connection for portal teleport.')
     const activePortalEntity = portalState.activePortalEntity.value
 
     if (!activePortalEntity) return

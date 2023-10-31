@@ -40,8 +40,10 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { t } from 'i18next'
@@ -50,7 +52,6 @@ import { Vector2, Vector3 } from 'three'
 import { ItemTypes } from '../constants/AssetTypes'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
-import { loadProjectScene } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { getCursorSpawnPosition } from '../functions/screenSpaceFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -196,7 +197,7 @@ const loadScene = async (sceneName: string) => {
     if (!project.scene) {
       return
     }
-    loadProjectScene(project)
+    SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, project)
   } catch (error) {
     logger.error(error)
   }

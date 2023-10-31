@@ -38,16 +38,15 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { deserializeComponent } from '../systems/SceneLoadingSystem'
 import { enableObjectLayer } from './setObjectLayers'
 
 export const parseECSData = (entity: Entity, data: [string, any][]): void => {
@@ -77,23 +76,20 @@ export const parseECSData = (entity: Entity, data: [string, any][]): void => {
     const component = ComponentMap.get(key)
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
-    } else {
-      setComponent(entity, component, value)
-      getComponent(entity, GLTFLoadedComponent).push(component)
+      continue
     }
+    setComponent(entity, component, value)
+    getComponent(entity, GLTFLoadedComponent).push(component)
   }
 
   for (const [key, value] of Object.entries(prefabs)) {
-    const component = Array.from(ComponentJSONIDMap.keys()).find((jsonID) => jsonID === key)
-    if (typeof component === 'undefined') {
-      console.warn(`Could not load component '${component}'`)
-    } else {
-      getComponent(entity, GLTFLoadedComponent).push(component)
-      deserializeComponent(entity, {
-        name: key,
-        props: value
-      })
+    const Component = ComponentJSONIDMap.get(key)!
+    if (typeof Component === 'undefined') {
+      console.warn(`Could not load component '${Component}'`)
+      continue
     }
+    getComponent(entity, GLTFLoadedComponent).push(Component)
+    setComponent(entity, Component, value)
   }
 }
 
@@ -101,11 +97,11 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
   parseECSData(entity, Object.entries(obj3d.userData))
 }
 
-export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3D): void => {
+export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3D): Entity[] => {
   const scene = object3d ?? getComponent(entity, ModelComponent).scene
   const meshesToProcess: Mesh[] = []
 
-  if (!scene) return
+  if (!scene) return []
 
   scene.traverse((mesh: Mesh) => {
     if ('xrengine.entity' in mesh.userData) {
@@ -116,13 +112,16 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   if (meshesToProcess.length === 0) {
     setComponent(entity, GLTFLoadedComponent)
     scene.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
-    return
+    return []
   }
+
+  const entities: Entity[] = []
 
   for (const mesh of meshesToProcess) {
     const e = createEntity()
+    entities.push(e)
 
-    addEntityNodeChild(e, entity, undefined, mesh.uuid as EntityUUID)
+    setComponent(e, EntityTreeComponent, { parentEntity: entity, uuid: mesh.uuid as EntityUUID })
 
     if (hasComponent(entity, SceneObjectComponent)) setComponent(e, SceneObjectComponent)
 
@@ -131,13 +130,11 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
 
-    // setTransformComponent(e, mesh.position, mesh.quaternion, mesh.scale)
     setComponent(e, LocalTransformComponent, {
       position: mesh.position,
       rotation: mesh.quaternion,
       scale: mesh.scale
     })
-    computeLocalTransformMatrix(entity)
     computeTransformMatrix(entity)
 
     addObjectToGroup(e, mesh)
@@ -146,16 +143,18 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     mesh.visible = false
   }
+
+  return entities
 }
 
 export const parseGLTFModel = (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
-  if (!model.scene) return
+  if (!model.scene) return []
   const scene = model.scene
   scene.updateMatrixWorld(true)
 
   // always parse components first
-  parseObjectComponentsFromGLTF(entity, scene)
+  const spawnedEntities = parseObjectComponentsFromGLTF(entity, scene)
 
   enableObjectLayer(scene, ObjectLayers.Scene, true)
 
@@ -168,4 +167,6 @@ export const parseGLTFModel = (entity: Entity) => {
       animations: scene.animations
     })
   }
+
+  return spawnedEntities
 }
