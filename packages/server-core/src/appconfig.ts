@@ -198,6 +198,8 @@ const instanceserver = {
   domain: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com',
   releaseName: process.env.RELEASE_NAME || 'local',
   port: process.env.INSTANCESERVER_PORT!,
+  mediaDomain: process.env.MEDIAINSTANCE_DOMAIN!,
+  mediaPort: process.env.MEDIAINSTANCE_PORT!,
   locationName: process.env.PRELOAD_LOCATION_NAME!,
   shutdownDelayMs: parseInt(process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS!) || 0
 }

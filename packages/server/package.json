@@ -39,7 +39,7 @@
     "dev-reinit-db": "cross-env FORCE_DB_REFRESH=true ts-node --swc src/index.ts",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "validate": "npm run build && npm run test",
-    "serve-local-files": "http-server ./upload --ssl --cert ../../newcerts/server-cert.pem --key ../../newcerts/server-key.pem --port 8642 --cors=* --brotli --gzip"
+    "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=* --brotli --gzip"
   },
   "types": "lib/",
   "dependencies": {

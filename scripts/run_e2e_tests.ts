@@ -33,7 +33,7 @@ import config from '@etherealengine/server-core/src/appconfig'
 const killports = () => {
   killPort(config.server.port)
   killPort(config.instanceserver.port)
-  killPort('3032') // todo, we should put this hardcoded val into env
+  killPort(config.instanceserver.mediaPort)
   killPort(process.env.CORS_SERVER_PORT)
   killPort(process.env.VITE_APP_PORT)
   killPort(process.env.LOCAL_STORAGE_PROVIDER_PORT)
