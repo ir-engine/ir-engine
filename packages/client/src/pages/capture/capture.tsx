@@ -44,6 +44,7 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { ECSRecordingActions } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 
@@ -74,7 +75,7 @@ export const CaptureLocation = () => {
   useLoadEngineWithScene({ spectate: true })
 
   if (offline) {
-    useLoadScene({ projectName: 'default-project', sceneName: 'default' })
+    useLoadScene({ projectName: 'default-project', sceneId: '' as SceneID, sceneName: 'default' })
   } else {
     useLoadLocation({ locationName: params.locationName! })
   }

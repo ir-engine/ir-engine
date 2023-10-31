@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -37,6 +36,7 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import { SceneDataType, SceneJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { useEffect } from 'react'
 import { EditorState } from './EditorServices'
 
@@ -44,7 +44,7 @@ export const EditorTopic = 'editor' as Topic
 
 export type EditorStateSnapshot = {
   selectedEntities: Array<EntityUUID | string>
-  data: SceneData
+  data: SceneDataType
 }
 
 export const EditorHistoryState = defineState({
@@ -123,7 +123,7 @@ export class EditorHistoryAction {
 
   static appendSnapshot = defineAction({
     type: 'ee.editor.EditorHistory.APPEND_SNAPSHOT' as const,
-    json: matches.object as Validator<unknown, SceneJson>
+    json: matches.object as Validator<unknown, SceneJsonType>
     // $topic: EditorTopic,
     // $cache: true
   })
@@ -131,7 +131,7 @@ export class EditorHistoryAction {
   static createSnapshot = defineAction({
     type: 'ee.editor.EditorHistory.CREATE_SNAPSHOT' as const,
     selectedEntities: matches.array as Validator<unknown, Array<EntityUUID | string>>,
-    data: matches.object as Validator<unknown, SceneData>
+    data: matches.object as Validator<unknown, SceneDataType>
   })
 }
 const undoQueue = defineActionQueue(EditorHistoryAction.undo.matches)

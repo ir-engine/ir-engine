@@ -24,18 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneID, SceneJsonType, SceneType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 
 const fileServer = config.client.fileServer
 
-export const loadSceneJsonOffline = async (projectName, sceneName) => {
-  const sceneID = `${projectName}/${sceneName}` as SceneID
-  const sceneData = (await (await fetch(`${fileServer}/projects/${sceneID}.scene.json`)).json()) as SceneJson
-  const hasKTX2 = await fetch(`${fileServer}/projects/${sceneID}.thumbnail.ktx2`).then((res) => res.ok)
+export const loadSceneJsonOffline = async (sceneID: SceneID, sceneName: string, projectName: string) => {
+  let sceneFilePath = `projects/${projectName}/scenes/${sceneName}.json`
+  let thumbnailPath = `projects/${projectName}/scenes/${sceneName}.thumbnail.jpeg`
+  if (sceneID !== '') {
+    const scene = (await Engine.instance.api.service(scenePath)._get(sceneID)) as SceneType
+    sceneFilePath = scene.scenePath
+    thumbnailPath = scene.thumbnailPath
+  }
+  const sceneData = (await (await fetch(`${fileServer}/${sceneFilePath}`)).json()) as SceneJsonType
+  const hasKTX2 = await fetch(`${fileServer}/${thumbnailPath}`).then((res) => res.ok)
   SceneState.loadScene(sceneID, {
+    id: sceneID,
     scene: parseStorageProviderURLs(sceneData),
     name: sceneName,
     thumbnailUrl: `${fileServer}/projects/${sceneID}.thumbnail.${hasKTX2 ? 'ktx2' : 'jpeg'}`,

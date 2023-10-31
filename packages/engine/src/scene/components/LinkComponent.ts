@@ -54,7 +54,7 @@ const linkLogic = (linkComponent, xrState) => {
     xrState && xrState.session?.end()
     typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
   } else {
-    SceneServices.setCurrentScene(linkComponent.projectName, linkComponent.sceneName)
+    SceneServices.setCurrentScene(linkComponent.sceneId)
   }
 }
 

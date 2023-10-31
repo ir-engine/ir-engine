@@ -39,6 +39,9 @@ import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world
 import { AppLoadingState } from '@etherealengine/engine/src/common/AppLoadingService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { getScenes } from '@etherealengine/editor/src/functions/sceneFunctions'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { useLoadEngineWithScene, useOfflineNetwork, useOnlineNetwork } from '../components/World/EngineHooks'
 
 type Props = {
@@ -60,7 +63,25 @@ const LocationPage = ({ offline }: Props) => {
   if (params.locationName) {
     useLoadLocation({ locationName: params.locationName })
   } else {
-    useLoadScene({ projectName: params.projectName!, sceneName: params.sceneName! })
+    let projectId, sceneId
+    if (params.projectName) {
+      Engine.instance.api
+        .service(projectPath)
+        .find({ query: { name: params.projectName, $limit: 1 } })
+        .then((projects) => {
+          if (projects.data[0].name === params.projectName) {
+            projectId = projects.data[0].id
+          }
+        })
+      getScenes(projectId).then((scenes) => {
+        scenes.forEach((scene) => {
+          if (scene.name === params.sceneName) {
+            sceneId = scene.id
+          }
+        })
+      })
+    }
+    useLoadScene({ projectName: params.projectName!, sceneId: sceneId, sceneName: params.sceneName! })
   }
 
   AuthService.useAPIListeners()
