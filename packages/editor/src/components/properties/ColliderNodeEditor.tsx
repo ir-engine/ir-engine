@@ -194,7 +194,11 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
   }, [props.entity])
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.collider.description')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.collider.name')}
+      description={t('editor:properties.collider.description')}
+    >
       <InputGroup name="Type" label={t('editor:properties.collider.lbl-type')}>
         <SelectInput
           options={bodyTypeOptions}

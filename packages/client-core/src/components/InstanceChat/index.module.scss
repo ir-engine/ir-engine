@@ -29,7 +29,6 @@
       top: 0;
       bottom: 0;
       position: fixed;
-      width: 100vw;
       z-index: 10;
       flex: none;
     }
@@ -331,6 +330,9 @@
   line-height: 1.3;
   white-space: pre-wrap;
   word-break: break-word;
+  font-family: var(--lato);
+  margin: 0;
+  padding: 0;
 }
 
 .shadowText {
@@ -338,6 +340,7 @@
   text-shadow: 1px 1px 2px grey, 0 0 1em grey, 0 0 1em grey;
   font-size: 0.7rem;
   white-space: pre-wrap;
+  font-family: var(--lato);
 }
 
 .animateTop {
@@ -360,6 +363,8 @@
   color: var(--textColor);
   font-weight: bold;
   margin-bottom: 5px;
+  font-size:100%;
+  font-family: var(--lato);
 }
 
 .avatar {
@@ -413,6 +418,7 @@
     color: white;
     text-shadow: 1px 1px 2px grey, 0 0 1em grey, 0 0 1em grey;
     font-size: 0.7rem;
+    font-family: var(--lato);
   }
 }
 

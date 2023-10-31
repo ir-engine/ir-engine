@@ -175,10 +175,11 @@
 ::selection {
   /* Code for Firefox */
   background: #000;
+  
 }
 
 ::-webkit-scrollbar {
-  width: auto;
+  width: .5rem;
 }
 
 ::-webkit-scrollbar-track {
@@ -487,4 +488,10 @@ vite-error-overlay {
   #engine-container {
     height: 100%;
   }
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
