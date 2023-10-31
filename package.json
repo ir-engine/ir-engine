@@ -59,6 +59,7 @@
     "dev-reinit": "npm run dev-docker && cd packages/server && npm run dev-reinit-db && cd ../../scripts",
     "dev-server": "cd packages/server && npm run dev",
     "dev-windows": "npm run dev-docker-windows && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
+    "dev-debiancerts": "./generate-certs.sh",
     "dev-gencerts": "cd ./scripts && ./generate-mkcerts.sh",
     "diff": "lerna diff",
     "format": "prettier --write \"packages/**/*.{ts,tsx}\" \"scripts/*.ts\"",
