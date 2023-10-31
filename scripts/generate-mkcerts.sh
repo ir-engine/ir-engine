@@ -10,7 +10,7 @@ case "$(uname -s)" in
     rm -f $DIR/mkcert-cert.pem
     rm -f $DIR/mkcert-key.pem
     mkcert -install
-    mkcert $VITE_APP_HOST -cert-file $DIR/mkcert-cert.pem -key-file $DIR/mkcert-key.pem
+    mkcert -cert-file $DIR/mkcert-cert.pem -key-file $DIR/mkcert-key.pem $VITE_APP_HOST
      ;;
    Linux)
     rm -f $DIR/mkcert-cert.pem
