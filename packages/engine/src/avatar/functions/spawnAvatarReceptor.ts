@@ -34,7 +34,7 @@ import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
-import { addComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
@@ -73,14 +73,14 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
   const primary = ownerID === (entityUUID as string as UserID)
 
-  if (primary) {
-    const existingAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(entityUUID as string as UserID)
+  // if (primary) {
+  //   const existingAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(entityUUID as string as UserID)
 
-    // already spawned into the world on another device or tab
-    if (existingAvatarEntity) return
-  }
+  //   // already spawned into the world on another device or tab
+  //   if (existingAvatarEntity) return
+  // }
 
-  addComponent(entity, AvatarComponent, {
+  setComponent(entity, AvatarComponent, {
     primary,
     avatarHalfHeight: defaultAvatarHalfHeight,
     avatarHeight: defaultAvatarHeight,
@@ -90,9 +90,9 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const userNames = getState(WorldState).userNames
   const userName = userNames[entityUUID]
   const shortId = ownerID.substring(0, 7)
-  addComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))
+  setComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))
 
-  addComponent(entity, VisibleComponent, true)
+  setComponent(entity, VisibleComponent, true)
 
   setComponent(entity, BoundingBoxDynamicTag)
   setComponent(entity, BoundingBoxComponent)
@@ -105,7 +105,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     envMapSourceEntityUUID: getComponent(getState(SceneState).sceneEntity, UUIDComponent)
   })
 
-  addComponent(entity, AnimationComponent, {
+  setComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(new Object3D()),
     animations: [] as AnimationClip[]
   })
@@ -117,7 +117,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
-    addComponent(entity, LocalInputTagComponent, true)
+    setComponent(entity, LocalInputTagComponent, true)
   } else {
     createAvatarRigidBody(entity)
     createAvatarCollider(entity)
@@ -160,7 +160,14 @@ const createAvatarRigidBody = (entity: Entity): RigidBody => {
 }
 
 export const createAvatarController = (entity: Entity) => {
-  createAvatarRigidBody(entity)
+  if (!hasComponent(entity, RigidBodyComponent)) {
+    createAvatarRigidBody(entity)
+    setComponent(entity, AvatarControllerComponent, {
+      bodyCollider: createAvatarCollider(entity),
+      controller: Physics.createCharacterController(getState(PhysicsState).physicsWorld, {})
+    })
+  }
+
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
   rigidbody.position.copy(transform.position)
@@ -175,10 +182,5 @@ export const createAvatarController = (entity: Entity) => {
   if (orientation > 0) targetTheta = 2 * Math.PI - targetTheta
   setTargetCameraRotation(Engine.instance.cameraEntity, 0, targetTheta, 0.01)
 
-  setComponent(entity, AvatarControllerComponent, {
-    bodyCollider: createAvatarCollider(entity),
-    controller: Physics.createCharacterController(getState(PhysicsState).physicsWorld, {})
-  })
-
-  addComponent(entity, CollisionComponent)
+  setComponent(entity, CollisionComponent)
 }

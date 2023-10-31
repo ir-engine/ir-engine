@@ -319,9 +319,9 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
                     }
                   }}
                 ></input>
-                {systemReactor?.error && (
+                {systemReactor?.error.value && (
                   <span style={{ color: 'red' }}>
-                    {systemReactor.error.name}: {systemReactor.error.message}
+                    {systemReactor.error.value.name}: {systemReactor.error.value.message}
                   </span>
                 )}
               </>

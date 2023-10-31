@@ -117,7 +117,7 @@ export const loadAvatarForUser = async (
   loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 ) => {
   if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
-    throw new Error('Avatar model already loading')
+    return
 
   if (loadingEffect) {
     if (hasComponent(entity, AvatarControllerComponent)) {

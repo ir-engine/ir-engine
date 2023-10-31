@@ -99,7 +99,6 @@ export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactN
   function error(props, error?: Error) {
     if (error) {
       props.reactorRoot.error.set(error)
-      props.reactorRoot.stop()
       return null
     } else {
       return <React.Fragment>{props.children}</React.Fragment>

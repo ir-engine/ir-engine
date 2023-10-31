@@ -57,11 +57,11 @@ import { V_000 } from '../../common/constants/MathConstants'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -104,10 +104,10 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
-  addComponent(entity, RigidBodyComponent, { body })
+  setComponent(entity, RigidBodyComponent, { body })
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.body.bodyType())
-  addComponent(entity, RigidBodyTypeTagComponent, true)
+  setComponent(entity, RigidBodyTypeTagComponent, true)
 
   // apply the initial transform if there is one
   if (hasComponent(entity, TransformComponent)) {
@@ -409,7 +409,7 @@ function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
   rigidBody.setBodyType(newType, false)
 
   const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody.bodyType())
-  addComponent(entity, newRigidBodyComponent, true)
+  setComponent(entity, newRigidBodyComponent, true)
 }
 
 export type RaycastArgs = {

@@ -39,9 +39,7 @@ import {
 import { Paginated } from '@feathersjs/feathers'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { entityExists } from '../../ecs/functions/EntityFunctions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
@@ -101,18 +99,8 @@ export const AvatarState = defineState({
 const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(AvatarState)[entityUUID])
 
-  useEffect(() => {
-    spawnAvatarReceptor(entityUUID)
-  }, [])
-
-  useEffect(() => {
-    const avatarEntity = UUIDComponent.entitiesByUUID[entityUUID]
-
-    const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
-    if (!networkObject) {
-      return console.warn(`Avatar Entity for user id ${entityUUID} does not exist! You should probably reconnect...`)
-    }
-  }, [entityUUID])
+  // useEffect(() => {
+  // }, [])
 
   useEffect(() => {
     if (!state.avatarID.value) return
@@ -148,6 +136,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
 
     const avatarDetails = state.userAvatarDetails.get(NO_PROXY)
 
+    spawnAvatarReceptor(entityUUID)
     loadAvatarForUser(entity, url).catch((e) => {
       console.error('Failed to load avatar for user', e, avatarDetails)
       if (entityUUID === (Engine.instance.userID as any)) {
