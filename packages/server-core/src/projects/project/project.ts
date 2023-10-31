@@ -69,7 +69,8 @@ export default (app: Application): void => {
       let targetIds: string[] = []
       const projectOwners = (await app.service(projectPermissionPath).find({
         query: {
-          projectId: data.id
+          projectId: data.id,
+          type: 'owner'
         },
         paginate: false
       })) as any as ProjectPermissionType[]
