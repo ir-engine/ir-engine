@@ -33,7 +33,6 @@ import {
   LocationSettingType
 } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LocationSettingParams extends KnexAdapterParams<LocationSettingQuery> {}
 
 export class LocationSettingService<

@@ -63,9 +63,9 @@ export const avatarSchema = Type.Object(
   },
   { $id: 'Avatar', additionalProperties: false }
 )
-export type AvatarType = Static<typeof avatarSchema>
+export interface AvatarType extends Static<typeof avatarSchema> {}
 
-export type AvatarDatabaseType = Omit<AvatarType, 'modelResource' | 'thumbnailResource'>
+export interface AvatarDatabaseType extends Omit<AvatarType, 'modelResource' | 'thumbnailResource'> {}
 
 // Schema for creating new entries
 // export const avatarDataSchema = Type.Pick(
@@ -78,13 +78,13 @@ export type AvatarDatabaseType = Omit<AvatarType, 'modelResource' | 'thumbnailRe
 export const avatarDataSchema = Type.Partial(avatarSchema, {
   $id: 'AvatarData'
 })
-export type AvatarData = Static<typeof avatarDataSchema>
+export interface AvatarData extends Static<typeof avatarDataSchema> {}
 
 // Schema for updating existing entries
 export const avatarPatchSchema = Type.Partial(avatarSchema, {
   $id: 'AvatarPatch'
 })
-export type AvatarPatch = Static<typeof avatarPatchSchema>
+export interface AvatarPatch extends Static<typeof avatarPatchSchema> {}
 
 // Schema for allowed query properties
 export const avatarQueryProperties = Type.Pick(avatarSchema, [
@@ -112,7 +112,7 @@ export const avatarQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type AvatarQuery = Static<typeof avatarQuerySchema>
+export interface AvatarQuery extends Static<typeof avatarQuerySchema> {}
 
 export const avatarValidator = getValidator(avatarSchema, dataValidator)
 export const avatarDataValidator = getValidator(avatarDataSchema, dataValidator)

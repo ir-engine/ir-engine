@@ -62,7 +62,7 @@ export const botSchema = Type.Object(
   },
   { $id: 'Bot', additionalProperties: false }
 )
-export type BotType = Static<typeof botSchema>
+export interface BotType extends Static<typeof botSchema> {}
 
 // Schema for creating new entries
 export const botDataSchema = Type.Pick(
@@ -72,13 +72,13 @@ export const botDataSchema = Type.Pick(
     $id: 'BotData'
   }
 )
-export type BotData = Static<typeof botDataSchema>
+export interface BotData extends Static<typeof botDataSchema> {}
 
 // Schema for updating existing entries
 export const botPatchSchema = Type.Partial(botSchema, {
   $id: 'BotPatch'
 })
-export type BotPatch = Static<typeof botPatchSchema>
+export interface BotPatch extends Static<typeof botPatchSchema> {}
 
 // Schema for allowed query properties
 export const botQueryProperties = Type.Pick(botSchema, [
@@ -97,7 +97,7 @@ export const botQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type BotQuery = Static<typeof botQuerySchema>
+export interface BotQuery extends Static<typeof botQuerySchema> {}
 
 export const botValidator = getValidator(botSchema, dataValidator)
 export const botDataValidator = getValidator(botDataSchema, dataValidator)

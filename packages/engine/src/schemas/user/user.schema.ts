@@ -75,21 +75,21 @@ export const userSchema = Type.Object(
   },
   { $id: 'User', additionalProperties: false }
 )
-export type UserType = Static<typeof userSchema>
+export interface UserType extends Static<typeof userSchema> {}
 
 // Schema for creating new entries
 export const userDataSchema = Type.Partial(userSchema, {
   $id: 'UserData'
 })
-export type UserData = Static<typeof userDataSchema>
+export interface UserData extends Static<typeof userDataSchema> {}
 
 // Schema for updating existing entries
 export const userPatchSchema = Type.Partial(userSchema, {
   $id: 'UserPatch'
 })
-export type UserPatch = Static<typeof userPatchSchema>
+export interface UserPatch extends Static<typeof userPatchSchema> {}
 
-export type UserPublicPatch = Pick<UserType, 'name' | 'avatarId' | 'id'>
+export interface UserPublicPatch extends Pick<UserType, 'name' | 'avatarId' | 'id'> {}
 
 // Schema for allowed query properties
 export const userQueryProperties = Type.Pick(userSchema, [
@@ -121,7 +121,7 @@ export const userQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type UserQuery = Static<typeof userQuerySchema>
+export interface UserQuery extends Static<typeof userQuerySchema> {}
 
 export const userScopeValidator = getValidator(userScopeSchema, dataValidator)
 export const userValidator = getValidator(userSchema, dataValidator)

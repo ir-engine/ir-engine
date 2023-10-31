@@ -42,7 +42,7 @@ export const ProjectBuildUpdateItemSchema = Type.Object(
   },
   { $id: 'ProjectUpdate', additionalProperties: false }
 )
-export type ProjectBuildUpdateItemType = Static<typeof ProjectBuildUpdateItemSchema>
+export interface ProjectBuildUpdateItemType extends Static<typeof ProjectBuildUpdateItemSchema> {}
 
 // Main data model schema
 export const projectBuildSchema = Type.Object(
@@ -52,7 +52,7 @@ export const projectBuildSchema = Type.Object(
   },
   { $id: 'ProjectBuild', additionalProperties: false }
 )
-export type ProjectBuildType = Static<typeof projectBuildSchema>
+export interface ProjectBuildType extends Static<typeof projectBuildSchema> {}
 
 // Schema for updating existing entries
 export const projectBuildPatchSchema = Type.Object(
@@ -65,7 +65,7 @@ export const projectBuildPatchSchema = Type.Object(
   }
 )
 
-export type ProjectBuildPatch = Static<typeof projectBuildPatchSchema>
+export interface ProjectBuildPatch extends Static<typeof projectBuildPatchSchema> {}
 
 export const projectUpdateValidator = getValidator(ProjectBuildUpdateItemSchema, dataValidator)
 export const projectBuildValidator = getValidator(projectBuildSchema, dataValidator)

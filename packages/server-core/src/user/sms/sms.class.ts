@@ -30,7 +30,6 @@ import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import { sendSmsWithAWS } from './awssns'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SmsParams extends KnexAdapterParams {}
 
 /**
