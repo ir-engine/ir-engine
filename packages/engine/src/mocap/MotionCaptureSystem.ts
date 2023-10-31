@@ -53,9 +53,9 @@ import {
   SphereGeometry,
   Vector3
 } from 'three'
-import { lerp } from 'three/src/math/MathUtils'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { V_010 } from '../common/constants/MathConstants'
+import { lerp } from '../common/functions/MathLerpFunctions'
 import { isClient } from '../common/functions/getEnvironment'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
@@ -193,7 +193,7 @@ const execute = () => {
 
     hipBone.updateMatrixWorld(true)
 
-    const worldHips = rigComponent && rigComponent.rig ? rigComponent.rig.hips.node.parent : undefined
+    const worldHips = rigComponent.rig.hips.node.parent
     if (worldHips)
       worldHips.position.setY(
         lerp(worldHips.position.y, MotionCaptureRigComponent.footOffset[entity], getState(EngineState).deltaSeconds * 5)
