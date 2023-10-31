@@ -35,7 +35,7 @@ services:
     container_name: etherealengine_redis
     command: redis-server
     ports:
-      - '6379'
+      - '6379:6379'
   # web:
   #   image: nginx:alpine
   #   container_name: etherealengine_nginx
