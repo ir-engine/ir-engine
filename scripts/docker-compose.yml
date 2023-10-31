@@ -43,7 +43,7 @@ services:
   #     - ./nginx/templates:/etc/nginx/templates
   #     - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
   #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-  #     - ../newcerts:/etc/nginx/certs
+  #     - ../certs:/etc/nginx/certs
   #   ports:
   #     - '80:80'
   #     - '443:443'
