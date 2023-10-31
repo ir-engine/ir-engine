@@ -45,7 +45,11 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
 
-export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
+export function createXRUI<S extends State<any> | null>(
+  UIFunc: React.FC,
+  state = null as S,
+  settings: { interactable: boolean } = { interactable: true }
+): XRUI<S> {
   if (!isClient) throw new Error('XRUI is not supported in nodejs')
 
   const entity = createEntity()
@@ -75,7 +79,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, XRUIComponent, container)
   setComponent(entity, VisibleComponent, true)
-  setComponent(entity, InputComponent, { highlight: false, grow: true })
+  if (settings.interactable) setComponent(entity, InputComponent, { highlight: false, grow: true })
 
   return { entity, state, container }
 }

@@ -46,7 +46,6 @@ export const generateRoomCode = (): RoomCode => {
   return code as RoomCode
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InstanceParams extends KnexAdapterParams<InstanceQuery> {}
 
 /**

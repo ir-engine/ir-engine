@@ -39,6 +39,7 @@ export const MotionCaptureRigComponent = defineComponent({
     >,
     hipPosition: Vector3Schema,
     hipRotation: QuaternionSchema,
+    footOffset: 'f64',
     solvingLowerBody: 'ui8'
   },
 

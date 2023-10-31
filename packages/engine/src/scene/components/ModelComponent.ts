@@ -45,6 +45,7 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -207,8 +208,20 @@ function ModelReactor() {
     addObjectToGroup(entity, scene)
 
     if (groupComponent?.value?.find((group: any) => group === scene)) return
-    parseGLTFModel(entity)
+
+    const childSpawnedEntities = parseGLTFModel(entity)
     setComponent(entity, BoundingBoxComponent)
+
+    return () => {
+      removeObjectFromGroup(entity, scene)
+      childSpawnedEntities.forEach((e) => removeEntityNodeRecursively(e))
+    }
+  }, [modelComponent.scene])
+
+  // update scene
+  useEffect(() => {
+    const scene = getComponent(entity, ModelComponent).scene
+    if (!scene) return
 
     let active = true
 
@@ -243,7 +256,6 @@ function ModelReactor() {
     }
 
     return () => {
-      removeObjectFromGroup(entity, scene)
       active = false
     }
   }, [modelComponent.scene, model.generateBVH])

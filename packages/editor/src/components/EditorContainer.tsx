@@ -40,8 +40,10 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { t } from 'i18next'
@@ -50,7 +52,6 @@ import { Vector2, Vector3 } from 'three'
 import { ItemTypes } from '../constants/AssetTypes'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
-import { loadProjectScene } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { getCursorSpawnPosition } from '../functions/screenSpaceFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -78,6 +79,7 @@ import { GraphPanelTitle } from './graph/GraphPanelTitle'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { HierarchyPanelTitle } from './hierarchy/HierarchyPanelTitle'
 import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
+import MaterialProperties, { MaterialPropertyTitle } from './materials/MaterialEditor'
 import MaterialLibraryPanel from './materials/MaterialLibraryPanel'
 import { MaterialLibraryPanelTitle } from './materials/MaterialLibraryPanelTitle'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
@@ -90,7 +92,7 @@ const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 /**
  *component used as dock container.
  */
-export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
+export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
     '--dividerAlpha': dividerAlpha
   }
@@ -196,7 +198,7 @@ const loadScene = async (sceneName: string) => {
     if (!project.scene) {
       return
     }
-    loadProjectScene(project)
+    SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, project)
   } catch (error) {
     logger.error(error)
   }
@@ -490,6 +492,11 @@ const defaultLayout: LayoutData = {
                 id: 'graphPanel',
                 title: <GraphPanelTitle />,
                 content: <GraphPanel />
+              },
+              {
+                id: 'graphPanel',
+                title: <MaterialPropertyTitle />,
+                content: <MaterialProperties />
               }
             ]
           }

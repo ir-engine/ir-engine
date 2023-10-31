@@ -46,7 +46,7 @@ export const inviteCodeLookupSchema = Type.Object(
   },
   { $id: 'InviteCodeLookup', additionalProperties: false }
 )
-export type InviteCodeLookupType = Static<typeof inviteCodeLookupSchema>
+export interface InviteCodeLookupType extends Static<typeof inviteCodeLookupSchema> {}
 
 // Schema for allowed query properties
 export const inviteCodeLookupQueryProperties = Type.Pick(inviteCodeLookupSchema, ['inviteCode'])
@@ -58,7 +58,7 @@ export const inviteCodeLookupQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type InviteCodeLookupQuery = Static<typeof inviteCodeLookupQuerySchema>
+export interface InviteCodeLookupQuery extends Static<typeof inviteCodeLookupQuerySchema> {}
 
 export const inviteCodeLookupValidator = getValidator(inviteCodeLookupSchema, dataValidator)
 export const inviteCodeLookupQueryValidator = getValidator(inviteCodeLookupQuerySchema, queryValidator)
