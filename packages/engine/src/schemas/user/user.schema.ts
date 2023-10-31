@@ -113,7 +113,8 @@ export const userQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
-        search: Type.Optional(Type.String())
+        search: Type.Optional(Type.String()),
+        skipAvatar: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )
