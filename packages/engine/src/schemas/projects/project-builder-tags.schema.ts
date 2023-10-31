@@ -37,6 +37,6 @@ export const projectBuilderTagsSchema = Type.Object(
   },
   { $id: 'ProjectBuilderTags', additionalProperties: false }
 )
-export type ProjectBuilderTagsType = Static<typeof projectBuilderTagsSchema>
+export interface ProjectBuilderTagsType extends Static<typeof projectBuilderTagsSchema> {}
 
 export const projectBuilderTagsValidator = getValidator(projectBuilderTagsSchema, dataValidator)

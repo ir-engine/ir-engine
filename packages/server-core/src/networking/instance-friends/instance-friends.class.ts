@@ -34,7 +34,6 @@ import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InstanceFriendsParams extends KnexAdapterParams {}
 
 /**

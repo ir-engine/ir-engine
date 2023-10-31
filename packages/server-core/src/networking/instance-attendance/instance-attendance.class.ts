@@ -34,7 +34,6 @@ import {
   InstanceAttendanceType
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InstanceAttendanceParams extends KnexAdapterParams<InstanceAttendanceQuery> {}
 
 export class InstanceAttendanceService<

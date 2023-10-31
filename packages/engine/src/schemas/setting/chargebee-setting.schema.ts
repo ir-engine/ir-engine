@@ -45,19 +45,19 @@ export const chargebeeSettingSchema = Type.Object(
   },
   { $id: 'ChargebeeSetting', additionalProperties: false }
 )
-export type ChargebeeSettingType = Static<typeof chargebeeSettingSchema>
+export interface ChargebeeSettingType extends Static<typeof chargebeeSettingSchema> {}
 
 // Schema for creating new entries
 export const chargebeeSettingDataSchema = Type.Pick(chargebeeSettingSchema, ['url', 'apiKey'], {
   $id: 'ChargebeeSettingData'
 })
-export type ChargebeeSettingData = Static<typeof chargebeeSettingDataSchema>
+export interface ChargebeeSettingData extends Static<typeof chargebeeSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const chargebeeSettingPatchSchema = Type.Partial(chargebeeSettingSchema, {
   $id: 'ChargebeeSettingPatch'
 })
-export type ChargebeeSettingPatch = Static<typeof chargebeeSettingPatchSchema>
+export interface ChargebeeSettingPatch extends Static<typeof chargebeeSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const chargebeeSettingQueryProperties = Type.Pick(chargebeeSettingSchema, ['id', 'url', 'apiKey'])
@@ -69,7 +69,7 @@ export const chargebeeSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type ChargebeeSettingQuery = Static<typeof chargebeeSettingQuerySchema>
+export interface ChargebeeSettingQuery extends Static<typeof chargebeeSettingQuerySchema> {}
 
 export const chargebeeSettingValidator = getValidator(chargebeeSettingSchema, dataValidator)
 export const chargebeeSettingDataValidator = getValidator(chargebeeSettingDataSchema, dataValidator)
