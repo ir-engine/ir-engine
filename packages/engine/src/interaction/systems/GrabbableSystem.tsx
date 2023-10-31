@@ -40,6 +40,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { matches, matchesEntityUUID } from '../../common/functions/MatchesUtils'
@@ -237,7 +238,7 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       removeComponent(xrui.entity, VisibleComponent)
     }
   } else {
-    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
+    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Hips, vec3)
     const distance = vec3.distanceToSquared(transform.position)
     const inRange = distance < 5
     if (transition.state === 'OUT' && inRange) {
@@ -258,6 +259,8 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       mat.opacity = opacity
     })
   })
+
+  console.log(entity)
 }
 
 export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachmentPoint: XRHandedness): void => {

@@ -30,6 +30,7 @@ import { defineState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { getState } from '@etherealengine/hyperflux'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
@@ -43,7 +44,6 @@ import {
   setDistanceFromLocalClientComponent
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { InteractableComponent } from '../components/InteractableComponent'
@@ -80,7 +80,7 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
   transform.position.y += 1
   const transition = InteractableTransitions.get(entity)!
-  getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
+  getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Hips, vec3)
   const distance = vec3.distanceToSquared(transform.position)
   const inRange = distance < 5
   if (transition.state === 'OUT' && inRange) {
@@ -96,7 +96,8 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
       mat.opacity = opacity
     })
   })
-  ObjectFitFunctions.lookAtCameraFromPosition(xrui.container, transform.position)
+  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+  transform.rotation.copy(cameraTransform.rotation)
 }
 
 export const getInteractiveUI = (entity: Entity) => InteractiveUI.get(entity)
