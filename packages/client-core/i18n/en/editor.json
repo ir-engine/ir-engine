@@ -181,9 +181,13 @@
       "info": "Takes a screenshot of your scene at the current view."
     }
   },
+  "materialProperties": {
+    "title": "Material",
+    "info": "Access and edit detailed information about materials in the scene."
+  },
   "properties": {
     "title": "Properties",
-    "info": "Propeties let you access and edit detailed information about objects in your scene.",
+    "info": "Propeties let you access and edit detailed information about objects in the scene.",
     "lbl-visible": "Visible",
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",

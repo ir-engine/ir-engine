@@ -23,22 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Vector3 } from 'three'
-
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { defineState } from '@etherealengine/hyperflux'
 
-export const EditorCameraState = defineState({
-  name: 'EditorCameraState',
+export const MaterialSelectionState = defineState({
+  name: 'MaterialSelectionState',
   initial: {
-    zoomDelta: 0,
-    focusedObjects: [] as Entity[],
-    isPanning: false,
-    cursorDeltaX: 0,
-    cursorDeltaY: 0,
-    isOrbiting: false,
-    refocus: false
+    selectedMaterial: null as string | null
   }
 })
-
-export const editorCameraCenter = new Vector3()
