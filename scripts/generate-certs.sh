@@ -1,22 +1,17 @@
 #!/usr/bin/env bash
-if ! command -v -- "mkcert" > /dev/null 2>&1; then
-  echo "ERROR: mkcert not installed."
-  exit 1
+if (( $EUID != 0 )); then
+    echo "Please run as root"
+    exit
 fi
-DIR=`pwd`/../newcerts
-set -a; source ../.env.local; set +a
 case "$(uname -s)" in
    Darwin)
-    rm -rf $DIR
-    mkdir -p $DIR
-    mkcert -install
-    mkcert $VITE_APP_HOST -cert-file $DIR/server-cert.pem -key-file $DIR/server-key.pem
+     echo 'Mac OS X'
      ;;
    Linux)
-    rm -rf $DIR
-    mkdir -p $DIR
-    mkcert -install
-    mkcert -cert-file $DIR/server-cert.pem -key-file $DIR/server-key.pem $VITE_APP_HOST
+    mkdir -p ../certs
+    openssl req -nodes -new -x509 -keyout ../certs/key.pem -out ../certs/cert.pem ./opensslcnf
+    cp ../certs/cert.pem /usr/local/share/ca-certificates/etherealengine-local-certificate.crt
+    dpkg-reconfigure ca-certificates
      ;;
    CYGWIN*|MINGW32*|MSYS*|MINGW*)
      echo 'MS Windows'

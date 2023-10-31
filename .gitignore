@@ -167,4 +167,5 @@ feathers/*
 /packages/ui/tests/jest-test-results.json
 packages/ui/tests/jest-test-results.json
 
-/newcerts
+/certs/mkcert-cert.pem
+/certs/mkcert-key.pem
