@@ -709,7 +709,7 @@ export const getProjectCommits = async (
       per_page: COMMIT_PER_PAGE
     })
     const commits = headResponse.data
-    const mappedCommits = (await Promise.all(
+    return (await Promise.all(
       commits.map(
         (commit) =>
           new Promise(async (resolve, reject) => {
@@ -736,13 +736,17 @@ export const getProjectCommits = async (
             } catch (err) {
               logger.error("Error getting commit's package.json %s/%s:%s %s", owner, repo, branchName, err.toString())
               resolve({
-                discard: true
+                projectName: undefined,
+                projectVersion: undefined,
+                engineVersion: undefined,
+                commitSHA: commit.sha,
+                datetime: commit?.commit?.committer?.date || new Date().toString(),
+                matchesEngineVersion: false
               })
             }
           })
       )
     )) as ProjectCommitType[]
-    return mappedCommits.filter((commit) => !commit.discard)
   } catch (err) {
     logger.error('error getting repo commits %o', err)
     if (err.status === 404)
@@ -1444,7 +1448,7 @@ export const updateProject = async (
   const userId = params!.user?.id || project?.updateUserId
   if (!userId) throw new BadRequest('No user ID from call or existing project owner')
 
-  const githubIdentityProvider = (await app.service(identityProviderPath)._find({
+  const githubIdentityProvider = (await app.service(identityProviderPath).find({
     query: {
       userId: userId,
       type: 'github',

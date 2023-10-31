@@ -35,6 +35,6 @@ export const builderInfoSchema = Type.Object(
   },
   { $id: 'BuilderInfo', additionalProperties: false }
 )
-export type BuilderInfoType = Static<typeof builderInfoSchema>
+export interface BuilderInfoType extends Static<typeof builderInfoSchema> {}
 
 export const builderInfoValidator = getValidator(builderInfoSchema, dataValidator)

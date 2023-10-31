@@ -51,4 +51,4 @@ export const oembedSchema = Type.Object(
     $id: 'Oembed'
   }
 )
-export type OembedType = Static<typeof oembedSchema>
+export interface OembedType extends Static<typeof oembedSchema> {}

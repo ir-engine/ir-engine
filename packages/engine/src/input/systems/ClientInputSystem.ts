@@ -40,7 +40,6 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
@@ -95,16 +94,23 @@ export const addClientInputListeners = () => {
   canvas.addEventListener('contextmenu', preventDefault)
 
   const addInputSource = (source: XRInputSource) => {
-    if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
-      removeComponent(emulatedInputSourceEntity, InputSourceComponent)
+    // we don't want to override our custom thumbpad input source for mobile AR
+    if (
+      session?.interactionMode === 'screen-space' &&
+      (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze')
+    ) {
+      return
     }
     const entity = createEntity()
     setComponent(entity, InputSourceComponent, { source })
     setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
   }
 
-  const removeInputSource = (source: XRInputSource) =>
-    removeEntity(InputSourceComponent.entitiesByInputSource.get(source))
+  const removeInputSource = (source: XRInputSource) => {
+    const entity = InputSourceComponent.entitiesByInputSource.get(source)
+    if (!entity) return
+    removeEntity(entity)
+  }
 
   const session = xrState.session
 
@@ -147,7 +153,9 @@ export const addClientInputListeners = () => {
     const code = event.code
     const down = event.type === 'keydown'
 
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
+
     const buttonState = inputSourceComponent.buttons as ButtonStateMap
 
     if (down) buttonState[code] = createInitialButtonState()
@@ -196,7 +204,9 @@ export const addClientInputListeners = () => {
     if (event.button === 1) button = MouseButton.AuxiliaryClick
     else if (event.button === 2) button = MouseButton.SecondaryClick
 
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
+
     const state = inputSourceComponent.buttons as ButtonStateMap
 
     if (down) state[button] = createInitialButtonState()
@@ -233,7 +243,8 @@ export const addClientInputListeners = () => {
       return
     }
 
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
 
     const index = stick === 'LeftStick' ? 0 : 2
 
@@ -365,12 +376,12 @@ export function updateGamepadInput(eid: Entity) {
   const buttons = inputSource.buttons as ButtonStateMap
 
   // log buttons
-  if (source.gamepad) {
-    for (let i = 0; i < source.gamepad.buttons.length; i++) {
-      const button = source.gamepad.buttons[i]
-      if (button.pressed) console.log('button ' + i + ' pressed: ' + button.pressed)
-    }
-  }
+  // if (source.gamepad) {
+  //   for (let i = 0; i < source.gamepad.buttons.length; i++) {
+  //     const button = source.gamepad.buttons[i]
+  //     if (button.pressed) console.log('button ' + i + ' pressed: ' + button.pressed)
+  //   }
+  // }
 
   if (!source.gamepad) return
   const gamepadButtons = source.gamepad.buttons
@@ -492,8 +503,10 @@ const execute = () => {
         if (hits.length && hits[0].distance < hitDistance) {
           const object = hits[0].object
           const parentObject = Object3DUtils.findAncestor(object, (obj) => obj.parent === Engine.instance.scene)
-          assignedInputEntity = parentObject.entity
-          hitDistance = hits[0].distance
+          if (parentObject.entity) {
+            assignedInputEntity = parentObject.entity
+            hitDistance = hits[0].distance
+          }
         }
       } else {
         // 1st heuristic is XRUI

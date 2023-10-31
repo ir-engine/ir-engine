@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
+import { RoomCode } from '../social/location.schema'
 import { dataValidator } from '../validators'
 
 export const instanceProvisionPath = 'instance-provision'
@@ -40,11 +42,11 @@ export const instanceProvisionSchema = Type.Object(
     }),
     ipAddress: Type.String(),
     port: Type.String(),
-    roomCode: Type.String(),
+    roomCode: TypedString<RoomCode>({ format: 'uuid' }),
     podName: Type.Optional(Type.String())
   },
   { $id: 'InstanceProvision', additionalProperties: false }
 )
-export type InstanceProvisionType = Static<typeof instanceProvisionSchema>
+export interface InstanceProvisionType extends Static<typeof instanceProvisionSchema> {}
 
 export const instanceProvisionValidator = getValidator(instanceProvisionSchema, dataValidator)

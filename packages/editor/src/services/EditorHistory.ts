@@ -29,23 +29,16 @@ import { Validator, matches } from '@etherealengine/engine/src/common/functions/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import {
-  migrateSceneData,
-  removeSceneEntitiesFromOldJSON,
-  updateSceneEntitiesFromJSON,
-  updateSceneEntity,
-  updateSceneFromJSON
-} from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { migrateSceneData } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { Topic, defineActionQueue, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { Topic, defineActionQueue } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { defineQuery, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import { useEffect } from 'react'
 import { EditorState } from './EditorServices'
-import { SelectionAction } from './SelectionServices'
 
 export const EditorTopic = 'editor' as Topic
 
@@ -67,19 +60,26 @@ export const EditorHistoryState = defineState({
   },
 
   unloadScene: () => {
-    getMutableState(SceneState).sceneData.set(null)
+    SceneState.unloadScene(getState(SceneState).activeScene!)
     getMutableState(EditorHistoryState).set({
       index: 0,
       history: []
     })
-    updateSceneFromJSON()
   },
 
   resetHistory: () => {
-    const sceneData = getState(SceneState).sceneData!
+    const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].data
+    let migratedSceneData
+    try {
+      migratedSceneData = migrateSceneData(sceneData)
+    } catch (e) {
+      console.error(e)
+      migratedSceneData = JSON.parse(JSON.stringify(sceneData))
+      NotificationService.dispatchNotify('Failed to migrate scene.', { variant: 'error' })
+    }
     getMutableState(EditorHistoryState).set({
       index: 0,
-      history: [{ data: migrateSceneData(sceneData), selectedEntities: [] }]
+      history: [{ data: migratedSceneData, selectedEntities: [] }]
     })
     EditorHistoryState.applyCurrentSnapshot()
   },
@@ -93,33 +93,10 @@ export const EditorHistoryState = defineState({
         sceneLoading: true
       })
 
-      getMutableState(SceneState).sceneData.ornull!.scene.set(snapshot.data.scene)
-      const sceneData = getState(SceneState).sceneData!
-
-      removeSceneEntitiesFromOldJSON()
-      const sceneState = getState(SceneState)
-      setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null!, uuid: sceneData.scene.root })
-      updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root])
-      updateSceneEntitiesFromJSON(sceneData.scene.root)
-
-      if (!sceneAssetPendingTagQuery().length) {
-        if (getState(EngineState).sceneLoading) {
-          getMutableState(EngineState).merge({
-            sceneLoading: false,
-            sceneLoaded: true
-          })
-          if (!getState(EngineState).sceneLoaded) dispatchAction(EngineActions.sceneLoaded({}))
-        }
-      }
-
-      dispatchAction(SelectionAction.changedSceneGraph({}))
+      getMutableState(SceneState).scenes[getState(SceneState).activeScene!].data.scene.set(snapshot.data.scene)
     }
     // if (snapshot.selectedEntities)
-    //   dispatchAction(
-    //     SelectionAction.updateSelection({
-    //       selectedEntities: snapshot.selectedEntities.map((uuid) => UUIDComponent.entitiesByUUID[uuid] ?? uuid)
-    //     })
-    //   )
+    //   SelectionState.updateSelection(snapshot.selectedEntities.map((uuid) => UUIDComponent.entitiesByUUID[uuid] ?? uuid))
   }
 })
 
@@ -164,24 +141,30 @@ const appendSnapshotQueue = defineActionQueue(EditorHistoryAction.appendSnapshot
 const modifyQueue = defineActionQueue(EditorHistoryAction.createSnapshot.matches)
 
 const execute = () => {
+  const isEditing = getState(EngineState).isEditing
+
   const state = getMutableState(EditorHistoryState)
   for (const action of undoQueue()) {
+    if (!isEditing) return
     if (state.index.value <= 0) continue
     state.index.set(Math.max(state.index.value - action.count, 0))
     EditorHistoryState.applyCurrentSnapshot()
   }
 
   for (const action of redoQueue()) {
+    if (!isEditing) return
     if (state.index.value >= state.history.value.length - 1) continue
     state.index.set(Math.min(state.index.value + action.count, state.history.value.length - 1))
     EditorHistoryState.applyCurrentSnapshot()
   }
 
   for (const action of clearHistoryQueue()) {
+    if (!isEditing) return
     EditorHistoryState.resetHistory()
   }
 
   for (const action of appendSnapshotQueue()) {
+    if (!isEditing) return
     if (action.$from !== Engine.instance.userID) {
       const json = action.json
       /**
@@ -199,6 +182,7 @@ const execute = () => {
 
   /** Local only - serialize world then push to CRDT */
   for (const action of modifyQueue()) {
+    if (!isEditing) return
     const editorHistory = getState(EditorHistoryState)
     const { data, selectedEntities } = action
     state.history.set([...editorHistory.history.slice(0, state.index.value + 1), { data, selectedEntities }])
@@ -209,12 +193,12 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
 
   useEffect(() => {
-    if (getState(EditorHistoryState).history.length || !sceneData.value?.scene) return
+    if (getState(EditorHistoryState).history.length || !activeScene.value) return
     EditorHistoryState.resetHistory()
-  }, [sceneData])
+  }, [activeScene])
 
   return null
 }

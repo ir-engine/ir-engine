@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -23,10 +24,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createContext, useContext } from 'react'
 
-export const DialogContext = createContext<[JSX.Element | null, (c: JSX.Element | null) => void]>([null, () => {}])
+import { BufferGeometry, Loader, LoadingManager } from 'three'
 
-export const useDialog = () => {
-  return useContext(DialogContext)
+export class CORTOLoader {
+  constructor()
+  setDecoderPath(path: string): CORTOLoader
+  load(
+    url: string,
+    byteStart: number,
+    byteEnd: number,
+    onLoad: (geometry: BufferGeometry | null) => void,
+  ): void
+  preload(): Promise<void>
+  dispose(): CORTOLoader
 }

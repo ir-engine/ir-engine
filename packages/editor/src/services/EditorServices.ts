@@ -32,7 +32,6 @@ export const EditorState = defineState({
     projectName: null as string | null,
     sceneName: null as string | null,
     sceneModified: false,
-    showObject3DInHierarchy: false,
     lockPropertiesPanel: '' as EntityUUID
   })
 })

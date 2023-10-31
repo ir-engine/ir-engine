@@ -43,16 +43,15 @@ import { getMutableState, getState, useHookstate, useState } from '@etherealengi
 import { Stack } from '@mui/material'
 
 import { uploadProjectFiles } from '../../functions/assetFunctions'
-import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
-import { SelectionState } from '../../services/SelectionServices'
 import styles from '../hierarchy/styles.module.scss'
 import { Button } from '../inputs/Button'
 import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
+import { MaterialSelectionState } from './MaterialLibraryState'
 
 export default function MaterialLibraryPanel() {
   const editorState = useHookstate(getMutableState(EditorState))
-  const selectionState = useHookstate(getMutableState(SelectionState))
+  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useState(0)
@@ -77,10 +76,8 @@ export default function MaterialLibraryPanel() {
           uuid,
           type: LibraryEntryType.MATERIAL_SOURCE,
           entry: srcComp,
-          selected: selectionState.selectedEntities.value.some(
-            (entity) => typeof entity === 'string' && entity === uuid
-          ),
-          active: selectionState.selectedEntities.value.at(-1) === uuid,
+          selected: selectedMaterial.value === uuid,
+          active: selectedMaterial.value === uuid,
           isCollapsed
         },
         ...(isCollapsed
@@ -92,23 +89,20 @@ export default function MaterialLibraryPanel() {
                   uuid,
                   type: LibraryEntryType.MATERIAL,
                   entry: materialFromId(uuid),
-                  selected: selectionState.selectedEntities.value.some(
-                    (entity) => typeof entity === 'string' && entity === uuid
-                  ),
-                  active: selectionState.selectedEntities.value.at(-1) === uuid
+                  selected: selectedMaterial.value === uuid,
+                  active: selectedMaterial.value === uuid
                 }
               }))
       ]
     })
     return result
-  }, [nodeChanges, srcs, selectionState.selectedEntities])
+  }, [nodeChanges, srcs, selectedMaterial])
 
   const nodes = useState(createNodes())
 
   const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
     if (!editorState.lockPropertiesPanel.get()) {
-      EditorControlFunctions.replaceSelection([entryId(node.entry, node.type)])
-      selectionState.objectChangeCounter.set(selectionState.objectChangeCounter.value + 1)
+      if (getState(MaterialLibraryState).materials[node.uuid]) selectedMaterial.set(node.uuid)
     }
   }, [])
 
@@ -130,7 +124,7 @@ export default function MaterialLibraryPanel() {
 
   useEffect(() => {
     nodes.set(createNodes())
-  }, [nodeChanges, selectionState.selectedEntities, srcs])
+  }, [nodeChanges, selectedMaterial, srcs])
 
   return (
     <>
@@ -170,11 +164,7 @@ export default function MaterialLibraryPanel() {
             <Button
               onClick={async () => {
                 const projectName = editorState.projectName.value!
-                const materials = selectionState.selectedEntities
-                  .filter(
-                    (selected) => typeof selected.value === 'string' && !!materialLibrary.materials[selected.value]
-                  )
-                  .map((selected) => materialFromId(selected.value as string))
+                const materials = selectedMaterial.value ? [materialFromId(selectedMaterial.value)] : []
                 const libraryName = 'material-test.gltf'
                 const path = `${publicPath}/projects/${projectName}/assets/${libraryName}`
                 const gltf = (await exportMaterialsGLTF(materials, {

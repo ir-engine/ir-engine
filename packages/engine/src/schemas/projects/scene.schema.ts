@@ -20,6 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { TypedRecord, TypedString } from '../../common/types/TypeboxUtils'
@@ -29,6 +30,8 @@ export const scenePath = 'scene'
 
 export const sceneMethods = ['get', 'update', 'create', 'find', 'patch', 'remove'] as const
 
+export type SceneID = OpaqueType<'SceneID'> & string
+
 export const componentJsonSchema = Type.Object(
   {
     name: Type.String(),
@@ -36,7 +39,7 @@ export const componentJsonSchema = Type.Object(
   },
   { $id: 'ComponentJson', additionalProperties: false }
 )
-export type ComponentJsonType = Static<typeof componentJsonSchema>
+export interface ComponentJsonType extends Static<typeof componentJsonSchema> {}
 
 export const entityJsonSchema = Type.Object(
   {
@@ -57,7 +60,7 @@ export const entityJsonSchema = Type.Object(
   },
   { $id: 'EntityJson', additionalProperties: false }
 )
-export type EntityJsonType = Static<typeof entityJsonSchema>
+export interface EntityJsonType extends Static<typeof entityJsonSchema> {}
 
 export const sceneJsonSchema = Type.Object(
   {
@@ -69,7 +72,7 @@ export const sceneJsonSchema = Type.Object(
   },
   { $id: 'SceneJson', additionalProperties: false }
 )
-export type SceneJsonType = Static<typeof sceneJsonSchema>
+export interface SceneJsonType extends Static<typeof sceneJsonSchema> {}
 
 export const sceneMetadataSchema = Type.Object(
   {
@@ -79,7 +82,7 @@ export const sceneMetadataSchema = Type.Object(
   },
   { $id: 'SceneMetadata', additionalProperties: false }
 )
-export type SceneMetadataType = Static<typeof sceneMetadataSchema>
+export interface SceneMetadataType extends Static<typeof sceneMetadataSchema> {}
 
 export const sceneDataSchema = Type.Object(
   {
@@ -88,7 +91,7 @@ export const sceneDataSchema = Type.Object(
   },
   { $id: 'SceneData', additionalProperties: false }
 )
-export type SceneDataType = Static<typeof sceneDataSchema>
+export interface SceneDataType extends Static<typeof sceneDataSchema> {}
 
 // Schema for creating new entries
 export const sceneCreateDataSchema = Type.Object(
@@ -102,7 +105,7 @@ export const sceneCreateDataSchema = Type.Object(
   },
   { $id: 'SceneCreateData', additionalProperties: false }
 )
-export type SceneCreateData = Static<typeof sceneCreateDataSchema>
+export interface SceneCreateData extends Static<typeof sceneCreateDataSchema> {}
 
 // Schema for new created entries
 export const sceneMetadataCreateSchema = Type.Object(
@@ -114,7 +117,7 @@ export const sceneMetadataCreateSchema = Type.Object(
     $id: 'SceneMetadataCreate'
   }
 )
-export type SceneMetadataCreate = Static<typeof sceneMetadataCreateSchema>
+export interface SceneMetadataCreate extends Static<typeof sceneMetadataCreateSchema> {}
 
 // Schema for updated entries
 export const sceneUpdateSchema = Type.Object(
@@ -123,7 +126,7 @@ export const sceneUpdateSchema = Type.Object(
   },
   { $id: 'SceneUpdate', additionalProperties: false }
 )
-export type SceneUpdate = Static<typeof sceneUpdateSchema>
+export interface SceneUpdate extends Static<typeof sceneUpdateSchema> {}
 
 // Schema for updating existing entries
 export const scenePatchSchema = Type.Object(
@@ -138,7 +141,7 @@ export const scenePatchSchema = Type.Object(
   }
 )
 
-export type ScenePatch = Static<typeof scenePatchSchema>
+export interface ScenePatch extends Static<typeof scenePatchSchema> {}
 
 // Schema for allowed query properties
 export const sceneQueryProperties = Type.Pick(sceneDataSchema, ['name', 'project'])
@@ -157,7 +160,7 @@ export const sceneQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type SceneQuery = Static<typeof sceneQuerySchema>
+export interface SceneQuery extends Static<typeof sceneQuerySchema> {}
 
 export const componentJsonValidator = getValidator(componentJsonSchema, dataValidator)
 export const entityJsonValidator = getValidator(entityJsonSchema, dataValidator)

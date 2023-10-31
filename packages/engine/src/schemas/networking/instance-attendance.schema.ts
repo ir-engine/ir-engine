@@ -28,6 +28,7 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { SceneID } from '../projects/scene.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { InstanceID } from './instance.schema'
 
@@ -41,7 +42,9 @@ export const instanceAttendanceSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    sceneId: Type.String(),
+    sceneId: TypedString<SceneID>({
+      format: 'uuid'
+    }),
     isChannel: Type.Boolean(),
     ended: Type.Boolean(),
     instanceId: TypedString<InstanceID>({
@@ -56,7 +59,7 @@ export const instanceAttendanceSchema = Type.Object(
   },
   { $id: 'InstanceAttendance', additionalProperties: false }
 )
-export type InstanceAttendanceType = Static<typeof instanceAttendanceSchema>
+export interface InstanceAttendanceType extends Static<typeof instanceAttendanceSchema> {}
 
 // Schema for creating new entries
 export const instanceAttendanceDataSchema = Type.Pick(
@@ -66,13 +69,13 @@ export const instanceAttendanceDataSchema = Type.Pick(
     $id: 'InstanceAttendanceData'
   }
 )
-export type InstanceAttendanceData = Static<typeof instanceAttendanceDataSchema>
+export interface InstanceAttendanceData extends Static<typeof instanceAttendanceDataSchema> {}
 
 // Schema for updating existing entries
 export const instanceAttendancePatchSchema = Type.Partial(instanceAttendanceSchema, {
   $id: 'InstanceAttendancePatch'
 })
-export type InstanceAttendancePatch = Static<typeof instanceAttendancePatchSchema>
+export interface InstanceAttendancePatch extends Static<typeof instanceAttendancePatchSchema> {}
 
 // Schema for allowed query properties
 export const instanceAttendanceQueryProperties = Type.Pick(instanceAttendanceSchema, [
@@ -91,7 +94,7 @@ export const instanceAttendanceQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type InstanceAttendanceQuery = Static<typeof instanceAttendanceQuerySchema>
+export interface InstanceAttendanceQuery extends Static<typeof instanceAttendanceQuerySchema> {}
 
 export const instanceAttendanceValidator = getValidator(instanceAttendanceSchema, dataValidator)
 export const instanceAttendanceDataValidator = getValidator(instanceAttendanceDataSchema, dataValidator)

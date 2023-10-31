@@ -37,7 +37,7 @@ export const portalSchema = Type.Object(
   },
   { $id: 'Portal', additionalProperties: false }
 )
-export type PortalType = Static<typeof portalSchema>
+export interface PortalType extends Static<typeof portalSchema> {}
 
 // Schema for allowed query properties
 export const portalQueryProperties = Type.Pick(portalSchema, ['sceneName', 'portalEntityId', 'portalEntityName'])
@@ -56,4 +56,4 @@ export const portalQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type PortalQuery = Static<typeof portalQuerySchema>
+export interface PortalQuery extends Static<typeof portalQuerySchema> {}

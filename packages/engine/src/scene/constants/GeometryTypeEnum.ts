@@ -23,19 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-
-export const ParentComponent = defineComponent({
-  name: 'ParentComponent',
-
-  onInit: () => UndefinedEntity,
-
-  toJSON: (entity, component) => {
-    return component.value
-  },
-
-  onSet: (entity, component, parentEntity?: Entity) => {
-    component.set(parentEntity ?? UndefinedEntity)
-  }
-})
+export enum GeometryTypeEnum {
+  'BoxGeometry',
+  'SphereGeometry',
+  'CylinderGeometry',
+  'CapsuleGeometry',
+  'PlaneGeometry',
+  'CircleGeometry',
+  'RingGeometry',
+  'TorusGeometry',
+  'DodecahedronGeometry',
+  'IcosahedronGeometry',
+  'OctahedronGeometry',
+  'TetrahedronGeometry',
+  'TorusKnotGeometry'
+}

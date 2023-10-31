@@ -52,10 +52,7 @@ import {
   useQuery
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import {
-  EntityTreeComponent,
-  getEntityNodeArrayFromEntities
-} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
@@ -145,9 +142,9 @@ const isMacOS = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
 let lastZoom = 0
 let prevRotationAngle = 0
 
-let selectedEntities: (Entity | string)[]
-let selectedParentEntities: (Entity | string)[]
-let selectionCounter = 0
+let selectedEntities: Entity[]
+let selectedParentEntities: Entity[]
+let lastSelectedEntities = [] as Entity[]
 // let gizmoObj: TransformGizmo
 let transformMode: TransformModeType
 let transformPivot: TransformPivotType
@@ -158,7 +155,7 @@ let transformSpaceChanged = false
 let dragging = false
 
 const onKeyQ = () => {
-  const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+  const nodes = getState(SelectionState).selectedEntities
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
@@ -170,7 +167,7 @@ const onKeyQ = () => {
 }
 
 const onKeyE = () => {
-  const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+  const nodes = getState(SelectionState).selectedEntities
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
@@ -198,7 +195,7 @@ const onEscape = () => {
 
 const onKeyF = () => {
   const editorCameraState = getMutableState(EditorCameraState)
-  editorCameraState.focusedObjects.set(getEntityNodeArrayFromEntities(selectedEntities))
+  editorCameraState.focusedObjects.set(selectedEntities)
   editorCameraState.refocus.set(true)
 }
 
@@ -246,7 +243,7 @@ const onMinus = () => {
 }
 
 const onDelete = () => {
-  EditorControlFunctions.removeObject(getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities))
+  EditorControlFunctions.removeObject(getState(SelectionState).selectedEntities)
 }
 
 function copy(event) {
@@ -318,13 +315,8 @@ const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount = 0): v
   const excludeObjects = [] as Object3D[]
   const selectionState = getState(SelectionState)
   for (const e of selectionState.selectedParentEntities) {
-    if (typeof e === 'string') {
-      const obj = scene.getObjectByProperty('uuid', e)
-      if (obj) excludeObjects.push(obj)
-    } else {
-      const group = getComponent(e, GroupComponent)
-      if (group) excludeObjects.push(...group)
-    }
+    const group = getComponent(e, GroupComponent)
+    if (group) excludeObjects.push(...group)
   }
 
   findIntersectObjects(Engine.instance.scene, excludeObjects, raycastIgnoreLayers)
@@ -341,6 +333,14 @@ const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount = 0): v
       Math.round(target.z / snapAmount) * snapAmount
     )
   }
+}
+
+const compareArrays = (a: any[], b: any[]) => {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
 }
 
 const doZoom = (zoom) => {
@@ -376,17 +376,11 @@ const execute = () => {
     if (hasComponent(gizmoEntity, VisibleComponent)) removeComponent(gizmoEntity, VisibleComponent)
   } else {
     const lastSelection = selectedEntities[selectedEntities.length - 1]
-    const isUuid = typeof lastSelection === 'string'
 
-    const lastSelectedTransform = isUuid
-      ? Engine.instance.scene.getObjectByProperty('uuid', lastSelection)
-      : getOptionalComponent(lastSelection as Entity, TransformComponent)
+    const lastSelectedTransform = getOptionalComponent(lastSelection as Entity, TransformComponent)
 
     if (lastSelectedTransform) {
-      const isChanged =
-        selectionCounter !== selectionState.selectionCounter ||
-        transformModeChanged ||
-        selectionState.transformPropertyChanged
+      const isChanged = !compareArrays(lastSelectedEntities, selectionState.selectedEntities) || transformModeChanged
 
       if (isChanged || transformPivotChanged) {
         if (transformPivot === TransformPivot.Selection) {
@@ -398,12 +392,7 @@ const execute = () => {
 
           for (let i = 0; i < selectedParentEntities.length; i++) {
             const parentEnt = selectedParentEntities[i]
-            const isUuid = typeof parentEnt === 'string'
-            if (isUuid) {
-              box.expandByObject(Engine.instance.scene.getObjectByProperty('uuid', parentEnt)!)
-            } else {
-              box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
-            }
+            box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
           }
           box.getCenter(gizmoObj.position)
           if (transformPivot === TransformPivot.Bottom) {
@@ -425,10 +414,7 @@ const execute = () => {
         const localTransform = getComponent(lastSelection as Entity, LocalTransformComponent)
         if (localTransform) gizmoObj.quaternion.copy(localTransform.rotation)
       } else {
-        if (lastSelectedTransform)
-          gizmoObj.quaternion.copy(
-            'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
-          )
+        if (lastSelectedTransform) gizmoObj.quaternion.copy(lastSelectedTransform.rotation)
       }
 
       inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
@@ -533,9 +519,6 @@ const execute = () => {
         )
       }
 
-      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
-      EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
-
       // if (isGrabbing && transformMode === TransformMode.Grab) {
       //   EditorHistory.grabCheckPoint = (selectedEntities?.find((ent) => typeof ent !== 'string') ?? 0) as Entity
       // }
@@ -558,7 +541,7 @@ const execute = () => {
       const relativeRotationAngle = rotationAngle - prevRotationAngle
       prevRotationAngle = rotationAngle
 
-      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+      const nodes = getState(SelectionState).selectedEntities
       EditorControlFunctions.rotateAround(nodes, planeNormal, relativeRotationAngle, gizmoObj.position)
 
       const selectedAxisInfo = gizmoObj.selectedAxisObj?.axisInfo!
@@ -632,12 +615,12 @@ const execute = () => {
       scaleVector.copy(curScale).divide(prevScale)
       prevScale.copy(curScale)
 
-      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+      const nodes = getState(SelectionState).selectedEntities
       EditorControlFunctions.scaleObject(nodes, [scaleVector], transformSpace)
     }
   }
 
-  selectionCounter = selectionState.selectionCounter
+  lastSelectedEntities = [...selectionState.selectedEntities]
   const shift = buttons.ShiftLeft?.pressed
 
   if (isPrimaryClickUp) {
@@ -653,7 +636,7 @@ const execute = () => {
       if (selectStartPosition.distanceTo(cursorPosition) < SELECT_SENSITIVITY) {
         const result = getIntersectingNodeOnScreen(raycaster, cursorPosition)
         if (result) {
-          if (result.node && (typeof result.node === 'string' || hasComponent(result.node, SceneObjectComponent))) {
+          if (result.node && hasComponent(result.node, SceneObjectComponent)) {
             if (shift) {
               EditorControlFunctions.toggleSelection([result.node])
             } else {
@@ -664,9 +647,14 @@ const execute = () => {
           EditorControlFunctions.replaceSelection([])
         }
       }
-
       gizmoObj.deselectAxis()
       dragging = false
+    }
+
+    if (dragging) {
+      // commit transform changes upon releasing the gizmo
+      const nodes = getState(SelectionState).selectedEntities
+      EditorControlFunctions.commitTransformSave(nodes)
     }
   }
 

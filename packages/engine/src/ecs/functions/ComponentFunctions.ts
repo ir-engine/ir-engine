@@ -399,7 +399,7 @@ export const removeAllComponents = (entity: Entity) => {
 
 export const serializeComponent = <C extends Component<any, any, any>>(entity: Entity, Component: C) => {
   const component = getMutableComponent(entity, Component)
-  return Component.toJSON(entity, component) as ReturnType<C['toJSON']>
+  return JSON.parse(JSON.stringify(Component.toJSON(entity, component))) as ReturnType<C['toJSON']>
 }
 
 export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier)[]) {
@@ -529,7 +529,7 @@ export function useComponent<C extends Component<any>>(entity: Entity, Component
  */
 export function useOptionalComponent<C extends Component<any>>(entity: Entity, Component: C) {
   const hasComponent = useHookstate(Component.existenceMapState[entity]).value
-  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined) //in the case that this is called before a component is set we need a hookstate present for react
+  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined, subscribable()) //in the case that this is called before a component is set we need a hookstate present for react
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return hasComponent ? component : undefined
 }

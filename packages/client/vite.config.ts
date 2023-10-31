@@ -247,6 +247,7 @@ export default defineConfig(async () => {
 
   const returned = {
     server: {
+      proxy: {},
       cors: isDevOrLocal ? false : true,
       hmr:
         process.env.VITE_HMR === 'true'
@@ -317,8 +318,7 @@ export default defineConfig(async () => {
     ].filter(Boolean),
     resolve: {
       alias: {
-        'react-json-tree': 'react-json-tree/lib/umd/react-json-tree',
-        '@mui/styled-engine': '@mui/styled-engine-sc/'
+        'react-json-tree': 'react-json-tree/lib/umd/react-json-tree'
       }
     },
     build: {

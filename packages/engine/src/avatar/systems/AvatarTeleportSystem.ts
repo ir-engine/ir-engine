@@ -54,7 +54,7 @@ import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ReferenceSpace, XRAction, XRState, getCameraMode } from '../../xr/XRState'
+import { ReferenceSpace, XRAction, XRControlsState, XRState } from '../../xr/XRState'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
@@ -177,21 +177,21 @@ let fadeBackInAccumulator = -1
 let visibleSegments = 2
 
 const execute = () => {
-  if (getCameraMode() !== 'attached') return
+  const { isCameraAttachedToAvatar } = getState(XRControlsState)
+  if (!isCameraAttachedToAvatar) return
 
   const { guideCursor, transition, guideline, guidelineEntity, guideCursorEntity, lineMaterial } =
     getState(AvatarTeleportSystemState)
 
   if (fadeBackInAccumulator >= 0) {
-    /** @todo fix camera fade transition shader - for now just teleport instantly */
-    // fadeBackInAccumulator += getState(EngineState).deltaSeconds
-    // if (fadeBackInAccumulator > 0.25) {
-    fadeBackInAccumulator = -1
-    teleportAvatar(Engine.instance.localClientEntity, guideCursor.position)
-    dispatchAction(CameraActions.fadeToBlack({ in: false }))
-    dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
-    dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
-    // }
+    fadeBackInAccumulator += getState(EngineState).deltaSeconds
+    if (fadeBackInAccumulator > 0.25) {
+      fadeBackInAccumulator = -1
+      teleportAvatar(Engine.instance.localClientEntity, guideCursor.position)
+      dispatchAction(CameraActions.fadeToBlack({ in: false }))
+      dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
+      dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
+    }
   }
   for (const entity of avatarTeleportQuery.exit()) {
     visibleSegments = 1

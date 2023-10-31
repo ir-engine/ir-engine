@@ -47,6 +47,7 @@ import {
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserSettingType, userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
   identityProviders: virtual(async (user, context) => {
@@ -94,7 +95,13 @@ export const userResolver = resolve<UserType, HookContext>({
 
 export const userExternalResolver = resolve<UserType, HookContext>({
   avatar: virtual(async (user, context) => {
-    if (context.event !== 'removed' && user.avatarId) return await context.app.service(avatarPath).get(user.avatarId)
+    if (context.arguments && context.arguments.length > 0 && context.arguments[1]?.actualQuery?.skipAvatar) return {}
+    if (context.event !== 'removed' && user.avatarId)
+      try {
+        return await context.app.service(avatarPath).get(user.avatarId, { query: { skipUser: true } })
+      } catch (err) {
+        return {}
+      }
   }),
   userSetting: virtual(async (user, context) => {
     const userSetting = (await context.app.service(userSettingPath).find({
@@ -142,8 +149,8 @@ export const userDataResolver = resolve<UserType, HookContext>({
   name: async (name) => {
     return name || 'Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)
   },
-  inviteCode: async (inviteCode) => {
-    return inviteCode || Math.random().toString(36).slice(2)
+  inviteCode: async (inviteCode, _, context) => {
+    return inviteCode || (await getFreeInviteCode(context.app))
   },
   avatarId: async (avatarId) => {
     return avatarId || undefined

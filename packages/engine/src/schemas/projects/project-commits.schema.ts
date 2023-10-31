@@ -39,7 +39,7 @@ export const projectCommitSchema = Type.Object(
   },
   { $id: 'ProjectCommit', additionalProperties: false }
 )
-export type ProjectCommitType = Static<typeof projectCommitSchema>
+export interface ProjectCommitType extends Static<typeof projectCommitSchema> {}
 
 // Main data model schema
 export const projectCommitsSchema = Type.Object(
@@ -54,7 +54,7 @@ export const projectCommitsSchema = Type.Object(
   },
   { $id: 'ProjectCommits', additionalProperties: false }
 )
-export type ProjectCommitsType = Static<typeof projectCommitsSchema>
+export interface ProjectCommitsType extends Static<typeof projectCommitsSchema> {}
 
 export const projectCommitValidator = getValidator(projectCommitSchema, dataValidator)
 export const projectCommitsValidator = getValidator(projectCommitsSchema, dataValidator)

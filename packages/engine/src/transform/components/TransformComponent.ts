@@ -35,6 +35,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
+  getComponent,
   getOptionalComponent,
   hasComponent,
   setComponent
@@ -46,6 +47,7 @@ export type TransformComponentType = {
   rotation: Quaternion
   scale: Vector3
   matrix: Matrix4
+  matrixInverse: Matrix4
 }
 
 const { f64 } = Types
@@ -68,46 +70,37 @@ export const TransformComponent = defineComponent({
   schema: TransformSchema,
 
   onInit: (entity) => {
-    return {
-      position: null! as Vector3,
-      rotation: null! as Quaternion,
-      scale: null! as Vector3,
+    const dirtyTransforms = TransformComponent.dirtyTransforms
+    const component = {
+      position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms) as Vector3,
+      rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms) as Quaternion,
+      scale: proxifyVector3WithDirty(
+        TransformComponent.scale,
+        entity,
+        dirtyTransforms,
+        new Vector3(1, 1, 1)
+      ) as Vector3,
       matrix: new Matrix4(),
       matrixInverse: new Matrix4()
-    }
+    } as TransformComponentType
+    return component
   },
 
   onSet: (entity, component, json) => {
-    const dirtyTransforms = TransformComponent.dirtyTransforms
-
-    if (!component.position.value)
-      component.position.set(
-        proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms, new Vector3())
-      )
-    if (!component.rotation.value)
-      component.rotation.set(
-        proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms, new Quaternion())
-      )
-    if (!component.scale.value)
-      component.scale.set(
-        proxifyVector3WithDirty(TransformComponent.scale, entity, dirtyTransforms, new Vector3(1, 1, 1))
-      )
-
-    if (!json) return
-
-    const rotation = json.rotation
+    const rotation = json?.rotation
       ? typeof json.rotation.w === 'number'
         ? json.rotation
         : new Quaternion().setFromEuler(new Euler().setFromVector3(json.rotation as any as Vector3))
       : undefined
 
-    if (json.position) component.position.value.copy(json.position)
+    if (json?.position) component.position.value.copy(json.position)
     if (rotation) component.rotation.value.copy(rotation)
-    if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
+    if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
 
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
     component.matrixInverse.value.copy(component.matrix.value).invert()
 
+    /** Update local transform */
     const localTransform = getOptionalComponent(entity, LocalTransformComponent)
     const entityTree = getOptionalComponent(entity, EntityTreeComponent)
     if (localTransform && entityTree?.parentEntity) {
@@ -200,7 +193,18 @@ export const LocalTransformComponent = defineComponent({
     if (scale) component.scale.value.copy(scale)
 
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
+
+    // ensure TransformComponent is updated immediately, raising warnings if it does not have a parent
+    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+    if (!entityTree) return console.warn('Entity does not have EntityTreeComponent', entity)
+
+    const parentTransform = entityTree?.parentEntity
+      ? getOptionalComponent(entityTree.parentEntity, TransformComponent)
+      : undefined
+    if (!parentTransform) return console.warn('Entity does not have parent TransformComponent', entity)
+
+    const transform = getComponent(entity, TransformComponent)
+    transform.matrix.multiplyMatrices(parentTransform.matrix, component.matrix.value)
+    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
   }
 })
-
-globalThis.TransformComponent = TransformComponent

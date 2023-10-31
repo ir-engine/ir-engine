@@ -42,8 +42,8 @@ import { LoadingCircle } from '@etherealengine/client-core/src/components/Loadin
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
+import { DialogState } from '../dialogs/DialogState'
 import ErrorDialog from '../dialogs/ErrorDialog'
-import { useDialog } from '../hooks/useDialog'
 import { Button } from '../inputs/Button'
 import { InfoTooltip } from '../layout/Tooltip'
 import { DeleteDialog } from '../projects/DeleteDialog'
@@ -54,7 +54,7 @@ const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
 /**
  * Displays the scenes that exist in the current project.
  */
-export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }) {
+export default function ScenesPanel({ loadScene, newScene }) {
   const { t } = useTranslation()
   const [scenes, setScenes] = useState<SceneData[]>([])
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
@@ -64,7 +64,6 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const [isRenaming, setRenaming] = useState(false)
   const [activeScene, setActiveScene] = useState<SceneData | null>(null)
   const editorState = useHookstate(getMutableState(EditorState))
-  const [DialogComponent, setDialogComponent] = useDialog()
   const [scenesLoading, setScenesLoading] = useState(true)
 
   const [thumbnails, setThumbnails] = useState<Map<string, string>>(new Map<string, string>())
@@ -84,7 +83,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
 
   useEffect(() => {
     fetchItems()
-  }, [toggleRefetchScenes])
+  }, [editorState.sceneName])
 
   const onCreateScene = async () => {
     await newScene()
@@ -137,7 +136,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
 
   const startRenaming = () => {
     if (editorState.sceneModified.value) {
-      setDialogComponent(
+      DialogState.setDialog(
         <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
       )
       return
@@ -188,7 +187,12 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
               <div className={styles.sceneContainer} key={scene.name}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
-                    <img src={thumbnails.get(scene.name)} alt="" crossOrigin="anonymous" />
+                    <img
+                      style={{ height: 'auto', maxWidth: '100%' }}
+                      src={thumbnails.get(scene.name)}
+                      alt=""
+                      crossOrigin="anonymous"
+                    />
                   </div>
                   <div className={styles.detailBlock}>
                     {activeScene === scene && isRenaming ? (

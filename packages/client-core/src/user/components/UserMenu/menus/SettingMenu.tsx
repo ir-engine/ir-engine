@@ -35,8 +35,6 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
-import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
@@ -182,6 +180,13 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     return {
       label: el,
       value: el
+    }
+  })
+
+  const shadowMapResolutionSchemesMenu: InputMenuItem[] = ShadowMapResolutionOptions.map((el) => {
+    return {
+      label: el.label,
+      value: String(el.value)
     }
   })
 
@@ -474,17 +479,6 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               onChange={handleQualityLevelChange}
             />
 
-            <InputGroup
-              name="Shadow Map Resolution"
-              label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
-            >
-              <SelectInput
-                options={ShadowMapResolutionOptions}
-                value={rendererState.shadowMapResolution.value}
-                onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
-              />
-            </InputGroup>
-
             <Grid container spacing={{ xs: 0, sm: 2 }}>
               <Grid item xs={12} sm={4}>
                 <InputCheck
@@ -510,6 +504,16 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                 />
               </Grid>
             </Grid>
+            {rendererState.useShadows.value && (
+              <InputSelect
+                label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
+                value={rendererState.shadowMapResolution.value}
+                menu={shadowMapResolutionSchemesMenu}
+                onChange={(event) => {
+                  ;(resolution: number) => rendererState.shadowMapResolution.set(Number(resolution))
+                }}
+              />
+            )}
           </>
         )}
       </Box>

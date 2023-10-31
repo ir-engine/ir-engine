@@ -60,7 +60,9 @@ export const EngineState = defineState({
     publicPath: '',
     transformsNeedSorting: true,
     isBot: false,
+    /** @deprecated use isEditing instead */
     isEditor: false,
+    isEditing: false,
     systemPerformanceProfilingEnabled: false
   })
 })

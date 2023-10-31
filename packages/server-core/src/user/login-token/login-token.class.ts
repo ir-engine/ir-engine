@@ -33,7 +33,6 @@ import {
   LoginTokenType
 } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LoginTokenParams extends KnexAdapterParams<LoginTokenQuery> {}
 
 /**

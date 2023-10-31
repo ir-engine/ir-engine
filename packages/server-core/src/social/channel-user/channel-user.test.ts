@@ -30,6 +30,7 @@ import { createFeathersKoaApp } from '../../createApp'
 import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
@@ -111,7 +112,7 @@ describe('channel-user service', () => {
 
     const instance = (await app.service(instancePath).create(
       {
-        roomCode: '',
+        roomCode: '' as RoomCode,
         currentUsers: 0
       },
       {

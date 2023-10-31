@@ -40,19 +40,19 @@ export const generateTokenSchema = Type.Object(
   },
   { $id: 'GenerateToken', additionalProperties: false }
 )
-export type GenerateTokenType = Static<typeof generateTokenSchema>
+export interface GenerateTokenType extends Static<typeof generateTokenSchema> {}
 
 // Schema for creating new entries
 export const generateTokenDataSchema = Type.Pick(generateTokenSchema, ['token', 'type'], {
   $id: 'GenerateTokenData'
 })
-export type GenerateTokenData = Static<typeof generateTokenDataSchema>
+export interface GenerateTokenData extends Static<typeof generateTokenDataSchema> {}
 
 // Schema for updating existing entries
 export const generateTokenPatchSchema = Type.Partial(generateTokenSchema, {
   $id: 'GenerateTokenPatch'
 })
-export type GenerateTokenPatch = Static<typeof generateTokenPatchSchema>
+export interface GenerateTokenPatch extends Static<typeof generateTokenPatchSchema> {}
 
 // Schema for allowed query properties
 export const generateTokenQueryProperties = Type.Pick(generateTokenSchema, ['token', 'type'])
@@ -64,7 +64,7 @@ export const generateTokenQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type GenerateTokenQuery = Static<typeof generateTokenQuerySchema>
+export interface GenerateTokenQuery extends Static<typeof generateTokenQuerySchema> {}
 
 export const generateTokenValidator = getValidator(generateTokenSchema, dataValidator)
 export const generateTokenDataValidator = getValidator(generateTokenDataSchema, dataValidator)
