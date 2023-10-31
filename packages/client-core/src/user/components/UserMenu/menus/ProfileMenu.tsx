@@ -673,7 +673,13 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
             )}
           </>
         )}
-        <div className={styles.center}>
+        <div
+          className={styles.center}
+          style={{
+            fontFamily: 'var(--lato)',
+            fontSize: '12px'
+          }}
+        >
           <a href={clientSetting?.privacyPolicy}>{t('user:usermenu.profile.privacyPolicy')}</a>
         </div>
       </Box>

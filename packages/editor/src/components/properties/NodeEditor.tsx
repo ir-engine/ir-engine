@@ -61,7 +61,7 @@ class NodeEditorErrorBoundary extends React.Component<NodeErrorProps, NodeErrorS
     if (this.state.error) {
       return (
         <div style={{ margin: 10, color: '#ff0000', overflow: 'auto', backgroundColor: '#222222' }}>
-          <h1>
+          <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>
             <b>
               [{this.props.name}] {this.state.error.message}`
             </b>

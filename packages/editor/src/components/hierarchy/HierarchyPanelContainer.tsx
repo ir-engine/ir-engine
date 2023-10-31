@@ -42,8 +42,8 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -54,6 +54,7 @@ import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import Search from '../Search/Search'
 import useUpload from '../assets/useUpload'
+import { PropertiesPanelButton } from '../inputs/Button'
 import { ContextMenu } from '../layout/ContextMenu'
 import { updateProperties } from '../properties/Util'
 import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
@@ -419,10 +420,12 @@ export default function HierarchyPanel() {
         <div className={styles.dockableTabButtons}>
           <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
         </div>
-        <div style={{ height: '100%', width: '100%' }}>
-          <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
-        </div>
-        <Button
+        {Engine.instance.scene && (
+          <div style={{ height: '100%' }}>
+            <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
+          </div>
+        )}
+        <PropertiesPanelButton
           variant="contained"
           // TODO see why we have to specify capitalize here
           style={{
@@ -435,7 +438,7 @@ export default function HierarchyPanel() {
           onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
         >
           {t('editor:hierarchy.lbl-addEntity')}
-        </Button>
+        </PropertiesPanelButton>
       </div>
       <ContextMenu open={!!anchorEl} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={() => onRenameNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
