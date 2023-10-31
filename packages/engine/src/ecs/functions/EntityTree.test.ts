@@ -43,7 +43,6 @@ import {
   EntityTreeComponent,
   destroyEntityTree,
   findIndexOfEntityNode,
-  getEntityNodeArrayFromEntities,
   iterateEntityNode,
   removeFromEntityTree,
   traverseEntityNode,
@@ -352,37 +351,6 @@ describe('EntityTreeFunctions', () => {
     })
   })
 
-  describe('getEntityNodeArrayFromEntities function', () => {
-    it('will return entity node array from passed entities', () => {
-      const nodes = [] as Entity[]
-      for (let i = 0; i < 4; i++) {
-        nodes[i] = createEntity()
-        setComponent(nodes[i], EntityTreeComponent, { parentEntity: root })
-      }
-
-      const entities = [nodes[0], nodes[2]]
-
-      const retrivedNodes = getEntityNodeArrayFromEntities(entities) as Entity[]
-
-      retrivedNodes.forEach((node) => assert(entities.includes(node)))
-    })
-
-    it('will remove entity for which there is no node', () => {
-      const nodes = [] as Entity[]
-      for (let i = 0; i < 4; i++) {
-        nodes[i] = createEntity()
-        setComponent(nodes[i], EntityTreeComponent, { parentEntity: root })
-      }
-
-      const fakeEntity = createEntity()
-      const entities = [nodes[0], nodes[2], fakeEntity]
-
-      const retrivedNodes = getEntityNodeArrayFromEntities(entities)
-
-      retrivedNodes.forEach((node) => assert.notEqual(node, fakeEntity))
-    })
-  })
-
   describe('findIndexOfEntityNode function', () => {
     it('will return index of passed entity node', () => {
       const testNode = createEntity()
@@ -391,13 +359,7 @@ describe('EntityTreeFunctions', () => {
       setComponent(testNode, EntityTreeComponent, { parentEntity: root })
       setComponent(createEntity(), EntityTreeComponent, { parentEntity: root })
 
-      assert.equal(
-        findIndexOfEntityNode(
-          getEntityNodeArrayFromEntities(getComponent(root, EntityTreeComponent).children),
-          testNode
-        ),
-        2
-      )
+      assert.equal(findIndexOfEntityNode(getComponent(root, EntityTreeComponent).children, testNode), 2)
     })
 
     it('will return -1 if it can not find the index of the passed node', () => {
@@ -406,13 +368,7 @@ describe('EntityTreeFunctions', () => {
       setComponent(createEntity(), EntityTreeComponent, { parentEntity: root })
       setComponent(createEntity(), EntityTreeComponent, { parentEntity: root })
 
-      assert.equal(
-        findIndexOfEntityNode(
-          getEntityNodeArrayFromEntities(getComponent(root, EntityTreeComponent).children),
-          testNode
-        ),
-        -1
-      )
+      assert.equal(findIndexOfEntityNode(getComponent(root, EntityTreeComponent).children, testNode), -1)
     })
   })
 })

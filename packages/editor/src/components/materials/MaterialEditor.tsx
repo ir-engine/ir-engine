@@ -24,32 +24,35 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useCallback, useEffect } from 'react'
-import { Material, Texture } from 'three'
+import { Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
 import {
   changeMaterialPrototype,
   entryId,
-  materialFromId,
-  prototypeFromId
+  materialFromId
 } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { removeMaterialPlugin } from '@etherealengine/engine/src/renderer/materials/functions/MaterialPluginFunctions'
-import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { getMutableState, getState, none, State, useState } from '@etherealengine/hyperflux'
+import { State, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
+import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
 import { Box, Divider, Stack } from '@mui/material'
 
+import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { SelectionState } from '../../services/SelectionServices'
 import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import PaginatedList from '../layout/PaginatedList'
+import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
+import { InfoTooltip } from '../layout/Tooltip'
+import { MaterialSelectionState } from './MaterialLibraryState'
 
 type ThumbnailData = {
   src: string
@@ -64,11 +67,12 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
   return blobs
 }
 
-export default function MaterialEditor({ material, ...rest }: { material: Material }) {
-  if (material === undefined) return <></>
+export function MaterialEditor(props: { materialID: string }) {
+  const { materialID } = props
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
-  const materialComponent = materialLibrary.materials[material.uuid]
-  let prototypeComponent = materialLibrary.prototypes[materialComponent.prototype.value].value
+  const materialComponent = materialLibrary.materials[materialID]
+  const prototypeComponent = materialLibrary.prototypes.value[materialComponent.prototype.value]
+  const material = materialFromId(materialID).material
   const loadingData = useState(false)
   const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
     label: prototype.prototypeId,
@@ -145,7 +149,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
   const selectedPlugin = useState('vegetation')
 
   return (
-    <div {...rest}>
+    <div>
       <InputGroup name="Name" label="Name">
         <StringInput value={materialComponent.material.name.value} onChange={materialComponent.material.name.set} />
       </InputGroup>
@@ -178,7 +182,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
             onChange={(protoId) => {
               const nuMat = changeMaterialPrototype(material, protoId)
               materialComponent.set(materialFromId(nuMat!.uuid))
-              prototypeComponent = prototypeFromId(materialComponent.prototype.value)
+              // prototypeComponent = prototypeFromId(materialComponent.prototype.value)
             }}
           />
         </InputGroup>
@@ -203,7 +207,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
                 prop = val
               }
               EditorControlFunctions.modifyMaterial(
-                getState(SelectionState).selectedEntities.filter((val) => typeof val === 'string') as string[],
+                [materialID],
                 entryId(materialComponent.value, LibraryEntryType.MATERIAL),
                 [{ [k]: prop }]
               )
@@ -269,3 +273,55 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
     </div>
   )
 }
+
+export const MaterialPropertyTitle = () => {
+  const { t } = useTranslation()
+
+  return (
+    <div className={styles.dockableTab}>
+      <PanelDragContainer>
+        <PanelIcon as={MaterialLibraryIcon} size={12} />
+        <PanelTitle>
+          <InfoTooltip title={t('editor:properties.info')}>
+            <span>{t('editor:properties.title')}</span>
+          </InfoTooltip>
+        </PanelTitle>
+      </PanelDragContainer>
+    </div>
+  )
+}
+
+export const MaterialProperties = () => {
+  const { t } = useTranslation()
+
+  const selectedMaterialID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
+
+  const material = selectedMaterialID.value ? materialFromId(selectedMaterialID.value) : undefined
+
+  return (
+    <div
+      style={{
+        overflowY: 'auto',
+        height: '100%'
+      }}
+    >
+      {material && selectedMaterialID.value ? (
+        <MaterialEditor key={`${selectedMaterialID}-MaterialEditor`} materialID={selectedMaterialID.value} />
+      ) : (
+        <div
+          style={{
+            height: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            color: 'var(--textColor)'
+          }}
+        >
+          {t('editor:properties.noNodeSelected')}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default MaterialProperties

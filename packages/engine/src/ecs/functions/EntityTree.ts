@@ -139,8 +139,6 @@ export const EntityTreeComponent = defineComponent({
   roots: hookstate({} as Record<Entity, true>)
 })
 
-export type EntityOrObjectUUID = Entity | string
-
 /**
  * Recursively destroys all the children entities of the passed entity
  */
@@ -269,37 +267,16 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
 }
 
 /**
- * Creates Entity Tree Node array from passed Entity array
- * @param entities Entity Array to get Entity node from
- * @param tree Entity Tree object
- * @returns Entity Tree node array obtained from passed Entities.
- */
-export function getEntityNodeArrayFromEntities(entities: EntityOrObjectUUID[]) {
-  const arr = [] as EntityOrObjectUUID[]
-  const scene = Engine.instance.scene
-  for (const entity of entities) {
-    if (typeof entity === 'string') {
-      scene.getObjectByProperty('uuid', entity) && arr.push(entity)
-      continue
-    }
-    if (hasComponent(entity, EntityTreeComponent)) arr.push(entity)
-  }
-  return arr
-}
-
-/**
  * Finds the index of an entity tree node using entity.
  * This function is useful for node which is not contained in array but can have same entity as one of array elements
  * @param arr Nodes array
  * @param node Node to find index of
  * @returns index of the node if found -1 oterhwise.
  */
-export function findIndexOfEntityNode(arr: EntityOrObjectUUID[], obj: EntityOrObjectUUID): number {
+export function findIndexOfEntityNode(arr: Entity[], obj: Entity): number {
   for (let i = 0; i < arr.length; i++) {
     const elt = arr[i]
-    if (typeof elt !== typeof obj) continue
-    if (typeof obj === 'string' || (typeof obj === 'number' && obj === elt)) return i
+    if (obj === elt) return i
   }
-
   return -1
 }
