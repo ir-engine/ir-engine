@@ -13,7 +13,7 @@
 
 .statsContainer {
   position: absolute;
-  top: 70px;
+  top: 60px;
   z-index: 1000;
   left: 20px;
   color: var(--white);
@@ -22,15 +22,20 @@
   opacity: 0.88;
   backdrop-filter: blur(1px);
   border-radius: 4px;
-  width: 150px;
-
+  width: 130px;
+  font-family: var(--lato);
+  font-size: 12px;
+  
   h3 {
     font-size: 14px;
+    font-weight :normal;
   }
 
   & > ul {
-    margin: 8px 4px;
-
+    margin-block-start: 2px;
+    margin-block-end: 2px;
+    padding-inline-start: 4px;
+    
     & > li {
       font: 12px;
       color: var(--textColor);
@@ -40,8 +45,9 @@
       }
 
       ul {
-        margin-left: 5px;
         color: var(--white);
+        padding-inline-start: 8px;
+
       }
     }
   }
@@ -49,42 +55,24 @@
 
 .settingsContainer {
   position: absolute;
-  top: 70px;
+  top: 60px;
   z-index: 1000;
-  right: 100px;
+  right: 450px;
   color: var(--white);
   padding: 8px;
   background-color: var(--popupBackground);
   opacity: 0.88;
   backdrop-filter: blur(1px);
   border-radius: 4px;
-  width: 500px;
-
-  h3 {
-    font-size: 14px;
-  }
-
-  & > ul {
-    margin: 8px 4px;
-
-    & > li {
-      font: 12px;
-      color: var(--textColor);
-
-      & + li {
-        margin-top: 5px;
-      }
-
-      ul {
-        margin-left: 5px;
-        color: var(--white);
-      }
-    }
-  }
+  width: 400px;
+  font-family: var(--lato);
+  font-size: 12px;
 }
 
 .toolbarNumericStepperInput {
   width: 120px;
+  font-family: var(--lato);
+  font-size: 12px;
 
   input {
     border-width: 0 !important;
@@ -130,6 +118,7 @@
     position: relative;
     background-color: var(--toolbar);
     border-radius: 4px;
+    margin:0;
 
     &:hover {
       background-color: var(--iconButtonHoverColor);

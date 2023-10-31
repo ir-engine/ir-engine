@@ -310,6 +310,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
               <>
                 <input
                   type="checkbox"
+                  style={{ margin: 0 }}
                   checked={value ? true : false}
                   onChange={() => {
                     if (Engine.instance.activeSystems.has(system.uuid)) {

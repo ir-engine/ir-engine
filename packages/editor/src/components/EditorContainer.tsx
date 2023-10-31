@@ -91,7 +91,7 @@ const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 /**
  *component used as dock container.
  */
-export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
+export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
     '--dividerAlpha': dividerAlpha
   }

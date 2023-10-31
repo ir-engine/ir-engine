@@ -76,7 +76,6 @@ type Object3DProps = {
  */
 export const Object3DNodeEditor = (props: Object3DProps) => {
   const { t } = useTranslation()
-  console.log(props)
   const scene: Scene = Engine.instance.scene
   const selectionState = useHookstate(getMutableState(SelectionState))
   const materialLibrary = getState(MaterialLibraryState)

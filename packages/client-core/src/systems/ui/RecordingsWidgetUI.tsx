@@ -50,7 +50,7 @@ const Checkbox = (props: { label: string; disabled?: boolean; checked: boolean; 
     <div style={{ display: 'flex', flexDirection: 'row' }} className="flex flex-row">
       <input
         type="checkbox"
-        style={{ width: '20px', height: '20px' }}
+        style={{ margin: 0, width: '20px', height: '20px' }}
         checked={props.checked}
         disabled={props.disabled}
         onChange={() => {
@@ -66,6 +66,7 @@ const Button = (props: { label: string | JSX.Element; onClick: () => void }) => 
   return (
     <button
       style={{
+        margin: 0,
         padding: '6px 12px',
         border: '0px',
         borderRadius: '20px',
@@ -232,11 +233,15 @@ export const RecordingPeerList = () => {
           onClick={() => onToggleRecording()}
         />
       </div>
-      <table style={{ display: 'table', width: '100%' }}>
+      <table style={{ borderCollapse: 'collapse', borderSpacing: 0, display: 'table', width: '100%' }}>
         <thead>
           <tr>
-            <th>Peer</th>
-            <th>Actions</th>
+            <th style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
+              Peer
+            </th>
+            <th style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -244,10 +249,10 @@ export const RecordingPeerList = () => {
             .filter((peerID) => peerMediaChannelState[peerID].value)
             .map((peerID) => (
               <tr key={peerID}>
-                <td>
+                <td style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
                   <div style={{ width: '200px', overflowWrap: 'break-word' }}>{peerID}</div>
                 </td>
-                <td>
+                <td style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
                   <div className="">
                     {/* a button to play back the recording */}
                     <RecordingPeer peerID={peerID} />
@@ -335,18 +340,18 @@ const RecordingsList = () => {
     const duration = (new Date(recording.updatedAt).getTime() - new Date(recording.createdAt).getTime()) / 1000
     return (
       <tr key={recording.id} style={{ height: '33px' }}>
-        <td>
+        <td style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
           <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>
             {recording.id}
           </div>
         </td>
-        <td>
+        <td style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
           <div>{time}</div>
         </td>
-        <td>
+        <td style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
           <div>{duration}s</div>
         </td>
-        <td>
+        <td style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
           <div key={recording.id} style={{ display: 'flex' }}>
             <Button
               onClick={() => {
@@ -380,13 +385,21 @@ const RecordingsList = () => {
 
   return (
     <div style={{ width: '100%' }}>
-      <table style={{ display: 'table', width: '100%' }}>
+      <table style={{ borderCollapse: 'collapse', borderSpacing: 0, display: 'table', width: '100%' }}>
         <thead>
           <tr>
-            <th>Recording</th>
-            <th>Time</th>
-            <th>Duration</th>
-            <th>Actions</th>
+            <th style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
+              Recording
+            </th>
+            <th style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
+              Time
+            </th>
+            <th style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
+              Duration
+            </th>
+            <th style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
