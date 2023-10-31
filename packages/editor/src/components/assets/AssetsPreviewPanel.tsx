@@ -160,11 +160,15 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
     }
   }
 
+  console.log('debug1 the preview panel resource props', previewPanel.resourceProps)
+
   return (
     <>
       {!hideHeading && (
         <div style={assetHeadingStyles as React.CSSProperties}>
-          {`${previewPanel.resourceProps.name} (${previewPanel.resourceProps.size})`}{' '}
+          {previewPanel.resourceProps.name &&
+            previewPanel.resourceProps.size &&
+            `${previewPanel.resourceProps.name} (${previewPanel.resourceProps.size})`}
         </div>
       )}
       {previewPanel.PreviewSource && <previewPanel.PreviewSource resourceProps={previewPanel.resourceProps} />}
