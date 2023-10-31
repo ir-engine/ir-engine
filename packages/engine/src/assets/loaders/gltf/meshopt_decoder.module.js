@@ -1,5 +1,6 @@
 // This file is part of meshoptimizer library and is distributed under the terms of MIT License.
 // Copyright (C) 2016-2022, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
+import Worker from 'web-worker'
 var MeshoptDecoder = (function() {
 	"use strict";
 
@@ -96,7 +97,7 @@ var MeshoptDecoder = (function() {
 
 	function initWorkers(count) {
 		var source =
-			"var instance; var ready = WebAssembly.instantiate(new Uint8Array([" + new Uint8Array(unpack(wasm)) + "]), {})" +
+			"data:application/javascript,var instance; var ready = WebAssembly.instantiate(new Uint8Array([" + new Uint8Array(unpack(wasm)) + "]), {})" +
 			".then(function(result) { instance = result.instance; instance.exports.__wasm_call_ctors(); });" +
 			"self.onmessage = workerProcess;" + 
 			`function decode(fun, target, count, size, source, filter) {
@@ -129,14 +130,9 @@ var MeshoptDecoder = (function() {
 			});
 		}`;
 
-		var blob = new Blob([source], {type: 'text/javascript'});
-		var url = URL.createObjectURL(blob);
-
 		for (var i = 0; i < count; ++i) {
-			workers[i] = createWorker(url);
+			workers[i] = createWorker(source);
 		}
-
-		URL.revokeObjectURL(url);
 	}
 
 	function decodeWorker(count, size, source, mode, filter) {
