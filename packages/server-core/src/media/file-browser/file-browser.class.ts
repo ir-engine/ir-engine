@@ -50,7 +50,6 @@ import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface FileBrowserParams extends KnexAdapterParams {}
 
 /**

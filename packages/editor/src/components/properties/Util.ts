@@ -30,11 +30,7 @@ import {
   SerializedComponentType,
   updateComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import {
-  EntityOrObjectUUID,
-  getEntityNodeArrayFromEntities,
-  iterateEntityNode
-} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { getMutableState } from '@etherealengine/hyperflux'
 
@@ -55,7 +51,7 @@ export type EditorComponentType = React.FC<EditorPropType> & {
 export const updateProperty = <C extends Component, K extends keyof SerializedComponentType<C>>(
   component: C,
   propName: K,
-  nodes?: EntityOrObjectUUID[]
+  nodes?: Entity[]
 ) => {
   return (value: SerializedComponentType<C>[K]) => {
     updateProperties(component, { [propName]: value } as any, nodes)
@@ -65,7 +61,7 @@ export const updateProperty = <C extends Component, K extends keyof SerializedCo
 export const updateProperties = <C extends Component>(
   component: C,
   properties: Partial<SerializedComponentType<C>>,
-  nodes?: EntityOrObjectUUID[]
+  nodes?: Entity[]
 ) => {
   const editorState = getMutableState(EditorState)
   const selectionState = getMutableState(SelectionState)
@@ -74,8 +70,7 @@ export const updateProperties = <C extends Component>(
     ? nodes
     : editorState.lockPropertiesPanel.value
     ? [UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]]
-    : (getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) as EntityOrObjectUUID[])
-
+    : selectionState.selectedEntities.value
   for (let i = 0; i < affectedNodes.length; i++) {
     const node = affectedNodes[i]
     if (typeof node === 'string') continue
@@ -86,7 +81,7 @@ export const updateProperties = <C extends Component>(
 export const commitProperty = <C extends Component, K extends keyof SerializedComponentType<C>>(
   component: C,
   propName: K,
-  nodes?: EntityOrObjectUUID[]
+  nodes?: Entity[]
 ) => {
   return (value: SerializedComponentType<C>[K]) => {
     commitProperties(component, { [propName]: value } as any, nodes)
@@ -96,7 +91,7 @@ export const commitProperty = <C extends Component, K extends keyof SerializedCo
 export const commitProperties = <C extends Component>(
   component: C,
   properties: Partial<SerializedComponentType<C>>,
-  nodes?: EntityOrObjectUUID[]
+  nodes?: Entity[]
 ) => {
   const editorState = getMutableState(EditorState)
   const selectionState = getMutableState(SelectionState)
@@ -105,7 +100,7 @@ export const commitProperties = <C extends Component>(
     ? nodes
     : editorState.lockPropertiesPanel.value
     ? [UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]]
-    : (getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) as EntityOrObjectUUID[])
+    : selectionState.selectedEntities.value
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
 }

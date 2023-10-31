@@ -151,7 +151,7 @@ const ServerLogs = ({
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', margin: '15px 0' }}>
-        <h5 style={{ fontSize: '18px' }}>
+        <h5 style={{ fontSize: '18px', fontWeight: 'normal' }}>
           {t('admin:components.server.logs')}: {podName.value!}
         </h5>
 
@@ -202,7 +202,7 @@ const ServerLogs = ({
         />
       </Box>
       <Box sx={{ overflow: 'auto' }}>
-        <pre style={{ fontSize: '14px' }}>{serverLogs}</pre>
+        <pre style={{ fontSize: '14px', fontFamily: 'var(--lato)' }}>{serverLogs}</pre>
         <pre ref={logsEndRef} />
       </Box>
     </Box>

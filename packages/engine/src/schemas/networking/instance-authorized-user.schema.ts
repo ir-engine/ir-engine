@@ -52,19 +52,19 @@ export const instanceAuthorizedUserSchema = Type.Object(
   },
   { $id: 'InstanceAuthorizedUser', additionalProperties: false }
 )
-export type InstanceAuthorizedUserType = Static<typeof instanceAuthorizedUserSchema>
+export interface InstanceAuthorizedUserType extends Static<typeof instanceAuthorizedUserSchema> {}
 
 // Schema for creating new entries
 export const instanceAuthorizedUserDataSchema = Type.Pick(instanceAuthorizedUserSchema, ['userId', 'instanceId'], {
   $id: 'InstanceAuthorizedUserData'
 })
-export type InstanceAuthorizedUserData = Static<typeof instanceAuthorizedUserDataSchema>
+export interface InstanceAuthorizedUserData extends Static<typeof instanceAuthorizedUserDataSchema> {}
 
 // Schema for updating existing entries
 export const instanceAuthorizedUserPatchSchema = Type.Partial(instanceAuthorizedUserSchema, {
   $id: 'InstanceAuthorizedUserPatch'
 })
-export type InstanceAuthorizedUserPatch = Static<typeof instanceAuthorizedUserPatchSchema>
+export interface InstanceAuthorizedUserPatch extends Static<typeof instanceAuthorizedUserPatchSchema> {}
 
 // Schema for allowed query properties
 export const instanceAuthorizedUserQueryProperties = Type.Pick(instanceAuthorizedUserSchema, [
@@ -80,7 +80,7 @@ export const instanceAuthorizedUserQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type InstanceAuthorizedUserQuery = Static<typeof instanceAuthorizedUserQuerySchema>
+export interface InstanceAuthorizedUserQuery extends Static<typeof instanceAuthorizedUserQuerySchema> {}
 
 export const instanceAuthorizedUserValidator = getValidator(instanceAuthorizedUserSchema, dataValidator)
 export const instanceAuthorizedUserDataValidator = getValidator(instanceAuthorizedUserDataSchema, dataValidator)

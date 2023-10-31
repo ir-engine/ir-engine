@@ -33,14 +33,13 @@ import { NotificationState } from '@etherealengine/client-core/src/common/servic
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
-import { theme } from '@etherealengine/client-core/src/theme'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
+import '@etherealengine/client-core/src/util/GlobalStyle.css'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
-import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
+import { StyledEngineProvider, Theme } from '@mui/material/styles'
 
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import RouterComp from '../route/public'
@@ -104,24 +103,25 @@ const AppPage = ({ route }: { route: string }) => {
     <>
       <ThemeContextProvider>
         <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={theme}>
-            <SnackbarProvider
-              ref={notistackRef as any}
-              maxSnack={7}
-              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-              action={defaultAction}
-            >
-              <GlobalStyle />
-              <div style={{ pointerEvents: 'auto' }}>
-                <InviteToast />
-                <Debug />
-              </div>
-              <RouterComp route={route} />
-              {projectComponents.map((Component, i) => (
-                <Component key={i} />
-              ))}
-            </SnackbarProvider>
-          </ThemeProvider>
+          <SnackbarProvider
+            ref={notistackRef as any}
+            maxSnack={7}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            action={defaultAction}
+            style={{
+              fontFamily: 'var(--lato)',
+              fontSize: '12px'
+            }}
+          >
+            <div style={{ pointerEvents: 'auto' }}>
+              <InviteToast />
+              <Debug />
+            </div>
+            <RouterComp route={route} />
+            {projectComponents.map((Component, i) => (
+              <Component key={i} />
+            ))}
+          </SnackbarProvider>
         </StyledEngineProvider>
       </ThemeContextProvider>
     </>

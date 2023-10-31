@@ -33,7 +33,6 @@ import {
   LocationAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LocationAuthorizedUserParams extends KnexAdapterParams<LocationAuthorizedUserQuery> {}
 
 export class LocationAuthorizedUserService<

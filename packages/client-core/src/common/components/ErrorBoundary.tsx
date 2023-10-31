@@ -31,8 +31,8 @@ const ErrorBoundary = createErrorBoundary(function error(props, error?: Error) {
   if (error) {
     return (
       <div className="error-screen">
-        <h2>An error has occured</h2>
-        <h4>{error.message}</h4>
+        <h2 style={{ fontSize: '100%', fontWeight: 'normal' }}>An error has occured</h2>
+        <h4 style={{ fontSize: '100%', fontWeight: 'normal' }}>{error.message}</h4>
       </div>
     )
   } else {

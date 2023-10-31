@@ -80,14 +80,15 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
               border: '2px solid #E1E1E1',
               color: 'black',
               backgroundColor: '#E1E1E1',
-              padding: '3px'
+              padding: '3px',
+              fontFamily: 'var(--lato)'
             }}
           >
             {props.message.text}
           </p>
         </div>
         <img
-          style={{ borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
+          style={{ maxWidth: '100%', borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
           alt=""
           src={userThumbnail}
         />
@@ -97,12 +98,13 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
 
   const OtherMessage = (props: { message: (typeof messages)[0] }) => {
     const systemMessage = !props.message.sender
+
     const userThumbnail = useUserAvatarThumbnail(props.message.sender?.id)
     return (
       <div style={{ display: 'flex', flexWrap: 'wrap', marginLeft: systemMessage ? 'auto' : '', marginRight: 'auto' }}>
         {!systemMessage && (
           <img
-            style={{ borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
+            style={{ maxWidth: '100%', borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
             alt=""
             src={userThumbnail}
           />
@@ -114,7 +116,8 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
               border: systemMessage ? '' : '2px solid #F8F8F8',
               color: 'black',
               backgroundColor: systemMessage ? '' : '#F8F8F8',
-              padding: '3px'
+              padding: '3px',
+              fontFamily: 'var(--lato)'
             }}
           >
             {props.message.text}
@@ -161,7 +164,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
           endIcon={<Icon type="Send" />}
           startIcon={
             <img
-              style={{ borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
+              style={{ maxWidth: '100%', borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
               alt=""
               src={userThumbnail}
             />
