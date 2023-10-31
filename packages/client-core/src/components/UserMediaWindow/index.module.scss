@@ -190,8 +190,7 @@
         padding: 8px;
         border-radius: 50px;
         display: flex;
-        justify-content: center;
-        align-content: center;
+        place-content: center center;
         width: 30px;
       }
     }

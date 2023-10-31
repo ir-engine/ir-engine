@@ -218,8 +218,7 @@
     flex-direction: column;
     padding: 0 10px;
     margin-bottom: 5px;
-    overflow-y: auto;
-    overflow-x: clip;
+    overflow: clip auto;
 
     @media (max-width: 1024px) {
       margin: 15px 15px 20px;
