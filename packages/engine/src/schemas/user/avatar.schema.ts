@@ -65,7 +65,7 @@ export const avatarSchema = Type.Object(
 )
 export interface AvatarType extends Static<typeof avatarSchema> {}
 
-export interface AvatarDatabaseType extends Omit<AvatarType, 'user' | 'modelResource' | 'thumbnailResource'> {}
+export interface AvatarDatabaseType extends Omit<AvatarType, 'modelResource' | 'thumbnailResource'> {}
 
 // Schema for creating new entries
 // export const avatarDataSchema = Type.Pick(
@@ -105,7 +105,10 @@ export const avatarQuerySchema = Type.Intersect(
       }
     }),
     // Add additional query properties here
-    Type.Object({ action: Type.Optional(Type.String()) }, { additionalProperties: false })
+    Type.Object(
+      { action: Type.Optional(Type.String()), skipUser: Type.Optional(Type.Boolean()) },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

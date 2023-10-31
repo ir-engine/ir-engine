@@ -95,7 +95,13 @@ export const userResolver = resolve<UserType, HookContext>({
 
 export const userExternalResolver = resolve<UserType, HookContext>({
   avatar: virtual(async (user, context) => {
-    if (context.event !== 'removed' && user.avatarId) return await context.app.service(avatarPath).get(user.avatarId)
+    if (context.arguments && context.arguments.length > 0 && context.arguments[1]?.actualQuery?.skipAvatar) return {}
+    if (context.event !== 'removed' && user.avatarId)
+      try {
+        return await context.app.service(avatarPath).get(user.avatarId, { query: { skipUser: true } })
+      } catch (err) {
+        return {}
+      }
   }),
   userSetting: virtual(async (user, context) => {
     const userSetting = (await context.app.service(userSettingPath).find({

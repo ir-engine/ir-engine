@@ -161,16 +161,16 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const dropItem = (node: HeirarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
     const isObj3D = !node.entityNode && node.obj3d
     if (isObj3D) return
-    let parentNode: Entity | null = null
-    let beforeNode: Entity | null = null
+    let parentNode: Entity
+    let beforeNode: Entity
 
     if (place === 'Before') {
       const entityTreeComponent = getComponent(node.entityNode as Entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity
+      parentNode = entityTreeComponent?.parentEntity!
       beforeNode = node.entityNode as Entity
     } else if (place === 'After') {
       const entityTreeComponent = getComponent(node.entityNode as Entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity
+      parentNode = entityTreeComponent?.parentEntity!
       const parentTreeComponent = getComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
       if (!node.lastChild && parentNode && parentTreeComponent?.children.length > node.childIndex + 1) {
         beforeNode = parentTreeComponent.children[node.childIndex + 1]
