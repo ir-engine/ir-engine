@@ -34,10 +34,10 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [iff(isProvider('external'), verifyScope('scene', 'write'), projectPermissionAuthenticate(false))],
-    update: [iff(isProvider('external'), verifyScope('scene', 'write'), projectPermissionAuthenticate(false))],
-    patch: [iff(isProvider('external'), verifyScope('scene', 'write'), projectPermissionAuthenticate(false))],
-    remove: [iff(isProvider('external'), verifyScope('scene', 'write'), projectPermissionAuthenticate(false))]
+    create: [iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false))],
+    update: [iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false))],
+    patch: [iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false))],
+    remove: [iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false))]
   },
 
   after: {

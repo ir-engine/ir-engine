@@ -30,7 +30,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [iff(isProvider('external'), verifyScope('scene', 'write'))],
+    create: [iff(isProvider('external'), verifyScope('editor', 'write'))],
     update: [],
     patch: [],
     remove: []

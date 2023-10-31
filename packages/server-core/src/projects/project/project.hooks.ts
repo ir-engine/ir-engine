@@ -552,7 +552,7 @@ export default {
     find: [enableClientPagination(), ensurePushStatus, addLimitToParams],
     get: [],
     create: [
-      iff(isProvider('external'), verifyScope('projects', 'write')),
+      iff(isProvider('external'), verifyScope('editor', 'write')),
       () => schemaHooks.validateData(projectDataValidator),
       schemaHooks.resolveData(projectDataResolver),
       checkIfProjectExists,
@@ -561,17 +561,17 @@ export default {
       updateCreateData
     ],
     update: [
-      iff(isProvider('external'), verifyScope('projects', 'write'), projectPermissionAuthenticate(false)),
+      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
       updateProjectJob
     ],
     patch: [
-      iff(isProvider('external'), verifyScope('projects', 'write'), projectPermissionAuthenticate(false)),
+      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
       () => schemaHooks.validateData(projectPatchValidator),
       schemaHooks.resolveData(projectPatchResolver),
       iff(isProvider('external'), linkGithubToProject)
     ],
     remove: [
-      iff(isProvider('external'), verifyScope('projects', 'write'), projectPermissionAuthenticate(false)),
+      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
       getProjectName,
       runProjectUninstallScript,
       removeProjectFiles,
