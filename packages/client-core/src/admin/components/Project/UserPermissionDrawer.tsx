@@ -45,6 +45,7 @@ import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
+import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 
@@ -61,7 +62,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
   const selfUser = useHookstate(getMutableState(AuthState)).user
   const selfUserPermission =
     project?.projectPermissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner' ||
-    selfUser.scopes?.value?.find((scope) => scope.type === 'admin:admin')
+    userHasAccess('projects:write')
       ? 'owner'
       : 'user'
 
