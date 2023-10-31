@@ -166,15 +166,12 @@ export default function HierarchyPanel() {
   const [searchHierarchy, setSearchHierarchy] = useState<string>('')
   const showObject3DInHierarchy = editorState.showObject3DInHierarchy
 
-  useHookstate(UUIDComponent.entitiesByUUIDState.keys.length)
+  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
+  const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
 
   const MemoTreeNode = memo(
     (props: HierarchyTreeNodeProps) => (
-      <HierarchyTreeNode
-        {...props}
-        key={`${props.data.nodes[props.index].depth} ${props.data.nodes[props.index].childIndex}`}
-        onContextMenu={onContextMenu}
-      />
+      <HierarchyTreeNode {...props} key={props.data.nodes[props.index].entityNode} onContextMenu={onContextMenu} />
     ),
     areEqual
   )
@@ -191,20 +188,22 @@ export default function HierarchyPanel() {
     })
   }
 
-  const updateNodeHierarchy = useCallback(() => {
+  useEffect(() => {
+    if (!activeScene.value) return
     setNodes(
       getModelNodesFromTreeWalker(
         Array.from(
-          heirarchyTreeWalker(getState(SceneState).sceneEntity, selectionState.selectedEntities.value, collapsedNodes)
+          heirarchyTreeWalker(
+            SceneState.getRootEntity(getState(SceneState).activeScene!),
+            selectionState.selectedEntities.value,
+            collapsedNodes
+          )
         ),
         collapsedNodes,
         showObject3DInHierarchy.value
       )
     )
-  }, [collapsedNodes])
-
-  useEffect(updateNodeHierarchy, [collapsedNodes])
-  useEffect(updateNodeHierarchy, [showObject3DInHierarchy, selectionState.selectedEntities])
+  }, [collapsedNodes, activeScene, showObject3DInHierarchy, selectionState.selectedEntities, entities])
 
   const setSelectedNode = (selection) => !editorState.lockPropertiesPanel.value && _setSelectedNode(selection)
 
@@ -472,9 +471,11 @@ export default function HierarchyPanel() {
     canDrop(item: any, monitor) {
       if (!monitor.isOver({ shallow: true })) return false
 
+      if (!getState(SceneState).activeScene) return false
+
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const sceneEntity = getState(SceneState).sceneEntity
+        const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, sceneEntity))
           : isAncestor(item.value, sceneEntity))
@@ -508,6 +509,8 @@ export default function HierarchyPanel() {
       {MemoTreeNode}
     </FixedSizeList>
   )
+
+  if (!activeScene) return <></>
 
   return (
     <>

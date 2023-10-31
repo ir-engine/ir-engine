@@ -64,8 +64,8 @@ import { IconButton, PopoverPosition } from '@mui/material'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
-import { LoadVolumeComponent } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
+import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { Vector3 } from 'three'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -98,7 +98,8 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     GroundPlaneComponent,
     GroupComponent,
     ColliderComponent,
-    LoadVolumeComponent
+    VariantComponent,
+    SceneDynamicLoadTagComponent
   ],
   Interaction: [SpawnPointComponent, PortalComponent, LinkComponent],
   Lighting: [
@@ -110,14 +111,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
   ],
   FX: [ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
   Scripting: [SystemComponent, BehaveGraphComponent],
-  Misc: [
-    VariantComponent,
-    EnvMapBakeComponent,
-    ScenePreviewCameraComponent,
-    SkyboxComponent,
-    SplineTrackComponent,
-    SplineComponent
-  ]
+  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, SplineTrackComponent, SplineComponent]
 }
 
 const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementListItemType) => {

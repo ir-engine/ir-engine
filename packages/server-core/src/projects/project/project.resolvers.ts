@@ -41,23 +41,29 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => {
-  let settings = JSON.parse(rawData.settings) as ProjectSettingType[]
+  let settings: ProjectSettingType[]
 
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof settings === 'string') {
-    settings = JSON.parse(settings)
+  if (typeof rawData.settings === 'string') {
+    settings = JSON.parse(rawData.settings) as ProjectSettingType[]
 
-    // There are some old records in our database that requires further parsing.
+    // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+    // was serialized multiple times, therefore we need to parse it twice.
     if (typeof settings === 'string') {
       settings = JSON.parse(settings)
+
+      // There are some old records in our database that requires further parsing.
+      if (typeof settings === 'string') {
+        settings = JSON.parse(settings)
+      }
     }
+  } else {
+    settings = rawData.settings
   }
 
   return {
     ...rawData,
     settings
-  }
+  } as ProjectType
 }
 
 export const projectResolver = resolve<ProjectType, HookContext>(

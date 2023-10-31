@@ -61,7 +61,7 @@ export const componentJsonSchema = Type.Object(
   },
   { $id: 'ComponentJson', additionalProperties: false }
 )
-export type ComponentJsonType = Static<typeof componentJsonSchema>
+export interface ComponentJsonType extends Static<typeof componentJsonSchema> {}
 
 export const entityJsonSchema = Type.Object(
   {
@@ -82,7 +82,7 @@ export const entityJsonSchema = Type.Object(
   },
   { $id: 'EntityJson', additionalProperties: false }
 )
-export type EntityJsonType = Static<typeof entityJsonSchema>
+export interface EntityJsonType extends Static<typeof entityJsonSchema> {}
 
 export const sceneJsonSchema = Type.Object(
   {
@@ -94,7 +94,7 @@ export const sceneJsonSchema = Type.Object(
   },
   { $id: 'SceneJson', additionalProperties: false }
 )
-export type SceneJsonType = Static<typeof sceneJsonSchema>
+export interface SceneJsonType extends Static<typeof sceneJsonSchema> {}
 
 export const sceneMetadataSchema = Type.Object(
   {
@@ -106,7 +106,7 @@ export const sceneMetadataSchema = Type.Object(
   },
   { $id: 'SceneMetadata', additionalProperties: false }
 )
-export type SceneMetadataType = Static<typeof sceneMetadataSchema>
+export interface SceneMetadataType extends Static<typeof sceneMetadataSchema> {}
 
 export const sceneDataSchema = Type.Object(
   {
@@ -115,7 +115,7 @@ export const sceneDataSchema = Type.Object(
   },
   { $id: 'SceneData', additionalProperties: false }
 )
-export type SceneDataType = Static<typeof sceneDataSchema>
+export interface SceneDataType extends Static<typeof sceneDataSchema> {}
 
 // Schema for creating new entries
 export const userDataSchema = Type.Partial(sceneSchema, {
@@ -141,7 +141,7 @@ export const sceneCreateDataSchema = Type.Object(
   },
   { $id: 'SceneCreateData', additionalProperties: false }
 )
-export type SceneCreateData = Static<typeof sceneCreateDataSchema>
+export interface SceneCreateData extends Static<typeof sceneCreateDataSchema> {}
 
 // Schema for new created entries
 export const sceneMetadataCreateSchema = Type.Object(
@@ -153,7 +153,7 @@ export const sceneMetadataCreateSchema = Type.Object(
     $id: 'SceneMetadataCreate'
   }
 )
-export type SceneMetadataCreate = Static<typeof sceneMetadataCreateSchema>
+export interface SceneMetadataCreate extends Static<typeof sceneMetadataCreateSchema> {}
 
 // Schema for updating existing entries
 export const scenePatchSchema = Type.Partial(sceneSchema, {
@@ -187,7 +187,7 @@ export const sceneQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type SceneQuery = Static<typeof sceneQuerySchema>
+export interface SceneQuery extends Static<typeof sceneQuerySchema> {}
 
 export const componentJsonValidator = getValidator(componentJsonSchema, dataValidator)
 export const entityJsonValidator = getValidator(entityJsonSchema, dataValidator)

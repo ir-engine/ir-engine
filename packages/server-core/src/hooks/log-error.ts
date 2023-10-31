@@ -23,19 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import { NextFunction } from '@feathersjs/feathers'
+import type { HookContext } from '../../declarations'
 
-export const ParentComponent = defineComponent({
-  name: 'ParentComponent',
+const logger = multiLogger.child({ component: 'server-core:log-error' })
 
-  onInit: () => UndefinedEntity,
+/**
+ * A logger to log errors in hooks to server logger
+ * Reference: https://github.com/feathersjs/feathers-chat/blob/dove/feathers-chat-ts/src/hooks/log-error.ts
+ * @param context
+ * @param next
+ */
+export const logError = async (context: HookContext, next: NextFunction) => {
+  try {
+    await next()
+  } catch (error) {
+    logger.error(
+      `Error in ${context.path} service, ${context.type} hook, ${context.method} method. ${structuredClone(
+        error
+      )}, stacktrace: ${error.stack}`,
+      error
+    )
 
-  toJSON: (entity, component) => {
-    return component.value
-  },
-
-  onSet: (entity, component, parentEntity?: Entity) => {
-    component.set(parentEntity ?? UndefinedEntity)
+    throw error
   }
-})
+}

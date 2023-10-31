@@ -65,9 +65,10 @@ export const locationSchema = Type.Object(
   },
   { $id: 'Location', additionalProperties: false }
 )
-export type LocationType = Static<typeof locationSchema>
+export interface LocationType extends Static<typeof locationSchema> {}
 
-export type LocationDatabaseType = Omit<LocationType, 'locationSetting' | 'locationAuthorizedUsers' | 'locationBans'>
+export interface LocationDatabaseType
+  extends Omit<LocationType, 'locationSetting' | 'locationAuthorizedUsers' | 'locationBans'> {}
 
 // Schema for creating new entries
 export const locationDataSchema = Type.Pick(
@@ -77,13 +78,13 @@ export const locationDataSchema = Type.Pick(
     $id: 'LocationData'
   }
 )
-export type LocationData = Static<typeof locationDataSchema>
+export interface LocationData extends Static<typeof locationDataSchema> {}
 
 // Schema for updating existing entries
 export const locationPatchSchema = Type.Partial(locationSchema, {
   $id: 'LocationPatch'
 })
-export type LocationPatch = Static<typeof locationPatchSchema>
+export interface LocationPatch extends Static<typeof locationPatchSchema> {}
 
 // Schema for allowed query properties
 export const locationQueryProperties = Type.Pick(locationSchema, [
@@ -112,7 +113,7 @@ export const locationQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type LocationQuery = Static<typeof locationQuerySchema>
+export interface LocationQuery extends Static<typeof locationQuerySchema> {}
 
 export const locationValidator = getValidator(locationSchema, dataValidator)
 export const locationDataValidator = getValidator(locationDataSchema, dataValidator)

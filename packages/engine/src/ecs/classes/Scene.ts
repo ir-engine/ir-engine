@@ -25,32 +25,49 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, Texture } from 'three'
 
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { SceneDataType, scenePath } from '../../schemas/projects/scene.schema'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { Engine } from './Engine'
 import { UndefinedEntity } from './Entity'
+
+export interface StagedScene {
+  data: SceneDataType
+}
 
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
-    sceneData: null as SceneDataType | null,
-    sceneEntity: UndefinedEntity,
-    /** @todo support multiple scenes */
-    // sceneEntities: {} as Record<string /* SceneID */, EntityUUID>,
+    scenes: {} as Record<SceneID, StagedScene>,
+    /** @todo replace activeScene with proper multi-scene support */
+    activeScene: null as null | SceneID,
     background: null as null | Color | Texture
-  })
+  }),
+
+  loadScene: (sceneID: SceneID, data: SceneDataType) => {
+    getMutableState(SceneState).scenes[sceneID].set({ data })
+    getMutableState(SceneState).activeScene.set(sceneID)
+  },
+
+  unloadScene: (sceneID: SceneID) => {
+    getMutableState(SceneState).scenes[sceneID].set(none)
+    if (getState(SceneState).activeScene === sceneID) {
+      getMutableState(SceneState).activeScene.set(null)
+    }
+  },
+
+  getRootEntity: (sceneID?: SceneID) => {
+    const activeScene = getState(SceneState).activeScene
+    if (!sceneID && !activeScene) return UndefinedEntity
+    const scene = getState(SceneState).scenes[sceneID ?? activeScene!]
+    return UUIDComponent.entitiesByUUID[scene.data.scene.root]
+  }
 })
 
 export const SceneServices = {
-  setCurrentScene: async (sceneId: string) => {
+  setCurrentScene: async (sceneId: SceneID) => {
     const sceneData = (await Engine.instance.api.service(scenePath).get(sceneId)) as SceneDataType
-    getMutableState(SceneState).sceneData.set(sceneData)
+    SceneState.loadScene(sceneId, sceneData)
   }
 }
-// export const
-
-// export const getActiveSceneEntity = () => {
-//   const state = getState(SceneState)
-//   return UUIDComponent.entitiesByUUID[state.sceneEntities[state.sceneEntity]]
-// }
