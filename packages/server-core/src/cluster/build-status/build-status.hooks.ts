@@ -48,22 +48,24 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('server', 'read')),
       () => schemaHooks.validateQuery(buildStatusQueryValidator),
       schemaHooks.resolveQuery(buildStatusQueryResolver)
     ],
     find: [],
     get: [],
     create: [
+      iff(isProvider('external'), verifyScope('server', 'write')),
       () => schemaHooks.validateData(buildStatusDataValidator),
       schemaHooks.resolveData(buildStatusDataResolver)
     ],
     update: [],
     patch: [
+      iff(isProvider('external'), verifyScope('server', 'write')),
       () => schemaHooks.validateData(buildStatusPatchValidator),
       schemaHooks.resolveData(buildStatusPatchResolver)
     ],
-    remove: []
+    remove: [iff(isProvider('external'), verifyScope('server', 'read'))]
   },
 
   after: {

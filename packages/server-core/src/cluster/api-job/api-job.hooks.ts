@@ -48,20 +48,20 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('server', 'read')),
       () => schemaHooks.validateQuery(apiJobQueryValidator),
       schemaHooks.resolveQuery(apiJobQueryResolver)
     ],
-    find: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
-    get: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    find: [],
+    get: [],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('server', 'write')),
       () => schemaHooks.validateData(apiJobDataValidator),
       schemaHooks.resolveData(apiJobDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    update: [],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('server', 'write')),
       () => schemaHooks.validateData(apiJobPatchValidator),
       schemaHooks.resolveData(apiJobPatchResolver)
     ],

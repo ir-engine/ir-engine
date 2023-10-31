@@ -29,13 +29,13 @@ import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
-    all: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    all: [iff(isProvider('external'), verifyScope('server', 'read'))],
     find: [],
     get: [],
     create: [],
     update: [],
     patch: [],
-    remove: []
+    remove: [iff(isProvider('external'), verifyScope('server', 'write'))]
   },
 
   after: {
