@@ -27,7 +27,7 @@ import { AnimationMixer, InstancedMesh, Mesh, Object3D } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
-import { generateUUID } from 'three/src/math/MathUtils'
+import { MathUtils } from 'three'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -166,7 +166,24 @@ export const parseGLTFModel = (entity: Entity) => {
   iterateObject3D(
     scene,
     (obj) => {
-      if (obj === scene) return
+      if (obj === scene) {
+        const originalChildren = obj.children
+        Object.defineProperties(obj, {
+          children: {
+            get() {
+              return hasComponent(entity, EntityTreeComponent)
+                ? getComponent(entity, EntityTreeComponent)
+                    .children.map((child) => getComponent(child, GroupComponent))
+                    .flat()
+                : originalChildren
+            },
+            set(value) {
+              throw new Error('Cannot set children of proxified object')
+            }
+          }
+        })
+        return
+      }
       const objEntity = (obj as Object3DWithEntity).entity ?? createEntity()
 
       const parentEntity = obj === scene ? entity : (obj.parent as Object3DWithEntity).entity
@@ -194,7 +211,37 @@ export const parseGLTFModel = (entity: Entity) => {
         })
 
       obj.userData.ecsData && parseECSData(objEntity, obj.userData.ecsData)
-      !hasComponent(objEntity, UUIDComponent) && setComponent(objEntity, UUIDComponent, generateUUID() as EntityUUID)
+      !hasComponent(objEntity, UUIDComponent) &&
+        setComponent(objEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+
+      /** Proxy children with EntityTreeComponent if it exists */
+      const originalChildren = obj.children
+      const originalParent = obj.parent
+      Object.defineProperties(obj, {
+        parent: {
+          get() {
+            if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
+              return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)[0]
+            }
+            return originalParent
+          },
+          set(value) {
+            throw new Error('Cannot set parent of proxified object')
+          }
+        },
+        children: {
+          get() {
+            return hasComponent(objEntity, EntityTreeComponent)
+              ? getComponent(objEntity, EntityTreeComponent)
+                  .children.map((child) => getComponent(child, GroupComponent))
+                  .flat()
+              : originalChildren
+          },
+          set(value) {
+            throw new Error('Cannot set children of proxified object')
+          }
+        }
+      })
     },
     (obj) => !obj.userData['xrengine.entity'] //ignore objects with old ecs schema as they have already been processed
   )

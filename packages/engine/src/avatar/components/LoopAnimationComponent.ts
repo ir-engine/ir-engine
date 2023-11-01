@@ -223,13 +223,13 @@ export const LoopAnimationComponent = defineComponent({
     }, [modelComponent?.scene, loopAnimationComponent.hasAvatarAnimations])
 
     useEffect(() => {
-      if (!modelComponent?.scene?.value || !animComponent || !loopAnimationComponent.animationPack.value) return
+      if (!animComponent || !loopAnimationComponent.animationPack.value) return
 
       AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
         const animations = model.userData ? model.animations : model.scene.animations
         animComponent.animations.set(animations)
       })
-    }, [modelComponent?.asset, loopAnimationComponent.animationPack])
+    }, [animComponent, loopAnimationComponent.animationPack])
 
     return null
   }

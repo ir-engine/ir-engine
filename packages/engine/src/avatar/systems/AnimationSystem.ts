@@ -28,10 +28,12 @@ import { getState } from '@etherealengine/hyperflux'
 import { VRM } from '@pixiv/three-vrm'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, getOptionalMutableComponent } from '../../ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
@@ -52,6 +54,16 @@ const execute = () => {
     const animationComponent = getComponent(entity, AnimationComponent)
     const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
+    /** Animation tracks manipulate euler data in Object3D.rotation, we need to manually transcribe that to our LocalTransfromComponent quaternion rotation */
+    traverseEntityNode(entity, (childEntity) => {
+      const group = getComponent(childEntity, GroupComponent)
+      if (group.length > 1) return
+      const euler = group[0].rotation
+      const rotation = (
+        getComponent(childEntity, LocalTransformComponent) ?? getComponent(childEntity, TransformComponent)
+      ).rotation
+      rotation.setFromEuler(euler)
+    })
     const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
     animationActionComponent?._action.value &&
       animationActionComponent?.time.set(animationActionComponent._action.value.time)
