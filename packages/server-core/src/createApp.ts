@@ -51,6 +51,7 @@ import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import { default as appConfig, default as config } from './appconfig'
 import authenticate from './hooks/authenticate'
+import { logError } from './hooks/log-error'
 import persistHeaders from './hooks/persist-headers'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import mysql from './mysql'
@@ -238,7 +239,9 @@ export const createFeathersKoaApp = (
 
   // Store headers across internal service calls
   app.hooks({
-    around: [authenticate, persistHeaders]
+    around: {
+      all: [logError, authenticate, persistHeaders]
+    }
   })
 
   pipeLogs(Engine.instance.api)

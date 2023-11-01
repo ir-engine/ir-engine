@@ -42,7 +42,7 @@ export const instanceActiveSchema = Type.Pick(
 
   { $id: 'InstanceActive', additionalProperties: false }
 )
-export type InstanceActiveType = Static<typeof instanceActiveSchema>
+export interface InstanceActiveType extends Static<typeof instanceActiveSchema> {}
 
 // Schema for allowed query properties
 export const instanceActiveQueryProperties = Type.Pick(instanceActiveSchema, ['id', 'locationId', 'currentUsers'])
@@ -61,7 +61,7 @@ export const instanceActiveQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type InstanceActiveQuery = Static<typeof instanceActiveQuerySchema>
+export interface InstanceActiveQuery extends Static<typeof instanceActiveQuerySchema> {}
 
 export const instanceActiveValidator = getValidator(instanceActiveSchema, dataValidator)
 export const instanceActiveQueryValidator = getValidator(instanceActiveQuerySchema, queryValidator)

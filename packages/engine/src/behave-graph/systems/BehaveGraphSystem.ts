@@ -30,7 +30,6 @@ import { defineAction, defineActionQueue, getMutableState, getState, useHookstat
 import { useEffect } from 'react'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
 import { defineQuery, hasComponent, removeQuery, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BehaveGraphComponent } from '../components/BehaveGraphComponent'
@@ -74,7 +73,6 @@ const execute = () => {
 
 const reactor = () => {
   const engineState = useHookstate(getMutableState(EngineState))
-  const sceneState = useHookstate(getMutableState(SceneState))
 
   useEffect(() => {
     if (!engineState.sceneLoaded.value || engineState.isEditor.value) return
@@ -88,7 +86,7 @@ const reactor = () => {
     return () => {
       removeQuery(graphQuery)
     }
-  }, [engineState.sceneLoaded, sceneState.sceneData])
+  }, [engineState.sceneLoaded])
   // run scripts when loaded a scene, joined a world, scene entity changed, scene data changed
 
   return null

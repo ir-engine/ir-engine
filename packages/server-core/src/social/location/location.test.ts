@@ -33,8 +33,9 @@ import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/s
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
+import { LocationParams } from './location.class'
 
-const params = { isInternal: true } as any
+const params = { isInternal: true } as LocationParams
 
 describe('location.test', () => {
   let app: Application

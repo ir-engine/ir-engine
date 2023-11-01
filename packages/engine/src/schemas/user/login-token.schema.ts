@@ -48,19 +48,19 @@ export const loginTokenSchema = Type.Object(
   },
   { $id: 'LoginToken', additionalProperties: false }
 )
-export type LoginTokenType = Static<typeof loginTokenSchema>
+export interface LoginTokenType extends Static<typeof loginTokenSchema> {}
 
 // Schema for creating new entries
 export const loginTokenDataSchema = Type.Partial(loginTokenSchema, {
   $id: 'LoginTokenData'
 })
-export type LoginTokenData = Static<typeof loginTokenDataSchema>
+export interface LoginTokenData extends Static<typeof loginTokenDataSchema> {}
 
 // Schema for updating existing entries
 export const loginTokenPatchSchema = Type.Partial(loginTokenSchema, {
   $id: 'LoginTokenPatch'
 })
-export type LoginTokenPatch = Static<typeof loginTokenPatchSchema>
+export interface LoginTokenPatch extends Static<typeof loginTokenPatchSchema> {}
 
 // Schema for allowed query properties
 export const loginTokenQueryProperties = Type.Pick(loginTokenSchema, ['id', 'token', 'identityProviderId'])
@@ -72,7 +72,7 @@ export const loginTokenQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type LoginTokenQuery = Static<typeof loginTokenQuerySchema>
+export interface LoginTokenQuery extends Static<typeof loginTokenQuerySchema> {}
 
 export const loginTokenValidator = getValidator(loginTokenSchema, dataValidator)
 export const loginTokenDataValidator = getValidator(loginTokenDataSchema, dataValidator)

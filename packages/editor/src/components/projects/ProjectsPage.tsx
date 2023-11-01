@@ -63,7 +63,8 @@ import {
 } from '@mui/material'
 
 import { userIsAdmin } from '@etherealengine/client-core/src/user/userHasAccess'
-import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { getProjects } from '../../functions/projectFunctions'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
@@ -192,6 +193,10 @@ const ProjectsPage = () => {
   const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 
   const { t } = useTranslation()
+
+  useEffect(() => {
+    Engine.instance.api.service(projectPath).on('patched', () => fetchInstalledProjects())
+  }, [])
 
   const fetchInstalledProjects = async () => {
     loading.set(true)

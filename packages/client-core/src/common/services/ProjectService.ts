@@ -203,10 +203,10 @@ export const ProjectService = {
         getMutableState(ProjectState).updateNeeded.set(true)
       }
 
-      API.instance.client.service(projectPath).on('patched', projectPatchedListener)
+      Engine.instance.api.service(projectPath).on('patched', projectPatchedListener)
 
       return () => {
-        API.instance.client.service(projectPath).off('patched', projectPatchedListener)
+        Engine.instance.api.service(projectPath).off('patched', projectPatchedListener)
       }
     }, [])
   },
