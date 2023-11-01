@@ -97,7 +97,7 @@ var MeshoptDecoder = (function() {
 
 	function initWorkers(count) {
 		var source =
-			"data:application/javascript,var instance; var ready = WebAssembly.instantiate(new Uint8Array([" + new Uint8Array(unpack(wasm)) + "]), {})" +
+			"data:text/javascript,var instance; var ready = WebAssembly.instantiate(new Uint8Array([" + new Uint8Array(unpack(wasm)) + "]), {})" +
 			".then(function(result) { instance = result.instance; instance.exports.__wasm_call_ctors(); });" +
 			"self.onmessage = workerProcess;" + 
 			`function decode(fun, target, count, size, source, filter) {
