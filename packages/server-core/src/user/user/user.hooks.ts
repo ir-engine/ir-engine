@@ -69,7 +69,22 @@ const restrictUserPatch = async (context: HookContext<UserService>) => {
 
   const loggedInUser = context.params.user as UserType
 
-  if (await checkScope(loggedInUser, 'user', 'write')) return
+  const hasAdminScope = await checkScope(loggedInUser, 'admin', 'admin')
+  const hasUserWriteScope = await checkScope(loggedInUser, 'user', 'write')
+
+  if (hasAdminScope && hasUserWriteScope) {
+    return
+  } else if (hasUserWriteScope) {
+    // do not allow user:write scope to change other users' scopes
+    if (Array.isArray(context.data)) {
+      context.data.forEach((userPatchData) => {
+        delete userPatchData.scopes
+      })
+    } else {
+      delete context.data?.scopes
+    }
+    return
+  }
 
   // only allow a user to patch it's own data
   if (loggedInUser.id !== context.id)
