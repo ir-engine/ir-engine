@@ -173,7 +173,6 @@ const checkPermissionStatus = async (context: HookContext<ProjectPermissionServi
 const ensureOwnership = async (context: HookContext<ProjectPermissionService>) => {
   const loggedInUser = context.params!.user!
   if (await checkScope(loggedInUser, 'projects', 'read')) return
-  if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return context
   const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectPermissionType[]
   if (result[0].userId !== loggedInUser.id) throw new Forbidden('You do not own this project-permission')
 }
