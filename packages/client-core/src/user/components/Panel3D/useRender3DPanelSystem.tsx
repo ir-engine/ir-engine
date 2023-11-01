@@ -36,7 +36,7 @@ import { NameComponent } from '@etherealengine/engine/src/scene/components/NameC
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 
 const initialize3D = () => {
-  const camera = new PerspectiveCamera(60, 1, 0.25, 200)
+  const camera = new PerspectiveCamera(60, 1, 0.25, 100000)
   camera.position.set(0, 1.75, 0.5)
   camera.layers.set(ObjectLayers.Panel)
 
@@ -65,7 +65,7 @@ const initialize3D = () => {
   const controls = getOrbitControls(camera, renderer.domElement)
 
   controls.minDistance = 0.1
-  controls.maxDistance = 100
+  controls.maxDistance = 10000
   controls.target.set(0, 1.65, 0)
   controls.update()
   const entity = createEntity()

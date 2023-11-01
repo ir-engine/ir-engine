@@ -31,7 +31,6 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getServerInfo, getServerLogs, removePod } from './pods-helper'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PodsParams extends KnexAdapterParams {}
 
 /**

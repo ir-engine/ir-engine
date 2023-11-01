@@ -35,7 +35,6 @@ import {
 
 import { KnexAdapterParams } from '@feathersjs/knex'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LocationParams extends KnexAdapterParams<LocationQuery> {}
 
 export class LocationService<T = LocationType, ServiceParams extends Params = LocationParams> extends KnexService<

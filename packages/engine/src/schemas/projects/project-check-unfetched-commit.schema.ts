@@ -41,6 +41,6 @@ export const projectCheckUnfetchedCommitSchema = Type.Object(
   },
   { $id: 'ProjectCheckUnfetchedCommit', additionalProperties: false }
 )
-export type ProjectCheckUnfetchedCommitType = Static<typeof projectCheckUnfetchedCommitSchema>
+export interface ProjectCheckUnfetchedCommitType extends Static<typeof projectCheckUnfetchedCommitSchema> {}
 
 export const projectCheckUnfetchedCommitValidator = getValidator(projectCheckUnfetchedCommitSchema, dataValidator)

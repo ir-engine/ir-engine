@@ -27,11 +27,11 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getOptionalComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { useHookstate } from '@etherealengine/hyperflux'
 
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
@@ -63,7 +63,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
     tempName.set(nameComponent.value)
   }, [nameComponent.value])
 
-  const focusedNode = useHookstate<EntityOrObjectUUID | undefined>(undefined)
+  const focusedNode = useHookstate<Entity | undefined>(undefined)
   const { t } = useTranslation()
 
   //function to handle change in name property
