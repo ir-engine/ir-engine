@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import verifyScope from '../../hooks/verify-scope'
 
@@ -152,7 +152,7 @@ export default {
       schemaHooks.resolveData(instanceDataResolver),
       addRoomCode
     ],
-    update: [],
+    update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('instance', 'write')),
       () => schemaHooks.validateData(instancePatchValidator),
