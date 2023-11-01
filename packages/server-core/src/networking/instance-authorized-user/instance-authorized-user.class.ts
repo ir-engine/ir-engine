@@ -33,7 +33,6 @@ import {
   InstanceAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InstanceAuthorizedUserParams extends KnexAdapterParams<InstanceAuthorizedUserQuery> {}
 
 export class InstanceAuthorizedUserService<

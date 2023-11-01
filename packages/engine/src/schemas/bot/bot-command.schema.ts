@@ -48,19 +48,19 @@ export const botCommandSchema = Type.Object(
   },
   { $id: 'BotCommand', additionalProperties: false }
 )
-export type BotCommandType = Static<typeof botCommandSchema>
+export interface BotCommandType extends Static<typeof botCommandSchema> {}
 
 // Schema for creating new entries
 export const botCommandDataSchema = Type.Partial(botCommandSchema, {
   $id: 'BotCommandData'
 })
-export type BotCommandData = Static<typeof botCommandDataSchema>
+export interface BotCommandData extends Static<typeof botCommandDataSchema> {}
 
 // Schema for updating existing entries
 export const botCommandPatchSchema = Type.Partial(botCommandSchema, {
   $id: 'BotCommandPatch'
 })
-export type BotCommandPatch = Static<typeof botCommandPatchSchema>
+export interface BotCommandPatch extends Static<typeof botCommandPatchSchema> {}
 
 // Schema for allowed query properties
 export const botCommandQueryProperties = Type.Pick(botCommandSchema, ['id', 'name', 'description', 'botId'])
@@ -72,7 +72,7 @@ export const botCommandQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type BotCommandQuery = Static<typeof botCommandQuerySchema>
+export interface BotCommandQuery extends Static<typeof botCommandQuerySchema> {}
 
 export const botCommandValidator = getValidator(botCommandSchema, dataValidator)
 export const botCommandDataValidator = getValidator(botCommandDataSchema, dataValidator)
