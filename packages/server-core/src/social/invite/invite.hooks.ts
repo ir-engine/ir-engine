@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import inviteRemoveAuthenticate from '@etherealengine/server-core/src/hooks/invite-remove-authenticate'
 import attachOwnerIdInBody from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
@@ -111,7 +111,7 @@ export default {
       () => schemaHooks.validateData(inviteDataValidator),
       schemaHooks.resolveData(inviteDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('invite', 'write'))],
+    update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('invite', 'write')),
       () => schemaHooks.validateData(invitePatchValidator),

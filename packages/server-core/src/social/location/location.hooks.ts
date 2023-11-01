@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
@@ -326,7 +326,7 @@ export default {
       insertLocationSetting,
       insertAuthorizedLocation
     ],
-    update: [iff(isProvider('external'), verifyScope('location', 'write'))],
+    update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationPatchValidator),

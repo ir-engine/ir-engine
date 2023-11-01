@@ -59,7 +59,7 @@ export default {
       () => schemaHooks.validateData(locationAdminDataValidator),
       schemaHooks.resolveData(locationAdminDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('location', 'write'))],
+    update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationAdminPatchValidator),
