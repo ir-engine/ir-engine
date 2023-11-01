@@ -72,6 +72,7 @@ const linkLogic = (linkComponent, xrState) => {
 }
 
 const vec3 = new Vector3()
+const interactMessage = 'Click to follow'
 const onLinkInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const transform = getComponent(xrui.entity, TransformComponent)
   if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
@@ -187,7 +188,7 @@ export const LinkComponent = defineComponent({
       setComponent(entity, BoundingBoxComponent)
       setComponent(entity, InputComponent, { highlight: true, grow: true })
       if (!getState(EngineState).isEditor) {
-        addInteractableUI(entity, createNonInteractUI(entity, 'Click to follow'), onLinkInteractUpdate)
+        addInteractableUI(entity, createNonInteractUI(entity, interactMessage), onLinkInteractUpdate)
       }
     }, [])
 
