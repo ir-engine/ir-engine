@@ -32,6 +32,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import {
   LocationData,
   LocationDatabaseType,
+  LocationID,
   LocationPatch,
   LocationType,
   locationDataValidator,
@@ -49,6 +50,7 @@ import {
   LocationSettingType,
   locationSettingPath
 } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { transaction } from '@feathersjs/knex'
 import slugify from 'slugify'
@@ -144,7 +146,7 @@ const insertLocationSetting = async (context: HookContext<LocationService>) => {
   for (const item of data) {
     await context.params.transaction!.trx!.from<LocationSettingType>(locationSettingPath).insert({
       ...item.locationSetting,
-      locationId: (item as LocationType).id
+      locationId: (item as LocationType).id as LocationID
     })
   }
 }
@@ -160,12 +162,12 @@ const insertAuthorizedLocation = async (context: HookContext<LocationService>) =
       await context.params.transaction!.trx!.from<LocationAdminType>(locationAdminPath).insert({
         ...(item as LocationType).locationAdmin,
         userId: context.params?.user?.id,
-        locationId: (item as LocationType).id
+        locationId: (item as LocationType).id as LocationID
       })
       await context.params.transaction!.trx!.from<LocationAuthorizedUserType>(locationAuthorizedUserPath).insert({
         ...(item as LocationType).locationAdmin,
         userId: context.params.user?.id,
-        locationId: (item as LocationType).id
+        locationId: (item as LocationType).id as LocationID
       })
     }
   }
@@ -276,8 +278,8 @@ const removeLocationAdmin = async (context: HookContext<LocationService>) => {
   try {
     await context.app.service(locationAdminPath).remove(null, {
       query: {
-        locationId: context.id?.toString(),
-        userId: selfUser?.id
+        locationId: context.id?.toString() as LocationID,
+        userId: selfUser?.id as UserID
       }
     })
   } catch (err) {

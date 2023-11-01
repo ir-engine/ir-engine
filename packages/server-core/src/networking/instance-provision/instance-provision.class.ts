@@ -37,7 +37,12 @@ import {
 import { InstanceProvisionType } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { locationPath, LocationType, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
+import {
+  LocationID,
+  locationPath,
+  LocationType,
+  RoomCode
+} from '@etherealengine/engine/src/schemas/social/location.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
@@ -68,7 +73,7 @@ export async function getFreeInstanceserver({
 }: {
   app: Application
   iteration: number
-  locationId?: string
+  locationId?: LocationID
   channelId?: ChannelID
   roomCode?: RoomCode
   userId?: UserID
@@ -160,7 +165,7 @@ export async function checkForDuplicatedAssignments({
   app: Application
   ipAddress: string
   iteration: number
-  locationId?: string
+  locationId?: LocationID
   channelId?: ChannelID
   roomCode?: RoomCode | undefined
   createPrivateRoom?: boolean
@@ -178,7 +183,7 @@ export async function checkForDuplicatedAssignments({
   //Create an assigned instance at this IP
   const assignResult: any = (await app.service(instancePath).create({
     ipAddress: ipAddress,
-    locationId: locationId,
+    locationId: locationId as LocationID,
     podName: podName,
     channelId: channelId,
     assigned: true,
@@ -414,7 +419,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
     userId
   }: {
     availableLocationInstances: InstanceType[]
-    locationId?: string
+    locationId?: LocationID
     channelId?: ChannelID
     roomCode?: RoomCode
     userId?: UserID
@@ -521,8 +526,8 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
 
   async find(params?: InstanceProvisionParams) {
     try {
-      let userId
-      const locationId = params?.query?.locationId
+      let userId = '' as UserID
+      const locationId = params?.query?.locationId as LocationID
       const instanceId = params?.query?.instanceId as InstanceID
       const channelId = params?.query?.channelId as ChannelID | undefined
       const roomCode = params?.query?.roomCode as RoomCode
