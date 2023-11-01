@@ -27,7 +27,6 @@ import { AnimationMixer, InstancedMesh, Mesh, Object3D } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
-import { MathUtils } from 'three'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -49,7 +48,6 @@ import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import iterateObject3D from '../util/iterateObject3D'
@@ -185,10 +183,12 @@ export const parseGLTFModel = (entity: Entity) => {
         return
       }
       const objEntity = (obj as Object3DWithEntity).entity ?? createEntity()
+      spawnedEntities.push(objEntity)
 
       const parentEntity = obj === scene ? entity : (obj.parent as Object3DWithEntity).entity
       setComponent(objEntity, EntityTreeComponent, {
-        parentEntity
+        parentEntity,
+        uuid: obj.uuid as EntityUUID
       })
       setComponent(objEntity, LocalTransformComponent, {
         position: obj.position,
@@ -197,7 +197,7 @@ export const parseGLTFModel = (entity: Entity) => {
       })
       setComponent(objEntity, NameComponent, obj.userData['xrengine.entity'] ?? obj.name)
       addObjectToGroup(objEntity, obj)
-      setComponent(objEntity, VisibleComponent, true)
+      if (obj.visible) setComponent(objEntity, VisibleComponent)
       setComponent(objEntity, GLTFLoadedComponent, ['entity'])
       createObjectEntityFromGLTF(objEntity, obj)
 
@@ -211,24 +211,24 @@ export const parseGLTFModel = (entity: Entity) => {
         })
 
       obj.userData.ecsData && parseECSData(objEntity, obj.userData.ecsData)
-      !hasComponent(objEntity, UUIDComponent) &&
-        setComponent(objEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+      // !hasComponent(objEntity, UUIDComponent) &&
+      //   setComponent(objEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
 
       /** Proxy children with EntityTreeComponent if it exists */
       const originalChildren = obj.children
       const originalParent = obj.parent
       Object.defineProperties(obj, {
-        parent: {
-          get() {
-            if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-              return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)[0]
-            }
-            return originalParent
-          },
-          set(value) {
-            throw new Error('Cannot set parent of proxified object')
-          }
-        },
+        // parent: {
+        //   get() {
+        //     if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
+        //       return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)[0]
+        //     }
+        //     return originalParent
+        //   },
+        //   set(value) {
+        //     throw new Error('Cannot set parent of proxified object')
+        //   }
+        // },
         children: {
           get() {
             return hasComponent(objEntity, EntityTreeComponent)
