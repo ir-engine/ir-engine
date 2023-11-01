@@ -33,7 +33,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
@@ -274,7 +274,7 @@ export default createSkippableHooks(
         persistData,
         discard('scopes')
       ],
-      update: [iff(isProvider('external'), verifyScope('user', 'write'))],
+      update: [disallow()],
       patch: [
         iff(isProvider('external'), restrictUserPatch),
         () => schemaHooks.validateData(userPatchValidator),
