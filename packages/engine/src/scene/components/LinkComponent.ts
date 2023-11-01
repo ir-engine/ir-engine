@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { MathUtils, MeshBasicMaterial, Vector3 } from 'three'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { matches } from '../../common/functions/MatchesUtils'
@@ -161,7 +160,6 @@ export const LinkComponent = defineComponent({
     const entity = useEntityContext()
     const link = useComponent(entity, LinkComponent)
     const input = useOptionalComponent(entity, InputComponent)
-    const { t } = useTranslation()
 
     useEffect(() => {
       if (getState(EngineState).isEditor || !input) return
@@ -189,7 +187,7 @@ export const LinkComponent = defineComponent({
       setComponent(entity, BoundingBoxComponent)
       setComponent(entity, InputComponent, { highlight: true, grow: true })
       if (!getState(EngineState).isEditor) {
-        addInteractableUI(entity, createNonInteractUI(entity, t('common:interactables.link')), onLinkInteractUpdate)
+        addInteractableUI(entity, createNonInteractUI(entity, 'Click to follow'), onLinkInteractUpdate)
       }
     }, [])
 
