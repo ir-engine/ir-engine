@@ -136,7 +136,7 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
 
   const adminScopes = await context.app.service(scopePath).find({
     query: {
-      type: 'admin:admin' // DOUBT: what happens here
+      type: 'admin:admin'
     }
   })
 
