@@ -190,12 +190,13 @@ export function ElementList() {
     setAnchorPosition(undefined)
   }
 
-  const searchBarState = useState('')
+  const searchBarState = useState<string>('')
 
   const validElements = useState(ComponentShelfCategories)
 
   useEffect(() => {
     const result: Record<string, Component[]> = {}
+    console.log('searchBarState', searchBarState, searchBarState.value)
     if (searchBarState.value === '') {
       validElements.set(ComponentShelfCategories)
     } else {

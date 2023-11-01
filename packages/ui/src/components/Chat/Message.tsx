@@ -101,9 +101,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
                 {props.message.text}
               </p>
             </div>
-            <div className="w-max-[50px] min-w-0 mr-[55px]">
-              <img className="rounded-[38px] w-9 h-9 object-cover" alt="" src={userThumbnail} />
-            </div>
+            <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
           </div>
         </Resizable>
       </>
@@ -130,7 +128,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
           maxWidth={600}
         >
           <div className="flex flex-wrap">
-            <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
+            <img className="max-w-full rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
             <div className="h-[20px] ml-5">
               <p className="rounded-3xl border-[#F8F8F8] border-2 text-black bg-[#F8F8F8] p-[3px]">
                 {props.message.text}
@@ -156,24 +154,24 @@ export const MessageList = (props: { channelID: ChannelID }) => {
     }
 
     return (
-      <div className="relative w-max-[600px] w-min-[460px] bottom-0 h-[70px]  gap-5 flex flex-wrap justify-center bg-[#ffffff]">
+      <div className="relative w-full bottom-0 h-[70px]  gap-5 flex flex-wrap justify-center bg-[#ffffff]">
         <button className="">
           <img className="w-[30px] rounded-full font-bold h-[30px] overflow-hidden" alt="" src={AttachFileIcon} />
         </button>
         <div className="mt-3 rounded-3xl bg-[#d7d7d7] w-[80%] h-[45px] flex flex-wrap">
           <div className="rounded-full ml-4 my-2 bg-white w-[30px] h-[30px] justify-between">
-            <img className="w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src={UserSvg} />
+            <img className="max-w-full w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src={UserSvg} />
           </div>
-          <div className="w-max-[525px] h-[30px] ml-1 mt-[2.5px]">
+          <div className="w-[525px] h-[30px] ml-1 mt-[2.5px]">
             <input
               type="text"
-              className="rounded-3xl focus:outline-none focus:border-[#d7d7d7] border-[#d7d7d7] border-2 text-black bg-[#d7d7d7] p-2 w-full "
+              className="m-0 rounded-3xl focus:outline-none focus:border-[#d7d7d7] border-[#d7d7d7] border-2 text-black bg-[#d7d7d7] p-2 w-full "
               value={composingMessage.value}
               onChange={(e) => composingMessage.set(e.target.value)}
             />
           </div>
         </div>
-        <button className="mr-3" onClick={sendMessage}>
+        <button className="" onClick={sendMessage}>
           <img className="w-[30px] h-[30px]" alt="" src={SendIcon} />
         </button>
       </div>
@@ -236,7 +234,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
         {mediaConnected && (
           <>
             <button
-              className="w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
+              className="m-0 w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
               onClick={toggleWebcamPaused}
             >
               {isCamVideoEnabled ? (
@@ -246,7 +244,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
               )}
             </button>
             <button
-              className="w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
+              className="m-0 w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
               onClick={toggleMicrophonePaused}
             >
               {isCamAudioEnabled ? (
@@ -256,7 +254,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
               )}
             </button>
             <button
-              className="w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
+              className="m-0 w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
               onClick={toggleScreenshare}
             >
               {isScreenVideoEnabled ? (
@@ -268,7 +266,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
           </>
         )}
         <button
-          className="w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
+          className="m-0 w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
           onClick={() => {
             startMediaCall()
           }}

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getState } from '@etherealengine/hyperflux'
 
@@ -39,6 +38,6 @@ export const cancelGrabOrPlacement = () => {
     // if (EditorHistory.grabCheckPoint) revertHistory(EditorHistory.grabCheckPoint)
   } else if (editorHelperState.transformMode === TransformMode.Placement) {
     setTransformMode(editorHelperState.transformModeOnCancel)
-    EditorControlFunctions.removeObject(getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities))
+    EditorControlFunctions.removeObject(getState(SelectionState).selectedEntities)
   }
 }

@@ -23,23 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import { defineState } from '@etherealengine/hyperflux'
 
-export const Custom503 = (): any => {
-  const { t } = useTranslation()
-  return (
-    <>
-      <h1 style={{ color: 'black' }}>{t('503.msg')}</h1>
-      <img
-        style={{
-          height: 'auto',
-          maxWidth: '100%'
-        }}
-        src="/static/etherealengine.png"
-      />
-    </>
-  )
-}
-
-export default Custom503
+export const MaterialSelectionState = defineState({
+  name: 'MaterialSelectionState',
+  initial: {
+    selectedMaterial: null as string | null
+  }
+})
