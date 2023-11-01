@@ -43,6 +43,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
@@ -56,7 +57,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent, Object3DWithEntity } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -103,6 +104,10 @@ export const addClientInputListeners = () => {
     }
     const entity = createEntity()
     setComponent(entity, InputSourceComponent, { source })
+    setComponent(entity, EntityTreeComponent, {
+      parentEntity: session?.interactionMode === 'world-space' ? Engine.instance.originEntity : null
+    })
+    setComponent(entity, LocalTransformComponent)
     setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
   }
 

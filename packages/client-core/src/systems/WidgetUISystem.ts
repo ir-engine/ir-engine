@@ -47,10 +47,7 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { isMobileXRHeadset, ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
@@ -91,7 +88,8 @@ const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
-    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
+    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(widgetMenuUI.entity, LocalTransformComponent)
     removeComponent(widgetMenuUI.entity, VisibleComponent)
 
     addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
@@ -159,8 +157,8 @@ const execute = () => {
   }
   for (const action of registerWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
-    setComponent(widget.ui.entity, LocalTransformComponent)
     setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: widgetMenuUI.entity })
+    setComponent(widget.ui.entity, LocalTransformComponent)
   }
   for (const action of unregisterWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
@@ -168,14 +166,14 @@ const execute = () => {
     if (typeof widget.cleanup === 'function') widget.cleanup()
   }
 
-  const transform = getComponent(widgetMenuUI.entity, TransformComponent)
+  const transform = getComponent(widgetMenuUI.entity, LocalTransformComponent)
   const activeInputSourceEntity = inputSources.find(
     (entity) => getComponent(entity, InputSourceComponent).source.handedness === widgetState.handedness
   )
 
   if (activeInputSourceEntity) {
     const activeInputSource = getComponent(activeInputSourceEntity, InputSourceComponent)?.source
-    const referenceSpace = ReferenceSpace.origin!
+    const referenceSpace = ReferenceSpace.localFloor!
     const pose = getState(XRState).xrFrame?.getPose(
       activeInputSource.gripSpace ?? activeInputSource.targetRaySpace,
       referenceSpace

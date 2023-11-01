@@ -35,7 +35,6 @@ import { XRCameraViewSystem } from './XRCameraViewSystem'
 import { XRDetectedMeshSystem } from './XRDetectedMeshSystem'
 import { XRHapticsSystem } from './XRHapticsSystem'
 import { XRLightProbeSystem } from './XRLightProbeSystem'
-import { XRPersistentAnchorSystem } from './XRPersistentAnchorSystem'
 import { XRScenePlacementShaderSystem } from './XRScenePlacementShaderSystem'
 import { xrSessionChanged } from './XRSessionFunctions'
 import { XRAction, XRState, useXRMovement } from './XRState'
@@ -96,7 +95,7 @@ export const XRSystem = defineSystem({
     XRDetectedMeshSystem,
     XRHapticsSystem,
     XRLightProbeSystem,
-    XRPersistentAnchorSystem,
+    // XRPersistentAnchorSystem,
     XRScenePlacementShaderSystem
   ]
 })

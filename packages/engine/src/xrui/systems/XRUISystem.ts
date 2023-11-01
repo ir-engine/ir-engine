@@ -24,27 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import {
-  AdditiveBlending,
-  BufferGeometry,
-  Color,
-  Float32BufferAttribute,
-  Line,
-  LineBasicMaterial,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  Quaternion,
-  Ray,
-  RingGeometry,
-  SphereGeometry,
-  Vector3
-} from 'three'
+import { Color, Quaternion, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { WebContainer3D } from '@etherealengine/xrui'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -56,39 +40,11 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 
+import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { LocalTransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIState } from '../XRUIState'
+import { PointerComponent, PointerObject } from '../components/PointerComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
-
-// pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
-const createPointer = (inputSource: XRInputSource): PointerObject => {
-  switch (inputSource.targetRayMode) {
-    case 'gaze': {
-      const geometry = new RingGeometry(0.02, 0.04, 32).translate(0, 0, -1)
-      const material = new MeshBasicMaterial({ opacity: 0.5, transparent: true })
-      return new Mesh(geometry, material) as PointerObject
-    }
-    default:
-    case 'tracked-pointer': {
-      const geometry = new BufferGeometry()
-      geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 0, 0, -1], 3))
-      geometry.setAttribute('color', new Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3))
-      const material = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
-      return new Line(geometry, material)
-    }
-  }
-}
-
-const createUICursor = () => {
-  const geometry = new SphereGeometry(0.01, 16, 16)
-  const material = new MeshBasicMaterial({ color: 0xffffff })
-  return new Mesh(geometry, material)
-}
-
-export type PointerObject = (Line<BufferGeometry, LineBasicMaterial> | Mesh<RingGeometry, MeshBasicMaterial>) & {
-  targetRay?: Mesh<BufferGeometry, MeshBasicMaterial>
-  cursor?: Mesh<BufferGeometry, MeshBasicMaterial>
-  lastHit?: ReturnType<typeof WebContainer3D.prototype.hitTest> | null
-}
 
 const hitColor = new Color(0x00e6e6)
 const normalColor = new Color(0xffffff)
@@ -170,8 +126,6 @@ const updateClickEventsForController = (controller: PointerObject) => {
 
 const inputSourceQuery = defineQuery([InputSourceComponent])
 
-export const pointers = new Map<XRInputSource, PointerObject>()
-
 const execute = () => {
   const xruiState = getState(XRUIState)
   const inputSourceEntities = inputSourceQuery()
@@ -181,7 +135,7 @@ const execute = () => {
   /** Update the objects to use for intersection tests */
   const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
   if (xrFrame && xruiState.interactionRays[0] === pointerScreenRaycaster.ray)
-    xruiState.interactionRays = (Array.from(pointers.values()) as (Ray | Object3D)[]).concat(pointerScreenRaycaster.ray) // todo, replace pointerScreenRaycaster with input sources
+    xruiState.interactionRays = [...PointerComponent.getPointers(), pointerScreenRaycaster.ray] // todo, replace pointerScreenRaycaster with input sources
 
   if (!xrFrame && xruiState.interactionRays[0] !== pointerScreenRaycaster.ray)
     xruiState.interactionRays = [pointerScreenRaycaster.ray]
@@ -209,30 +163,27 @@ const execute = () => {
     const buttons = inputSourceComponent.buttons
 
     if (inputSource.targetRayMode !== 'tracked-pointer') continue
-    if (!pointers.has(inputSource)) {
-      const pointer = createPointer(inputSource)
-      const cursor = createUICursor()
-      pointer.cursor = cursor
-      pointer.add(cursor)
-      cursor.visible = false
-      pointers.set(inputSource, pointer)
-      Engine.instance.scene.add(pointer)
+    if (!PointerComponent.pointers.has(inputSource)) {
+      PointerComponent.addPointer(inputSourceEntity)
     }
 
-    const pointer = pointers.get(inputSource)!
+    const pointerEntity = PointerComponent.pointers.get(inputSource)
+    if (!pointerEntity) continue
 
-    const referenceSpace = ReferenceSpace.origin
-    const xrFrame = getState(XRState).xrFrame
+    const transform = getComponent(pointerEntity, LocalTransformComponent)
+
+    const referenceSpace = ReferenceSpace.localFloor
     if (xrFrame && referenceSpace) {
       const pose = xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)
       if (pose) {
-        pointer.position.copy(pose.transform.position as any as Vector3)
-        pointer.quaternion.copy(pose.transform.orientation as any as Quaternion)
-        pointer.updateMatrixWorld()
+        transform.position.copy(pose.transform.position as any as Vector3)
+        transform.rotation.copy(pose.transform.orientation as any as Quaternion)
       }
     }
 
-    pointer.material.visible = isCloseToVisibleXRUI
+    const pointer = getComponent(pointerEntity, PointerComponent).pointer
+    if (!pointer) continue
+    pointer.material.visible = true // isCloseToVisibleXRUI
 
     if (
       buttons[XRStandardGamepadButton.Trigger]?.down &&
@@ -243,10 +194,9 @@ const execute = () => {
     updateControllerRayInteraction(pointer, interactableXRUIEntities)
   }
 
-  for (const [pointerSource, pointer] of pointers) {
+  for (const [pointerSource, entity] of PointerComponent.pointers) {
     if (!inputSourceEntities.find((entity) => getComponent(entity, InputSourceComponent).source === pointerSource)) {
-      Engine.instance.scene.remove(pointer)
-      pointers.delete(pointerSource)
+      removeEntity(entity)
     }
   }
 
