@@ -29,9 +29,9 @@ import dotenv from 'dotenv-flow'
 
 import { argsToObject } from '@etherealengine/common/src/utils/objectToCommandLineArgs'
 import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { transformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
-import { transformModel } from './model-transform.helpers'
 
 const modelTransformParameters: ModelTransformParameters = argsToObject(process.argv.slice(3))
 
@@ -58,7 +58,7 @@ cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
-    await transformModel(app, modelTransformParameters)
+    await transformModel(modelTransformParameters)
     cli.exit(0)
   } catch (err) {
     console.log(err)
