@@ -174,9 +174,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
     getMutableState(XRState).sceneScale.set(newScale > 0.9 ? 1 : newScale)
   }
 
-  const inverseWorldScale = 1 / XRState.worldScale
-
-  xrState.scenePosition.copy(localTransform.position).multiplyScalar(inverseWorldScale)
+  xrState.scenePosition.copy(localTransform.position)
   xrState.sceneRotation.multiplyQuaternions(
     localTransform.rotation,
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset)
