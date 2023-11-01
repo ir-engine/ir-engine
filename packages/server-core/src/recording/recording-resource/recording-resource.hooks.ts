@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   recordingResourceDataValidator,
@@ -60,7 +60,7 @@ export default {
       () => schemaHooks.validateData(recordingResourceDataValidator),
       schemaHooks.resolveData(recordingResourceDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('recording', 'write'))],
+    update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('recording', 'write')),
       () => schemaHooks.validateData(recordingResourcePatchValidator),

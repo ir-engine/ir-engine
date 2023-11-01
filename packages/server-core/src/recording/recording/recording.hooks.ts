@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {
   recordingDataValidator,
@@ -103,7 +103,7 @@ export default {
       () => schemaHooks.validateData(recordingDataValidator),
       schemaHooks.resolveData(recordingDataResolver)
     ],
-    update: [],
+    update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('recording', 'write')),
       () => schemaHooks.validateData(recordingPatchValidator),
