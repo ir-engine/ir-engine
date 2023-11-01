@@ -165,6 +165,7 @@ const setCreateData = async (context: HookContext<SceneService>) => {
     itemScene.scenePath = `scenes/${item.name}/${context.newSceneName[index]}.scene.json`
     itemScene.envMapPath = `scenes/${item.name}/${context.newSceneName[index]}.envmap.ktx2`
     itemScene.thumbnailPath = `scenes/${item.name}/${context.newSceneName[index]}.thumbnail.ktx2`
+    itemScene.name = context.newSceneName[index]
     if (item.projectId) itemScene.projectId = item.projectId
     createData.push(itemScene)
   }
@@ -243,8 +244,17 @@ const uploadSceneToStorage = async (context: HookContext<SceneService>) => {
   }
 }
 
-const getScene = async (context: HookContext<SceneService>) => {
-  context.result = await context.service._get(context.id as SceneID)
+const createScene = async (context: HookContext<SceneService>) => {
+  const data = context.data as SceneCreateData
+  const createData: SceneCreateData = {}
+
+  createData.id = v4() as SceneID
+  createData.scenePath = `scenes/${data.name}/${data.name}.scene.json`
+  createData.envMapPath = `scenes/${data.name}/${data.name}.envmap.ktx2`
+  createData.thumbnailPath = `scenes/${data.name}/${data.name}.thumbnail.ktx2`
+  createData.name = data.name
+  if (createData.projectId) createData.projectId = data.projectId
+  context.result = await context.service._create(createData)
 }
 
 const deleteSceneResources = async (context: HookContext<SceneService>) => {
@@ -280,7 +290,7 @@ export default {
     update: [
       iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false)),
       uploadSceneToStorage,
-      getScene
+      createScene
     ],
     patch: [
       iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false)),
