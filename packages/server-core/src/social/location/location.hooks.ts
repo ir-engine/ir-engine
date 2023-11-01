@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
@@ -53,10 +53,11 @@ import {
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { transaction } from '@feathersjs/knex'
+import { Knex } from 'knex'
 import slugify from 'slugify'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { LocationService, locationSettingSorts } from './location.class'
+import { LocationService } from './location.class'
 import {
   locationDataResolver,
   locationExternalResolver,
@@ -64,6 +65,10 @@ import {
   locationQueryResolver,
   locationResolver
 } from './location.resolvers'
+
+const locationSettingSorts = ['locationType', 'audioEnabled', 'videoEnabled']
+
+/* (BEFORE) FIND HOOKS */
 
 const sortByLocationSetting = async (context: HookContext<LocationService>) => {
   const hasLocationSettingSort =
@@ -89,6 +94,12 @@ const sortByLocationSetting = async (context: HookContext<LocationService>) => {
   }
 }
 
+/* (BEFORE) CREATE HOOKS */
+
+const makeLobbyHelper = async (trx: Knex.Transaction) => {
+  await trx.from<LocationDatabaseType>(locationPath).update({ isLobby: false }).where({ isLobby: true })
+}
+
 const makeLobbies = async (context: HookContext<LocationService>) => {
   if (!context.data || context.method !== 'create') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
@@ -97,7 +108,7 @@ const makeLobbies = async (context: HookContext<LocationService>) => {
 
   for (const item of data) {
     if (item.isLobby) {
-      await context.makeLobby(context.params.transaction!.trx, context.params?.user)
+      await makeLobbyHelper(context.params.transaction!.trx!)
     }
   }
 }
@@ -173,6 +184,8 @@ const insertAuthorizedLocation = async (context: HookContext<LocationService>) =
   }
 }
 
+/* (AFTER) CREATE HOOKS */
+
 const getInsertResult = async (context: HookContext<LocationService>) => {
   if (!context.data || context.method !== 'create') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
@@ -188,21 +201,13 @@ const getInsertResult = async (context: HookContext<LocationService>) => {
   context.result = result.length === 1 ? result[0] : result
 }
 
+/* (AFTER) UPDATE HOOKS */
+
 const getUpdateResult = async (context: HookContext<LocationService>) => {
   context.result = await context.app.service(locationPath).get(context.id!)
 }
 
-const duplicateNameError = async (context: HookContext<LocationService>) => {
-  if (context.error) {
-    logger.error(context.error, `duplicateNameError in ${context.path} service`, context.data, context.params)
-    if (context.error.code === 'ER_DUP_ENTRY') {
-      throw new BadRequest('Name is in use.')
-    } else if (context.error.errors && context.error.errors[0].message === 'slugifiedName must be unique') {
-      throw new BadRequest('That name is already in use')
-    }
-    throw context.error
-  }
-}
+/* (BEFORE) PATCH HOOKS */
 
 const makeOldLocationLobby = async (context: HookContext<LocationService>) => {
   if (!context.data || context.method !== 'patch') {
@@ -213,7 +218,7 @@ const makeOldLocationLobby = async (context: HookContext<LocationService>) => {
   context.oldLocation = await context.app.service(locationPath).get(context.id!)
 
   if (!context.oldLocation.isLobby && data.isLobby) {
-    await context.service.makeLobby(context.params.transaction!.trx!, context.params?.user)
+    await makeLobbyHelper(context.params.transaction!.trx!)
   }
 }
 
@@ -255,6 +260,8 @@ const updateLocationSetting = async (context: HookContext<LocationService>) => {
   }
 }
 
+/* (BEFORE) REMOVE HOOKS */
+
 const checkIsLobby = async (context: HookContext<LocationService>) => {
   if (context.id) {
     const location = await context.app.service(locationPath).get(context.id)
@@ -287,6 +294,19 @@ const removeLocationAdmin = async (context: HookContext<LocationService>) => {
   }
 }
 
+/* ERROR HOOKS */
+
+const duplicateNameError = async (context: HookContext<LocationService>) => {
+  if (context.error) {
+    if (context.error.code === 'ER_DUP_ENTRY') {
+      throw new BadRequest('Name is in use.')
+    } else if (context.error.errors && context.error.errors[0].message === 'slugifiedName must be unique') {
+      throw new BadRequest('That name is already in use')
+    }
+    throw context.error
+  }
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveExternal(locationExternalResolver), schemaHooks.resolveResult(locationResolver)]
@@ -308,7 +328,7 @@ export default {
       insertLocationSetting,
       insertAuthorizedLocation
     ],
-    update: [iff(isProvider('external'), verifyScope('location', 'write'))],
+    update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationPatchValidator),
