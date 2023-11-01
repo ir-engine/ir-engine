@@ -51,12 +51,11 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('instance', 'read')),
       () => schemaHooks.validateQuery(instanceAttendanceQueryValidator),
       schemaHooks.resolveQuery(instanceAttendanceQueryResolver)
     ],
-    find: [],
-    get: [],
+    find: [iff(isProvider('external'), verifyScope('instance', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('instance', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('instance', 'write')),
       () => schemaHooks.validateData(instanceAttendanceDataValidator),
