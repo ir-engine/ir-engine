@@ -494,7 +494,7 @@ const defaultLayout: LayoutData = {
                 content: <GraphPanel />
               },
               {
-                id: 'graphPanel',
+                id: 'materialPropertiesPanel',
                 title: <MaterialPropertyTitle />,
                 content: <MaterialProperties />
               }
