@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   instanceAttendanceDataValidator,
@@ -51,22 +51,23 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(instanceAttendanceQueryValidator),
       schemaHooks.resolveQuery(instanceAttendanceQueryResolver)
     ],
-    find: [],
-    get: [],
+    find: [iff(isProvider('external'), verifyScope('instance', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('instance', 'read'))],
     create: [
+      iff(isProvider('external'), verifyScope('instance', 'write')),
       () => schemaHooks.validateData(instanceAttendanceDataValidator),
       schemaHooks.resolveData(instanceAttendanceDataResolver)
     ],
-    update: [],
+    update: [disallow()],
     patch: [
+      iff(isProvider('external'), verifyScope('instance', 'write')),
       () => schemaHooks.validateData(instanceAttendancePatchValidator),
       schemaHooks.resolveData(instanceAttendancePatchResolver)
     ],
-    remove: []
+    remove: [iff(isProvider('external'), verifyScope('instance', 'write'))]
   },
 
   after: {
