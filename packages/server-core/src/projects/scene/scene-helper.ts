@@ -28,6 +28,7 @@ import koa from '@feathersjs/koa'
 import { Application } from '../../../declarations'
 // import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { SceneDataType, SceneID, SceneType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
@@ -50,12 +51,18 @@ export const getSceneData = async (
   internal = false,
   storageProviderName?: string
 ) => {
-  let { name, thumbnailPath } = (await app.service(scenePath)._get(sceneId)) as SceneType
+  let { name, thumbnailPath, projectId } = (await app.service(scenePath)._get(sceneId)) as SceneType
+  let projectName
   const storageProvider = getStorageProvider(storageProviderName)
   const directory = `scenes/${name}/`
 
   const sceneExists = await storageProvider.doesExist(`${name}.scene.json`, directory)
   if (!sceneExists) throw new Error(`No scene named ${name} exists`)
+
+  if (projectId) {
+    const project = await app.service(projectPath).get(projectId)
+    projectName = project.name
+  }
 
   //if no ktx2 is found, fallback on legacy jpg thumbnail format, if still not found, fallback on ethereal logo
   if (!(await storageProvider.doesExist(`${name}.thumbnail.ktx2`, directory))) {
@@ -71,6 +78,7 @@ export const getSceneData = async (
   const sceneData: SceneDataType = {
     id: sceneId,
     name: name,
+    project: projectName,
     thumbnailUrl: thumbnailUrl,
     scene: metadataOnly ? undefined! : parseStorageProviderURLs(JSON.parse(sceneResult.Body.toString()))
   }

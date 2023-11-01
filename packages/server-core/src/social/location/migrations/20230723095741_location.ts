@@ -39,13 +39,16 @@ export async function up(knex: Knex): Promise<void> {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('name', 255).notNullable()
-      table.string('sceneId', 255).nullable()
+      //@ts-ignore
+      table.string('sceneId', 255).collate('utf8mb4_bin').nullable().index()
       table.string('slugifiedName', 255).notNullable().unique()
       table.boolean('isLobby').defaultTo(false)
       table.boolean('isFeatured').defaultTo(false)
       table.integer('maxUsersPerInstance').notNullable().defaultTo(50)
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
+
+      table.foreign('sceneId').references('id').inTable('scene').onDelete('SET NULL').onUpdate('CASCADE')
     })
   }
 }

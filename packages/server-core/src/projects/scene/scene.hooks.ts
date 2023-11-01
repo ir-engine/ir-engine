@@ -165,6 +165,7 @@ const setCreateData = async (context: HookContext<SceneService>) => {
     itemScene.scenePath = `scenes/${item.name}/${context.newSceneName[index]}.scene.json`
     itemScene.envMapPath = `scenes/${item.name}/${context.newSceneName[index]}.envmap.ktx2`
     itemScene.thumbnailPath = `scenes/${item.name}/${context.newSceneName[index]}.thumbnail.ktx2`
+    if (item.projectId) itemScene.projectId = item.projectId
     createData.push(itemScene)
   }
   context.data = createData.length === 1 ? createData[0] : createData

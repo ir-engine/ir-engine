@@ -94,8 +94,8 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
   const sceneMenu: InputMenuItem[] = scenes.get(NO_PROXY).map((el) => {
     return {
-      value: `${el.project}/${el.name}`,
-      label: `${el.name} (${el.project})`
+      value: `${el.id}/${el.name}`,
+      label: `${el.name} (${el.id})`
     }
   })
 

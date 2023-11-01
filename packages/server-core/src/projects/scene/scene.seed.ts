@@ -25,39 +25,32 @@ Ethereal Engine. All Rights Reserved.
 
 import { Knex } from 'knex'
 
-import { LocationDatabaseType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneCreateData, SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getDateTimeSql } from '../../util/datetime-sql'
 
-export const locationSeedData = [
+export const sceneSeedData = [
   {
-    id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60',
-    name: 'Default',
-    slugifiedName: 'default',
-    maxUsersPerInstance: 30,
-    sceneId: 'b9427eb1-62f5-4bed-b3ff-eccb5fd116e4' as SceneID,
-    isFeatured: false,
-    isLobby: false
+    id: 'b9427eb1-62f5-4bed-b3ff-eccb5fd116e4' as SceneID,
+    name: 'default',
+    scenePath: 'scenes/default/default.scene.json',
+    thumbnailPath: 'scenes/default/default.thumbnail.ktx2',
+    envMapPath: 'scenes/default/default.envmap.ktx2'
   },
   {
-    id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62',
-    name: 'Sky Station',
-    slugifiedName: 'sky-station',
-    maxUsersPerInstance: 30,
-    sceneId: 'b9427eb1-62f5-4bed-b3ff-eccb5fd116e6' as SceneID,
-    isFeatured: false,
-    isLobby: false
+    id: 'b9427eb1-62f5-4bed-b3ff-eccb5fd116e6' as SceneID,
+    name: 'sky-station',
+    scenePath: 'scenes/sky-station/sky-station.scene.json',
+    thumbnailPath: 'scenes/sky-station/sky-station.thumbnail.ktx2',
+    envMapPath: 'scenes/sky-station/sky-station.envmap.ktx2'
   },
   {
-    id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63',
-    name: 'Apartment',
-    slugifiedName: 'apartment',
-    maxUsersPerInstance: 30,
-    sceneId: 'b9427eb1-62f5-4bed-b3ff-eccb5fd116e8' as SceneID,
-    isFeatured: false,
-    isLobby: false
+    id: 'b9427eb1-62f5-4bed-b3ff-eccb5fd116e8' as SceneID,
+    name: 'apartment',
+    scenePath: 'scenes/apartment/apartment.scene.json',
+    thumbnailPath: 'scenes/apartment/apartment.thumbnail.ktx2',
+    envMapPath: 'scenes/apartment/apartment.envmap.ktx2'
   }
 ]
 
@@ -65,8 +58,8 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData: LocationDatabaseType[] = await Promise.all(
-    locationSeedData.map(async (item) => ({
+  const seedData: SceneCreateData[] = await Promise.all(
+    sceneSeedData.map(async (item) => ({
       ...item,
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
@@ -75,16 +68,16 @@ export async function seed(knex: Knex): Promise<void> {
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
-    await knex(locationPath).del()
+    await knex(scenePath).del()
 
     // Inserts seed entries
-    await knex(locationPath).insert(seedData)
+    await knex(scenePath).insert(seedData)
   } else {
-    const existingData = await knex(locationPath).count({ count: '*' })
+    const existingData = await knex(scenePath).count({ count: '*' })
 
     if (existingData.length === 0 || existingData[0].count === 0) {
       for (const item of seedData) {
-        await knex(locationPath).insert(item)
+        await knex(scenePath).insert(item)
       }
     }
   }
