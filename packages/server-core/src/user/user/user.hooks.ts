@@ -47,6 +47,7 @@ import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import disallowNonId from '../../hooks/disallow-non-id'
 import persistData from '../../hooks/persist-data'
+import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import { UserService } from './user.class'
@@ -256,10 +257,16 @@ export default createSkippableHooks(
     before: {
       all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
       find: [
-        iff(isProvider('external'), verifyScope('user', 'read'), handleUserSearch),
-        iff(isProvider('external'), discardQuery('search', '$sort.accountIdentifier') as any)
+        iff(
+          isProvider('external'),
+          verifyScope('user', 'read'),
+          handleUserSearch,
+          discardQuery('search', '$sort.accountIdentifier') as any
+        ),
+        persistQuery,
+        discardQuery('skipAvatar')
       ],
-      get: [],
+      get: [persistQuery, discardQuery('skipAvatar')],
       create: [
         iff(isProvider('external'), verifyScope('user', 'write')),
         () => schemaHooks.validateData(userDataValidator),

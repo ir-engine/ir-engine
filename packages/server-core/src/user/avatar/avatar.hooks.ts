@@ -41,6 +41,7 @@ import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import isAction from '../../hooks/is-action'
+import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
 import { AvatarService } from './avatar.class'
 import {
@@ -179,10 +180,12 @@ export default {
     all: [() => schemaHooks.validateQuery(avatarQueryValidator), schemaHooks.resolveQuery(avatarQueryResolver)],
     find: [
       iffElse(isAction('admin'), verifyScope('globalAvatars', 'read'), ensureUserAccessibleAvatars),
+      persistQuery,
       discardQuery('action'),
+      discardQuery('skipUser'),
       sortByUserName
     ],
-    get: [],
+    get: [persistQuery, discardQuery('skipUser')],
     create: [
       () => schemaHooks.validateData(avatarDataValidator),
       schemaHooks.resolveData(avatarDataResolver),

@@ -45,7 +45,6 @@ import { v1 as uuidv1 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AcceptInviteParams extends KnexAdapterParams {
   preventUserRelationshipRemoval?: boolean
 }
