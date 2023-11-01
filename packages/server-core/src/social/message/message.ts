@@ -60,7 +60,7 @@ export default (app: Application): void => {
   const onCRUD =
     (app: Application) =>
     async (data: MessageType): Promise<any> => {
-      if (!data.sender) {
+      if (!data.sender && data.senderId) {
         data.sender = await app.service(userPath).get(data.senderId)
       }
       const channelUsers = (await app.service(channelUserPath).find({
