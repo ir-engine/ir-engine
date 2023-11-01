@@ -148,14 +148,20 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
   worldOriginTransform.position.copy(rigidBody.position)
   worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
 
+  const onLocalFloorReset = (ev: XRReferenceSpaceEvent) => {
+    /** @todo ev.transform is not yet implemented on the Quest browser */
+    // if (ev.transform) {
+    //   ReferenceSpace.localFloor = ev.referenceSpace.getOffsetReferenceSpace(ev.transform)
+    //   if (ReferenceSpace.localFloor && 'addEventListener' in ReferenceSpace.localFloor)
+    //     ReferenceSpace.localFloor.addEventListener('reset', onLocalFloorReset, { once: true, passive: true })
+    // }
+    setTrackingSpace()
+  }
+
   /** the world origin is an offset to the local floor, so as soon as we have the local floor, define the origin reference space */
-  xrSession.requestReferenceSpace('local-floor').then((space) => {
+  xrSession.requestReferenceSpace('local-floor').then((space: XRReferenceSpace | XRBoundedReferenceSpace) => {
     // WebXR Emulator does not support XRReferenceSpace events
-    if ('addEventListener' in space)
-      space.addEventListener('reset', (ev) => {
-        /** @todo we need to use the event's `transform` property to modify our origin reference space to align with the space prior to the reset event */
-        setTrackingSpace()
-      })
+    if ('addEventListener' in space) space.addEventListener('reset', onLocalFloorReset, { once: true, passive: true })
     ReferenceSpace.localFloor = space
     computeAndUpdateWorldOrigin()
   })

@@ -33,7 +33,6 @@ import {
   GithubRepoAccessType
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface GithubRepoAccessParams extends KnexAdapterParams<GithubRepoAccessQuery> {}
 
 export class GithubRepoAccessService<

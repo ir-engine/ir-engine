@@ -34,7 +34,6 @@ import {
 } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InviteParams extends KnexAdapterParams<InviteQuery> {
   preventUserRelationshipRemoval?: boolean
 }

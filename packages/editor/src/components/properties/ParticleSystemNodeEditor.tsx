@@ -182,7 +182,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.particle-system.name')}
       description={t('editor:properties.particle-system.description')}
     >
-      <h4>Options</h4>
+      <h4 style={{ fontSize: '100%', fontWeight: 'normal' }}>Options</h4>
       <InputGroup name="Looping" label={t('editor:properties.particle-system.looping')}>
         <BooleanInput value={particleSystem.systemParameters.looping} onChange={onSetSystemParm('looping')} />
       </InputGroup>
@@ -418,7 +418,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="World Space" label={t('editor:properties.particle-system.world-space')}>
         <BooleanInput value={particleSystem.systemParameters.worldSpace} onChange={onSetSystemParm('worldSpace')} />
       </InputGroup>
-      <h4>Behaviors</h4>
+      <h4 style={{ fontSize: '100%', fontWeight: 'normal' }}>Behaviors</h4>
       <Button onClick={onAddBehavior}>Add Behavior</Button>
       <PaginatedList
         list={particleSystemState.behaviorParameters}

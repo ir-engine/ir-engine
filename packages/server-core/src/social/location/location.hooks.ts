@@ -192,6 +192,7 @@ const getUpdateResult = async (context: HookContext<LocationService>) => {
 
 const duplicateNameError = async (context: HookContext<LocationService>) => {
   if (context.error) {
+    logger.error(context.error, `duplicateNameError in ${context.path} service`, context.data, context.params)
     if (context.error.code === 'ER_DUP_ENTRY') {
       throw new BadRequest('Name is in use.')
     } else if (context.error.errors && context.error.errors[0].message === 'slugifiedName must be unique') {

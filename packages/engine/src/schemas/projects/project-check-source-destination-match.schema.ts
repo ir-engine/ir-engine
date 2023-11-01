@@ -38,7 +38,8 @@ export const projectCheckSourceDestinationMatchSchema = Type.Object(
   { $id: 'ProjectCheckSourceDestinationMatch', additionalProperties: false }
 )
 
-export type ProjectCheckSourceDestinationMatchType = Static<typeof projectCheckSourceDestinationMatchSchema>
+export interface ProjectCheckSourceDestinationMatchType
+  extends Static<typeof projectCheckSourceDestinationMatchSchema> {}
 
 export const projectCheckSourceDestinationMatchValidator = getValidator(
   projectCheckSourceDestinationMatchSchema,

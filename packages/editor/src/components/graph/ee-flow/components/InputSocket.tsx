@@ -59,7 +59,8 @@ const InputFieldForValue = ({
     userDrag: 'none',
     marginRight: '0.5rem',
     WebkitUserDrag: 'none',
-    MozUserDrag: 'none'
+    MozUserDrag: 'none',
+    margin: 0
   }
   if (showChoices)
     return (

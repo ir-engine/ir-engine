@@ -96,7 +96,8 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
           width: '100%',
           padding: '0.5rem',
           height: '8rem',
-          verticalAlign: 'top'
+          verticalAlign: 'top',
+          margin: 0
         }}
         placeholder="Paste JSON here"
         value={value}
@@ -112,7 +113,8 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
           borderRadius: '0.25rem',
           display: 'block',
           width: '100%',
-          padding: '0.75rem'
+          padding: '0.75rem',
+          margin: 0
         }}
         onChange={(e) => setSelected(e.target.value)}
         value={selected}

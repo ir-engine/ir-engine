@@ -28,7 +28,6 @@ import { Params } from '@feathersjs/feathers'
 import { AvatarData, AvatarPatch, AvatarQuery, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AvatarParams extends KnexAdapterParams<AvatarQuery> {}
 
 export class AvatarService<T = AvatarType, ServiceParams extends Params = AvatarParams> extends KnexService<
