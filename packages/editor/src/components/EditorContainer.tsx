@@ -40,6 +40,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
+import { addMediaComponent } from '@etherealengine/engine/src/behave-graph/nodes/Profiles/Engine/helper/assetHelper'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
@@ -298,16 +299,15 @@ const onImportAsset = async () => {
   el.style.display = 'none'
   el.onchange = async () => {
     if (el.files && el.files.length > 0 && projectName) {
-      const fList = el.files
-      const files = [...Array(el.files.length).keys()].map((i) => fList[i])
-      const nuUrl = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map((url) => url[0])
+      const uploadedURLs = (
+        await Promise.all(uploadProjectFiles(projectName, Array.from(el.files), true).promises)
+      ).map((url) => url[0])
 
-      //process zipped files
-      const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
-      const extractPromises = [...zipFiles.map((zipped) => extractZip(zipped))]
-      Promise.all(extractPromises).then(() => {
-        logger.info('extraction complete')
+      await Promise.all(uploadedURLs.filter((url) => /\.zip$/.test(url)).map(extractZip)).then(() => {
+        logger.info('extraction of zip files complete')
       })
+
+      uploadedURLs.forEach((url) => addMediaComponent(url))
     }
   }
   el.click()
