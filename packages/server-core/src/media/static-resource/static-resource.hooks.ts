@@ -76,11 +76,10 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('static_resource', 'read')),
       () => schemaHooks.validateQuery(staticResourceQueryValidator),
       schemaHooks.resolveQuery(staticResourceQueryResolver)
     ],
-    find: [collectAnalytics()],
+    find: [iff(isProvider('external'), verifyScope('static_resource', 'read')), collectAnalytics()],
     get: [disallow('external')],
     create: [
       iff(isProvider('external'), verifyScope('static_resource', 'write')),
@@ -88,7 +87,7 @@ export default {
       () => schemaHooks.validateData(staticResourceDataValidator),
       schemaHooks.resolveData(staticResourceDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('static_resource', 'write'))],
+    update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('static_resource', 'write')),
       () => schemaHooks.validateData(staticResourcePatchValidator),
