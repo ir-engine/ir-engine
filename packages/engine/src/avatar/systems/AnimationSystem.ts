@@ -59,14 +59,13 @@ const execute = () => {
     const animationComponent = getComponent(entity, AnimationComponent)
     const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
-    /** Animation tracks manipulate euler data in Object3D.rotation, we need to manually transcribe that to our LocalTransfromComponent quaternion rotation */
+    /** @todo for some reason, the animation clips do not apply their data to the proxified quaternions */
     if (hasComponent(entity, ModelComponent))
       traverseEntityNode(entity, (childEntity) => {
         const mesh = getComponent(childEntity, MeshComponent)
         if (!mesh) return
-        const euler = mesh.rotation
         const rotation = getComponent(childEntity, LocalTransformComponent).rotation
-        rotation.setFromEuler(euler, false)
+        rotation.copy(mesh.quaternion)
       })
     const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
     animationActionComponent?._action.value &&
