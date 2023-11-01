@@ -23,29 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GLTFLoaderPlugin } from '../GLTFLoader'
-import { ImporterExtension } from './ImporterExtension'
+import { Mesh, Object3D } from 'three'
 
-export type EE_ecs = {
-  data: [string, any][]
+import iterateObject3D from './iterateObject3D'
+
+export default function getFirstMesh(obj3d: Object3D): Mesh | null {
+  const meshes = iterateObject3D(
+    obj3d,
+    (child) => child,
+    (child: Mesh) => child?.isMesh,
+    false,
+    true
+  )
+  return meshes.length > 0 ? meshes[0] : null
 }
 
-export default class EEECSImporterExtension extends ImporterExtension implements GLTFLoaderPlugin {
-  name = 'EE_ecs'
-
-  beforeRoot() {
-    const parser = this.parser
-    const json = parser.json
-    const nodeCount = json.nodes?.length || 0
-    for (let nodeIndex = 0; nodeIndex < nodeCount; nodeIndex++) {
-      const nodeDef = json.nodes[nodeIndex]
-      if (!nodeDef.extensions?.[this.name]) continue
-      const extensionDef: EE_ecs = nodeDef.extensions[this.name]
-      const containsECSData = !!extensionDef.data && extensionDef.data.some(([k]) => k.startsWith('xrengine.'))
-      if (!containsECSData) continue
-      !nodeDef.extras && (nodeDef.extras = {})
-      nodeDef.extras.ecsData = extensionDef.data
-    }
-    return null
-  }
+export function getMeshes(obj3d: Object3D): Mesh[] {
+  return iterateObject3D(
+    obj3d,
+    (child) => child,
+    (child: Mesh) => child?.isMesh,
+    false,
+    false
+  )
 }

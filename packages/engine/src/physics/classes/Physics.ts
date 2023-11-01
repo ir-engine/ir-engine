@@ -61,9 +61,12 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { MeshComponent } from '../../scene/components/MeshComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
@@ -104,10 +107,10 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
-  addComponent(entity, RigidBodyComponent, { body })
+  setComponent(entity, RigidBodyComponent, { body })
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.body.bodyType())
-  addComponent(entity, RigidBodyTypeTagComponent, true)
+  setComponent(entity, RigidBodyTypeTagComponent, true)
 
   // apply the initial transform if there is one
   if (hasComponent(entity, TransformComponent)) {
@@ -326,6 +329,21 @@ function createRigidBodyForGroup(
       }
     })
   }
+
+  hasComponent(entity, EntityTreeComponent) &&
+    iterateEntityNode(entity, (child) => {
+      const mesh = getComponent(child, MeshComponent)
+      if (!mesh) return // || ((mesh?.geometry.attributes['position'] as BufferAttribute).array.length ?? 0 === 0)) return
+      if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
+
+      const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
+      const colliderDesc = createColliderDesc(mesh, args, mesh, overrideShapeType)
+
+      if (colliderDesc) {
+        ;(typeof args.removeMesh === 'undefined' || args.removeMesh === true) && meshesToRemove.push(mesh)
+        colliderDescs.push(colliderDesc)
+      }
+    })
 
   const rigidBodyType =
     typeof colliderDescOptions.bodyType === 'string'

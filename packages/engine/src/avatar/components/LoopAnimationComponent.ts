@@ -33,6 +33,7 @@ import {
   NormalAnimationBlendMode
 } from 'three'
 
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -131,10 +132,9 @@ export const LoopAnimationComponent = defineComponent({
         return
       }
       animComponent.mixer.time.set(0)
+      const assetObject = modelComponent.asset.get(NO_PROXY)
       const action = animComponent.mixer.value.clipAction(
-        modelComponent.asset instanceof VRM
-          ? retargetMixamoAnimation(clip, modelComponent.scene.value, modelComponent.asset)
-          : clip
+        assetObject instanceof VRM ? retargetMixamoAnimation(clip, modelComponent.scene.value, assetObject) : clip
       )
       loopAnimationComponent._action.set(action)
       return () => {

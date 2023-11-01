@@ -280,7 +280,7 @@ const filterAwakeCleanRigidbodies = (entity: Entity) =>
 
 const filterSleepingRigidbodies = (entity: Entity) => getComponent(entity, RigidBodyComponent).body.isSleeping()
 
-let sortedTransformEntities = [] as Entity[]
+const sortedTransformEntities = [] as Entity[]
 
 /** override Skeleton.update, as it is called inside  */
 const skeletonUpdate = Skeleton.prototype.update

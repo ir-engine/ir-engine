@@ -134,6 +134,8 @@ export const EntityTreeComponent = defineComponent({
     } else {
       EntityTreeComponent.roots[entity].set(none)
     }
+    removeComponent(entity, UUIDComponent)
+    destroyEntityTree(entity)
   },
 
   roots: hookstate({} as Record<Entity, true>)
@@ -225,7 +227,8 @@ export function iterateEntityNode<R>(
   entity: Entity,
   cb: (entity: Entity, index: number) => R,
   pred: (entity: Entity) => boolean = (x) => true,
-  snubChildren = false
+  snubChildren = false,
+  breakOnFind = false
 ): R[] {
   const frontier = [[entity]]
   const result: R[] = []
@@ -236,6 +239,7 @@ export function iterateEntityNode<R>(
       const item = items[i]
       if (pred(item)) {
         result.push(cb(item, idx))
+        if (breakOnFind) return result
         idx += 1
         snubChildren &&
           frontier.push(

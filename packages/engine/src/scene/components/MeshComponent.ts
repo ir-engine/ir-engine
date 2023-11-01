@@ -23,29 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GLTFLoaderPlugin } from '../GLTFLoader'
-import { ImporterExtension } from './ImporterExtension'
+import { Mesh } from 'three'
 
-export type EE_ecs = {
-  data: [string, any][]
-}
+import { defineComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
-export default class EEECSImporterExtension extends ImporterExtension implements GLTFLoaderPlugin {
-  name = 'EE_ecs'
-
-  beforeRoot() {
-    const parser = this.parser
-    const json = parser.json
-    const nodeCount = json.nodes?.length || 0
-    for (let nodeIndex = 0; nodeIndex < nodeCount; nodeIndex++) {
-      const nodeDef = json.nodes[nodeIndex]
-      if (!nodeDef.extensions?.[this.name]) continue
-      const extensionDef: EE_ecs = nodeDef.extensions[this.name]
-      const containsECSData = !!extensionDef.data && extensionDef.data.some(([k]) => k.startsWith('xrengine.'))
-      if (!containsECSData) continue
-      !nodeDef.extras && (nodeDef.extras = {})
-      nodeDef.extras.ecsData = extensionDef.data
+export const MeshComponent = defineComponent({
+  name: 'EE_mesh',
+  jsonID: 'mesh',
+  onInit: (entity) => new Mesh(),
+  onSet: (entity, component, mesh?: Mesh) => {
+    if (mesh instanceof Mesh) {
+      component.set(mesh)
+      MeshComponent.valueMap[entity] = mesh
     }
-    return null
   }
-}
+})

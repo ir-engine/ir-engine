@@ -243,6 +243,12 @@
       "lbl-size": "Size",
       "seektime": "Start Time"
     },
+    "mesh": {
+      "name": "Mesh",
+      "description": "A mesh is a collection of vertices, edges, and faces that describe the shape of a 3D object.",
+      "geometryEditor": "Geometry Editor",
+      "materialEditor": "Material Editor"
+    },
     "audio": {
       "name": "Positional Audio",
       "description": "Positional audio settings",
@@ -268,9 +274,10 @@
     "collider": {
       "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
-      "lbl-type": "Type",
+      "lbl-isTrigger": "Trigger",
+      "lbl-removeMesh": "Remove Mesh",
       "lbl-shape": "Shape",
-      "lbl-isTrigger": "Trigger"
+      "lbl-type": "Body Type"
     },
     "camera": {
       "name": "Camera",
@@ -344,6 +351,7 @@
       "lbl-usingGPUInstancingFlag": "Use GPU Instancing",
       "lbl-modelurl": "Model Url",
       "lbl-envmapUrl": "Environment Map Url",
+      "lbl-exportType": "File Extension",
       "lbl-textureOverride": "Override Texture",
       "lbl-materialOverride": "Material Overrides",
       "error-url": "Error Loading From URL",

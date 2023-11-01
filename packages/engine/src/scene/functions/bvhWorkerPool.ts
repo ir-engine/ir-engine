@@ -38,7 +38,7 @@ export function generateMeshBVH(mesh: Mesh | InstancedMesh) {
     (mesh as InstancedMesh).isInstancedMesh ||
     !mesh.geometry ||
     !mesh.geometry.attributes.position ||
-    mesh.geometry.boundsTree
+    (mesh.geometry as any).boundsTree
   )
     return Promise.resolve()
   if (!bvhWorkers.length) {

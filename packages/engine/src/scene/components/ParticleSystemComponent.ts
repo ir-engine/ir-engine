@@ -46,7 +46,7 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { getBatchRenderer } from '../systems/ParticleSystemSystem'
-import getFirstMesh from '../util/getFirstMesh'
+import getFirstMesh from '../util/meshUtils'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 /*

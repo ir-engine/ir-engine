@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AnimationMixer, Mesh, Object3D } from 'three'
+import { AnimationMixer, InstancedMesh, Mesh, Object3D } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
+import { generateUUID } from 'three/src/math/MathUtils'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -42,11 +43,16 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
+import { GroupComponent, Object3DWithEntity, addObjectToGroup } from '../components/GroupComponent'
+import { InstancingComponent } from '../components/InstancingComponent'
+import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
+import { UUIDComponent } from '../components/UUIDComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import iterateObject3D from '../util/iterateObject3D'
 import { enableObjectLayer } from './setObjectLayers'
 
 export const parseECSData = (entity: Entity, data: [string, any][]): void => {
@@ -138,6 +144,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     computeTransformMatrix(entity)
 
     addObjectToGroup(e, mesh)
+
     setComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent.name])
     createObjectEntityFromGLTF(e, mesh)
 
@@ -155,6 +162,42 @@ export const parseGLTFModel = (entity: Entity) => {
 
   // always parse components first
   const spawnedEntities = parseObjectComponentsFromGLTF(entity, scene)
+
+  iterateObject3D(
+    scene,
+    (obj) => {
+      if (obj === scene) return
+      const objEntity = (obj as Object3DWithEntity).entity ?? createEntity()
+
+      const parentEntity = obj === scene ? entity : (obj.parent as Object3DWithEntity).entity
+      setComponent(objEntity, EntityTreeComponent, {
+        parentEntity
+      })
+      setComponent(objEntity, LocalTransformComponent, {
+        position: obj.position,
+        rotation: obj.quaternion,
+        scale: obj.scale
+      })
+      setComponent(objEntity, NameComponent, obj.userData['xrengine.entity'] ?? obj.name)
+      addObjectToGroup(objEntity, obj)
+      setComponent(objEntity, VisibleComponent, true)
+      setComponent(objEntity, GLTFLoadedComponent, ['entity'])
+      createObjectEntityFromGLTF(objEntity, obj)
+
+      const mesh = obj as Mesh
+      mesh.isMesh && setComponent(objEntity, MeshComponent, mesh)
+
+      const instancedMesh = obj as InstancedMesh
+      instancedMesh.isInstancedMesh &&
+        setComponent(objEntity, InstancingComponent, {
+          instanceMatrix: instancedMesh.instanceMatrix
+        })
+
+      obj.userData.ecsData && parseECSData(objEntity, obj.userData.ecsData)
+      !hasComponent(objEntity, UUIDComponent) && setComponent(objEntity, UUIDComponent, generateUUID() as EntityUUID)
+    },
+    (obj) => !obj.userData['xrengine.entity'] //ignore objects with old ecs schema as they have already been processed
+  )
 
   enableObjectLayer(scene, ObjectLayers.Scene, true)
 

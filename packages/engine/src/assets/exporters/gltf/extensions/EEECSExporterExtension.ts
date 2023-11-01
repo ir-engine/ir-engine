@@ -23,15 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  ComponentMap,
-  getComponent,
-  getMutableComponent,
-  hasComponent
-} from '../../../../ecs/functions/ComponentFunctions'
+import { getAllComponents, getMutableComponent, hasComponent } from '../../../../ecs/functions/ComponentFunctions'
 import { GLTFLoadedComponent } from '../../../../scene/components/GLTFLoadedComponent'
 import { Object3DWithEntity } from '../../../../scene/components/GroupComponent'
-import { NameComponent } from '../../../../scene/components/NameComponent'
+import { TransformComponent } from '../../../../transform/components/TransformComponent'
+import { EE_ecs } from '../../../loaders/gltf/extensions/EEECSImporterExtension'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -42,26 +38,19 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
     if (!object.entity) return
     const entity = object.entity
     if (!hasComponent(entity, GLTFLoadedComponent)) return
-    const gltfLoaded = getComponent(entity, GLTFLoadedComponent)
+    //const gltfLoaded = getComponent(entity, GLTFLoadedComponent)
+    const components = getAllComponents(entity)
     const data = new Array<[string, any]>()
-    for (const field of gltfLoaded) {
-      if (field === 'entity') {
-        const name = getComponent(entity, NameComponent)
-        data.push(['xrengine.entity', name])
-      } else {
-        const component = ComponentMap.get(field)!
-        if (!component?.toJSON) {
-          console.error(`[EEECSExporter]: Component ${field} does not have a toJSON method`)
-          continue
-        }
-        const compData = component.toJSON(entity, getMutableComponent(entity, component))
-        for (const [field, value] of Object.entries(compData)) {
-          data.push([`xrengine.${component.name}.${field}`, value])
-        }
+    for (const component of components) {
+      if (component === TransformComponent) continue //skip transform as that is stored in the object3d
+      const compData = component.toJSON(entity, getMutableComponent(entity, component))
+      if (!compData) continue
+      for (const [field, value] of Object.entries(compData)) {
+        data.push([`xrengine.${component.name}.${field}`, value])
       }
     }
     nodeDef.extensions = nodeDef.extensions ?? {}
-    nodeDef.extensions[this.name] = { data }
+    nodeDef.extensions[this.name] = { data } as EE_ecs
     this.writer.extensionsUsed[this.name] = true
   }
 }

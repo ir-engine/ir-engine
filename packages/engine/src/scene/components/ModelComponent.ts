@@ -33,6 +33,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   defineComponent,
@@ -44,8 +45,8 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
+import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { iterateEntityNode, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -56,12 +57,15 @@ import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import iterateObject3D from '../util/iterateObject3D'
+import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VariantComponent } from './VariantComponent'
+
+export type SceneWithEntity = Scene & { entity: Entity }
 
 function clearMaterials(model: ComponentType<typeof ModelComponent>) {
   if (!model.scene) return
@@ -86,7 +90,7 @@ export const ModelComponent = defineComponent({
       generateBVH: true,
       avoidCameraOcclusion: false,
       // internal
-      scene: null as Scene | null,
+      scene: null as SceneWithEntity | null,
       asset: null as VRM | GLTF | null,
       hasSkinnedMesh: false
     }
@@ -169,6 +173,14 @@ function ModelReactor() {
               removeError(entity, ModelComponent, 'LOADING_ERROR')
               loadedAsset.scene.userData.src = model.src
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
+              const modelEntities = iterateEntityNode(
+                entity,
+                (child) => child,
+                (child) => child !== entity && hasComponent(child, GLTFLoadedComponent)
+              )
+              for (const modelEntity of modelEntities) {
+                removeEntity(modelEntity)
+              }
               modelComponent.asset.set(loadedAsset)
               if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
               model.scene && removeObjectFromGroup(entity, model.scene)

@@ -63,7 +63,7 @@ import {
   UVOL_TYPE,
   UniformSolveTarget
 } from '../constants/UVOLTypes'
-import getFirstMesh from '../util/getFirstMesh'
+import getFirstMesh from '../util/meshUtils'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'

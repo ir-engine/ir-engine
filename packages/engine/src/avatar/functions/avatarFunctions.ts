@@ -295,7 +295,7 @@ export function makeSkinnedMeshFromBoneData(bonesData) {
   })
 
   // we assume that root bone is the first one
-  const hipBone = bones[0]
+  const hipBone = bones[0] as Bone & { entity: Entity }
   hipBone.updateWorldMatrix(false, true)
 
   const group = new Group()
