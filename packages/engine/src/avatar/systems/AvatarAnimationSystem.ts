@@ -173,7 +173,7 @@ const execute = () => {
     if (!rig?.hips?.node) continue
 
     const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
-    if (rigidbodyComponent) {
+    if (rigidbodyComponent && rigidbodyComponent.body.isEnabled()) {
       // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
       avatarAnimationComponent.locomotion.x = 0
       avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
