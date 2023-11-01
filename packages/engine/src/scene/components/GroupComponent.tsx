@@ -28,7 +28,7 @@ import { Camera, Object3D } from 'three'
 
 import { none } from '@etherealengine/hyperflux'
 
-import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -43,8 +43,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor } from '../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const GroupComponent = defineComponent({
@@ -80,25 +79,30 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   if (!hasComponent(entity, GroupComponent)) setComponent(entity, GroupComponent, [])
   if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
   if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
+  if (!hasComponent(entity, LocalTransformComponent)) setComponent(entity, LocalTransformComponent)
 
   getMutableComponent(entity, GroupComponent).merge([obj])
 
+  const localTransform = getComponent(entity, LocalTransformComponent)
   const transform = getComponent(entity, TransformComponent)
-  obj.position.copy(transform.position)
-  obj.quaternion.copy(transform.rotation)
-  obj.scale.copy(transform.scale)
+  obj.position.copy(localTransform.position)
+  obj.quaternion.copy(localTransform.rotation)
+  obj.scale.copy(localTransform.scale)
   obj.matrixAutoUpdate = false
   obj.matrixWorldAutoUpdate = false
-  obj.matrix = transform.matrix
+  obj.matrix = localTransform.matrix
   obj.matrixWorld = transform.matrix
   obj.matrixWorldInverse = transform.matrixInverse
   if (object !== Engine.instance.scene) Engine.instance.scene.add(object)
 
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies
-  proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
-  proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
-  proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
+  // proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
+  // proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
+  // proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
+  proxifyVector3(LocalTransformComponent.position, entity, obj.position)
+  proxifyQuaternion(LocalTransformComponent.rotation, entity, obj.quaternion)
+  proxifyVector3(LocalTransformComponent.scale, entity, obj.scale)
 }
 
 export function removeGroupComponent(entity: Entity) {

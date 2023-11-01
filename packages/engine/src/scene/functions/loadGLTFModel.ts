@@ -215,27 +215,25 @@ export const parseGLTFModel = (entity: Entity) => {
       //   setComponent(objEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
 
       /** Proxy children with EntityTreeComponent if it exists */
-      const originalChildren = obj.children
-      const originalParent = obj.parent
       Object.defineProperties(obj, {
-        // parent: {
-        //   get() {
-        //     if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-        //       return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)[0]
-        //     }
-        //     return originalParent
-        //   },
-        //   set(value) {
-        //     throw new Error('Cannot set parent of proxified object')
-        //   }
-        // },
+        parent: {
+          get() {
+            if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
+              return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)[0]
+            }
+            return null
+          },
+          set(value) {
+            throw new Error('Cannot set parent of proxified object')
+          }
+        },
         children: {
           get() {
             return hasComponent(objEntity, EntityTreeComponent)
               ? getComponent(objEntity, EntityTreeComponent)
                   .children.map((child) => getComponent(child, GroupComponent))
                   .flat()
-              : originalChildren
+              : []
           },
           set(value) {
             throw new Error('Cannot set children of proxified object')
