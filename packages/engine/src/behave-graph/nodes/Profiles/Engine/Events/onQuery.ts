@@ -24,8 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, SocketsList, makeEventNodeDefinition, sequence } from '@behave-graph/core'
-import { Component } from 'bitecs'
-import { ComponentMap, Query, defineQuery, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
+import {
+  Component,
+  ComponentMap,
+  Query,
+  defineQuery,
+  removeQuery
+} from '../../../../../ecs/functions/ComponentFunctions'
 
 let systemCounter = 0
 
@@ -49,7 +54,7 @@ export const OnQuery = makeEventNodeDefinition({
       defaultValue: 1
     }
   },
-  in: (configuration, graphApi) => {
+  in: (_, graphApi) => {
     const sockets: SocketsList = []
 
     const componentName = (index) => {
@@ -84,7 +89,7 @@ export const OnQuery = makeEventNodeDefinition({
 
     sockets.push({ ...type() })
 
-    for (const index of sequence(1, configuration.numInputs + 1)) {
+    for (const index of sequence(1, (_.numInputs ?? OnQuery.configuration?.numInputs.defaultValue) + 1)) {
       sockets.push({ ...componentName(index) })
     }
     console.log('DEBUG sockets', sockets)
@@ -99,12 +104,14 @@ export const OnQuery = makeEventNodeDefinition({
   init: ({ read, write, commit, graph, configuration }) => {
     const type = read<string>('type')
     const queryComponents: Component[] = []
-    for (const index of sequence(1, configuration.numInputs + 1)) {
+    for (const index of sequence(1, (configuration.numInputs ?? OnQuery.configuration?.numInputs.defaultValue) + 1)) {
       const componentName = read<string>(`componentName${index}`)
       const component = ComponentMap.get(componentName)!
       queryComponents.push(component)
     }
     const query = defineQuery(queryComponents)
+
+    //const systemUUID = `onQuery${systemCounter++}`
     //startSystem(systemUUID, { with: InputSystemGroup })
     const state: State = {
       query
