@@ -75,13 +75,9 @@ export default {
   },
 
   before: {
-    all: [
-      iff(isProvider('external'), verifyScope('bot', 'read')),
-      () => schemaHooks.validateQuery(botQueryValidator),
-      schemaHooks.resolveQuery(botQueryResolver)
-    ],
-    find: [],
-    get: [],
+    all: [() => schemaHooks.validateQuery(botQueryValidator), schemaHooks.resolveQuery(botQueryResolver)],
+    find: [iff(isProvider('external'), verifyScope('bot', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('bot', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('bot', 'write')),
       () => schemaHooks.validateData(botDataValidator),

@@ -44,13 +44,9 @@ export default {
   },
 
   before: {
-    all: [
-      iff(isProvider('external'), verifyScope('bot', 'read')),
-      () => schemaHooks.validateQuery(botCommandQueryValidator),
-      schemaHooks.resolveQuery(botCommandQueryResolver)
-    ],
-    find: [],
-    get: [],
+    all: [() => schemaHooks.validateQuery(botCommandQueryValidator), schemaHooks.resolveQuery(botCommandQueryResolver)],
+    find: [iff(isProvider('external'), verifyScope('bot', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('bot', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('bot', 'write')),
       () => schemaHooks.validateData(botCommandDataValidator),
