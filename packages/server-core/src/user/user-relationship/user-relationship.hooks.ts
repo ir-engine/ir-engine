@@ -42,7 +42,7 @@ import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import verifyUserId from '../../hooks/verify-userId'
-import { UserRelationshipParams, UserRelationshipService } from './user-relationship.class'
+import { UserRelationshipService } from './user-relationship.class'
 import {
   userRelationshipDataResolver,
   userRelationshipExternalResolver,
@@ -109,18 +109,7 @@ const clearBlockingRelationships = async (context: HookContext<UserRelationshipS
   const user = context.params.user
 
   if (userRelationshipType === 'blocking') {
-    await context.app.service(userRelationshipPath)._remove(null, {
-      $or: [
-        {
-          userId: user?.id,
-          relatedUserId
-        },
-        {
-          userId: relatedUserId,
-          relatedUserId: user?.id
-        }
-      ]
-    } as UserRelationshipParams)
+    await context.app.service(userRelationshipPath).remove(relatedUserId, { user })
   }
 }
 
