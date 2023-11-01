@@ -83,6 +83,9 @@ export const scopeTypeSeed = [
     type: 'invite:read'
   },
   {
+    type: 'invite:write'
+  },
+  {
     type: 'channel:read'
   },
   {
