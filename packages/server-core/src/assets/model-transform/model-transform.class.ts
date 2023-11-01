@@ -30,11 +30,11 @@ import appRootPath from 'app-root-path'
 import path from 'path'
 import config from '../../appconfig'
 
-import { createExecutorJob } from '../../projects/project/project-helper'
-import { getModelTransformJobBody, transformModel } from './model-transform.helpers'
-
+import { transformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import { BadRequest } from '@feathersjs/errors/lib'
 import { KnexAdapterParams } from '@feathersjs/knex/lib'
+import { createExecutorJob } from '../../projects/project/project-helper'
+import { getModelTransformJobBody } from './model-transform.helpers'
 
 export interface ModelTransformParams extends KnexAdapterParams {
   transformParameters: ModelTransformParameters
@@ -63,7 +63,7 @@ export class ModelTransformService implements ServiceInterface<void> {
     const createParams: ModelTransformParameters = data
     console.log('config', config)
     if (!config.kubernetes?.enabled) {
-      return transformModel(this.app, createParams)
+      return transformModel(createParams)
     }
     try {
       const transformParms = createParams
