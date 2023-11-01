@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   apiJobDataValidator,
@@ -47,19 +47,15 @@ export default {
   },
 
   before: {
-    all: [
-      iff(isProvider('external'), verifyScope('server', 'read')),
-      () => schemaHooks.validateQuery(apiJobQueryValidator),
-      schemaHooks.resolveQuery(apiJobQueryResolver)
-    ],
-    find: [],
-    get: [],
+    all: [() => schemaHooks.validateQuery(apiJobQueryValidator), schemaHooks.resolveQuery(apiJobQueryResolver)],
+    find: [iff(isProvider('external'), verifyScope('server', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('server', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('server', 'write')),
       () => schemaHooks.validateData(apiJobDataValidator),
       schemaHooks.resolveData(apiJobDataResolver)
     ],
-    update: [],
+    update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('server', 'write')),
       () => schemaHooks.validateData(apiJobPatchValidator),

@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
-    all: [iff(isProvider('external'), verifyScope('server', 'read'))],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
+    all: [],
+    find: [iff(isProvider('external'), verifyScope('server', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('server', 'read'))],
+    create: [disallow()],
+    update: [disallow()],
+    patch: [disallow()],
     remove: [iff(isProvider('external'), verifyScope('server', 'write'))]
   },
 

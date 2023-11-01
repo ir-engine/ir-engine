@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   buildStatusDataValidator,
@@ -48,18 +48,17 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('server', 'read')),
       () => schemaHooks.validateQuery(buildStatusQueryValidator),
       schemaHooks.resolveQuery(buildStatusQueryResolver)
     ],
-    find: [],
-    get: [],
+    find: [iff(isProvider('external'), verifyScope('server', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('server', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('server', 'write')),
       () => schemaHooks.validateData(buildStatusDataValidator),
       schemaHooks.resolveData(buildStatusDataResolver)
     ],
-    update: [],
+    update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('server', 'write')),
       () => schemaHooks.validateData(buildStatusPatchValidator),
