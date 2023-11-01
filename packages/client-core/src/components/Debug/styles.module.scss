@@ -7,6 +7,13 @@
   padding: 7px;
   width: calc(100vw - 50px);
   max-width: 450px;
+  font-family: var(--lato);
+  font-size: 12px;
+
+  h1{
+    font-size: 100%;
+    font-weight: normal;
+  }
 
   & > * + * {
     margin-top: 10px;
@@ -22,7 +29,7 @@
   background: var(--panelBackground);
   padding: 10px;
   border-radius: 5px;
-
+ 
   .optionBlock {
     display: flex;
     justify-content: space-between;
@@ -46,7 +53,8 @@
   flex-shrink: 0;
   height: 30px;
   border-radius: 3px;
-
+  margin:0;
+  
   &:hover,
   &:focus-visible {
     opacity: 0.8;
@@ -122,4 +130,9 @@
     background: transparent !important;
     margin-left: 0 !important;
   }
+}
+
+h1 {
+  font-size: '100%';
+  font-weight: 'normal';
 }

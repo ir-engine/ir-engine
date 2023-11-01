@@ -259,8 +259,14 @@ const execute = () => {
       onInteract()
     }
   }
-
-  for (const inputSourceEntity of nonCapturedInputSourceEntities) {
+  let inputEntities: Entity[] = nonCapturedInputSourceEntities
+  if (inputEntities.length === 0) {
+    inputEntities = inputSourceQuery().filter((entity) => {
+      const inputSource = getComponent(entity, InputSourceComponent)
+      if (controller.cameraEntity === inputSource.assignedButtonEntity) return true
+    })
+  }
+  for (const inputSourceEntity of inputEntities) {
     const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
 
     const buttons = inputSource.buttons

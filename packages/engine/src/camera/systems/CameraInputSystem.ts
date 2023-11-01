@@ -180,13 +180,16 @@ const onKeyC = () => {
 
 const lastLookDelta = new Vector2()
 let lastMouseMoved = false
+const INPUT_CAPTURE_DELAY = 0.2
+let accumulator = 0
 
 const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
-
+let capturedInputSource: Entity | undefined = undefined
 const execute = () => {
   if (getState(XRState).xrFrame) return
 
   const deltaSeconds = getState(EngineState).deltaSeconds
+  accumulator += deltaSeconds
 
   const { localClientEntity } = Engine.instance
   if (!localClientEntity) return
@@ -195,13 +198,14 @@ const execute = () => {
 
   const avatarControllerEntities = avatarControllerQuery()
 
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  if (!nonCapturedInputSource) return
+  let inputSourceEntity = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  if (!inputSourceEntity && capturedInputSource) {
+    inputSourceEntity = capturedInputSource
+  }
 
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
-  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
-
+  const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
   const keys = inputSource.buttons
 
   if (keys.KeyV?.down) onKeyV()
@@ -242,7 +246,17 @@ const execute = () => {
         0.1
       )
     }
-
+    if (keys.PrimaryClick?.pressed) {
+      if (accumulator > INPUT_CAPTURE_DELAY) {
+        InputSourceComponent.captureButtons(cameraEntity)
+        capturedInputSource = inputSourceEntity
+        accumulator = 0
+      }
+    } else {
+      InputSourceComponent.releaseButtons()
+      capturedInputSource = undefined
+      accumulator = 0
+    }
     throttleHandleCameraZoom(cameraEntity, pointerState.scroll.y)
   }
 

@@ -35,7 +35,6 @@ import {
   useLoadScene
 } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
 import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
 import { AppLoadingState } from '@etherealengine/engine/src/common/AppLoadingService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -65,7 +64,6 @@ const LocationPage = ({ offline }: Props) => {
   }
 
   AuthService.useAPIListeners()
-  SceneService.useAPIListeners()
 
   useLoadEngineWithScene()
   useDefaultLocationSystems(!offline)
