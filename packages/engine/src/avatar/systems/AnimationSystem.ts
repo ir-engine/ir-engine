@@ -66,7 +66,7 @@ const execute = () => {
         if (!mesh) return
         const euler = mesh.rotation
         const rotation = getComponent(childEntity, LocalTransformComponent).rotation
-        rotation.setFromEuler(euler)
+        rotation.setFromEuler(euler, false)
       })
     const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
     animationActionComponent?._action.value &&
