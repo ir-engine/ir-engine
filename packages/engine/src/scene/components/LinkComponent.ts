@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MeshBasicMaterial, Vector3 } from 'three'
-import { clamp } from 'three/src/math/MathUtils'
+import { MathUtils, MeshBasicMaterial, Vector3 } from 'three'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -92,7 +91,7 @@ const onLinkInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInte
     getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
     const distance = vec3.distanceToSquared(transform.position)
     transform.scale.set(1, 1, 1)
-    transform.scale.addScalar(clamp(distance * 0.01, 1, 5))
+    transform.scale.addScalar(MathUtils.clamp(distance * 0.01, 1, 5))
   }
 
   const transition = InteractableTransitions.get(entity)!
