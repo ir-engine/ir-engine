@@ -28,7 +28,7 @@ import { Camera, Object3D } from 'three'
 
 import { none } from '@etherealengine/hyperflux'
 
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
+import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -100,9 +100,14 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   // proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
   // proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
   // proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
-  proxifyVector3(LocalTransformComponent.position, entity, obj.position)
-  proxifyQuaternion(LocalTransformComponent.rotation, entity, obj.quaternion)
-  proxifyVector3(LocalTransformComponent.scale, entity, obj.scale)
+  proxifyVector3WithDirty(LocalTransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
+  proxifyQuaternionWithDirty(
+    LocalTransformComponent.rotation,
+    entity,
+    TransformComponent.dirtyTransforms,
+    obj.quaternion
+  )
+  proxifyVector3WithDirty(LocalTransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
 }
 
 export function removeGroupComponent(entity: Entity) {
