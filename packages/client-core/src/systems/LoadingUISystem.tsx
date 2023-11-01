@@ -119,7 +119,7 @@ function LoadingReactor() {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
   const userReady = useHookstate(getMutableState(EngineState).userReady)
   const state = useHookstate(getMutableState(LoadingUISystemState))
-  const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const mesh = state.mesh.value
 
   /** Handle loading state changes */
@@ -142,8 +142,9 @@ function LoadingReactor() {
 
   /** Scene data changes */
   useEffect(() => {
-    if (!sceneData.value) return
-    const envmapURL = sceneData.value.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
+    if (!activeScene.value) return
+    const sceneData = getState(SceneState).scenes[activeScene.value]
+    const envmapURL = sceneData.data.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
     if (envmapURL && mesh.userData.url !== envmapURL) {
       mesh.userData.url = envmapURL
       setDefaultPalette()
@@ -178,7 +179,7 @@ function LoadingReactor() {
         }
       )
     }
-  }, [sceneData])
+  }, [activeScene])
 
   useEffect(() => {
     const xrui = getComponent(state.ui.entity.value, XRUIComponent)

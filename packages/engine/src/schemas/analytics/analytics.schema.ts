@@ -45,19 +45,19 @@ export const analyticsSchema = Type.Object(
   },
   { $id: 'analytics', additionalProperties: false }
 )
-export type AnalyticsType = Static<typeof analyticsSchema>
+export interface AnalyticsType extends Static<typeof analyticsSchema> {}
 
 // Schema for creating new entries
 export const analyticsDataSchema = Type.Pick(analyticsSchema, ['count', 'type'], {
   $id: 'analyticsData'
 })
-export type AnalyticsData = Static<typeof analyticsDataSchema>
+export interface AnalyticsData extends Static<typeof analyticsDataSchema> {}
 
 // Schema for updating existing entries
 export const analyticsPatchSchema = Type.Partial(analyticsSchema, {
   $id: 'analyticsPatch'
 })
-export type AnalyticsPatch = Static<typeof analyticsPatchSchema>
+export interface AnalyticsPatch extends Static<typeof analyticsPatchSchema> {}
 
 // Schema for allowed query properties
 export const analyticsQueryProperties = Type.Pick(analyticsSchema, ['id', 'count', 'type', 'createdAt'])
@@ -69,7 +69,7 @@ export const analyticsQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type AnalyticsQuery = Static<typeof analyticsQuerySchema>
+export interface AnalyticsQuery extends Static<typeof analyticsQuerySchema> {}
 
 export const analyticsValidator = getValidator(analyticsSchema, dataValidator)
 export const analyticsDataValidator = getValidator(analyticsDataSchema, dataValidator)

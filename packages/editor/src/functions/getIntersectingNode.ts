@@ -28,7 +28,6 @@ import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent, Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { getState } from '@etherealengine/hyperflux'
@@ -38,7 +37,7 @@ import { SelectionState } from '../services/SelectionServices'
 
 type RaycastIntersectionNode = Intersection<Object3DWithEntity> & {
   obj3d: Object3DWithEntity
-  node?: EntityOrObjectUUID
+  node?: Entity
 }
 
 function getParentEntity(obj: Object3DWithEntity): Object3DWithEntity {
@@ -61,14 +60,14 @@ export function getIntersectingNode(results: Intersection<Object3DWithEntity>[])
     const parentNode = getParentEntity(obj)
     if (!parentNode) continue //skip obj3ds that are not children of EntityNodes
     if (!obj.entity && parentNode && !selected.has(parentNode.entity)) {
-      result.node = getEntityNodeArrayFromEntities([parentNode.entity])[0]
+      result.node = parentNode.entity
       result.obj3d = getComponent(parentNode.entity, GroupComponent)[0] as Object3DWithEntity
       return result
     }
 
     if (obj && (obj as Object3D) !== Engine.instance.scene) {
       result.obj3d = obj
-      result.node = obj.entity ?? obj.uuid
+      result.node = obj.entity
       //if(result.node && hasComponent(result.node.entity, GroupComponent))
       //result.obj3d = result.object
       //result.node = result.object.uuid
