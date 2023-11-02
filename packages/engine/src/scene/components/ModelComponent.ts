@@ -141,6 +141,7 @@ function ModelReactor() {
 
   // update src
   useEffect(() => {
+    console.log('debug1 the model was', model)
     if (source === model.scene?.userData?.src) return
     try {
       if (model.scene) {

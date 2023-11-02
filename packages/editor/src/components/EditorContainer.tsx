@@ -40,7 +40,6 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
-import { addMediaComponent } from '@etherealengine/engine/src/behave-graph/nodes/Profiles/Engine/helper/assetHelper'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
@@ -52,7 +51,7 @@ import { useDrop } from 'react-dnd'
 import { Vector2, Vector3 } from 'three'
 import { ItemTypes } from '../constants/AssetTypes'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
-import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
+import { inputFileAndAddToScene } from '../functions/assetFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { getCursorSpawnPosition } from '../functions/screenSpaceFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -292,26 +291,7 @@ const onSaveAs = async () => {
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
 
-  const el = document.createElement('input')
-  el.type = 'file'
-  el.multiple = true
-  el.accept = '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
-  el.style.display = 'none'
-  el.onchange = async () => {
-    if (el.files && el.files.length > 0 && projectName) {
-      const uploadedURLs = (
-        await Promise.all(uploadProjectFiles(projectName, Array.from(el.files), true).promises)
-      ).map((url) => url[0])
-
-      await Promise.all(uploadedURLs.filter((url) => /\.zip$/.test(url)).map(extractZip)).then(() => {
-        logger.info('extraction of zip files complete')
-      })
-
-      uploadedURLs.forEach((url) => addMediaComponent(url))
-    }
-  }
-  el.click()
-  el.remove()
+  inputFileAndAddToScene(projectName)
 }
 
 const onSaveScene = async () => {

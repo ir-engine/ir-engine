@@ -32,11 +32,50 @@ import {
 } from '@etherealengine/client-core/src/util/upload'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { addMediaComponent } from '@etherealengine/engine/src/behave-graph/nodes/Profiles/Engine/helper/assetHelper'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { assetLibraryPath } from '@etherealengine/engine/src/schemas/assets/asset-library.schema'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+
+const logger = multiLogger.child({ component: 'editor:assetFunctions' })
+
+/**
+ * by default, adds the asset to the scene temporarily
+ * @param projectName if provided, uploads to the assets folder of the project
+ */
+export const inputFileAndAddToScene = (projectName?: string | null) => {
+  const el = document.createElement('input')
+  el.type = 'file'
+  el.multiple = true
+  el.accept = '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
+  el.style.display = 'none'
+
+  el.onchange = async () => {
+    let uploadedURLs: string[]
+    if (el.files && el.files.length > 0) {
+      const files = Array.from(el.files)
+      if (projectName) {
+        uploadedURLs = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map((url) => url[0])
+      } else {
+        uploadedURLs = await Promise.all(files.map((file) => uploadToFeathersService('upload-asset', [file]).promise))
+      }
+
+      await Promise.all(uploadedURLs.filter((url) => /\.zip$/.test(url)).map(extractZip)).then(() =>
+        logger.info('zip files extracted')
+      )
+
+      console.log('debug1 the uploaded urls were', uploadedURLs)
+
+      uploadedURLs.forEach((url) => addMediaComponent(url))
+    }
+  }
+
+  el.click()
+  el.remove()
+}
 
 export const uploadProjectFiles = (projectName: string, files: File[], isAsset = false, onProgress?) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []

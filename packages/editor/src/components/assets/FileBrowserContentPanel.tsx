@@ -48,6 +48,7 @@ import {
 import { getMutableState, NO_PROXY, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
+import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
@@ -69,6 +70,7 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
+import { inputFileAndAddToScene } from '../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../functions/utils'
 import { Button } from '../inputs/Button'
 import StringInput from '../inputs/StringInput'
@@ -493,6 +495,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               id="downloadProject"
             />
           )}
+          <ToolButton
+            tooltip="add asset directly to scene"
+            onClick={() => inputFileAndAddToScene()}
+            icon={AddIcon}
+            id="storeAsset"
+          />
         </span>
       </div>
       <div className={styles.headerContainer}>

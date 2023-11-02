@@ -35,6 +35,7 @@ import { addEntityToScene } from './entityHelper'
 
 export async function addMediaComponent(url: string, parent?: Entity | null, before?: Entity | null) {
   const contentType = (await getContentType(url)) || ''
+  console.log('debug1 the contentType was', contentType, 'and the url was', url)
   const { hostname } = new URL(url)
 
   if (contentType.startsWith('model/')) {
