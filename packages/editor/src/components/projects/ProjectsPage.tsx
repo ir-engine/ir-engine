@@ -62,7 +62,7 @@ import {
   Paper
 } from '@mui/material'
 
-import { userIsAdmin } from '@etherealengine/client-core/src/user/userHasAccess'
+import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { getProjects } from '../../functions/projectFunctions'
@@ -182,8 +182,8 @@ const ProjectsPage = () => {
   const projectDrawerOpen = useHookstate(false)
   const changeDestination = useHookstate(false)
 
-  const isAdmin = userIsAdmin()
-  const hasProjectWriteAccess = activeProject.value?.hasWriteAccess || isAdmin
+  const hasWriteAccess =
+    activeProject.value?.hasWriteAccess || (userHasAccess('admin:admin') && userHasAccess('projects:write'))
 
   const authState = useHookstate(getMutableState(AuthState))
   const projectState = useHookstate(getMutableState(ProjectState))
@@ -580,7 +580,7 @@ const ProjectsPage = () => {
           {activeProject.value &&
             isInstalled(activeProject.value) &&
             hasRepo(activeProject.value) &&
-            hasProjectWriteAccess && (
+            hasWriteAccess && (
               <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(false)}>
                 <Download />
                 {t(`editor.projects.updateFromGithub`)}
@@ -589,7 +589,7 @@ const ProjectsPage = () => {
           {activeProject.value &&
             isInstalled(activeProject.value) &&
             !hasRepo(activeProject.value) &&
-            hasProjectWriteAccess && (
+            hasWriteAccess && (
               <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
                 <Link />
                 {t(`editor.projects.link`)}
@@ -598,13 +598,13 @@ const ProjectsPage = () => {
           {activeProject.value &&
             isInstalled(activeProject.value) &&
             hasRepo(activeProject.value) &&
-            hasProjectWriteAccess && (
+            hasWriteAccess && (
               <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
                 <LinkOff />
                 {t(`editor.projects.unlink`)}
               </MenuItem>
             )}
-          {hasProjectWriteAccess && hasRepo(activeProject.value) && (
+          {hasWriteAccess && hasRepo(activeProject.value) && (
             <MenuItem
               classes={{ root: styles.filterMenuItem }}
               onClick={() => activeProject?.value?.id && pushProject(activeProject.value.id)}
@@ -613,7 +613,7 @@ const ProjectsPage = () => {
               {t(`editor.projects.pushToGithub`)}
             </MenuItem>
           )}
-          {isInstalled(activeProject.value) && hasProjectWriteAccess && (
+          {isInstalled(activeProject.value) && hasWriteAccess && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
               {updatingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
               {t(`editor.projects.uninstall`)}
