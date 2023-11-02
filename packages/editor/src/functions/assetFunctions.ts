@@ -32,13 +32,13 @@ import {
 } from '@etherealengine/client-core/src/util/upload'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
-import { addMediaComponent } from '@etherealengine/engine/src/behave-graph/nodes/Profiles/Engine/helper/assetHelper'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { assetLibraryPath } from '@etherealengine/engine/src/schemas/assets/asset-library.schema'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { addMediaNode } from './addMediaNode'
 
 const logger = multiLogger.child({ component: 'editor:assetFunctions' })
 
@@ -69,7 +69,7 @@ export const inputFileAndAddToScene = (projectName?: string | null) => {
 
       console.log('debug1 the uploaded urls were', uploadedURLs)
 
-      uploadedURLs.forEach((url) => addMediaComponent(url))
+      uploadedURLs.forEach((url) => addMediaNode(url))
     }
   }
 
