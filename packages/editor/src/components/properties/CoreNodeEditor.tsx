@@ -31,7 +31,6 @@ import {
   hasComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -70,9 +69,7 @@ export const CoreNodeEditor = (props) => {
   useOptionalComponent(props.entity, VisibleComponent)
 
   const onChangeVisible = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
-      (n) => typeof n !== 'string'
-    ) as EntityOrObjectUUID[]
+    const nodes = getMutableState(SelectionState).selectedEntities.value
     EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
   }
 

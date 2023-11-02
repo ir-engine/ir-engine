@@ -53,19 +53,19 @@ export const matchUserSchema = Type.Object(
   },
   { $id: 'MatchUser', additionalProperties: false }
 )
-export type MatchUserType = Static<typeof matchUserSchema>
+export interface MatchUserType extends Static<typeof matchUserSchema> {}
 
 // Schema for creating new entries
 export const matchUserDataSchema = Type.Pick(matchUserSchema, ['ticketId', 'gameMode', 'connection'], {
   $id: 'MatchUserData'
 })
-export type MatchUserData = Static<typeof matchUserDataSchema>
+export interface MatchUserData extends Static<typeof matchUserDataSchema> {}
 
 // Schema for updating existing entries
 export const matchUserPatchSchema = Type.Partial(matchUserSchema, {
   $id: 'MatchUserPatch'
 })
-export type MatchUserPatch = Static<typeof matchUserPatchSchema>
+export interface MatchUserPatch extends Static<typeof matchUserPatchSchema> {}
 
 // Schema for allowed query properties
 export const matchUserQueryProperties = Type.Pick(matchUserSchema, ['id', 'ticketId', 'gameMode', 'connection'])
@@ -77,7 +77,7 @@ export const matchUserQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type MatchUserQuery = Static<typeof matchUserQuerySchema>
+export interface MatchUserQuery extends Static<typeof matchUserQuerySchema> {}
 
 export const matchUserValidator = getValidator(matchUserSchema, dataValidator)
 export const matchUserDataValidator = getValidator(matchUserDataSchema, dataValidator)

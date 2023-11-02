@@ -54,7 +54,7 @@ export const instanceServerSettingSchema = Type.Object(
   },
   { $id: 'InstanceServerSetting', additionalProperties: false }
 )
-export type InstanceServerSettingType = Static<typeof instanceServerSettingSchema>
+export interface InstanceServerSettingType extends Static<typeof instanceServerSettingSchema> {}
 
 // Schema for creating new entries
 export const instanceServerSettingDataSchema = Type.Pick(
@@ -76,13 +76,13 @@ export const instanceServerSettingDataSchema = Type.Pick(
     $id: 'InstanceServerSettingData'
   }
 )
-export type InstanceServerSettingData = Static<typeof instanceServerSettingDataSchema>
+export interface InstanceServerSettingData extends Static<typeof instanceServerSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const instanceServerSettingPatchSchema = Type.Partial(instanceServerSettingSchema, {
   $id: 'InstanceServerSettingPatch'
 })
-export type InstanceServerSettingPatch = Static<typeof instanceServerSettingPatchSchema>
+export interface InstanceServerSettingPatch extends Static<typeof instanceServerSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const instanceServerSettingQueryProperties = Type.Pick(instanceServerSettingSchema, [
@@ -107,7 +107,7 @@ export const instanceServerSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type InstanceServerSettingQuery = Static<typeof instanceServerSettingQuerySchema>
+export interface InstanceServerSettingQuery extends Static<typeof instanceServerSettingQuerySchema> {}
 
 export const instanceServerSettingValidator = getValidator(instanceServerSettingSchema, dataValidator)
 export const instanceServerSettingDataValidator = getValidator(instanceServerSettingDataSchema, dataValidator)

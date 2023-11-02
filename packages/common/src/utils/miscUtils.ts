@@ -70,3 +70,39 @@ export function arraysAreEqual(arr1: any[], arr2: any[]): boolean {
 
   return true
 }
+
+export function pathJoin(...parts: string[]): string {
+  const separator = '/'
+
+  return parts
+    .map((part, index) => {
+      // If it's the first part, we only want to remove trailing slashes
+      if (index === 0) {
+        while (part.endsWith(separator)) {
+          part = part.substring(0, part.length - 1)
+        }
+      }
+      // If it's the last part, we only want to remove leading slashes
+      else if (index === parts.length - 1) {
+        while (part.startsWith(separator)) {
+          part = part.substring(1)
+        }
+      }
+      // For all other parts, remove leading and trailing slashes
+      else {
+        while (part.startsWith(separator)) {
+          part = part.substring(1)
+        }
+        while (part.endsWith(separator)) {
+          part = part.substring(0, part.length - 1)
+        }
+      }
+
+      return part
+    })
+    .join(separator)
+}
+
+export function baseName(path: string): string {
+  return path.split(/[\\/]/).pop()!
+}

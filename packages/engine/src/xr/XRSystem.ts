@@ -38,7 +38,7 @@ import { XRLightProbeSystem } from './XRLightProbeSystem'
 import { XRPersistentAnchorSystem } from './XRPersistentAnchorSystem'
 import { XRScenePlacementShaderSystem } from './XRScenePlacementShaderSystem'
 import { xrSessionChanged } from './XRSessionFunctions'
-import { XRAction, XRState } from './XRState'
+import { XRAction, XRState, useXRMovement } from './XRState'
 
 declare global {
   interface XRFrame {
@@ -78,6 +78,9 @@ const reactor = () => {
       navigator.xr?.removeEventListener('devicechange', updateSessionSupport)
     }
   }, [])
+
+  useXRMovement()
+
   return null
 }
 

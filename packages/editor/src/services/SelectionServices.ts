@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { removeComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { SelectTagComponent } from '@etherealengine/engine/src/scene/components/SelectTagComponent'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { useEffect } from 'react'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { filterParentEntities } from '../functions/filterParentEntities'
@@ -37,10 +37,10 @@ import { filterParentEntities } from '../functions/filterParentEntities'
 export const SelectionState = defineState({
   name: 'SelectionState',
   initial: {
-    selectedEntities: [] as EntityOrObjectUUID[],
-    selectedParentEntities: [] as EntityOrObjectUUID[]
+    selectedEntities: [] as Entity[],
+    selectedParentEntities: [] as Entity[]
   },
-  updateSelection: (selectedEntities: EntityOrObjectUUID[]) => {
+  updateSelection: (selectedEntities: Entity[]) => {
     getMutableState(SelectionState).merge({
       selectedEntities: selectedEntities,
       selectedParentEntities: filterParentEntities(selectedEntities)
@@ -55,13 +55,13 @@ const reactor = () => {
     cancelGrabOrPlacement()
     const entities = [...selectedEntities.value]
     for (const entity of entities) {
-      if (typeof entity !== 'number' || !entityExists(entity)) continue
+      if (!entityExists(entity)) continue
       setComponent(entity, SelectTagComponent)
     }
 
     return () => {
       for (const entity of entities) {
-        if (typeof entity !== 'number' || !entityExists(entity)) continue
+        if (!entityExists(entity)) continue
         removeComponent(entity, SelectTagComponent)
       }
     }

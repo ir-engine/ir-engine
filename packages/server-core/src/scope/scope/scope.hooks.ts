@@ -38,13 +38,13 @@ import { HookContext } from '../../../declarations'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
 import verifyScopeAllowingSelf from '../../hooks/verify-scope-allowing-self'
+import { ScopeService } from './scope.class'
 import {
   scopeDataResolver,
   scopeExternalResolver,
   scopeQueryResolver,
   scopeResolver
-} from '../../scope/scope/scope.resolvers'
-import { ScopeService } from './scope.class'
+} from './scope.resolvers'
 
 /**
  * Check and maintain existing scopes
