@@ -31,7 +31,8 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getAllComponents,
   getComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
@@ -41,14 +42,16 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
+import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
-import { addMediaNode } from '../../functions/addMediaNode'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
+import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
 
 /**
@@ -92,8 +95,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const nodeName = useComponent(node.entity, NameComponent).value
 
-  //const errors = node.entity ? useOptionalComponent(node.entity as Entity, ErrorComponent) : undefined
-  //const firstError = errors?.keys[0]
+  const errors = node.entity ? useOptionalComponent(node.entity as Entity, ErrorComponent) : undefined
+  const firstError = errors?.keys[0]
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -327,7 +330,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                 </div>
               )}
             </div>
-            {/*firstError && <NodeIssuesIcon node={[{ severity: 'error', message: firstError }]} />*/}
+            {firstError && <NodeIssuesIcon node={[{ severity: 'error', message: firstError }]} />}
           </div>
         </div>
 

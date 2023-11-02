@@ -153,7 +153,7 @@ export const OnQuery = makeEventNodeDefinition({
             setTimeout(() => {
               prevQueryResult = tempResult
               delayedLoop(i + 1)
-            }, 50) //milliseconds
+            }, 50) //milliseconds, to prevent write from skipping over entities
           }
         }
         delayedLoop(0)
