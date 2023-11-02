@@ -286,9 +286,9 @@ export default {
   before: {
     all: [],
     find: [
+      enableClientPagination(),
       iff(isProvider('external'), verifyUserId()),
       iff(isProvider('external'), iffElse(isAction('admin'), verifyScope('channel', 'read'), handleChannelInstance)),
-      enableClientPagination(),
       discardQuery('action')
     ],
     get: [setLoggedInUser('userId'), iff(isProvider('external'), ensureUserHasChannelAccess)],
