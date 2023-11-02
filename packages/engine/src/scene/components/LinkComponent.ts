@@ -25,9 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { MeshBasicMaterial, Vector3 } from 'three'
-import { clamp } from 'three/src/math/MathUtils'
+import { MathUtils, MeshBasicMaterial, Vector3 } from 'three'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -74,6 +72,7 @@ const linkLogic = (linkComponent, xrState) => {
 }
 
 const vec3 = new Vector3()
+const interactMessage = 'Click to follow'
 const onLinkInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const transform = getComponent(xrui.entity, TransformComponent)
   if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
@@ -92,7 +91,7 @@ const onLinkInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInte
     getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
     const distance = vec3.distanceToSquared(transform.position)
     transform.scale.set(1, 1, 1)
-    transform.scale.addScalar(clamp(distance * 0.01, 1, 5))
+    transform.scale.addScalar(MathUtils.clamp(distance * 0.01, 1, 5))
   }
 
   const transition = InteractableTransitions.get(entity)!
@@ -162,7 +161,6 @@ export const LinkComponent = defineComponent({
     const entity = useEntityContext()
     const link = useComponent(entity, LinkComponent)
     const input = useOptionalComponent(entity, InputComponent)
-    const { t } = useTranslation()
 
     useEffect(() => {
       if (getState(EngineState).isEditor || !input) return
@@ -190,7 +188,7 @@ export const LinkComponent = defineComponent({
       setComponent(entity, BoundingBoxComponent)
       setComponent(entity, InputComponent, { highlight: true, grow: true })
       if (!getState(EngineState).isEditor) {
-        addInteractableUI(entity, createNonInteractUI(entity, t('common:interactables.link')), onLinkInteractUpdate)
+        addInteractableUI(entity, createNonInteractUI(entity, interactMessage), onLinkInteractUpdate)
       }
     }, [])
 
