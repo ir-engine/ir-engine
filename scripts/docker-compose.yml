@@ -47,9 +47,6 @@ services:
   #   ports:
   #     - '80:80'
   #     - '443:443'
-  #     - '3036:3036/tcp'
-  #     - '3037:3037/tcp'
-  #     - '3038:3038/tcp'
   #   environment:
   #     - NGINX_HOST
   #     - NGINX_PORT
