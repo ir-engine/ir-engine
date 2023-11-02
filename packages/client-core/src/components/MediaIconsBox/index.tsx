@@ -57,13 +57,11 @@ import { useTranslation } from 'react-i18next'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
-import { useUserHasAccessHook } from '../../user/userHasAccess'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
   const { t } = useTranslation()
-  const recordScopes = useUserHasAccessHook('record')
   const playbackState = useHookstate(getMutableState(PlaybackState))
   const recordingState = useHookstate(getMutableState(RecordingState))
 
