@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { Vector3 } from 'three'
 import { SelectionState } from '../../../../../packages/editor/src/services/SelectionServices'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, updateComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AttachmentPointComponent } from '../components/AttachmentPointComponent'
@@ -38,17 +37,9 @@ import { AttachmentPointComponent } from '../components/AttachmentPointComponent
 const execute = () => {
   const attachmentPointQuery = defineQuery([AttachmentPointComponent])
 
-  function Distance(point1: Vector3, point2: Vector3) {
-    const dx = point2.x - point1.x
-    const dy = point2.y - point1.y
-    const dz = point2.z - point1.z
-    const distance = Math.sqrt(dx * dx + dy * dy + dz * dz)
-    return distance
-  }
-
   //cauculate select entity
   const selectionState = getMutableState(SelectionState) //access the list of currently selected entities
-  const select_entities = selectionState.selectedEntities.value.flatMap((entity: Entity) => {
+  const selectedAttachmentPoints = selectionState.selectedEntities.value.flatMap((entity: Entity) => {
     return iterateEntityNode(
       entity,
       (e) => e,
@@ -57,44 +48,34 @@ const execute = () => {
   })
 
   //loop to caculate the distance
-  for (const select_entity of select_entities) {
-    const threshold = 1.0
+  for (const selectedAttachmentPoint of selectedAttachmentPoints) {
+    const threshold = 5
     let shortestDistance = Infinity
-    let distance
-    let node: Entity
-    node = createEntity()
-    const selectAttachmentPoint = getComponent(select_entity, TransformComponent)
-    const selectParententity = getComponent(select_entity, EntityTreeComponent).parentEntity
+    let closestPosition: Vector3 | null = null
+    const selectedTransform = getComponent(selectedAttachmentPoint, TransformComponent)
+    const selectParententity = getComponent(selectedAttachmentPoint, EntityTreeComponent).parentEntity
     if (selectParententity) {
       const selectTransform = getComponent(selectParententity, TransformComponent)
 
       for (const entity of attachmentPointQuery()) {
+        if (selectedAttachmentPoints.includes(entity)) continue
         const transform = getComponent(entity, TransformComponent)
-        const attachmentPoint = getComponent(entity, TransformComponent)
-        const Parententity = getComponent(select_entity, EntityTreeComponent).parentEntity
-        if (Parententity) {
-          const parentTransform = getComponent(Parententity, TransformComponent)
-          distance = Distance(
-            selectTransform.position.add(selectAttachmentPoint.position),
-            parentTransform.position.add(attachmentPoint.position)
-          )
-          if (distance < shortestDistance) {
-            shortestDistance = distance
-            node = entity
-            //}
-          }
+        const distance = transform.position.distanceTo(selectTransform.position)
+        if (distance < shortestDistance) {
+          shortestDistance = distance
+          closestPosition = transform.position
         }
       }
-      if (shortestDistance < threshold) {
+
+      if (shortestDistance < threshold && closestPosition) {
         //offset between shortist attachment point and select point
-        const offset = getComponent(node, TransformComponent).position.sub(selectAttachmentPoint.position)
-        selectTransform.position.add(offset)
-        updateComponent(selectParententity, TransformComponent, selectTransform)
+        const offset = closestPosition.clone().sub(selectedTransform.position)
+        setComponent(selectParententity, TransformComponent, {
+          position: selectTransform.position.clone().add(offset)
+        })
       }
     }
   }
-
-  AttachmentPointSystem // if so, attach to that point
 }
 
 export const AttachmentPointSystem = defineSystem({
