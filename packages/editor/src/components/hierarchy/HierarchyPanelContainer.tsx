@@ -394,7 +394,7 @@ export default function HierarchyPanel() {
       height={height}
       width={width}
       itemSize={32}
-      itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
+      itemCount={validNodes.length}
       itemData={{
         renamingNode,
         nodes: validNodes,
