@@ -23,26 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServiceInterface } from '@feathersjs/feathers'
-import appRootPath from 'app-root-path'
-import path from 'path'
-
 import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { Application } from '@etherealengine/server-core/declarations'
+import { ServiceInterface } from '@feathersjs/feathers/lib'
+import appRootPath from 'app-root-path'
+import path from 'path'
+import config from '../../appconfig'
 
-import { KnexAdapterParams } from '@feathersjs/knex'
-import { transformModel } from './model-transform.helpers'
+import { transformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
+import { BadRequest } from '@feathersjs/errors/lib'
+import { KnexAdapterParams } from '@feathersjs/knex/lib'
+import { createExecutorJob } from '../../projects/project/project-helper'
+import { getModelTransformJobBody } from './model-transform.helpers'
 
 export interface ModelTransformParams extends KnexAdapterParams {
-  src: string
   transformParameters: ModelTransformParameters
-  filter?: string
 }
 
 /**
  * A class for Model Transform service
  */
-export class ModelTransformService implements ServiceInterface<ModelTransformParams> {
+export class ModelTransformService implements ServiceInterface<void> {
   app: Application
   rootPath: string
 
@@ -58,19 +59,31 @@ export class ModelTransformService implements ServiceInterface<ModelTransformPar
     return [path.join(this.rootPath, filePath), extension]
   }
 
-  async create(createParams: ModelTransformParams) {
+  async create(data: any): Promise<void> {
+    const createParams: ModelTransformParameters = data
+    console.log('config', config)
+    if (!config.kubernetes?.enabled) {
+      return transformModel(createParams)
+    }
     try {
-      const transformParms = createParams.transformParameters
+      const transformParms = createParams
       const [commonPath, extension] = this.processPath(createParams.src)
       const inPath = `${commonPath}.${extension}`
       const outPath = transformParms.dst
         ? `${commonPath.replace(/[^/]+$/, transformParms.dst)}.${extension}`
         : `${commonPath}-transformed.${extension}`
       const resourceUri = transformParms.resourceUri ?? ''
-      return await transformModel(this.app, { src: inPath, dst: outPath, resourceUri, parms: transformParms })
+      const jobBody = await getModelTransformJobBody(this.app, createParams)
+      const jobLabelSelector = `etherealengine/jobName=${jobBody.metadata!.name},etherealengine/release=${
+        process.env.RELEASE_NAME
+      },etherealengine/modelTransformer=true`
+      const jobId = `model-transform-${inPath}-${outPath}-${resourceUri}`
+      const jobFinishedPromise = createExecutorJob(this.app, jobBody, jobLabelSelector, 600, jobId)
+      await jobFinishedPromise
+      return
     } catch (e) {
-      console.error('error transforming model')
-      console.error(e)
+      console.log('error transforming model', e)
+      throw new BadRequest('error transforming model', e)
     }
   }
 }
