@@ -37,7 +37,6 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { XRState } from '../../xr/XRState'
 
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
@@ -50,9 +49,6 @@ const normalColor = new Color(0xffffff)
 const visibleInteractableXRUIQuery = defineQuery([XRUIComponent, VisibleComponent, InputComponent])
 const visibleXRUIQuery = defineQuery([XRUIComponent, VisibleComponent])
 const xruiQuery = defineQuery([XRUIComponent])
-
-// todo - hoist to hyperflux state
-const maxXruiPointerDistanceSqr = 3 * 3
 
 // redirect DOM events from the canvas, to the 3D scene,
 // to the appropriate child Web3DLayer, and finally (back) to the
@@ -139,20 +135,6 @@ const execute = () => {
     xruiState.interactionRays = [pointerScreenRaycaster.ray]
 
   const interactableXRUIEntities = visibleInteractableXRUIQuery()
-
-  /** @todo rather than just a distance query, we should set this when the pointer is actually over an XRUI */
-  let isCloseToVisibleXRUI = false
-
-  for (const entity of interactableXRUIEntities) {
-    if (
-      hasComponent(entity, DistanceFromCameraComponent) &&
-      DistanceFromCameraComponent.squaredDistance[entity] < maxXruiPointerDistanceSqr
-    )
-      isCloseToVisibleXRUI = true
-  }
-
-  if (xruiState.pointerActive !== isCloseToVisibleXRUI)
-    getMutableState(XRUIState).pointerActive.set(isCloseToVisibleXRUI)
 
   const inputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
