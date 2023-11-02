@@ -104,7 +104,7 @@ const AppPage = () => {
 
   return (
     <>
-      <PublicRouter />
+      {fetchedProjectComponents && <PublicRouter />}
       {projectComponents.map((Component, i) => (
         <Component key={i} />
       ))}

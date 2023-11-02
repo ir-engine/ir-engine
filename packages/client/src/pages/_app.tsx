@@ -117,7 +117,7 @@ const AppPage = ({ route }: { route: string }) => {
               <InviteToast />
               <Debug />
             </div>
-            <RouterComp route={route} />
+            {fetchedProjectComponents && <RouterComp route={route} />}
             {projectComponents.map((Component, i) => (
               <Component key={i} />
             ))}
