@@ -27,15 +27,16 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
 const users: UserType[] = []
 
-describe('user service', () => {
+describe('user.test', () => {
   let app: Application
   before(async () => {
     app = createFeathersKoaApp()
@@ -45,19 +46,17 @@ describe('user service', () => {
     return destroyEngine()
   })
 
-  it('registered the service', async () => {
-    const service = await app.service(userPath)
-    assert.ok(service, 'Registered the service')
+  let avatar: AvatarType
+  before(async () => {
+    const avatarName = 'CyberbotGreen'
+    avatar = await app.service(avatarPath).create({
+      name: avatarName
+    })
   })
 
   it('should create a user with guest role', async () => {
     const name = `Test #${Math.random()}`
-    const avatarName = 'CyberbotGreen'
     const isGuest = true
-
-    const avatar = await app.service(avatarPath).create({
-      name: avatarName
-    })
 
     const item = await app.service(userPath).create({
       name,
@@ -75,12 +74,7 @@ describe('user service', () => {
 
   it('should create a user with user role', async () => {
     const name = `Test #${Math.random()}`
-    const avatarName = 'CyberbotGreen'
     const isGuest = false
-
-    const avatar = await app.service(avatarPath).create({
-      name: avatarName
-    })
 
     const item = await app.service(userPath).create({
       name,
@@ -145,6 +139,68 @@ describe('user service', () => {
     const updatedUser2 = await app.service(userPath).get(user2.id)
     assert.equal(newName, updatedUser1.name)
     assert.notEqual(newName, updatedUser2.name)
+  })
+
+  it('should not be able to patch user scopes without being admin', async () => {
+    const userWriteUser = await app.service(userPath).create({
+      name: `Test UserWrite #${Math.random()}`,
+      scopes: [{ type: 'user:write' }],
+      avatarId: avatar.id
+    })
+    const userWriteUserApiKey = await app.service(userApiKeyPath).create({ userId: userWriteUser.id })
+
+    const userWithScopes = await app.service(userPath).create({
+      name: `Test UserWithScopes #${Math.random()}`,
+      scopes: [{ type: 'editor:write' }],
+      avatarId: avatar.id
+    })
+
+    const newName = `Test UserWithScopes 2 #${Math.random()}`
+
+    const patchUserResult = await app.service(userPath).patch(
+      userWithScopes.id,
+      {
+        name: newName,
+        scopes: [{ type: 'admin:admin' }]
+      },
+      {
+        provider: 'rest',
+        headers: {
+          authorization: `Bearer ${userWriteUserApiKey.token}`
+        }
+      }
+    )
+
+    assert.equal(patchUserResult.name, newName)
+    assert.deepEqual(patchUserResult.scopes, userWithScopes.scopes)
+  })
+
+  it('should not be able to remove admin users without being admin', async () => {
+    const adminUser = await app.service(userPath).create({
+      name: `Test Admin #${Math.random()}`,
+      scopes: [{ type: 'admin:admin' }],
+      avatarId: avatar.id
+    })
+    const userWriteUser = await app.service(userPath).create({
+      name: `Test UserWrite #${Math.random()}`,
+      scopes: [{ type: 'admin:admin' }],
+      avatarId: avatar.id
+    })
+
+    const userWriteUserApiKey = await app.service(userApiKeyPath).create({ userId: userWriteUser.id })
+
+    assert.rejects(
+      async () =>
+        await app.service(userPath).remove(adminUser.id, {
+          provider: 'rest',
+          headers: {
+            authorization: `Bearer ${userWriteUserApiKey.token}`
+          }
+        })
+    )
+
+    users.push(adminUser)
+    users.push(userWriteUser)
   })
 
   it('should remove users', async () => {
