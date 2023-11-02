@@ -38,6 +38,7 @@ import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import {
   defineQuery,
   getComponent,
+  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -48,8 +49,10 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { UserID } from '../../schemas/user/user.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
+import { MountPointActions } from '../functions/MountPointActions'
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI } from './InteractiveSystem'
 
@@ -61,10 +64,17 @@ const mountPointInteractMessages = {
 }
 
 const mountPointActionQueue = defineActionQueue(EngineActions.interactedWithObject.matches)
+const mountPointSeatedQueue = defineActionQueue(MountPointActions.mountInteraction.matches)
 const mountPointQuery = defineQuery([MountPointComponent])
 const sittingIdleQuery = defineQuery([SittingComponent])
 
 const execute = () => {
+  for (const action of mountPointSeatedQueue()) {
+    const mountComponent = getMutableComponent(UUIDComponent.entitiesByUUID[action.target], MountPointComponent)
+    if (action.mounted) mountComponent.occupiedAvatarEntity.set(action.$from)
+    else mountComponent.occupiedAvatarEntity.set('' as UserID)
+  }
+
   if (getState(EngineState).isEditor) return
 
   for (const entity of mountPointQuery.enter()) {
@@ -86,7 +96,7 @@ const execute = () => {
     const avatarEntity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
 
     const mountPoint = getComponent(action.targetEntity!, MountPointComponent)
-    const mountPointTransform = getComponent(action.targetEntity!, TransformComponent)
+    if (mountPoint.type != MountPoint.seat || mountPoint.occupiedAvatarEntity != '') continue
     if (mountPoint.type === MountPoint.seat) {
       const avatar = getComponent(avatarEntity, AvatarComponent)
 
@@ -126,6 +136,9 @@ const execute = () => {
           entityUUID: getComponent(avatarEntity, UUIDComponent)
         })
       )
+      dispatchAction(
+        MountPointActions.mountInteraction({ mounted: true, target: getComponent(action.targetEntity, UUIDComponent) })
+      )
     }
   }
 
@@ -143,6 +156,12 @@ const execute = () => {
         })
       )
       const sittingComponent = getComponent(entity, SittingComponent)
+      dispatchAction(
+        MountPointActions.mountInteraction({
+          mounted: false,
+          target: getComponent(sittingComponent.mountPointEntity, UUIDComponent)
+        })
+      )
       const mountTransform = getComponent(sittingComponent.mountPointEntity, TransformComponent)
       const mountComponent = getComponent(sittingComponent.mountPointEntity, MountPointComponent)
       //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
