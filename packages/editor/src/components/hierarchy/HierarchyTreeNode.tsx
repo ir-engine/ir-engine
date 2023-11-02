@@ -31,12 +31,10 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getAllComponents,
   getComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -51,7 +49,6 @@ import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
-import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
 
 /**
@@ -95,8 +92,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const nodeName = useComponent(node.entity, NameComponent).value
 
-  const errors = node.entity ? useOptionalComponent(node.entity as Entity, ErrorComponent) : undefined
-  const firstError = errors?.keys[0]
+  //const errors = node.entity ? useOptionalComponent(node.entity as Entity, ErrorComponent) : undefined
+  //const firstError = errors?.keys[0]
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -330,7 +327,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                 </div>
               )}
             </div>
-            {firstError && <NodeIssuesIcon node={[{ severity: 'error', message: firstError }]} />}
+            {/*firstError && <NodeIssuesIcon node={[{ severity: 'error', message: firstError }]} />*/}
           </div>
         </div>
 

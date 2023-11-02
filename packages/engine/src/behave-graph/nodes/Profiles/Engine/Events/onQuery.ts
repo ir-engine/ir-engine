@@ -102,7 +102,6 @@ export const OnQuery = makeEventNodeDefinition({
     for (const index of sequence(1, (_.numInputs ?? OnQuery.configuration?.numInputs.defaultValue) + 1)) {
       sockets.push({ ...componentName(index) })
     }
-    console.log('DEBUG sockets', sockets)
     return sockets
   },
 
@@ -143,12 +142,21 @@ export const OnQuery = makeEventNodeDefinition({
       uuid: 'behave-graph-onQuery-' + systemCounter++,
       execute: () => {
         newQueryResult = queryType()
+        if (newQueryResult.length === 0) return
         if (prevQueryResult === newQueryResult) return
-        for (const eid of newQueryResult) {
-          commit('entity', eid)
-          commit('flow')
+        const tempResult = newQueryResult
+        function delayedLoop(i) {
+          if (i < tempResult.length) {
+            const eid = tempResult[i]
+            write('entity', eid)
+            commit('flow')
+            setTimeout(() => {
+              prevQueryResult = tempResult
+              delayedLoop(i + 1)
+            }, 50) //milliseconds
+          }
         }
-        prevQueryResult = newQueryResult
+        delayedLoop(0)
       }
     })
     startSystem(systemUUID, { with: system })
