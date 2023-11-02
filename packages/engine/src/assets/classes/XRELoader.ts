@@ -29,10 +29,9 @@ import { gltfToSceneJson } from '@etherealengine/engine/src/scene/functions/GLTF
 import { loadECSData } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { EntityOrObjectUUID } from '../../ecs/functions/EntityTree'
 import { AssetLoader } from './AssetLoader'
 
-export type OnLoadType = (response: EntityOrObjectUUID[]) => EntityOrObjectUUID[] | void
+export type OnLoadType = (response: Entity[]) => Entity[] | void
 
 export class XRELoader {
   fileLoader: FileLoader

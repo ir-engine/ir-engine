@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   apiJobDataValidator,
@@ -47,21 +47,17 @@ export default {
   },
 
   before: {
-    all: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
-      () => schemaHooks.validateQuery(apiJobQueryValidator),
-      schemaHooks.resolveQuery(apiJobQueryResolver)
-    ],
-    find: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
-    get: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    all: [() => schemaHooks.validateQuery(apiJobQueryValidator), schemaHooks.resolveQuery(apiJobQueryResolver)],
+    find: [iff(isProvider('external'), verifyScope('server', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('server', 'read'))],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('server', 'write')),
       () => schemaHooks.validateData(apiJobDataValidator),
       schemaHooks.resolveData(apiJobDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('server', 'write')),
       () => schemaHooks.validateData(apiJobPatchValidator),
       schemaHooks.resolveData(apiJobPatchResolver)
     ],

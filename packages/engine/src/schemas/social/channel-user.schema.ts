@@ -49,19 +49,19 @@ export const channelUserSchema = Type.Object(
   },
   { $id: 'ChannelUser', additionalProperties: false }
 )
-export type ChannelUserType = Static<typeof channelUserSchema>
+export interface ChannelUserType extends Static<typeof channelUserSchema> {}
 
 // Schema for creating new entries
 export const channelUserDataSchema = Type.Partial(channelUserSchema, {
   $id: 'ChannelUserData'
 })
-export type ChannelUserData = Static<typeof channelUserDataSchema>
+export interface ChannelUserData extends Static<typeof channelUserDataSchema> {}
 
 // Schema for updating existing entries
 export const channelUserPatchSchema = Type.Partial(channelUserSchema, {
   $id: 'ChannelUserPatch'
 })
-export type ChannelUserPatch = Static<typeof channelUserPatchSchema>
+export interface ChannelUserPatch extends Static<typeof channelUserPatchSchema> {}
 
 // Schema for allowed query properties
 export const channelUserQueryProperties = Type.Pick(channelUserSchema, ['id', 'userId', 'isOwner', 'channelId'])
@@ -73,7 +73,7 @@ export const channelUserQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type ChannelUserQuery = Static<typeof channelUserQuerySchema>
+export interface ChannelUserQuery extends Static<typeof channelUserQuerySchema> {}
 
 export const channelUserValidator = getValidator(channelUserSchema, dataValidator)
 export const channelUserDataValidator = getValidator(channelUserDataSchema, dataValidator)

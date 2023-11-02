@@ -52,9 +52,9 @@ export const userSettingSchema = Type.Object(
   },
   { $id: 'UserSetting', additionalProperties: false }
 )
-export type UserSettingType = Static<typeof userSettingSchema>
+export interface UserSettingType extends Static<typeof userSettingSchema> {}
 
-export type UserSettingDatabaseType = Omit<UserSettingType, 'themeModes'> & {
+export interface UserSettingDatabaseType extends Omit<UserSettingType, 'themeModes'> {
   themeModes: string
 }
 
@@ -62,13 +62,13 @@ export type UserSettingDatabaseType = Omit<UserSettingType, 'themeModes'> & {
 export const userSettingDataSchema = Type.Pick(userSettingSchema, ['userId'], {
   $id: 'UserSettingData'
 })
-export type UserSettingData = Static<typeof userSettingDataSchema>
+export interface UserSettingData extends Static<typeof userSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const userSettingPatchSchema = Type.Partial(userSettingSchema, {
   $id: 'UserSettingPatch'
 })
-export type UserSettingPatch = Static<typeof userSettingPatchSchema>
+export interface UserSettingPatch extends Static<typeof userSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const userSettingQueryProperties = Type.Pick(userSettingSchema, [
@@ -84,7 +84,7 @@ export const userSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type UserSettingQuery = Static<typeof userSettingQuerySchema>
+export interface UserSettingQuery extends Static<typeof userSettingQuerySchema> {}
 
 export const userSettingValidator = getValidator(userSettingSchema, dataValidator)
 export const userSettingDataValidator = getValidator(userSettingDataSchema, dataValidator)

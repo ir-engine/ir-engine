@@ -39,7 +39,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { defineQuery, getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { ScreenshotSettings } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
@@ -96,7 +96,7 @@ export async function previewScreenshot(
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
-      addEntityNodeChild(entity, getState(SceneState).sceneEntity)
+      setComponent(entity, EntityTreeComponent, { parentEntity: SceneState.getRootEntity() })
       scenePreviewCamera.updateMatrixWorld(true)
     }
   }
@@ -179,7 +179,7 @@ export async function takeScreenshot(
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
-      addEntityNodeChild(entity, getState(SceneState).sceneEntity)
+      setComponent(entity, EntityTreeComponent, { parentEntity: SceneState.getRootEntity() })
       scenePreviewCamera.updateMatrixWorld(true)
     }
   }

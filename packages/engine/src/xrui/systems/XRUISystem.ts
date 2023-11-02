@@ -93,6 +93,7 @@ export type PointerObject = (Line<BufferGeometry, LineBasicMaterial> | Mesh<Ring
 const hitColor = new Color(0x00e6e6)
 const normalColor = new Color(0xffffff)
 const visibleInteractableXRUIQuery = defineQuery([XRUIComponent, VisibleComponent, InputComponent])
+const visibleXRUIQuery = defineQuery([XRUIComponent, VisibleComponent])
 const xruiQuery = defineQuery([XRUIComponent])
 
 // todo - hoist to hyperflux state
@@ -252,7 +253,7 @@ const execute = () => {
 
   /** only update visible XRUI */
 
-  for (const entity of visibleInteractableXRUIQuery()) {
+  for (const entity of visibleXRUIQuery()) {
     const xrui = getComponent(entity, XRUIComponent)
     xrui.update()
   }

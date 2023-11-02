@@ -51,19 +51,19 @@ export const locationAdminSchema = Type.Object(
   },
   { $id: 'LocationAdmin', additionalProperties: false }
 )
-export type LocationAdminType = Static<typeof locationAdminSchema>
+export interface LocationAdminType extends Static<typeof locationAdminSchema> {}
 
 // Schema for creating new entries
 export const locationAdminDataSchema = Type.Pick(locationAdminSchema, ['userId', 'locationId'], {
   $id: 'LocationAdminData'
 })
-export type LocationAdminData = Static<typeof locationAdminDataSchema>
+export interface LocationAdminData extends Static<typeof locationAdminDataSchema> {}
 
 // Schema for updating existing entries
 export const locationAdminPatchSchema = Type.Partial(locationAdminSchema, {
   $id: 'LocationAdminPatch'
 })
-export type LocationAdminPatch = Static<typeof locationAdminPatchSchema>
+export interface LocationAdminPatch extends Static<typeof locationAdminPatchSchema> {}
 
 // Schema for allowed query properties
 export const locationAdminQueryProperties = Type.Pick(locationAdminSchema, ['id', 'userId', 'locationId'])
@@ -76,7 +76,7 @@ export const locationAdminQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 
-export type LocationAdminQuery = Static<typeof locationAdminQuerySchema>
+export interface LocationAdminQuery extends Static<typeof locationAdminQuerySchema> {}
 
 export const locationAdminValidator = getValidator(locationAdminSchema, dataValidator)
 export const locationAdminDataValidator = getValidator(locationAdminDataSchema, dataValidator)
