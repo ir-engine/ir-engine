@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   githubRepoAccessDataValidator,
@@ -51,22 +51,23 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(githubRepoAccessQueryValidator),
       schemaHooks.resolveQuery(githubRepoAccessQueryResolver)
     ],
-    find: [],
-    get: [],
+    find: [iff(isProvider('external'), verifyScope('projects', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('projects', 'read'))],
     create: [
+      iff(isProvider('external'), verifyScope('projects', 'write')),
       () => schemaHooks.validateData(githubRepoAccessDataValidator),
       schemaHooks.resolveData(githubRepoAccessDataResolver)
     ],
-    update: [],
+    update: [disallow()],
     patch: [
+      iff(isProvider('external'), verifyScope('projects', 'write')),
       () => schemaHooks.validateData(githubRepoAccessPatchValidator),
       schemaHooks.resolveData(githubRepoAccessPatchResolver)
     ],
-    remove: []
+    remove: [iff(isProvider('external'), verifyScope('projects', 'write'))]
   },
   after: {
     all: [],
