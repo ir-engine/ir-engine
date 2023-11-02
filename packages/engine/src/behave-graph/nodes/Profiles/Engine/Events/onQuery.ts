@@ -31,16 +31,23 @@ import {
   defineQuery,
   removeQuery
 } from '../../../../../ecs/functions/ComponentFunctions'
+import {
+  SystemDefinitions,
+  SystemUUID,
+  defineSystem,
+  disableSystem,
+  startSystem
+} from '../../../../../ecs/functions/SystemFunctions'
 
 let systemCounter = 0
 
 type State = {
   query: Query
-  //systemUUID: SystemUUID
+  systemUUID: SystemUUID
 }
 const initialState = (): State => ({
-  query: undefined!
-  //systemUUID: '' as SystemUUID
+  query: undefined!,
+  systemUUID: '' as SystemUUID
 })
 
 // very 3D specific.
@@ -76,18 +83,21 @@ export const OnQuery = makeEventNodeDefinition({
       }
     }
 
-    /*const systemGroup = () => {
-      const choices  = [] 
+    const system = () => {
+      const systemDefinitions = Array.from(SystemDefinitions.keys()).map((key) => key as string)
+      const groups = systemDefinitions.filter((key) => key.includes('group')).sort()
+      const nonGroups = systemDefinitions.filter((key) => !key.includes('group')).sort()
+      const choices = [...groups, ...nonGroups]
       choices.unshift('none')
       return {
-        key: 'type',
+        key: 'system',
         valueType: 'string',
         choices: choices
       }
-    }*/
+    }
     // unsure how to get all system groups
 
-    sockets.push({ ...type() })
+    sockets.push({ ...type() }, { ...system() })
 
     for (const index of sequence(1, (_.numInputs ?? OnQuery.configuration?.numInputs.defaultValue) + 1)) {
       sockets.push({ ...componentName(index) })
@@ -103,6 +113,8 @@ export const OnQuery = makeEventNodeDefinition({
   initialState: initialState(),
   init: ({ read, write, commit, graph, configuration }) => {
     const type = read<string>('type')
+    const system = read<SystemUUID>('system')
+
     const queryComponents: Component[] = []
     for (const index of sequence(1, (configuration.numInputs ?? OnQuery.configuration?.numInputs.defaultValue) + 1)) {
       const componentName = read<string>(`componentName${index}`)
@@ -110,18 +122,45 @@ export const OnQuery = makeEventNodeDefinition({
       queryComponents.push(component)
     }
     const query = defineQuery(queryComponents)
-
-    //const systemUUID = `onQuery${systemCounter++}`
-    //startSystem(systemUUID, { with: InputSystemGroup })
+    let prevQueryResult = []
+    let newQueryResult = []
+    let queryType
+    switch (type) {
+      case 'entry': {
+        queryType = query.enter
+        break
+      }
+      case 'exit': {
+        queryType = query.exit
+        break
+      }
+      case 'none': {
+        queryType = query
+        break
+      }
+    }
+    const systemUUID = defineSystem({
+      uuid: 'behave-graph-onQuery-' + systemCounter++,
+      execute: () => {
+        newQueryResult = queryType()
+        if (prevQueryResult === newQueryResult) return
+        for (const eid of newQueryResult) {
+          commit('entity', eid)
+          commit('flow')
+        }
+        prevQueryResult = newQueryResult
+      }
+    })
+    startSystem(systemUUID, { with: system })
     const state: State = {
-      query
-      //systemUUID
+      query,
+      systemUUID
     }
 
     return state
   },
-  dispose: ({ state: { query }, graph: { getDependency } }) => {
-    //disableSystem(systemUUID)
+  dispose: ({ state: { query, systemUUID }, graph: { getDependency } }) => {
+    disableSystem(systemUUID)
     removeQuery(query)
     return initialState()
   }
