@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
@@ -38,7 +37,6 @@ import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHoo
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
-import { AuthState } from '../../../user/services/AuthService'
 import { useUserHasAccessHook } from '../../../user/userHasAccess'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
@@ -88,9 +86,6 @@ const ProjectTable = ({ className }: Props) => {
   })
 
   const projectsData = projects.data as ProjectType[]
-
-  const authState = useHookstate(getMutableState(AuthState))
-  const user = authState.user
 
   const projectRef = useRef(project)
 
@@ -301,13 +296,15 @@ const ProjectTable = ({ className }: Props) => {
       ),
       link: (
         <>
-          <IconButton
-            className={styles.iconButton}
-            name="update"
-            disabled={name === 'default-project'}
-            onClick={() => handleOpenProjectDrawer(el, true)}
-            icon={<Icon type={!el.repositoryPath ? 'LinkOff' : 'Link'} />}
-          />
+          {hasProjectWritePermission && (
+            <IconButton
+              className={styles.iconButton}
+              name="update"
+              disabled={name === 'default-project'}
+              onClick={() => handleOpenProjectDrawer(el, true)}
+              icon={<Icon type={!el.repositoryPath ? 'LinkOff' : 'Link'} />}
+            />
+          )}
         </>
       ),
       projectPermissions: (

@@ -62,7 +62,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
   const selfUser = useHookstate(getMutableState(AuthState)).user
   const selfUserPermission =
     project?.projectPermissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner' ||
-    userHasAccess('projects:write')
+    userHasAccess('admin:admin')
       ? 'owner'
       : 'user'
 
