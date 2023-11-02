@@ -92,32 +92,30 @@ const execute = () => {
 
       if (hasComponent(avatarEntity, SittingComponent)) continue
 
-      const transform = getComponent(action.targetEntity!, TransformComponent)
+      const mountTransform = getComponent(action.targetEntity!, TransformComponent)
       const rigidBody = getComponent(avatarEntity, RigidBodyComponent)
       rigidBody.body.setTranslation(
         {
-          x: transform.position.x,
-          y: transform.position.y - avatar.avatarHalfHeight * 0.5,
-          z: transform.position.z
+          x: mountTransform.position.x,
+          y: mountTransform.position.y - avatar.avatarHalfHeight * 0.5,
+          z: mountTransform.position.z
         },
         true
       )
       rigidBody.body.setRotation(
         {
-          x: transform.rotation.x,
-          y: transform.rotation.y,
-          z: transform.rotation.z,
-          w: transform.rotation.w
+          x: mountTransform.rotation.x,
+          y: mountTransform.rotation.y,
+          z: mountTransform.rotation.z,
+          w: mountTransform.rotation.w
         },
         true
       )
-      teleportAvatar(avatarEntity, mountPointTransform.position)
       rigidBody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
       rigidBody.body.setEnabled(false)
       setComponent(avatarEntity, SittingComponent, {
         mountPointEntity: action.targetEntity!
       })
-      const sitting = getComponent(avatarEntity, SittingComponent)
       getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
       dispatchAction(
         AvatarNetworkAction.setAnimationState({
@@ -133,11 +131,8 @@ const execute = () => {
 
   for (const entity of sittingIdleQuery()) {
     const controller = getComponent(entity, AvatarControllerComponent)
-    const rigidBody = getComponent(entity, RigidBodyComponent)
     if (controller.gamepadLocalInput.lengthSq() > 0.01) {
-      const avatarTransform = getComponent(entity, TransformComponent)
-
-      removeComponent(entity, SittingComponent)
+      const rigidBody = getComponent(entity, RigidBodyComponent)
       getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
       dispatchAction(
         AvatarNetworkAction.setAnimationState({
@@ -147,7 +142,14 @@ const execute = () => {
           entityUUID: getComponent(entity, UUIDComponent)
         })
       )
+      const sittingComponent = getComponent(entity, SittingComponent)
+      const mountTransform = getComponent(sittingComponent.mountPointEntity, TransformComponent)
+      const mountComponent = getComponent(sittingComponent.mountPointEntity, MountPointComponent)
+      //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
+      const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrix)
+      teleportAvatar(entity, dismountPoint)
       rigidBody.body.setEnabled(true)
+      removeComponent(entity, SittingComponent)
     }
   }
 }
