@@ -37,7 +37,7 @@ services:
     ports:
       - '6379:6379'
   # web:
-  #   image: nginx:alpine
+  #   image: nginx
   #   container_name: etherealengine_nginx
   #   volumes:
   #     - ./nginx/templates:/etc/nginx/templates
