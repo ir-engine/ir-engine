@@ -266,7 +266,7 @@ export const ColliderComponent = defineComponent({
       }
 
       if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
-    }, [isLoadedFromGLTF, transformComponent, localTransformComponent, colliderComponent, groupComponent?.length])
+    }, [isLoadedFromGLTF, colliderComponent, transformComponent, localTransformComponent, groupComponent?.length])
 
     return null
   }

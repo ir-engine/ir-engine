@@ -45,7 +45,6 @@ import { HemisphereLightComponent } from './components/HemisphereLightComponent'
 import { ImageComponent } from './components/ImageComponent'
 import { InteriorComponent } from './components/InteriorComponent'
 import { LinkComponent } from './components/LinkComponent'
-import { LoadVolumeComponent } from './components/LoadVolumeComponent'
 import { MediaComponent } from './components/MediaComponent'
 import { MountPointComponent } from './components/MountPointComponent'
 import { OceanComponent } from './components/OceanComponent'
@@ -94,7 +93,6 @@ export const SceneComponents = [
   HemisphereLightComponent,
   ImageComponent,
   InteriorComponent,
-  LoadVolumeComponent,
   MediaComponent,
   MountPointComponent,
   OceanComponent,

@@ -28,7 +28,6 @@ import React, { PropsWithChildren, Suspense } from 'react'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { getState } from '@etherealengine/hyperflux'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
@@ -62,7 +61,7 @@ class NodeEditorErrorBoundary extends React.Component<NodeErrorProps, NodeErrorS
     if (this.state.error) {
       return (
         <div style={{ margin: 10, color: '#ff0000', overflow: 'auto', backgroundColor: '#222222' }}>
-          <h1>
+          <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>
             <b>
               [{this.props.name}] {this.state.error.message}`
             </b>
@@ -101,9 +100,7 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
       onClose={
         component && hasComponent(entity, component)
           ? () => {
-              const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities).filter(
-                (n) => typeof n !== 'string'
-              )
+              const nodes = getState(SelectionState).selectedEntities
               EditorControlFunctions.addOrRemoveComponent(nodes, component, false)
             }
           : undefined

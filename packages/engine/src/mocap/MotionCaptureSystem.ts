@@ -55,8 +55,10 @@ import {
 } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { V_010 } from '../common/constants/MathConstants'
+import { lerp } from '../common/functions/MathLerpFunctions'
 import { isClient } from '../common/functions/getEnvironment'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkState } from '../networking/NetworkState'
 import { RendererState } from '../renderer/RendererState'
@@ -190,6 +192,18 @@ const execute = () => {
     )
 
     hipBone.updateMatrixWorld(true)
+
+    const worldHipsParent = rigComponent.rig.hips.node.parent
+    if (worldHipsParent)
+      if (MotionCaptureRigComponent.solvingLowerBody[entity])
+        worldHipsParent.position.setY(
+          lerp(
+            worldHipsParent.position.y,
+            MotionCaptureRigComponent.footOffset[entity],
+            getState(EngineState).deltaSeconds * 5
+          )
+        )
+      else worldHipsParent.position.setY(0)
 
     const avatarDebug = getState(RendererState).avatarDebug
     helperGroup.visible = avatarDebug

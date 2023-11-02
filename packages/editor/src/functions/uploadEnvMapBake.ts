@@ -81,7 +81,7 @@ const getScenePositionForBake = (entity?: Entity) => {
  */
 
 export const uploadBPCEMBakeToServer = async (entity: Entity) => {
-  const isSceneEntity = entity === getState(SceneState).sceneEntity
+  const isSceneEntity = entity === SceneState.getRootEntity()
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {
@@ -124,7 +124,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 }
 
 export const uploadSceneBakeToServer = async () => {
-  const entity = getState(SceneState).sceneEntity
+  const entity = SceneState.getRootEntity()
 
   if (!hasComponent(entity, EnvMapBakeComponent)) {
     setComponent(entity, EnvMapBakeComponent, { resolution: 2048 })

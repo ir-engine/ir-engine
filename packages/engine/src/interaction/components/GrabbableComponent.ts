@@ -51,7 +51,7 @@ export const GrabbableComponent = defineComponent({
     useEffect(() => {
       if (getState(EngineState).isEditor) return
       removeComponent(entity, LocalTransformComponent)
-      setComponent(entity, EntityTreeComponent, { parentEntity: getState(SceneState).sceneEntity })
+      setComponent(entity, EntityTreeComponent, { parentEntity: SceneState.getRootEntity() })
     }, [])
 
     return null
