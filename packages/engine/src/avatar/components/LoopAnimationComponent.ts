@@ -226,6 +226,7 @@ export const LoopAnimationComponent = defineComponent({
       if (!animComponent || !loopAnimationComponent.animationPack.value) return
 
       AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
+        if (animComponent.promised) return
         const animations = model.userData ? model.animations : model.scene.animations
         animComponent.animations.set(animations)
       })

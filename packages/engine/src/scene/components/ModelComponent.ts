@@ -45,8 +45,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { iterateEntityNode, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
+import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -57,7 +56,6 @@ import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import iterateObject3D from '../util/iterateObject3D'
-import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
@@ -173,14 +171,14 @@ function ModelReactor() {
               removeError(entity, ModelComponent, 'LOADING_ERROR')
               loadedAsset.scene.userData.src = model.src
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
-              const modelEntities = iterateEntityNode(
-                entity,
-                (child) => child,
-                (child) => child !== entity && hasComponent(child, GLTFLoadedComponent)
-              )
-              for (const modelEntity of modelEntities) {
-                removeEntity(modelEntity)
-              }
+              // const modelEntities = iterateEntityNode(
+              //   entity,
+              //   (child) => child,
+              //   (child) => child !== entity && hasComponent(child, GLTFLoadedComponent)
+              // )
+              // for (const modelEntity of modelEntities) {
+              //   removeEntity(modelEntity)
+              // }
               modelComponent.asset.set(loadedAsset)
               if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
               model.scene && removeObjectFromGroup(entity, model.scene)
@@ -223,11 +221,6 @@ function ModelReactor() {
 
     const childSpawnedEntities = parseGLTFModel(entity)
     setComponent(entity, BoundingBoxComponent)
-
-    return () => {
-      removeObjectFromGroup(entity, scene)
-      childSpawnedEntities.forEach((e) => removeEntityNodeRecursively(e))
-    }
   }, [modelComponent.scene])
 
   // update scene

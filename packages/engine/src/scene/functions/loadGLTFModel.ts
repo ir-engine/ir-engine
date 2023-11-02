@@ -238,6 +238,15 @@ export const parseGLTFModel = (entity: Entity) => {
           set(value) {
             throw new Error('Cannot set children of proxified object')
           }
+        },
+        removeFromParent: {
+          value: () => {
+            if (getComponent(objEntity, EntityTreeComponent).parentEntity) {
+              setComponent(objEntity, EntityTreeComponent, {
+                parentEntity: null
+              })
+            }
+          }
         }
       })
     },

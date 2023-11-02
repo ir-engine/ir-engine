@@ -135,7 +135,7 @@ export const EntityTreeComponent = defineComponent({
       EntityTreeComponent.roots[entity].set(none)
     }
     removeComponent(entity, UUIDComponent)
-    destroyEntityTree(entity)
+    //destroyEntityTree(entity)
   },
 
   roots: hookstate({} as Record<Entity, true>)
