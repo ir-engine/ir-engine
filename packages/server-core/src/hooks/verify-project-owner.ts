@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest, Forbidden, NotAuthenticated } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import {
   ProjectPermissionType,
   projectPermissionPath
@@ -39,7 +40,7 @@ export default () => {
     if (context.params.isInternal) return context
     const loggedInUser = context.params.user as UserType
     if (!loggedInUser) throw new NotAuthenticated('No logged in user')
-    if (loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) return context
+    if (loggedInUser.scopes && (await checkScope(loggedInUser, 'projects', 'write'))) return context
     const app = context.app
     const projectId =
       context.service === 'project'
