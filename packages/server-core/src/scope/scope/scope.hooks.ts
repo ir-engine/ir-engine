@@ -39,12 +39,7 @@ import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
 import verifyScopeAllowingSelf from '../../hooks/verify-scope-allowing-self'
 import { ScopeService } from './scope.class'
-import {
-  scopeDataResolver,
-  scopeExternalResolver,
-  scopeQueryResolver,
-  scopeResolver
-} from './scope.resolvers'
+import { scopeDataResolver, scopeExternalResolver, scopeQueryResolver, scopeResolver } from './scope.resolvers'
 
 /**
  * Check and maintain existing scopes
@@ -105,14 +100,14 @@ export default {
     find: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read')), enableClientPagination()],
     get: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
     create: [
-      iff(isProvider('external'), verifyScope('user', 'write')),
+      iff(isProvider('external'), verifyScope('user', 'write'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(scopeDataValidator),
       schemaHooks.resolveData(scopeDataResolver),
       checkExistingScopes
     ],
     update: [disallow()],
     patch: [disallow()],
-    remove: [iff(isProvider('external'), verifyScope('user', 'write'))]
+    remove: [iff(isProvider('external'), verifyScope('user', 'write'), verifyScope('admin', 'admin'))]
   },
 
   after: {
