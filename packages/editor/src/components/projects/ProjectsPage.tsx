@@ -182,7 +182,8 @@ const ProjectsPage = () => {
   const projectDrawerOpen = useHookstate(false)
   const changeDestination = useHookstate(false)
 
-  const hasWriteAccess = activeProject.value?.hasWriteAccess || userHasAccess('admin:admin')
+  const hasWriteAccess =
+    activeProject.value?.hasWriteAccess || (userHasAccess('admin:admin') && userHasAccess('projects:write'))
 
   const authState = useHookstate(getMutableState(AuthState))
   const projectState = useHookstate(getMutableState(ProjectState))
