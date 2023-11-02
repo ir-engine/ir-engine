@@ -717,17 +717,33 @@ function UVOL2Reactor() {
     component.canPlay.set(true)
   }, [volumetric.paused])
 
-  const getAttribute = (name: string, target: string, index: number) => {
-    const key = createKey(target, index)
+  const getFrame = (currentTime: number, frameRate: number, integer = true) => {
+    const frame = currentTime * frameRate
+    return integer ? Math.round(frame) : frame
+  }
+
+  const getAttribute = (name: 'keyframeA' | 'keyframeB', currentTime: number) => {
+    const currentGeometryTarget = component.geometryTarget.value
+    let index = getFrame(currentTime, manifest.current.geometry.targets[currentGeometryTarget].frameRate, false)
+    if (name === 'keyframeA') {
+      index = Math.floor(index)
+    } else {
+      index = Math.ceil(index)
+    }
+    const key = createKey(currentGeometryTarget, index)
     if (!geometryBuffer.has(key)) {
-      const frameRate = manifest.current.geometry.targets[target].frameRate
       const targets = Object.keys(manifest.current.geometry.targets)
 
       for (let i = 0; i < targets.length; i++) {
         const _target = targets[i]
         const _targetData = manifest.current.geometry.targets[_target]
-        const _frameRate = _targetData.frameRate
-        const _index = Math.round((index * _frameRate) / frameRate)
+        let _index = getFrame(currentTime, _targetData.frameRate, false)
+        if (name === 'keyframeA') {
+          _index = Math.floor(_index)
+        } else {
+          _index = Math.ceil(_index)
+        }
+
         if (geometryBuffer.has(createKey(_target, _index))) {
           const attribute = geometryBuffer.get(createKey(_target, _index))! as InterleavedBufferAttribute
           return attribute
@@ -842,16 +858,15 @@ function UVOL2Reactor() {
     }
   }
 
-  const setTexture = (target: string, index: number) => {
+  const setTexture = (target: string, index: number, currentTime: number) => {
     const key = createKey(target, index)
     if (!textureBuffer.has(key)) {
       const targets = Object.keys(manifest.current.texture.baseColor.targets)
-      const frameRate = manifest.current.texture.baseColor.targets[target].frameRate
       for (let i = 0; i < targets.length; i++) {
         const _frameRate = manifest.current.texture.baseColor.targets[targets[i]].frameRate
-        const _index = Math.round((index * _frameRate) / frameRate)
+        const _index = getFrame(currentTime, _frameRate)
         if (textureBuffer.has(createKey(targets[i], _index))) {
-          setTexture(targets[i], _index)
+          setTexture(targets[i], _index, currentTime)
           return
         }
       }
@@ -890,14 +905,8 @@ function UVOL2Reactor() {
   }
 
   const updateUniformSolve = (currentTime: number) => {
-    const geometryTarget = component.geometryTarget.value
-    const geometryFrame = currentTime * manifest.current.geometry.targets[geometryTarget].frameRate
-    const keyframeAIndex = Math.floor(geometryFrame)
-    const keyframeBIndex = Math.ceil(geometryFrame)
-    let mixRatio = geometryFrame - keyframeAIndex
-
-    const keyframeA = getAttribute('position', geometryTarget, keyframeAIndex)
-    const keyframeB = getAttribute('position', geometryTarget, keyframeBIndex)
+    const keyframeA = getAttribute('keyframeA', currentTime)
+    const keyframeB = getAttribute('keyframeB', currentTime)
 
     if (!keyframeA && !keyframeB) {
       return
@@ -910,14 +919,17 @@ function UVOL2Reactor() {
       ;(mesh.material as ShaderMaterial).uniforms.mixRatio.value = 0
       return
     } else if (keyframeA && keyframeB) {
+      const keyframeAIndex = parseInt(keyframeA.name.slice(-KEY_PADDING))
       const keyframeATarget = keyframeA.name.slice(0, -KEY_PADDING)
+      const keyframeATime = keyframeAIndex / manifest.current.geometry.targets[keyframeATarget].frameRate
+
+      const keyframeBIndex = parseInt(keyframeB.name.slice(-KEY_PADDING))
       const keyframeBTarget = keyframeB.name.slice(0, -KEY_PADDING)
-      if (keyframeATarget === keyframeBTarget && keyframeATarget !== geometryTarget) {
-        // If both keyframes are of different target, update the mixRatio
-        const _geometryFrame = currentTime * manifest.current.geometry.targets[keyframeATarget].frameRate
-        const _keyframeAIndex = Math.floor(_geometryFrame)
-        mixRatio = _geometryFrame - _keyframeAIndex
-      }
+      const keyframeBTime = keyframeBIndex / manifest.current.geometry.targets[keyframeBTarget].frameRate
+
+      const d1 = Math.abs(currentTime - keyframeATime)
+      const d2 = Math.abs(currentTime - keyframeBTime)
+      const mixRatio = d1 + d2 > 0 ? d1 / (d1 + d2) : 0.5
       setAttribute('keyframeA', keyframeA)
       setAttribute('keyframeB', keyframeB)
       ;(mesh.material as ShaderMaterial).uniforms.mixRatio.value = mixRatio
@@ -941,7 +953,7 @@ function UVOL2Reactor() {
   const updateTexture = (currentTime: number) => {
     const textureTarget = component.textureTarget.value
     const textureFrame = Math.round(currentTime * manifest.current.texture.baseColor.targets[textureTarget].frameRate)
-    setTexture(textureTarget, textureFrame)
+    setTexture(textureTarget, textureFrame, currentTime)
   }
 
   const update = () => {

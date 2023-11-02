@@ -55,17 +55,17 @@ export default {
     find: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     get: [disallow('external')],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationAdminDataValidator),
       schemaHooks.resolveData(locationAdminDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationAdminPatchValidator),
       schemaHooks.resolveData(locationAdminPatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]
+    remove: [iff(isProvider('external'), verifyScope('location', 'write'))]
   },
 
   after: {

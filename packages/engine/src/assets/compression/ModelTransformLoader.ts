@@ -67,13 +67,11 @@ export default async function ModelTransformLoader() {
     MOZLightmapExtension,
     EEMaterialExtension
   ])
-  const dracoDecoder = await draco3d.createDecoderModule()
-  const dracoEncoder = await draco3d.createEncoderModule()
   io.registerDependencies({
     'meshopt.decoder': MeshoptDecoder,
     'meshopt.encoder': MeshoptEncoder,
-    'draco3d.decoder': dracoDecoder,
-    'draco3d.encoder': dracoEncoder
+    'draco3d.decoder': await draco3d.createDecoderModule(),
+    'draco3d.encoder': await draco3d.createEncoderModule()
   })
   return {
     io,

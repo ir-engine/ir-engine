@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { t } from 'i18next'
 import React from 'react'
 
-import { API } from '@etherealengine/client-core/src/API'
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
@@ -120,15 +119,6 @@ export default function CompressionPanel({
     await onRefreshDirectory()
 
     compressionLoading.set(false)
-    openCompress.set(false)
-  }
-
-  /** @todo */
-  const compressContent = async () => {
-    const props = fileProperties.value
-    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
-    const compressedPath = await API.instance.client.service('ktx2-encode').create(compressProperties.value)
-    await onRefreshDirectory()
     openCompress.set(false)
   }
 
