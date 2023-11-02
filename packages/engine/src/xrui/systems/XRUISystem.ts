@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, Quaternion, Vector3 } from 'three'
+import { Color } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { WebContainer3D } from '@etherealengine/xrui'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
@@ -38,12 +38,11 @@ import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
-import { ReferenceSpace, XRState } from '../../xr/XRState'
+import { XRState } from '../../xr/XRState'
 
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
-import { LocalTransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIState } from '../XRUIState'
-import { PointerComponent, PointerObject } from '../components/PointerComponent'
+import { PointerComponent } from '../components/PointerComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
 
 const hitColor = new Color(0x00e6e6)
@@ -74,8 +73,11 @@ const redirectDOMEvent = (evt) => {
   }
 }
 
-const updateControllerRayInteraction = (controller: PointerObject, xruiEntities: Entity[]) => {
-  const cursor = controller.cursor
+const updateControllerRayInteraction = (entity: Entity, xruiEntities: Entity[]) => {
+  const pointerComponentState = getMutableComponent(entity, PointerComponent)
+  const pointer = pointerComponentState.pointer.value
+  const cursor = pointerComponentState.cursor.value
+
   let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 
   for (const entity of xruiEntities) {
@@ -87,9 +89,11 @@ const updateControllerRayInteraction = (controller: PointerObject, xruiEntities:
     /**
      * get closest hit from all XRUIs
      */
-    const layerHit = layer.hitTest(controller)
+    const layerHit = layer.hitTest(pointer)
     if (layerHit && (!hit || layerHit.intersection.distance < hit.intersection.distance)) hit = layerHit
   }
+
+  pointerComponentState.lastHit.set(hit)
 
   if (hit) {
     const interactable = window.getComputedStyle(hit.target).cursor == 'pointer'
@@ -97,7 +101,7 @@ const updateControllerRayInteraction = (controller: PointerObject, xruiEntities:
     if (cursor) {
       cursor.visible = true
       cursor.position.copy(hit.intersection.point)
-      controller.worldToLocal(cursor.position)
+      pointer.worldToLocal(cursor.position)
 
       if (interactable) {
         cursor.material.color = hitColor
@@ -105,8 +109,6 @@ const updateControllerRayInteraction = (controller: PointerObject, xruiEntities:
         cursor.material.color = normalColor
       }
     }
-
-    controller.lastHit = hit
   } else {
     if (cursor) {
       cursor.material.color = normalColor
@@ -115,22 +117,17 @@ const updateControllerRayInteraction = (controller: PointerObject, xruiEntities:
   }
 }
 
-const updateClickEventsForController = (controller: PointerObject) => {
-  if (controller.cursor?.visible) {
-    const hit = controller.lastHit
-    if (hit && hit.intersection.object.visible) {
-      hit.target.dispatchEvent(new PointerEvent('click', { bubbles: true }))
-      hit.target.focus()
-    }
+const updateClickEventsForController = (entity: Entity) => {
+  const pointerComponentState = getMutableComponent(entity, PointerComponent)
+  const hit = pointerComponentState.lastHit.value
+  if (hit && hit.intersection.object.visible) {
+    hit.target.dispatchEvent(new PointerEvent('click', { bubbles: true }))
+    hit.target.focus()
   }
 }
 
-const inputSourceQuery = defineQuery([InputSourceComponent])
-
 const execute = () => {
   const xruiState = getState(XRUIState)
-  const inputSourceEntities = inputSourceQuery()
-
   const xrFrame = getState(XRState).xrFrame
 
   /** Update the objects to use for intersection tests */
@@ -157,6 +154,8 @@ const execute = () => {
   if (xruiState.pointerActive !== isCloseToVisibleXRUI)
     getMutableState(XRUIState).pointerActive.set(isCloseToVisibleXRUI)
 
+  const inputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
+
   /** do intersection tests */
   for (const inputSourceEntity of inputSourceEntities) {
     const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
@@ -171,28 +170,16 @@ const execute = () => {
     const pointerEntity = PointerComponent.pointers.get(inputSource)
     if (!pointerEntity) continue
 
-    const transform = getComponent(pointerEntity, LocalTransformComponent)
-
-    const referenceSpace = ReferenceSpace.localFloor
-    if (xrFrame && referenceSpace) {
-      const pose = xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)
-      if (pose) {
-        transform.position.copy(pose.transform.position as any as Vector3)
-        transform.rotation.copy(pose.transform.orientation as any as Quaternion)
-      }
-    }
-
     const pointer = getComponent(pointerEntity, PointerComponent).pointer
     if (!pointer) continue
-    pointer.material.visible = true // isCloseToVisibleXRUI
 
     if (
       buttons[XRStandardGamepadButton.Trigger]?.down &&
       (inputSource.handedness === 'left' || inputSource.handedness === 'right')
     )
-      updateClickEventsForController(pointer)
+      updateClickEventsForController(pointerEntity)
 
-    updateControllerRayInteraction(pointer, interactableXRUIEntities)
+    updateControllerRayInteraction(pointerEntity, interactableXRUIEntities)
   }
 
   for (const [pointerSource, entity] of PointerComponent.pointers) {

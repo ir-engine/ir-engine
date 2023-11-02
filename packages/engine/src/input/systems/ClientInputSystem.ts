@@ -464,9 +464,9 @@ const execute = () => {
 
   for (const sourceEid of inputSources()) {
     const sourceTransform = getComponent(sourceEid, TransformComponent)
-    const source = getMutableComponent(sourceEid, InputSourceComponent)
+    const { source } = getComponent(sourceEid, InputSourceComponent)
 
-    if (!xrFrame && source.source.targetRayMode.value === 'screen') {
+    if (!xrFrame && source.targetRayMode === 'screen') {
       const ray = pointerScreenRaycaster.ray
 
       TransformComponent.position.x[sourceEid] = ray.origin.x
@@ -481,6 +481,19 @@ const execute = () => {
       TransformComponent.rotation.z[sourceEid] = rayRotation.z
       TransformComponent.rotation.w[sourceEid] = rayRotation.w
       TransformComponent.dirtyTransforms[sourceEid] = true
+    }
+
+    if (xrFrame && source.targetRayMode === 'tracked-pointer') {
+      const transform = getComponent(sourceEid, LocalTransformComponent)
+
+      const referenceSpace = ReferenceSpace.localFloor
+      if (xrFrame && referenceSpace) {
+        const pose = xrFrame.getPose(source.targetRaySpace, referenceSpace)
+        if (pose) {
+          transform.position.copy(pose.transform.position as any as Vector3)
+          transform.rotation.copy(pose.transform.orientation as any as Quaternion)
+        }
+      }
     }
 
     const capturedButtons = hasComponent(sourceEid, InputSourceButtonsCapturedComponent)
@@ -555,8 +568,9 @@ const execute = () => {
         }
       }
 
-      if (!capturedButtons) source.assignedButtonEntity.set(assignedInputEntity)
-      if (!capturedAxes) source.assignedAxesEntity.set(assignedInputEntity)
+      const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
+      if (!capturedButtons) sourceState.assignedButtonEntity.set(assignedInputEntity)
+      if (!capturedAxes) sourceState.assignedAxesEntity.set(assignedInputEntity)
     }
 
     updateGamepadInput(sourceEid)

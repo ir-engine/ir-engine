@@ -202,7 +202,7 @@ worldOriginPinpointAnchor.updateMatrixWorld(true)
 const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
 const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
 
-const XRAnchorSystemState = defineState({
+export const XRAnchorSystemState = defineState({
   name: 'XRAnchorSystemState',
   initial: () => {
     const scenePlacementEntity = createEntity()
@@ -351,13 +351,16 @@ const reactor = () => {
     }
   }, [scenePlacementMode, xrSession, inputSourceEntities.length])
 
-  // useEffect(() => {
-  //   if (scenePlacementMode.value !== 'placing' || !xrSession.value) return
-  //   InputSourceComponent.captureAxes(scenePlacementEntity)
-  //   return () => {
-  //     InputSourceComponent.releaseAxes()
-  //   }
-  // }, [scenePlacementMode, xrSession])
+  useEffect(() => {
+    if (scenePlacementMode.value !== 'placing' || !xrSession.value) return
+    const avatarInputSettings = getState(AvatarInputSettingsState)
+    InputSourceComponent.captureAxes(scenePlacementEntity, [avatarInputSettings.preferredHand])
+    InputSourceComponent.captureButtons(scenePlacementEntity, [avatarInputSettings.preferredHand])
+    return () => {
+      InputSourceComponent.releaseAxes()
+      InputSourceComponent.releaseButtons()
+    }
+  }, [scenePlacementMode, xrSession])
 
   return null
 }

@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { WebContainer3D } from '@etherealengine/xrui'
 import { useEffect } from 'react'
 import {
-  AdditiveBlending,
   BufferGeometry,
   Float32BufferAttribute,
   Line,
@@ -52,6 +51,7 @@ import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { LocalTransformComponent } from '../../transform/components/TransformComponent'
+import { useAnimationTransition } from '../functions/createTransitionState'
 
 export const PointerComponent = defineComponent({
   name: 'PointerComponent',
@@ -59,7 +59,10 @@ export const PointerComponent = defineComponent({
   onInit: (entity) => {
     return {
       inputSource: null! as XRInputSource,
-      pointer: null! as PointerObject
+      lastHit: null as ReturnType<typeof WebContainer3D.prototype.hitTest> | null,
+      // internal
+      pointer: null! as PointerObject,
+      cursor: null as Mesh<BufferGeometry, MeshBasicMaterial> | null
     }
   },
 
@@ -75,21 +78,36 @@ export const PointerComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const inputSourceState = useComponent(entity, PointerComponent).inputSource
+    const pointerComponentState = useComponent(entity, PointerComponent)
+
+    const transition = useAnimationTransition(0.5, 'OUT', (alpha) => {
+      const cursor = pointerComponentState.cursor.value
+      const pointer = pointerComponentState.pointer.value
+      if (cursor) {
+        cursor.material.opacity = alpha
+        cursor.visible = alpha > 0
+      }
+      if (pointer) {
+        pointer.material.opacity = alpha
+        pointer.visible = alpha > 0
+      }
+    })
 
     useEffect(() => {
-      const inputSource = inputSourceState.value
+      const inputSource = pointerComponentState.inputSource.value
       const pointer = createPointer(inputSource)
       const cursor = createUICursor()
-      pointer.cursor = cursor
       pointer.add(cursor)
-      // cursor.visible = false
-      getMutableComponent(entity, PointerComponent).pointer.set(pointer)
+      getMutableComponent(entity, PointerComponent).merge({ pointer, cursor })
       addObjectToGroup(entity, pointer)
       return () => {
         if (entityExists(entity)) removeObjectFromGroup(entity, pointer)
       }
-    }, [inputSourceState])
+    }, [pointerComponentState.inputSource])
+
+    useEffect(() => {
+      transition(pointerComponentState.lastHit.value ? 'IN' : 'OUT')
+    }, [pointerComponentState.lastHit])
 
     return null
   },
@@ -119,7 +137,7 @@ const createPointer = (inputSource: XRInputSource): PointerObject => {
   switch (inputSource.targetRayMode) {
     case 'gaze': {
       const geometry = new RingGeometry(0.02, 0.04, 32).translate(0, 0, -1)
-      const material = new MeshBasicMaterial({ opacity: 0.5, transparent: true })
+      const material = new MeshBasicMaterial({ opacity: 0, transparent: true })
       return new Mesh(geometry, material) as PointerObject
     }
     default:
@@ -127,7 +145,7 @@ const createPointer = (inputSource: XRInputSource): PointerObject => {
       const geometry = new BufferGeometry()
       geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 0, 0, -1], 3))
       geometry.setAttribute('color', new Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3))
-      const material = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
+      const material = new LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0, linewidth: 2 })
       return new Line(geometry, material)
     }
   }
@@ -139,8 +157,4 @@ const createUICursor = () => {
   return new Mesh(geometry, material)
 }
 
-export type PointerObject = (Line<BufferGeometry, LineBasicMaterial> | Mesh<RingGeometry, MeshBasicMaterial>) & {
-  targetRay?: Mesh<BufferGeometry, MeshBasicMaterial>
-  cursor?: Mesh<BufferGeometry, MeshBasicMaterial>
-  lastHit?: ReturnType<typeof WebContainer3D.prototype.hitTest> | null
-}
+export type PointerObject = Line<BufferGeometry, LineBasicMaterial> | Mesh<RingGeometry, MeshBasicMaterial>

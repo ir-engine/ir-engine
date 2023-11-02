@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { V_001, V_010, V_111 } from '@etherealengine/engine/src/common/constants/MathConstants'
+import { V_001, V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
@@ -88,7 +88,7 @@ const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
-    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
     setComponent(widgetMenuUI.entity, LocalTransformComponent)
     removeComponent(widgetMenuUI.entity, VisibleComponent)
 
@@ -179,8 +179,11 @@ const execute = () => {
     )
     if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
       removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
-      transform.scale.copy(V_111)
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(widgetMenuUI.entity, LocalTransformComponent)
     }
+
+    const transform = getComponent(widgetMenuUI.entity, LocalTransformComponent)
     if (pose) {
       const rot = widgetState.handedness === 'left' ? widgetLeftRotation : widgetRightRotation
       const offset = widgetState.handedness === 'left' ? widgetLeftMenuGripOffset : widgetRightMenuGripOffset
@@ -190,10 +193,13 @@ const execute = () => {
       transform.position.copy(pose.transform.position as any as Vector3).add(vec3)
     }
   } else {
-    if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent))
+    if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
+      removeComponent(widgetMenuUI.entity, EntityTreeComponent)
+      removeComponent(widgetMenuUI.entity, LocalTransformComponent)
       setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.cameraEntity, () =>
         ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, 0.1)
       )
+    }
   }
 
   const widgetMenuShown = widgetState.widgetsMenuOpen
