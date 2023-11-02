@@ -43,6 +43,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { MethodNotAllowed } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -112,12 +113,19 @@ const restrictUserRemove = async (context: HookContext<UserService>) => {
   if (context.params.isInternal) return context
 
   const loggedInUser = context.params.user as UserType
-  if (await checkScope(loggedInUser, 'user', 'write')) return
+  if (await checkScope(loggedInUser, 'user', 'write')) {
+    const isRemovedUserAdmin =
+      (await context.app.service(scopePath).find({ query: { userId: context.id as UserID, type: 'admin:admin' } }))
+        .total > 0
 
-  // only allow a user to patch it's own data
+    if (isRemovedUserAdmin && !(await checkScope(loggedInUser, 'admin', 'admin'))) {
+      throw new MethodNotAllowed('Must be an admin to remove admins')
+    }
+
+    return
+  }
+
   if (loggedInUser.id !== context.id) throw new Error('Must be an admin with user:write scope to delete another user')
-
-  return context
 }
 
 /**
