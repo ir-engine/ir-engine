@@ -33,7 +33,7 @@ import {
   NormalAnimationBlendMode
 } from 'three'
 
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -124,6 +124,8 @@ export const LoopAnimationComponent = defineComponent({
     const modelComponent = useOptionalComponent(entity, ModelComponent)
 
     const animComponent = useOptionalComponent(entity, AnimationComponent)
+
+    const lastAnimationPack = useHookstate('')
 
     useEffect(() => {
       const clip = animComponent?.animations[loopAnimationComponent.activeClipIndex.value].value
@@ -223,11 +225,18 @@ export const LoopAnimationComponent = defineComponent({
     }, [modelComponent?.scene, loopAnimationComponent.hasAvatarAnimations])
 
     useEffect(() => {
-      if (!animComponent || !loopAnimationComponent.animationPack.value) return
+      if (
+        !modelComponent?.scene?.value ||
+        !animComponent ||
+        !loopAnimationComponent.animationPack.value ||
+        lastAnimationPack.value === loopAnimationComponent.animationPack.value
+      )
+        return
 
       AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
         if (animComponent.promised) return
         const animations = model.userData ? model.animations : model.scene.animations
+        lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
         animComponent.animations.set(animations)
       })
     }, [animComponent, loopAnimationComponent.animationPack])
