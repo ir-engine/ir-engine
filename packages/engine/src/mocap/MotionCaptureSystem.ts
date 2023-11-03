@@ -31,7 +31,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { RingBuffer } from '../common/classes/RingBuffer'
 
-import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { defineSystem, startSystem } from '../ecs/functions/SystemFunctions'
 import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 
@@ -39,7 +39,7 @@ import { NormalizedLandmarkList } from '@mediapipe/pose'
 
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import {
   BufferAttribute,
@@ -53,7 +53,9 @@ import {
   SphereGeometry,
   Vector3
 } from 'three'
+import { AvatarSimulationSystemGroup } from '../avatar/AvatarSystemGroups'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
+import { AvatarMovementSystem } from '../avatar/systems/AvatarMovementSystem'
 import { V_010 } from '../common/constants/MathConstants'
 import { lerp } from '../common/functions/MathLerpFunctions'
 import { isClient } from '../common/functions/getEnvironment'
@@ -71,13 +73,6 @@ export type MotionCaptureResults = {
   poseWorldLandmarks: NormalizedLandmarkList
   poseLandmarks: NormalizedLandmarkList
 }
-
-export const MotionCaptureState = defineState({
-  name: 'MotionCaptureState',
-  initial: {
-    isCapturePage: false
-  }
-})
 
 export const sendResults = (results: MotionCaptureResults) => {
   return encode({
@@ -153,6 +148,7 @@ const execute = () => {
     const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
     if (!peers) {
       removeComponent(entity, MotionCaptureRigComponent)
+      startSystem(AvatarMovementSystem, { with: AvatarSimulationSystemGroup })
       continue
     }
     const rigComponent = getComponent(entity, AvatarRigComponent)

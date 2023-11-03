@@ -42,8 +42,8 @@ import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networki
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { defineSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { MotionCaptureState } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { defineSystem, disableSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { ECSRecordingActions } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
@@ -61,6 +61,7 @@ const NotifyRecordingErrorSystem = defineSystem({
 
 const startCaptureSystems = () => {
   startSystems([ClientNetworkingSystem, NotifyRecordingErrorSystem], { after: PresentationSystemGroup })
+  disableSystem(MotionCaptureSystem)
 }
 
 export const CaptureLocation = () => {
@@ -89,7 +90,6 @@ export const CaptureLocation = () => {
   AuthService.useAPIListeners()
 
   useEffect(() => {
-    getMutableState(MotionCaptureState).isCapturePage.set(true)
     startCaptureSystems()
   }, [])
 

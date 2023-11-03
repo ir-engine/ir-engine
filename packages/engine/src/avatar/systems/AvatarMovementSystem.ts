@@ -23,14 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { MotionCaptureState } from '../../mocap/MotionCaptureSystem'
 import { applyGamepadInput } from '.././functions/moveAvatar'
 
 const execute = () => {
-  if (getState(MotionCaptureState).isCapturePage) return
   applyGamepadInput(Engine.instance.localClientEntity)
 }
 
