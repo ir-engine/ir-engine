@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+
 export const AVATAR_CHARACTERS = '123456789abcdef'
 export const AVATAR_ID_REGEX = /\/([a-fA-F0-9]+).glb$/
 
 export const generateAvatarId = () => {
   let id = ''
   for (let i = 0; i < 24; i++) id += AVATAR_CHARACTERS.charAt(Math.floor(Math.random() * AVATAR_CHARACTERS.length))
-  return id
+  return id as AvatarID
 }
