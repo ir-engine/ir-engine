@@ -29,6 +29,7 @@ import assert from 'assert'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Forbidden } from '@feathersjs/errors'
@@ -63,7 +64,7 @@ describe('verify-scope', () => {
     let user = await app.service(userPath).create({
       name,
       isGuest,
-      avatarId: '',
+      avatarId: '' as AvatarID,
       inviteCode: '',
       scopes: []
     })
@@ -94,7 +95,7 @@ describe('verify-scope', () => {
     let user = await app.service(userPath).create({
       name,
       isGuest,
-      avatarId: '',
+      avatarId: '' as AvatarID,
       inviteCode: '',
       scopes: []
     })
@@ -122,7 +123,7 @@ describe('verify-scope', () => {
     let user = await app.service(userPath).create({
       name,
       isGuest,
-      avatarId: '',
+      avatarId: '' as AvatarID,
       inviteCode: '',
       scopes: []
     })
@@ -158,7 +159,7 @@ describe('verify-scope', () => {
     let user = await app.service(userPath).create({
       name,
       isGuest,
-      avatarId: '',
+      avatarId: '' as AvatarID,
       inviteCode: '',
       scopes: []
     })

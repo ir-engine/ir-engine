@@ -29,7 +29,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarID, avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
 import { isAssetFromDomain } from '../../media/static-resource/static-resource-helper'
@@ -45,7 +45,7 @@ export type AvatarUploadArguments = {
   avatarName: string
   isPublic: boolean
   avatarFileType?: string
-  avatarId?: string
+  avatarId?: AvatarID
   project?: string
   path?: string
 }
