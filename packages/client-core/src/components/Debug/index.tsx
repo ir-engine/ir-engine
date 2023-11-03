@@ -150,13 +150,12 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
   const renderEntityTree = (entity: Entity) => {
     const node = getComponent(entity, EntityTreeComponent)
     return {
-      entity,
       components: renderEntityComponents(entity),
       children: {
         ...node.children.reduce(
-          (r, child, i) =>
+          (r, child) =>
             Object.assign(r, {
-              [`${i} - ${getComponent(child, NameComponent) ?? getComponent(child, UUIDComponent)}`]:
+              [`${child} - ${getComponent(child, NameComponent) ?? getComponent(child, UUIDComponent)}`]:
                 renderEntityTree(child)
             }),
           {}
