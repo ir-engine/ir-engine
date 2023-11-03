@@ -180,7 +180,7 @@ export default {
   before: {
     all: [() => schemaHooks.validateQuery(avatarQueryValidator), schemaHooks.resolveQuery(avatarQueryResolver)],
     find: [
-      iffElse(isAction('admin'), verifyScope('admin', 'admin'), ensureUserAccessibleAvatars),
+      iffElse(isAction('admin'), verifyScope('globalAvatars', 'read'), ensureUserAccessibleAvatars),
       persistQuery,
       discardQuery('action'),
       discardQuery('skipUser'),
@@ -194,12 +194,12 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('globalAvatars', 'write')),
       () => schemaHooks.validateData(avatarPatchValidator),
       schemaHooks.resolveData(avatarPatchResolver)
     ],
     remove: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('globalAvatars', 'write')),
       disallowNonId,
       removeAvatarResources,
       updateUserAvatars
