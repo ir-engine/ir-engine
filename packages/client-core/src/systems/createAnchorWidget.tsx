@@ -39,10 +39,11 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
-import { AvatarInputSettingsState } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
+import { XRStandardGamepadAxes, XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
+import { XRAnchorSystemState } from '@etherealengine/engine/src/xr/XRAnchorSystem'
 import { useEffect } from 'react'
 import { MathUtils } from 'three'
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
@@ -69,13 +70,11 @@ export function createAnchorWidget() {
       if (xrState.session.value?.interactionMode !== 'world-space') return
       if (xrState.scenePlacementMode.value !== 'placing') return
 
-      const avatarInputSettings = getState(AvatarInputSettingsState)
-      const flipped = avatarInputSettings.preferredHand === 'left'
-
-      const entities = InputSourceComponent.nonCapturedInputSourceQuery()
-      for (const entity of entities) {
-        const inputComponent = getComponent(entity, InputSourceComponent)
-        if (inputComponent.source.gamepad?.mapping !== 'xr-standard') continue
+      const scenePlacementEntity = getState(XRAnchorSystemState).scenePlacementEntity
+      const inputSourceEntities = getComponent(scenePlacementEntity, InputComponent).inputSources
+      for (const inputEntity of inputSourceEntities) {
+        const inputComponent = getComponent(inputEntity, InputSourceComponent)
+        if (inputComponent.source.gamepad?.mapping !== 'xr-standard') return
 
         const buttonInputPressed = inputComponent.buttons[XRStandardGamepadButton.Trigger]?.down
 
@@ -85,18 +84,18 @@ export function createAnchorWidget() {
 
         const { deltaSeconds } = getState(EngineState)
 
-        const xAxisInput = inputComponent.source.gamepad.axes[flipped ? 0 : 2] * deltaSeconds
-        const yAxisInput = inputComponent.source.gamepad.axes[flipped ? 1 : 3] * deltaSeconds
+        const xAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.ThumbstickX]
+        const yAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.ThumbstickY]
 
         if (lastX) {
-          const xDelta = (lastX - xAxisInput) * Math.PI
+          const xDelta = (lastX - xAxisInput) * Math.PI * deltaSeconds
           getMutableState(XRState).sceneRotationOffset.set((currentValue) => currentValue + xDelta)
         }
         lastX = xAxisInput
 
         if (!xrState.sceneScaleAutoMode.value) {
           if (lastY) {
-            const yDelta = lastY - yAxisInput
+            const yDelta = (lastY - yAxisInput) * deltaSeconds
             xrState.sceneScaleTarget.set((currentValue) => MathUtils.clamp(currentValue + yDelta, 0.01, 0.2))
           }
           lastY = yAxisInput
@@ -121,10 +120,6 @@ export function createAnchorWidget() {
 
   const reactor = startReactor(() => {
     const sessionMode = useHookstate(getMutableState(XRState).sessionMode)
-
-    useEffect(() => {
-      dispatchAction(WidgetAppActions.enableWidget({ id, enabled: false }))
-    }, [])
 
     useEffect(() => {
       const widgetEnabled = sessionMode.value === 'immersive-ar'

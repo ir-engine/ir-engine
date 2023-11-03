@@ -98,7 +98,7 @@ const sendActionsAsHost = (network: Network) => {
 const sendOutgoingActions = () => {
   for (const network of Object.values(getState(NetworkState).networks)) {
     try {
-      if (Engine.instance.userID === network.hostId) sendActionsAsHost(network as Network)
+      if (Engine.instance.peerID === network.hostPeerID) sendActionsAsHost(network as Network)
       else sendActionsAsPeer(network as Network)
     } catch (e) {
       console.error(e)

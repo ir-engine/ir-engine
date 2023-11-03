@@ -109,8 +109,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const [clientSetting] = clientSettingState?.client?.value || []
   const userSettings = selfUser.userSetting.value
 
-  const hasAdminAccess =
-    selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
+  const hasAdminAccess = userHasAccess('admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
   const themeModes = {
