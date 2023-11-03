@@ -28,13 +28,14 @@ import { v1 } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
+import { LocationParams } from './location.class'
 
-const params = { isInternal: true } as any
+const params = { isInternal: true } as LocationParams
 
 describe('location.test', () => {
   let app: Application
@@ -66,7 +67,7 @@ describe('location.test', () => {
           videoEnabled: true,
           faceStreamingEnabled: false,
           screenSharingEnabled: false,
-          locationId: '',
+          locationId: '' as LocationID,
           createdAt: '',
           updatedAt: ''
         },

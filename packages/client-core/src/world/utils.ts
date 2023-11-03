@@ -27,18 +27,18 @@ import config from '@etherealengine/common/src/config'
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 
 const fileServer = config.client.fileServer
 
 export const loadSceneJsonOffline = async (projectName, sceneName) => {
-  const locationName = `${projectName}/${sceneName}`
-  const sceneData = (await (await fetch(`${fileServer}/projects/${locationName}.scene.json`)).json()) as SceneJson
-  const hasKTX2 = await fetch(`${fileServer}/projects/${locationName}.thumbnail.ktx2`).then((res) => res.ok)
-  getMutableState(SceneState).sceneData.set({
+  const sceneID = `${projectName}/${sceneName}` as SceneID
+  const sceneData = (await (await fetch(`${fileServer}/projects/${sceneID}.scene.json`)).json()) as SceneJson
+  const hasKTX2 = await fetch(`${fileServer}/projects/${sceneID}.thumbnail.ktx2`).then((res) => res.ok)
+  SceneState.loadScene(sceneID, {
     scene: parseStorageProviderURLs(sceneData),
     name: sceneName,
-    thumbnailUrl: `${fileServer}/projects/${locationName}.thumbnail.${hasKTX2 ? 'ktx2' : 'jpeg'}`,
+    thumbnailUrl: `${fileServer}/projects/${sceneID}.thumbnail.${hasKTX2 ? 'ktx2' : 'jpeg'}`,
     project: projectName
   })
 }

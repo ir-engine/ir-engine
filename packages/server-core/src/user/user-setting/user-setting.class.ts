@@ -33,7 +33,6 @@ import {
   UserSettingType
 } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface UserSettingParams extends KnexAdapterParams<UserSettingQuery> {}
 
 export class UserSettingService<

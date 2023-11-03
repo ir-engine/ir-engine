@@ -30,7 +30,6 @@ import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-b
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface FileBrowserUploadParams extends KnexAdapterParams {
   files: UploadFile[]
 }

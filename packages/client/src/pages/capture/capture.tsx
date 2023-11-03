@@ -40,7 +40,6 @@ import {
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -88,7 +87,6 @@ export const CaptureLocation = () => {
   }
 
   AuthService.useAPIListeners()
-  SceneService.useAPIListeners()
 
   useEffect(() => {
     getMutableState(MotionCaptureState).isCapturePage.set(true)

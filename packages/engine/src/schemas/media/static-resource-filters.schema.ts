@@ -34,7 +34,7 @@ export const staticResourceFiltersSchema = Type.Object(
   },
   { $id: 'StaticResourceFilters', additionalProperties: false }
 )
-export type StaticResourceFiltersType = Static<typeof staticResourceFiltersSchema>
+export interface StaticResourceFiltersType extends Static<typeof staticResourceFiltersSchema> {}
 
 // Schema for allowed query properties
 export const staticResourceFiltersQueryProperties = Type.Pick(staticResourceFiltersSchema, ['mimeTypes'])
@@ -46,7 +46,7 @@ export const staticResourceFiltersQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type StaticResourceFiltersQuery = Static<typeof staticResourceFiltersQuerySchema>
+export interface StaticResourceFiltersQuery extends Static<typeof staticResourceFiltersQuerySchema> {}
 
 export const staticResourceFiltersValidator = getValidator(staticResourceFiltersSchema, dataValidator)
 export const staticResourceFiltersQueryValidator = getValidator(staticResourceFiltersQuerySchema, queryValidator)

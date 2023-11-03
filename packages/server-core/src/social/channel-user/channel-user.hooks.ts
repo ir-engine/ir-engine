@@ -161,7 +161,7 @@ export default {
     find: [],
     get: [disallow('external')],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('channel', 'write')),
       () => schemaHooks.validateData(channelUserDataValidator),
       schemaHooks.resolveData(channelUserDataResolver)
     ],

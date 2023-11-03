@@ -36,6 +36,7 @@ import {
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
@@ -78,28 +79,28 @@ describe('project-permission.test', () => {
     user1 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
       isGuest: false,
-      avatarId: '',
+      avatarId: '' as AvatarID,
       inviteCode: '',
       scopes: []
     })
     user2 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
       isGuest: false,
-      avatarId: '',
+      avatarId: '' as AvatarID,
       inviteCode: '',
       scopes: []
     })
     user3 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
       isGuest: false,
-      avatarId: '',
+      avatarId: '' as AvatarID,
       inviteCode: '',
       scopes: []
     })
     user4 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
       isGuest: false,
-      avatarId: '',
+      avatarId: '' as AvatarID,
       inviteCode: '',
       scopes: []
     })
@@ -144,7 +145,11 @@ describe('project-permission.test', () => {
       userId: user4.id
     })
     await app.service(scopePath).create({
-      type: 'admin:admin',
+      type: 'projects:read',
+      userId: user4.id
+    })
+    await app.service(scopePath).create({
+      type: 'projects:write',
       userId: user4.id
     })
   })

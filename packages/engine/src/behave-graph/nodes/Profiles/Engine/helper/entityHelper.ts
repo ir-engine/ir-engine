@@ -38,7 +38,7 @@ import { createNewEditorNode } from '../../../../../scene/systems/SceneLoadingSy
 
 export const addEntityToScene = (
   componentJson: Array<ComponentJson>,
-  parentEntity = getState(SceneState).sceneEntity as Entity,
+  parentEntity = SceneState.getRootEntity(),
   beforeEntity = null as Entity | null
 ) => {
   const newEntity = createEntity()

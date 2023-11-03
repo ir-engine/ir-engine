@@ -29,6 +29,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
+import { LocationID } from './location.schema'
 
 export const locationBanPath = 'location-ban'
 
@@ -43,7 +44,7 @@ export const locationBanSchema = Type.Object(
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
-    locationId: Type.String({
+    locationId: TypedString<LocationID>({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),
@@ -51,19 +52,19 @@ export const locationBanSchema = Type.Object(
   },
   { $id: 'LocationBan', additionalProperties: false }
 )
-export type LocationBanType = Static<typeof locationBanSchema>
+export interface LocationBanType extends Static<typeof locationBanSchema> {}
 
 // Schema for creating new entries
 export const locationBanDataSchema = Type.Pick(locationBanSchema, ['userId', 'locationId'], {
   $id: 'LocationBanData'
 })
-export type LocationBanData = Static<typeof locationBanDataSchema>
+export interface LocationBanData extends Static<typeof locationBanDataSchema> {}
 
 // Schema for updating existing entries
 export const locationBanPatchSchema = Type.Partial(locationBanSchema, {
   $id: 'LocationBanPatch'
 })
-export type LocationBanPatch = Static<typeof locationBanPatchSchema>
+export interface LocationBanPatch extends Static<typeof locationBanPatchSchema> {}
 
 // Schema for allowed query properties
 export const locationBanQueryProperties = Type.Pick(locationBanSchema, ['id', 'userId', 'locationId'])
@@ -76,7 +77,7 @@ export const locationBanQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 
-export type LocationBanQuery = Static<typeof locationBanQuerySchema>
+export interface LocationBanQuery extends Static<typeof locationBanQuerySchema> {}
 
 export const locationBanValidator = getValidator(locationBanSchema, dataValidator)
 export const locationBanDataValidator = getValidator(locationBanDataSchema, dataValidator)

@@ -55,6 +55,7 @@ import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
@@ -116,6 +117,7 @@ const setVisualizers = () => {
   for (let i = 0; i < 11; i++) {
     const e = createEntity()
     setComponent(e, VisibleComponent, true)
+    setComponent(e, NameComponent, 'Avatar Debug Visualizer')
     addObjectToGroup(e, new Mesh(new SphereGeometry(0.05)))
     setComponent(e, TransformComponent)
     visualizers[i].set(e)

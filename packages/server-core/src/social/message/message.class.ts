@@ -33,7 +33,6 @@ import {
 } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface MessageParams extends KnexAdapterParams<MessageQuery> {}
 
 export class MessageService<T = MessageType, ServiceParams extends Params = MessageParams> extends KnexService<

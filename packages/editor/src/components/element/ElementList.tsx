@@ -64,7 +64,6 @@ import { IconButton, PopoverPosition } from '@mui/material'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
-import { LoadVolumeComponent } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
@@ -100,7 +99,8 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     GroundPlaneComponent,
     GroupComponent,
     ColliderComponent,
-    LoadVolumeComponent
+    VariantComponent,
+    SceneDynamicLoadTagComponent
   ],
   Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
   Lighting: [
@@ -112,15 +112,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
   ],
   FX: [ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
   Scripting: [SystemComponent, BehaveGraphComponent],
-  Misc: [
-    VariantComponent,
-    SceneDynamicLoadTagComponent,
-    EnvMapBakeComponent,
-    ScenePreviewCameraComponent,
-    SkyboxComponent,
-    SplineTrackComponent,
-    SplineComponent
-  ]
+  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, SplineTrackComponent, SplineComponent]
 }
 
 const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementListItemType) => {
@@ -199,12 +191,13 @@ export function ElementList() {
     setAnchorPosition(undefined)
   }
 
-  const searchBarState = useState('')
+  const searchBarState = useState<string>('')
 
   const validElements = useState(ComponentShelfCategories)
 
   useEffect(() => {
     const result: Record<string, Component[]> = {}
+    console.log('searchBarState', searchBarState, searchBarState.value)
     if (searchBarState.value === '') {
       validElements.set(ComponentShelfCategories)
     } else {

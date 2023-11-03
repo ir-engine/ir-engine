@@ -45,4 +45,4 @@ export const archiverQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type ArchiverQuery = Static<typeof archiverQuerySchema>
+export interface ArchiverQuery extends Static<typeof archiverQuerySchema> {}
