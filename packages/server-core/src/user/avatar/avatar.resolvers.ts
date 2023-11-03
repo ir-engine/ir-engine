@@ -41,8 +41,13 @@ export const avatarResolver = resolve<AvatarType, HookContext>({
 
 export const avatarExternalResolver = resolve<AvatarType, HookContext>({
   user: virtual(async (avatar, context) => {
+    if (context.params?.actualQuery?.skipUser) return {}
     if (avatar.userId) {
-      return context.app.service(userPath).get(avatar.userId)
+      try {
+        return await context.app.service(userPath).get(avatar.userId, { query: { skipAvatar: true } })
+      } catch (err) {
+        return {}
+      }
     }
   }),
   modelResource: virtual(async (avatar, context) => {

@@ -33,40 +33,46 @@ import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/datetime-sql'
 
+export const locationSettingSeedData = [
+  {
+    id: '37ce32f0-208d-11eb-b02f-37cfdadfe58b',
+    locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60',
+    locationType: 'public' as const,
+    videoEnabled: true,
+    audioEnabled: true,
+    screenSharingEnabled: true,
+    faceStreamingEnabled: true
+  },
+  {
+    id: '37ce32f0-208d-11eb-b02f-37cfdadfe58d',
+    locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62',
+    locationType: 'public' as const,
+    videoEnabled: true,
+    audioEnabled: true,
+    screenSharingEnabled: true,
+    faceStreamingEnabled: true
+  },
+  {
+    id: '37ce32f0-208d-11eb-b02f-37cfdadfe58e',
+    locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63',
+    locationType: 'public' as const,
+    videoEnabled: true,
+    audioEnabled: true,
+    screenSharingEnabled: true,
+    faceStreamingEnabled: true
+  }
+]
+
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
   const seedData: LocationSettingType[] = await Promise.all(
-    [
-      {
-        id: '37ce32f0-208d-11eb-b02f-37cfdadfe58b',
-        locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60',
-        locationType: 'public' as const,
-        videoEnabled: true,
-        audioEnabled: true,
-        screenSharingEnabled: true,
-        faceStreamingEnabled: true
-      },
-      {
-        id: '37ce32f0-208d-11eb-b02f-37cfdadfe58d',
-        locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62',
-        locationType: 'public' as const,
-        videoEnabled: true,
-        audioEnabled: true,
-        screenSharingEnabled: true,
-        faceStreamingEnabled: true
-      },
-      {
-        id: '37ce32f0-208d-11eb-b02f-37cfdadfe58e',
-        locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63',
-        locationType: 'public' as const,
-        videoEnabled: true,
-        audioEnabled: true,
-        screenSharingEnabled: true,
-        faceStreamingEnabled: true
-      }
-    ].map(async (item) => ({ ...item, createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
+    locationSettingSeedData.map(async (item) => ({
+      ...item,
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
   )
 
   // Added transaction here in order to ensure both below queries run on same pool.

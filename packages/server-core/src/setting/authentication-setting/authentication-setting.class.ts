@@ -33,7 +33,6 @@ import {
   AuthenticationSettingType
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AuthenticationSettingParams extends KnexAdapterParams<AuthenticationSettingQuery> {}
 
 /**

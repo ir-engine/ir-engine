@@ -455,7 +455,7 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3, force = 
     if (isCameraAttachedToAvatar)
       updateReferenceSpaceFromAvatarMovement(new Vector3().subVectors(newPosition, transform.position))
   } else {
-    console.log('invalid position', targetPosition, raycastHit)
+    // console.log('invalid position', targetPosition, raycastHit)
   }
 }
 

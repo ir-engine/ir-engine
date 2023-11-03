@@ -41,6 +41,7 @@ import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import isAction from '../../hooks/is-action'
+import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
 import { AvatarService } from './avatar.class'
 import {
@@ -178,11 +179,13 @@ export default {
   before: {
     all: [() => schemaHooks.validateQuery(avatarQueryValidator), schemaHooks.resolveQuery(avatarQueryResolver)],
     find: [
-      iffElse(isAction('admin'), verifyScope('admin', 'admin'), ensureUserAccessibleAvatars),
+      iffElse(isAction('admin'), verifyScope('globalAvatars', 'read'), ensureUserAccessibleAvatars),
+      persistQuery,
       discardQuery('action'),
+      discardQuery('skipUser'),
       sortByUserName
     ],
-    get: [],
+    get: [persistQuery, discardQuery('skipUser')],
     create: [
       () => schemaHooks.validateData(avatarDataValidator),
       schemaHooks.resolveData(avatarDataResolver),
@@ -190,12 +193,12 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('globalAvatars', 'write')),
       () => schemaHooks.validateData(avatarPatchValidator),
       schemaHooks.resolveData(avatarPatchResolver)
     ],
     remove: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('globalAvatars', 'write')),
       disallowNonId,
       removeAvatarResources,
       updateUserAvatars

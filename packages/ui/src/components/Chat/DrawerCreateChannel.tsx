@@ -66,7 +66,7 @@ export const DrawerCreateChannel = () => {
           onClick={() => selectedFriends.merge([props.friend.id])}
         >
           <div className="w-[230px] flex flex-wrap gap-5 justify-start">
-            <img className="mt-3 rounded-8xs w-11 h-11 object-cover" alt="" src={userThumbnail} />
+            <img className="max-w-full mt-3 rounded-8xs w-11 h-11 object-cover" alt="" src={userThumbnail} />
             <div className="mt-3 justify-start">
               <p className="font-bold text-[#3F3960]">{props.friend.name}</p>
             </div>
@@ -87,7 +87,7 @@ export const DrawerCreateChannel = () => {
       ))}
       {selectedFriends.value && (
         <div className="w-[330px] flex justify-start ml-9 mt-9 items-center">
-          <button className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8" onClick={createChannel}>
+          <button className="m-0 cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8" onClick={createChannel}>
             <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
               Create Now
             </div>

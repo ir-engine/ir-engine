@@ -44,7 +44,7 @@ export const spawnDetailsSchema = Type.Object(
   },
   { $id: 'SpawnDetails', additionalProperties: false }
 )
-export type SpawnDetailsType = Static<typeof spawnDetailsSchema>
+export interface SpawnDetailsType extends Static<typeof spawnDetailsSchema> {}
 
 // Main data model schema
 export const inviteSchema = Type.Object(
@@ -80,9 +80,11 @@ export const inviteSchema = Type.Object(
   },
   { $id: 'Invite', additionalProperties: false }
 )
-export type InviteType = Static<typeof inviteSchema>
+export interface InviteType extends Static<typeof inviteSchema> {}
 
-export type InviteDatabaseType = Omit<InviteType, 'spawnDetails'> & { spawnDetails: string }
+export interface InviteDatabaseType extends Omit<InviteType, 'spawnDetails'> {
+  spawnDetails: string
+}
 
 // Schema for creating new entries
 export const inviteDataProperties = Type.Pick(
@@ -114,13 +116,13 @@ export const inviteDataSchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type InviteData = Static<typeof inviteDataSchema>
+export interface InviteData extends Static<typeof inviteDataSchema> {}
 
 // Schema for updating existing entries
 export const invitePatchSchema = Type.Partial(inviteDataSchema, {
   $id: 'InvitePatch'
 })
-export type InvitePatch = Static<typeof invitePatchSchema>
+export interface InvitePatch extends Static<typeof invitePatchSchema> {}
 
 // Schema for allowed query properties
 export const inviteQueryProperties = Type.Pick(inviteSchema, [
@@ -158,7 +160,7 @@ export const inviteQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type InviteQuery = Static<typeof inviteQuerySchema>
+export interface InviteQuery extends Static<typeof inviteQuerySchema> {}
 
 export const spawnDetailsValidator = getValidator(spawnDetailsSchema, dataValidator)
 export const inviteValidator = getValidator(inviteSchema, dataValidator)

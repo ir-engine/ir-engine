@@ -26,10 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 
-import {
-  HelmSettingDatabaseType,
-  helmSettingPath
-} from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { HelmSettingType, helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/datetime-sql'
@@ -38,7 +35,7 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData: HelmSettingDatabaseType[] = await Promise.all(
+  const seedData: HelmSettingType[] = await Promise.all(
     [
       {
         main: '',

@@ -181,9 +181,13 @@
       "info": "Takes a screenshot of your scene at the current view."
     }
   },
+  "materialProperties": {
+    "title": "Material",
+    "info": "Access and edit detailed information about materials in the scene."
+  },
   "properties": {
     "title": "Properties",
-    "info": "Propeties let you access and edit detailed information about objects in your scene.",
+    "info": "Propeties let you access and edit detailed information about objects in the scene.",
     "lbl-visible": "Visible",
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",
@@ -209,6 +213,7 @@
       "lbl-exportOptions": "Export Options",
       "lbl-export": "Export Prefab",
       "lbl-load": "Load Into Scene",
+      "lbl-loadOptions": "Load Options",
       "lbl-unload": "Unload",
       "lbl-reload": "Reload"
     },
@@ -226,6 +231,8 @@
       "pausetitle": "Pause",
       "resettitle": "Reset",
       "lbl-controls": "controls",
+      "lbl-paused": "Paused",
+      "info-paused": "Toggle media playback",
       "info-controls": "Toggle the visibility of the media controls.",
       "lbl-autoplay": "Autoplay",
       "info-autoplay": "Toggle whether this video autoplays",
@@ -259,7 +266,10 @@
       "error-url": "Error Loading From URL"
     },
     "collider": {
+      "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
+      "lbl-type": "Type",
+      "lbl-shape": "Shape",
       "lbl-isTrigger": "Trigger"
     },
     "camera": {
@@ -486,7 +496,14 @@
       "mesh": "Particle Mesh",
       "blending": "Blending",
       "transparent": "Transparent",
-      "world-space": "Use World Space"
+      "world-space": "Use World Space",
+      "burst": {
+        "time":"Burst Time",
+        "count":"Burst Count",
+        "cycle":"Burst Cycle",
+        "interval":"Burst Interval",
+        "probability":"Burst Probability"
+      }
     },
     "clouds": {
       "name": "Cloud",
@@ -680,8 +697,7 @@
       "title": "link Component",
       "lbl-url": "Link URL",
       "lbl-navigateScene": "Scene navigation",
-      "lbl-projname": "Project Name",
-      "lbl-scenename": "Scene Name",
+      "lbl-locaiton": "Location Name",
       "description": "Adds an interactable that opens links or navigates scene"
     },
     "spotLight": {
