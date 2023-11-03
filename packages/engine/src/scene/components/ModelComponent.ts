@@ -176,8 +176,6 @@ function ModelReactor() {
               if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
               model.scene && removeObjectFromGroup(entity, model.scene)
               modelComponent.scene.set(loadedAsset.scene)
-              if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
-              removeComponent(entity, SceneAssetPendingTagComponent)
             },
             (onprogress) => {
               if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
