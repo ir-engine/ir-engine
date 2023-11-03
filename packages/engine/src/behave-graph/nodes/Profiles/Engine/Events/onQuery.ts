@@ -135,10 +135,9 @@ export const OnQuery = makeEventNodeDefinition({
         function delayedIteration(i) {
           if (i < tempResult.length) {
             write('entity', tempResult[i])
-            commit('flow')
-            setTimeout(() => {
+            commit('flow', () => {
               delayedIteration(i + 1)
-            }, 50)
+            })
           }
         }
         // Start the delayed iteration
