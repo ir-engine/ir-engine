@@ -32,6 +32,8 @@ import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   ComponentType,
@@ -47,6 +49,7 @@ import {
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
@@ -206,6 +209,12 @@ function ModelReactor() {
 
     if (!scene) return
     addObjectToGroup(entity, scene)
+
+    EngineRenderer.instance.renderer
+      .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
+      .then(() => {
+        if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
+      })
 
     if (groupComponent?.value?.find((group: any) => group === scene)) return
 
