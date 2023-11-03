@@ -259,8 +259,6 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       mat.opacity = opacity
     })
   })
-
-  console.log(entity)
 }
 
 export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachmentPoint: XRHandedness): void => {

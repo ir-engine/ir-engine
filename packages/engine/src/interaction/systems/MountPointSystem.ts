@@ -49,12 +49,13 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { UserID } from '../../schemas/user/user.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { MountPointActions } from '../functions/MountPointActions'
 import { createInteractUI } from '../functions/interactUI'
-import { addInteractableUI } from './InteractiveSystem'
+import { InteractiveUI, addInteractableUI } from './InteractiveSystem'
 
 /**
  * @todo refactor this into i18n and configurable
@@ -70,9 +71,19 @@ const sittingIdleQuery = defineQuery([SittingComponent])
 
 const execute = () => {
   for (const action of mountPointSeatedQueue()) {
-    const mountComponent = getMutableComponent(UUIDComponent.entitiesByUUID[action.target], MountPointComponent)
-    if (action.mounted) mountComponent.occupiedAvatarEntity.set(action.$from)
-    else mountComponent.occupiedAvatarEntity.set('' as UserID)
+    const entity = UUIDComponent.entitiesByUUID[action.target]
+    const mountComponent = getMutableComponent(entity, MountPointComponent)
+    if (action.mounted) {
+      mountComponent.occupiedAvatarEntity.set(action.$from)
+      //todo: xrui entity visibility is a temporary workaround until interactable ui is refactored
+      const xrui = InteractiveUI.get(entity)?.xrui!
+      setVisibleComponent(xrui.entity, false)
+    } else {
+      mountComponent.occupiedAvatarEntity.set('' as UserID)
+      //todo: xrui entity visibility is a temporary workaround until interactable ui is refactored
+      const xrui = InteractiveUI.get(entity)?.xrui!
+      setVisibleComponent(xrui.entity, true)
+    }
   }
 
   if (getState(EngineState).isEditor) return
@@ -95,13 +106,12 @@ const execute = () => {
     if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
     const avatarEntity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
 
-    const mountPoint = getComponent(action.targetEntity!, MountPointComponent)
+    const mountPoint = getComponent(action.targetEntity, MountPointComponent)
     if (mountPoint.type != MountPoint.seat || mountPoint.occupiedAvatarEntity != '') continue
     if (mountPoint.type === MountPoint.seat) {
       const avatar = getComponent(avatarEntity, AvatarComponent)
 
       if (hasComponent(avatarEntity, SittingComponent)) continue
-
       const mountTransform = getComponent(action.targetEntity!, TransformComponent)
       const rigidBody = getComponent(avatarEntity, RigidBodyComponent)
       rigidBody.body.setTranslation(
@@ -155,7 +165,9 @@ const execute = () => {
           entityUUID: getComponent(entity, UUIDComponent)
         })
       )
+
       const sittingComponent = getComponent(entity, SittingComponent)
+
       dispatchAction(
         MountPointActions.mountInteraction({
           mounted: false,
