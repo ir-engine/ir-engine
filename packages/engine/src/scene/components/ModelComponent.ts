@@ -208,11 +208,13 @@ function ModelReactor() {
     if (!scene) return
     addObjectToGroup(entity, scene)
 
-    EngineRenderer.instance.renderer
-      .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
-      .then(() => {
-        if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
-      })
+    if (EngineRenderer.instance)
+      EngineRenderer.instance.renderer
+        .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
+        .then(() => {
+          if (hasComponent(entity, SceneAssetPendingTagComponent))
+            removeComponent(entity, SceneAssetPendingTagComponent)
+        })
 
     if (groupComponent?.value?.find((group: any) => group === scene)) return
 
