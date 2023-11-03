@@ -43,6 +43,7 @@ import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
@@ -386,16 +387,17 @@ export default function HierarchyPanel() {
       return true
     }
   })
-
+  let validNodes = nodeSearch?.length > 0 ? nodeSearch : nodes
+  validNodes = validNodes.filter((node) => entityExists(node.entity))
   const HierarchyList = ({ height, width }) => (
     <FixedSizeList
       height={height}
       width={width}
       itemSize={32}
-      itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
+      itemCount={validNodes.length}
       itemData={{
         renamingNode,
-        nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
+        nodes: validNodes,
         onKeyDown,
         onChangeName,
         onRenameSubmit,

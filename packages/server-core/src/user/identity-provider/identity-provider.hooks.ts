@@ -33,7 +33,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import appConfig from '../../appconfig'
 
 import { isDev } from '@etherealengine/common/src/config'
@@ -213,7 +213,7 @@ export default {
       (context: HookContext<IdentityProviderService>) =>
         ((context.data as IdentityProviderData).userId = context.existingUser!.id)
     ],
-    update: [iff(isProvider('external'), checkIdentityProvider)],
+    update: [disallow()],
     patch: [
       iff(isProvider('external'), checkIdentityProvider),
       () => schemaHooks.validateData(identityProviderPatchValidator),
