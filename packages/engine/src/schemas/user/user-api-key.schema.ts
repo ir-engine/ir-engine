@@ -51,19 +51,19 @@ export const userApiKeySchema = Type.Object(
   },
   { $id: 'UserApiKey', additionalProperties: false }
 )
-export type UserApiKeyType = Static<typeof userApiKeySchema>
+export interface UserApiKeyType extends Static<typeof userApiKeySchema> {}
 
 // Schema for creating new entries
 export const userApiKeyDataSchema = Type.Partial(userApiKeySchema, {
   $id: 'UserApiKeyData'
 })
-export type UserApiKeyData = Static<typeof userApiKeyDataSchema>
+export interface UserApiKeyData extends Static<typeof userApiKeyDataSchema> {}
 
 // Schema for updating existing entries
 export const userApiKeyPatchSchema = Type.Partial(userApiKeySchema, {
   $id: 'UserApiKeyPatch'
 })
-export type UserApiKeyPatch = Static<typeof userApiKeyPatchSchema>
+export interface UserApiKeyPatch extends Static<typeof userApiKeyPatchSchema> {}
 
 // Schema for allowed query properties
 export const userApiKeyQueryProperties = Type.Pick(userApiKeySchema, ['id', 'token', 'userId'])
@@ -75,7 +75,7 @@ export const userApiKeyQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type UserApiKeyQuery = Static<typeof userApiKeyQuerySchema>
+export interface UserApiKeyQuery extends Static<typeof userApiKeyQuerySchema> {}
 
 export const userApiKeyValidator = getValidator(userApiKeySchema, dataValidator)
 export const userApiKeyDataValidator = getValidator(userApiKeyDataSchema, dataValidator)

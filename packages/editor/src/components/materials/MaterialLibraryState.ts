@@ -23,15 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineState } from '@etherealengine/hyperflux'
 
-export const ChildrenComponent = defineComponent({
-  name: 'ChildrenComponent',
-
-  onInit: () => [] as Entity[],
-
-  toJSON: (entity, component) => {
-    return component.value
+export const MaterialSelectionState = defineState({
+  name: 'MaterialSelectionState',
+  initial: {
+    selectedMaterial: null as string | null
   }
 })

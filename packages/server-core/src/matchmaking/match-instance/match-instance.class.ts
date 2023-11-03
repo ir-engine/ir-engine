@@ -33,7 +33,6 @@ import {
   MatchInstanceType
 } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface MatchInstanceParams extends KnexAdapterParams<MatchInstanceQuery> {}
 
 export class MatchInstanceService<

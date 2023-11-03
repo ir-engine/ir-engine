@@ -40,6 +40,7 @@ import ListItemAvatar from '@etherealengine/ui/src/primitives/mui/ListItemAvatar
 import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { userHasAccess } from '../../../user/userHasAccess'
 import styles from '../../styles/settings.module.scss'
 import Authentication from './Authentication'
 import Aws from './Aws'
@@ -78,7 +79,8 @@ const settingItems = [
     name: 'client',
     title: 'Client',
     icon: <Icon type="ViewCompact" sx={{ color: 'orange' }} />,
-    content: <Client />
+    content: <Client />,
+    scope: 'settings_client:read'
   },
   {
     name: 'clientTheme',
@@ -144,21 +146,23 @@ interface SidebarProps {
 const Sidebar = ({ selected, onChange }: SidebarProps) => {
   return (
     <List>
-      {settingItems.map((item) => (
-        <Fragment key={item.name}>
-          <ListItem
-            button
-            onClick={() => onChange(item.name)}
-            className={selected === item.name ? `${styles.focused}` : `${styles.notFocused}`}
-          >
-            <ListItemAvatar>
-              <Avatar style={{ background: '#5e5a4d' }}>{item.icon}</Avatar>
-            </ListItemAvatar>
-            <ListItemText primary={item.title} />
-          </ListItem>
-          <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
-        </Fragment>
-      ))}
+      {settingItems
+        .filter((item) => (item.scope ? userHasAccess(item.scope) : true))
+        .map((item) => (
+          <Fragment key={item.name}>
+            <ListItem
+              button
+              onClick={() => onChange(item.name)}
+              className={selected === item.name ? `${styles.focused}` : `${styles.notFocused}`}
+            >
+              <ListItemAvatar>
+                <Avatar style={{ background: '#5e5a4d' }}>{item.icon}</Avatar>
+              </ListItemAvatar>
+              <ListItemText primary={item.title} />
+            </ListItem>
+            <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
+          </Fragment>
+        ))}
     </List>
   )
 }

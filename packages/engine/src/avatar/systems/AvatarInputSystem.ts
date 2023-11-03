@@ -57,7 +57,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { getCameraMode, hasMovementControls } from '../../xr/XRState'
+import { XRControlsState } from '../../xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -200,6 +200,7 @@ const getAvatarDoubleClick = (buttons): boolean => {
   clickCount = 0
   return false
 }
+
 const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
@@ -215,8 +216,9 @@ const execute = () => {
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
   const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
-  const attachedMode = getCameraMode() === 'attached'
-  if (!attachedMode) {
+  const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
+
+  if (!isCameraAttachedToAvatar) {
     const firstWalkableEntityWithInput = walkableQuery().find(
       (entity) => getComponent(entity, InputComponent)?.inputSources.length
     )
@@ -257,8 +259,14 @@ const execute = () => {
       onInteract()
     }
   }
-
-  for (const inputSourceEntity of nonCapturedInputSourceEntities) {
+  let inputEntities: Entity[] = nonCapturedInputSourceEntities
+  if (inputEntities.length === 0) {
+    inputEntities = inputSourceQuery().filter((entity) => {
+      const inputSource = getComponent(entity, InputSourceComponent)
+      if (controller.cameraEntity === inputSource.assignedButtonEntity) return true
+    })
+  }
+  for (const inputSourceEntity of inputEntities) {
     const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
 
     const buttons = inputSource.buttons
@@ -278,10 +286,10 @@ const execute = () => {
       if (buttons.KeyP?.down) onKeyP()
     }
 
-    if (!hasMovementControls()) return
-    //** touch input (only for avatar jump)*/
+    if (!isMovementControlsEnabled) continue
 
-    const doubleClicked = attachedMode ? false : getAvatarDoubleClick(buttons)
+    //** touch input (only for avatar jump)*/
+    const doubleClicked = isCameraAttachedToAvatar ? false : getAvatarDoubleClick(buttons)
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
     const keyDeltaZ =
@@ -295,11 +303,12 @@ const execute = () => {
     controller.gamepadJumpActive = !!buttons.Space?.pressed || gamepadJump || doubleClicked
 
     const controlScheme =
-      inputSource.source.handedness === 'none'
+      inputSource.source.handedness === 'none' || !isCameraAttachedToAvatar
         ? AvatarAxesControlScheme.Move
         : inputSource.source.handedness === avatarInputSettings.preferredHand
         ? avatarInputSettings.rightAxesControlScheme
         : avatarInputSettings.leftAxesControlScheme
+
     AvatarAxesControlSchemeBehavior[controlScheme](
       inputSource.source,
       controller,

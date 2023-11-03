@@ -45,7 +45,7 @@ export const serverContainerInfoSchema = Type.Object(
   },
   { $id: 'ServerContainerInfo', additionalProperties: false }
 )
-export type ServerContainerInfoType = Static<typeof serverContainerInfoSchema>
+export interface ServerContainerInfoType extends Static<typeof serverContainerInfoSchema> {}
 
 export const serverPodInfoSchema = Type.Object(
   {
@@ -64,7 +64,7 @@ export const serverPodInfoSchema = Type.Object(
   },
   { $id: 'ServerPodInfo', additionalProperties: false }
 )
-export type ServerPodInfoType = Static<typeof serverPodInfoSchema>
+export interface ServerPodInfoType extends Static<typeof serverPodInfoSchema> {}
 
 // Main data model schema
 export const podsSchema = Type.Object(
@@ -75,7 +75,7 @@ export const podsSchema = Type.Object(
   },
   { $id: 'Pods', additionalProperties: false }
 )
-export type PodsType = Static<typeof podsSchema>
+export interface PodsType extends Static<typeof podsSchema> {}
 
 export const serverContainerInfoValidator = getValidator(serverContainerInfoSchema, dataValidator)
 export const serverPodInfoValidator = getValidator(serverPodInfoSchema, dataValidator)

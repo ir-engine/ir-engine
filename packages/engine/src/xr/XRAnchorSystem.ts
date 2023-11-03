@@ -38,8 +38,9 @@ import {
 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { defineActionQueue, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
@@ -51,11 +52,14 @@ import {
   getMutableComponent,
   removeComponent,
   setComponent,
-  useOptionalComponent
+  useOptionalComponent,
+  useQuery
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { InputComponent } from '../input/components/InputComponent'
+import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
@@ -66,18 +70,22 @@ import { ReferenceSpace, XRAction, XRState } from './XRState'
 export const updateHitTest = (entity: Entity) => {
   const xrFrame = getState(XRState).xrFrame!
   const hitTest = getMutableComponent(entity, XRHitTestComponent)
-  const localTransform = getComponent(entity, LocalTransformComponent)
-  const hitTestResults = (hitTest.source.value && xrFrame.getHitTestResults(hitTest.source.value!)) ?? []
+  if (!hitTest.source.value) return
+
+  const hitTestResults = xrFrame.getHitTestResults(hitTest.source.value)
   hitTest.results.set(hitTestResults)
-  const space = ReferenceSpace.localFloor // xrFrame.session.interactionMode === 'world-space' ? ReferenceSpace.localFloor! : ReferenceSpace.viewer!
-  const pose = space && hitTestResults?.length && hitTestResults[0].getPose(space)
-  if (pose) {
-    const parentEntity =
-      space === ReferenceSpace.localFloor ? Engine.instance.originEntity : Engine.instance.cameraEntity
-    setComponent(entity, EntityTreeComponent, { parentEntity })
-    localTransform.position.copy(pose.transform.position as any)
-    localTransform.rotation.copy(pose.transform.orientation as any)
-  }
+
+  if (!hitTestResults?.length) return
+
+  const pose = hitTestResults[0].getPose(ReferenceSpace.localFloor!)
+  if (!pose) return
+
+  const parentEntity = Engine.instance.originEntity
+  setComponent(entity, EntityTreeComponent, { parentEntity })
+
+  const localTransform = getComponent(entity, LocalTransformComponent)
+  localTransform.position.copy(pose.transform.position as any)
+  localTransform.rotation.copy(pose.transform.orientation as any)
 }
 
 export const updateAnchor = (entity: Entity) => {
@@ -93,75 +101,18 @@ export const updateAnchor = (entity: Entity) => {
 
 const _plane = new Plane()
 const _vecPosition = new Vector3()
-const _vecScale = new Vector3()
 const _quat = new Quaternion()
-const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
-// const _vec = new Vector3()
-// const _vec2 = new Vector3()
-// const _quat2 = new Quaternion()
-// const _ray = new Ray()
-
-// const pos = new Vector3()
-// const orient = new Quaternion()
-
-/** AR placement for immersive session */
-// export const getHitTestFromController = () => {
-//   const referenceSpace = ReferenceSpace.origin!
-//   const pose = getState(XRState).xrFrame!.getPose(Engine.instance.inputSources[0].targetRaySpace, referenceSpace)!
-//   const { position, orientation } = pose.transform
-
-//   pos.copy(position as any as Vector3)
-//   orient.copy(orientation as any as Quaternion)
-
-//   // raycast controller to ground
-//   _ray.set(pos, _vec2.set(0, 0, -1).applyQuaternion(orient))
-//   const hit = _ray.intersectPlane(_plane.set(V_010, 0), _vec)
-
-//   if (!hit) return
-
-//   /** swing twist quaternion decomposition to get the rotation around Y axis */
-//   extractRotationAboutAxis(orient, V_010, _quat2)
-
-//   _quat2.multiply(_quat180)
-
-//   return {
-//     position: _vec,
-//     rotation: _quat2
-//   }
-// }
-
-/** AR placement for non immersive / mobile session */
-// export const getHitTestFromViewer = () => {
-//   const xrState = getMutableState(XRState)
-
-//   const viewerHitTestEntity = xrState.viewerHitTestEntity.value
-
-//   computeTransformMatrix(viewerHitTestEntity)
-
-//   const hitTestComponent = getComponent(viewerHitTestEntity, XRHitTestComponent)
-
-/** Swipe to rotate */
-// TODO; move into interactable after spatial input refactor
-// const deltaState = getState(EngineState).deltaSeconds
-// if (hitTestComponent?.hitTestResult) {
-//   const placementInputSource = xrState.scenePlacementMode.value!
-//   const swipe = placementInputSource.gamepad?.axes ?? []
-//   if (swipe.length) {
-//     const delta = swipe[0] - (lastSwipeValue ?? 0)
-//     if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (deltaSeconds * 20)))
-//     lastSwipeValue = swipe[0]
-//   } else {
-//     lastSwipeValue = null
-//   }
-// } else {
-//   lastSwipeValue = null
-// }
-
-//   return getComponent(viewerHitTestEntity, TransformComponent)
-// }
-
-// let lastSwipeValue = null! as null | number
+/**
+ * Lock lifesize to 1:1, whereas dollhouse mode uses
+ * the distance from the camera to the hit test plane.
+ *
+ * Miniature scale math shrinks linearly from 20% to 1%, between 1 meters to 0.01 meters from the hit test plane
+ */
+const minDollhouseScale = 0.01
+const maxDollhouseScale = 0.2
+const minDollhouseDist = 0.01
+const maxDollhouseDist = 1
 
 const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformComponent>) => {
   const xrState = getState(XRState)
@@ -180,30 +131,21 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
     .distanceToPoint(viewerPose.transform.position as any)
 
   /**
-   * Lock lifesize to 1:1, whereas dollhouse mode uses
-   * the distance from the camera to the hit test plane.
-   *
-   * Miniature scale math shrinks exponentially from 20% to 1%, between 0.6 meters to 0.01 meters from the hit test plane
-   */
-  const minDollhouseScale = 0.01
-  const maxDollhouseScale = 0.2
-  const minDollhouseDist = 0.01
-  const maxDollhouseDist = 0.6
+   * For immersive AR, always use life size in auto scale mode, and always use miniature size in manual scale mode
+   * For non-immerse AR, use miniature size when the camera is close to the hit test plane and the camera is looking down
+   * */
   const lifeSize =
-    xrState.session!.interactionMode === 'world-space' ||
-    (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
+    xrState.session!.interactionMode === 'world-space'
+      ? xrState.sceneScaleAutoMode
+      : dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02
 
   if (lifeSize) return 1
 
-  const targetScale = lifeSize
-    ? 1
-    : MathUtils.clamp(
-        Math.pow((dist - minDollhouseDist) / maxDollhouseDist, 2) * maxDollhouseScale,
-        minDollhouseScale,
-        maxDollhouseScale
-      )
+  const normalizedDist = MathUtils.clamp(dist, minDollhouseDist, maxDollhouseDist)
 
-  return targetScale
+  const scalingFactor = maxDollhouseDist - minDollhouseDist
+
+  return MathUtils.clamp(Math.pow(normalizedDist, 2) * scalingFactor, minDollhouseScale, maxDollhouseScale)
 }
 
 export const updateScenePlacement = (scenePlacementEntity: Entity) => {
@@ -219,15 +161,24 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   const deltaSeconds = getState(EngineState).deltaSeconds
   const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
 
-  const targetScale = getTargetWorldSize(localTransform)
-  if (targetScale !== xrState.sceneScale)
-    getMutableState(XRState).sceneScale.set(MathUtils.lerp(xrState.sceneScale, targetScale, lerpAlpha))
+  const sceneScaleAutoMode = xrState.sceneScaleAutoMode
 
-  const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(1 / xrState.sceneScale)
-  const targetRotation = localTransform.rotation.multiply(_quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset))
+  if (sceneScaleAutoMode) {
+    const targetScale = getTargetWorldSize(localTransform)
+    getMutableState(XRState).sceneScaleTarget.set(targetScale)
+  }
 
-  xrState.scenePosition.copy(targetPosition)
-  xrState.sceneRotation.copy(targetRotation)
+  const targetScale = xrState.sceneScaleTarget
+  if (targetScale !== xrState.sceneScale) {
+    const newScale = MathUtils.lerp(xrState.sceneScale, targetScale, lerpAlpha)
+    getMutableState(XRState).sceneScale.set(newScale > 0.9 ? 1 : newScale)
+  }
+
+  xrState.scenePosition.copy(localTransform.position)
+  xrState.sceneRotation.multiplyQuaternions(
+    localTransform.rotation,
+    _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset)
+  )
 }
 
 const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
@@ -251,7 +202,7 @@ worldOriginPinpointAnchor.updateMatrixWorld(true)
 const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
 const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
 
-const XRAnchorSystemState = defineState({
+export const XRAnchorSystemState = defineState({
   name: 'XRAnchorSystemState',
   initial: () => {
     const scenePlacementEntity = createEntity()
@@ -259,6 +210,7 @@ const XRAnchorSystemState = defineState({
     setComponent(scenePlacementEntity, LocalTransformComponent)
     setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(scenePlacementEntity, VisibleComponent, true)
+    setComponent(scenePlacementEntity, InputComponent, { highlight: false, grow: false })
 
     // const originAxesHelper = new AxesHelper(10000)
     // setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
@@ -289,11 +241,12 @@ const execute = () => {
   for (const entity of xrAnchorQuery()) updateAnchor(entity)
   for (const entity of xrHitTestQuery()) updateHitTest(entity)
 
-  if (xrState.scenePlacementMode !== 'unplaced') {
+  if (xrState.scenePlacementMode === 'placing') {
     updateScenePlacement(scenePlacementEntity)
     updateWorldOriginFromScenePlacement()
 
-    worldOriginPinpointAnchor.scale.setScalar(1 / xrState.sceneScale)
+    const inverseWorldScale = 1 / XRState.worldScale
+    worldOriginPinpointAnchor.scale.setScalar(inverseWorldScale)
     worldOriginPinpointAnchor.updateMatrixWorld(true)
   }
 }
@@ -301,8 +254,8 @@ const execute = () => {
 const reactor = () => {
   const xrState = getMutableState(XRState)
   const scenePlacementEntity = getState(XRAnchorSystemState).scenePlacementEntity
-  const scenePlacementMode = useState(xrState.scenePlacementMode)
-  const xrSession = useState(xrState.session)
+  const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
+  const xrSession = useHookstate(xrState.session)
   const hitTest = useOptionalComponent(scenePlacementEntity, XRHitTestComponent)
 
   useEffect(() => {
@@ -326,13 +279,6 @@ const reactor = () => {
           entityTypes: ['plane', 'point', 'mesh']
         })
       }
-
-      // for scene placement in 'world-space', we should request a hit test source when an input source is gripped,
-      // and assign it to the scene placement entity
-      if (xrSession.value.interactionMode === 'world-space') {
-        // @todo: handle world-space scene placement
-      }
-      return
     }
 
     if (scenePlacementMode.value === 'placed') {
@@ -375,7 +321,46 @@ const reactor = () => {
     return () => {
       active = false
     }
-  }, [scenePlacementMode, xrSession, hitTest])
+  }, [scenePlacementMode, xrSession])
+
+  const inputSourceEntities = useQuery([InputSourceComponent])
+
+  /** Immersive AR controller placement */
+  useEffect(() => {
+    if (!xrSession.value || xrSession.value.interactionMode !== 'world-space' || scenePlacementMode.value !== 'placing')
+      return
+
+    for (const entity of inputSourceEntities) {
+      if (!entity) return
+
+      const inputSourceComponent = getComponent(entity, InputSourceComponent)
+
+      const avatarInputSettings = getState(AvatarInputSettingsState)
+      if (
+        inputSourceComponent.source.targetRayMode !== 'tracked-pointer' ||
+        inputSourceComponent.source.gamepad?.mapping !== 'xr-standard' ||
+        inputSourceComponent.source.handedness !== avatarInputSettings.preferredHand
+      )
+        continue
+
+      Engine.instance.scene.add(worldOriginPinpointAnchor)
+      setComponent(scenePlacementEntity, XRHitTestComponent, {
+        space: inputSourceComponent.source.targetRaySpace,
+        entityTypes: ['plane', 'point', 'mesh']
+      })
+    }
+  }, [scenePlacementMode, xrSession, inputSourceEntities.length])
+
+  useEffect(() => {
+    if (scenePlacementMode.value !== 'placing' || !xrSession.value) return
+    const avatarInputSettings = getState(AvatarInputSettingsState)
+    InputSourceComponent.captureAxes(scenePlacementEntity, [avatarInputSettings.preferredHand])
+    InputSourceComponent.captureButtons(scenePlacementEntity, [avatarInputSettings.preferredHand])
+    return () => {
+      InputSourceComponent.releaseAxes()
+      InputSourceComponent.releaseButtons()
+    }
+  }, [scenePlacementMode, xrSession])
 
   return null
 }

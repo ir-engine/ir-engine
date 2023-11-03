@@ -320,14 +320,15 @@ export async function checkForDuplicatedAssignments({
   // it assumes the pod is unresponsive. Locally, it just waits half a second and tries again - if the local
   // instanceservers are rebooting after the last person left, we just need to wait a bit for them to start.
   // In production, it attempts to delete that pod via the K8s API client and tries again.
+  let retry = true
   const responsivenessCheck = await Promise.race([
     new Promise<boolean>((resolve) => {
       setTimeout(() => {
-        logger.warn(`Instanceserver at ${ipAddress} too long to respond, assuming it is unresponsive and killing`)
+        retry = false
         resolve(false)
       }, config.server.instanceserverUnreachableTimeoutSeconds * 1000) // timeout after 2 seconds
     }),
-    new Promise<boolean>((resolve) => {
+    new Promise<boolean>(async (resolve) => {
       const options = {} as any
       let protocol = 'http://'
       if (!config.kubernetes.enabled) {
@@ -337,17 +338,21 @@ export async function checkForDuplicatedAssignments({
         })
       }
 
-      fetch(protocol + ipAddress, options)
-        .then((result) => {
+      // try fetching several times until it works, or timeout
+      while (retry) {
+        try {
+          await fetch(protocol + ipAddress, options)
           resolve(true)
-        })
-        .catch((err) => {
-          logger.error(err)
-          resolve(false)
-        })
+        } catch (e) {
+          // wait and try again
+          await new Promise((resolve) => setTimeout(() => resolve(null), 500))
+        }
+      }
     })
   ])
+
   if (!responsivenessCheck) {
+    logger.warn(`Instanceserver at ${ipAddress} too long to respond, assuming it is unresponsive and killing`)
     await app.service(instancePath).remove(assignResult.id)
     const k8DefaultClient = getState(ServerState).k8DefaultClient
     if (config.kubernetes.enabled)
@@ -384,7 +389,6 @@ export async function checkForDuplicatedAssignments({
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InstanceProvisionParams extends KnexAdapterParams {}
 
 /**

@@ -34,7 +34,6 @@ import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InstanceFriendsParams extends KnexAdapterParams {}
 
 /**
@@ -88,7 +87,7 @@ export class InstanceFriendsService implements ServiceInterface<InstanceType, In
         .map((instance) => (instance?.locationId ? instance.locationId : undefined))
         .filter((instance) => instance !== undefined) as string[]
 
-      const locations = (await this.app.service(locationPath)._find({
+      const locations = (await this.app.service(locationPath).find({
         query: {
           id: {
             $in: locationIds

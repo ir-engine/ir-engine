@@ -387,7 +387,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const validFiles = useHookstate<typeof files>([])
 
   useEffect(() => {
-    validFiles.set(files.filter((file) => file.name.toLowerCase().includes(searchBarState.value.toLowerCase())))
+    validFiles.set(files.filter((file) => file.fullName.toLowerCase().includes(searchBarState.value.toLowerCase())))
   }, [searchBarState.value, fileState.files])
 
   const DropArea = () => {

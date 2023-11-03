@@ -33,8 +33,9 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import {
   IdentityProviderType,
@@ -42,9 +43,12 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { MethodNotAllowed } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
+import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import disallowNonId from '../../hooks/disallow-non-id'
 import persistData from '../../hooks/persist-data'
+import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import { UserService } from './user.class'
@@ -61,17 +65,27 @@ import {
  * @param context
  * @returns
  */
-const restrictUserPatch = (context: HookContext<UserService>) => {
+const restrictUserPatch = async (context: HookContext<UserService>) => {
   if (context.params.isInternal) return context
 
-  // allow admins for all patch actions
   const loggedInUser = context.params.user as UserType
-  if (
-    loggedInUser.scopes &&
-    loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
-    loggedInUser.scopes.find((scope) => scope.type === 'user:write')
-  )
-    return context
+
+  const hasAdminScope = await checkScope(loggedInUser, 'admin', 'admin')
+  const hasUserWriteScope = await checkScope(loggedInUser, 'user', 'write')
+
+  if (hasAdminScope && hasUserWriteScope) {
+    return
+  } else if (hasUserWriteScope) {
+    // do not allow user:write scope to change other users' scopes
+    if (Array.isArray(context.data)) {
+      context.data.forEach((userPatchData) => {
+        delete userPatchData.scopes
+      })
+    } else {
+      delete context.data?.scopes
+    }
+    return
+  }
 
   // only allow a user to patch it's own data
   if (loggedInUser.id !== context.id)
@@ -95,22 +109,23 @@ const restrictUserPatch = (context: HookContext<UserService>) => {
  * @param context
  * @returns
  */
-const restrictUserRemove = (context: HookContext<UserService>) => {
+const restrictUserRemove = async (context: HookContext<UserService>) => {
   if (context.params.isInternal) return context
 
-  // allow admins for all patch actions
   const loggedInUser = context.params.user as UserType
-  if (
-    loggedInUser.scopes &&
-    loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
-    loggedInUser.scopes.find((scope) => scope.type === 'user:write')
-  )
-    return context
+  if (await checkScope(loggedInUser, 'user', 'write')) {
+    const isRemovedUserAdmin =
+      (await context.app.service(scopePath).find({ query: { userId: context.id as UserID, type: 'admin:admin' } }))
+        .total > 0
 
-  // only allow a user to patch it's own data
+    if (isRemovedUserAdmin && !(await checkScope(loggedInUser, 'admin', 'admin'))) {
+      throw new MethodNotAllowed('Must be an admin to remove admins')
+    }
+
+    return
+  }
+
   if (loggedInUser.id !== context.id) throw new Error('Must be an admin with user:write scope to delete another user')
-
-  return context
 }
 
 /**
@@ -158,7 +173,7 @@ const addUserScopes = (useActualData = false) => {
       if (item?.scopes) {
         const scopeData = item.scopes.map((el) => {
           return {
-            type: el.type,
+            ...el,
             userId: useActualData ? item.id : (context.id as UserID)
           }
         })
@@ -256,55 +271,64 @@ const handleUserSearch = async (context: HookContext<UserService>) => {
   }
 }
 
-export default {
-  around: {
-    all: [schemaHooks.resolveExternal(userExternalResolver), schemaHooks.resolveResult(userResolver)]
-  },
+export default createSkippableHooks(
+  {
+    around: {
+      all: [schemaHooks.resolveExternal(userExternalResolver), schemaHooks.resolveResult(userResolver)]
+    },
 
-  before: {
-    all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
-    find: [
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'), handleUserSearch),
-      iff(isProvider('external'), discardQuery('search', '$sort.accountIdentifier'))
-    ],
-    get: [],
-    create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
-      () => schemaHooks.validateData(userDataValidator),
-      schemaHooks.resolveData(userDataResolver),
-      persistData,
-      discard('scopes')
-    ],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write'))],
-    patch: [
-      iff(isProvider('external'), restrictUserPatch),
-      () => schemaHooks.validateData(userPatchValidator),
-      schemaHooks.resolveData(userPatchResolver),
-      disallowNonId,
-      removeUserScopes,
-      addUserScopes(false),
-      discard('scopes')
-    ],
-    remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
-  },
+    before: {
+      all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
+      find: [
+        iff(
+          isProvider('external'),
+          verifyScope('user', 'read'),
+          handleUserSearch,
+          discardQuery('search', '$sort.accountIdentifier') as any
+        ),
+        persistQuery,
+        discardQuery('skipAvatar')
+      ],
+      get: [persistQuery, discardQuery('skipAvatar')],
+      create: [
+        iff(isProvider('external'), verifyScope('user', 'write')),
+        () => schemaHooks.validateData(userDataValidator),
+        schemaHooks.resolveData(userDataResolver),
+        persistData,
+        discard('scopes')
+      ],
+      update: [disallow()],
+      patch: [
+        iff(isProvider('external'), restrictUserPatch),
+        () => schemaHooks.validateData(userPatchValidator),
+        schemaHooks.resolveData(userPatchResolver),
+        disallowNonId,
+        removeUserScopes,
+        addUserScopes(false),
+        discard('scopes')
+      ],
+      remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
+    },
 
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode],
-    update: [],
-    patch: [updateInviteCode],
-    remove: []
-  },
+    after: {
+      all: [],
+      find: [],
+      get: [],
+      create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode],
+      update: [],
+      patch: [updateInviteCode],
+      remove: []
+    },
 
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+    error: {
+      all: [],
+      find: [],
+      get: [],
+      create: [],
+      update: [],
+      patch: [],
+      remove: []
+    }
+  },
+  ['find', 'remove']
+)

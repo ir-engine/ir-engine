@@ -23,19 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 
-export const ParentComponent = defineComponent({
-  name: 'ParentComponent',
+import { UploadRequestState } from '@etherealengine/engine/src/assets/state/UploadRequestState'
+import { uploadProjectFiles } from '../functions/assetFunctions'
 
-  onInit: () => UndefinedEntity,
+const clearUploadQueueAction = defineAction({
+  type: 'ee.editor.clearUploadQueueAction'
+})
 
-  toJSON: (entity, component) => {
-    return component.value
-  },
-
-  onSet: (entity, component, parentEntity?: Entity) => {
-    component.set(parentEntity ?? UndefinedEntity)
+export const UploadRequestSystem = defineSystem({
+  uuid: 'ee.editor.UploadRequestSystem',
+  reactor: () => {
+    const uploadRequestState = useState(getMutableState(UploadRequestState))
+    useEffect(() => {
+      const uploadRequests = uploadRequestState.queue.value
+      if (uploadRequests.length === 0) return
+      const uploadPromises = uploadRequests.map((uploadRequest) => {
+        return uploadProjectFiles(uploadRequest.projectName, [uploadRequest.file], true)
+      })
+      uploadRequestState.queue.set([])
+    }, [uploadRequestState.queue.length])
+    return null
   }
 })

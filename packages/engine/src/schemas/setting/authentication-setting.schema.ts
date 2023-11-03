@@ -46,7 +46,7 @@ export const authStrategiesSchema = Type.Object(
   },
   { $id: 'AuthStrategies', additionalProperties: false }
 )
-export type AuthStrategiesType = Static<typeof authStrategiesSchema>
+export interface AuthStrategiesType extends Static<typeof authStrategiesSchema> {}
 
 export const authJwtOptionsSchema = Type.Object(
   {
@@ -54,7 +54,7 @@ export const authJwtOptionsSchema = Type.Object(
   },
   { $id: 'AuthJwtOptions', additionalProperties: false }
 )
-export type AuthJwtOptionsType = Static<typeof authJwtOptionsSchema>
+export interface AuthJwtOptionsType extends Static<typeof authJwtOptionsSchema> {}
 
 export const authBearerTokenSchema = Type.Object(
   {
@@ -62,7 +62,7 @@ export const authBearerTokenSchema = Type.Object(
   },
   { $id: 'AuthBearerToken', additionalProperties: false }
 )
-export type AuthBearerTokenType = Static<typeof authBearerTokenSchema>
+export interface AuthBearerTokenType extends Static<typeof authBearerTokenSchema> {}
 
 export const authCallbackSchema = Type.Object(
   {
@@ -75,7 +75,7 @@ export const authCallbackSchema = Type.Object(
   },
   { $id: 'AuthCallback', additionalProperties: false }
 )
-export type AuthCallbackType = Static<typeof authCallbackSchema>
+export interface AuthCallbackType extends Static<typeof authCallbackSchema> {}
 
 export const authDefaultsSchema = Type.Object(
   {
@@ -84,7 +84,7 @@ export const authDefaultsSchema = Type.Object(
   },
   { $id: 'AuthDefaults', additionalProperties: false }
 )
-export type AuthDefaultsType = Static<typeof authDefaultsSchema>
+export interface AuthDefaultsType extends Static<typeof authDefaultsSchema> {}
 
 export const authAppCredentialsSchema = Type.Object(
   {
@@ -95,7 +95,7 @@ export const authAppCredentialsSchema = Type.Object(
   },
   { $id: 'AuthAppCredentials', additionalProperties: false }
 )
-export type AuthAppCredentialsType = Static<typeof authAppCredentialsSchema>
+export interface AuthAppCredentialsType extends Static<typeof authAppCredentialsSchema> {}
 
 export const authOauthSchema = Type.Object(
   {
@@ -109,7 +109,7 @@ export const authOauthSchema = Type.Object(
   },
   { $id: 'AuthOauth', additionalProperties: false }
 )
-export type AuthOauthType = Static<typeof authOauthSchema>
+export interface AuthOauthType extends Static<typeof authOauthSchema> {}
 
 // Main data model schema
 export const authenticationSettingSchema = Type.Object(
@@ -130,12 +130,10 @@ export const authenticationSettingSchema = Type.Object(
   },
   { $id: 'AuthenticationSetting', additionalProperties: false }
 )
-export type AuthenticationSettingType = Static<typeof authenticationSettingSchema>
+export interface AuthenticationSettingType extends Static<typeof authenticationSettingSchema> {}
 
-export type AuthenticationSettingDatabaseType = Omit<
-  AuthenticationSettingType,
-  'authStrategies' | 'jwtOptions' | 'bearerToken' | 'callback' | 'oauth'
-> & {
+export interface AuthenticationSettingDatabaseType
+  extends Omit<AuthenticationSettingType, 'authStrategies' | 'jwtOptions' | 'bearerToken' | 'callback' | 'oauth'> {
   authStrategies: string
   jwtOptions: string
   bearerToken: string
@@ -151,13 +149,13 @@ export const authenticationSettingDataSchema = Type.Pick(
     $id: 'AuthenticationSettingData'
   }
 )
-export type AuthenticationSettingData = Static<typeof authenticationSettingDataSchema>
+export interface AuthenticationSettingData extends Static<typeof authenticationSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const authenticationSettingPatchSchema = Type.Partial(authenticationSettingSchema, {
   $id: 'AuthenticationSettingPatch'
 })
-export type AuthenticationSettingPatch = Static<typeof authenticationSettingPatchSchema>
+export interface AuthenticationSettingPatch extends Static<typeof authenticationSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const authenticationSettingQueryProperties = Type.Pick(authenticationSettingSchema, [
@@ -179,7 +177,7 @@ export const authenticationSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type AuthenticationSettingQuery = Static<typeof authenticationSettingQuerySchema>
+export interface AuthenticationSettingQuery extends Static<typeof authenticationSettingQuerySchema> {}
 
 export const authAppCredentialsValidator = getValidator(authAppCredentialsSchema, dataValidator)
 export const authBearerTokenValidator = getValidator(authBearerTokenSchema, dataValidator)

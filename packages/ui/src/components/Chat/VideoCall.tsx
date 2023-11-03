@@ -176,7 +176,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
             alt=""
             crossOrigin="anonymous"
             draggable={false}
-            className="rounded-full w-[40px] h-[40px]"
+            className="max-w-full rounded-full w-[40px] h-[40px]"
             id={peerID + '-thumbnail'}
           />
         ) : (
@@ -193,7 +193,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
           </p>
         </div>
         <button
-          className="absolute bottom-1 right-1 w-[20px] h-[20px] flex px-1 justify-center  items-center rounded-full bg-[#EDEEF0]"
+          className="m-0 absolute bottom-1 right-1 w-[20px] h-[20px] flex px-1 justify-center  items-center rounded-full bg-[#EDEEF0]"
           onClick={toggleAudio}
         >
           {audioStreamPaused ? (
