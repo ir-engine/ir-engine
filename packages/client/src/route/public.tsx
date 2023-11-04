@@ -23,14 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { lazy, Suspense, useEffect } from 'react'
+import React, { lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 const $index = lazy(() => import('@etherealengine/client/src/pages'))
 const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
@@ -41,15 +39,10 @@ const $location = lazy(() => import('@etherealengine/client/src/pages/location/l
 /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
 function RouterComp({ route }: { route: string }) {
   const customRoutes = useCustomRoutes()
-  const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
   const { t } = useTranslation()
 
-  useEffect(() => {
-    AuthService.doLoginAuto()
-  }, [])
-
   // still allow admin even if no custom routes are loaded in case routes fail to load
-  if ((route !== 'admin' && !customRoutes.length) || !isLoggedIn.value) {
+  if (route !== 'admin' && !customRoutes.length) {
     return <LoadingCircle message={t('common:loader.loadingRoutes')} />
   }
 
