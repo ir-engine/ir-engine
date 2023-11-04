@@ -496,7 +496,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             />
           )}
           <ToolButton
-            tooltip="add asset directly to scene"
+            tooltip={t('editor:layout.filebrowser.uploadAsset')}
             onClick={() => inputFileAndAddToScene()}
             icon={AddIcon}
             id="storeAsset"
