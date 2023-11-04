@@ -27,6 +27,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {
+  AvatarID,
   AvatarType,
   avatarDataValidator,
   avatarPatchValidator,
@@ -149,7 +150,7 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
   const avatars = (await context.app.service(avatarPath).find({
     query: {
       id: {
-        $ne: context.id?.toString()
+        $ne: context.id?.toString() as AvatarID
       }
     },
     paginate: false
@@ -160,11 +161,11 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
     await context.app.service(userPath).patch(
       null,
       {
-        avatarId: randomReplacementAvatar.id
+        avatarId: randomReplacementAvatar.id as AvatarID
       },
       {
         query: {
-          avatarId: context.id?.toString()
+          avatarId: context.id?.toString() as AvatarID
         }
       }
     )
@@ -179,7 +180,7 @@ export default {
   before: {
     all: [() => schemaHooks.validateQuery(avatarQueryValidator), schemaHooks.resolveQuery(avatarQueryResolver)],
     find: [
-      iffElse(isAction('admin'), verifyScope('admin', 'admin'), ensureUserAccessibleAvatars),
+      iffElse(isAction('admin'), verifyScope('globalAvatars', 'read'), ensureUserAccessibleAvatars),
       persistQuery,
       discardQuery('action'),
       discardQuery('skipUser'),
@@ -193,12 +194,12 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('globalAvatars', 'write')),
       () => schemaHooks.validateData(avatarPatchValidator),
       schemaHooks.resolveData(avatarPatchResolver)
     ],
     remove: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('globalAvatars', 'write')),
       disallowNonId,
       removeAvatarResources,
       updateUserAvatars

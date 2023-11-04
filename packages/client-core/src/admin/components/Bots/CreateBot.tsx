@@ -43,7 +43,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { BotData, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
@@ -121,7 +121,7 @@ const CreateBot = () => {
       userId: user.id.value,
       botCommands: commandData.get({ noproxy: true }),
       description: state.description.value,
-      locationId: state.location.value
+      locationId: state.location.value as LocationID
     }
 
     formErrors.merge({
