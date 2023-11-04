@@ -41,11 +41,10 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarID, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { debounce } from 'lodash'
 import { LoadingCircle } from '../../../../components/LoadingCircle'
 import { UserMenus } from '../../../UserUISystem'
@@ -59,12 +58,12 @@ const AvatarMenu = () => {
   const { t } = useTranslation()
   const authState = useHookstate(getMutableState(AuthState))
   const userId = authState.user?.id?.value
-  const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as EntityUUID)
+  const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as AvatarID)
   const avatarLoading = useHookstate(false)
   const isUserReady = useHookstate(getMutableState(EngineState).userReady)
 
   const page = useHookstate(0)
-  const selectedAvatarId = useHookstate('')
+  const selectedAvatarId = useHookstate('' as AvatarID)
   const search = useHookstate({ local: '', query: '' })
 
   const avatarsData = useFind(avatarPath, {
@@ -86,7 +85,7 @@ const AvatarMenu = () => {
         AvatarState.updateUserAvatarId(selectedAvatarId.value)
       }
     }
-    selectedAvatarId.set('')
+    selectedAvatarId.set('' as AvatarID)
     avatarLoading.set(true)
   }
 

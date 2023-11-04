@@ -41,6 +41,7 @@ export const locationPath = 'location'
 export const locationMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
 
 export type RoomCode = OpaqueType<'RoomCode'> & string
+export type LocationID = OpaqueType<'LocationID'> & string
 
 // Main data model schema
 export const locationSchema = Type.Object(

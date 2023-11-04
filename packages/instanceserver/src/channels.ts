@@ -50,7 +50,7 @@ import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projec
 import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { RoomCode, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, RoomCode, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -77,9 +77,9 @@ interface PrimusConnectionType {
   headers: any
   socketQuery?: {
     sceneId: SceneID
-    locationId?: string
+    locationId?: LocationID
     instanceID?: InstanceID
-    channelId?: string
+    channelId?: ChannelID
     roomCode?: RoomCode
     token: string
     EIO: string
@@ -133,7 +133,7 @@ const assignExistingInstance = async (
   app: Application,
   existingInstance: InstanceType,
   channelId: ChannelID,
-  locationId: string
+  locationId: LocationID
 ) => {
   const serverState = getState(ServerState)
   const instanceServerState = getMutableState(InstanceServerState)
@@ -164,7 +164,7 @@ const assignExistingInstance = async (
 const initializeInstance = async (
   app: Application,
   status: InstanceserverStatus,
-  locationId: string,
+  locationId: LocationID,
   channelId: ChannelID,
   userId?: UserID
 ) => {
@@ -383,7 +383,7 @@ let instanceStarted = false
 const createOrUpdateInstance = async (
   app: Application,
   status: InstanceserverStatus,
-  locationId: string,
+  locationId: LocationID,
   channelId: ChannelID,
   sceneId: SceneID,
   userId?: UserID
@@ -560,7 +560,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
 
   const userId = identityProvider.userId
   let locationId = connection.socketQuery.locationId!
-  let channelId = connection.socketQuery.channelId! as ChannelID
+  let channelId = connection.socketQuery.channelId!
   let roomCode = connection.socketQuery.roomCode!
   const instanceID = connection.socketQuery.instanceID!
 
@@ -711,8 +711,13 @@ export default (app: Application): void => {
   }
 
   app.service('instanceserver-load').on('patched', async (params) => {
-    const { id, ipAddress, podName, locationId, sceneId }: { id; ipAddress; podName; locationId; sceneId: SceneID } =
-      params
+    const {
+      id,
+      ipAddress,
+      podName,
+      locationId,
+      sceneId
+    }: { id; ipAddress; podName; locationId: LocationID; sceneId: SceneID } = params
 
     const serverState = getState(ServerState)
     const instanceServerState = getState(InstanceServerState)
