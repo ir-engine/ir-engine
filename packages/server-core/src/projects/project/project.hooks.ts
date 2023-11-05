@@ -46,7 +46,7 @@ import { checkScope } from '@etherealengine/engine/src/common/functions/checkSco
 import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { ProjectBuildUpdateItemType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneID, SceneType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
@@ -477,6 +477,25 @@ const removeStaticResourcesFromProject = async (context: HookContext<ProjectServ
 }
 
 /**
+ * Removes scenes from a project
+ * @param context
+ * @returns
+ */
+const removeScenesFromProject = async (context: HookContext<ProjectService>) => {
+  const projectId = context.id!.toString()
+  const sceneItems = (await context.app.service(scenePath).find({
+    query: {
+      projectId: projectId
+    },
+    paginate: false
+  })) as any as SceneType[]
+  sceneItems.length &&
+    sceneItems.forEach(async (scene) => {
+      await context.app.service(scenePath).remove(scene.id)
+    })
+}
+
+/**
  * Removes the project update job
  * @param context
  * @returns
@@ -579,6 +598,7 @@ export default {
       removeRouteFromProject,
       removeAvatarsFromProject,
       removeStaticResourcesFromProject,
+      removeScenesFromProject,
       removeProjectUpdate
     ]
   },

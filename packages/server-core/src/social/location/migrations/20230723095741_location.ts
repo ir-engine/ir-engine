@@ -35,12 +35,15 @@ export async function up(knex: Knex): Promise<void> {
   const tableExists = await knex.schema.hasTable(locationPath)
 
   if (tableExists === false) {
+    const trx = await knex.transaction()
+    await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
     await knex.schema.createTable(locationPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('name', 255).notNullable()
       //@ts-ignore
-      table.string('sceneId', 255).collate('utf8mb4_bin').nullable().index()
+      table.string('sceneId').collate('utf8mb4_bin').nullable()
       table.string('slugifiedName', 255).notNullable().unique()
       table.boolean('isLobby').defaultTo(false)
       table.boolean('isFeatured').defaultTo(false)
@@ -50,6 +53,9 @@ export async function up(knex: Knex): Promise<void> {
 
       table.foreign('sceneId').references('id').inTable('scene').onDelete('SET NULL').onUpdate('CASCADE')
     })
+
+    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+    await trx.commit()
   }
 }
 

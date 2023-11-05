@@ -38,6 +38,7 @@ import {
   LocationType
 } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { Application } from '@etherealengine/server-core/declarations'
+import { uploadLocalSceneData } from '@etherealengine/server-core/src/util/uploadLocalSceneData'
 
 function toCapitalCase(str: string) {
   return str
@@ -55,6 +56,7 @@ export const createLocations = async (app: Application, projectName: string) => 
         const locationId = generateUUID() as LocationID
         const settingsId = generateUUID()
         const sceneName = sceneJson.replace('.scene.json', '')
+        const sceneId = (await uploadLocalSceneData(app, sceneName, projectName)) as SceneID
         const locationName = toCapitalCase(sceneName.replace('-', ' '))
         const locationSetting = {
           id: settingsId,
@@ -70,7 +72,7 @@ export const createLocations = async (app: Application, projectName: string) => 
           name: locationName,
           slugifiedName: sceneName,
           maxUsersPerInstance: 30,
-          sceneId: `${projectName}/${sceneName}` as SceneID,
+          sceneId: sceneId,
           locationSetting,
           isLobby: false,
           isFeatured: false
@@ -81,7 +83,13 @@ export const createLocations = async (app: Application, projectName: string) => 
             slugifiedName: sceneName
           }
         })) as Paginated<LocationType>
+
         if (existingLocation.total === 0) await app.service(locationPath).create(location)
+        else if (existingLocation.data[0].sceneId !== sceneId) {
+          await app.service(locationPath).patch(existingLocation.data[0].id, {
+            sceneId: sceneId
+          })
+        }
       })
   )
 }

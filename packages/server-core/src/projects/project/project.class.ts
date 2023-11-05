@@ -37,12 +37,14 @@ import {
   ProjectQuery,
   ProjectType
 } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
+import { uploadLocalSceneData } from '../../util/uploadLocalSceneData'
 import {
   deleteProjectFilesInStorageProvider,
   getCommitSHADate,
@@ -163,11 +165,31 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     }
 
     await Promise.all(promises)
+
+    const scenePromises: Promise<any>[] = []
+    for (const projectName of locallyInstalledProjects) {
+      if (!data.find((e) => e.name === projectName)) {
+        try {
+          // Upload local project scenes to storage provider and sync with scene table
+          fs.readdirSync(path.resolve(projectsRootFolder, projectName))
+            .filter((file) => file.endsWith('.scene.json'))
+            .map(async (sceneJson) => {
+              const sceneName = sceneJson.replace('.scene.json', '')
+              scenePromises.push(uploadLocalSceneData(this.app, sceneName, projectName))
+            })
+        } catch (e) {
+          logger.error(e)
+        }
+      }
+    }
+    await Promise.all(scenePromises)
+
     await this._callOnLoad()
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
         await deleteProjectFilesInStorageProvider(name)
+        await this.app.service(scenePath).remove(null, { query: { projectId: id } })
         logger.warn(`[Projects]: Project ${name} not found, assuming removed`)
         await super._remove(id)
       }

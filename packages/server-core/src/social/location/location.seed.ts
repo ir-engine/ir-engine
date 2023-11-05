@@ -28,8 +28,32 @@ import { Knex } from 'knex'
 import { LocationDatabaseType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneData, SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getDateTimeSql } from '../../util/datetime-sql'
+
+export const sceneSeedData = [
+  {
+    id: 'b9427eb1-62f5-4bed-b3ff-eccb5fd116e4' as SceneID,
+    name: 'default',
+    scenePath: 'scenes/default/default.scene.json',
+    thumbnailPath: 'scenes/default/default.thumbnail.ktx2',
+    envMapPath: 'scenes/default/default.envmap.ktx2'
+  },
+  {
+    id: 'b9427eb1-62f5-4bed-b3ff-eccb5fd116e6' as SceneID,
+    name: 'sky-station',
+    scenePath: 'scenes/sky-station/sky-station.scene.json',
+    thumbnailPath: 'scenes/sky-station/sky-station.thumbnail.ktx2',
+    envMapPath: 'scenes/sky-station/sky-station.envmap.ktx2'
+  },
+  {
+    id: 'b9427eb1-62f5-4bed-b3ff-eccb5fd116e8' as SceneID,
+    name: 'apartment',
+    scenePath: 'scenes/apartment/apartment.scene.json',
+    thumbnailPath: 'scenes/apartment/apartment.thumbnail.ktx2',
+    envMapPath: 'scenes/apartment/apartment.envmap.ktx2'
+  }
+]
 
 export const locationSeedData = [
   {
@@ -65,6 +89,14 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
+  const sceneData: SceneData[] = await Promise.all(
+    sceneSeedData.map(async (item) => ({
+      ...item,
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
+
   const seedData: LocationDatabaseType[] = await Promise.all(
     locationSeedData.map(async (item) => ({
       ...item,
@@ -75,12 +107,21 @@ export async function seed(knex: Knex): Promise<void> {
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
+    await knex(scenePath).del()
     await knex(locationPath).del()
 
     // Inserts seed entries
+    await knex(scenePath).insert(sceneData)
     await knex(locationPath).insert(seedData)
   } else {
+    const existingSceneData = await knex(scenePath).count({ count: '*' })
     const existingData = await knex(locationPath).count({ count: '*' })
+
+    if (existingSceneData.length === 0 || existingSceneData[0].count === 0) {
+      for (const item of sceneData) {
+        await knex(scenePath).insert(item)
+      }
+    }
 
     if (existingData.length === 0 || existingData[0].count === 0) {
       for (const item of seedData) {
