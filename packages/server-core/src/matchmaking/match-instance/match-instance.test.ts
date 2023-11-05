@@ -34,7 +34,7 @@ import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match
 import { MatchTicketType, matchTicketPath } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
@@ -74,6 +74,7 @@ describe.skip('matchmaking match-instance service', () => {
   } as LocationSettingType
 
   let location
+  let testScene
 
   const connections = [Math.random().toString(16), Math.random().toString(16)]
   const emptyAssignmentReplyBody = {
@@ -106,11 +107,18 @@ describe.skip('matchmaking match-instance service', () => {
       }
     })
 
+    testScene = await app.service(scenePath).create({
+      name: 'test-scene',
+      scenePath: '',
+      thumbnailPath: '',
+      envMapPath: ''
+    })
+
     location = await app.service(locationPath).create({
       name: `game-${gameMode}`,
       slugifiedName: `game-${gameMode}`,
       maxUsersPerInstance: 30,
-      sceneId: `test/game-${gameMode}` as SceneID,
+      sceneId: testScene.id,
       locationSetting: commonlocationSetting,
       isLobby: false,
       isFeatured: false
@@ -177,6 +185,7 @@ describe.skip('matchmaking match-instance service', () => {
     users.length = 0
 
     cleanupPromises.push(app.service(locationPath).remove(location.id, {}))
+    cleanupPromises.push(app.service(scenePath).remove(testScene.id))
 
     await Promise.all(cleanupPromises)
     return destroyEngine()

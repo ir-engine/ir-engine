@@ -23,17 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
-import {
-  SceneDataType,
-  SceneID,
-  SceneJsonType,
-  scenePath
-} from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneID, SceneJsonType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 import assert from 'assert'
 import { v1 } from 'uuid'
@@ -61,9 +56,10 @@ describe('scene.test', () => {
     sceneData = structuredClone(defaultSceneSeed) as unknown as SceneJsonType
     parsedSceneData = parseStorageProviderURLs(structuredClone(defaultSceneSeed))
     projectId = (await app.service(projectPath).create({ name: projectName })).id
-    await app
+    const scene = await app
       .service(sceneUploadPath)
-      .create({ projectId: projectId, name: sceneName, sceneData }, { files: [], ...params })
+      .create({ projectId: projectId, name: sceneName, sceneData, projectName }, { files: [], ...params })
+    sceneId = scene.id
   })
 
   after(async () => {
@@ -74,72 +70,49 @@ describe('scene.test', () => {
     await destroyEngine()
   })
 
-  // describe('"scene-data" service', () => {
-  //   it('should get the scene data', async () => {
-  //     const { data } = await app.service(sceneDataPath).get(null, { query: { projectName, metadataOnly: false } })
-  //     assert.deepStrictEqual(parsedSceneData, data.find((scene) => scene.name === sceneName)!.scene)
-  //   })
-
-  //   it('should find the scene data', async () => {
-  //     const { data } = (await app
-  //       .service(sceneDataPath)
-  //       .find({ query: { projectName, metadataOnly: false } })) as Paginated<SceneDataType>
-  //     assert.deepStrictEqual(parsedSceneData, data.find((entry) => entry.name === sceneName)!.scene)
-  //     assert(data.length > 0)
-  //     data.forEach((scene) => {
-  //       assert(typeof scene.name === 'string')
-  //       assert(typeof scene.project === 'string')
-  //       assert(typeof scene.thumbnailUrl === 'string')
-  //       assert(typeof scene.scene === 'object')
-  //     })
-  //   })
-
-  //   it('should get all scenes for a project scenes with metadata only', async function () {
-  //     const { data } = (await app.service(sceneDataPath).find({
-  //       query: {
-  //         projectName,
-  //         metadataOnly: true
-  //       }
-  //     })) as Paginated<SceneDataType>
-  //     assert(data.length > 0)
-  //     data.forEach((scene) => {
-  //       assert(typeof scene.name === 'string')
-  //       assert(typeof scene.project === 'string')
-  //       assert(typeof scene.thumbnailUrl === 'string')
-  //       assert(typeof scene.scene === 'undefined')
-  //     })
+  // describe('"scene" service', () => {
+  //   it('should create scene entry in table', async () => {
+  //     const sceneResult = await app
+  //       .service(scenePath)
+  //       .create({ projectId, name: sceneName, scenePath: 'scene', thumbnailPath: 'thumbnail', envMapPath: 'envmap' })
+  //     sceneId = sceneResult.id
+  //     assert.equal(sceneResult.name, sceneName)
+  //     assert.equal(sceneResult.projectId, projectId)
+  //     assert.equal(sceneResult.scenePath, 'scene')
+  //     assert.equal(sceneResult.thumbnailPath, 'thumbnail')
+  //     assert.equal(sceneResult.envMapPath, 'envmap')
   //   })
   // })
 
-  describe('"scene" service', () => {
+  describe('"scene-data" service', () => {
     it('should get scene data', async () => {
-      const data = (await app.service(scenePath).get(sceneId)) as SceneDataType
+      const data = await app.service(sceneDataPath).get(sceneId)
       assert.equal(data.name, sceneName)
       assert.equal(data.project, projectName)
       assert.deepStrictEqual(data.scene, parsedSceneData)
     })
 
     it('should add a new scene', async () => {
-      const sceneName = `test-apartment-scene-${v1()}`
-      const addedScene = await app.service(scenePath).update('', { name: sceneName, projectId: projectId, sceneData })
+      const sceneName2 = `test-apartment-scene-${v1()}`
+      const addedScene = await app.service(sceneDataPath).update(null, { name: sceneName2, projectName, sceneData })
       sceneId = addedScene.id
-      const addedSceneData = (await app.service(scenePath).get(sceneId)) as SceneDataType
-      assert.equal(addedSceneData.name, sceneName)
+      const addedSceneData = await app.service(sceneDataPath).get(sceneId)
+      assert.equal(addedSceneData.name, sceneName2)
       assert.equal(addedSceneData.project, projectName)
       assert.deepStrictEqual(addedSceneData.scene, parsedSceneData)
     })
 
     it('should save or update an existing scene', async () => {
-      const newSceneData = structuredClone(defaultSceneSeed) as unknown as SceneJson
+      const newSceneData = structuredClone(defaultSceneSeed) as unknown as SceneJsonType
       const updatedVersion = Math.floor(Math.random() * 100)
       newSceneData.version = updatedVersion
       const newParsedSceneData = parseStorageProviderURLs(structuredClone(newSceneData))
 
       const updatedScene = await app
-        .service(scenePath)
-        .update('', { name: sceneName, projectId: projectId, sceneData: newSceneData })
+        .service(sceneDataPath)
+        .update(null, { name: sceneName, projectName, sceneData: newSceneData })
 
-      const updatedSceneData = (await app.service(scenePath).get(updatedScene.id)) as SceneDataType
+      const updatedSceneData = await app.service(sceneDataPath).get(updatedScene.id)
       assert.equal(updatedSceneData.scene.version, updatedVersion)
       assert.equal(updatedSceneData.name, sceneName)
       assert.equal(updatedSceneData.project, projectName)

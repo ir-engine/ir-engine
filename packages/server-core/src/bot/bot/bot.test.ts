@@ -31,7 +31,7 @@ import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schem
 
 import { BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import {
   LocationID,
   LocationType,
@@ -48,6 +48,7 @@ describe('bot.service', () => {
   let testLocation: LocationType
   let testUser: UserType
   let testBot: BotType
+  let testScene: SceneType
 
   const params = { isInternal: true }
 
@@ -60,11 +61,18 @@ describe('bot.service', () => {
   })
 
   before(async () => {
+    testScene = await app.service(scenePath).create({
+      name: 'test-bot-scene-name-',
+      scenePath: '',
+      thumbnailPath: '',
+      envMapPath: ''
+    })
+
     testLocation = await app.service(locationPath).create(
       {
         name: 'test-bot-location-' + v1(),
         slugifiedName: '',
-        sceneId: ('test-bot-scene-id-' + v1()) as SceneID,
+        sceneId: testScene.id,
         maxUsersPerInstance: 30,
         locationSetting: {
           id: '',
