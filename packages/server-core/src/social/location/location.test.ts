@@ -30,7 +30,7 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { toDateTimeSql } from '../../util/datetime-sql'
@@ -46,7 +46,6 @@ describe('location.test', () => {
   before(async () => {
     app = createFeathersKoaApp()
     testScene = await app.service(scenePath).create({
-      id: `test-scene-${v1()}` as SceneID,
       name: 'Test Scene',
       scenePath: '',
       thumbnailPath: '',
