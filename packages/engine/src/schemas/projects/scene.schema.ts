@@ -28,7 +28,7 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const scenePath = 'scene'
 
-export const sceneMethods = ['get', 'update', 'create', 'find', 'patch', 'remove'] as const
+export const sceneMethods = ['get', 'create', 'find', 'patch', 'remove'] as const
 
 export type SceneID = OpaqueType<'SceneID'> & string
 
@@ -41,6 +41,7 @@ export const sceneSchema = Type.Object(
     name: Type.String(),
     scenePath: Type.String(),
     envMapPath: Type.String(),
+    projectName: Type.Optional(Type.String()),
     thumbnailPath: Type.String(),
     projectId: Type.Optional(
       Type.String({
@@ -102,60 +103,18 @@ export const sceneMetadataSchema = Type.Object(
       format: 'uuid'
     }),
     name: Type.String(),
+    project: Type.Optional(Type.String()),
     thumbnailUrl: Type.String()
   },
   { $id: 'SceneMetadata', additionalProperties: false }
 )
 export interface SceneMetadataType extends Static<typeof sceneMetadataSchema> {}
 
-export const sceneDataSchema = Type.Object(
-  {
-    ...sceneMetadataSchema.properties,
-    project: Type.Optional(Type.String()),
-    scene: Type.Ref(sceneJsonSchema)
-  },
-  { $id: 'SceneData', additionalProperties: false }
-)
-export interface SceneDataType extends Static<typeof sceneDataSchema> {}
-
 // Schema for creating new entries
-export const userDataSchema = Type.Partial(sceneSchema, {
-  $id: 'UserData'
+export const sceneDataSchema = Type.Partial(sceneSchema, {
+  $id: 'SceneTableData'
 })
-export type UserData = Static<typeof userDataSchema>
-
-// Schema for creating new entries
-export const sceneCreateDataSchema = Type.Object(
-  {
-    id: Type.Optional(
-      TypedString<SceneID>({
-        format: 'uuid'
-      })
-    ),
-    name: Type.Optional(Type.String()),
-    scenePath: Type.Optional(Type.String()),
-    envMapPath: Type.Optional(Type.String()),
-    projectId: Type.Optional(Type.String()),
-    thumbnailPath: Type.Optional(Type.String()),
-    storageProvider: Type.Optional(Type.String()),
-    sceneData: Type.Optional(Type.Ref(sceneJsonSchema)),
-    thumbnailBuffer: Type.Optional(Type.Any())
-  },
-  { $id: 'SceneCreateData', additionalProperties: false }
-)
-export interface SceneCreateData extends Static<typeof sceneCreateDataSchema> {}
-
-// Schema for new created entries
-export const sceneMetadataCreateSchema = Type.Object(
-  {
-    name: Type.String(),
-    project: Type.String()
-  },
-  {
-    $id: 'SceneMetadataCreate'
-  }
-)
-export interface SceneMetadataCreate extends Static<typeof sceneMetadataCreateSchema> {}
+export interface SceneData extends Static<typeof sceneDataSchema> {}
 
 // Schema for updating existing entries
 export const scenePatchSchema = Type.Partial(sceneSchema, {
@@ -168,6 +127,7 @@ export const sceneQueryProperties = Type.Pick(sceneSchema, [
   'name',
   'scenePath',
   'projectId',
+  'projectName',
   'thumbnailPath',
   'envMapPath'
 ])
@@ -179,8 +139,6 @@ export const sceneQuerySchema = Type.Intersect(
       {
         storageProvider: Type.Optional(Type.String()),
         metadataOnly: Type.Optional(Type.Boolean()),
-        newSceneName: Type.Optional(Type.String()),
-        oldSceneName: Type.Optional(Type.String()),
         internal: Type.Optional(Type.Boolean()),
         paginate: Type.Optional(Type.Boolean())
       },
@@ -195,8 +153,7 @@ export const componentJsonValidator = getValidator(componentJsonSchema, dataVali
 export const entityJsonValidator = getValidator(entityJsonSchema, dataValidator)
 export const sceneJsonValidator = getValidator(sceneJsonSchema, dataValidator)
 export const sceneMetadataValidator = getValidator(sceneMetadataSchema, dataValidator)
-export const sceneDataValidator = getValidator(sceneDataSchema, dataValidator)
 export const sceneValidator = getValidator(sceneSchema, dataValidator)
-export const sceneCreateDataValidator = getValidator(sceneCreateDataSchema, dataValidator)
+export const sceneDataValidator = getValidator(sceneDataSchema, dataValidator)
 export const scenePatchValidator = getValidator(scenePatchSchema, dataValidator)
 export const sceneQueryValidator = getValidator(sceneQuerySchema, queryValidator)

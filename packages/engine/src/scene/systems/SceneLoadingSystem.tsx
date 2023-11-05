@@ -63,14 +63,8 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { QueryReactor, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import {
-  ComponentJsonType,
-  EntityJsonType,
-  SceneDataType,
-  SceneID,
-  SceneJsonType,
-  scenePath
-} from '../../schemas/projects/scene.schema'
+import { SceneDataType, sceneDataPath } from '../../schemas/projects/scene-data.schema'
+import { ComponentJsonType, EntityJsonType, SceneID, SceneJsonType } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsComponent } from '../components/CameraSettingsComponent'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
@@ -371,9 +365,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
       sceneLoaded: false
     })
 
-    const { project, scene } = getState(SceneState).scenes[props.sceneID].data
+    const { scene, project } = getState(SceneState).scenes[props.sceneID].data
 
-    getSystemsFromSceneData(project, scene).then((systems) => {
+    getSystemsFromSceneData(project!, scene).then((systems) => {
       if (systems.length) {
         systemsLoaded.set(systems)
       } else {
@@ -382,7 +376,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     })
 
     const sceneUpdatedListener = async () => {
-      const sceneData = (await Engine.instance.api.service(scenePath).get(props.sceneID)) as SceneDataType
+      const sceneData = (await Engine.instance.api.service(sceneDataPath).get(props.sceneID)) as SceneDataType
       SceneState.loadScene(props.sceneID, sceneData)
     }
     // for testing
@@ -390,10 +384,10 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     //   if (ev.code === 'KeyN') sceneUpdatedListener()
     // })
 
-    Engine.instance.api.service(scenePath).on('updated', sceneUpdatedListener)
+    Engine.instance.api.service(sceneDataPath).on('updated', sceneUpdatedListener)
 
     return () => {
-      Engine.instance.api.service(scenePath).off('updated', sceneUpdatedListener)
+      Engine.instance.api.service(sceneDataPath).off('updated', sceneUpdatedListener)
     }
   }, [])
 

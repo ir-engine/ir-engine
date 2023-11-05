@@ -23,16 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-
-import { instanceActivePath } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
-import {
-  InstanceAttendanceType,
-  instanceAttendancePath
-} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { SceneID, SceneUpdate, sceneMethods, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { sceneMethods, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
-import { ServerMode, ServerState } from '../../ServerState'
 import { SceneService } from './scene.class'
 import sceneDocs from './scene.docs'
 import hooks from './scene.hooks'
@@ -44,7 +36,13 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  app.use(scenePath, new SceneService(app), {
+  const options = {
+    name: scenePath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+  app.use(scenePath, new SceneService(options), {
     // A list of all methods this service exposes externally
     methods: sceneMethods,
     // You can add additional custom events to be sent to clients here
@@ -54,28 +52,4 @@ export default (app: Application): void => {
 
   const service = app.service(scenePath)
   service.hooks(hooks)
-
-  if (getState(ServerState).serverMode === ServerMode.API)
-    service.publish('updated', async (data, context) => {
-      const updatedScene = data as SceneUpdate
-      const instanceActive = await app.service(instanceActivePath).find({
-        query: { sceneId: updatedScene.id as SceneID }
-      })
-
-      const instanceAttendances = (await app.service(instanceAttendancePath).find({
-        query: {
-          instanceId: {
-            $in: instanceActive.map((item) => item.id)
-          },
-          ended: false
-        },
-        paginate: false
-      })) as InstanceAttendanceType[]
-
-      return Promise.all(
-        instanceAttendances.map((instanceAttendance) => {
-          return app.channel(`userIds/${instanceAttendance.userId}`).send({})
-        })
-      )
-    })
 }

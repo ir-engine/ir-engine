@@ -57,6 +57,7 @@ import {
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
+import { scenePath } from '../../../../../schemas/projects/scene.schema'
 import { endXRSession, requestXRSession } from '../../../../../xr/XRSessionFunctions'
 import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
 import { addMediaComponent } from '../helper/assetHelper'
@@ -468,7 +469,15 @@ export const switchScene = makeFlowNodeDefinition({
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const projectName = read<string>('projectName')
     const sceneName = read<string>('sceneName')
-    SceneServices.setCurrentScene(projectName, sceneName)
+
+    Engine.instance.api
+      .service(scenePath)
+      .find({ query: { name: sceneName, projectName: projectName, $limit: 1 } })
+      .then((scene) => {
+        if (scene && scene.data.length > 0) {
+          SceneServices.setCurrentScene(scene.data[0].id)
+        }
+      })
   }
 })
 

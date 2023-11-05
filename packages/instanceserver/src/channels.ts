@@ -47,7 +47,8 @@ import {
   instancePath
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
-import { SceneDataType, SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { LocationID, RoomCode, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
@@ -266,14 +267,14 @@ const loadEngine = async (app: Application, sceneId: SceneID) => {
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
-    const sceneResultPromise = app.service(scenePath).get(sceneId, { query: { metadataOnly: false } })
+    const sceneResultPromise = app.service(sceneDataPath).get(sceneId, { query: { metadataOnly: false } })
 
     startWorldServerSystems()
     await loadEngineInjection(projects)
     getMutableState(EngineState).isEngineInitialized.set(true)
 
     const sceneUpdatedListener = async () => {
-      const sceneData = (await sceneResultPromise) as SceneDataType
+      const sceneData = await sceneResultPromise
       SceneState.loadScene(sceneId, sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 
@@ -290,7 +291,7 @@ const loadEngine = async (app: Application, sceneId: SceneID) => {
       const worldState = getMutableState(WorldState)
       if (worldState.userNames[user.id]?.value) worldState.userNames[user.id].set(user.name)
     }
-    app.service(scenePath).on('updated', sceneUpdatedListener)
+    app.service(sceneDataPath).on('updated', sceneUpdatedListener)
     app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
 

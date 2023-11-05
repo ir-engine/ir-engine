@@ -28,7 +28,8 @@ import { Color, Texture } from 'three'
 import { defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
+import { SceneDataType, sceneDataPath } from '../../schemas/projects/scene-data.schema'
+import { SceneID } from '../../schemas/projects/scene.schema'
 import { Engine } from './Engine'
 import { UndefinedEntity } from './Entity'
 
@@ -67,7 +68,7 @@ export const SceneState = defineState({
 
 export const SceneServices = {
   setCurrentScene: async (sceneId: SceneID) => {
-    const sceneData = (await Engine.instance.api.service(scenePath).get(sceneId)) as SceneDataType
+    const sceneData = await Engine.instance.api.service(sceneDataPath).get(sceneId)
     SceneState.loadScene(sceneId, sceneData)
   }
 }

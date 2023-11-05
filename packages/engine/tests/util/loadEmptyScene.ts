@@ -38,6 +38,7 @@ import { TransformComponent } from '../../src/transform/components/TransformComp
 
 export const loadEmptyScene = () => {
   SceneState.loadScene('test' as SceneID, {
+    id: '' as SceneID,
     name: '',
     thumbnailUrl: '',
     project: '',

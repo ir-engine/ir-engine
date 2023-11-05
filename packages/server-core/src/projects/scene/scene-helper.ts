@@ -29,7 +29,8 @@ import { Application } from '../../../declarations'
 // import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { SceneDataType, SceneID, SceneType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
+import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -51,7 +52,9 @@ export const getSceneData = async (
   internal = false,
   storageProviderName?: string
 ) => {
-  let { name, thumbnailPath, projectId } = (await app.service(scenePath)._get(sceneId)) as SceneType
+  const scene = await app.service(scenePath).get(sceneId)
+  let { name, projectId, thumbnailPath } = scene
+
   let projectName
   const storageProvider = getStorageProvider(storageProviderName)
   const directory = `scenes/${name}/`
@@ -74,7 +77,7 @@ export const getSceneData = async (
   const thumbnailUrl =
     thumbnailPath !== `` ? getCachedURL(thumbnailPath, cacheDomain) : `/static/etherealengine_thumbnail.jpg`
 
-  const sceneResult = await storageProvider.getObject(scenePath)
+  const sceneResult = await storageProvider.getObject(scene.scenePath)
   const sceneData: SceneDataType = {
     id: sceneId,
     name: name,

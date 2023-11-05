@@ -18,6 +18,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { iff, isProvider } from 'feathers-hooks-common'
+import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
+import setResponseStatusCode from '../../hooks/set-response-status-code'
+import verifyScope from '../../hooks/verify-scope'
+
 export default {
   around: {
     all: []
@@ -27,16 +32,19 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    create: [iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false))],
+    update: [iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false))],
+    patch: [iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false))],
+    remove: [iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false))]
   },
   after: {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [
+      // Editor is expecting 200, while feather is sending 201 for creation
+      setResponseStatusCode(200)
+    ],
     update: [],
     patch: [],
     remove: []

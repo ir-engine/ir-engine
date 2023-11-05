@@ -28,8 +28,9 @@ import i18n from 'i18next'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { SceneDataType, sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
-import { SceneDataType, SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { SceneParams } from '@etherealengine/server-core/src/projects/scene/scene.class'
 import { EditorHistoryState } from '../services/EditorHistory'
@@ -41,11 +42,10 @@ const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
  *
  * @return {Promise}
  */
-export const getScenes = async (projectId?: string): Promise<SceneDataType[]> => {
+export const getScenes = async (projectName?: string): Promise<SceneDataType[]> => {
   try {
-    let params = { query: { metadataOnly: true, paginate: false } } as SceneParams
-    if (projectId) params = { ...params, query: { ...params.query, projectId: projectId } }
-    const result = (await Engine.instance.api.service(scenePath).find(params)) as any as SceneDataType[]
+    const params = { query: { metadataOnly: true, paginate: false, projectName: projectName } } as SceneParams
+    const result = (await Engine.instance.api.service(sceneDataPath).find(params)) as SceneDataType[]
     return result
   } catch (error) {
     logger.error(error, 'Error in getting project getScenes()')
@@ -61,9 +61,9 @@ export const getScenes = async (projectId?: string): Promise<SceneDataType[]> =>
  */
 export const getScene = async (sceneId: string, metadataOnly = true): Promise<SceneDataType> => {
   try {
-    return (await Engine.instance.api
-      .service(scenePath)
-      .get(sceneId, { query: { metadataOnly: metadataOnly } })) as SceneDataType
+    return await Engine.instance.api
+      .service(sceneDataPath)
+      .get(sceneId as SceneID, { query: { metadataOnly: metadataOnly } })
   } catch (error) {
     logger.error(error, 'Error in getting project getScene()')
     throw error
@@ -76,9 +76,9 @@ export const getScene = async (sceneId: string, metadataOnly = true): Promise<Sc
  * @param  {SceneID}  sceneId
  * @return {Promise}
  */
-export const deleteScene = async (sceneId: SceneID): Promise<any> => {
+export const deleteScene = async (sceneId: SceneID, projectName?: string): Promise<any> => {
   try {
-    await Engine.instance.api.service(scenePath).remove(sceneId)
+    await Engine.instance.api.service(scenePath).remove(sceneId, { query: { projectName } })
   } catch (error) {
     logger.error(error, 'Error in deleting scene')
     throw error
@@ -86,9 +86,14 @@ export const deleteScene = async (sceneId: SceneID): Promise<any> => {
   return true
 }
 
-export const renameScene = async (sceneId: SceneID, newSceneName: string, oldSceneName: string): Promise<any> => {
+export const renameScene = async (
+  sceneId: SceneID,
+  newSceneName: string,
+  oldSceneName: string,
+  projectName?: string
+): Promise<any> => {
   try {
-    await Engine.instance.api.service(scenePath).patch(sceneId, {}, { query: { newSceneName, oldSceneName } })
+    await Engine.instance.api.service(sceneDataPath).patch(sceneId, { newSceneName, oldSceneName, projectName })
   } catch (error) {
     logger.error(error, 'Error in renaming scene')
     throw error
@@ -117,7 +122,7 @@ export const saveScene = async (
 
   try {
     return await uploadToFeathersService(sceneUploadPath, thumbnailFile ? [thumbnailFile] : [], {
-      project: projectName,
+      projectName,
       name: sceneName,
       sceneData
     }).promise
@@ -127,11 +132,9 @@ export const saveScene = async (
   }
 }
 
-export const createNewScene = async (projectId?: string) => {
+export const createNewScene = async (projectName?: string) => {
   try {
-    let params = {} as SceneParams
-    if (projectId) params = { ...params, query: { projectId: projectId } }
-    return Engine.instance.api.service(scenePath).create({})
+    return Engine.instance.api.service(sceneDataPath).create({ projectName })
   } catch (error) {
     logger.error(error, 'Error in creating scene')
     throw error

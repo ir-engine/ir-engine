@@ -23,8 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { sceneDataMethods, sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
+import { instanceActivePath } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import {
+  InstanceAttendanceType,
+  instanceAttendancePath
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import {
+  SceneDataType,
+  sceneDataMethods,
+  sceneDataPath
+} from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { getState } from '@etherealengine/hyperflux'
 import { Application } from '../../../declarations'
+import { ServerMode, ServerState } from '../../ServerState'
 import { SceneDataService } from './scene-data.class'
 import sceneDataDocs from './scene-data.docs'
 import hooks from './scene-data.hooks'
@@ -46,4 +58,28 @@ export default (app: Application): void => {
 
   const service = app.service(sceneDataPath)
   service.hooks(hooks)
+
+  if (getState(ServerState).serverMode === ServerMode.API)
+    service.publish('updated', async (data, context) => {
+      const updatedScene = data as SceneDataType
+      const instanceActive = await app.service(instanceActivePath).find({
+        query: { sceneId: updatedScene.id as SceneID }
+      })
+
+      const instanceAttendances = (await app.service(instanceAttendancePath).find({
+        query: {
+          instanceId: {
+            $in: instanceActive.map((item) => item.id)
+          },
+          ended: false
+        },
+        paginate: false
+      })) as InstanceAttendanceType[]
+
+      return Promise.all(
+        instanceAttendances.map((instanceAttendance) => {
+          return app.channel(`userIds/${instanceAttendance.userId}`).send({})
+        })
+      )
+    })
 }

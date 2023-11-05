@@ -18,25 +18,64 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Static, Type, querySyntax } from '@feathersjs/typebox'
-import { sceneDataSchema } from './scene.schema'
+import { Static, Type, getValidator, querySyntax } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator } from '../validators'
+import { SceneID, sceneJsonSchema, sceneMetadataSchema } from './scene.schema'
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
 export const sceneDataPath = 'scene-data'
 
-export const sceneDataMethods = ['get', 'find'] as const
+export const sceneDataMethods = ['get', 'find', 'create', 'update', 'patch'] as const
 
-export const sceneDataServiceSchema = Type.Object(
+export const sceneDataSchema = Type.Object(
   {
-    data: Type.Array(Type.Ref(sceneDataSchema))
+    ...sceneMetadataSchema.properties,
+    scene: Type.Ref(sceneJsonSchema)
   },
-  { $id: 'SceneDataService', additionalProperties: false }
+  { $id: 'SceneData', additionalProperties: false }
 )
-export interface SceneDataServiceType extends Static<typeof sceneDataServiceSchema> {}
+export interface SceneDataType extends Static<typeof sceneDataSchema> {}
+
+// Schema for creating new entries
+export const sceneCreateDataSchema = Type.Object(
+  {
+    id: Type.Optional(
+      TypedString<SceneID>({
+        format: 'uuid'
+      })
+    ),
+    name: Type.Optional(Type.String()),
+    scenePath: Type.Optional(Type.String()),
+    envMapPath: Type.Optional(Type.String()),
+    projectId: Type.Optional(Type.String()),
+    projectName: Type.Optional(Type.String()),
+    thumbnailPath: Type.Optional(Type.String()),
+    storageProvider: Type.Optional(Type.String()),
+    sceneData: Type.Optional(Type.Ref(sceneJsonSchema)),
+    thumbnailBuffer: Type.Optional(Type.Any())
+  },
+  { $id: 'SceneCreateData', additionalProperties: false }
+)
+export interface SceneCreateData extends Static<typeof sceneCreateDataSchema> {}
+
+// Schema for updating existing entries
+export const sceneDataPatchSchema = Type.Object(
+  {
+    newSceneName: Type.Optional(Type.String()),
+    oldSceneName: Type.Optional(Type.String()),
+    storageProvider: Type.Optional(Type.String()),
+    projectName: Type.Optional(Type.String())
+  },
+  {
+    $id: 'SceneDataPatch'
+  }
+)
+export type SceneDataPatch = Static<typeof sceneDataPatchSchema>
 
 // Schema for allowed query properties
-export const sceneDataQueryProperties = Type.Partial(sceneDataServiceSchema)
+export const sceneDataQueryProperties = Type.Partial(sceneDataSchema)
 export const sceneDataQuerySchema = Type.Intersect(
   [
     querySyntax(sceneDataQueryProperties),
@@ -46,7 +85,7 @@ export const sceneDataQuerySchema = Type.Intersect(
         internal: Type.Optional(Type.Boolean()),
         projectName: Type.Optional(Type.String()),
         metadataOnly: Type.Optional(Type.Boolean()),
-        storageProviderName: Type.Optional(Type.String()),
+        storageProvider: Type.Optional(Type.String()),
         paginate: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
@@ -55,3 +94,7 @@ export const sceneDataQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface SceneDataQuery extends Static<typeof sceneDataQuerySchema> {}
+
+export const sceneDataValidator = getValidator(sceneDataSchema, dataValidator)
+export const sceneCreateDataValidator = getValidator(sceneCreateDataSchema, dataValidator)
+export const sceneDataPatchValidator = getValidator(sceneDataPatchSchema, dataValidator)

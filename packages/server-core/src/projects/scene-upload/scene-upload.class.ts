@@ -20,11 +20,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { SceneCreateData, SceneType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import {
+  SceneCreateData,
+  SceneDataType,
+  sceneDataPath
+} from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
 
-export class SceneUploadService implements ServiceInterface<SceneType, SceneCreateData, UploadParams> {
+export class SceneUploadService implements ServiceInterface<SceneDataType, SceneCreateData, UploadParams> {
   app: Application
 
   constructor(app: Application) {
@@ -37,11 +41,11 @@ export class SceneUploadService implements ServiceInterface<SceneType, SceneCrea
 
     const thumbnailBuffer = params.files.length > 0 ? (params?.files[0].buffer as Buffer) : undefined
 
-    const { name, sceneData, storageProvider, projectId } = data
+    const { name, sceneData, storageProvider, projectName } = data
 
     const result = (await this.app
-      .service(scenePath)
-      .update('', { name, sceneData, storageProvider, thumbnailBuffer, projectId })) as SceneType
+      .service(sceneDataPath)
+      .update(null, { name, sceneData, storageProvider, thumbnailBuffer, projectName })) as SceneDataType
 
     // Clear params otherwise all the files and auth details send back to client as response
     for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]

@@ -27,11 +27,18 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { SceneID, SceneQuery, SceneType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 
 export const sceneResolver = resolve<SceneType, HookContext>({
+  projectName: virtual(async (scene, context) => {
+    if (scene.projectId) {
+      const project = await context.app.service(projectPath).get(scene.projectId)
+      return project.name
+    }
+  }),
   createdAt: virtual(async (scene) => fromDateTimeSql(scene.createdAt)),
   updatedAt: virtual(async (scene) => fromDateTimeSql(scene.updatedAt))
 })

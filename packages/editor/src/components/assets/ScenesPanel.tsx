@@ -38,7 +38,7 @@ import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'

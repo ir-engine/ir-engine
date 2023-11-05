@@ -25,13 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Params } from '@feathersjs/feathers'
 
-import {
-  SceneCreateData,
-  SceneDataType,
-  ScenePatch,
-  SceneQuery,
-  SceneType
-} from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneData, ScenePatch, SceneQuery, SceneType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -39,8 +33,8 @@ export interface SceneParams extends KnexAdapterParams<SceneQuery> {
   paginate?: false
 }
 export class SceneService<T = SceneType, ServiceParams extends Params = SceneParams> extends KnexService<
-  SceneDataType | SceneType,
-  SceneCreateData,
+  SceneType,
+  SceneData,
   SceneParams,
   ScenePatch
 > {}

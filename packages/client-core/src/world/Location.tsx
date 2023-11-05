@@ -81,7 +81,7 @@ const LocationPage = ({ offline }: Props) => {
         })
       })
     }
-    useLoadScene({ projectName: params.projectName!, sceneId: sceneId, sceneName: params.sceneName! })
+    useLoadScene({ projectName: params.projectName!, sceneName: params.sceneName! })
   }
 
   AuthService.useAPIListeners()
