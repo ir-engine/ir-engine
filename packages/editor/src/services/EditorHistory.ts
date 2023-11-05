@@ -36,7 +36,8 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
-import { SceneDataType, SceneJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
+import { SceneJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { useEffect } from 'react'
 import { EditorState } from './EditorServices'
 

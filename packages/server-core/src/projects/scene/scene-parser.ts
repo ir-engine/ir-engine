@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PortalType } from '@etherealengine/engine/src/schemas/projects/portal.schema'
-import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 
 export const parseScenePortals = (scene: SceneDataType) => {
   const portals: PortalType[] = []
-  for (const [entityId, entity] of Object.entries(scene.scene?.entities!)) {
+  for (const [entityId, entity] of Object.entries(scene.scene?.entities)) {
     for (const component of entity.components)
       if (component.name === 'portal') {
         portals.push({

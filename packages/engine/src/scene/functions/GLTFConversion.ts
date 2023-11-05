@@ -27,7 +27,6 @@ import { Color, MathUtils, Object3D } from 'three'
 
 import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getAllComponents,
@@ -37,11 +36,12 @@ import {
 
 import { sceneRelativePathIdentifier } from '../../common/functions/parseSceneJSON'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { ComponentJsonType, EntityJsonType, SceneJsonType } from '../../schemas/projects/scene.schema'
 import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 
-export const nodeToEntityJson = (node: any): EntityJson => {
+export const nodeToEntityJson = (node: any): EntityJsonType => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
   const uuid = node.extras?.uuid ? node.extras.uuid : MathUtils.generateUUID()
   return {
@@ -55,11 +55,11 @@ export const nodeToEntityJson = (node: any): EntityJson => {
   }
 }
 
-export const gltfToSceneJson = (gltf: any): SceneJson => {
+export const gltfToSceneJson = (gltf: any): SceneJsonType => {
   handleScenePaths(gltf, 'decode')
   const rootGL = gltf.scenes[gltf.scene]
   const rootUuid = MathUtils.generateUUID() as EntityUUID
-  const result: SceneJson = {
+  const result: SceneJsonType = {
     entities: {},
     root: rootUuid,
     version: 2.0
@@ -187,7 +187,7 @@ export const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
   }
 }
 
-const addComponentDataToGLTFExtension = (obj3d: Object3D, data: ComponentJson) => {
+const addComponentDataToGLTFExtension = (obj3d: Object3D, data: ComponentJsonType) => {
   if (!obj3d.userData.gltfExtensions) obj3d.userData.gltfExtensions = {}
   if (data.props && typeof data.props !== 'object')
     throw new Error('glTF component props must be an object or undefined')

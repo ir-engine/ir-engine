@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import type { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 import { ComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -33,6 +32,7 @@ import {
   SystemComponent,
   convertSystemComponentJSON
 } from '@etherealengine/engine/src/scene/components/SystemComponent'
+import { SceneJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 
 export type SystemImportType = {
   systemUUID: SystemUUID
@@ -42,7 +42,7 @@ export type SystemImportType = {
   entityUUID: EntityUUID
 }
 
-export const getSystemsFromSceneData = (project: string, sceneData: SceneJson): Promise<SystemImportType[]> => {
+export const getSystemsFromSceneData = (project: string, sceneData: SceneJsonType): Promise<SystemImportType[]> => {
   const systems = [] as ReturnType<typeof importSystem>[]
   for (const [uuid, entity] of Object.entries(sceneData.entities)) {
     for (const component of entity.components) {
