@@ -288,7 +288,7 @@ export default {
     find: [
       enableClientPagination(),
       iff(isProvider('external'), verifyUserId()),
-      iff(isProvider('external'), iffElse(isAction('admin'), verifyScope('admin', 'admin'), handleChannelInstance)),
+      iff(isProvider('external'), iffElse(isAction('admin'), verifyScope('channel', 'read'), handleChannelInstance)),
       discardQuery('action')
     ],
     get: [setLoggedInUser('userId'), iff(isProvider('external'), ensureUserHasChannelAccess)],
@@ -302,7 +302,7 @@ export default {
     ],
     update: [disallow('external')],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('channel', 'write')),
       () => schemaHooks.validateData(channelPatchValidator),
       schemaHooks.resolveData(channelPatchResolver)
     ],

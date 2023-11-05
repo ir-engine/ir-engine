@@ -43,7 +43,6 @@ import { RootSystemGroup, SimulationSystemGroup } from '@etherealengine/engine/s
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { System, SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -115,11 +114,9 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
 
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
-    Engine.instance.localClientEntity &&
+    !!Engine.instance.localClientEntity &&
     engineState.connectedWorld.value &&
     hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
-
-  const networks = getMutableState(NetworkState).networks
 
   const onClickRespawn = (): void => {
     Engine.instance.localClientEntity && respawnAvatar(Engine.instance.localClientEntity)
@@ -310,6 +307,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
               <>
                 <input
                   type="checkbox"
+                  style={{ margin: 0 }}
                   checked={value ? true : false}
                   onChange={() => {
                     if (Engine.instance.activeSystems.has(system.uuid)) {

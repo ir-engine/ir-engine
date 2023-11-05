@@ -28,6 +28,7 @@ import * as bitecs from 'bitecs'
 import { BoxGeometry, Mesh, MeshNormalMaterial } from 'three'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { Timer } from './common/functions/Timer'
+import { isClient } from './common/functions/getEnvironment'
 import { Engine } from './ecs/classes/Engine'
 import { getComponent, setComponent } from './ecs/functions/ComponentFunctions'
 import { executeSystems, startCoreSystems } from './ecs/functions/EngineFunctions'
@@ -81,7 +82,7 @@ export const createEngine = () => {
   camera.matrixAutoUpdate = false
   camera.matrixWorldAutoUpdate = false
 
-  EngineRenderer.instance = new EngineRenderer()
+  if (isClient) EngineRenderer.instance = new EngineRenderer()
   startCoreSystems()
   Engine.instance.engineTimer = Timer(executeSystems)
 }

@@ -25,39 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { Params } from '@feathersjs/feathers'
 import { KnexService } from '@feathersjs/knex'
-import { Knex } from 'knex'
 
 import {
   LocationData,
-  LocationDatabaseType,
   LocationPatch,
-  locationPath,
   LocationQuery,
   LocationType
 } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
 export interface LocationParams extends KnexAdapterParams<LocationQuery> {}
-
-/**
- * A class for Location service
- */
-
-export const locationSettingSorts = ['locationType', 'audioEnabled', 'videoEnabled']
 
 export class LocationService<T = LocationType, ServiceParams extends Params = LocationParams> extends KnexService<
   LocationType,
   LocationData,
   LocationParams,
   LocationPatch
-> {
-  async makeLobby(trx: Knex.Transaction, selfUser?: UserType) {
-    if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin')) {
-      throw new Error('Only Admin can set Lobby')
-    }
-
-    await trx.from<LocationDatabaseType>(locationPath).update({ isLobby: false }).where({ isLobby: true })
-  }
-}
+> {}

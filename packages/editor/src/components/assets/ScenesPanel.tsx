@@ -187,7 +187,12 @@ export default function ScenesPanel({ loadScene, newScene }) {
               <div className={styles.sceneContainer} key={scene.name}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
-                    <img src={thumbnails.get(scene.name)} alt="" crossOrigin="anonymous" />
+                    <img
+                      style={{ height: 'auto', maxWidth: '100%' }}
+                      src={thumbnails.get(scene.name)}
+                      alt=""
+                      crossOrigin="anonymous"
+                    />
                   </div>
                   <div className={styles.detailBlock}>
                     {activeScene === scene && isRenaming ? (

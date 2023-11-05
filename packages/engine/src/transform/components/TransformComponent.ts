@@ -97,6 +97,8 @@ export const TransformComponent = defineComponent({
     if (rotation) component.rotation.value.copy(rotation)
     if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
 
+    /** @todo the rest of this onSet is necessary until #9193 */
+
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
     component.matrixInverse.value.copy(component.matrix.value).invert()
 
@@ -191,6 +193,8 @@ export const LocalTransformComponent = defineComponent({
       : null
 
     if (scale) component.scale.value.copy(scale)
+
+    /** @todo the rest of this onSet is necessary until #9193 */
 
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
 

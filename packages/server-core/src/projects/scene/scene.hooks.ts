@@ -279,27 +279,12 @@ const deleteSceneResources = async (context: HookContext<SceneService>) => {
 export default {
   before: {
     all: [],
-    find: [persistPaginate],
-    get: [getSceneDataById],
-    create: [
-      iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false)),
-      ensureSceneDoesnotExist,
-      createNewSceneFiles,
-      setCreateData
-    ],
-    update: [
-      iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false)),
-      uploadSceneToStorage,
-      createScene
-    ],
-    patch: [
-      iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false)),
-      renameScene
-    ],
-    remove: [
-      iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false)),
-      deleteSceneResources
-    ]
+    find: [],
+    get: [],
+    create: [iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false))],
+    update: [iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false))],
+    patch: [iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false))],
+    remove: [iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false))]
   },
 
   after: {

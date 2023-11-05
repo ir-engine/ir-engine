@@ -24,9 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BufferGeometry, Mesh } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { matches } from '../common/functions/MatchesUtils'
 import { defineComponent, setComponent, useOptionalComponent } from '../ecs/functions/ComponentFunctions'
@@ -317,72 +316,3 @@ export const XRSpaceComponent = defineComponent({
 })
 
 export type XRHand = Map<XRHandJoint, XRJointSpace>
-
-export const XRPlaneComponent = defineComponent({
-  name: 'XRPlaneComponent',
-
-  onInit(entity) {
-    return {
-      shadowMesh: null! as Mesh,
-      occlusionMesh: null! as Mesh,
-      geometry: null! as BufferGeometry,
-      placementHelper: null! as Mesh,
-      plane: null! as XRPlane
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (matches.object.test(json.shadowMesh)) component.shadowMesh.set(json.shadowMesh as Mesh)
-    if (matches.object.test(json.occlusionMesh)) component.occlusionMesh.set(json.occlusionMesh as Mesh)
-    if (matches.object.test(json.placementHelper)) component.placementHelper.set(json.placementHelper as Mesh)
-    if (matches.object.test(json.geometry)) {
-      component.geometry.value?.dispose?.()
-      component.geometry.set(json.geometry as BufferGeometry)
-    }
-    if (matches.object.test(json.plane)) {
-      component.plane.set(json.plane as XRPlane)
-    }
-  },
-
-  onRemove(entity, component) {
-    component.shadowMesh.value?.traverse((mesh: Mesh) => {
-      if (mesh.geometry) mesh.geometry.dispose()
-    })
-    component.occlusionMesh.value.traverse((mesh: Mesh) => {
-      if (mesh.geometry) mesh.geometry.dispose()
-    })
-    component.placementHelper.value?.traverse((mesh: Mesh) => {
-      if (mesh.geometry) mesh.geometry.dispose()
-    })
-    component.geometry.value?.dispose?.()
-  },
-
-  reactor: function () {
-    const entity = useEntityContext()
-    const plane = useOptionalComponent(entity, XRPlaneComponent)
-    const scenePlacementMode = useHookstate(getMutableState(XRState).scenePlacementMode)
-
-    useEffect(() => {
-      if (!plane) return
-
-      const shadowMesh = plane.shadowMesh.value
-      const occlusionMesh = plane.occlusionMesh.value
-
-      const setGeometry = (mesh: Mesh) => {
-        if (mesh.geometry) mesh.geometry = plane.geometry.value
-      }
-
-      shadowMesh.traverse(setGeometry)
-      occlusionMesh.traverse(setGeometry)
-    }, [plane?.geometry])
-
-    useEffect(() => {
-      if (!plane) return
-      const placementHelper = plane.placementHelper.value
-      placementHelper.visible = scenePlacementMode.value === 'placing'
-    }, [scenePlacementMode])
-
-    return null
-  }
-})

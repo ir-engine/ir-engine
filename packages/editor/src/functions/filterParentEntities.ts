@@ -40,11 +40,11 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
  * @returns List of parent entities
  */
 export const filterParentEntities = (
-  entityList: (Entity | string)[],
-  parentEntityList: (Entity | string)[] = [],
+  entityList: Entity[],
+  parentEntityList: Entity[] = [],
   filterUnremovable = true,
   filterUntransformable = true
-): (Entity | string)[] => {
+): Entity[] => {
   parentEntityList.length = 0
 
   // Recursively find the nodes in the tree with the lowest depth

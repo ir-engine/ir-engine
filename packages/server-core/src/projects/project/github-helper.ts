@@ -330,8 +330,14 @@ const uploadToRepo = async (
     currentCommit = await getCurrentCommit(octo, org, repo, branch)
   } catch (err) {
     if (err.status === 409 && err.message === 'Git Repository is empty.') {
-      await octo.repos.delete({ owner: org, repo })
-      await octo.repos.createInOrg({ org, name: repo, auto_init: true })
+      await octo.repos.createOrUpdateFileContents({
+        owner: org,
+        repo,
+        path: 'README.md',
+        message: 'Initial commit',
+        content: 'ZHVtbXk=',
+        branch: 'main'
+      })
       currentCommit = await getCurrentCommit(octo, org, repo, branch)
     } else throw err
   }

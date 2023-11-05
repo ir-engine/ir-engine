@@ -23,17 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-
-import { getState } from '@etherealengine/hyperflux'
+import { MathUtils, MeshBasicMaterial, Vector3 } from 'three'
+import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { SceneServices } from '../../ecs/classes/Scene'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
+  hasComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -45,18 +49,79 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { createInteractUI } from '../../interaction/functions/interactUI'
+import { createNonInteractUI } from '../../interaction/functions/nonInteractUI'
+import {
+  InteractableTransitions,
+  addInteractableUI,
+  removeInteractiveUI
+} from '../../interaction/systems/InteractiveSystem'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
+import { VisibleComponent } from './VisibleComponent'
 
 const linkLogic = (linkComponent, xrState) => {
   if (!linkComponent.sceneNav) {
     xrState && xrState.session?.end()
     typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
   } else {
-    SceneServices.setCurrentScene(linkComponent.sceneId)
+    getMutableState(LinkState).location.set(linkComponent.location)
   }
 }
+
+const vec3 = new Vector3()
+const interactMessage = 'Click to follow'
+const onLinkInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
+  const transform = getComponent(xrui.entity, TransformComponent)
+  if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
+  const boundingBox = getComponent(entity, BoundingBoxComponent)
+  const input = getComponent(entity, InputComponent)
+
+  if (hasComponent(xrui.entity, VisibleComponent)) {
+    transform.position.copy(getComponent(entity, TransformComponent).position)
+    if (boundingBox) {
+      transform.position.y += boundingBox.box.max.y + 0.5
+    } else {
+      transform.position.y += 0.5
+    }
+    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+    transform.rotation.copy(cameraTransform.rotation)
+    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
+    const distance = vec3.distanceToSquared(transform.position)
+    transform.scale.set(1, 1, 1)
+    transform.scale.addScalar(MathUtils.clamp(distance * 0.01, 1, 5))
+  }
+
+  const transition = InteractableTransitions.get(entity)!
+
+  if (transition.state === 'OUT' && input.inputSources.length > 0) {
+    transition.setState('IN')
+    setComponent(xrui.entity, VisibleComponent)
+  }
+  if (transition.state === 'IN' && input.inputSources.length == 0) {
+    transition.setState('OUT')
+  }
+
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  transition.update(deltaSeconds, (opacity) => {
+    if (opacity === 0) {
+      removeComponent(xrui.entity, VisibleComponent)
+    }
+    xrui.container.rootLayer.traverseLayersPreOrder((layer) => {
+      const mat = layer.contentMesh.material as MeshBasicMaterial
+      mat.opacity = opacity
+    })
+  })
+}
+
+export const LinkState = defineState({
+  name: 'LinkState',
+  initial: {
+    location: undefined
+  }
+})
 
 export const LinkComponent = defineComponent({
   name: 'LinkComponent',
@@ -66,8 +131,7 @@ export const LinkComponent = defineComponent({
     return {
       url: 'https://www.etherealengine.org',
       sceneNav: false,
-      projectName: '',
-      sceneName: ''
+      location: ''
     }
   },
 
@@ -75,20 +139,22 @@ export const LinkComponent = defineComponent({
     if (!json) return
     matches.string.test(json.url) && component.url.set(json.url as string)
     matches.boolean.test(json.sceneNav) && component.sceneNav.set(json.sceneNav as boolean)
-    matches.string.test(json.projectName) && component.projectName.set(json.projectName as string)
-    matches.string.test(json.sceneName) && component.sceneName.set(json.sceneName as string)
+    matches.string.test(json.location) && component.location.set(json.location as string)
   },
 
   toJSON: (entity, component) => {
     return {
       url: component.url.value,
       sceneNav: component.sceneNav.value,
-      projectName: component.projectName.value,
-      sceneName: component.sceneName.value
+      location: component.location.value
     }
   },
 
   errors: ['INVALID_URL'],
+
+  onRemove: function (entity) {
+    removeInteractiveUI(entity)
+  },
 
   reactor: function () {
     if (!isClient) return null
@@ -121,6 +187,9 @@ export const LinkComponent = defineComponent({
     useEffect(() => {
       setComponent(entity, BoundingBoxComponent)
       setComponent(entity, InputComponent, { highlight: true, grow: true })
+      if (!getState(EngineState).isEditor) {
+        addInteractableUI(entity, createNonInteractUI(entity, interactMessage), onLinkInteractUpdate)
+      }
     }, [])
 
     useExecute(
@@ -133,6 +202,7 @@ export const LinkComponent = defineComponent({
 
         if (inputSourceEntity) {
           const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
+          if (inputSource?.assignedButtonEntity != entity) return
           const buttons = inputSource?.buttons
 
           if (buttons)

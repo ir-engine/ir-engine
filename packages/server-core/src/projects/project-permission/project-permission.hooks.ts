@@ -29,6 +29,7 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import verifyProjectOwner from '../../hooks/verify-project-owner'
 
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import {
   ProjectPermissionData,
   ProjectPermissionPatch,
@@ -89,7 +90,6 @@ const checkExistingPermissions = async (context: HookContext<ProjectPermissionSe
   const data: ProjectPermissionData[] = Array.isArray(context.data) ? context.data : [context.data]
 
   const selfUser = context.params!.user!
-  //
   try {
     const searchParam = data[0].inviteCode
       ? {
@@ -126,7 +126,7 @@ const checkExistingPermissions = async (context: HookContext<ProjectPermissionSe
       type:
         data[0].type === 'owner' ||
         existingPermissionsCount.length === 0 ||
-        (selfUser.scopes?.find((scope) => scope.type === 'admin:admin') && selfUser.id === users.data[0].id)
+        ((await checkScope(selfUser, 'projects', 'write')) && selfUser.id === users.data[0].id)
           ? 'owner'
           : 'user'
     }
@@ -143,8 +143,7 @@ const checkExistingPermissions = async (context: HookContext<ProjectPermissionSe
  */
 const checkUserScopes = async (context: HookContext<ProjectPermissionService>) => {
   if (!context.params.user) return false
-  if (context.params.user.scopes.find((scope) => scope.type === 'admin:admin')) return false
-  return true
+  return checkScope(context.params.user, 'projects', 'read')
 }
 
 /**
@@ -173,7 +172,7 @@ const checkPermissionStatus = async (context: HookContext<ProjectPermissionServi
  */
 const ensureOwnership = async (context: HookContext<ProjectPermissionService>) => {
   const loggedInUser = context.params!.user!
-  if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return context
+  if (await checkScope(loggedInUser, 'projects', 'read')) return
   const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectPermissionType[]
   if (result[0].userId !== loggedInUser.id) throw new Forbidden('You do not own this project-permission')
 }
