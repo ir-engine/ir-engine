@@ -27,6 +27,8 @@ import { Color, Texture } from 'three'
 
 import { defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { Engine } from './Engine'
@@ -44,6 +46,13 @@ export const SceneState = defineState({
     activeScene: null as null | SceneID,
     background: null as null | Color | Texture
   }),
+
+  addEntitiesToScene: (sceneID: SceneID, entities: Record<EntityUUID, EntityJson>) => {
+    const scene = getMutableState(SceneState).scenes[sceneID]
+    for (const [uuid, data] of Object.entries(entities)) {
+      scene.data.scene.entities[uuid].set(data)
+    }
+  },
 
   loadScene: (sceneID: SceneID, data: SceneDataType) => {
     getMutableState(SceneState).scenes[sceneID].set({ data })

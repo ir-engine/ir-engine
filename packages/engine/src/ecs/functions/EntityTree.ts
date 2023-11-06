@@ -81,7 +81,8 @@ export const EntityTreeComponent = defineComponent({
     // set new data
     if (typeof json.parentEntity !== 'undefined') component.parentEntity.set(json.parentEntity)
 
-    if (matchesEntityUUID.test(json?.uuid)) setComponent(entity, UUIDComponent, json.uuid)
+    if (matchesEntityUUID.test(json?.uuid) && !hasComponent(entity, UUIDComponent))
+      setComponent(entity, UUIDComponent, json.uuid)
 
     if (component.parentEntity.value) {
       const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)

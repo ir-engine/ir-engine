@@ -27,12 +27,16 @@ import { AnimationMixer, InstancedMesh, Mesh, Object3D } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
+import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getState } from '@etherealengine/hyperflux'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
   ComponentMap,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -48,12 +52,13 @@ import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
+import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import iterateObject3D from '../util/iterateObject3D'
 import { enableObjectLayer } from './setObjectLayers'
 
-export const parseECSData = (entity: Entity, data: [string, any][]): void => {
+export const parseECSData = (entity: Entity, data: [string, any][]): ComponentJson[] => {
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
 
@@ -76,12 +81,14 @@ export const parseECSData = (entity: Entity, data: [string, any][]): void => {
     }
   }
 
+  const result: ComponentJson[] = []
   for (const [key, value] of Object.entries(components)) {
     const component = ComponentMap.get(key)
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
       continue
     }
+    result.push({ name: component.jsonID!, props: value })
     setComponent(entity, component, value)
     getComponent(entity, GLTFLoadedComponent).push(component)
   }
@@ -92,20 +99,26 @@ export const parseECSData = (entity: Entity, data: [string, any][]): void => {
       console.warn(`Could not load component '${Component}'`)
       continue
     }
+    result.push({ name: Component.jsonID!, props: value })
     getComponent(entity, GLTFLoadedComponent).push(Component)
     setComponent(entity, Component, value)
   }
+
+  return result
 }
 
-export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
-  parseECSData(entity, Object.entries(obj3d.userData))
+export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): ComponentJson[] => {
+  return parseECSData(entity, Object.entries(obj3d.userData))
 }
 
-export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3D): Entity[] => {
+export const parseObjectComponentsFromGLTF = (
+  entity: Entity,
+  object3d?: Object3D
+): { entities: Entity[]; entityJson: Record<EntityUUID, EntityJson> } => {
   const scene = object3d ?? getComponent(entity, ModelComponent).scene
   const meshesToProcess: Mesh[] = []
 
-  if (!scene) return []
+  if (!scene) return { entities: [], entityJson: {} }
 
   scene.traverse((mesh: Mesh) => {
     if ('xrengine.entity' in mesh.userData) {
@@ -113,23 +126,33 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     }
   })
 
-  if (meshesToProcess.length === 0) {
-    setComponent(entity, GLTFLoadedComponent)
-    scene.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
-    return []
-  }
+  // if (meshesToProcess.length === 0) {
+  //   setComponent(entity, GLTFLoadedComponent)
+  //   scene.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
+  //   return { entities: [], entityJson: {} }
+  // }
 
   const entities: Entity[] = []
+  const entityJson: Record<EntityUUID, EntityJson> = {}
 
   for (const mesh of meshesToProcess) {
     const e = createEntity()
     entities.push(e)
+    const name = mesh.userData['xrengine.entity'] ?? mesh.uuid
+    const uuid = mesh.uuid as EntityUUID
+    const parentUuid = getComponent(entity, UUIDComponent)
+    const eJson: EntityJson = {
+      name,
+      components: [],
+      parent: parentUuid
+    }
 
-    setComponent(e, EntityTreeComponent, { parentEntity: entity, uuid: mesh.uuid as EntityUUID })
+    // setComponent(e, EntityTreeComponent, { parentEntity: entity, uuid })
+    // setComponent(e, UUIDComponent, uuid)
 
     if (hasComponent(entity, SceneObjectComponent)) setComponent(e, SceneObjectComponent)
 
-    setComponent(e, NameComponent, mesh.userData['xrengine.entity'] ?? mesh.uuid)
+    setComponent(e, NameComponent, name)
 
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
@@ -139,17 +162,27 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
       rotation: mesh.quaternion,
       scale: mesh.scale
     })
+    eJson.components.push({
+      name: LocalTransformComponent.jsonID,
+      props: {
+        position: mesh.position,
+        rotation: mesh.quaternion,
+        scale: mesh.scale
+      }
+    })
+
     computeTransformMatrix(entity)
 
     addObjectToGroup(e, mesh)
 
     setComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent.name])
-    createObjectEntityFromGLTF(e, mesh)
+    eJson.components.push(...createObjectEntityFromGLTF(e, mesh))
 
     mesh.visible = false
+    entityJson[uuid] = eJson
   }
 
-  return entities
+  return { entities, entityJson }
 }
 
 export const parseGLTFModel = (entity: Entity) => {
@@ -159,21 +192,19 @@ export const parseGLTFModel = (entity: Entity) => {
   scene.updateMatrixWorld(true)
 
   // always parse components first
-  const spawnedEntities = parseObjectComponentsFromGLTF(entity, scene)
-
+  const { entities: spawnedEntities, entityJson } = parseObjectComponentsFromGLTF(entity, scene)
   iterateObject3D(
     scene,
     (obj) => {
       if (obj === scene) {
-        const originalChildren = obj.children
         Object.defineProperties(obj, {
           children: {
             get() {
               return hasComponent(entity, EntityTreeComponent)
                 ? getComponent(entity, EntityTreeComponent)
-                    .children.map((child) => getComponent(child, GroupComponent))
-                    .flat()
-                : originalChildren
+                    .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length ?? 0 > 0)
+                    .flatMap((child) => getComponent(child, GroupComponent))
+                : []
             },
             set(value) {
               throw new Error('Cannot set children of proxified object')
@@ -186,20 +217,49 @@ export const parseGLTFModel = (entity: Entity) => {
       spawnedEntities.push(objEntity)
 
       const parentEntity = obj === scene ? entity : (obj.parent as Object3DWithEntity).entity
+      const uuid = obj.uuid as EntityUUID
+      const name = obj.userData['xrengine.entity'] ?? obj.name
+
+      const eJson: EntityJson = {
+        name,
+        components: [],
+        parent: getComponent(parentEntity, UUIDComponent)
+      }
+      setComponent(objEntity, SceneObjectComponent)
       setComponent(objEntity, EntityTreeComponent, {
         parentEntity,
-        uuid: obj.uuid as EntityUUID
+        uuid
       })
+
       setComponent(objEntity, LocalTransformComponent, {
         position: obj.position,
         rotation: obj.quaternion,
         scale: obj.scale
       })
-      setComponent(objEntity, NameComponent, obj.userData['xrengine.entity'] ?? obj.name)
+      eJson.components.push({
+        name: LocalTransformComponent.jsonID,
+        props: {
+          position: obj.position,
+          rotation: obj.quaternion,
+          scale: obj.scale
+        }
+      })
+
+      setComponent(objEntity, NameComponent, name)
       addObjectToGroup(objEntity, obj)
-      if (obj.visible) setComponent(objEntity, VisibleComponent)
+      if (obj.visible) {
+        setComponent(objEntity, VisibleComponent)
+        eJson.components.push({
+          name: VisibleComponent.jsonID,
+          props: obj.visible
+        })
+      }
+      if (obj === scene) {
+        const transformComponent = getComponent(entity, TransformComponent)
+        obj.matrix = transformComponent.matrix
+      }
       setComponent(objEntity, GLTFLoadedComponent, ['entity'])
-      createObjectEntityFromGLTF(objEntity, obj)
+      eJson.components.push(...createObjectEntityFromGLTF(objEntity, obj))
 
       const mesh = obj as Mesh
       mesh.isMesh && setComponent(objEntity, MeshComponent, mesh)
@@ -210,10 +270,8 @@ export const parseGLTFModel = (entity: Entity) => {
           instanceMatrix: instancedMesh.instanceMatrix
         })
 
-      obj.userData.ecsData && parseECSData(objEntity, obj.userData.ecsData)
-      // !hasComponent(objEntity, UUIDComponent) &&
-      //   setComponent(objEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-
+      obj.userData.ecsData && eJson.components.push(...parseECSData(objEntity, obj.userData.ecsData))
+      entityJson[uuid] = eJson
       /** Proxy children with EntityTreeComponent if it exists */
       Object.defineProperties(obj, {
         parent: {
@@ -231,8 +289,8 @@ export const parseGLTFModel = (entity: Entity) => {
           get() {
             return hasComponent(objEntity, EntityTreeComponent)
               ? getComponent(objEntity, EntityTreeComponent)
-                  .children.map((child) => getComponent(child, GroupComponent))
-                  .flat()
+                  .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length ?? 0 > 0)
+                  .flatMap((child) => getComponent(child, GroupComponent))
               : []
           },
           set(value) {
@@ -264,6 +322,9 @@ export const parseGLTFModel = (entity: Entity) => {
       animations: scene.animations
     })
   }
+
+  //add spawned entities to scene state
+  SceneState.addEntitiesToScene(getState(SceneState).activeScene!, entityJson)
 
   return spawnedEntities
 }
