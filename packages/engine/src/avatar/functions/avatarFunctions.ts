@@ -46,7 +46,6 @@ import { iOS } from '../../common/functions/isMobile'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -143,7 +142,7 @@ export const loadAvatarForUser = async (
     const avatar = getComponent(entity, AvatarComponent)
     const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(entity, avatar?.model)
     const effectEntity = createEntity()
-    addComponent(effectEntity, AvatarEffectComponent, {
+    setComponent(effectEntity, AvatarEffectComponent, {
       sourceEntity: entity,
       opacityMultiplier: 1,
       dissolveMaterials: dissolveMaterials as ShaderMaterial[],
