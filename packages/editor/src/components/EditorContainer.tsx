@@ -51,7 +51,7 @@ import { useDrop } from 'react-dnd'
 import { Vector2, Vector3 } from 'three'
 import { ItemTypes } from '../constants/AssetTypes'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
-import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
+import { inputFileWithAddToScene } from '../functions/assetFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { getCursorSpawnPosition } from '../functions/screenSpaceFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -291,27 +291,7 @@ const onSaveAs = async () => {
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
 
-  const el = document.createElement('input')
-  el.type = 'file'
-  el.multiple = true
-  el.accept = '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
-  el.style.display = 'none'
-  el.onchange = async () => {
-    if (el.files && el.files.length > 0 && projectName) {
-      const fList = el.files
-      const files = [...Array(el.files.length).keys()].map((i) => fList[i])
-      const nuUrl = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map((url) => url[0])
-
-      //process zipped files
-      const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
-      const extractPromises = [...zipFiles.map((zipped) => extractZip(zipped))]
-      Promise.all(extractPromises).then(() => {
-        logger.info('extraction complete')
-      })
-    }
-  }
-  el.click()
-  el.remove()
+  if (projectName) await inputFileWithAddToScene({ projectName })
 }
 
 const onSaveScene = async () => {
