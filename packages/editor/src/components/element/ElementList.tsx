@@ -35,6 +35,7 @@ import { AmbientLightComponent } from '@etherealengine/engine/src/scene/componen
 import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
+import { FashionDesignComponent } from '@etherealengine/engine/src/scene/components/FashionDesignComponent'
 import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/components/HemisphereLightComponent'
@@ -92,7 +93,14 @@ type SceneElementListItemType = {
 }
 
 export const ComponentShelfCategories: Record<string, Component[]> = {
-  Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
+  Files: [
+    ModelComponent,
+    VolumetricComponent,
+    FashionDesignComponent,
+    PositionalAudioComponent,
+    VideoComponent,
+    ImageComponent
+  ],
   'Scene Composition': [
     PrimitiveGeometryComponent,
     GroundPlaneComponent,

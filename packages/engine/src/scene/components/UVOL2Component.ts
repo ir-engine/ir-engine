@@ -291,7 +291,7 @@ function UVOL2Reactor() {
 
   const material = useMemo(() => {
     if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
-      return new ShaderMaterial({
+      const _material = new ShaderMaterial({
         vertexShader: uniformSolveVertexShader,
         fragmentShader: uniformSolveFragmentShader,
         uniforms: {
@@ -309,6 +309,15 @@ function UVOL2Reactor() {
           }
         }
       })
+      const depthDelta = 10
+      if (manifest.current.texture.baseColor.path.includes('outfit')) {
+        _material.polygonOffset = true
+        _material.polygonOffsetFactor = depthDelta
+      } else {
+        _material.polygonOffset = true
+        _material.polygonOffsetFactor = -depthDelta
+      }
+      return _material
     }
     return new MeshBasicMaterial({ color: 0xffffff })
   }, [])
@@ -984,6 +993,9 @@ function UVOL2Reactor() {
       volumetric.ended.set(true)
       return
     }
+    console.log(
+      `Entity ${entity}, UVOL2, mesh.material.polygonOffset = ${mesh.material.polygonOffset}, polygonFactor = ${mesh.material.polygonOffsetFactor}, polygonUnits = ${mesh.material.polygonOffsetUnits}`
+    )
 
     updateGeometry(currentTime.current)
     updateTexture(currentTime.current)

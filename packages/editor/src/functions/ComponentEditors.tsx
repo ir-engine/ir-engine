@@ -80,7 +80,9 @@ import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEdito
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
+import { FashionDesignComponent } from '@etherealengine/engine/src/scene/components/FashionDesignComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
+import FashionNodeEditor from '../components/properties/FashionDesignNodeEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
@@ -140,6 +142,7 @@ EntityNodeEditor.set(ImageComponent, ImageNodeEditor)
 EntityNodeEditor.set(PositionalAudioComponent, PositionalAudioNodeEditor)
 EntityNodeEditor.set(VideoComponent, VideoNodeEditor)
 EntityNodeEditor.set(VolumetricComponent, VolumetricNodeEditor)
+EntityNodeEditor.set(FashionDesignComponent, FashionNodeEditor)
 // EntityNodeEditor.set(CloudComponent, CloudsNodeEditor)
 // EntityNodeEditor.set(OceanComponent, OceanNodeEditor)
 // EntityNodeEditor.set(WaterComponent, WaterNodeEditor)
