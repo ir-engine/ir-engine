@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { iff, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
@@ -79,7 +79,13 @@ const deleteSceneResources = async (context: HookContext<SceneService>) => {
 export default {
   before: {
     all: [() => schemaHooks.validateQuery(sceneQueryValidator), schemaHooks.resolveQuery(sceneQueryResolver)],
-    find: [replaceProjectName],
+    find: [
+      replaceProjectName,
+      discardQuery('metadataOnly'),
+      discardQuery('storageProvider'),
+      discardQuery('name'),
+      discardQuery('internal')
+    ],
     get: [],
     create: [
       () => schemaHooks.validateData(sceneDataValidator),

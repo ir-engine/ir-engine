@@ -99,26 +99,19 @@ export const EditorPage = () => {
 
   useEffect(() => {
     const { projectName, sceneName } = params
-    let projectId, sceneId
+    let sceneId
 
-    if (projectName) {
-      projectState.projects.value.forEach((project) => {
-        if (project.name === projectName) {
-          projectId = project.id
+    getScenes(projectName).then((scenes) => {
+      scenes.forEach((scene) => {
+        if (scene.name === sceneName) {
+          sceneId = scene.id
         }
       })
-      getScenes(projectId).then((scenes) => {
-        scenes.forEach((scene) => {
-          if (scene.name === sceneName) {
-            sceneId = scene.id
-          }
-        })
-      })
-    }
+    })
+
     getMutableState(EditorState).merge({
       projectName: projectName ?? null,
       sceneName: sceneName ?? null,
-      projectId: (projectId as string) ?? null,
       sceneId: (sceneId as SceneID) ?? null
     })
   }, [params])

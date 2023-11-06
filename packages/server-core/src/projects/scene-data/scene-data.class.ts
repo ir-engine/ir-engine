@@ -77,11 +77,19 @@ export class SceneDataService
       delete params.query.projectName
     }
 
+    const sceneParams = params
+
     const scenesResult = (await this.app.service(scenePath).find({ ...params, paginate: false })) as any as SceneType[]
 
     const scenes: SceneDataType[] = []
     for (const scene of scenesResult) {
-      const sceneData = await getSceneData(this.app, scene.id as SceneID, true, true, params!.query!.storageProvider)
+      const sceneData = await getSceneData(
+        this.app,
+        scene.id as SceneID,
+        sceneParams?.query?.metadataOnly,
+        sceneParams?.query?.internal,
+        sceneParams!.query!.storageProvider
+      )
       scenes.push(sceneData)
     }
 
