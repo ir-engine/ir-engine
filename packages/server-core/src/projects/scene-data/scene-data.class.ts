@@ -93,9 +93,9 @@ export class SceneDataService
       scenes.push(sceneData)
     }
 
-    for (const [index, _] of scenes.entries()) {
-      scenes[index].thumbnailUrl += `?${Date.now()}`
-    }
+    // for (const [index, _] of scenes.entries()) {
+    //   scenes[index].thumbnailUrl += `?${Date.now()}`
+    // }
 
     return paginate === false ? scenes : { total: scenes.length, limit: 0, skip: 0, data: scenes }
   }
