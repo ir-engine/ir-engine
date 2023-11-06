@@ -58,7 +58,7 @@ describe('scene.test', () => {
     projectId = (await app.service(projectPath).create({ name: projectName })).id
     const scene = await app
       .service(sceneUploadPath)
-      .create({ projectId: projectId, name: sceneName, sceneData, projectName }, { files: [], ...params })
+      .create({ name: sceneName, sceneData, projectName }, { files: [], ...params })
     sceneId = scene.id
   })
 

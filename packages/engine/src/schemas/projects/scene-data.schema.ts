@@ -19,9 +19,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Static, Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator } from '../validators'
-import { SceneID, sceneJsonSchema, sceneMetadataSchema } from './scene.schema'
+import { sceneJsonSchema, sceneMetadataSchema } from './scene.schema'
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
@@ -41,24 +40,25 @@ export interface SceneDataType extends Static<typeof sceneDataSchema> {}
 // Schema for creating new entries
 export const sceneCreateDataSchema = Type.Object(
   {
-    id: Type.Optional(
-      TypedString<SceneID>({
-        format: 'uuid'
-      })
-    ),
-    name: Type.Optional(Type.String()),
-    scenePath: Type.Optional(Type.String()),
-    envMapPath: Type.Optional(Type.String()),
-    projectId: Type.Optional(Type.String()),
     projectName: Type.Optional(Type.String()),
-    thumbnailPath: Type.Optional(Type.String()),
-    storageProvider: Type.Optional(Type.String()),
-    sceneData: Type.Optional(Type.Ref(sceneJsonSchema)),
-    thumbnailBuffer: Type.Optional(Type.Any())
+    storageProvider: Type.Optional(Type.String())
   },
   { $id: 'SceneCreateData', additionalProperties: false }
 )
 export interface SceneCreateData extends Static<typeof sceneCreateDataSchema> {}
+
+// Schema for creating new entries
+export const sceneUpdateDataSchema = Type.Object(
+  {
+    name: Type.String(),
+    projectName: Type.Optional(Type.String()),
+    storageProvider: Type.Optional(Type.String()),
+    sceneData: Type.Ref(sceneJsonSchema),
+    thumbnailBuffer: Type.Optional(Type.Any())
+  },
+  { $id: 'SceneUpdateData', additionalProperties: false }
+)
+export interface SceneUpdateData extends Static<typeof sceneUpdateDataSchema> {}
 
 // Schema for updating existing entries
 export const sceneDataPatchSchema = Type.Object(
@@ -97,4 +97,5 @@ export interface SceneDataQuery extends Static<typeof sceneDataQuerySchema> {}
 
 export const sceneDataValidator = getValidator(sceneDataSchema, dataValidator)
 export const sceneCreateDataValidator = getValidator(sceneCreateDataSchema, dataValidator)
+export const sceneUpdateDataValidator = getValidator(sceneUpdateDataSchema, dataValidator)
 export const sceneDataPatchValidator = getValidator(sceneDataPatchSchema, dataValidator)

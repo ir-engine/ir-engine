@@ -26,7 +26,8 @@ import {
   SceneCreateData,
   SceneDataPatch,
   SceneDataQuery,
-  SceneDataType
+  SceneDataType,
+  SceneUpdateData
 } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { SceneID, SceneJsonType, SceneType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
@@ -45,7 +46,12 @@ export interface SceneDataParams extends Params, SceneDataQuery {
 
 export class SceneDataService
   implements
-    ServiceInterface<SceneDataType | Paginated<SceneDataType>, SceneCreateData, SceneDataParams, SceneDataPatch>
+    ServiceInterface<
+      SceneDataType | Paginated<SceneDataType>,
+      SceneCreateData | SceneUpdateData,
+      SceneDataParams,
+      SceneDataPatch
+    >
 {
   app: Application
 
@@ -204,7 +210,7 @@ export class SceneDataService
     return { id: scene.id, name: scene.name, scene: {}, thumbnailUrl: '', project: projectName } as SceneDataType
   }
 
-  async update(id: NullableId, data: SceneCreateData, params?: SceneDataParams) {
+  async update(id: NullableId, data: SceneUpdateData, params?: SceneDataParams) {
     const { name, sceneData, thumbnailBuffer, storageProvider, projectName } = data
     let parsedSceneData = sceneData
     if (sceneData && typeof sceneData === 'string') parsedSceneData = JSON.parse(sceneData)

@@ -21,21 +21,21 @@ Ethereal Engine. All Rights Reserved.
 import { Application } from '../../../declarations'
 
 import {
-  SceneCreateData,
   SceneDataType,
+  SceneUpdateData,
   sceneDataPath
 } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
 
-export class SceneUploadService implements ServiceInterface<SceneDataType, SceneCreateData, UploadParams> {
+export class SceneUploadService implements ServiceInterface<SceneDataType, SceneUpdateData, UploadParams> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async create(data: SceneCreateData, params: UploadParams) {
+  async create(data: SceneUpdateData, params: UploadParams) {
     //if (typeof data === 'string') data = JSON.parse(data)
     //if (typeof data.sceneData === 'string') data.sceneData = JSON.parse(data.sceneData)
 
