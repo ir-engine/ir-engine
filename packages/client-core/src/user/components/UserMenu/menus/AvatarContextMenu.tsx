@@ -114,7 +114,10 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
       }}
     >
       {userId && (
-        <Box className={styles.menuContent} display={'flex'} flexDirection={'column'}>
+        <Box
+          className={styles.menuContent}
+          style={{ display: 'flex', alignItems: 'center', flexDirection: 'column', gap: '10px' }}
+        >
           <Avatar imageSrc={userThumbnail} size={150} sx={{ margin: '0 auto' }} />
 
           <Text variant="h6" align="center" mt={2} mb={1}>

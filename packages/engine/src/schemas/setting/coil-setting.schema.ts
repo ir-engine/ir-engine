@@ -46,19 +46,19 @@ export const coilSettingSchema = Type.Object(
   },
   { $id: 'CoilSetting', additionalProperties: false }
 )
-export type CoilSettingType = Static<typeof coilSettingSchema>
+export interface CoilSettingType extends Static<typeof coilSettingSchema> {}
 
 // Schema for creating new entries
 export const coilSettingDataSchema = Type.Pick(coilSettingSchema, ['paymentPointer', 'clientId', 'clientSecret'], {
   $id: 'CoilSettingData'
 })
-export type CoilSettingData = Static<typeof coilSettingDataSchema>
+export interface CoilSettingData extends Static<typeof coilSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const coilSettingPatchSchema = Type.Partial(coilSettingSchema, {
   $id: 'CoilSettingPatch'
 })
-export type CoilSettingPatch = Static<typeof coilSettingPatchSchema>
+export interface CoilSettingPatch extends Static<typeof coilSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const coilSettingQueryProperties = Type.Pick(coilSettingSchema, [
@@ -75,7 +75,7 @@ export const coilSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type CoilSettingQuery = Static<typeof coilSettingQuerySchema>
+export interface CoilSettingQuery extends Static<typeof coilSettingQuerySchema> {}
 
 export const coilSettingValidator = getValidator(coilSettingSchema, dataValidator)
 export const coilSettingDataValidator = getValidator(coilSettingDataSchema, dataValidator)

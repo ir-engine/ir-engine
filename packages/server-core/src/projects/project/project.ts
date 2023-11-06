@@ -69,20 +69,21 @@ export default (app: Application): void => {
       let targetIds: string[] = []
       const projectOwners = (await app.service(projectPermissionPath).find({
         query: {
-          projectId: data.id
+          projectId: data.id,
+          type: 'owner'
         },
         paginate: false
       })) as any as ProjectPermissionType[]
       targetIds = targetIds.concat(projectOwners.map((permission) => permission.userId))
 
-      const adminScopes = (await app.service(scopePath).find({
+      const projectReadScopes = (await app.service(scopePath).find({
         query: {
-          type: 'admin:admin'
+          type: 'projects:read'
         },
         paginate: false
       })) as ScopeType[]
 
-      targetIds = targetIds.concat(adminScopes.map((admin) => admin.userId!))
+      targetIds = targetIds.concat(projectReadScopes.map((admin) => admin.userId!))
       targetIds = _.uniq(targetIds)
       return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {

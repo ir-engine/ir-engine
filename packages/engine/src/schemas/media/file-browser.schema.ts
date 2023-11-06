@@ -42,7 +42,7 @@ export const fileBrowserContentSchema = Type.Object(
     $id: 'FileBrowserContent'
   }
 )
-export type FileBrowserContentType = Static<typeof fileBrowserContentSchema>
+export interface FileBrowserContentType extends Static<typeof fileBrowserContentSchema> {}
 
 export const fileBrowserUpdateSchema = Type.Object(
   {
@@ -57,7 +57,7 @@ export const fileBrowserUpdateSchema = Type.Object(
     $id: 'FileBrowserUpdate'
   }
 )
-export type FileBrowserUpdate = Static<typeof fileBrowserUpdateSchema>
+export interface FileBrowserUpdate extends Static<typeof fileBrowserUpdateSchema> {}
 
 export const fileBrowserPatchSchema = Type.Object(
   {
@@ -71,7 +71,7 @@ export const fileBrowserPatchSchema = Type.Object(
     $id: 'FileBrowserPatch'
   }
 )
-export type FileBrowserPatch = Static<typeof fileBrowserPatchSchema>
+export interface FileBrowserPatch extends Static<typeof fileBrowserPatchSchema> {}
 
 export const fileBrowserContentValidator = getValidator(fileBrowserContentSchema, dataValidator)
 export const fileBrowserUpdateValidator = getValidator(fileBrowserUpdateSchema, dataValidator)

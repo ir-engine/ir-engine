@@ -29,6 +29,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
+import { LocationID } from './location.schema'
 
 export const locationAuthorizedUserPath = 'location-authorized-user'
 
@@ -40,7 +41,7 @@ export const locationAuthorizedUserSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    locationId: Type.String({
+    locationId: TypedString<LocationID>({
       format: 'uuid'
     }),
     userId: TypedString<UserID>({
@@ -51,19 +52,19 @@ export const locationAuthorizedUserSchema = Type.Object(
   },
   { $id: 'LocationAuthorizedUser', additionalProperties: false }
 )
-export type LocationAuthorizedUserType = Static<typeof locationAuthorizedUserSchema>
+export interface LocationAuthorizedUserType extends Static<typeof locationAuthorizedUserSchema> {}
 
 // Schema for creating new entries
 export const locationAuthorizedUserDataSchema = Type.Pick(locationAuthorizedUserSchema, ['userId', 'locationId'], {
   $id: 'LocationAuthorizedUserData'
 })
-export type LocationAuthorizedUserData = Static<typeof locationAuthorizedUserDataSchema>
+export interface LocationAuthorizedUserData extends Static<typeof locationAuthorizedUserDataSchema> {}
 
 // Schema for updating existing entries
 export const locationAuthorizedUserPatchSchema = Type.Partial(locationAuthorizedUserSchema, {
   $id: 'LocationAuthorizedUserPatch'
 })
-export type LocationAuthorizedUserPatch = Static<typeof locationAuthorizedUserPatchSchema>
+export interface LocationAuthorizedUserPatch extends Static<typeof locationAuthorizedUserPatchSchema> {}
 
 // Schema for allowed query properties
 export const locationAuthorizedUserQueryProperties = Type.Pick(locationAuthorizedUserSchema, [
@@ -80,7 +81,7 @@ export const locationAuthorizedUserQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 
-export type LocationAuthorizedUserQuery = Static<typeof locationAuthorizedUserQuerySchema>
+export interface LocationAuthorizedUserQuery extends Static<typeof locationAuthorizedUserQuerySchema> {}
 
 export const locationAuthorizedUserValidator = getValidator(locationAuthorizedUserSchema, dataValidator)
 export const locationAuthorizedUserDataValidator = getValidator(locationAuthorizedUserDataSchema, dataValidator)

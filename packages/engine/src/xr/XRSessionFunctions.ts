@@ -86,6 +86,7 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
       'depth-sensing',
       'anchors',
       'plane-detection',
+      'mesh-detection',
       'camera-access'
     ].filter(Boolean),
     depthSensing: {

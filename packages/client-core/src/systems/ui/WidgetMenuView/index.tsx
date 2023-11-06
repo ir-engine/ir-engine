@@ -33,12 +33,14 @@ import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@etherealen
 import { createState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { AvatarInputSettingsState } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { setTrackingSpace } from '../../../../../engine/src/xr/XRScaleAdjustmentFunctions'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../../../transports/MediaStreams'
 import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
 import XRIconButton from '../../components/XRIconButton'
+import HandSVG from './back_hand_24px.svg?react'
 import styleString from './index.scss?inline'
 
 export function createWidgetButtonsView() {
@@ -56,7 +58,7 @@ type WidgetButtonProps = {
   disabled?: boolean
 }
 
-const WidgetButton = ({ icon: name, toggle, label, disabled }: WidgetButtonProps) => {
+const WidgetButton = ({ icon, toggle, label, disabled }: WidgetButtonProps) => {
   const mouseOver = useHookstate(false)
   return (
     <XRIconButton
@@ -64,11 +66,46 @@ const WidgetButton = ({ icon: name, toggle, label, disabled }: WidgetButtonProps
       size="large"
       content={
         <>
-          <Icon type={name} className="svgIcon" />
+          {<Icon type={icon} className="svgIcon" />}
           {mouseOver.value && <div>{label}</div>}
         </>
       }
       onClick={toggle}
+      onMouseEnter={() => mouseOver.set(true)}
+      onMouseLeave={() => mouseOver.set(false)}
+      xr-layer="true"
+    />
+  )
+}
+
+const HandednessWidgetButton = () => {
+  const preferredHand = useHookstate(getMutableState(AvatarInputSettingsState).preferredHand)
+  const mouseOver = useHookstate(false)
+  return (
+    <XRIconButton
+      disabled={false}
+      size="large"
+      content={
+        mouseOver.value ? (
+          <div>{preferredHand.value === 'left' ? 'Left' : 'Right'}</div>
+        ) : (
+          <>
+            <div style={{ transform: `scaleX(${preferredHand.value === 'right' ? -1 : 1})` }}>
+              <HandSVG />
+            </div>
+            <div
+              style={{
+                color: 'var(--iconButtonBackground)',
+                position: 'absolute',
+                fontSize: '10px'
+              }}
+            >
+              {preferredHand.value === 'left' ? 'L' : 'R'}
+            </div>
+          </>
+        )
+      }
+      onClick={() => preferredHand.set((val) => (val === 'left' ? 'right' : 'left'))}
       onMouseEnter={() => mouseOver.set(true)}
       onMouseLeave={() => mouseOver.set(false)}
       xr-layer="true"
@@ -143,6 +180,7 @@ const WidgetButtons = () => {
         {sessionMode.value !== 'none' && (
           <WidgetButton icon="Person" toggle={handleHeightAdjustment} label={'Reset Height'} />
         )}
+        <HandednessWidgetButton />
         {mediaInstanceState?.value && (
           <WidgetButton
             icon={isCamAudioEnabled ? 'Mic' : 'MicOff'}

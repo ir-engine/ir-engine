@@ -36,19 +36,19 @@ export const projectPermissionTypeSchema = Type.Object(
   },
   { $id: 'ProjectPermissionType', additionalProperties: false }
 )
-export type ProjectPermissionTypeType = Static<typeof projectPermissionTypeSchema>
+export interface ProjectPermissionTypeType extends Static<typeof projectPermissionTypeSchema> {}
 
 // Schema for creating new entries
 export const projectPermissionTypeDataSchema = Type.Pick(projectPermissionTypeSchema, ['type'], {
   $id: 'ProjectPermissionTypeData'
 })
-export type ProjectPermissionTypeData = Static<typeof projectPermissionTypeDataSchema>
+export interface ProjectPermissionTypeData extends Static<typeof projectPermissionTypeDataSchema> {}
 
 // Schema for updating existing entries
 export const projectPermissionTypePatchSchema = Type.Partial(projectPermissionTypeSchema, {
   $id: 'ProjectPermissionTypePatch'
 })
-export type ProjectPermissionTypePatch = Static<typeof projectPermissionTypePatchSchema>
+export interface ProjectPermissionTypePatch extends Static<typeof projectPermissionTypePatchSchema> {}
 
 // Schema for allowed query properties
 export const projectPermissionTypeQueryProperties = Type.Pick(projectPermissionTypeSchema, ['type'])
@@ -60,4 +60,4 @@ export const projectPermissionTypeQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type ProjectPermissionTypeQuery = Static<typeof projectPermissionTypeQuerySchema>
+export interface ProjectPermissionTypeQuery extends Static<typeof projectPermissionTypeQuerySchema> {}

@@ -42,7 +42,7 @@ export const matchSearchFieldsSchema = Type.Object(
   },
   { $id: 'MatchSearchFields', additionalProperties: false }
 )
-export type MatchSearchFieldsType = Static<typeof matchSearchFieldsSchema>
+export interface MatchSearchFieldsType extends Static<typeof matchSearchFieldsSchema> {}
 
 // Main data model schema
 export const matchTicketSchema = Type.Object(
@@ -66,7 +66,7 @@ export const matchTicketSchema = Type.Object(
   },
   { $id: 'MatchTicket', additionalProperties: false }
 )
-export type MatchTicketType = Static<typeof matchTicketSchema>
+export interface MatchTicketType extends Static<typeof matchTicketSchema> {}
 
 // Schema for creating new entries
 export const matchTicketDataSchema = Type.Object(
@@ -78,7 +78,7 @@ export const matchTicketDataSchema = Type.Object(
     $id: 'MatchTicketData'
   }
 )
-export type MatchTicketData = Static<typeof matchTicketDataSchema>
+export interface MatchTicketData extends Static<typeof matchTicketDataSchema> {}
 
 // Schema for allowed query properties
 export const matchTicketQueryProperties = Type.Pick(matchTicketSchema, [
@@ -95,7 +95,7 @@ export const matchTicketQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type MatchTicketQuery = Static<typeof matchTicketQuerySchema>
+export interface MatchTicketQuery extends Static<typeof matchTicketQuerySchema> {}
 
 export const matchSearchFieldsValidator = getValidator(matchSearchFieldsSchema, dataValidator)
 export const matchTicketValidator = getValidator(matchTicketSchema, dataValidator)

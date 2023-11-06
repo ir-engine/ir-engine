@@ -83,6 +83,9 @@ export const scopeTypeSeed = [
     type: 'invite:read'
   },
   {
+    type: 'invite:write'
+  },
+  {
     type: 'channel:read'
   },
   {
@@ -111,6 +114,12 @@ export const scopeTypeSeed = [
   },
   {
     type: 'settings:write'
+  },
+  {
+    type: 'settings_client:read'
+  },
+  {
+    type: 'settings_client:write'
   },
   {
     type: 'server:read'

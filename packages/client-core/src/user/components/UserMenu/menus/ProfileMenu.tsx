@@ -55,6 +55,7 @@ import { initialAuthState, initialOAuthConnectedState } from '../../../../common
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../services/AuthService'
+import { useUserHasAccessHook } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -90,8 +91,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const apiKey = selfUser.apiKey?.token?.value
   const isGuest = selfUser.isGuest.value
 
-  const hasAdminAccess =
-    selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
+  const hasAdminAccess = useUserHasAccessHook('admin:admin')
   const avatarThumbnail = useUserAvatarThumbnail(userId)
 
   useEffect(() => {
@@ -673,7 +673,13 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
             )}
           </>
         )}
-        <div className={styles.center}>
+        <div
+          className={styles.center}
+          style={{
+            fontFamily: 'var(--lato)',
+            fontSize: '12px'
+          }}
+        >
           <a href={clientSetting?.privacyPolicy}>{t('user:usermenu.profile.privacyPolicy')}</a>
         </div>
       </Box>

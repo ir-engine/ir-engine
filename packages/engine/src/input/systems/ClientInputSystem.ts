@@ -43,6 +43,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
@@ -56,7 +57,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent, Object3DWithEntity } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -103,6 +104,10 @@ export const addClientInputListeners = () => {
     }
     const entity = createEntity()
     setComponent(entity, InputSourceComponent, { source })
+    setComponent(entity, EntityTreeComponent, {
+      parentEntity: session?.interactionMode === 'world-space' ? Engine.instance.originEntity : null
+    })
+    setComponent(entity, LocalTransformComponent)
     setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
   }
 
@@ -459,9 +464,9 @@ const execute = () => {
 
   for (const sourceEid of inputSources()) {
     const sourceTransform = getComponent(sourceEid, TransformComponent)
-    const source = getMutableComponent(sourceEid, InputSourceComponent)
+    const { source } = getComponent(sourceEid, InputSourceComponent)
 
-    if (!xrFrame && source.source.targetRayMode.value === 'screen') {
+    if (!xrFrame && source.targetRayMode === 'screen') {
       const ray = pointerScreenRaycaster.ray
 
       TransformComponent.position.x[sourceEid] = ray.origin.x
@@ -476,6 +481,19 @@ const execute = () => {
       TransformComponent.rotation.z[sourceEid] = rayRotation.z
       TransformComponent.rotation.w[sourceEid] = rayRotation.w
       TransformComponent.dirtyTransforms[sourceEid] = true
+    }
+
+    if (xrFrame && source.targetRayMode === 'tracked-pointer') {
+      const transform = getComponent(sourceEid, LocalTransformComponent)
+
+      const referenceSpace = ReferenceSpace.localFloor
+      if (xrFrame && referenceSpace) {
+        const pose = xrFrame.getPose(source.targetRaySpace, referenceSpace)
+        if (pose) {
+          transform.position.copy(pose.transform.position as any as Vector3)
+          transform.rotation.copy(pose.transform.orientation as any as Quaternion)
+        }
+      }
     }
 
     const capturedButtons = hasComponent(sourceEid, InputSourceButtonsCapturedComponent)
@@ -503,8 +521,10 @@ const execute = () => {
         if (hits.length && hits[0].distance < hitDistance) {
           const object = hits[0].object
           const parentObject = Object3DUtils.findAncestor(object, (obj) => obj.parent === Engine.instance.scene)
-          assignedInputEntity = parentObject.entity
-          hitDistance = hits[0].distance
+          if (parentObject.entity) {
+            assignedInputEntity = parentObject.entity
+            hitDistance = hits[0].distance
+          }
         }
       } else {
         // 1st heuristic is XRUI
@@ -548,8 +568,9 @@ const execute = () => {
         }
       }
 
-      if (!capturedButtons) source.assignedButtonEntity.set(assignedInputEntity)
-      if (!capturedAxes) source.assignedAxesEntity.set(assignedInputEntity)
+      const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
+      if (!capturedButtons) sourceState.assignedButtonEntity.set(assignedInputEntity)
+      if (!capturedAxes) sourceState.assignedAxesEntity.set(assignedInputEntity)
     }
 
     updateGamepadInput(sourceEid)
