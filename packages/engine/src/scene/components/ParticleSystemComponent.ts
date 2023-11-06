@@ -43,8 +43,9 @@ import { NO_PROXY, none } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getBatchRenderer } from '../systems/ParticleSystemSystem'
 import getFirstMesh from '../util/meshUtils'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -798,9 +799,11 @@ export const ParticleSystemComponent = defineComponent({
           })
         )
 
-        const emitterAsObj3D = nuSystem.emitter as unknown as Object3D
+        const emitterAsObj3D = nuSystem.emitter
         emitterAsObj3D.userData['_refresh'] = component._refresh
         addObjectToGroup(entity, emitterAsObj3D)
+        const transformComponent = getComponent(entity, TransformComponent)
+        emitterAsObj3D.matrix = transformComponent.matrix
         componentState.system.set(nuSystem)
       }
 
