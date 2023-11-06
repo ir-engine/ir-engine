@@ -58,12 +58,7 @@ export type AdminAssetUploadType = {
   userId?: UserID
 }
 
-export type TemporaryAssetUploadType = {
-  type: 'temporary-file-upload'
-  files: Blob[]
-}
-
-export type AssetUploadType = AvatarUploadType | AdminAssetUploadType | TemporaryAssetUploadType
+export type AssetUploadType = AvatarUploadType | AdminAssetUploadType
 
 export interface UploadFile {
   fieldname?: string

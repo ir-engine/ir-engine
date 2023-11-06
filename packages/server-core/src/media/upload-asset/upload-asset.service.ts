@@ -43,7 +43,6 @@ import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
 import { uploadAvatarStaticResource } from '../../user/avatar/avatar-helper'
-import { getIncrementalName } from '../FileUtil'
 import { getStats } from '../static-resource/static-resource-helper'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -175,7 +174,7 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
 }
 
 const uploadAssets = (app: Application) => async (data: AssetUploadType, params: UploadParams) => {
-  if ('args' in data && typeof data.args === 'string') data.args = JSON.parse(data.args)
+  if (typeof data.args === 'string') data.args = JSON.parse(data.args)
   const files = params.files
   if (data.type === 'user-avatar-upload') {
     return await uploadAvatarStaticResource(
@@ -206,18 +205,6 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
         )
       )
     ).flat()
-  } else {
-    console.log('debug1 uploading temp file')
-    const provider = getStorageProvider()
-    return await Promise.all(
-      params.files.map(async (file) => {
-        const fileName = await getIncrementalName('temp/' + file.originalname, 'temp', provider)
-        await addFileToStorageProvider(file.buffer as Buffer, file.mimetype, fileName)
-        const url = getCachedURL(fileName, provider.cacheDomain)
-        console.log('debug1 uploaded url was', url)
-        return url
-      })
-    )
   }
 }
 
@@ -244,6 +231,7 @@ export const addAssetAsStaticResource = async (
   args: AdminAssetUploadArgumentsType
 ): Promise<StaticResourceType> => {
   logger.info('addAssetAsStaticResource %o', args)
+  // console.log(file)
 
   const provider = getStorageProvider()
 
@@ -267,7 +255,7 @@ export const addAssetAsStaticResource = async (
 
   const query = {
     $limit: 1,
-    $or: [{ url }, { id: args.id || '' }]
+    $or: [{ url: url }, { id: args.id || '' }]
   } as any
   if (args.project) query.project = args.project
   const existingAsset = (await app.service(staticResourcePath).find({
