@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
@@ -32,7 +32,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
 import { AvatarColumn, avatarColumns } from '../../common/variables/avatar'
 import styles from '../../styles/admin.module.scss'
@@ -57,9 +57,6 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
   const adminAvatarQuery = useFind(avatarPath, {
     query: {
       action: 'admin',
-      name: {
-        $like: `%${search}%`
-      },
       $limit: 20,
       $sort: {
         name: 1
@@ -67,13 +64,15 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
     }
   })
 
-  useEffect(() => {
-    if (search) {
-      adminAvatarQuery.paginateState.store()
-    } else {
-      adminAvatarQuery.paginateState.restore()
-    }
-  }, [search])
+  useSearch(
+    adminAvatarQuery,
+    {
+      name: {
+        $like: `%${search}%`
+      }
+    },
+    search
+  )
 
   const adminAvatarRemove = useMutation(avatarPath).remove
 

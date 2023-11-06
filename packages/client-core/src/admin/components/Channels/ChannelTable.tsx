@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import TableComponent from '../../common/Table'
 import { ChannelData, ChannelPropsTable, channelColumns } from '../../common/variables/channel'
@@ -49,7 +49,13 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
     query: {
       action: 'admin',
       $sort: { name: 1 },
-      $limit: 20,
+      $limit: 20
+    }
+  })
+
+  useSearch(
+    channelsQuery,
+    {
       $or: [
         {
           name: {
@@ -57,15 +63,9 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
           }
         }
       ]
-    }
-  })
-  useEffect(() => {
-    if (search) {
-      channelsQuery.paginateState.store()
-    } else {
-      channelsQuery.paginateState.restore()
-    }
-  }, [search])
+    },
+    search
+  )
 
   const removeChannel = useMutation(channelPath).remove
 

@@ -203,11 +203,11 @@ export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Pa
     setSort: paginate.setSort,
     setLimit: paginate.setLimit,
     setPage: paginate.setPage,
+    search: paginate.search,
     page: paginate.page,
     skip: paginate.query.$skip,
     limit: paginate.query.$limit,
     sort: paginate.query.$sort,
-    paginateState: paginate.paginateState,
     data: data as ArrayOrPaginatedType<(typeof response)['data']>
   }
 }
@@ -370,16 +370,25 @@ export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
     store.set(resetPaginationProps(defaultProps))
   }
 
-  const storePagination = () => {
-    if (!storedPagination.stored.value) {
-      storedPagination.set({ stored: true, query: structuredClone(query) })
-    }
+  const _storePagination = () => {
+    if (storedPagination.stored.value) return
+    storedPagination.set({ stored: true, query: structuredClone(query) })
     reset()
   }
 
-  const restorePagination = () => {
+  const _restorePagination = () => {
+    if (!storedPagination.stored.value) return
     store.set(structuredClone(storedPagination.get(NO_PROXY).query))
     storedPagination.merge({ stored: false })
+  }
+
+  const search = (searchQuery?: object) => {
+    if (searchQuery) {
+      _storePagination()
+      store.merge(searchQuery)
+    } else {
+      _restorePagination()
+    }
   }
 
   return {
@@ -388,10 +397,19 @@ export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
     setSort,
     setLimit,
     setPage,
-    paginateState: {
-      reset,
-      store: storePagination,
-      restore: restorePagination
-    }
+    search
   }
+}
+
+/**
+ * Mutates the query object to store the pagination props, and add the search query
+ */
+export const useSearch = (query: ReturnType<typeof useFind>, searchQuery: object, active: any) => {
+  useEffect(() => {
+    if (active) {
+      query.search(searchQuery)
+    } else {
+      query.search()
+    }
+  }, [active])
 }
