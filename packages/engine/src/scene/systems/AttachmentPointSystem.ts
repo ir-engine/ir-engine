@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { hasComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { getMutableState } from '@etherealengine/hyperflux'
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 import { SelectionState } from '../../../../../packages/editor/src/services/SelectionServices'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -46,34 +46,53 @@ const execute = () => {
       (e) => hasComponent(e, AttachmentPointComponent)
     )
   })
+  let shortestDistance = Infinity
+  let closestPosition: Vector3 | null = null
+  let closestRotation: Quaternion | null = null
+  let node: Entity | null = null
 
+  const threshold = 2
   //loop to caculate the distance
   for (const selectedAttachmentPoint of selectedAttachmentPoints) {
-    const threshold = 5
-    let shortestDistance = Infinity
-    let closestPosition: Vector3 | null = null
-    const selectedTransform = getComponent(selectedAttachmentPoint, TransformComponent)
+    //const selectedTransform = getComponent(selectedAttachmentPoint, TransformComponent)
     const selectParententity = getComponent(selectedAttachmentPoint, EntityTreeComponent).parentEntity
     if (selectParententity) {
       const selectTransform = getComponent(selectParententity, TransformComponent)
 
       for (const entity of attachmentPointQuery()) {
         if (selectedAttachmentPoints.includes(entity)) continue
+        //entity not inside of the attachment point
+        //if selected attachment point
         const transform = getComponent(entity, TransformComponent)
         const distance = transform.position.distanceTo(selectTransform.position)
         if (distance < shortestDistance) {
           shortestDistance = distance
           closestPosition = transform.position
+          closestRotation = transform.rotation
+          node = selectedAttachmentPoint
         }
       }
+    }
+  }
+  if (shortestDistance < threshold && closestPosition && closestRotation && node) {
+    const selectParententityFinal = getComponent(node, EntityTreeComponent).parentEntity
+    const selectedTransform = getComponent(node, TransformComponent)
+    if (selectParententityFinal) {
+      const selectTransform = getComponent(selectParententityFinal, TransformComponent)
+      //rotation offset between closestRotation and selectedTransform
+      const offsetRotation = closestRotation.clone().multiply(selectedTransform.rotation.clone().invert())
+      //rotation along object coordinate y
+      const rotationQuaternion = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
+      const finalRotation = selectTransform.rotation.multiply(offsetRotation).multiply(rotationQuaternion)
+      // const finalRotation=(selectTransform.rotation.clone().multiply(offsetRotation.clone()))
 
-      if (shortestDistance < threshold && closestPosition) {
-        //offset between shortist attachment point and select point
-        const offset = closestPosition.clone().sub(selectedTransform.position)
-        setComponent(selectParententity, TransformComponent, {
-          position: selectTransform.position.clone().add(offset)
-        })
-      }
+      //offset between shortest attachment point and select point
+      const offset = closestPosition.clone().sub(selectedTransform.position)
+
+      setComponent(selectParententityFinal, TransformComponent, {
+        position: selectTransform.position.clone().add(offset),
+        rotation: finalRotation
+      })
     }
   }
 }
