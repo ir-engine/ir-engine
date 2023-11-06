@@ -212,7 +212,6 @@ function ModelReactor() {
       EngineRenderer.instance.renderer
         .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
         .then(() => {
-          console.log('finished ', entity)
           if (hasComponent(entity, SceneAssetPendingTagComponent))
             removeComponent(entity, SceneAssetPendingTagComponent)
         })
