@@ -121,7 +121,7 @@ export const defineComponent = <
     SoAComponentType<Schema> &
     Component<ComponentType, Schema, JSON, SetJSON, Error>
   Component.isComponent = true
-  Component.onInit = (entity) => undefined as any
+  Component.onInit = (entity) => true as any
   Component.onSet = (entity, component, json) => {}
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
@@ -232,9 +232,8 @@ export const setComponent = <C extends Component>(
   if (!bitECS.entityExists(Engine.instance, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
-  let value = args
   if (!hasComponent(entity, Component)) {
-    value = Component.onInit(entity) ?? args
+    const value = Component.onInit(entity)
     Component.existenceMapState[entity].set(true)
     Component.existenceMapPromiseResolver[entity]?.resolve?.()
 
