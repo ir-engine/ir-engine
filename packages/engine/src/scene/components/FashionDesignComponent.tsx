@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   hasComponent,
@@ -43,8 +43,8 @@ export const FashionDesignComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      performerEntity: -1,
-      outfitEntity: -1,
+      performerEntity: UndefinedEntity,
+      outfitEntity: UndefinedEntity,
       performerPath: 'https://localhost:8642/projects/default-project/rai.json',
       outfitPath: 'https://localhost:8642/projects/default-project/rai-outfit.json'
     }
@@ -72,7 +72,7 @@ function FashionDesignReactor() {
   const entity = useEntityContext()
   const fashion = useComponent(entity, FashionDesignComponent)
   const performer = useOptionalComponent(entity, VolumetricComponent)
-  const outfit = useOptionalComponent(fashion.outfitEntity.value as Entity, VolumetricComponent)
+  const outfit = useOptionalComponent(fashion.outfitEntity.value, VolumetricComponent)
 
   console.log('DBGG fashion design reactor', performer, outfit)
 
@@ -97,11 +97,11 @@ function FashionDesignReactor() {
   useEffect(() => {
     console.log('DBGG fashion design component init')
 
-    if (fashion.performerEntity.value === -1) {
+    if (!fashion.performerEntity.value) {
       setupVolumetricEntity(entity, fashion.performerPath.value)
     }
 
-    if (fashion.outfitEntity.value === -1) {
+    if (!fashion.outfitEntity.value) {
       const outfitEntity = createEntity()
       fashion.outfitEntity.set(outfitEntity)
       setupVolumetricEntity(outfitEntity, fashion.outfitPath.value)
