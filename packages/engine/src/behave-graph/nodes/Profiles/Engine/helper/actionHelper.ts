@@ -146,7 +146,6 @@ export function getActionConsumers() {
     const nameArray = type.split('.')
     const dispatchName = startCase(nameArray.pop().toLowerCase())
     const namePath = nameArray.splice(1).join('/')
-    let prevQueueResult: any[] = []
 
     const node = makeEventNodeDefinition({
       typeName: `action/${namePath}/on${dispatchName}`,
@@ -174,24 +173,22 @@ export function getActionConsumers() {
         const system = read<SystemUUID>('system')
 
         const queue = defineActionQueue(ActionDefinitions[type].matches)
+        queue() // flush the queue
         const systemUUID = defineSystem({
           uuid: `behave-graph-onAction-${dispatchName}` + systemCounter++,
           execute: () => {
             const currQueue = queue()
-            if (currQueue.length === 0) return // we are checking every frame, so its unlikely we will have two calls simultaneously
-            function delayedIteration(i) {
-              if (i < currQueue.length) {
-                const currentAction = currQueue[i]
-                for (const [output, type] of Object.entries(outputSockets)) {
-                  write(output as any, NodetoEnginetype(currentAction[output], type))
-                }
-                commit('flow', () => {
-                  delayedIteration(i + 1)
-                })
+            if (currQueue.length === 0) return
+            let currAction = currQueue.pop()
+            do {
+              for (const [output, type] of Object.entries(outputSockets)) {
+                write(output as any, NodetoEnginetype(currAction[output], type))
               }
-            }
-            // Start the delayed iteration
-            delayedIteration(0)
+              commit('flow', () => {
+                currAction = currQueue.pop()
+              })
+            } while (currQueue.length > 0)
+
             queue() // clear the queue
           }
         })
