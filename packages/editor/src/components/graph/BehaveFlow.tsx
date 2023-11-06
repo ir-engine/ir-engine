@@ -32,6 +32,7 @@ import {
   useQuery
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { isEqual } from 'lodash'
 import React from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import 'reactflow/dist/style.css'
@@ -57,7 +58,13 @@ const ActiveBehaveGraph = (props: { entity }) => {
       initialGraph={graphComponent.graph}
       examples={{}}
       registry={behaveGraphState.registries[graphComponent.domain]}
-      onChangeGraph={commitProperty(BehaveGraphComponent, 'graph')}
+      onChangeGraph={
+        (newGraph) => {
+          if (isEqual(graphComponent.graph, newGraph)) return
+          commitProperty(BehaveGraphComponent, 'graph')(newGraph)
+        }
+        // need this to smoothen UX
+      }
     />
   )
 }

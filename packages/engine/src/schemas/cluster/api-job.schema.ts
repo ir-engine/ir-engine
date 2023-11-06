@@ -48,19 +48,19 @@ export const apiJobSchema = Type.Object(
   },
   { $id: 'ApiJob', additionalProperties: false }
 )
-export type ApiJobType = Static<typeof apiJobSchema>
+export interface ApiJobType extends Static<typeof apiJobSchema> {}
 
 // Schema for creating new entries
 export const apiJobDataSchema = Type.Pick(apiJobSchema, ['name', 'startTime', 'endTime', 'status', 'returnData'], {
   $id: 'ApiJobData'
 })
-export type ApiJobData = Static<typeof apiJobDataSchema>
+export interface ApiJobData extends Static<typeof apiJobDataSchema> {}
 
 // Schema for updating existing entries
 export const apiJobPatchSchema = Type.Partial(apiJobSchema, {
   $id: 'ApiJobPatch'
 })
-export type ApiJobPatch = Static<typeof apiJobPatchSchema>
+export interface ApiJobPatch extends Static<typeof apiJobPatchSchema> {}
 
 // Schema for allowed query properties
 export const apiJobQueryProperties = Type.Pick(apiJobSchema, [
@@ -79,7 +79,7 @@ export const apiJobQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type ApiJobQuery = Static<typeof apiJobQuerySchema>
+export interface ApiJobQuery extends Static<typeof apiJobQuerySchema> {}
 
 export const apiJobValidator = getValidator(apiJobSchema, dataValidator)
 export const apiJobDataValidator = getValidator(apiJobDataSchema, dataValidator)

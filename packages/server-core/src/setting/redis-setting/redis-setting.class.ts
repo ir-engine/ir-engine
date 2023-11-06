@@ -33,7 +33,6 @@ import {
   RedisSettingType
 } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RedisSettingParams extends KnexAdapterParams<RedisSettingQuery> {}
 
 export class RedisSettingService<

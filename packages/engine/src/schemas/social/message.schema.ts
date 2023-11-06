@@ -56,7 +56,7 @@ export const messageSchema = Type.Object(
   },
   { $id: 'Message', additionalProperties: false }
 )
-export type MessageType = Static<typeof messageSchema>
+export interface MessageType extends Static<typeof messageSchema> {}
 
 // Schema for creating new entries
 export const messageDataProperties = Type.Partial(messageSchema)
@@ -77,13 +77,13 @@ export const messageDataSchema = Type.Intersect(
     additionalProperties: false
   }
 )
-export type MessageData = Static<typeof messageDataSchema>
+export interface MessageData extends Static<typeof messageDataSchema> {}
 
 // Schema for updating existing entries
 export const messagePatchSchema = Type.Partial(messageSchema, {
   $id: 'MessagePatch'
 })
-export type MessagePatch = Static<typeof messagePatchSchema>
+export interface MessagePatch extends Static<typeof messagePatchSchema> {}
 
 // Schema for allowed query properties
 export const messageQueryProperties = Type.Pick(messageSchema, [
@@ -102,7 +102,7 @@ export const messageQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type MessageQuery = Static<typeof messageQuerySchema>
+export interface MessageQuery extends Static<typeof messageQuerySchema> {}
 
 export const messageValidator = getValidator(messageSchema, dataValidator)
 export const messageDataValidator = getValidator(messageDataSchema, dataValidator)

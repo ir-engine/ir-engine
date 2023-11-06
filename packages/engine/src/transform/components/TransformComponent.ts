@@ -35,6 +35,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
+  getComponent,
   getOptionalComponent,
   hasComponent,
   setComponent
@@ -95,6 +96,8 @@ export const TransformComponent = defineComponent({
     if (json?.position) component.position.value.copy(json.position)
     if (rotation) component.rotation.value.copy(rotation)
     if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
+
+    /** @todo the rest of this onSet is necessary until #9193 */
 
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
     component.matrixInverse.value.copy(component.matrix.value).invert()
@@ -191,6 +194,21 @@ export const LocalTransformComponent = defineComponent({
 
     if (scale) component.scale.value.copy(scale)
 
+    /** @todo the rest of this onSet is necessary until #9193 */
+
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
+
+    // ensure TransformComponent is updated immediately, raising warnings if it does not have a parent
+    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+    if (!entityTree) return console.warn('Entity does not have EntityTreeComponent', entity)
+
+    const parentTransform = entityTree?.parentEntity
+      ? getOptionalComponent(entityTree.parentEntity, TransformComponent)
+      : undefined
+    if (!parentTransform) return console.warn('Entity does not have parent TransformComponent', entity)
+
+    const transform = getComponent(entity, TransformComponent)
+    transform.matrix.multiplyMatrices(parentTransform.matrix, component.matrix.value)
+    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
   }
 })

@@ -36,6 +36,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import {
   DistanceFromCameraComponent,
@@ -100,7 +101,13 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
 }
 
 export const getInteractiveUI = (entity: Entity) => InteractiveUI.get(entity)
-export const removeInteractiveUI = (entity: Entity) => InteractiveUI.delete(entity)
+export const removeInteractiveUI = (entity: Entity) => {
+  if (InteractiveUI.has(entity)) {
+    const { update, xrui } = getInteractiveUI(entity)!
+    removeEntity(xrui.entity)
+    InteractiveUI.delete(entity)
+  }
+}
 
 export const addInteractableUI = (
   entity: Entity,
