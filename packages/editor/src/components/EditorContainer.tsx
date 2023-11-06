@@ -180,11 +180,11 @@ const SceneLoadingProgress = () => {
   )
 }
 
-const reRouteToLoadScene = async (newSceneName: string) => {
-  const { projectName, sceneName } = getState(EditorState)
-  if (sceneName === newSceneName) return
+const reRouteToLoadScene = async (newSceneName: string, newSceneId: string) => {
+  const { projectName, sceneName, sceneId } = getState(EditorState)
+  if (sceneName === newSceneName || sceneId === newSceneId) return
   if (!projectName || !newSceneName) return
-  RouterState.navigate(`/studio/${projectName}/${newSceneName}`)
+  RouterState.navigate(`/studio/${projectName}/${newSceneName}/${newSceneId}`)
 }
 
 const loadScene = async (sceneId: SceneID) => {
@@ -212,7 +212,7 @@ const onNewScene = async () => {
     const sceneData = await createNewScene(projectName)
     if (!sceneData) return
 
-    reRouteToLoadScene(sceneData.name)
+    reRouteToLoadScene(sceneData.name, sceneData.id)
   } catch (error) {
     logger.error(error)
   }

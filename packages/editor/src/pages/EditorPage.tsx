@@ -52,7 +52,6 @@ import { ModelHandlingSystem } from '../systems/ModelHandlingSystem'
 
 import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { getScenes } from '../functions/sceneFunctions'
 import { UploadRequestSystem } from '../systems/UploadRequestSystem'
 
 // ensure all our systems are imported, #9077
@@ -98,16 +97,7 @@ export const EditorPage = () => {
   const editorState = useHookstate(getMutableState(EditorState))
 
   useEffect(() => {
-    const { projectName, sceneName } = params
-    let sceneId
-
-    getScenes(projectName).then((scenes) => {
-      scenes.forEach((scene) => {
-        if (scene.name === sceneName) {
-          sceneId = scene.id
-        }
-      })
-    })
+    const { projectName, sceneName, sceneId } = params
 
     getMutableState(EditorState).merge({
       projectName: projectName ?? null,

@@ -92,7 +92,7 @@ export default function ScenesPanel({ loadScene, newScene }) {
 
   const onClickExisting = async (e, scene) => {
     e.preventDefault()
-    loadScene(scene.name)
+    loadScene(scene.name, scene.id)
     fetchItems()
   }
 
