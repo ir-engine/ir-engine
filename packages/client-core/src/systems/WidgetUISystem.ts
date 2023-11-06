@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { V_001, V_010, V_111 } from '@etherealengine/engine/src/common/constants/MathConstants'
+import { V_001, V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
@@ -47,10 +47,7 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { isMobileXRHeadset, ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
@@ -92,6 +89,7 @@ const WidgetUISystemState = defineState({
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
     setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
+    setComponent(widgetMenuUI.entity, LocalTransformComponent)
     removeComponent(widgetMenuUI.entity, VisibleComponent)
 
     addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
@@ -159,8 +157,8 @@ const execute = () => {
   }
   for (const action of registerWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
-    setComponent(widget.ui.entity, LocalTransformComponent)
     setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: widgetMenuUI.entity })
+    setComponent(widget.ui.entity, LocalTransformComponent)
   }
   for (const action of unregisterWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
@@ -168,22 +166,24 @@ const execute = () => {
     if (typeof widget.cleanup === 'function') widget.cleanup()
   }
 
-  const transform = getComponent(widgetMenuUI.entity, TransformComponent)
+  const transform = getComponent(widgetMenuUI.entity, LocalTransformComponent)
   const activeInputSourceEntity = inputSources.find(
     (entity) => getComponent(entity, InputSourceComponent).source.handedness === widgetState.handedness
   )
 
   if (activeInputSourceEntity) {
     const activeInputSource = getComponent(activeInputSourceEntity, InputSourceComponent)?.source
-    const referenceSpace = ReferenceSpace.origin!
     const pose = getState(XRState).xrFrame?.getPose(
       activeInputSource.gripSpace ?? activeInputSource.targetRaySpace,
-      referenceSpace
+      ReferenceSpace.localFloor!
     )
     if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
       removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
-      transform.scale.copy(V_111)
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(widgetMenuUI.entity, LocalTransformComponent)
     }
+
+    const transform = getComponent(widgetMenuUI.entity, LocalTransformComponent)
     if (pose) {
       const rot = widgetState.handedness === 'left' ? widgetLeftRotation : widgetRightRotation
       const offset = widgetState.handedness === 'left' ? widgetLeftMenuGripOffset : widgetRightMenuGripOffset
@@ -193,10 +193,13 @@ const execute = () => {
       transform.position.copy(pose.transform.position as any as Vector3).add(vec3)
     }
   } else {
-    if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent))
+    if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
+      removeComponent(widgetMenuUI.entity, EntityTreeComponent)
+      removeComponent(widgetMenuUI.entity, LocalTransformComponent)
       setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.cameraEntity, () =>
         ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, 0.1)
       )
+    }
   }
 
   const widgetMenuShown = widgetState.widgetsMenuOpen

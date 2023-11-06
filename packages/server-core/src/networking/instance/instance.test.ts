@@ -28,7 +28,12 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { locationPath, LocationType, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
+import {
+  LocationID,
+  locationPath,
+  LocationType,
+  RoomCode
+} from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { instanceActivePath } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
 import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
@@ -60,7 +65,7 @@ describe('instance.test', () => {
           videoEnabled: true,
           faceStreamingEnabled: false,
           screenSharingEnabled: false,
-          locationId: '',
+          locationId: '' as LocationID,
           createdAt: '',
           updatedAt: ''
         },
@@ -72,7 +77,7 @@ describe('instance.test', () => {
 
     testInstance = {
       id: '' as InstanceID,
-      locationId: testLocation.id,
+      locationId: testLocation.id as LocationID,
       roomCode: '' as RoomCode,
       currentUsers: 0,
       ended: false,
@@ -91,8 +96,8 @@ describe('instance.test', () => {
 
   it('should create an instance', async () => {
     const instance = (await app.service(instancePath).create({
-      locationId: testLocation.id,
-      roomCode: testInstance.roomCode,
+      locationId: testLocation.id as LocationID,
+      roomCode: testInstance.roomCode as RoomCode,
       currentUsers: testInstance.currentUsers
     })) as InstanceType
 

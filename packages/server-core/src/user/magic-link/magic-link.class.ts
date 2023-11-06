@@ -39,7 +39,6 @@ import config from '../../appconfig'
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface MagicLinkParams extends KnexAdapterParams {}
 
 /**

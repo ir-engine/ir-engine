@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
+import { EngineState } from '../../ecs/classes/EngineState'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { useExecute } from '../../ecs/functions/SystemFunctions'
 
 type TransitionType = 'IN' | 'OUT'
 
@@ -56,5 +60,25 @@ export const createTransitionState = (transitionPeriodSeconds: number, initialSt
     },
     setState,
     update
+  }
+}
+
+export const useAnimationTransition = (
+  transitionPeriodSeconds: number,
+  initialState: TransitionType = 'OUT',
+  onTransition: (alpha: number) => void
+) => {
+  const state = useHookstate(() => createTransitionState(transitionPeriodSeconds, initialState))
+
+  useExecute(
+    () => {
+      const deltaSeconds = getState(EngineState).deltaSeconds
+      state.get(NO_PROXY).update(deltaSeconds, onTransition)
+    },
+    { with: AnimationSystemGroup }
+  )
+
+  return (newState: TransitionType) => {
+    state.get(NO_PROXY).setState(newState)
   }
 }

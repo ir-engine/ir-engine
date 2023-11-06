@@ -42,7 +42,7 @@ export const projectSettingSchema = Type.Object(
   },
   { $id: 'ProjectSetting', additionalProperties: false }
 )
-export type ProjectSettingType = Static<typeof projectSettingSchema>
+export interface ProjectSettingType extends Static<typeof projectSettingSchema> {}
 
 // Main data model schema
 export const projectSchema = Type.Object(
@@ -73,9 +73,9 @@ export const projectSchema = Type.Object(
   },
   { $id: 'Project', additionalProperties: false }
 )
-export type ProjectType = Static<typeof projectSchema>
+export interface ProjectType extends Static<typeof projectSchema> {}
 
-export type ProjectDatabaseType = Omit<ProjectType, 'settings'> & {
+export interface ProjectDatabaseType extends Omit<ProjectType, 'settings'> {
   settings: string
 }
 
@@ -83,13 +83,13 @@ export type ProjectDatabaseType = Omit<ProjectType, 'settings'> & {
 export const projectDataSchema = Type.Partial(projectSchema, {
   $id: 'ProjectData'
 })
-export type ProjectData = Static<typeof projectDataSchema>
+export interface ProjectData extends Static<typeof projectDataSchema> {}
 
 // Schema for updating existing entries
 export const projectPatchSchema = Type.Partial(projectSchema, {
   $id: 'ProjectPatch'
 })
-export type ProjectPatch = Static<typeof projectPatchSchema>
+export interface ProjectPatch extends Static<typeof projectPatchSchema> {}
 
 // Schema for allowed query properties
 export const projectQueryProperties = Type.Pick(projectSchema, [
@@ -134,7 +134,7 @@ export const projectQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type ProjectQuery = Static<typeof projectQuerySchema>
+export interface ProjectQuery extends Static<typeof projectQuerySchema> {}
 
 export const projectSettingValidator = getValidator(projectSettingSchema, dataValidator)
 export const projectValidator = getValidator(projectSchema, dataValidator)

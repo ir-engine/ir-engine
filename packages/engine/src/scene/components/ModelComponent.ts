@@ -32,6 +32,8 @@ import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   ComponentType,
@@ -45,7 +47,9 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
@@ -172,8 +176,6 @@ function ModelReactor() {
               if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
               model.scene && removeObjectFromGroup(entity, model.scene)
               modelComponent.scene.set(loadedAsset.scene)
-              if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
-              removeComponent(entity, SceneAssetPendingTagComponent)
             },
             (onprogress) => {
               if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
@@ -206,9 +208,29 @@ function ModelReactor() {
     if (!scene) return
     addObjectToGroup(entity, scene)
 
+    if (EngineRenderer.instance)
+      EngineRenderer.instance.renderer
+        .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
+        .then(() => {
+          if (hasComponent(entity, SceneAssetPendingTagComponent))
+            removeComponent(entity, SceneAssetPendingTagComponent)
+        })
+
     if (groupComponent?.value?.find((group: any) => group === scene)) return
-    parseGLTFModel(entity)
+
+    const childSpawnedEntities = parseGLTFModel(entity)
     setComponent(entity, BoundingBoxComponent)
+
+    return () => {
+      removeObjectFromGroup(entity, scene)
+      childSpawnedEntities.forEach((e) => removeEntityNodeRecursively(e))
+    }
+  }, [modelComponent.scene])
+
+  // update scene
+  useEffect(() => {
+    const scene = getComponent(entity, ModelComponent).scene
+    if (!scene) return
 
     let active = true
 
@@ -243,7 +265,6 @@ function ModelReactor() {
     }
 
     return () => {
-      removeObjectFromGroup(entity, scene)
       active = false
     }
   }, [modelComponent.scene, model.generateBVH])

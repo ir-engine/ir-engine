@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import verifyScope from '../../hooks/verify-scope'
 
@@ -36,7 +36,7 @@ import {
   instancePath,
   instanceQueryValidator
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
@@ -94,7 +94,7 @@ const addLocationSearchToQuery = async (context: HookContext<InstanceService>) =
       },
       {
         locationId: {
-          $in: foundLocations.map((item) => item.id)
+          $in: foundLocations.map((item) => item.id as LocationID)
         }
       }
     ]
@@ -140,25 +140,25 @@ export default {
   before: {
     all: [() => schemaHooks.validateQuery(instanceQueryValidator), schemaHooks.resolveQuery(instanceQueryResolver)],
     find: [
-      iff(isProvider('external') && isAction('admin'), verifyScope('admin', 'admin'), addLocationSearchToQuery),
+      iff(isProvider('external') && isAction('admin'), verifyScope('instance', 'read'), addLocationSearchToQuery),
       discardQuery('search'),
       discardQuery('action'),
       sortByLocationName
     ],
     get: [],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('instance', 'write')),
       () => schemaHooks.validateData(instanceDataValidator),
       schemaHooks.resolveData(instanceDataResolver),
       addRoomCode
     ],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('instance', 'write')),
       () => schemaHooks.validateData(instancePatchValidator),
       schemaHooks.resolveData(instancePatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]
+    remove: [iff(isProvider('external'), verifyScope('instance', 'write'))]
   },
 
   after: {

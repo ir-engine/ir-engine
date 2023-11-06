@@ -44,7 +44,7 @@ import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
+import { AvatarID, AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
 import { userPath } from '../../schemas/user/user.schema'
 import { loadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
@@ -56,7 +56,7 @@ export const AvatarState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
-      avatarID?: string
+      avatarID?: AvatarID
       userAvatarDetails: AvatarType
     }
   >,
@@ -65,7 +65,7 @@ export const AvatarState = defineState({
     [
       AvatarNetworkAction.setAvatarID,
       (state, action: typeof AvatarNetworkAction.setAvatarID.matches._TYPE) => {
-        state[action.entityUUID].merge({ avatarID: action.avatarID })
+        state[action.entityUUID].merge({ avatarID: action.avatarID as AvatarID })
       }
     ],
 
@@ -96,14 +96,14 @@ export const AvatarState = defineState({
       })
   },
 
-  updateUserAvatarId(avatarId: string) {
+  updateUserAvatarId(avatarId: AvatarID) {
     Engine.instance.api
       .service(userPath)
       .patch(Engine.instance.userID, { avatarId: avatarId })
       .then(() => {
         dispatchAction(
           AvatarNetworkAction.setAvatarID({
-            avatarID: avatarId,
+            avatarID: avatarId as AvatarID,
             entityUUID: Engine.instance.userID as any as EntityUUID
           })
         )

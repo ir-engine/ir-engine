@@ -596,6 +596,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                   value={volume}
                   onChange={adjustVolume}
                   aria-labelledby="continuous-slider"
+                  style={{ color: 'var(--textColor)' }}
                 />
               </div>
             )}
@@ -666,11 +667,21 @@ export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
       xr-layer="true"
     >
       {videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute ? (
-        <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} xr-layer="true" />
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src={avatarThumbnail}
+          alt=""
+          crossOrigin="anonymous"
+          draggable={false}
+          xr-layer="true"
+        />
       ) : (
         <video
           xr-layer="true"
-          style={{ maxWidth: '100px' }}
+          style={{ height: 'auto', maxWidth: '100px' }}
           ref={ref}
           key={peerID + '-video-container'}
           id={peerID + '-video-container-xrui'}
@@ -678,7 +689,7 @@ export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
       )}
       <div
         style={{
-          fontFamily: "'Roboto', sans-serif",
+          fontFamily: 'var(--lato)',
           textAlign: 'center',
           width: '100%',
           margin: '14px 0',
@@ -690,7 +701,7 @@ export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
         xr-layer="true"
       >
         {username}
-        <button style={{}} onClick={toggleAudio} xr-layer="true">
+        <button style={{ margin: 0 }} onClick={toggleAudio} xr-layer="true">
           <Icon
             xr-layer="true"
             type={isSelf ? (audioStreamPaused ? 'MicOff' : 'Mic') : audioStreamPaused ? 'VolumeOff' : 'VolumeUp'}

@@ -40,18 +40,15 @@ const modelVariantQuery = defineQuery([VariantComponent, ModelComponent, Transfo
 
 function execute() {
   const engineState = getState(EngineState)
+  if (engineState.isEditor) return
+
   if (engineState.elapsedSeconds - lastUpdate < updateFrequency) return
   lastUpdate = engineState.elapsedSeconds
 
-  modelVariantQuery().forEach(setModelVariant)
-}
-
-function reactor() {
-  return null
+  for (const entity of modelVariantQuery()) setModelVariant(entity)
 }
 
 export const VariantSystem = defineSystem({
   uuid: 'ee.engine.scene.VariantSystem',
-  execute,
-  reactor
+  execute
 })

@@ -41,19 +41,19 @@ export const scopeTypeSchema = Type.Object(
   },
   { $id: 'ScopeType', additionalProperties: false }
 )
-export type ScopeTypeType = Static<typeof scopeTypeSchema>
+export interface ScopeTypeType extends Static<typeof scopeTypeSchema> {}
 
 // Schema for creating new entries
 export const scopeTypeDataSchema = Type.Pick(scopeTypeSchema, ['type'], {
   $id: 'ScopeTypeData'
 })
-export type ScopeTypeData = Static<typeof scopeTypeDataSchema>
+export interface ScopeTypeData extends Static<typeof scopeTypeDataSchema> {}
 
 // Schema for updating existing entries
 export const scopeTypePatchSchema = Type.Partial(scopeTypeSchema, {
   $id: 'ScopeTypePatch'
 })
-export type ScopeTypePatch = Static<typeof scopeTypePatchSchema>
+export interface ScopeTypePatch extends Static<typeof scopeTypePatchSchema> {}
 
 // Schema for allowed query properties
 export const scopeTypeQueryProperties = Type.Pick(scopeTypeSchema, ['type'])
@@ -65,7 +65,7 @@ export const scopeTypeQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type ScopeTypeQuery = Static<typeof scopeTypeQuerySchema>
+export interface ScopeTypeQuery extends Static<typeof scopeTypeQuerySchema> {}
 
 export const scopeTypeValidator = getValidator(scopeTypeSchema, dataValidator)
 export const scopeTypeDataValidator = getValidator(scopeTypeDataSchema, dataValidator)
