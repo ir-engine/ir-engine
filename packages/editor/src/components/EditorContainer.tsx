@@ -51,7 +51,7 @@ import { useDrop } from 'react-dnd'
 import { Vector2, Vector3 } from 'three'
 import { ItemTypes } from '../constants/AssetTypes'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
-import { inputFileAndAddToScene } from '../functions/assetFunctions'
+import { inputFileWithAddToScene } from '../functions/assetFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { getCursorSpawnPosition } from '../functions/screenSpaceFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -291,7 +291,7 @@ const onSaveAs = async () => {
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
 
-  inputFileAndAddToScene(projectName)
+  if (projectName) await inputFileWithAddToScene({ projectName })
 }
 
 const onSaveScene = async () => {

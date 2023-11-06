@@ -70,7 +70,7 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
-import { inputFileAndAddToScene } from '../../functions/assetFunctions'
+import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../functions/utils'
 import { Button } from '../inputs/Button'
 import StringInput from '../inputs/StringInput'
@@ -150,7 +150,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const anchorEl = useHookstate<null | HTMLElement>(null)
   const anchorPosition = useHookstate<undefined | PopoverPosition>(undefined)
 
-  const open = Boolean(anchorEl.value)
   const isLoading = useState(true)
   const selectedDirectory = useState(
     `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
@@ -312,7 +311,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
 
-  const showDownloadButton =
+  const showUploadAndDownloadButtons =
     selectedDirectory.value.slice(1).startsWith('projects/') &&
     !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
 
@@ -487,7 +486,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             onClick={createNewFolder}
             id="refreshDir"
           />
-          {showDownloadButton && (
+          {showUploadAndDownloadButtons && (
             <ToolButton
               tooltip={t('editor:layout.filebrowser.downloadProject')}
               onClick={handleDownloadProject}
@@ -495,12 +494,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               id="downloadProject"
             />
           )}
-          <ToolButton
-            tooltip={t('editor:layout.filebrowser.uploadAsset')}
-            onClick={() => inputFileAndAddToScene()}
-            icon={AddIcon}
-            id="storeAsset"
-          />
+          {showUploadAndDownloadButtons && (
+            <ToolButton
+              tooltip={t('editor:layout.filebrowser.uploadAsset')}
+              onClick={() => {
+                inputFileWithAddToScene({ directoryPath: selectedDirectory.value }).then(refreshDirectory)
+              }}
+              icon={AddIcon}
+              id="uploadAsset"
+            />
+          )}
         </span>
       </div>
       <div className={styles.headerContainer}>
