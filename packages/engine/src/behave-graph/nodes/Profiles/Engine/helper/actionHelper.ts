@@ -23,10 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
-import { Action, ActionDefinitions, dispatchAction } from '@etherealengine/hyperflux'
+import { NodeCategory, NodeDefinition, makeEventNodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
+import {
+  Action,
+  ActionDefinitions,
+  ActionQueueDefinition,
+  defineActionQueue,
+  dispatchAction,
+  removeActionQueue
+} from '@etherealengine/hyperflux'
 import { startCase } from 'lodash'
 import matches from 'ts-matches'
+import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
+import {
+  SystemDefinitions,
+  SystemUUID,
+  defineSystem,
+  disableSystem,
+  startSystem
+} from '../../../../../ecs/functions/SystemFunctions'
 import { NodetoEnginetype } from './commonHelper'
 
 const skipAction = ['']
@@ -96,7 +111,6 @@ export function getActionDispatchers() {
         for (const [input, type] of inputs) {
           actionInput[input] = NodetoEnginetype(read(input as any), type)
         }
-        console.log('DEBUG action is ', actionInput)
         dispatchAction(ActionDefinitions[type](actionInput as Action))
         commit('flow')
       }
@@ -104,4 +118,98 @@ export function getActionDispatchers() {
     dispatchers.push(node)
   }
   return dispatchers
+}
+
+type State = {
+  queue: ActionQueueDefinition
+  systemUUID: SystemUUID
+}
+const initialState = (): State => ({
+  queue: undefined!,
+  systemUUID: '' as SystemUUID
+})
+let systemCounter = 0
+export function getActionConsumers() {
+  const consumers: NodeDefinition[] = []
+  const skipped: string[] = []
+  for (const [actionType, action] of Object.entries(ActionDefinitions)) {
+    const { type, ...actionDef } = action.actionShape
+    if (skipAction.includes(actionType)) {
+      skipped.push(actionType)
+      continue
+    }
+    const outputSockets = generateActionNodeSchema(actionDef)
+    if (Object.keys(outputSockets).length === 0) {
+      skipped.push(actionType)
+      continue
+    }
+    const nameArray = type.split('.')
+    const dispatchName = startCase(nameArray.pop().toLowerCase())
+    const namePath = nameArray.splice(1).join('/')
+    let prevQueueResult: any[] = []
+
+    const node = makeEventNodeDefinition({
+      typeName: `action/${namePath}/on${dispatchName}`,
+      category: NodeCategory.Event,
+      label: `on ${namePath} ${dispatchName}`,
+      in: {
+        system: (_, graph) => {
+          const systemDefinitions = Array.from(SystemDefinitions.keys()).map((key) => key as string)
+          const groups = systemDefinitions.filter((key) => key.includes('group')).sort()
+          const nonGroups = systemDefinitions.filter((key) => !key.includes('group')).sort()
+          const choices = [...groups, ...nonGroups]
+          return {
+            key: 'system',
+            valueType: 'string',
+            choices: choices,
+            defaultValue: InputSystemGroup
+          }
+        }
+      },
+      out: { flow: 'flow', ...outputSockets },
+      initialState: initialState(),
+      init: ({ read, write, commit, graph }) => {
+        //read from the read and set dict acccordingly
+
+        const system = read<SystemUUID>('system')
+
+        const queue = defineActionQueue(ActionDefinitions[type].matches)
+        const systemUUID = defineSystem({
+          uuid: `behave-graph-onAction-${dispatchName}` + systemCounter++,
+          execute: () => {
+            const currQueue = queue()
+            if (currQueue.length === 0) return // we are checking every frame, so its unlikely we will have two calls simultaneously
+            function delayedIteration(i) {
+              if (i < currQueue.length) {
+                const currentAction = currQueue[i]
+                for (const [output, type] of Object.entries(outputSockets)) {
+                  write(output as any, NodetoEnginetype(currentAction[output], type))
+                }
+                commit('flow', () => {
+                  delayedIteration(i + 1)
+                })
+              }
+            }
+            // Start the delayed iteration
+            delayedIteration(0)
+            queue() // clear the queue
+          }
+        })
+        startSystem(systemUUID, { with: system })
+        const state: State = {
+          queue,
+          systemUUID
+        }
+
+        return state
+      },
+      dispose: ({ state: { queue, systemUUID }, graph: { getDependency } }) => {
+        disableSystem(systemUUID)
+        removeActionQueue(queue)
+        return initialState()
+      }
+    })
+    consumers.push(node)
+  }
+  return consumers
 }

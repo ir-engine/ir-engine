@@ -101,8 +101,8 @@ export const addTag = makeFlowNodeDefinition({
   initialState: undefined,
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
     const entity = Number.parseInt(read('entity')) as Entity
-    const tagName = `bg-tag.${read<string>('tagName')}`
-    const tag = defineComponent({ name: tagName })
+    const tagName = read<string>('tagName')
+    const tag = defineComponent({ name: `bg-tag.${tagName}` })
     setComponent(entity, tag)
     write('entity', entity)
     write('tagName', tagName)
