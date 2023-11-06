@@ -891,6 +891,7 @@
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
+      "uploadAsset": "Upload Asset",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
