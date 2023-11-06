@@ -168,7 +168,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     const scenePromises: Promise<any>[] = []
     for (const projectName of locallyInstalledProjects) {
-      if (!data.find((e) => e.name === projectName)) {
+      if (!data.find((e) => e.name === projectName) || projectName === 'default-project') {
         try {
           // Upload local project scenes to storage provider and sync with scene table
           fs.readdirSync(path.resolve(projectsRootFolder, projectName))

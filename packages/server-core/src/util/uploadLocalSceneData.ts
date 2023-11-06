@@ -138,18 +138,25 @@ export const uploadLocalSceneData = async (app: Application, sceneName: string, 
     const newThumbnailPath = await uploadThumbnailData(sceneName, projectName)
     const newEnvMapPath = await uploadEnvMapData(sceneName, projectName)
 
-    sceneId = (
-      await app.service(scenePath).create({
-        name: sceneName,
-        projectId: projectResult.data[0].id,
-        scenePath: newScenePath,
-        thumbnailPath: newThumbnailPath,
-        envMapPath: newEnvMapPath,
-        id: generateUUID() as SceneID,
-        createdAt: toDateTimeSql(new Date()),
-        updatedAt: toDateTimeSql(new Date())
-      })
-    ).id
+    if (projectName !== 'default-project') {
+      sceneId = (
+        await app.service(scenePath).create({
+          name: sceneName,
+          projectId: projectResult.data[0].id,
+          scenePath: newScenePath,
+          thumbnailPath: newThumbnailPath,
+          envMapPath: newEnvMapPath,
+          id: generateUUID() as SceneID,
+          createdAt: toDateTimeSql(new Date()),
+          updatedAt: toDateTimeSql(new Date())
+        })
+      ).id
+    } else {
+      const patchedScene = await app
+        .service(scenePath)
+        .patch(null, { projectId: projectResult.data[0].id }, { query: { name: sceneName } })
+      sceneId = patchedScene[0].id
+    }
   }
 
   return sceneId
