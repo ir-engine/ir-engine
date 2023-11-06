@@ -33,7 +33,6 @@ import { LocationID, LocationType, locationPath } from '@etherealengine/engine/s
 import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { toDateTimeSql } from '../../util/datetime-sql'
 import { LocationParams } from './location.class'
 
 const params = { isInternal: true } as LocationParams
@@ -45,14 +44,6 @@ describe('location.test', () => {
 
   before(async () => {
     app = createFeathersKoaApp()
-    testScene = await app.service(scenePath).create({
-      name: 'Test Scene',
-      scenePath: '',
-      thumbnailPath: '',
-      envMapPath: '',
-      createdAt: toDateTimeSql(new Date()),
-      updatedAt: toDateTimeSql(new Date())
-    })
     await app.setup()
   })
 
@@ -62,6 +53,14 @@ describe('location.test', () => {
 
   it('should create a new location', async () => {
     const name = `Test Location ${v1()}`
+
+    testScene = await app.service(scenePath).create({
+      name: 'Test Scene',
+      scenePath: '',
+      thumbnailPath: '',
+      envMapPath: ''
+    })
+
     const sceneId = testScene.id
 
     const item = await app.service(locationPath).create(
