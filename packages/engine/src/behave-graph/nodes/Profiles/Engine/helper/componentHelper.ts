@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
+import { NodeCategory, NodeDefinition, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
 import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
 import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
 import { Component, ComponentMap, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
@@ -115,7 +115,7 @@ export function getComponentGetters() {
       skipped.push(componentName)
       continue
     }
-    const node = makeFlowNodeDefinition({
+    const node = makeFunctionNodeDefinition({
       typeName: `engine/component/get${componentName}`,
       category: NodeCategory.Query,
       label: `get ${componentName}`,
@@ -124,12 +124,10 @@ export function getComponentGetters() {
         entity: 'entity'
       },
       out: {
-        flow: 'flow',
         entity: 'entity',
         ...outputsockets
       },
-      initialState: undefined,
-      triggered: ({ read, write, commit, graph }) => {
+      exec: ({ read, write, graph }) => {
         const entity = Number.parseInt(read('entity')) as Entity
         const props = getComponent(entity, component)
         const outputs = Object.entries(node.out).splice(2)
@@ -141,7 +139,6 @@ export function getComponentGetters() {
           }
         }
         write('entity', entity)
-        commit('flow')
       }
     })
     getters.push(node)
