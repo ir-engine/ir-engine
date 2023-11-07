@@ -876,7 +876,7 @@
         "postprocessing":"Add postprocessing effects to your scene",
         "primitive-geometry":"Add basic Geometry to the scene",
         "link":"Add clickable Link to entity to route to different webpage",
-        "load-volume":"Add a volume to the scene"
+        "dynamic-load": "Load entities dynamically"
       }
     },
     "filebrowser": {
@@ -892,6 +892,7 @@
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
+      "uploadAsset": "Upload Asset",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",

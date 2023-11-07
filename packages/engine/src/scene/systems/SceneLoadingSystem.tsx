@@ -359,14 +359,16 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
         loaded: false
       })
     }
-    getMutableState(EngineState).merge({
-      sceneLoading: true,
-      sceneLoaded: false
-    })
 
     const { project, scene } = getState(SceneState).scenes[props.sceneID].data
 
     getSystemsFromSceneData(project, scene).then((systems) => {
+      // wait to set scene loading state until systems are loaded
+      getMutableState(EngineState).merge({
+        sceneLoading: true,
+        sceneLoaded: false
+      })
+
       if (systems.length) {
         systemsLoaded.set(systems)
       } else {
@@ -456,14 +458,17 @@ const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) 
     getMutableState(SceneState).scenes[props.sceneID].data.scene.entities[props.entityUUID]
   )
   const parentEntityState = useHookstate(UUIDComponent.entitiesByUUIDState[entityState.value.parent!])
-  const isDynamic = !!entityState.value.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID)
 
   return (
     <>
       {/* Ensure parent has loaded */}
       {parentEntityState.value && (
         <EntityChildLoadReactor
-          isDynamic={isDynamic}
+          /**
+           * @todo key is needed as dynamic loading with { loaded: true } for some reason
+           * will cause the entity to be removed immediately, causing react errors
+           */
+          key={props.entityUUID + ' - ' + parentEntityState.value}
           parentEntity={parentEntityState.value}
           entityUUID={props.entityUUID}
           sceneID={props.sceneID}
@@ -473,12 +478,7 @@ const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) 
   )
 }
 
-const EntityChildLoadReactor = (props: {
-  parentEntity: Entity
-  isDynamic: boolean
-  entityUUID: EntityUUID
-  sceneID: SceneID
-}) => {
+const EntityChildLoadReactor = (props: { parentEntity: Entity; entityUUID: EntityUUID; sceneID: SceneID }) => {
   const selfEntityState = useHookstate(UUIDComponent.entitiesByUUIDState[props.entityUUID])
   const entityJSONState = useHookstate(
     getMutableState(SceneState).scenes[props.sceneID].data.scene.entities[props.entityUUID]
@@ -495,6 +495,7 @@ const EntityChildLoadReactor = (props: {
     if (!getState(EngineState).isEditor && dynamicParentState?.value && !dynamicParentState.loaded.value) return
 
     const entity = createEntity()
+
     const parentEntity = parentEntityState.value
     setComponent(entity, SceneObjectComponent)
     setComponent(entity, EntityTreeComponent, {
@@ -524,7 +525,11 @@ const EntityChildLoadReactor = (props: {
     <>
       {selfEntityState.value &&
         entityJSONState.components.map((compState) => (
-          <ComponentLoadReactor key={compState.name.value} componentState={compState} entity={selfEntityState.value} />
+          <ComponentLoadReactor
+            key={compState.name.value + ' - ' + selfEntityState.value}
+            componentState={compState}
+            entity={selfEntityState.value}
+          />
         ))}
     </>
   )
@@ -534,7 +539,7 @@ const ComponentLoadReactor = (props: { componentState: State<ComponentJson>; ent
   useEffect(() => {
     const entity = props.entity
     /** @todo - we have to check for existence here, as the dynamic loading parent component takes a re-render to load in */
-    if (!entity || !entityExists(entity)) return
+    if (!entity || !entityExists(entity)) return console.warn('Entity does not exist', entity)
 
     const component = props.componentState.get(NO_PROXY)
 
@@ -556,7 +561,7 @@ const ComponentLoadReactor = (props: { componentState: State<ComponentJson>; ent
       if (props.componentState.value) return
       removeComponent(entity, ComponentJSONIDMap.get(component.name)!)
     }
-  }, [props.componentState])
+  }, [props.componentState, props.entity])
 
   return null
 }
