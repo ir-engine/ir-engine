@@ -50,21 +50,37 @@ import { EngineState } from './EngineState'
 import { UndefinedEntity } from './Entity'
 
 export interface SceneSnapshotInterface {
-  snapshots: Array<{
-    data: SceneDataType
-    selectedEntities: Array<EntityUUID>
-  }>
-  index: number
+  data: SceneDataType
+  selectedEntities: Array<EntityUUID>
 }
 
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
-    scenes: {} as Record<SceneID, SceneSnapshotInterface>,
+    scenes: {} as Record<
+      SceneID,
+      {
+        snapshots: Array<SceneSnapshotInterface>
+        index: number
+      }
+    >,
     /** @todo replace activeScene with proper multi-scene support */
     activeScene: null as null | SceneID,
     background: null as null | Color | Texture
   }),
+
+  getCurrentScene: () => {
+    const activeScene = getState(SceneState).activeScene
+    if (!activeScene) return null
+    return getState(SceneState).scenes[activeScene].snapshots[getState(SceneState).scenes[activeScene].index].data
+  },
+
+  useScene: (sceneID: SceneID) => {
+    const { scenes } = getMutableState(SceneState)
+    const snapshots = useHookstate(scenes[sceneID].snapshots)
+    const index = useHookstate(scenes[sceneID].index)
+    return snapshots[index.value].data
+  },
 
   loadScene: (sceneID: SceneID, data: SceneDataType) => {
     getMutableState(SceneState).scenes[sceneID].set({ snapshots: [{ data, selectedEntities: [] }], index: 0 })
@@ -106,7 +122,9 @@ export const SceneState = defineState({
 
   cloneCurrentSnapshot: (sceneID: SceneID) => {
     const state = getState(SceneState).scenes[sceneID]
-    return JSON.parse(JSON.stringify(state.snapshots[state.index])) as SceneSnapshotInterface
+    return JSON.parse(JSON.stringify({ sceneID, ...state.snapshots[state.index] })) as SceneSnapshotInterface & {
+      sceneID: SceneID
+    }
   },
 
   applyCurrentSnapshot: (sceneID: SceneID) => {
@@ -135,7 +153,7 @@ export const SceneServices = {
 
 export class SceneSnapshotAction {
   static undo = defineAction({
-    type: 'ee.editor.EditorHistory.UNDO' as const,
+    type: 'ee.scene.snapshot.UNDO' as const,
     sceneID: matches.string as Validator<unknown, SceneID>,
     count: matches.number
     // $topic: EditorTopic,
@@ -143,7 +161,7 @@ export class SceneSnapshotAction {
   })
 
   static redo = defineAction({
-    type: 'ee.editor.EditorHistory.REDO' as const,
+    type: 'ee.scene.snapshot.REDO' as const,
     sceneID: matches.string as Validator<unknown, SceneID>,
     count: matches.number
     // $topic: EditorTopic,
@@ -151,12 +169,12 @@ export class SceneSnapshotAction {
   })
 
   static clearHistory = defineAction({
-    type: 'ee.editor.EditorHistory.CLEAR_HISTORY' as const,
+    type: 'ee.scene.snapshot.CLEAR_HISTORY' as const,
     sceneID: matches.string as Validator<unknown, SceneID>
   })
 
   static appendSnapshot = defineAction({
-    type: 'ee.editor.EditorHistory.APPEND_SNAPSHOT' as const,
+    type: 'ee.scene.snapshot.APPEND_SNAPSHOT' as const,
     sceneID: matches.string as Validator<unknown, SceneID>,
     json: matches.object as Validator<unknown, SceneJson>
     // $topic: EditorTopic,
@@ -164,7 +182,7 @@ export class SceneSnapshotAction {
   })
 
   static createSnapshot = defineAction({
-    type: 'ee.editor.EditorHistory.CREATE_SNAPSHOT' as const,
+    type: 'ee.scene.snapshot.CREATE_SNAPSHOT' as const,
     sceneID: matches.string as Validator<unknown, SceneID>,
     selectedEntities: matches.array as Validator<unknown, Array<EntityUUID>>,
     data: matches.object as Validator<unknown, SceneData>
