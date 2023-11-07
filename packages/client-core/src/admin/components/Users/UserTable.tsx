@@ -33,6 +33,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { IdentityProviderType } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
@@ -78,7 +79,7 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
     id: string,
     el: UserType,
     name: string,
-    avatarId: string | JSX.Element,
+    avatarId: AvatarID | JSX.Element,
     identityProviders: IdentityProviderType[],
     isGuest: string,
     inviteCode: string | JSX.Element

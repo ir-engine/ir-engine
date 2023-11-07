@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+
 export interface UserColumn {
   id: 'id' | 'name' | 'avatarId' | 'accountIdentifier' | 'isGuest' | 'location' | 'inviteCode' | 'instanceId' | 'action'
   label: string
@@ -72,7 +74,7 @@ export interface UserData {
   id: string
   el: any
   name: string
-  avatarId: string | JSX.Element
+  avatarId: AvatarID | JSX.Element
   accountIdentifier: string | JSX.Element
   isGuest: string
   inviteCode: string | JSX.Element

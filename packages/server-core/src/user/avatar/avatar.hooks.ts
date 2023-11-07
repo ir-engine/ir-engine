@@ -27,6 +27,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {
+  AvatarID,
   AvatarType,
   avatarDataValidator,
   avatarPatchValidator,
@@ -149,7 +150,7 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
   const avatars = (await context.app.service(avatarPath).find({
     query: {
       id: {
-        $ne: context.id?.toString()
+        $ne: context.id?.toString() as AvatarID
       }
     },
     paginate: false
@@ -160,11 +161,11 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
     await context.app.service(userPath).patch(
       null,
       {
-        avatarId: randomReplacementAvatar.id
+        avatarId: randomReplacementAvatar.id as AvatarID
       },
       {
         query: {
-          avatarId: context.id?.toString()
+          avatarId: context.id?.toString() as AvatarID
         }
       }
     )
