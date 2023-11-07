@@ -32,7 +32,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { IdentityProviderType } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -61,13 +61,15 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
 
   const adminUserQuery = useFind(userPath, {
     query: {
-      search,
       isGuest: skipGuests ? false : undefined,
       $sort: { name: 1 },
       $skip: 0,
       $limit: 20
     }
   })
+
+  useSearch(adminUserQuery, { search }, search)
+
   const removeUser = useMutation(userPath).remove
 
   const submitDeleteUser = async () => {
