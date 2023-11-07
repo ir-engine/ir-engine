@@ -225,6 +225,7 @@ function ModelReactor() {
           if (hasComponent(entity, SceneAssetPendingTagComponent))
             removeComponent(entity, SceneAssetPendingTagComponent)
         })
+    else if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
 
     if (groupComponent?.value?.find((group: any) => group === scene)) return
 

@@ -27,7 +27,6 @@ import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
   applyIncomingActions,
@@ -64,7 +63,6 @@ describe('spawnAvatarReceptor', () => {
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.userID = 'user' as UserID
-    Engine.instance.peerID = 'peerID' as PeerID
   })
 
   afterEach(() => {
