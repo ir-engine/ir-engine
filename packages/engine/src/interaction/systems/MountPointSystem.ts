@@ -99,7 +99,7 @@ const execute = () => {
     const mountPoint = getComponent(action.targetEntity, MountPointComponent)
     const mountPointUUID = getComponent(action.targetEntity, UUIDComponent)
 
-    if (mountPoint.type !== MountPoint.seat || getState(MountPointState)[mountPointUUID] === avatarUUID) continue
+    if (mountPoint.type !== MountPoint.seat || getState(MountPointState)[mountPointUUID]) continue
 
     /**todo add logic for different mount types */
     const avatar = getComponent(avatarEntity, AvatarComponent)

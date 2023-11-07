@@ -35,8 +35,7 @@ export class MountPointActions {
     mounted: matches.boolean,
     targetMount: matchesEntityUUID,
     mountedEntity: matchesEntityUUID,
-    $topic: NetworkTopics.world,
-    $cache: true
+    $topic: NetworkTopics.world
   })
 }
 
