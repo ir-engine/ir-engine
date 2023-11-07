@@ -19,6 +19,7 @@
   },
   "loader": {
     "connecting": "Connecting...",
+    "loadingClient": "Loading client...",
     "authenticating": "Authenticating...",
     "starting": "Starting...",
     "loadingLocation": "Loading locations...",
