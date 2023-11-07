@@ -120,7 +120,6 @@ export function getComponentGetters() {
       category: NodeCategory.Query,
       label: `get ${componentName}`,
       in: {
-        flow: 'flow',
         entity: 'entity'
       },
       out: {
