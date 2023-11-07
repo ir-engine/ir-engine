@@ -46,7 +46,7 @@ export type LocationID = OpaqueType<'LocationID'> & string
 // Main data model schema
 export const locationSchema = Type.Object(
   {
-    id: Type.String({
+    id: TypedString<LocationID>({
       format: 'uuid'
     }),
     name: Type.String(),
