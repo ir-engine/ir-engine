@@ -46,7 +46,7 @@ import Fab from '@mui/material/Fab'
 
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { MessageID, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
@@ -297,9 +297,9 @@ export const InstanceChat = ({
     const userThumbnail = useUserAvatarThumbnail(message.senderId)
 
     return (
-      <Fragment key={message.id}>
+      <Fragment key={message.id as MessageID}>
         {message.isNotification ? (
-          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+          <div key={message.id as MessageID} className={`${styles.selfEnd} ${styles.noMargin}`}>
             <div className={styles.dFlex}>
               <div className={`${styles.msgNotification} ${styles.mx2}`}>
                 <p className={styles.shadowText}>{message.text}</p>
@@ -307,7 +307,7 @@ export const InstanceChat = ({
             </div>
           </div>
         ) : (
-          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+          <div key={message.id as MessageID} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
               <div
                 className={`${message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner} ${
@@ -362,7 +362,7 @@ export const InstanceChat = ({
           >
             <div className={styles.scrollFix} />
             {sortedMessages?.map((message, index, messages) => (
-              <Message message={message} index={index} key={message.id} />
+              <Message message={message} index={index} key={message.id as MessageID} />
             ))}
           </div>
         )}

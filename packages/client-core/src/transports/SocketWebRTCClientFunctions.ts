@@ -109,6 +109,7 @@ import { encode } from 'msgpackr'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem, disableSystem, startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { LocationID, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { MessageID } from '@etherealengine/engine/src/schemas/social/message.schema'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
@@ -137,7 +138,7 @@ export const promisedRequest = (network: SocketWebRTCClientNetwork, type: any, d
     const message = {
       type: type,
       data: data,
-      id: id++
+      id: (id++).toString() as MessageID
     }
     network.transport.primus.write(message)
 
