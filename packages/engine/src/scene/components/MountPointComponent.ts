@@ -32,7 +32,6 @@ import { matches, matchesVector3 } from '../../common/functions/MatchesUtils'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { UserID } from '../../schemas/user/user.schema'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -51,8 +50,7 @@ export const MountPointComponent = defineComponent({
     return {
       type: MountPoint.seat as MountPointTypes,
       helper: null as ArrowHelper | null,
-      dismountOffset: new Vector3(0, 0, 0),
-      occupiedAvatarEntity: '' as UserID
+      dismountOffset: new Vector3(0, 0, 0)
     }
   },
 

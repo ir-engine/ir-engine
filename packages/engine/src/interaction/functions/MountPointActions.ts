@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction } from '@etherealengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { defineAction, defineState, none } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { NetworkTopics } from '../../networking/classes/Network'
@@ -32,7 +33,23 @@ export class MountPointActions {
   static mountInteraction = defineAction({
     type: 'ee.engine.interactions.MOUNT' as const,
     mounted: matches.boolean,
-    target: matchesEntityUUID,
-    $topic: NetworkTopics.world
+    targetMount: matchesEntityUUID,
+    mountedEntity: matchesEntityUUID,
+    $topic: NetworkTopics.world,
+    $cache: true
   })
 }
+
+export const MountPointState = defineState({
+  name: 'MountPointState',
+  initial: {} as Record<EntityUUID, EntityUUID>,
+  receptors: [
+    [
+      MountPointActions.mountInteraction,
+      (state, action: typeof MountPointActions.mountInteraction.matches._TYPE) => {
+        if (action.mounted) state[action.targetMount].merge(action.mountedEntity)
+        else state[action.targetMount].set(none)
+      }
+    ]
+  ]
+})
