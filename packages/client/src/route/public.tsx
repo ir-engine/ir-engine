@@ -46,31 +46,36 @@ function RouterComp({ route }: { route: string }) {
     return <LoadingCircle message={t('common:loader.loadingRoutes')} />
   }
 
+  const loadProjectComponent = (route: string) => {
+    const customRoute = customRoutes.find((customRoute) => customRoute.route === route)
+    if (!customRoute) return null
+    const Element = customRoute.component
+    return <Element {...customRoute.props} />
+  }
+
   let RouteElement
 
   switch (route) {
     case 'index':
-      RouteElement = $index
+      RouteElement = loadProjectComponent('/') || <$index />
       break
     case 'offline':
-      RouteElement = $offline
+      RouteElement = loadProjectComponent('/offline') || <$offline />
       break
     case 'studio':
-      RouteElement = $studio
+      RouteElement = loadProjectComponent('/studio') || <$studio />
       break
     case 'location':
-      RouteElement = $location
+      RouteElement = loadProjectComponent('/location') || <$location />
       break
     case 'admin':
-      RouteElement = $admin
+      RouteElement = loadProjectComponent('/admin') || <$admin />
       break
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
-        <RouteElement />
-      </Suspense>
+      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>{RouteElement}</Suspense>
     </ErrorBoundary>
   )
 }
