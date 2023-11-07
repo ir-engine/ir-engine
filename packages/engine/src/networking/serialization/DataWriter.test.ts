@@ -436,8 +436,7 @@ describe('DataWriter', () => {
 
   it('should writeEntities', () => {
     const writeView = createViewCursor()
-    const peerID = 'peerID' as PeerID
-    Engine.instance.peerID = peerID
+    const peerID = Engine.instance.store.peerID
 
     const n = 5
     const entities: Entity[] = Array(n)
@@ -527,8 +526,7 @@ describe('DataWriter', () => {
   })
 
   it('should createDataWriter', () => {
-    const peerID = 'peerID' as PeerID
-    Engine.instance.peerID = peerID
+    const peerID = Engine.instance.store.peerID
 
     const write = createDataWriter()
 
