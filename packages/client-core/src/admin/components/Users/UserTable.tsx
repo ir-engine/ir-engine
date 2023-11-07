@@ -79,7 +79,6 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
 
   const createData = (
     id: UserID,
-    id: UserID,
     el: UserType,
     name: UserName,
     avatarId: AvatarID | JSX.Element,
