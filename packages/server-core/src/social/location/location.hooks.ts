@@ -237,7 +237,7 @@ const updateLocation = async (context: HookContext<LocationService>) => {
   await context.params
     .transaction!.trx!.from<LocationDatabaseType>(locationPath)
     .update(context.updateData)
-    .where({ id: context.id?.toString() })
+    .where({ id: context.id?.toString() as LocationID })
 }
 
 const updateLocationSetting = async (context: HookContext<LocationService>) => {

@@ -65,6 +65,7 @@ import {
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getProjects } from '../../functions/projectFunctions'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
@@ -282,7 +283,7 @@ const ProjectsPage = () => {
     await fetchInstalledProjects()
   }
 
-  const onCreatePermission = async (userInviteCode: string, projectId: string) => {
+  const onCreatePermission = async (userInviteCode: InviteCode, projectId: string) => {
     await ProjectService.createPermission(userInviteCode, projectId)
     await fetchInstalledProjects()
   }

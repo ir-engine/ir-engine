@@ -37,7 +37,6 @@ import type { FeathersApplication } from '@feathersjs/feathers'
 import { Group, Object3D, Scene } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import { getAllEntities } from 'bitecs'
 import { Timer } from '../../common/functions/Timer'
@@ -56,8 +55,13 @@ export class Engine {
   /** The uuid of the logged-in user */
   userID: UserID
 
-  /** The peerID of the logged-in user */
-  peerID: PeerID
+  /**
+   * The peerID of the logged-in user
+   * @deprecated - use Engine.instance.store.peerID instead
+   */
+  get peerID() {
+    return Engine.instance.store.peerID
+  }
 
   store = createHyperStore({
     forwardIncomingActions: (action) => {

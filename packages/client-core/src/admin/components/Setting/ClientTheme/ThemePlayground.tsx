@@ -51,6 +51,8 @@ import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { LocationID } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
 import DrawerView from '../../../common/DrawerView'
 import styles from '../../../styles/settings.module.scss'
 
@@ -86,13 +88,13 @@ const ThemePlayground = () => {
       align: 'right'
     },
     {
-      id: 'location',
+      id: 'location' as LocationID,
       label: 'Location',
       minWidth: 65,
       align: 'right'
     },
     {
-      id: 'inviteCode',
+      id: 'inviteCode' as InviteCode,
       label: 'Invite code',
       minWidth: 65,
       align: 'right'
@@ -116,7 +118,7 @@ const ThemePlayground = () => {
       name: 'Josh',
       isGuest: false,
       location: 'test',
-      inviteCode: 'NULL',
+      inviteCode: 'NULL' as InviteCode,
       instanceId: 'koqwndpkqwndpkqwndpqkwndm' as InstanceID,
       action: (
         <>
@@ -133,7 +135,7 @@ const ThemePlayground = () => {
       name: 'Liam',
       isGuest: false,
       location: 'apartment',
-      inviteCode: 'NULL',
+      inviteCode: 'NULL' as InviteCode,
       instanceId: 'alksdnvoakewndawepdnpqwdew' as InstanceID,
       action: (
         <>
@@ -150,7 +152,7 @@ const ThemePlayground = () => {
       name: 'Gheric',
       isGuest: false,
       location: 'test',
-      inviteCode: 'NULL',
+      inviteCode: 'NULL' as InviteCode,
       instanceId: 'qkpwejdpqwdmpqlcmnpqwmndqow' as InstanceID,
       action: (
         <>

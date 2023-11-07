@@ -36,7 +36,6 @@ export const SceneDynamicLoadTagComponent = defineComponent({
     return {
       mode: 'distance' as 'distance' | 'trigger',
       distance: 20,
-      // runtime
       loaded: false
     }
   },
@@ -46,12 +45,14 @@ export const SceneDynamicLoadTagComponent = defineComponent({
 
     if (typeof json.mode === 'string') component.mode.set(json.mode)
     if (typeof json.distance === 'number') component.distance.set(json.distance)
+    if (typeof json.loaded === 'boolean') component.loaded.set(json.loaded)
   },
 
   toJSON: (entity, component) => {
     return {
       mode: component.mode.value,
-      distance: component.distance.value
+      distance: component.distance.value,
+      loaded: component.loaded.value
     }
   },
 

@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { MessageQuery, MessageType } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { MessageID, MessageQuery, MessageType } from '@etherealengine/engine/src/schemas/social/message.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -48,7 +48,7 @@ export const messageExternalResolver = resolve<MessageType, HookContext>({
 
 export const messageDataResolver = resolve<MessageType, HookContext>({
   id: async () => {
-    return v4()
+    return v4() as MessageID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
