@@ -31,6 +31,8 @@
   "dependencies": {
     "@behave-graph/core": "https://gitpkg.now.sh/bhouston/behave-graph/packages/core?main",
     "@behave-graph/scene": "https://gitpkg.now.sh/bhouston/behave-graph/packages/scene?main",
+    "@behave-graph/struct": "https://gitpkg.now.sh/etherealengine/behave-graph/packages/struct?dev",
+
     "@dimforge/rapier3d-compat": "0.11.1",
     "@etherealengine/common": "^1.5.0",
     "@etherealengine/hyperflux": "^1.5.0",
