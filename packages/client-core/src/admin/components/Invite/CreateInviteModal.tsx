@@ -50,7 +50,7 @@ import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHoo
 import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
@@ -181,7 +181,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         targetObjectId = inviteType === INVITE_TYPE_TAB_MAP[1] ? locationId.value : targetObjectId
         targetObjectId = inviteType === INVITE_TYPE_TAB_MAP[2] ? instanceId.value : targetObjectId
 
-        let inviteCode = ''
+        let inviteCode = '' as InviteCode
         const sendData = {
           inviteType,
           identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
@@ -189,11 +189,11 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
           makeAdmin: makeAdmin.value,
           deleteOnUse: oneTimeUse.value
         } as InviteData
-        if (target.length === 8) inviteCode = target
+        if (target.length === 8) inviteCode = target as InviteCode
         else sendData.token = target
         if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
           sendData.spawnType = 'inviteCode'
-          sendData.spawnDetails = { inviteCode: userInviteCode.value }
+          sendData.spawnDetails = { inviteCode: userInviteCode.value as InviteCode }
         } else if (setSpawn.value && spawnTypeTab.value === 1 && spawnPointUUID.value) {
           sendData.spawnType = 'spawnPoint'
           sendData.spawnDetails = { spawnPoint: spawnPointUUID.value }

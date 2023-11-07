@@ -31,7 +31,7 @@ import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { RedirectConfig } from '../../types/OauthStrategies'
@@ -71,7 +71,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
     )
     if (!entity.userId) {
       const avatars = (await this.app.service(avatarPath).find({ isInternal: true })) as Paginated<AvatarType>
-      const code = await getFreeInviteCode(this.app)
+      const code = (await getFreeInviteCode(this.app)) as InviteCode
       const newUser = await this.app.service(userPath).create({
         name: '' as UserName,
         isGuest: false,

@@ -28,7 +28,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { identityProviderTypes } from '../user/identity-provider.schema'
-import { UserID, userSchema } from '../user/user.schema'
+import { InviteCode, UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { inviteTypes } from './invite-type.schema'
 
@@ -38,7 +38,11 @@ export const inviteMethods = ['create', 'find', 'remove', 'patch', 'get'] as con
 
 export const spawnDetailsSchema = Type.Object(
   {
-    inviteCode: Type.Optional(Type.String()),
+    inviteCode: Type.Optional(
+      TypedString<InviteCode>({
+        format: 'uuid'
+      })
+    ),
     spawnPoint: Type.Optional(Type.String()),
     spectate: Type.Optional(Type.String())
   },

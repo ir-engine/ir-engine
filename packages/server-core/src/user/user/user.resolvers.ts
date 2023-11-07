@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { UserID, UserName, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserID, UserName, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import {
@@ -150,7 +150,7 @@ export const userDataResolver = resolve<UserType, HookContext>({
     return name || (('Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)) as UserName)
   },
   inviteCode: async (inviteCode, _, context) => {
-    return inviteCode || (await getFreeInviteCode(context.app))
+    return inviteCode || ((await getFreeInviteCode(context.app)) as InviteCode)
   },
   avatarId: async (avatarId) => {
     return avatarId || undefined

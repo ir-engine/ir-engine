@@ -49,6 +49,7 @@ export const userScopeSchema = Type.Object(
 )
 
 export type UserID = OpaqueType<'UserID'> & string
+export type InviteCode = OpaqueType<'InviteCode'> & string
 export type UserName = OpaqueType<'UserName'> & string
 
 // Main data model schema
@@ -61,7 +62,11 @@ export const userSchema = Type.Object(
       format: 'uuid'
     }),
     isGuest: Type.Boolean(),
-    inviteCode: Type.Optional(Type.String()),
+    inviteCode: Type.Optional(
+      TypedString<InviteCode>({
+        format: 'uuid'
+      })
+    ),
     avatarId: TypedString<AvatarID>({
       format: 'uuid'
     }),

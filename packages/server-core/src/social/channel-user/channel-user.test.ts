@@ -32,7 +32,7 @@ import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/sch
 import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
 describe('channel-user service', () => {
@@ -56,7 +56,7 @@ describe('channel-user service', () => {
       name: 'user' as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '',
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
@@ -99,7 +99,7 @@ describe('channel-user service', () => {
       name: 'user' as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '',
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
@@ -107,7 +107,7 @@ describe('channel-user service', () => {
       name: 'user2' as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '',
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
@@ -181,7 +181,7 @@ describe('channel-user service', () => {
       name: 'user' as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '',
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
