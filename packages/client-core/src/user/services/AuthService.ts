@@ -56,6 +56,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import {
   UserID,
+  UserName,
   UserPatch,
   UserPublicPatch,
   UserType,
@@ -71,7 +72,7 @@ export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken t
 
 export const UserSeed: UserType = {
   id: '' as UserID,
-  name: '',
+  name: '' as UserName,
   isGuest: true,
   avatarId: '' as AvatarID,
   avatar: {
@@ -631,7 +632,7 @@ export const AuthService = {
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
-  async updateUsername(userId: UserID, name: string) {
+  async updateUsername(userId: UserID, name: UserName) {
     const { name: updatedName } = (await Engine.instance.api
       .service(userPath)
       .patch(userId, { name: name })) as UserType

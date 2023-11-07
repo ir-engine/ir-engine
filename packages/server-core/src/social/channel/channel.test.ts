@@ -32,7 +32,7 @@ import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/sch
 import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
 describe('channel service', () => {
@@ -58,7 +58,7 @@ describe('channel service', () => {
 
   it('creates and finds channel with userId', async () => {
     const user = await app.service(userPath).create({
-      name: 'user',
+      name: 'user' as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
       inviteCode: '',
@@ -104,7 +104,7 @@ describe('channel service', () => {
 
   it('can remove and finds channel with instanceId', async () => {
     const user = await app.service(userPath).create({
-      name: 'user',
+      name: 'user' as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
       inviteCode: '',
@@ -153,7 +153,7 @@ describe('channel service', () => {
 
   it('will not create a channel with both userId and instanceId', async () => {
     const user = await app.service(userPath).create({
-      name: 'user',
+      name: 'user' as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
       inviteCode: '',
@@ -182,7 +182,7 @@ describe('channel service', () => {
 
   it('creates and finds channel with instanceId', async () => {
     const user = await app.service(userPath).create({
-      name: 'user',
+      name: 'user' as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
       inviteCode: '',

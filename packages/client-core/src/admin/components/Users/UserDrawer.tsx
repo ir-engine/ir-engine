@@ -45,7 +45,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { AvatarID, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { UserData, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserData, UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
@@ -284,7 +284,7 @@ const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }
 
   const handleSubmit = async () => {
     const data: UserData = {
-      name: state.name.value,
+      name: state.name.value as UserName,
       avatarId: state.avatar.value as AvatarID,
       isGuest: state.isGuest.value,
       scopes: state.scopes.get({ noproxy: true })
