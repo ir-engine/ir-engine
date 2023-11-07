@@ -107,7 +107,7 @@ const execute = () => {
     const avatarEntity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
 
     const mountPoint = getComponent(action.targetEntity, MountPointComponent)
-    if (mountPoint.type != MountPoint.seat || mountPoint.occupiedAvatarEntity != '') continue
+    if (mountPoint.type !== MountPoint.seat || mountPoint.occupiedAvatarEntity !== '') continue
     if (mountPoint.type === MountPoint.seat) {
       const avatar = getComponent(avatarEntity, AvatarComponent)
 
