@@ -55,39 +55,38 @@ const execute = () => {
   //loop to caculate the distance
   for (const selectedAttachmentPoint of selectedAttachmentPoints) {
     //const selectedTransform = getComponent(selectedAttachmentPoint, TransformComponent)
-    const selectParententity = getComponent(selectedAttachmentPoint, EntityTreeComponent).parentEntity
-    if (selectParententity) {
-      const selectTransform = getComponent(selectParententity, TransformComponent)
-
-      for (const entity of attachmentPointQuery()) {
-        if (selectedAttachmentPoints.includes(entity)) continue
-        //entity not inside of the attachment point
-        //if selected attachment point
-        const transform = getComponent(entity, TransformComponent)
-        const distance = transform.position.distanceTo(selectTransform.position)
-        if (distance < shortestDistance) {
-          shortestDistance = distance
-          closestPosition = transform.position
-          closestRotation = transform.rotation
-          node = selectedAttachmentPoint
-        }
+    const selectChildEntity = getComponent(selectedAttachmentPoint, EntityTreeComponent).children
+    if (selectChildEntity.length != 0) continue
+    //const selectTransform = getComponent(selectParententity, TransformComponent)
+    const selectTransform = getComponent(selectedAttachmentPoint, TransformComponent)
+    for (const entity of attachmentPointQuery()) {
+      if (selectedAttachmentPoints.includes(entity)) continue
+      //entity not inside of the attachment point
+      //if selected attachment point
+      const transform = getComponent(entity, TransformComponent)
+      const distance = transform.position.distanceTo(selectTransform.position)
+      if (distance < shortestDistance) {
+        shortestDistance = distance
+        closestPosition = transform.position
+        closestRotation = transform.rotation
+        node = selectedAttachmentPoint
       }
     }
   }
+  //snap two object according two closest attachment points
   if (shortestDistance < threshold && closestPosition && closestRotation && node) {
     const selectParententityFinal = getComponent(node, EntityTreeComponent).parentEntity
-    const selectedTransform = getComponent(node, TransformComponent)
+    const selectedTransformFinal = getComponent(node, TransformComponent)
     if (selectParententityFinal) {
       const selectTransform = getComponent(selectParententityFinal, TransformComponent)
       //rotation offset between closestRotation and selectedTransform
-      const offsetRotation = closestRotation.clone().multiply(selectedTransform.rotation.clone().invert())
+      const offsetRotation = closestRotation.clone().multiply(selectedTransformFinal.rotation.clone().invert())
       //rotation along object coordinate y
       const rotationQuaternion = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
       const finalRotation = selectTransform.rotation.multiply(offsetRotation).multiply(rotationQuaternion)
-      // const finalRotation=(selectTransform.rotation.clone().multiply(offsetRotation.clone()))
 
       //offset between shortest attachment point and select point
-      const offset = closestPosition.clone().sub(selectedTransform.position)
+      const offset = closestPosition.clone().sub(selectedTransformFinal.position)
 
       setComponent(selectParententityFinal, TransformComponent, {
         position: selectTransform.position.clone().add(offset),

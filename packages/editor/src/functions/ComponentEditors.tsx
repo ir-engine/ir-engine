@@ -80,7 +80,9 @@ import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEdito
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
+import { AttachmentPointComponent } from '@etherealengine/engine/src/scene/components/AttachmentPointComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
+import AttachmentPointEditor from '../components/properties/AttachmentPointEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
@@ -118,6 +120,7 @@ EntityNodeEditor.set(CameraSettingsComponent, CameraPropertiesNodeEditor)
 EntityNodeEditor.set(DirectionalLightComponent, DirectionalLightNodeEditor)
 EntityNodeEditor.set(HemisphereLightComponent, HemisphereLightNodeEditor)
 EntityNodeEditor.set(AmbientLightComponent, AmbientLightNodeEditor)
+EntityNodeEditor.set(AttachmentPointComponent, AttachmentPointEditor)
 EntityNodeEditor.set(PointLightComponent, PointLightNodeEditor)
 EntityNodeEditor.set(SpotLightComponent, SpotLightNodeEditor)
 EntityNodeEditor.set(GroundPlaneComponent, GroundPlaneNodeEditor)
