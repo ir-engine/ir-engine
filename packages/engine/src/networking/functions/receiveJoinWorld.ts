@@ -36,6 +36,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AvatarID } from '../../schemas/user/avatar.schema'
+import { UserName } from '../../schemas/user/user.schema'
 import { WorldState } from '../interfaces/WorldState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
@@ -65,7 +66,7 @@ export type JoinWorldProps = {
 export type SpawnInWorldProps = {
   avatarSpawnPose: { position: Vector3; rotation: Quaternion }
   avatarID: AvatarID
-  name: string
+  name: UserName
 }
 
 export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {

@@ -50,7 +50,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InvitePatch, InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { Id } from '@feathersjs/feathers'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -450,7 +450,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
               )}
               {setSpawn.value && spawnTypeTab.value === 0 && (
                 <InputSelect
-                  name="user"
+                  name={'user' as UserName}
                   className={classNames({
                     [styles.maxWidth90]: true,
                     [styles.inputField]: true

@@ -45,7 +45,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { AvatarID, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { UserData, UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserData, UserID, UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
@@ -68,7 +68,7 @@ export interface UserDrawerProps {
 }
 
 export const defaultState = {
-  id: '' as AvatarID,
+  id: '' as UserID,
   name: '',
   avatar: '',
   isGuest: true,
@@ -242,9 +242,9 @@ const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }
     if (selectedUser) {
       state.set({
         ...defaultState,
-        id: selectedUser.id as unknown as AvatarID,
-        name: selectedUser.name || '',
-        avatar: selectedUser.avatarId || '',
+        id: selectedUser.id as UserID,
+        name: selectedUser.name || ('' as UserName),
+        avatar: selectedUser.avatarId || ('' as AvatarID),
         isGuest: selectedUser.isGuest,
         scopes: selectedUser.scopes?.map((el) => ({ type: el.type })) || []
       })
@@ -323,7 +323,7 @@ const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }
         <InputText name="id" label={t('admin:components.user.id')} value={state.id.value} disabled />
 
         <InputText
-          name="name"
+          name={'name' as UserName}
           label={t('admin:components.user.name')}
           value={state.name.value}
           error={state.formErrors.name.value}

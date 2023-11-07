@@ -40,8 +40,8 @@ describe('FeathersHooks', () => {
   beforeEach(() => {
     createEngine()
     const db = [
-      { id: '1', name: 'John' },
-      { id: '2', name: 'Jane' }
+      { id: '1', name: 'John' as UserName },
+      { id: '2', name: 'Jane' as UserName }
     ]
     const eventDispatcher = new EventDispatcher()
     ;(Engine.instance.api as any) = {

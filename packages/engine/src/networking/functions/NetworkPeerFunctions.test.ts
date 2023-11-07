@@ -28,7 +28,7 @@ import assert from 'assert'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { applyIncomingActions, getMutableState, receiveActions } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
@@ -61,7 +61,8 @@ describe('NetworkPeerFunctions', () => {
       const userId = 'user id' as UserID
       const peerID = Engine.instance.store.peerID
       Engine.instance.userID = 'another user id' as UserID
-      const userName = 'user name'
+      Engine.instance.peerID = peerID
+      const userName = 'user name' as UserName
       const userIndex = 1
       const peerIndex = 2
       const network = NetworkState.worldNetwork as Network
@@ -86,8 +87,9 @@ describe('NetworkPeerFunctions', () => {
       const userId = 'user id' as UserID
       const peerID = Engine.instance.store.peerID
       Engine.instance.userID = 'another user id' as UserID
-      const userName = 'user name'
-      const userName2 = 'user name 2'
+      Engine.instance.peerID = peerID
+      const userName = 'user name' as UserName
+      const userName2 = 'user name 2' as UserName
       const userIndex = 1
       const userIndex2 = 2
       const peerIndex = 3
@@ -117,7 +119,8 @@ describe('NetworkPeerFunctions', () => {
       const userId = 'user id' as UserID
       const peerID = 'peer id' as PeerID
       Engine.instance.userID = 'another user id' as UserID
-      const userName = 'user name'
+      Engine.instance.peerID = 'another peer id' as PeerID
+      const userName = 'user name' as UserName
       const userIndex = 1
       const peerIndex = 2
       const network = NetworkState.worldNetwork as Network
@@ -137,7 +140,8 @@ describe('NetworkPeerFunctions', () => {
       const userId = 'user id' as UserID
       const peerID = Engine.instance.store.peerID
       Engine.instance.userID = 'another user id' as UserID
-      const userName = 'user name'
+      Engine.instance.peerID = peerID
+      const userName = 'user name' as UserName
       const userIndex = 1
       const peerIndex = 2
       const network = NetworkState.worldNetwork as Network
@@ -157,7 +161,8 @@ describe('NetworkPeerFunctions', () => {
       const userId = 'world' as UserID & InstanceID
       const anotherPeerID = 'another peer id' as PeerID
       Engine.instance.userID = 'another user id' as UserID
-      const userName = 'user name'
+      Engine.instance.peerID = 'another peer id' as PeerID
+      const userName = 'user name' as UserName
       const userIndex = 1
       const peerIndex = 5
       const network = NetworkState.worldNetwork as Network

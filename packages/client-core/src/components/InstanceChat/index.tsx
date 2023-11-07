@@ -47,6 +47,7 @@ import Fab from '@mui/material/Fab'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
@@ -315,11 +316,11 @@ export const InstanceChat = ({
               >
                 <div className={styles.msgWrapper}>
                   {messages[index - 1] && messages[index - 1].isNotification ? (
-                    <h3 className={styles.sender}>{message.sender.name}</h3>
+                    <h3 className={styles.sender}>{message.sender.name as UserName}</h3>
                   ) : (
                     messages[index - 1] &&
                     message.senderId !== messages[index - 1].senderId && (
-                      <h3 className={styles.sender}>{message.sender.name}</h3>
+                      <h3 className={styles.sender}>{message.sender.name as UserName}</h3>
                     )
                   )}
                   <p className={styles.text}>{message.text}</p>
