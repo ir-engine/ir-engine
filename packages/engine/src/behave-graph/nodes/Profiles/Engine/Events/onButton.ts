@@ -23,7 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Choices, NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
+import {
+  Choices,
+  Engine,
+  EventNode2,
+  IGraph,
+  NodeCategory,
+  NodeConfiguration,
+  NodeDescription,
+  NodeDescription2,
+  Socket
+} from '@behave-graph/core'
 import { Query, defineQuery, getComponent, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
 import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
 import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
@@ -49,43 +59,55 @@ const initialState = (): State => ({
 
 // very 3D specific.
 const buttonStates = ['down', 'pressed', 'touched', 'up'] as Array<keyof ButtonState>
-export const OnButtonState = makeEventNodeDefinition({
-  typeName: 'engine/onButtonState',
-  category: NodeCategory.Event,
-  label: 'On Button State',
-  in: {
-    button: (_, graphApi) => {
-      const choices: Choices = [
-        ...Object.keys(KeyboardButton)
-          .sort()
-          .map((value) => ({ text: `keyboard/${value}`, value })),
-        ...Object.keys(MouseButton)
-          .sort()
-          .map((value) => ({ text: `mouse/${value}`, value })),
-        ...Object.keys(StandardGamepadButton)
-          .sort()
-          .map((value) => ({ text: `gamepad/${value}`, value })),
-        ...Object.keys(XRStandardGamepadButton)
-          .sort()
-          .map((value) => ({ text: `xr-gamepad/${value}`, value }))
-      ]
-      choices.unshift({ text: 'none', value: null })
-      return {
-        valueType: 'string',
-        choices: choices
-      }
+
+export class OnButton extends EventNode2 {
+  public static Description = new NodeDescription2({
+    typeName: 'ee/onButton',
+    category: NodeCategory.Event,
+    label: 'On Button',
+    helpDescription: 'Fires when a button is pressed, released, or held.',
+    factory: (description, graph, configuration) => {
+      return new OnButton({ description, graph, configuration })
     }
-  },
-  out: {
-    ...buttonStates.reduce(
-      (acc, element) => ({ ...acc, [`${element.charAt(0).toUpperCase()}${element.slice(1)}`]: 'flow' }),
-      {}
-    ),
-    value: 'float'
-  },
-  initialState: initialState(),
-  init: ({ read, write, commit, graph }) => {
-    const buttonKey = read<string>('button')
+  })
+
+  constructor({
+    description,
+    graph,
+    configuration
+  }: {
+    description: NodeDescription
+    graph: IGraph
+    configuration: NodeConfiguration
+  }) {
+    const choices: Choices = [
+      ...Object.keys(KeyboardButton)
+        .sort()
+        .map((value) => ({ text: `keyboard/${value}`, value })),
+      ...Object.keys(MouseButton)
+        .sort()
+        .map((value) => ({ text: `mouse/${value}`, value })),
+      ...Object.keys(StandardGamepadButton)
+        .sort()
+        .map((value) => ({ text: `gamepad/${value}`, value })),
+      ...Object.keys(XRStandardGamepadButton)
+        .sort()
+        .map((value) => ({ text: `xr-gamepad/${value}`, value }))
+    ]
+
+    super({
+      description,
+      graph,
+      configuration,
+      inputs: [new Socket('string', 'button', MouseButton.PrimaryClick, undefined, choices)],
+      outputs: [...buttonStates.map((state) => new Socket(state, 'flow')), new Socket('float', 'value')]
+    })
+  }
+
+  state = initialState()
+
+  init(engine: Engine) {
+    const buttonKey = this.readInput<string>('button')
     const query = defineQuery([InputSourceComponent])
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onButton-' + systemCounter++,
@@ -94,28 +116,27 @@ export const OnButtonState = makeEventNodeDefinition({
           const inputSource = getComponent(eid, InputSourceComponent)
           const button = inputSource.buttons[buttonKey]
           buttonStates.forEach((state) => {
-            if (button?.[state] === true) {
-              const outputSocket = `${state.charAt(0).toUpperCase()}${state.slice(1)}`
-              commit(outputSocket as any)
+            if (button?.[state]) {
+              this.writeOutput('value', button?.value ?? 0)
+              engine.commitToNewFiber(this, state)
+              engine.executeAllSync(1)
             }
           })
-          write('value', button?.value ?? 0)
         }
       }
     })
 
     startSystem(systemUUID, { with: InputSystemGroup })
 
-    const state: State = {
+    this.state = {
       query,
       systemUUID
     }
-
-    return state
-  },
-  dispose: ({ state: { query, systemUUID }, graph: { getDependency } }) => {
-    disableSystem(systemUUID)
-    removeQuery(query)
-    return initialState()
   }
-})
+
+  dispose() {
+    disableSystem(this.state.systemUUID)
+    removeQuery(this.state.query)
+    this.state = initialState()
+  }
+}

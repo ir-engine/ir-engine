@@ -33,7 +33,7 @@ import {
   memo
 } from '@behave-graph/core'
 import { GetSceneProperty, SetSceneProperty } from '@behave-graph/scene'
-import { OnButtonState } from './Events/onButtonState'
+import { OnButton } from './Events/onButton'
 import { OnQuery } from './Events/onQuery'
 import * as ComponentNodes from './Values/ComponentNodes'
 import * as CustomNodes from './Values/CustomNodes'
@@ -74,7 +74,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     // actions
 
     // events
-    OnButtonState, // click included
+    OnButton.Description,
     OnQuery,
     // async
     //switchScene.Description,

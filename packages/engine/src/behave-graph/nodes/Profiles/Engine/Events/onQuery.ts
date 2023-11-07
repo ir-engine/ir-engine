@@ -123,26 +123,14 @@ export const OnQuery = makeEventNodeDefinition({
       queryComponents.push(component)
     }
     const query = defineQuery(queryComponents)[type]
-    let prevQueryResult = []
-    let newQueryResult = []
+
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onQuery-' + systemCounter++,
       execute: () => {
-        newQueryResult = query()
-        if (newQueryResult.length === 0) return
-        if (prevQueryResult === newQueryResult) return
-        const tempResult = newQueryResult
-        function delayedIteration(i) {
-          if (i < tempResult.length) {
-            write('entity', tempResult[i])
-            commit('flow', () => {
-              delayedIteration(i + 1)
-            })
-          }
+        for (const eid of query()) {
+          write('entity', eid)
+          commit('flow')
         }
-        // Start the delayed iteration
-        delayedIteration(0)
-        prevQueryResult = tempResult
       }
     })
     startSystem(systemUUID, { with: system })
