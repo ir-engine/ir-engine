@@ -162,3 +162,13 @@
 .checkboxChecked {
   color: var(--iconButtonColor) !important;
 }
+
+.assetLoadingContainer {
+  width: auto;
+  margin: 5px auto;
+  line-height: 0.5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}

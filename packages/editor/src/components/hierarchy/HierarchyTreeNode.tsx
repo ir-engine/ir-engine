@@ -37,7 +37,7 @@ import {
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { StateMethods, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
@@ -79,6 +79,7 @@ export type HierarchyTreeNodeData = {
   onChangeName: (node: HeirarchyTreeNodeType, name: string) => void
   onRenameSubmit: (node: HeirarchyTreeNodeType, name: string) => void
   onUpload: ReturnType<typeof useUpload>
+  isAssetLoading: StateMethods<boolean, {}>
 }
 
 export type HierarchyTreeNodeProps = {
@@ -176,6 +177,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     return (item: any, monitor): void => {
       if (parentNode && typeof parentNode !== 'string' && typeof beforeNode !== 'string') {
         if (item.files) {
+          data.isAssetLoading.set(true)
+
           const dndItem: any = monitor.getItem()
           const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
 
@@ -184,13 +187,18 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             if (!assets) return
             for (const asset of assets) {
               addMediaNode(asset, parentNode, beforeNode)
+                .then(() => data.isAssetLoading.set(false))
+                .catch(() => data.isAssetLoading.set(false))
             }
           })
           return
         }
 
         if (item.url) {
+          data.isAssetLoading.set(true)
           addMediaNode(item.url, parentNode, beforeNode)
+            .then(() => data.isAssetLoading.set(false))
+            .catch(() => data.isAssetLoading.set(false))
           return
         }
 
