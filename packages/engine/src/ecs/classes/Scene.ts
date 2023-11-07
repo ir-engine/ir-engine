@@ -94,9 +94,9 @@ export const SceneState = defineState({
     }
   },
 
-  getRootEntity: (sceneID: SceneID) => {
-    if (!getState(SceneState).scenes[sceneID]) return UndefinedEntity
-    const scene = getState(SceneState).scenes[sceneID]
+  getRootEntity: (sceneID?: SceneID) => {
+    if (!getState(SceneState).scenes[sceneID ?? getState(SceneState).activeScene!]) return UndefinedEntity
+    const scene = getState(SceneState).scenes[sceneID ?? getState(SceneState).activeScene!]
     const currentSnapshot = scene.snapshots[scene.index].data
     return UUIDComponent.entitiesByUUID[currentSnapshot.scene.root]
   },
