@@ -38,7 +38,7 @@ import {
   LocationType
 } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { Application } from '@etherealengine/server-core/declarations'
-import { uploadLocalSceneData } from '@etherealengine/server-core/src/util/uploadLocalSceneData'
+import { createScene } from '@etherealengine/server-core/src/util/createScenes'
 
 function toCapitalCase(str: string) {
   return str
@@ -56,7 +56,7 @@ export const createLocations = async (app: Application, projectName: string) => 
         const locationId = generateUUID() as LocationID
         const settingsId = generateUUID()
         const sceneName = sceneJson.replace('.scene.json', '')
-        const sceneId = (await uploadLocalSceneData(app, sceneName, projectName)) as SceneID
+        const sceneId = (await createScene(app, sceneName, projectName)) as SceneID
         const locationName = toCapitalCase(sceneName.replace('-', ' '))
         const locationSetting = {
           id: settingsId,

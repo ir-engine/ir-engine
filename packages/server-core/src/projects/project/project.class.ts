@@ -44,7 +44,6 @@ import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
-import { uploadLocalSceneData } from '../../util/uploadLocalSceneData'
 import {
   deleteProjectFilesInStorageProvider,
   getCommitSHADate,
@@ -94,6 +93,25 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
           if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
           const config = getProjectConfig(name)
           if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
+        })
+      )
+    } catch (err) {
+      logger.error(err)
+      throw err
+    }
+  }
+
+  async _callOnUpdate() {
+    try {
+      const projects = (await super._find({
+        query: { $select: ['name'] },
+        paginate: false
+      })) as Array<{ name }>
+      await Promise.all(
+        projects.map(async ({ name }) => {
+          if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
+          const config = getProjectConfig(name)
+          if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onUpdate')
         })
       )
     } catch (err) {
@@ -168,25 +186,9 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     await Promise.all(promises)
 
-    const scenePromises: Promise<any>[] = []
-    for (const projectName of locallyInstalledProjects) {
-      if (!data.find((e) => e.name === projectName) || projectName === 'default-project') {
-        try {
-          // Upload local project scenes to storage provider and sync with scene table
-          fs.readdirSync(path.resolve(projectsRootFolder, projectName))
-            .filter((file) => file.endsWith('.scene.json'))
-            .map(async (sceneJson) => {
-              const sceneName = sceneJson.replace('.scene.json', '')
-              scenePromises.push(uploadLocalSceneData(this.app, sceneName, projectName))
-            })
-        } catch (e) {
-          logger.error(e)
-        }
-      }
-    }
-    await Promise.all(scenePromises)
-
     await this._callOnLoad()
+
+    await this._callOnUpdate()
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {

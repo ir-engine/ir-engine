@@ -58,4 +58,10 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
     await uploadLocalProjectToProvider(app, 'default-project')
     if (!config.kubernetes.enabled && !config.testEnabled) await app.service(projectPath)._fetchDevLocalProjects()
   }
+
+  if (prepareDb) {
+    if (!config.testEnabled) {
+      await app.service(projectPath)._callOnUpdate()
+    }
+  }
 }
