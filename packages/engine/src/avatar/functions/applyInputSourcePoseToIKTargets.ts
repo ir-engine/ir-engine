@@ -25,19 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHand, XRLeftHandComponent, XRRightHandComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRControlsState, XRState } from '../../xr/XRState'
 import { BoneStructure } from '../AvatarBoneMatching'
-import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 
 // rotate +90 around rig finger's X axis
@@ -266,7 +264,13 @@ const rightControllerOffset = new Quaternion()
   .setFromEuler(new Euler(0, Math.PI / 2, 0))
   .multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 4, 0, 0)))
 
-export const applyInputSourcePoseToIKTargets = () => {
+export const applyInputSourcePoseToIKTargets = (
+  ikTargetHead: Entity,
+  ikTargetRightHand: Entity,
+  ikTargetLeftHand: Entity,
+  ikTargetRightFoot: Entity,
+  ikTargetLeftFoot: Entity
+) => {
   const { localClientEntity } = Engine.instance
 
   const xrFrame = getState(XRState).xrFrame!
@@ -279,14 +283,6 @@ export const applyInputSourcePoseToIKTargets = () => {
 
   /** Update controller pose input sources from WebXR into the ECS */
   if (xrFrame && referenceSpace) {
-    const headUUID = (Engine.instance.userID + ikTargets.head) as EntityUUID
-    const leftHandUUID = (Engine.instance.userID + ikTargets.leftHand) as EntityUUID
-    const rightHandUUID = (Engine.instance.userID + ikTargets.rightHand) as EntityUUID
-
-    const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
-    const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
-    const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
-
     /** Head */
     if (isCameraAttachedToAvatar && ikTargetHead) {
       const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
@@ -354,4 +350,15 @@ export const applyInputSourcePoseToIKTargets = () => {
       }
     }
   }
+  //for now if we're in a mocap session we write the world positions of
+  //forward kinematic mocap pose data to the IK targets from the rig
+  else if (getComponent(localClientEntity, MotionCaptureRigComponent)) {
+    const rig = getComponent(localClientEntity, AvatarRigComponent).rig
+    setComponent(ikTargetRightHand, TransformComponent, { position: rig.rightHand.node.getWorldPosition(worldPos) })
+    setComponent(ikTargetLeftHand, TransformComponent, { position: rig.leftHand.node.getWorldPosition(worldPos) })
+    setComponent(ikTargetHead, TransformComponent, { position: rig.head.node.getWorldPosition(worldPos) })
+    setComponent(ikTargetRightFoot, TransformComponent, { position: rig.rightFoot.node.getWorldPosition(worldPos) })
+    setComponent(ikTargetLeftFoot, TransformComponent, { position: rig.leftFoot.node.getWorldPosition(worldPos) })
+  }
 }
+const worldPos = new Vector3()
