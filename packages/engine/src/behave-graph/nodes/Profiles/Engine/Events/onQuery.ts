@@ -84,7 +84,6 @@ export const OnQuery = makeEventNodeDefinition({
         defaultValue: choices[0]
       }
     }
-
     const system = () => {
       const systemDefinitions = Array.from(SystemDefinitions.keys()).map((key) => key as string)
       const groups = systemDefinitions.filter((key) => key.includes('group')).sort()

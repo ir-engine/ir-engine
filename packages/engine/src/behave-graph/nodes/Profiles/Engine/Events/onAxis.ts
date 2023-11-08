@@ -28,13 +28,7 @@ import { Query, defineQuery, getComponent, removeQuery } from '../../../../../ec
 import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
 import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
-import {
-  ButtonState,
-  KeyboardButton,
-  MouseButton,
-  StandardGamepadButton,
-  XRStandardGamepadButton
-} from '../../../../../input/state/ButtonState'
+import { StandardGamepadAxes, XRStandardGamepadAxes } from '../../../../../input/state/ButtonState'
 
 let systemCounter = 0
 
@@ -48,58 +42,50 @@ const initialState = (): State => ({
 })
 
 // very 3D specific.
-const buttonStates = ['down', 'pressed', 'touched', 'up'] as Array<keyof ButtonState>
-export const OnButtonState = makeEventNodeDefinition({
-  typeName: 'engine/onButtonState',
+export const OnAxis = makeEventNodeDefinition({
+  typeName: 'engine/onAxis',
   category: NodeCategory.Event,
-  label: 'On Button State',
+  label: 'On Axis',
   in: {
-    button: (_, graphApi) => {
+    axis: (_, graphApi) => {
       const choices: Choices = [
-        ...Object.keys(KeyboardButton)
-          .sort()
-          .map((value) => ({ text: `keyboard/${value}`, value })),
-        ...Object.keys(MouseButton)
-          .sort()
-          .map((value) => ({ text: `mouse/${value}`, value })),
-        ...Object.keys(StandardGamepadButton)
+        ...Object.keys(StandardGamepadAxes)
+          .filter((x) => !(parseInt(x) >= 0))
           .sort()
           .map((value) => ({ text: `gamepad/${value}`, value })),
-        ...Object.keys(XRStandardGamepadButton)
+        ...Object.keys(XRStandardGamepadAxes)
+          .filter((x) => !(parseInt(x) >= 0))
           .sort()
           .map((value) => ({ text: `xr-gamepad/${value}`, value }))
       ]
-      choices.unshift({ text: 'none', value: null })
       return {
-        valueType: 'string',
-        choices: choices
+        valueType: 'integer',
+        choices: choices,
+        defaultValue: choices[0].value
       }
-    }
+    },
+    deadzone: 'float'
   },
   out: {
-    ...buttonStates.reduce(
-      (acc, element) => ({ ...acc, [`${element.charAt(0).toUpperCase()}${element.slice(1)}`]: 'flow' }),
-      {}
-    ),
+    flow: 'flow',
     value: 'float'
   },
   initialState: initialState(),
   init: ({ read, write, commit, graph }) => {
-    const buttonKey = read<string>('button')
+    const axisKey = read<number>('axis')
+    const deadzone = read<number>('deadzone')
+
     const query = defineQuery([InputSourceComponent])
     const systemUUID = defineSystem({
-      uuid: 'behave-graph-onButton-' + systemCounter++,
+      uuid: 'behave-graph-onAxis-' + systemCounter++,
       execute: () => {
         for (const eid of query()) {
           const inputSource = getComponent(eid, InputSourceComponent)
-          const button = inputSource.buttons[buttonKey]
-          buttonStates.forEach((state) => {
-            if (button?.[state] === true) {
-              const outputSocket = `${state.charAt(0).toUpperCase()}${state.slice(1)}`
-              commit(outputSocket as any)
-            }
-          })
-          write('value', button?.value ?? 0)
+          if (!inputSource.source.gamepad) return
+          let gamepadAxesValue = inputSource.source.gamepad?.axes[axisKey]
+          if (Math.abs(gamepadAxesValue) < deadzone) gamepadAxesValue = 0
+          write('value', gamepadAxesValue)
+          commit('flow')
         }
       }
     })

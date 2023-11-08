@@ -36,19 +36,19 @@ import { BehaveGraphComponent } from '../components/BehaveGraphComponent'
 
 export const BehaveGraphActions = {
   execute: defineAction({
-    type: 'BehaveGraph.EXECUTE',
+    type: 'ee.engine.BehaveGraph.EXECUTE',
     entity: matches.number as Validator<unknown, Entity>
   }),
   stop: defineAction({
-    type: 'BehaveGraph.STOP',
+    type: 'ee.engine.BehaveGraph.STOP',
     entity: matches.number as Validator<unknown, Entity>
   }),
   executeAll: defineAction({
-    type: 'BehaveGraph.EXECUTEALL',
+    type: 'ee.engine.BehaveGraph.EXECUTEALL',
     entity: matches.number as Validator<unknown, Entity>
   }),
   stopAll: defineAction({
-    type: 'BehaveGraph.STOPALL',
+    type: 'ee.engine.BehaveGraph.STOPALL',
     entity: matches.number as Validator<unknown, Entity>
   })
 }
