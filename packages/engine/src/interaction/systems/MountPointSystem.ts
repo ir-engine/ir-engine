@@ -56,11 +56,12 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
 import { createInteractUI } from '../functions/interactUI'
-import { addInteractableUI } from './InteractiveSystem'
+import { InteractiveUI, addInteractableUI } from './InteractiveSystem'
 
 /**
  * @todo refactor this into i18n and configurable
@@ -187,7 +188,15 @@ export const MountPointSystem = defineSystem({
   execute,
   reactor: () => {
     const mountedEntities = useHookstate(getMutableState(MountPointState))
-    useEffect(() => {}, [mountedEntities])
+    useEffect(() => {
+      //temporary logic for setting visibility of hints until interactive system is refactored
+      for (const mountEntity of mountPointQuery()) {
+        setVisibleComponent(
+          InteractiveUI.get(mountEntity)?.xrui.entity!,
+          !mountedEntities[getComponent(mountEntity, UUIDComponent)].value
+        )
+      }
+    }, [mountedEntities])
 
     return null
   }
