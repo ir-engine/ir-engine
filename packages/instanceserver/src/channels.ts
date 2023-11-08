@@ -28,7 +28,6 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import '@feathersjs/transport-commons'
 
 import { decode } from 'jsonwebtoken'
-import { v4 as uuidv4 } from 'uuid'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -239,7 +238,6 @@ const loadEngine = async (app: Application, sceneId: SceneID) => {
 
   const hostId = instanceServerState.instance.id as UserID & InstanceID
   Engine.instance.userID = hostId
-  Engine.instance.peerID = uuidv4() as PeerID
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
 
   await setupIPs()

@@ -79,7 +79,7 @@ const reactor = () => {
 
     const graphQuery = defineQuery([BehaveGraphComponent])
 
-    for (const entity of graphQuery()) {
+    for (const entity of graphQuery.enter()) {
       setComponent(entity, BehaveGraphComponent, { run: true })
     }
 

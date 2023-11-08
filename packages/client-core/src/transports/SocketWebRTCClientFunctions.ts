@@ -81,7 +81,7 @@ import {
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import {
   Action,
@@ -109,6 +109,7 @@ import { encode } from 'msgpackr'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem, disableSystem, startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { LocationID, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { MessageID } from '@etherealengine/engine/src/schemas/social/message.schema'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
@@ -137,7 +138,7 @@ export const promisedRequest = (network: SocketWebRTCClientNetwork, type: any, d
     const message = {
       type: type,
       data: data,
-      id: id++
+      id: (id++).toString() as MessageID
     }
     network.transport.primus.write(message)
 
@@ -337,7 +338,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
 
   const authState = getState(AuthState)
   const accessToken = authState.authUser.accessToken
-  const inviteCode = getSearchParamFromURL('inviteCode')
+  const inviteCode = getSearchParamFromURL('inviteCode') as InviteCode
   const payload = { accessToken, peerID: Engine.instance.peerID, inviteCode }
 
   const { status, routerRtpCapabilities, cachedActions } = await new Promise<AuthTask>((resolve) => {

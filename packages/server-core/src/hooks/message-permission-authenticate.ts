@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
-import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { MessageID, MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from './../../declarations'
 
@@ -44,7 +44,7 @@ export default () => {
 
     const match = (await app.service(messagePath).find({
       query: {
-        id: id.toString(),
+        id: id.toString() as MessageID,
         senderId: loggedInUser.id,
         $limit: 1
       }

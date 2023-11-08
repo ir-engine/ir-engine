@@ -155,6 +155,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
         } catch (e) {
           logger.error(e)
         }
+      } else {
+        /**@todo call onUpdate for project */
       }
 
       const { commitSHA, commitDate } = await getCommitSHADate(projectName)
