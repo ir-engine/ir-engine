@@ -233,7 +233,7 @@ const execute = () => {
       const headTarget = getMutableComponent(head, AvatarIKTargetComponent)
 
       if (entity == Engine.instance.localClientEntity) {
-        applyInputSourcePoseToIKTargets()
+        applyInputSourcePoseToIKTargets(head, rightHand, leftHand, rightFoot, leftFoot)
         setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
       }
 
