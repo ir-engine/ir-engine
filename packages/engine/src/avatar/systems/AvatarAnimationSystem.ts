@@ -232,8 +232,10 @@ const execute = () => {
       const headTransform = getComponent(head, TransformComponent)
       const headTarget = getMutableComponent(head, AvatarIKTargetComponent)
 
-      applyInputSourcePoseToIKTargets()
-      setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
+      if (entity == Engine.instance.localClientEntity) {
+        applyInputSourcePoseToIKTargets(head, rightHand, leftHand, rightFoot, leftFoot)
+        setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
+      }
 
       //special case for the head if we're in xr mode
       if (getOptionalComponent(entity, XRRigComponent)) {
