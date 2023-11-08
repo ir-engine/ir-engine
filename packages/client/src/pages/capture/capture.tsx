@@ -40,11 +40,10 @@ import {
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { ECSRecordingActions } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineActionQueue } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 
 const ecsRecordingErrorActionQueue = defineActionQueue(ECSRecordingActions.error.matches)
@@ -90,10 +89,6 @@ export const CaptureLocation = () => {
   useEffect(() => {
     startCaptureSystems()
   }, [])
-
-  const engineState = useHookstate(getMutableState(EngineState))
-
-  if (!engineState.connectedWorld.value) return <></>
 
   return <CaptureUI />
 }

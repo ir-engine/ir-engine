@@ -31,7 +31,6 @@ import { ChannelService, ChannelState } from '@etherealengine/client-core/src/so
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Badge from '@etherealengine/ui/src/primitives/mui/Badge'
@@ -449,7 +448,6 @@ export const InstanceChat = ({
 }
 
 export const InstanceChatWrapper = () => {
-  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
 
@@ -461,14 +459,12 @@ export const InstanceChatWrapper = () => {
   const worldNetwork = useWorldNetwork()
 
   useEffect(() => {
-    if (worldNetwork?.connected?.value) {
-      ChannelService.getInstanceChannel()
-    }
-  }, [worldNetwork?.connected?.value])
+    if (worldNetwork?.connected?.value) ChannelService.getInstanceChannel()
+  }, [worldNetwork?.connected])
 
   return (
     <>
-      {engineState.connectedWorld.value && targetChannelId.value ? (
+      {targetChannelId.value ? (
         <div className={`${bottomShelfStyle} ${styles.chatRoot}`}>
           <InstanceChat />
         </div>

@@ -38,6 +38,7 @@ type AgonesGameServer = {
 export const InstanceServerState = defineState({
   name: 'InstanceServerState',
   initial: {
+    ready: false,
     instance: null! as InstanceType,
     isMediaInstance: false,
     instanceServer: null! as AgonesGameServer
