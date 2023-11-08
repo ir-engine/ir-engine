@@ -42,7 +42,7 @@ const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
  *
  * @return {Promise}
  */
-export const getScenes = async (projectName?: string): Promise<SceneDataType[]> => {
+export const getScenes = async (projectName: string): Promise<SceneDataType[]> => {
   try {
     const params = { query: { metadataOnly: true, paginate: false, projectName: projectName } } as SceneParams
     const result = (await Engine.instance.api.service(sceneDataPath).find(params)) as SceneDataType[]
@@ -90,7 +90,7 @@ export const renameScene = async (
   sceneId: SceneID,
   newSceneName: string,
   oldSceneName: string,
-  projectName?: string
+  projectName: string
 ): Promise<any> => {
   try {
     await Engine.instance.api.service(sceneDataPath).patch(sceneId, { newSceneName, oldSceneName, projectName })
@@ -132,7 +132,7 @@ export const saveScene = async (
   }
 }
 
-export const createNewScene = async (projectName?: string) => {
+export const createNewScene = async (projectName: string) => {
   try {
     return Engine.instance.api.service(sceneDataPath).create({ projectName })
   } catch (error) {

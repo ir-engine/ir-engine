@@ -53,26 +53,14 @@ export const getSceneData = async (
   storageProviderName?: string
 ) => {
   const scene = await app.service(scenePath).get(sceneId)
-  let { name, projectId, thumbnailPath } = scene
-
-  let projectName
+  const { name, projectId, thumbnailPath } = scene
   const storageProvider = getStorageProvider(storageProviderName)
-  const directory = `scenes/${name}/`
-
-  const sceneExists = await storageProvider.doesExist(`${name}.scene.json`, directory)
-  if (!sceneExists) throw new Error(`No scene named ${name} exists`)
+  let projectName = 'scenes'
 
   if (projectId) {
     const project = await app.service(projectPath).get(projectId)
     projectName = project.name
   }
-
-  //if no ktx2 is found, fallback on legacy jpg thumbnail format, if still not found, fallback on ethereal logo
-  if (!(await storageProvider.doesExist(`${name}.thumbnail.ktx2`, directory))) {
-    thumbnailPath = `${directory}/${name}.thumbnail.jpeg`
-    if (!(await storageProvider.doesExist(`${name}.thumbnail.jpeg`, directory))) thumbnailPath = ``
-  }
-
   const cacheDomain = getCacheDomain(storageProvider, internal)
   const thumbnailUrl =
     thumbnailPath !== `` ? getCachedURL(thumbnailPath, cacheDomain) : `/static/etherealengine_thumbnail.jpg`

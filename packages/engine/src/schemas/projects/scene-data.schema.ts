@@ -40,7 +40,7 @@ export interface SceneDataType extends Static<typeof sceneDataSchema> {}
 // Schema for creating new entries
 export const sceneCreateDataSchema = Type.Object(
   {
-    projectName: Type.Optional(Type.String()),
+    projectName: Type.String(),
     storageProvider: Type.Optional(Type.String())
   },
   { $id: 'SceneCreateData', additionalProperties: false }
@@ -51,7 +51,7 @@ export interface SceneCreateData extends Static<typeof sceneCreateDataSchema> {}
 export const sceneUpdateDataSchema = Type.Object(
   {
     name: Type.String(),
-    projectName: Type.Optional(Type.String()),
+    projectName: Type.String(),
     storageProvider: Type.Optional(Type.String()),
     sceneData: Type.Ref(sceneJsonSchema),
     thumbnailBuffer: Type.Optional(Type.Any())
