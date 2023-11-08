@@ -31,6 +31,7 @@ import {
   defineAction,
   defineActionQueue,
   defineState,
+  dispatchAction,
   getMutableState,
   getState,
   none,
@@ -46,7 +47,7 @@ import { migrateSceneData } from '../../scene/systems/SceneLoadingSystem'
 import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { defineSystem } from '../functions/SystemFunctions'
 import { Engine } from './Engine'
-import { EngineState } from './EngineState'
+import { EngineActions, EngineState } from './EngineState'
 import { UndefinedEntity } from './Entity'
 
 export interface SceneSnapshotInterface {
@@ -111,7 +112,7 @@ export const SceneState = defineState({
     } catch (e) {
       console.error(e)
       migratedSceneData = JSON.parse(JSON.stringify(sceneData))
-      // NotificationService.dispatchNotify('Failed to migrate scene.', { variant: 'error' })
+      dispatchAction(EngineActions.notification({ text: 'Failed to migrate scene.', variant: 'error' }))
     }
     getMutableState(SceneState).scenes[sceneID].set({
       index: 0,

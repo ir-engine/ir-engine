@@ -90,6 +90,8 @@ const decorators = [
 
     const notificationstate = useHookstate(getMutableState(NotificationState))
 
+    NotificationState.useNotifications()
+
     useEffect(() => {
       notificationstate.snackbar.set(notistackRef.current)
     }, [notistackRef.current])
