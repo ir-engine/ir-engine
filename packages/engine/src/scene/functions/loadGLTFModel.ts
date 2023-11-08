@@ -245,11 +245,6 @@ export const parseGLTFModel = (entity: Entity) => {
 
       setComponent(objEntity, NameComponent, name)
       addObjectToGroup(objEntity, obj)
-
-      if (obj === scene) {
-        const transformComponent = getComponent(entity, TransformComponent)
-        obj.matrix = transformComponent.matrix
-      }
       setComponent(objEntity, GLTFLoadedComponent, ['entity'])
 
       const mesh = obj as Mesh
