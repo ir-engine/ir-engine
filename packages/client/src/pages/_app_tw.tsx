@@ -94,6 +94,8 @@ const TailwindPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
   const notificationstate = useHookstate(getMutableState(NotificationState))
 
+  NotificationState.useNotifications()
+
   useEffect(() => {
     notificationstate.snackbar.set(notistackRef.current)
   }, [notistackRef.current])
