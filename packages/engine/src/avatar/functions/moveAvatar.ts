@@ -122,9 +122,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     return
   }
 
-  if (!controller.movementEnabled) return
-
-  if (additionalMovement) desiredMovement.add(additionalMovement)
+  if (controller.movementEnabled && additionalMovement) desiredMovement.add(additionalMovement)
 
   const avatarCollisionGroups = controller.bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
 
