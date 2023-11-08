@@ -25,8 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns'
 
-import config from '../../appconfig'
+import { MessageID } from '@etherealengine/engine/src/schemas/social/message.schema'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
 
 const snsClient = new SNSClient(config.aws.sms)
 
@@ -40,7 +41,7 @@ export async function sendSmsWithAWS(phone: string, text: string): Promise<void>
   const run = async () => {
     try {
       const data = await snsClient.send(new PublishCommand(params))
-      logger.info(`MessageID is ${data.MessageId as string}`)
+      logger.info(`MessageID is ${data.MessageId as MessageID}`)
     } catch (err) {
       logger.error(err)
     }

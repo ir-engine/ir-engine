@@ -28,21 +28,22 @@ import { registerEngineProfile } from '../nodes/Profiles/Engine/registerEnginePr
 import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '@behave-graph/core'
 
 import { registerSceneProfile } from '@behave-graph/scene'
+import { registerStructProfile } from '@behave-graph/struct'
 import { EEScene } from '../nodes/Profiles/Engine/Abstractions/Drivers/eeScene'
 
 export const createECSRegistry = () => {
-  const registry = registerEngineProfile(
-    registerSceneProfile(
-      registerCoreProfile({
-        values: {},
-        nodes: {},
-        dependencies: {
-          ILogger: new DefaultLogger(),
-          ILifecycleEventEmitter: new ManualLifecycleEventEmitter(),
-          IScene: new EEScene()
-        }
-      })
-    )
-  )
+  let registry = registerCoreProfile({
+    values: {},
+    nodes: {},
+    dependencies: {
+      ILogger: new DefaultLogger(),
+      ILifecycleEventEmitter: new ManualLifecycleEventEmitter(),
+      IScene: new EEScene()
+    }
+  })
+  registry = registerSceneProfile(registry)
+  registry = registerStructProfile(registry)
+  registry = registerEngineProfile(registry)
+
   return registry
 }

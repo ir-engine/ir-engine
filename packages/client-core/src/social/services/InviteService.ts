@@ -38,6 +38,7 @@ import { defineState, getMutableState, getState } from '@etherealengine/hyperflu
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 import { InviteData, InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
+import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -84,7 +85,7 @@ export const InviteState = defineState({
 })
 
 export const InviteService = {
-  sendInvite: async (data: InviteData, inviteCode: string) => {
+  sendInvite: async (data: InviteData, inviteCode: InviteCode) => {
     if (data.identityProviderType === 'email') {
       if (!data.token || !EMAIL_REGEX.test(data.token)) {
         NotificationService.dispatchNotify(`Invalid email address: ${data.token}`, { variant: 'error' })
