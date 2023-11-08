@@ -57,8 +57,7 @@ describe('location.test', () => {
     testScene = await app.service(scenePath).create({
       name: 'Test Scene',
       scenePath: '',
-      thumbnailPath: '',
-      envMapPath: ''
+      thumbnailPath: ''
     })
 
     const sceneId = testScene.id

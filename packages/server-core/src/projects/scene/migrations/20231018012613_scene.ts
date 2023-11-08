@@ -43,7 +43,6 @@ export async function up(knex: Knex): Promise<void> {
       table.string('name', 255).notNullable()
       table.string('scenePath', 255).notNullable()
       table.string('thumbnailPath', 255).notNullable()
-      table.string('envMapPath', 255).notNullable()
       //@ts-ignore
       table.uuid('projectId').collate('utf8mb4_bin').defaultTo(null).index()
       table.dateTime('createdAt').notNullable()

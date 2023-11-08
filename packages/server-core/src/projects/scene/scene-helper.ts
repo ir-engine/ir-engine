@@ -31,8 +31,6 @@ import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/func
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
-import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
 export const getEnvMapBake = (app: Application) => {
@@ -55,15 +53,14 @@ export const getSceneData = async (
   const scene = await app.service(scenePath).get(sceneId)
   const { name, projectId, thumbnailPath } = scene
   const storageProvider = getStorageProvider(storageProviderName)
-  let projectName = 'scenes'
+  let projectName = ''
 
   if (projectId) {
     const project = await app.service(projectPath).get(projectId)
     projectName = project.name
   }
-  const cacheDomain = getCacheDomain(storageProvider, internal)
-  const thumbnailUrl =
-    thumbnailPath !== `` ? getCachedURL(thumbnailPath, cacheDomain) : `/static/etherealengine_thumbnail.jpg`
+
+  const thumbnailUrl = thumbnailPath !== `` ? thumbnailPath : `/static/etherealengine_thumbnail.jpg`
 
   const sceneResult = await storageProvider.getObject(scene.scenePath)
   const sceneData: SceneDataType = {

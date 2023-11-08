@@ -78,13 +78,11 @@ export class SceneDataService
     let projectName = ''
 
     if (params && params.query && params.query.projectName) {
-      if (params.query.projectName !== 'scenes') {
-        const projectResult = (await this.app
-          .service(projectPath)
-          .find({ ...params, query: { name: params.query.projectName, $limit: 1 } })) as Paginated<ProjectType>
-        if (projectResult.data.length === 0) throw new Error(`No project named ${params.query.projectName} exists`)
-        params.query.projectId = projectResult.data[0].id
-      }
+      const projectResult = (await this.app
+        .service(projectPath)
+        .find({ ...params, query: { name: params.query.projectName, $limit: 1 } })) as Paginated<ProjectType>
+      if (projectResult.data.length === 0) throw new Error(`No project named ${params.query.projectName} exists`)
+      params.query.projectId = projectResult.data[0].id
       projectName = params.query.projectName.toString()
       delete params.query.projectName
     }
@@ -119,7 +117,7 @@ export class SceneDataService
     let projectResult: Paginated<ProjectType> | undefined
     logger.info('[scene.create]: ' + projectName)
 
-    if (projectName && projectName !== 'scenes') {
+    if (projectName) {
       projectResult = (await this.app
         .service(projectPath)
         .find({ ...params, query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
@@ -166,8 +164,7 @@ export class SceneDataService
 
     const scene = await this.app.service(scenePath).create({
       id: (await v4()) as SceneID,
-      scenePath: getCachedURL(`${projectRootPath}${newSceneName}.scene.json`, cacheDomain),
-      envMapPath: getCachedURL(`${projectRootPath}${newSceneName}.envmap.ktx2`, cacheDomain),
+      scenePath: `${projectRootPath}${newSceneName}.scene.json`,
       thumbnailPath: getCachedURL(`${projectRootPath}${newSceneName}.thumbnail.ktx2`, cacheDomain),
       name: newSceneName,
       projectId: projectResult ? projectResult.data[0].id : undefined
@@ -182,7 +179,7 @@ export class SceneDataService
 
     const storageProviderObj = getStorageProvider(storageProvider)
     let projectResult: Paginated<ProjectType> | undefined
-    if (projectName && projectName !== 'scenes') {
+    if (projectName) {
       projectResult = (await this.app
         .service(projectPath)
         .find({ ...params, query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
@@ -213,8 +210,7 @@ export class SceneDataService
 
     const scene = (await this.app.service(scenePath).patch(id, {
       name: newSceneName,
-      scenePath: getCachedURL(`${projectRoutePath}${newSceneName}.scene.json`, cacheDomain),
-      envMapPath: getCachedURL(`${projectRoutePath}${newSceneName}.envmap.ktx2`, cacheDomain),
+      scenePath: `${projectRoutePath}${newSceneName}.scene.json`,
       thumbnailPath: getCachedURL(`${projectRoutePath}${newSceneName}.thumbnail.ktx2`, cacheDomain),
       projectId: projectResult ? projectResult.data[0].id : undefined
     })) as SceneType
@@ -230,7 +226,7 @@ export class SceneDataService
 
     let projectResult: Paginated<ProjectType> | undefined
 
-    if (projectName && projectName !== 'scenes') {
+    if (projectName) {
       projectResult = (await this.app
         .service(projectPath)
         .find({ ...params, query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
@@ -274,16 +270,14 @@ export class SceneDataService
     let scene: SceneType
     if (sceneExists && sceneExists.data.length > 0) {
       scene = await this.app.service(scenePath).patch(sceneExists.data[0].id, {
-        scenePath: getCachedURL(newSceneJsonPath, cacheDomain),
-        envMapPath: getCachedURL(`${projectRoutePath}${name}.envmap.ktx2`, cacheDomain),
+        scenePath: newSceneJsonPath,
         thumbnailPath: getCachedURL(`${projectRoutePath}${name}.thumbnail.ktx2`, cacheDomain),
         name: name
       })
     } else {
       scene = await this.app.service(scenePath).create({
         id: (await v4()) as SceneID,
-        scenePath: getCachedURL(newSceneJsonPath, cacheDomain),
-        envMapPath: getCachedURL(`${projectRoutePath}${name}.envmap.ktx2`, cacheDomain),
+        scenePath: newSceneJsonPath,
         thumbnailPath: getCachedURL(`${projectRoutePath}${name}.thumbnail.ktx2`, cacheDomain),
         name: name,
         projectId: projectResult ? projectResult.data[0].id : undefined

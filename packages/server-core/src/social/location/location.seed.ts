@@ -40,22 +40,19 @@ export const sceneSeedData = [
     id: 'b9427eb1-62f5-4bed-b3ff-eccb5fd116e4' as SceneID,
     name: 'default',
     scenePath: 'scenes/default/default.scene.json',
-    thumbnailPath: 'scenes/default/default.thumbnail.ktx2',
-    envMapPath: 'scenes/default/default.envmap.ktx2'
+    thumbnailPath: 'scenes/default/default.thumbnail.ktx2'
   },
   {
     id: 'b9427eb1-62f5-4bed-b3ff-eccb5fd116e6' as SceneID,
     name: 'sky-station',
     scenePath: 'scenes/sky-station/sky-station.scene.json',
-    thumbnailPath: 'scenes/sky-station/sky-station.thumbnail.ktx2',
-    envMapPath: 'scenes/sky-station/sky-station.envmap.ktx2'
+    thumbnailPath: 'scenes/sky-station/sky-station.thumbnail.ktx2'
   },
   {
     id: 'b9427eb1-62f5-4bed-b3ff-eccb5fd116e8' as SceneID,
     name: 'apartment',
     scenePath: 'scenes/apartment/apartment.scene.json',
-    thumbnailPath: 'scenes/apartment/apartment.thumbnail.ktx2',
-    envMapPath: 'scenes/apartment/apartment.envmap.ktx2'
+    thumbnailPath: 'scenes/apartment/apartment.thumbnail.ktx2'
   }
 ]
 

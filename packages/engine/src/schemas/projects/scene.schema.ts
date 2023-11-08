@@ -40,7 +40,6 @@ export const sceneSchema = Type.Object(
     }),
     name: Type.String(),
     scenePath: Type.String(),
-    envMapPath: Type.String(),
     projectName: Type.Optional(Type.String()),
     thumbnailPath: Type.String(),
     projectId: Type.Optional(
@@ -128,8 +127,7 @@ export const sceneQueryProperties = Type.Pick(sceneSchema, [
   'scenePath',
   'projectId',
   'projectName',
-  'thumbnailPath',
-  'envMapPath'
+  'thumbnailPath'
 ])
 export const sceneQuerySchema = Type.Intersect(
   [

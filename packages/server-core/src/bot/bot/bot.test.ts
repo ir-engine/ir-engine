@@ -64,8 +64,7 @@ describe('bot.service', () => {
     testScene = await app.service(scenePath).create({
       name: 'test-bot-scene-name-',
       scenePath: '',
-      thumbnailPath: '',
-      envMapPath: ''
+      thumbnailPath: ''
     })
 
     testLocation = await app.service(locationPath).create(

@@ -54,8 +54,7 @@ describe('instance.test', () => {
     testScene = await app.service(scenePath).create({
       name: 'Test Scene',
       scenePath: '',
-      thumbnailPath: '',
-      envMapPath: ''
+      thumbnailPath: ''
     })
 
     testLocation = await app.service(locationPath).create(

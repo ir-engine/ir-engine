@@ -110,8 +110,7 @@ describe.skip('matchmaking match-instance service', () => {
     testScene = await app.service(scenePath).create({
       name: 'test-scene',
       scenePath: '',
-      thumbnailPath: '',
-      envMapPath: ''
+      thumbnailPath: ''
     })
 
     location = await app.service(locationPath).create({
