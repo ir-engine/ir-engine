@@ -38,6 +38,7 @@ import { GroupComponent } from '@etherealengine/engine/src/scene/components/Grou
 import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/components/HemisphereLightComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 // import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { BatchedMeshComponent } from '@etherealengine/engine/src/scene/components/BatchedMeshComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
@@ -54,6 +55,7 @@ import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
+
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
@@ -61,8 +63,8 @@ import { VolumetricComponent } from '@etherealengine/engine/src/scene/components
 import { PersistentAnchorComponent } from '@etherealengine/engine/src/xr/XRAnchorComponents'
 
 // import ChairIcon from '@mui/icons-material/Chair'
-
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
+import BatchedMeshEditor from '../components/properties/BatchedMeshEditor'
 import { CameraPropertiesNodeEditor } from '../components/properties/CameraPropertiesNodeEditor'
 import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
@@ -154,3 +156,4 @@ EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
 EntityNodeEditor.set(SplineTrackComponent, SplineTrackNodeEditor)
 EntityNodeEditor.set(BehaveGraphComponent, BehaveGraphNodeEditor)
 EntityNodeEditor.set(LinkComponent, LinkNodeEditor)
+EntityNodeEditor.set(BatchedMeshComponent, BatchedMeshEditor)

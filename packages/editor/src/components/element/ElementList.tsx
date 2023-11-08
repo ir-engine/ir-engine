@@ -62,6 +62,7 @@ import { GroupAddOutlined as PlaceHolderIcon } from '@mui/icons-material'
 import { IconButton, PopoverPosition } from '@mui/material'
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
+import { BatchedMeshComponent } from '@etherealengine/engine/src/scene/components/BatchedMeshComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
@@ -99,7 +100,8 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     GroupComponent,
     ColliderComponent,
     VariantComponent,
-    SceneDynamicLoadTagComponent
+    SceneDynamicLoadTagComponent,
+    BatchedMeshComponent
   ],
   Interaction: [SpawnPointComponent, PortalComponent, LinkComponent],
   Lighting: [

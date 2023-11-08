@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Mesh } from 'three'
+import { convertToBatchedMesh } from '../../assets/classes/BatchedMesh'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
@@ -39,8 +40,9 @@ export const BatchedMeshComponent = defineComponent({
         )
         //create batched mesh from these meshes
         const batchedMesh = new Mesh()
+        const result = convertToBatchedMesh(meshes)
         //add batched mesh to this entity's GroupComponent to be rendered
-        addObjectToGroup(entity, batchedMesh)
+        addObjectToGroup(entity, result)
       }
     }, [batchedMeshComponent.active])
 
