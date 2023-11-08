@@ -79,8 +79,9 @@ export const EntityTreeComponent = defineComponent({
     }
 
     // set new data
-    if (typeof json.parentEntity !== 'undefined') component.parentEntity.set(json.parentEntity)
-
+    if (typeof json.parentEntity !== 'undefined') {
+      component.parentEntity.set(json.parentEntity)
+    }
     if (matchesEntityUUID.test(json?.uuid) && !hasComponent(entity, UUIDComponent))
       setComponent(entity, UUIDComponent, json.uuid)
 
@@ -119,6 +120,7 @@ export const EntityTreeComponent = defineComponent({
     }
 
     const rootEntity = isRoot ? entity : getComponent(component.parentEntity.value, EntityTreeComponent).rootEntity
+
     component.rootEntity.set(rootEntity)
   },
 

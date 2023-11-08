@@ -36,8 +36,10 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentType,
+  componentJsonDefaults,
   defineComponent,
   getComponent,
   getMutableComponent,
@@ -106,8 +108,23 @@ export const ModelComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    setComponent(entity, LoopAnimationComponent)
-    setComponent(entity, ShadowComponent)
+    const sceneState = getState(SceneState)
+    const entityUUID = getComponent(entity, UUIDComponent)
+    const entityJson = sceneState.scenes[sceneState.activeScene!].data.scene.entities[entityUUID]
+    !entityJson.components.find((componentJson) => componentJson.name === LoopAnimationComponent.jsonID) &&
+      SceneState.addComponentsToEntity(entityUUID, [
+        {
+          name: LoopAnimationComponent.jsonID!,
+          props: componentJsonDefaults(LoopAnimationComponent)
+        }
+      ])
+    !entityJson.components.find((componentJson) => componentJson.name === ShadowComponent.jsonID) &&
+      SceneState.addComponentsToEntity(entityUUID, [
+        {
+          name: ShadowComponent.jsonID!,
+          props: componentJsonDefaults(ShadowComponent)
+        }
+      ])
 
     if (!json) return
     if (typeof json.src === 'string') component.src.set(json.src)

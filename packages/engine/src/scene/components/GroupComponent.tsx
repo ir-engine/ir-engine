@@ -55,19 +55,8 @@ export const GroupComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    // console.log(component.value)
     for (const obj of component.value) {
       obj.removeFromParent()
-      // obj.traverse((mesh: Mesh) => {
-      //   console.log('removed mesh', mesh)
-      //   if (Array.isArray(mesh.material)) {
-      //     mesh.material.forEach(disposeMaterial)
-      //   } else if (mesh.material) {
-      //     disposeMaterial(mesh.material)
-      //   }
-      //   mesh.geometry?.dispose()
-      // })
-      // TODO: only dispose geometries/materials when no other entities are using them...
     }
   }
 })
@@ -97,9 +86,6 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
 
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies
-  // proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
-  // proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
-  // proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
   proxifyVector3WithDirty(LocalTransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
   proxifyQuaternionWithDirty(
     LocalTransformComponent.rotation,

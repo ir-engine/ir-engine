@@ -23,11 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getAllComponents, getMutableComponent, hasComponent } from '../../../../ecs/functions/ComponentFunctions'
-import { GLTFLoadedComponent } from '../../../../scene/components/GLTFLoadedComponent'
+import {
+  getAllComponents,
+  getComponent,
+  getMutableComponent,
+  hasComponent
+} from '../../../../ecs/functions/ComponentFunctions'
 import { Object3DWithEntity } from '../../../../scene/components/GroupComponent'
-import { TransformComponent } from '../../../../transform/components/TransformComponent'
-import { EE_ecs } from '../../../loaders/gltf/extensions/EEECSImporterExtension'
+import { NameComponent } from '../../../../scene/components/NameComponent'
+import { SceneObjectComponent } from '../../../../scene/components/SceneObjectComponent'
+import { LocalTransformComponent, TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -37,20 +42,26 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
   writeNode(object: Object3DWithEntity, nodeDef: { [key: string]: any }) {
     if (!object.entity) return
     const entity = object.entity
-    if (!hasComponent(entity, GLTFLoadedComponent)) return
+    if (!hasComponent(entity, SceneObjectComponent)) return
     //const gltfLoaded = getComponent(entity, GLTFLoadedComponent)
     const components = getAllComponents(entity)
-    const data = new Array<[string, any]>()
+    if (hasComponent(entity, NameComponent)) {
+      nodeDef.name = getComponent(entity, NameComponent)
+    }
     for (const component of components) {
-      if (component === TransformComponent) continue //skip transform as that is stored in the object3d
+      if (
+        component === TransformComponent ||
+        component === LocalTransformComponent || //skip transform data as that is stored in the object3d
+        !component.jsonID //skip components that don't have a jsonID
+      )
+        continue
       const compData = component.toJSON(entity, getMutableComponent(entity, component))
       if (!compData) continue
-      for (const [field, value] of Object.entries(compData)) {
-        data.push([`xrengine.${component.name}.${field}`, value])
-      }
+      const extensionName = `EE_${component.jsonID}`
+      nodeDef.extensions = nodeDef.extensions ?? {}
+      nodeDef.extensions[extensionName] = compData
+      this.writer.extensionsUsed[extensionName] = true
     }
-    nodeDef.extensions = nodeDef.extensions ?? {}
-    nodeDef.extensions[this.name] = { data } as EE_ecs
     this.writer.extensionsUsed[this.name] = true
   }
 }

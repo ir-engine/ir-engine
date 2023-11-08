@@ -32,6 +32,9 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   Component,
+  componentJsonDefaults,
+  ComponentJSONIDMap,
+  ComponentMap,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -46,7 +49,6 @@ import { materialFromId } from '@etherealengine/engine/src/renderer/materials/fu
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { createNewEditorNode } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
@@ -56,10 +58,7 @@ import { dispatchAction, getMutableState, getState } from '@etherealengine/hyper
 
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { serializeEntity } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import {
   computeLocalTransformMatrix,
   computeTransformMatrix
@@ -212,7 +211,6 @@ const createObjectFromSceneElement = (
   parentEntity = parentEntity ?? SceneState.getRootEntity()
   cancelGrabOrPlacement()
 
-  const newEntity = createEntity()
   let childIndex = 0
   if (typeof beforeEntity === 'number') {
     const beforeNode = getComponent(beforeEntity, EntityTreeComponent)
@@ -224,24 +222,25 @@ const createObjectFromSceneElement = (
     childIndex = parentEntityTreeComponent.children.length
   }
 
-  setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
-  setComponent(newEntity, SceneObjectComponent)
-
-  createNewEditorNode(newEntity, componentJson)
-
-  const entityUUID = getComponent(newEntity, UUIDComponent)
-
-  const serializedEntity = serializeEntity(newEntity)
-
-  const name = getComponent(newEntity, NameComponent)
-
-  removeEntity(newEntity)
+  const entityUUID =
+    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? MathUtils.generateUUID()
+  const fullComponentJson = [
+    ...componentJson,
+    { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
+    { name: ComponentMap.get(LocalTransformComponent.name)!.jsonID! }
+  ].map((comp) => ({
+    name: comp.name,
+    props: {
+      ...componentJsonDefaults(ComponentJSONIDMap.get(comp.name)!),
+      ...comp.props
+    }
+  }))
 
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
   if (updateSelection) newSnapshot.selectedEntities = [entityUUID]
   newSnapshot.data.scene.entities[entityUUID] = {
-    name,
-    components: serializedEntity,
+    name: componentJson[0].name,
+    components: fullComponentJson,
     parent: getComponent(parentEntity, UUIDComponent),
     index: childIndex
   }

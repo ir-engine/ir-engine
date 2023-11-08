@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { cloneDeep, startCase } from 'lodash'
+import { startCase } from 'lodash'
 import { useEffect } from 'react'
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   NO_PROXY,
@@ -50,10 +50,10 @@ import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
   ComponentMap,
+  componentJsonDefaults,
   getComponent,
   hasComponent,
   removeComponent,
-  serializeComponent,
   setComponent,
   useOptionalComponent,
   useQuery
@@ -65,22 +65,16 @@ import { NetworkState } from '../../networking/NetworkState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { CameraSettingsComponent } from '../components/CameraSettingsComponent'
-import { FogSettingsComponent } from '../components/FogSettingsComponent'
-import { MediaSettingsComponent } from '../components/MediaSettingsComponent'
 import { NameComponent } from '../components/NameComponent'
-import { PostProcessingComponent } from '../components/PostProcessingComponent'
-import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { getUniqueName } from '../functions/getUniqueName'
 
 export const createNewEditorNode = (
-  entityNode: Entity,
+  entityNode: EntityUUID,
   componentJson: Array<ComponentJson>,
   parentEntity = SceneState.getRootEntity(getState(SceneState).activeScene!) as Entity
 ): void => {
@@ -89,36 +83,30 @@ export const createNewEditorNode = (
     { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
     { name: ComponentMap.get(LocalTransformComponent.name)!.jsonID! }
   ]
-
-  const name = getUniqueName(
-    entityNode,
-    componentJson.length ? `New ${startCase(componentJson[0].name.toLowerCase())}` : `New Entity`
-  )
-  const uuid = componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? MathUtils.generateUUID()
-
-  setComponent(entityNode, EntityTreeComponent, { parentEntity })
-
-  // Clone the defualt values so that it will not be bound to newly created node
-  deserializeSceneEntity(entityNode, {
+  const deserializedJson: ComponentJson[] = components.map((json) => {
+    const component = ComponentJSONIDMap.get(json.name)!
+    return {
+      name: component.name,
+      props: {
+        ...componentJsonDefaults(component),
+        ...json.props
+      }
+    }
+  })
+  // const name = getUniqueName(
+  //   entityNode,
+  //   componentJson.length ? `New ${startCase(componentJson[0].name.toLowerCase())}` : `New Entity`
+  // )
+  const name = componentJson.length ? `New ${startCase(componentJson[0].name.toLowerCase())}` : `New Entity`
+  const uuid: EntityUUID =
+    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? MathUtils.generateUUID()
+  const sceneState = getState(SceneState)
+  const entityJson: EntityJson = {
     name,
-    components: cloneDeep(components)
-  })
-
-  setComponent(entityNode, UUIDComponent, uuid)
-
-  const localTransform = getComponent(entityNode, LocalTransformComponent)
-  setComponent(entityNode, TransformComponent, {
-    position: localTransform.position,
-    rotation: localTransform.rotation,
-    scale: localTransform.scale
-  })
-
-  const transform = getComponent(entityNode, TransformComponent)
-  setComponent(entityNode, LocalTransformComponent, {
-    position: transform.position,
-    rotation: transform.rotation,
-    scale: transform.scale
-  })
+    components: deserializedJson,
+    parent: getComponent(parentEntity, UUIDComponent)
+  }
+  SceneState.addEntitiesToScene(sceneState.activeScene!, { [uuid]: entityJson })
 }
 
 export const splitLazyLoadedSceneEntities = (json: SceneJson) => {
@@ -241,48 +229,6 @@ export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson) 
       console.error(e)
     }
   }
-}
-
-export const migrateSceneData = (sceneData: SceneData) => {
-  const migratedSceneData = JSON.parse(JSON.stringify(sceneData)) as SceneData
-
-  for (const [key, value] of Object.entries(migratedSceneData.scene.entities)) {
-    const tempEntity = createEntity()
-    for (const comp of Object.values(value.components)) {
-      const { name, props } = comp
-      const component = ComponentJSONIDMap.get(name)
-      if (!component) {
-        console.warn(`Component ${name} not found`)
-        continue
-      }
-      setComponent(tempEntity, component, props)
-      const data = serializeComponent(tempEntity, component)
-      comp.props = data
-    }
-    /** ensure all scenes have all setting components */
-    if (key === migratedSceneData.scene.root) {
-      const ensureComponent = (component: any) => {
-        if (!value.components.find((comp) => comp.name === component.jsonID)) {
-          setComponent(tempEntity, component)
-          value.components.push({
-            name: component.jsonID,
-            props: serializeComponent(tempEntity, component)
-          })
-          console.log(`Added ${component.jsonID} to scene root`)
-        }
-      }
-      ;[
-        CameraSettingsComponent,
-        PostProcessingComponent,
-        FogSettingsComponent,
-        MediaSettingsComponent,
-        RenderSettingsComponent
-      ].map(ensureComponent)
-    }
-    removeEntity(tempEntity)
-  }
-
-  return JSON.parse(JSON.stringify(migratedSceneData))
 }
 
 const reactor = () => {
@@ -505,7 +451,9 @@ const EntityChildLoadReactor = (props: { parentEntity: Entity; entityUUID: Entit
     })
     setComponent(entity, NameComponent, entityJSONState.name.value)
     return () => {
-      entityExists(entity) && removeEntity(entity)
+      !getState(SceneState).scenes[props.sceneID].data.scene.entities[props.entityUUID] && //do not remove entity if it is simply being reparented
+        entityExists(entity) && //do not remove entity if it has already been removed elsewhere
+        removeEntity(entity)
     }
   }, [dynamicParentState?.loaded, parentLoaded])
 

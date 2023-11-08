@@ -58,6 +58,13 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import iterateObject3D from '../util/iterateObject3D'
 import { enableObjectLayer } from './setObjectLayers'
 
+//isProxified: used to check if an object is proxified
+declare module 'three/src/core/Object3D' {
+  export interface Object3D {
+    readonly isProxified: true | undefined
+  }
+}
+
 export const parseECSData = (entity: Entity, data: [string, any][]): ComponentJson[] => {
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
@@ -89,7 +96,6 @@ export const parseECSData = (entity: Entity, data: [string, any][]): ComponentJs
       continue
     }
     result.push({ name: component.jsonID!, props: value })
-    setComponent(entity, component, value)
     getComponent(entity, GLTFLoadedComponent).push(component)
   }
 
@@ -101,7 +107,6 @@ export const parseECSData = (entity: Entity, data: [string, any][]): ComponentJs
     }
     result.push({ name: Component.jsonID!, props: value })
     getComponent(entity, GLTFLoadedComponent).push(Component)
-    setComponent(entity, Component, value)
   }
 
   return result
@@ -126,12 +131,6 @@ export const parseObjectComponentsFromGLTF = (
     }
   })
 
-  // if (meshesToProcess.length === 0) {
-  //   setComponent(entity, GLTFLoadedComponent)
-  //   scene.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
-  //   return { entities: [], entityJson: {} }
-  // }
-
   const entities: Entity[] = []
   const entityJson: Record<EntityUUID, EntityJson> = {}
 
@@ -147,9 +146,6 @@ export const parseObjectComponentsFromGLTF = (
       parent: parentUuid
     }
 
-    // setComponent(e, EntityTreeComponent, { parentEntity: entity, uuid })
-    // setComponent(e, UUIDComponent, uuid)
-
     if (hasComponent(entity, SceneObjectComponent)) setComponent(e, SceneObjectComponent)
 
     setComponent(e, NameComponent, name)
@@ -157,11 +153,6 @@ export const parseObjectComponentsFromGLTF = (
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
 
-    setComponent(e, LocalTransformComponent, {
-      position: mesh.position,
-      rotation: mesh.quaternion,
-      scale: mesh.scale
-    })
     eJson.components.push({
       name: LocalTransformComponent.jsonID,
       props: {
@@ -178,7 +169,6 @@ export const parseObjectComponentsFromGLTF = (
     setComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent.name])
     eJson.components.push(...createObjectEntityFromGLTF(e, mesh))
 
-    mesh.visible = false
     entityJson[uuid] = eJson
   }
 
@@ -191,11 +181,14 @@ export const parseGLTFModel = (entity: Entity) => {
   const scene = model.scene
   scene.updateMatrixWorld(true)
 
-  // always parse components first
+  // always parse components first using old ECS parsing schema
   const { entities: spawnedEntities, entityJson } = parseObjectComponentsFromGLTF(entity, scene)
+
+  // current ECS parsing schema
   iterateObject3D(
     scene,
     (obj) => {
+      // proxify children property of scene root
       if (obj === scene) {
         Object.defineProperties(obj, {
           children: {
@@ -213,6 +206,8 @@ export const parseGLTFModel = (entity: Entity) => {
         })
         return
       }
+
+      // create entity outside of scene loading reactor since we need to access it before the reactor is guaranteed to have executed
       const objEntity = (obj as Object3DWithEntity).entity ?? createEntity()
       spawnedEntities.push(objEntity)
 
@@ -231,46 +226,46 @@ export const parseGLTFModel = (entity: Entity) => {
         uuid
       })
 
-      setComponent(objEntity, LocalTransformComponent, {
-        position: obj.position,
-        rotation: obj.quaternion,
-        scale: obj.scale
-      })
+      //if we're not using visible component, set visible by default
+      if (!obj.userData['useVisible']) {
+        eJson.components.push({
+          name: VisibleComponent.jsonID,
+          props: true
+        })
+      }
+
       eJson.components.push({
         name: LocalTransformComponent.jsonID,
         props: {
-          position: obj.position,
-          rotation: obj.quaternion,
-          scale: obj.scale
+          position: obj.position.clone(),
+          rotation: obj.quaternion.clone(),
+          scale: obj.scale.clone()
         }
       })
 
       setComponent(objEntity, NameComponent, name)
       addObjectToGroup(objEntity, obj)
-      if (obj.visible) {
-        setComponent(objEntity, VisibleComponent)
-        eJson.components.push({
-          name: VisibleComponent.jsonID,
-          props: obj.visible
-        })
-      }
+
       if (obj === scene) {
         const transformComponent = getComponent(entity, TransformComponent)
         obj.matrix = transformComponent.matrix
       }
       setComponent(objEntity, GLTFLoadedComponent, ['entity'])
-      eJson.components.push(...createObjectEntityFromGLTF(objEntity, obj))
 
       const mesh = obj as Mesh
       mesh.isMesh && setComponent(objEntity, MeshComponent, mesh)
 
+      //check if mesh is instanced. If so, add InstancingComponent
       const instancedMesh = obj as InstancedMesh
       instancedMesh.isInstancedMesh &&
         setComponent(objEntity, InstancingComponent, {
           instanceMatrix: instancedMesh.instanceMatrix
         })
 
-      obj.userData.ecsData && eJson.components.push(...parseECSData(objEntity, obj.userData.ecsData))
+      if (obj.userData['componentJson']) {
+        eJson.components.push(...obj.userData['componentJson'])
+      }
+
       entityJson[uuid] = eJson
       /** Proxy children with EntityTreeComponent if it exists */
       Object.defineProperties(obj, {
@@ -304,6 +299,11 @@ export const parseGLTFModel = (entity: Entity) => {
                 parentEntity: null
               })
             }
+          }
+        },
+        isProxified: {
+          get() {
+            return true
           }
         }
       })

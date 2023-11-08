@@ -39,7 +39,7 @@ import { ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
-import { Entity } from '../classes/Entity'
+import { Entity, UndefinedEntity } from '../classes/Entity'
 import { EntityContext } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
@@ -357,6 +357,15 @@ export const removeComponent = async <C extends Component>(entity: Entity, compo
     //component.stateMap[entity]?.destroy
     //delete component.stateMap[entity]
   }
+}
+
+export const componentJsonDefaults = <C extends Component>(component: C) => {
+  const initial = component.onInit(UndefinedEntity)
+  const pseudoState: Record<string, { value: any }> = {}
+  for (const key of Object.keys(initial)) {
+    pseudoState[key] = { value: initial[key] }
+  }
+  return component.toJSON(UndefinedEntity, pseudoState as any)
 }
 
 export const getAllComponents = (entity: Entity): Component[] => {

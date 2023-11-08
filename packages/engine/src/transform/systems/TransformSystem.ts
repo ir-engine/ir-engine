@@ -206,7 +206,9 @@ const updateTransformFromComputedTransform = (entity: Entity) => {
 export const updateGroupChildren = (entity: Entity) => {
   const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
   // drop down one level and update children
+
   for (const root of group) {
+    if (root.isProxified) continue
     for (const obj of root.children) {
       obj.updateMatrixWorld()
       obj.matrixWorldNeedsUpdate = false
@@ -343,7 +345,7 @@ const execute = () => {
   for (const entity of awakeCleanRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty
-  for (const entity of transformQuery()) {
+  for (const entity of sortedTransformEntities) {
     const makeDirty =
       TransformComponent.dirtyTransforms[entity] ||
       TransformComponent.dirtyTransforms[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||

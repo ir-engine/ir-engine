@@ -66,7 +66,7 @@ export default async function exportModelGLTF(
     embedImages: true
   }
 ) {
-  composeScene(entity)
+  //composeScene(entity)
   const scene = getComponent(entity, ModelComponent).scene!
   const exporter = createGLTFExporter()
   const modelName = options.path.split('/').at(-1)!.split('.').at(0)!
@@ -75,11 +75,11 @@ export default async function exportModelGLTF(
     exporter.parse(
       scene,
       (gltf: ArrayBuffer) => {
-        decomposeScene(entity)
+        //decomposeScene(entity)
         resolve(gltf)
       },
       (error) => {
-        decomposeScene(entity)
+        //decomposeScene(entity)
         throw error
       },
       {

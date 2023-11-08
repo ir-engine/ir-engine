@@ -29,11 +29,9 @@ import { Validator, matches } from '@etherealengine/engine/src/common/functions/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { migrateSceneData } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { Topic, defineActionQueue } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
@@ -68,18 +66,10 @@ export const EditorHistoryState = defineState({
   },
 
   resetHistory: () => {
-    const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].data
-    let migratedSceneData
-    try {
-      migratedSceneData = migrateSceneData(sceneData)
-    } catch (e) {
-      console.error(e)
-      migratedSceneData = JSON.parse(JSON.stringify(sceneData))
-      NotificationService.dispatchNotify('Failed to migrate scene.', { variant: 'error' })
-    }
+    const data = getState(SceneState).scenes[getState(SceneState).activeScene!].data
     getMutableState(EditorHistoryState).set({
       index: 0,
-      history: [{ data: migratedSceneData, selectedEntities: [] }]
+      history: [{ data, selectedEntities: [] }]
     })
     EditorHistoryState.applyCurrentSnapshot()
   },

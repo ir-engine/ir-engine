@@ -28,7 +28,7 @@ import { Color, Texture } from 'three'
 import { defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { Engine } from './Engine'
@@ -51,6 +51,22 @@ export const SceneState = defineState({
     const scene = getMutableState(SceneState).scenes[sceneID]
     for (const [uuid, data] of Object.entries(entities)) {
       scene.data.scene.entities[uuid].set(data)
+    }
+  },
+
+  addComponentsToEntity: (entityUUID: EntityUUID, components: ComponentJson[]) => {
+    const sceneState = getMutableState(SceneState)
+    const sceneID = sceneState.scenes.keys.find((sceneID) => {
+      return sceneState.scenes[sceneID].data.scene.entities[entityUUID]
+    })
+    if (!sceneID) throw new Error(`Entity ${entityUUID} does not exist in any scene`)
+    const scene = getMutableState(SceneState).scenes[sceneID]
+    const entity = scene.data.scene.entities[entityUUID]
+    if (!entity) throw new Error(`Entity ${entityUUID} does not exist in scene ${sceneID}`)
+    for (const component of components) {
+      const index = entity.components.findIndex((c) => c.value.name === component.name)
+      if (index === -1) entity.components[entity.components.length].set(component)
+      else entity.components[index].set(component)
     }
   },
 
