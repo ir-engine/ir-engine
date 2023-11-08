@@ -37,9 +37,12 @@ import { OnAxis } from './Events/onAxis'
 import { OnButton } from './Events/onButton'
 import { OnExecute } from './Events/onExecute'
 import { OnQuery } from './Events/onQuery'
+import * as AxisNodes from './Values/AxisNodes'
 import * as ComponentNodes from './Values/ComponentNodes'
 import * as CustomNodes from './Values/CustomNodes'
 import * as EntityNodes from './Values/EntityNodes'
+import * as QueryNodes from './Values/QueryNodes'
+
 import { EntityValue } from './Values/EntityValue'
 import * as SplineNodes from './Values/SplineNodes'
 import { getActionConsumers, getActionDispatchers } from './helper/actionHelper'
@@ -68,6 +71,8 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...getNodeDescriptions(ComponentNodes),
     ...getNodeDescriptions(CustomNodes),
     ...getNodeDescriptions(SplineNodes),
+    ...getNodeDescriptions(QueryNodes),
+    ...getNodeDescriptions(AxisNodes),
 
     // variables
 

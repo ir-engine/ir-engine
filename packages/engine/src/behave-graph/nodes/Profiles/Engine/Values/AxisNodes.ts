@@ -23,29 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Choices, NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
-import { Query, defineQuery, getComponent, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
+import { Choices, NodeCategory, makeFunctionNodeDefinition } from '@behave-graph/core'
+import { defineQuery, getComponent, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
 import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
 import { StandardGamepadAxes, XRStandardGamepadAxes } from '../../../../../input/state/ButtonState'
 
-let systemCounter = 0
-
-type State = {
-  query: Query
-  systemUUID: SystemUUID
-}
-const initialState = (): State => ({
-  query: undefined!,
-  systemUUID: '' as SystemUUID
-})
-
 // very 3D specific.
-export const OnAxis = makeEventNodeDefinition({
-  typeName: 'engine/onAxis',
-  category: NodeCategory.Event,
-  label: 'On Axis',
+export const getAxis = makeFunctionNodeDefinition({
+  typeName: 'engine/getAxis',
+  category: NodeCategory.Query,
+  label: 'get Axis',
   in: {
     axis: (_, graphApi) => {
       const choices: Choices = [
@@ -67,41 +54,21 @@ export const OnAxis = makeEventNodeDefinition({
     deadzone: 'float'
   },
   out: {
-    flow: 'flow',
     value: 'float'
   },
-  initialState: initialState(),
-  init: ({ read, write, commit, graph }) => {
+  exec: ({ read, write, graph }) => {
     const axisKey = read<number>('axis')
     const deadzone = read<number>('deadzone')
 
     const query = defineQuery([InputSourceComponent])
-    const systemUUID = defineSystem({
-      uuid: 'behave-graph-onAxis-' + systemCounter++,
-      execute: () => {
-        for (const eid of query()) {
-          const inputSource = getComponent(eid, InputSourceComponent)
-          if (!inputSource.source.gamepad) continue
-          let gamepadAxesValue = inputSource.source.gamepad?.axes[axisKey]
-          if (Math.abs(gamepadAxesValue) < deadzone) gamepadAxesValue = 0
-          write('value', gamepadAxesValue)
-          commit('flow')
-        }
-      }
-    })
-
-    startSystem(systemUUID, { with: InputSystemGroup })
-
-    const state: State = {
-      query,
-      systemUUID
+    for (const eid of query()) {
+      const inputSource = getComponent(eid, InputSourceComponent)
+      if (!inputSource.source.gamepad) continue
+      let gamepadAxesValue = inputSource.source.gamepad?.axes[axisKey]
+      if (Math.abs(gamepadAxesValue) < deadzone) gamepadAxesValue = 0
+      write('value', gamepadAxesValue)
     }
 
-    return state
-  },
-  dispose: ({ state: { query, systemUUID }, graph: { getDependency } }) => {
-    disableSystem(systemUUID)
     removeQuery(query)
-    return initialState()
   }
 })
