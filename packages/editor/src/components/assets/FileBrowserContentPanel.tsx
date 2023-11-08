@@ -45,7 +45,7 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { getMutableState, NO_PROXY, useHookstate, useState } from '@etherealengine/hyperflux'
+import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import AddIcon from '@mui/icons-material/Add'
@@ -150,19 +150,18 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const anchorEl = useHookstate<null | HTMLElement>(null)
   const anchorPosition = useHookstate<undefined | PopoverPosition>(undefined)
 
-  const isLoading = useState(true)
-  const selectedDirectory = useState(
-    `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
-  )
-  const fileProperties = useState<any>(null)
+  const originalPath = `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
+  const selectedDirectory = useHookstate(originalPath)
+  const fileProperties = useHookstate<FileType | null>(null)
+  const isLoading = useHookstate(true)
 
-  const openProperties = useState(false)
-  const openCompress = useState(false)
-  const openConvert = useState(false)
-  const convertProperties = useState<ImageConvertParms>(ImageConvertDefaultParms)
+  const openProperties = useHookstate(false)
+  const openCompress = useHookstate(false)
+  const openConvert = useHookstate(false)
+  const convertProperties = useHookstate<ImageConvertParms>(ImageConvertDefaultParms)
 
-  const openConfirm = useState(false)
-  const contentToDeletePath = useState('')
+  const openConfirm = useHookstate(false)
+  const contentToDeletePath = useHookstate('')
 
   const fileState = useHookstate(getMutableState(FileBrowserState))
   const filesValue = fileState.files.attach(Downgraded).value
@@ -191,7 +190,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   useEffect(() => {
     refreshDirectory()
-  }, [selectedDirectory.value])
+  }, [selectedDirectory])
 
   const refreshDirectory = async () => {
     await FileBrowserService.fetchFiles(selectedDirectory.value, page)
@@ -267,7 +266,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const onBackDirectory = () => {
     const pattern = /([^/]+)/g
     const result = selectedDirectory.value.match(pattern)
-    if (!result) return
+    if (!result || result.length === 1) return
     let newPath = '/'
     for (let i = 0; i < result.length - 1; i++) {
       newPath += result[i] + '/'
@@ -314,6 +313,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const showUploadAndDownloadButtons =
     selectedDirectory.value.slice(1).startsWith('projects/') &&
     !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
+  const showBackButton = selectedDirectory.value !== originalPath
 
   const handleDownloadProject = async () => {
     const url = selectedDirectory.value
@@ -459,12 +459,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             flexWrap: 'wrap'
           }}
         >
-          <ToolButton
-            tooltip={t('editor:layout.filebrowser.back')}
-            icon={ArrowBackIcon}
-            onClick={onBackDirectory}
-            id="backDir"
-          />
+          {showBackButton && (
+            <ToolButton
+              tooltip={t('editor:layout.filebrowser.back')}
+              icon={ArrowBackIcon}
+              onClick={onBackDirectory}
+              id="backDir"
+            />
+          )}
           <ToolButton
             tooltip={t('editor:layout.filebrowser.refresh')}
             icon={AutorenewIcon}
@@ -553,7 +555,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           classes={{ paper: styles.paperDialog }}
         >
           <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }}>
-            {`${fileProperties.value?.name} ${fileProperties.value?.type == 'folder' ? 'folder' : 'file'} Properties`}
+            {`${fileProperties.value.name} ${fileProperties.value.type == 'folder' ? 'folder' : 'file'} Properties`}
           </DialogTitle>
           <Grid container spacing={1} style={{ width: '100%', margin: '0' }}>
             <Grid item xs={4} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
@@ -571,10 +573,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               </Typography>
             </Grid>
             <Grid item xs={8} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
-              <Typography className={styles.secondaryText}>{fileProperties.value?.name}</Typography>
-              <Typography className={styles.secondaryText}>{fileProperties.value?.type}</Typography>
-              <Typography className={styles.secondaryText}>{fileProperties.value?.size}</Typography>
-              <Typography className={styles.secondaryText}>{fileProperties.value?.url}</Typography>
+              <Typography className={styles.secondaryText}>{fileProperties.value.name}</Typography>
+              <Typography className={styles.secondaryText}>{fileProperties.value.type}</Typography>
+              <Typography className={styles.secondaryText}>{fileProperties.value.size}</Typography>
+              <Typography className={styles.secondaryText}>{fileProperties.value.url}</Typography>
             </Grid>
           </Grid>
         </Dialog>

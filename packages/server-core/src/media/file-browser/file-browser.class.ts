@@ -31,6 +31,7 @@ import path from 'path/posix'
 
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import {
   FileBrowserContentType,
   FileBrowserPatch,
@@ -98,10 +99,10 @@ export class FileBrowserService
     const limit = $limit ? $limit : 100
 
     const storageProvider = getStorageProvider()
-    const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
+    const isAdmin = params.user && (await checkScope(params.user, 'admin', 'admin'))
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
-    if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
-      throw new Forbidden('Not allowed to access that directory')
+    if (!/(projects)(\/).+/gi.test(directory)) throw new Forbidden('Not allowed to access that directory')
+
     let result = await storageProvider.listFolderContent(directory)
     const total = result.length
 
