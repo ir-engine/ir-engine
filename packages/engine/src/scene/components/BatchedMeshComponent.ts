@@ -4,6 +4,7 @@ import { convertToBatchedMesh } from '../../assets/classes/BatchedMesh'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+import iterateObject3D from '../util/iterateObject3D'
 import { GroupComponent, addObjectToGroup } from './GroupComponent'
 
 export const BatchedMeshComponent = defineComponent({
@@ -28,16 +29,23 @@ export const BatchedMeshComponent = defineComponent({
         //iterate children of this entity and add them to the batch
         const meshes: Mesh[] = iterateEntityNode(
           entity,
-          (childEntity) => getComponent(entity, GroupComponent)[0] as unknown as Mesh,
+          (childEntity) => {
+            const scene = getComponent(childEntity, GroupComponent)[0]!
+            return iterateObject3D(
+              scene,
+              (object) => object as Mesh,
+              (object) => (object as Mesh).isMesh,
+              false,
+              false
+            )
+          },
           (childEntity) => {
             if (!hasComponent(childEntity, GroupComponent)) return false
             if (getComponent(childEntity, GroupComponent).length === 0) return false
-            const mesh: Mesh = getComponent(childEntity, GroupComponent)[0] as unknown as Mesh
-            if (!mesh.isMesh) return false
             return true
           },
           false
-        )
+        ).flat()
         //create batched mesh from these meshes
         const batchedMesh = new Mesh()
         const result = convertToBatchedMesh(meshes)
