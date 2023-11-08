@@ -35,7 +35,7 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { IdentityProviderType } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
@@ -78,13 +78,13 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
   }
 
   const createData = (
-    id: string,
+    id: UserID,
     el: UserType,
     name: string,
     avatarId: AvatarID | JSX.Element,
     identityProviders: IdentityProviderType[],
     isGuest: string,
-    inviteCode: string | JSX.Element
+    inviteCode: InviteCode | JSX.Element
   ): UserData => {
     const discordIp = identityProviders.find((ip) => ip.type === 'discord')
     const googleIp = identityProviders.find((ip) => ip.type === 'google')

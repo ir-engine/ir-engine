@@ -53,7 +53,7 @@ export default function ({ children }) {
   const { t } = useTranslation()
   return (
     <FullscreenContainer ref={ref}>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.connecting')} />}>{children}</Suspense>
+      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingClient')} />}>{children}</Suspense>
     </FullscreenContainer>
   )
 }
