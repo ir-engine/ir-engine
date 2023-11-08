@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { Route, Routes, useLocation } from 'react-router-dom'
 
 const $index = lazy(() => import('@etherealengine/client/src/pages'))
 const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
@@ -37,45 +38,30 @@ const $studio = lazy(() => import('@etherealengine/client/src/pages/editor/edito
 const $location = lazy(() => import('@etherealengine/client/src/pages/location/location'))
 
 /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
-function RouterComp({ route }: { route: string }) {
+function RouterComp() {
   const customRoutes = useCustomRoutes()
   const { t } = useTranslation()
+  const location = useLocation()
 
   // still allow admin even if no custom routes are loaded in case routes fail to load
-  if (route !== 'admin' && !customRoutes.length) {
+  if (location.pathname !== 'admin' && !customRoutes.length) {
     return <LoadingCircle message={t('common:loader.loadingRoutes')} />
-  }
-
-  const loadProjectComponent = (route: string) => {
-    const customRoute = customRoutes.find((customRoute) => customRoute.route === route)
-    if (!customRoute) return null
-    const Element = customRoute.component
-    return <Element {...customRoute.props} />
-  }
-
-  let RouteElement
-
-  switch (route) {
-    case 'index':
-      RouteElement = loadProjectComponent('/') || <$index />
-      break
-    case 'offline':
-      RouteElement = loadProjectComponent('/offline') || <$offline />
-      break
-    case 'studio':
-      RouteElement = loadProjectComponent('/studio') || <$studio />
-      break
-    case 'location':
-      RouteElement = loadProjectComponent('/location') || <$location />
-      break
-    case 'admin':
-      RouteElement = loadProjectComponent('/admin') || <$admin />
-      break
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>{RouteElement}</Suspense>
+      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
+        <Routes>
+          {customRoutes.map(({ component: Element, props, route }) => (
+            <Route key={'custom-index'} path={route} element={<Element {...props} />} />
+          ))}
+          <Route key={'index'} path={'/'} element={<$index />} />
+          <Route key={'admin'} path={'/admin/*'} element={<$admin />} />
+          <Route key={'location'} path={'/location/*'} element={<$location />} />
+          <Route key={'studio'} path={'/studio/*'} element={<$studio />} />
+          <Route key={'offline'} path={'/offline/*'} element={<$offline />} />
+        </Routes>
+      </Suspense>
     </ErrorBoundary>
   )
 }

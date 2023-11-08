@@ -52,7 +52,7 @@ declare module '@mui/styles/defaultTheme' {
 }
 
 /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
-const AppPage = ({ route }: { route: string }) => {
+const AppPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
   const authState = useHookstate(getMutableState(AuthState))
   const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
@@ -109,7 +109,7 @@ const AppPage = ({ route }: { route: string }) => {
               <InviteToast />
               <Debug />
             </div>
-            {projectComponents && <RouterComp route={route} />}
+            {projectComponents && <RouterComp />}
             {projectComponents?.map((Component, i) => <Component key={i} />)}
           </SnackbarProvider>
         </StyledEngineProvider>
