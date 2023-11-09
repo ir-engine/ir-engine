@@ -61,11 +61,12 @@ const AdminRoutes = () => {
 
   useEffect(() => {
     for (const [route, state] of Object.entries(allowedRoutes)) {
+      const routeScope = state.scope.value
       const hasScope =
-        state.scope.value === '' ||
+        routeScope === '' ||
         scopes?.find((scope) => {
           const [scopeKey, type] = scope.type.split(':')
-          return scopeKey === state.scope.value
+          return Array.isArray(routeScope) ? routeScope.includes(scopeKey) : scopeKey === routeScope
         })
       state.access.set(!!hasScope)
     }
