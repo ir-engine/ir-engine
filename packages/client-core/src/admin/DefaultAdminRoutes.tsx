@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import React, { lazy } from 'react'
 import { AdminRouteStateType } from './AllowedAdminRoutesState'
@@ -137,7 +138,7 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   },
   settings: {
     name: 'user:dashboard.setting',
-    scope: 'settings',
+    scope: ['settings', clientSettingPath],
     component: Setting,
     access: false,
     icon: <Icon type="Settings" style={{ color: 'white' }} />
