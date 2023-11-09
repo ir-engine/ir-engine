@@ -44,7 +44,6 @@ import {
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent, Object3DWithEntity, addObjectToGroup } from '../components/GroupComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
@@ -96,7 +95,7 @@ export const parseECSData = (entity: Entity, data: [string, any][]): ComponentJs
       continue
     }
     result.push({ name: component.jsonID!, props: value })
-    getComponent(entity, GLTFLoadedComponent).push(component)
+    getComponent(entity, GLTFLoadedComponent).push(component.name)
   }
 
   for (const [key, value] of Object.entries(prefabs)) {
@@ -106,7 +105,7 @@ export const parseECSData = (entity: Entity, data: [string, any][]): ComponentJs
       continue
     }
     result.push({ name: Component.jsonID!, props: value })
-    getComponent(entity, GLTFLoadedComponent).push(Component)
+    getComponent(entity, GLTFLoadedComponent).push(Component.name)
   }
 
   return result
@@ -138,7 +137,9 @@ export const parseObjectComponentsFromGLTF = (
     const e = createEntity()
     entities.push(e)
     const name = mesh.userData['xrengine.entity'] ?? mesh.uuid
+    setComponent(e, NameComponent, name)
     const uuid = mesh.uuid as EntityUUID
+    setComponent(e, UUIDComponent, uuid)
     const parentUuid = getComponent(entity, UUIDComponent)
     const eJson: EntityJson = {
       name,
@@ -147,8 +148,6 @@ export const parseObjectComponentsFromGLTF = (
     }
 
     if (hasComponent(entity, SceneObjectComponent)) setComponent(e, SceneObjectComponent)
-
-    setComponent(e, NameComponent, name)
 
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
@@ -161,8 +160,6 @@ export const parseObjectComponentsFromGLTF = (
         scale: mesh.scale
       }
     })
-
-    computeTransformMatrix(entity)
 
     addObjectToGroup(e, mesh)
 

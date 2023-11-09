@@ -361,9 +361,12 @@ export const removeComponent = async <C extends Component>(entity: Entity, compo
 
 export const componentJsonDefaults = <C extends Component>(component: C) => {
   const initial = component.onInit(UndefinedEntity)
-  const pseudoState: Record<string, { value: any }> = {}
+  const pseudoState: Record<string, { value: any; get: () => any }> = {}
   for (const key of Object.keys(initial)) {
-    pseudoState[key] = { value: initial[key] }
+    pseudoState[key] = {
+      value: initial[key],
+      get: () => initial[key]
+    }
   }
   return component.toJSON(UndefinedEntity, pseudoState as any)
 }
