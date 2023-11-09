@@ -29,7 +29,6 @@ import fs from 'fs'
 import path from 'path'
 import { v4 as generateUUID } from 'uuid'
 
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import {
   LocationData,
@@ -56,7 +55,7 @@ export const createLocations = async (app: Application, projectName: string) => 
         const locationId = generateUUID() as LocationID
         const settingsId = generateUUID()
         const sceneName = sceneJson.replace('.scene.json', '')
-        const sceneId = (await createScene(app, sceneName, projectName)) as SceneID
+        const sceneId = await createScene(app, sceneName, projectName)
         const locationName = toCapitalCase(sceneName.replace('-', ' '))
         const locationSetting = {
           id: settingsId,

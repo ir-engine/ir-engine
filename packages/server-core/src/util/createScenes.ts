@@ -108,7 +108,7 @@ export const createScene = async (app: Application, sceneName: string, projectNa
   const files = fileResults.Contents.map((dirent) => dirent.Key).filter((name) => name.endsWith('.scene.json'))
   //.map((name) => name.slice(0, -'.scene.json'.length).replace(projectRoutePath, ''))
 
-  let sceneId = ''
+  let sceneId = '' as SceneID
 
   for (const sceneFile of files) {
     const sceneFileName = sceneFile.slice(0, -'.scene.json'.length).replace(projectRoutePath, '')
