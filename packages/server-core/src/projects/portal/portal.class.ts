@@ -50,7 +50,7 @@ export class PortalService implements ServiceInterface<PortalType | Paginated<Po
     })
     if (!location?.data?.length) throw new Error('No location found')
 
-    const sceneData = await getSceneData(this.app, location.data[0].sceneId, false, params!.provider == null)
+    const sceneData = await getSceneData(this.app, location.data[0].sceneId, params!.provider == null)
 
     const portals = parseScenePortals(sceneData) as PortalType[]
     const portalResult: PortalType = portals.find((portal) => portal.portalEntityId === id) || ({} as PortalType)
