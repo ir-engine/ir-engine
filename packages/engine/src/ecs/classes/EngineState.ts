@@ -70,21 +70,29 @@ export const EngineState = defineState({
 export class EngineActions {
   /** @deprecated */
   static sceneLoaded = defineAction({
-    type: 'xre.engine.Engine.SCENE_LOADED' as const
+    type: 'ee.engine.Engine.SCENE_LOADED' as const
   })
 
   static spectateUser = defineAction({
-    type: 'xre.engine.Engine.SPECTATE_USER' as const,
+    type: 'ee.engine.Engine.SPECTATE_USER' as const,
     user: matches.string.optional()
   })
 
   static exitSpectate = defineAction({
-    type: 'xre.engine.Engine.EXIT_SPECTATE' as const
+    type: 'ee.engine.Engine.EXIT_SPECTATE' as const
   })
 
   static interactedWithObject = defineAction({
-    type: 'xre.engine.Engine.INTERACTED_WITH_OBJECT' as const,
+    type: 'ee.engine.Engine.INTERACTED_WITH_OBJECT' as const,
     targetEntity: matchesEntity.optional(),
     handedness: matches.string as Validator<unknown, XRHandedness>
+  })
+
+  static notification = defineAction({
+    type: 'ee.engine.Engine.ERROR' as const,
+    text: matches.string,
+    variant: matches.literals('default', 'error', 'success', 'warning', 'info') // from notistack
+    /** @todo add more action types in NotificationService */
+    // actionType: matches.literal('default')
   })
 }
