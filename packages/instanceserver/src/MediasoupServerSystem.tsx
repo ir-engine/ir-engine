@@ -31,18 +31,13 @@ import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Net
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import {
   MediasoupDataConsumerActions,
-  MediasoupDataProducerActions,
-  MediasoupDataProducerConsumerStateSystem
+  MediasoupDataProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
   MediaProducerActions,
-  MediasoupMediaConsumerActions,
-  MediasoupMediaProducerConsumerStateSystem
+  MediasoupMediaConsumerActions
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import {
-  MediasoupTransportActions,
-  MediasoupTransportStateSystem
-} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { MediasoupRecordingSystem } from './MediasoupRecordingFunctions'
@@ -143,10 +138,5 @@ export const MediasoupServerSystem = defineSystem({
   uuid: 'ee.instanceserver.MediasoupServerSystem',
   execute,
   reactor,
-  preSystems: [
-    MediasoupTransportStateSystem,
-    MediasoupMediaProducerConsumerStateSystem,
-    MediasoupDataProducerConsumerStateSystem,
-    MediasoupRecordingSystem
-  ]
+  preSystems: [MediasoupRecordingSystem]
 })

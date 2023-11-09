@@ -35,9 +35,10 @@ import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/functions/NetworkActionFunctions'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
+import { MediasoupSystemGroup } from '@etherealengine/engine/src/networking/systems/MediasoupSystemGroup'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { encode } from 'msgpackr'
 import { InstanceServerState } from './InstanceServerState'
@@ -111,7 +112,7 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostId
     outgoingDataProducers: {} as Record<DataChannelType, DataProducer>
   }
 
-  startSystem(MediasoupServerSystem, {
+  startSystems([MediasoupSystemGroup, MediasoupServerSystem], {
     before: ServerHostNetworkSystem
   })
 
