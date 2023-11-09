@@ -81,7 +81,6 @@ export const useStudioEditor = () => {
     projects.then((proj) => {
       loadEngineInjection(proj).then(() => {
         setEngineReady(true)
-        getMutableState(EngineState).isEngineInitialized.set(true)
       })
     })
   }, [])

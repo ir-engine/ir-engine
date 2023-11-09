@@ -38,7 +38,6 @@ import { ColliderDescOptions } from '@etherealengine/engine/src/physics/types/Ph
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
-import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
@@ -77,9 +76,8 @@ let simulationObjectsGenerated = false
 export const PhysicsSimulationTestSystem = defineSystem({
   uuid: 'ee.test.PhysicsSimulationTestSystem',
   execute: () => {
-    const isInitialized = getState(EngineState).isEngineInitialized
     const physicsWorld = getState(PhysicsState).physicsWorld
-    if (!isInitialized || !physicsWorld || simulationObjectsGenerated) return
+    if (!physicsWorld || simulationObjectsGenerated) return
     simulationObjectsGenerated = true
     generateSimulationData(0)
   }

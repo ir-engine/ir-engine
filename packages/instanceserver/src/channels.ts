@@ -259,7 +259,6 @@ const loadEngine = async (app: Application, sceneId: SceneID) => {
     getMutableState(NetworkState).hostIds.media.set(hostId)
     startMediaServerSystems()
     await loadEngineInjection(projects)
-    getMutableState(EngineState).isEngineInitialized.set(true)
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
@@ -272,7 +271,6 @@ const loadEngine = async (app: Application, sceneId: SceneID) => {
 
     startWorldServerSystems()
     await loadEngineInjection(projects)
-    getMutableState(EngineState).isEngineInitialized.set(true)
 
     const sceneUpdatedListener = async () => {
       const sceneData = await sceneResultPromise

@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -55,7 +54,6 @@ const AdminRoutes = () => {
 
   useEffect(() => {
     AdminSystemInjection()
-    getMutableState(EngineState).isEngineInitialized.set(true)
     allowedRoutes.set(DefaultAdminRoutes)
   }, [])
 

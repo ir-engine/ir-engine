@@ -73,13 +73,8 @@ import { useClientSystems } from '../../world/useClientSystems'
 const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const initClient = async () => {
-  if (getMutableState(EngineState).isEngineInitialized.value) return
-
   const projects = Engine.instance.api.service(projectsPath).find()
-
   await loadEngineInjection(await projects)
-
-  getMutableState(EngineState).isEngineInitialized.set(true)
 }
 
 export const useLoadEngine = () => {

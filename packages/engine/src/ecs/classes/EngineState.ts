@@ -43,8 +43,6 @@ export const EngineState = defineState({
 
     physicsSubsteps: 1,
 
-    /** @deprecated */
-    isEngineInitialized: false,
     sceneLoading: false,
     sceneLoaded: false,
     loadingProgress: 0,

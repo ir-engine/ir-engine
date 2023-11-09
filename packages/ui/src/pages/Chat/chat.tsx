@@ -35,7 +35,7 @@ import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networki
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { useSystem, useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
@@ -49,13 +49,8 @@ const useChatSystems = () => {
 }
 
 export const initializeEngineForChat = async () => {
-  if (getMutableState(EngineState).isEngineInitialized.value) return
-
   const projects = Engine.instance.api.service(projectsPath).find()
-
   await loadEngineInjection(await projects)
-
-  getMutableState(EngineState).isEngineInitialized.set(true)
   dispatchAction(EngineActions.sceneLoaded({}))
 }
 
