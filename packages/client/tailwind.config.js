@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 
 module.exports = {
   mode: 'jit',
-  content: ['../**/*.{js,jsx,ts,tsx}'],
+  content: ['../**/*.{tsx}'],
   darkMode: 'class',
   important: true, // important in prod is must be
   theme: ['default'],
