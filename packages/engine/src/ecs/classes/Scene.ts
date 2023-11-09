@@ -80,10 +80,10 @@ export const SceneState = defineState({
     const sceneState = getMutableState(SceneState)
     const sceneID = sceneState.scenes.keys.find((sceneID) => {
       return sceneState.scenes[sceneID].data.scene.entities[entityUUID]
-    })
+    }) as SceneID | null
     if (!sceneID) throw new Error(`Entity ${entityUUID} does not exist in any scene`)
-    const scene = getMutableState(SceneState).scenes[sceneID]
-    const entity = scene.data.scene.entities[entityUUID]
+    const scene = SceneState.useScene(sceneID)
+    const entity = scene.scene.entities[entityUUID]
     if (!entity) throw new Error(`Entity ${entityUUID} does not exist in scene ${sceneID}`)
     for (const component of components) {
       const index = entity.components.findIndex((c) => c.value.name === component.name)

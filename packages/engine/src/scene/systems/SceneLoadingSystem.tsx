@@ -447,7 +447,7 @@ const EntityChildLoadReactor = (props: { parentEntity: Entity; entityUUID: Entit
     })
     setComponent(entity, NameComponent, entityJSONState.name.value)
     return () => {
-      !getState(SceneState).scenes[props.sceneID].data.scene.entities[props.entityUUID] && //do not remove entity if it is simply being reparented
+      !SceneState.getScene(props.sceneID).scene.entities[props.entityUUID] && //do not remove entity if it is simply being reparented
         entityExists(entity) && //do not remove entity if it has already been removed elsewhere
         removeEntity(entity)
     }
