@@ -32,6 +32,8 @@ import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterfa
 import { Application } from '@etherealengine/server-core/declarations'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { installAvatarsFromProject } from '@etherealengine/server-core/src/user/avatar/avatar-helper'
+import { createScenes } from '@etherealengine/server-core/src/util/createScenes'
+import packageJson from './package.json'
 
 const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
 
@@ -102,7 +104,8 @@ const config = {
   onInstall: (app: Application) => {
     return installAvatarsFromProject(app, avatarsFolder)
   },
-  onUpdate: (app: Application) => {
+  onUpdate: async (app: Application) => {
+    await createScenes(app, packageJson.name)
     return installAvatarsFromProject(app, avatarsFolder)
   },
   onOEmbedRequest: handleOEmbedRequest
