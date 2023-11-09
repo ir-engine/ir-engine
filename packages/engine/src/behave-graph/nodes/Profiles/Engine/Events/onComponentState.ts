@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
 import { useEffect } from 'react'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { ComponentMap, useOptionalComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { ComponentMap, getComponent, useOptionalComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
+import { NameComponent } from '../../../../../scene/components/NameComponent'
 
 let systemCounter = 0
 
@@ -43,7 +44,6 @@ export const OnComponentState = makeEventNodeDefinition({
   category: NodeCategory.Event,
   label: 'On Component State',
   in: {
-    flow: 'flow',
     entity: 'entity',
     componentName: (_, graphApi) => {
       const choices = Array.from(ComponentMap.keys()).sort()
@@ -54,36 +54,46 @@ export const OnComponentState = makeEventNodeDefinition({
       }
     }
   },
-  out: { flow: 'flow' },
+  out: {
+    flow: 'flow',
+    entity: 'entity'
+  },
   initialState: initialState(),
   init: ({ read, write, commit, graph }) => {
     const entity = read<Entity>('entity')
-    const Component = ComponentMap.get(read<string>('componentName'))!
+    const componentName = read<string>('componentName')
+    const Component = ComponentMap.get(componentName)!
+
+    const name = getComponent(entity, NameComponent)
 
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onComponentState-' + systemCounter++,
-      reactor: () => {
-        const c = useOptionalComponent(entity, Component)
+      execute: () => {
+        console.log('... hello2 execute oncomponent running')
+        const c = entity ? useOptionalComponent(entity, Component) : null
+        if (c) {
+          console.log('...hello2 got component...', entity, c)
+          write('entity', entity)
+          commit('flow')
+        }
+      },
 
+      reactor: () => {
+        console.log('... hello3 reactor oncomponent running')
+        const c = entity ? useOptionalComponent(entity, Component) : null
         useEffect(() => {
           if (c) {
-            //            write()
+            console.log('...hello3 got component...', entity, c)
+            write('entity', entity)
             commit('flow')
           }
         }, [c])
-
-        // useComponentState()
-        //for (const eid of query()) {
-        //}
         return null
       }
     })
 
+    console.log('.... hello2 got entity and now starting system', entity, name, componentName)
     startSystem(systemUUID, {})
-
-    // entityExists.magic.compeonentname.reacotr()
-
-    // - listen for collisions between a and b
 
     const state: State = {
       systemUUID
