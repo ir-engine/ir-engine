@@ -44,6 +44,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -85,7 +86,7 @@ export const useShareMenuHooks = ({ refLink }) => {
     const isPhone = PHONE_REGEX.test(token)
     const location = new URL(window.location as any)
     const params = new URLSearchParams(location.search)
-    let inviteCode = ''
+    let inviteCode = '' as InviteCode
 
     const sendData = {
       inviteType: 'instance',
@@ -96,7 +97,7 @@ export const useShareMenuHooks = ({ refLink }) => {
     } as InviteData
 
     if (token.length === 8) {
-      inviteCode = token
+      inviteCode = token as InviteCode
     }
 
     if (isSpectatorMode) {

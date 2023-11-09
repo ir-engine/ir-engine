@@ -142,9 +142,9 @@ function LoadingReactor() {
 
   /** Scene data changes */
   useEffect(() => {
-    if (!activeScene.value) return
-    const sceneData = getState(SceneState).scenes[activeScene.value]
-    const envmapURL = sceneData.data.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
+    const sceneData = SceneState.getCurrentScene()
+    if (!sceneData) return
+    const envmapURL = sceneData.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
     if (envmapURL && mesh.userData.url !== envmapURL) {
       mesh.userData.url = envmapURL
       setDefaultPalette()

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 export interface UserColumn {
   id: 'id' | 'name' | 'avatarId' | 'accountIdentifier' | 'isGuest' | 'location' | 'inviteCode' | 'instanceId' | 'action'
@@ -77,7 +78,7 @@ export interface UserData {
   avatarId: AvatarID | JSX.Element
   accountIdentifier: string | JSX.Element
   isGuest: string
-  inviteCode: string | JSX.Element
+  inviteCode: InviteCode | JSX.Element
   action: any
 }
 export interface UserProps {
