@@ -33,7 +33,7 @@ import { locationAdminSchema } from '../social/location-admin.schema'
 import { locationBanSchema } from '../social/location-ban.schema'
 import { userSettingSchema } from '../user/user-setting.schema'
 import { dataValidator, queryValidator } from '../validators'
-import { avatarDataSchema } from './avatar.schema'
+import { avatarDataSchema, AvatarID } from './avatar.schema'
 import { identityProviderSchema } from './identity-provider.schema'
 import { userApiKeySchema } from './user-api-key.schema'
 
@@ -49,6 +49,7 @@ export const userScopeSchema = Type.Object(
 )
 
 export type UserID = OpaqueType<'UserID'> & string
+export type InviteCode = OpaqueType<'InviteCode'> & string
 
 // Main data model schema
 export const userSchema = Type.Object(
@@ -58,8 +59,12 @@ export const userSchema = Type.Object(
     }),
     name: Type.String(),
     isGuest: Type.Boolean(),
-    inviteCode: Type.Optional(Type.String()),
-    avatarId: Type.String({
+    inviteCode: Type.Optional(
+      TypedString<InviteCode>({
+        format: 'uuid'
+      })
+    ),
+    avatarId: TypedString<AvatarID>({
       format: 'uuid'
     }),
     avatar: Type.Ref(avatarDataSchema),
@@ -75,19 +80,21 @@ export const userSchema = Type.Object(
   },
   { $id: 'User', additionalProperties: false }
 )
-export type UserType = Static<typeof userSchema>
+export interface UserType extends Static<typeof userSchema> {}
 
 // Schema for creating new entries
 export const userDataSchema = Type.Partial(userSchema, {
   $id: 'UserData'
 })
-export type UserData = Static<typeof userDataSchema>
+export interface UserData extends Static<typeof userDataSchema> {}
 
 // Schema for updating existing entries
 export const userPatchSchema = Type.Partial(userSchema, {
   $id: 'UserPatch'
 })
-export type UserPatch = Static<typeof userPatchSchema>
+export interface UserPatch extends Static<typeof userPatchSchema> {}
+
+export interface UserPublicPatch extends Pick<UserType, 'name' | 'avatarId' | 'id'> {}
 
 // Schema for allowed query properties
 export const userQueryProperties = Type.Pick(userSchema, [
@@ -111,14 +118,15 @@ export const userQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
-        search: Type.Optional(Type.String())
+        search: Type.Optional(Type.String()),
+        skipAvatar: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )
   ],
   { additionalProperties: false }
 )
-export type UserQuery = Static<typeof userQuerySchema>
+export interface UserQuery extends Static<typeof userQuerySchema> {}
 
 export const userScopeValidator = getValidator(userScopeSchema, dataValidator)
 export const userValidator = getValidator(userSchema, dataValidator)

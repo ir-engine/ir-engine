@@ -44,8 +44,8 @@ import { EditorControlFunctions } from './EditorControlFunctions'
  */
 export async function addMediaNode(
   url: string,
-  parent: Entity | null = null,
-  before: Entity | null = null,
+  parent?: Entity,
+  before?: Entity,
   extraComponentJson: ComponentJson[] = []
 ) {
   const contentType = (await getContentType(url)) || ''

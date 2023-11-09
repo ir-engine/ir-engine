@@ -761,9 +761,8 @@ describe('DataReader', () => {
     const network = NetworkState.worldNetwork as Network
 
     Engine.instance.userID = 'userId' as UserID
-    Engine.instance.peerID = 'peer' as PeerID
     const userId = Engine.instance.userID
-    const peerID = 'peerID' as PeerID
+    const peerID = Engine.instance.store.peerID
     const userIndex = 0
     const peerIndex = 0
     network.userIndexToUserID[userIndex] = userId
@@ -960,8 +959,7 @@ describe('DataReader', () => {
     const network = NetworkState.worldNetwork as Network
     const engineState = getMutableState(EngineState)
     engineState.simulationTime.set(1)
-    const peerID = 'peerID' as PeerID
-    Engine.instance.peerID = peerID
+    const peerID = Engine.instance.store.peerID
 
     const n = 10
     const entities: Entity[] = Array(n)

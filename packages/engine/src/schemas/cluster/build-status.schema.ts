@@ -46,7 +46,7 @@ export const buildStatusSchema = Type.Object(
   },
   { $id: 'BuildStatus', additionalProperties: false }
 )
-export type BuildStatusType = Static<typeof buildStatusSchema>
+export interface BuildStatusType extends Static<typeof buildStatusSchema> {}
 
 // Schema for creating new entries
 export const buildStatusDataSchema = Type.Pick(
@@ -56,13 +56,13 @@ export const buildStatusDataSchema = Type.Pick(
     $id: 'BuildStatusData'
   }
 )
-export type BuildStatusData = Static<typeof buildStatusDataSchema>
+export interface BuildStatusData extends Static<typeof buildStatusDataSchema> {}
 
 // Schema for updating existing entries
 export const buildStatusPatchSchema = Type.Partial(buildStatusSchema, {
   $id: 'BuildStatusPatch'
 })
-export type BuildStatusPatch = Static<typeof buildStatusPatchSchema>
+export interface BuildStatusPatch extends Static<typeof buildStatusPatchSchema> {}
 
 // Schema for allowed query properties
 export const buildStatusQueryProperties = Type.Pick(buildStatusSchema, [
@@ -81,7 +81,7 @@ export const buildStatusQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type BuildStatusQuery = Static<typeof buildStatusQuerySchema>
+export interface BuildStatusQuery extends Static<typeof buildStatusQuerySchema> {}
 
 export const buildStatusValidator = getValidator(buildStatusSchema, dataValidator)
 export const buildStatusDataValidator = getValidator(buildStatusDataSchema, dataValidator)

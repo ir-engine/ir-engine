@@ -51,6 +51,7 @@ import { GizmoSystem } from '../systems/GizmoSystem'
 import { ModelHandlingSystem } from '../systems/ModelHandlingSystem'
 
 import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
+import { UploadRequestSystem } from '../systems/UploadRequestSystem'
 
 // ensure all our systems are imported, #9077
 const EditorSystemsReferenced = [useDefaultLocationSystems]
@@ -59,7 +60,8 @@ const useEditorSystems = () => {
   useSystems([EditorFlyControlSystem, EditorControlSystem, EditorCameraSystem, GizmoSystem], {
     before: PresentationSystemGroup
   })
-  useSystems([ModelHandlingSystem], { with: SimulationSystemGroup })
+
+  useSystems([ModelHandlingSystem, UploadRequestSystem], { with: SimulationSystemGroup })
 
   useSystems([EditorInstanceNetworkingSystem, ClientNetworkingSystem, RenderInfoSystem], {
     after: PresentationSystemGroup

@@ -34,7 +34,6 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import makeInitialAdmin from '../../util/make-initial-admin'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LoginParams extends KnexAdapterParams {}
 
 /**

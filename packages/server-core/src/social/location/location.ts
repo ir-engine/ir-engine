@@ -44,7 +44,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(locationPath, new LocationService(options, app), {
+  app.use(locationPath, new LocationService(options), {
     // A list of all methods this service exposes externally
     methods: locationMethods,
     // You can add additional custom events to be sent to clients here

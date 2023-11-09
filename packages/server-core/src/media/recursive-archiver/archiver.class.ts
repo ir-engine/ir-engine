@@ -44,7 +44,6 @@ const DIRECTORY_ARCHIVE_TIMEOUT = 60 * 10 //10 minutes
  * A class for Managing files in FileBrowser
  */
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ArchiverParams extends KnexAdapterParams<ArchiverQuery> {}
 
 const archive = async (app: Application, directory, params?: ArchiverParams): Promise<string> => {

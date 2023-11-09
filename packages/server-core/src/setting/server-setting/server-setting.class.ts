@@ -33,7 +33,6 @@ import {
   ServerSettingType
 } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ServerSettingParams extends KnexAdapterParams<ServerSettingQuery> {}
 
 export class ServerSettingService<

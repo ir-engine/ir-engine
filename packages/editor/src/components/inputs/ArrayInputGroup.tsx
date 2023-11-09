@@ -46,6 +46,29 @@ export interface ArrayInputGroupState {
   values: string[]
 }
 
+const onChangeSize = (textSize: string, values: string[], onChange?: any) => {
+  // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
+  const valuesCopy = [...values] as string[]
+  const preCount = valuesCopy.length
+  const count = parseInt(textSize)
+  if (isNaN(count) || preCount === count) return
+  if (preCount > count) {
+    valuesCopy.splice(count)
+  } else {
+    for (let i = 0; i < count - preCount; i++) {
+      valuesCopy.push('')
+    }
+  }
+  onChange?.(valuesCopy)
+}
+
+const onChangeText = (text: string, index: number, values: string[], onChange?: any) => {
+  // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
+  const valuesCopy = [...values]
+  valuesCopy[index] = text
+  onChange?.(valuesCopy)
+}
+
 const ArrayInputGroup = ({
   prefix,
   label,

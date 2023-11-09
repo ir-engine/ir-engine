@@ -23,7 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID, UserType, userMethods, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import {
+  UserID,
+  UserPublicPatch,
+  UserType,
+  userMethods,
+  userPath
+} from '@etherealengine/engine/src/schemas/user/user.schema'
 import _ from 'lodash'
 
 import {
@@ -73,12 +79,16 @@ export default (app: Application): void => {
    */
   service.publish('patched', async (data: UserType, context) => {
     try {
-      let targetIds = [data.id!]
-      const updatePromises: any[] = []
+      const userID = data.id
+      const dataToSend = {
+        id: data.id,
+        name: data.name,
+        avatarId: data.avatarId
+      } as UserPublicPatch
 
       const instances = (await app.service(instanceAttendancePath).find({
         query: {
-          userId: data.id,
+          userId: userID,
           ended: false
         },
         paginate: false
@@ -93,15 +103,13 @@ export default (app: Application): void => {
           `${instanceAttendancePath}.instanceId`,
           instances.map((instance) => instance.instanceId)
         )
-        .whereNot(`${userPath}.id`, data.id)
+        .whereNot(`${userPath}.id`, userID)
         .select()
         .options({ nestTables: true })
 
-      targetIds = targetIds.concat(layerUsers.map((item) => item.user.id))
+      const targetIds = _.uniq(layerUsers.map((item) => item.user.id))
 
-      await Promise.all(updatePromises)
-      targetIds = _.uniq(targetIds)
-      return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
+      return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(dataToSend)))
     } catch (err) {
       logger.error(err)
       throw err

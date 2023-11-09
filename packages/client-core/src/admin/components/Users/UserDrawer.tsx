@@ -44,7 +44,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarID, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { UserData, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
@@ -55,22 +55,20 @@ import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
 import styles from '../../styles/admin.module.scss'
 
-const SCOPE_PAGE_LIMIT = 100
-
 export enum UserDrawerMode {
   Create,
   ViewEdit
 }
 
-interface Props {
+export interface UserDrawerProps {
   open: boolean
   mode: UserDrawerMode
   selectedUser?: UserType
   onClose: () => void
 }
 
-const defaultState = {
-  id: '',
+export const defaultState = {
+  id: '' as AvatarID,
   name: '',
   avatar: '',
   isGuest: true,
@@ -188,7 +186,7 @@ export const LinkedProviders = (props: { selectedUser?: UserType }) => {
   )
 }
 
-const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }: Props) => {
+const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }: UserDrawerProps) => {
   const { t } = useTranslation()
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
@@ -200,7 +198,7 @@ const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }
   }).data
   const scopeTypes = useFind(scopeTypePath, {
     query: {
-      $limit: SCOPE_PAGE_LIMIT /** @todo - this should not be paginated */
+      paginate: false
     }
   }).data
   const userMutation = useMutation(userPath)
@@ -244,7 +242,7 @@ const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }
     if (selectedUser) {
       state.set({
         ...defaultState,
-        id: selectedUser.id,
+        id: selectedUser.id as unknown as AvatarID,
         name: selectedUser.name || '',
         avatar: selectedUser.avatarId || '',
         isGuest: selectedUser.isGuest,
@@ -287,7 +285,7 @@ const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }
   const handleSubmit = async () => {
     const data: UserData = {
       name: state.name.value,
-      avatarId: state.avatar.value,
+      avatarId: state.avatar.value as AvatarID,
       isGuest: state.isGuest.value,
       scopes: state.scopes.get({ noproxy: true })
     }

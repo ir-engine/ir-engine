@@ -38,7 +38,7 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const inviteCodeLookupResolver = resolve<InviteCodeLookupType, HookContext>({
   instanceAttendance: virtual(async (inviteCodeLookup, context) => {
-    if (context.params.user?.id === context.arguments[0])
+    if (context.params.user?.id === context.id)
       return (await context.app.service(instanceAttendancePath).find({
         query: {
           userId: inviteCodeLookup.id,

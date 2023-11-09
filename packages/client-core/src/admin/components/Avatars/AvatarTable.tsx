@@ -32,9 +32,9 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
-import { AvatarColumn, AvatarData, avatarColumns } from '../../common/variables/avatar'
+import { AvatarColumn, avatarColumns } from '../../common/variables/avatar'
 import styles from '../../styles/admin.module.scss'
 import AvatarDrawer, { AvatarDrawerMode } from './AvatarDrawer'
 
@@ -57,15 +57,22 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
   const adminAvatarQuery = useFind(avatarPath, {
     query: {
       action: 'admin',
-      name: {
-        $like: `%${search}%`
-      },
       $limit: 20,
       $sort: {
         name: 1
       }
     }
   })
+
+  useSearch(
+    adminAvatarQuery,
+    {
+      name: {
+        $like: `%${search}%`
+      }
+    },
+    search
+  )
 
   const adminAvatarRemove = useMutation(avatarPath).remove
 
@@ -83,56 +90,54 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
     }
   }
 
-  const createData = (el: AvatarType): AvatarData => {
-    return {
-      el,
-      select: (
-        <>
-          <Checkbox
-            className={styles.checkbox}
-            checked={selectedAvatarIds.has(el.id)}
-            onChange={() => {
-              toggleSelection(el.id)
-            }}
-          />
-        </>
-      ),
-      id: el.id,
-      name: el.name as string,
-      owner: el.userId,
-      thumbnail: (
-        <img
-          style={{ maxHeight: '50px' }}
-          crossOrigin="anonymous"
-          src={el.thumbnailResource?.url + '?' + new Date().getTime()}
-          alt=""
+  const createData = (el: AvatarType): any => ({
+    el,
+    select: (
+      <>
+        <Checkbox
+          className={styles.checkbox}
+          checked={selectedAvatarIds.has(el.id)}
+          onChange={() => {
+            toggleSelection(el.id)
+          }}
         />
-      ),
-      action: (
-        <>
-          <a
-            className={styles.actionStyle}
-            onClick={() => {
-              avatarData.set(el)
-              openAvatarDrawer.set(true)
-            }}
-          >
-            <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
-          </a>
-          <a
-            className={styles.actionStyle}
-            onClick={() => {
-              avatarId.set(el.id)
-              avatarName.set(el.name)
-              openConfirm.set(true)
-            }}
-          >
-            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
-          </a>
-        </>
-      )
-    }
-  }
+      </>
+    ),
+    id: el.id,
+    name: el.name as string,
+    user: el.user?.name || '',
+    thumbnail: (
+      <img
+        style={{ maxHeight: '50px' }}
+        crossOrigin="anonymous"
+        src={el.thumbnailResource?.url + '?' + new Date().getTime()}
+        alt=""
+      />
+    ),
+    action: (
+      <>
+        <a
+          className={styles.actionStyle}
+          onClick={() => {
+            avatarData.set(el)
+            openAvatarDrawer.set(true)
+          }}
+        >
+          <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
+        </a>
+        <a
+          className={styles.actionStyle}
+          onClick={() => {
+            avatarId.set(el.id)
+            avatarName.set(el.name)
+            openConfirm.set(true)
+          }}
+        >
+          <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
+        </a>
+      </>
+    )
+  })
 
   const submitRemoveAvatar = async () => {
     adminAvatarRemove(avatarId.value)

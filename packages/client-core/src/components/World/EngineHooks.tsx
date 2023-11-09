@@ -61,6 +61,7 @@ import { TargetCameraRotationComponent } from '@etherealengine/engine/src/camera
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
+import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
@@ -166,6 +167,30 @@ export const despawnSelfAvatar = () => {
   removeComponent(cameraEntity, TargetCameraRotationComponent)
 }
 
+export const useLinkTeleport = () => {
+  const linkState = useHookstate(getMutableState(LinkState))
+
+  useEffect(() => {
+    const location = linkState.location.value
+    if (!location) return
+
+    logger.info('Relocating to linked location.')
+
+    RouterState.navigate('/location/' + location)
+    LocationService.getLocationByName(location)
+
+    // shut down connection with existing world instance server
+    // leaving a world instance server will check if we are in a location media instance and shut that down too
+    leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
+
+    getMutableState(AppLoadingState).merge({
+      state: AppLoadingStates.START_STATE,
+      loaded: false
+    })
+    getMutableState(LinkState).location.set(undefined)
+  }, [linkState.location])
+}
+
 export const usePortalTeleport = () => {
   const engineState = useHookstate(getMutableState(EngineState))
   const locationState = useHookstate(getMutableState(LocationState))
@@ -174,7 +199,6 @@ export const usePortalTeleport = () => {
   useEffect(() => {
     if (!portalState.activePortalEntity.value) return
 
-    logger.info('Resetting connection for portal teleport.')
     const activePortalEntity = portalState.activePortalEntity.value
 
     if (!activePortalEntity) return
@@ -227,6 +251,7 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   useLoadEngine()
   useLocationSpawnAvatar(spectate)
   usePortalTeleport()
+  useLinkTeleport()
 
   useEffect(() => {
     if (engineState.sceneLoaded.value && appState.value !== AppLoadingStates.SUCCESS) {

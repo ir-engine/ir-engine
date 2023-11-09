@@ -27,8 +27,8 @@ import assert from 'assert'
 import { Group, Layers, Mesh, Scene } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
-
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
@@ -39,7 +39,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
@@ -52,6 +52,7 @@ describe('loadGLTFModel', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
+    loadEmptyScene()
   })
 
   afterEach(() => {
@@ -60,7 +61,7 @@ describe('loadGLTFModel', () => {
 
   // TODO: - this needs to be broken down and more comprehensive
   it('loadGLTFModel', async () => {
-    const sceneEntity = getState(SceneState).sceneEntity
+    const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
 
     const mockComponentData = { src: '' } as any
     const CustomComponent = defineComponent({
@@ -77,7 +78,7 @@ describe('loadGLTFModel', () => {
     })
 
     const entity = createEntity()
-    addEntityNodeChild(entity, sceneEntity)
+    setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity })
     setComponent(entity, ModelComponent, {
       ...mockComponentData
     })

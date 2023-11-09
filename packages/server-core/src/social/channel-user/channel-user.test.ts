@@ -31,7 +31,8 @@ import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/n
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { InviteCode, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
 describe('channel-user service', () => {
@@ -54,8 +55,8 @@ describe('channel-user service', () => {
     const user = await app.service(userPath).create({
       name: 'user',
       isGuest: true,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
@@ -97,16 +98,16 @@ describe('channel-user service', () => {
     const user = await app.service(userPath).create({
       name: 'user',
       isGuest: true,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
     const user2 = await app.service(userPath).create({
       name: 'user2',
       isGuest: true,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
@@ -179,8 +180,8 @@ describe('channel-user service', () => {
     const user = await app.service(userPath).create({
       name: 'user',
       isGuest: true,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
