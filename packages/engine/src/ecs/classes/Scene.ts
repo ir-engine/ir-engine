@@ -31,6 +31,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
+import { Component } from '../functions/ComponentFunctions'
 import { Engine } from './Engine'
 import { UndefinedEntity } from './Entity'
 
@@ -68,6 +69,12 @@ export const SceneState = defineState({
       if (index === -1) entity.components[entity.components.length].set(component)
       else entity.components[index].set(component)
     }
+  },
+
+  entityHasComponent: <C extends Component>(entityUUID: EntityUUID, component: C) => {
+    const sceneState = getState(SceneState)
+    const entityJson = sceneState.scenes[sceneState.activeScene!].data.scene.entities[entityUUID]
+    return entityJson.components.some((componentJson) => componentJson.name === component.jsonID)
   },
 
   loadScene: (sceneID: SceneID, data: SceneDataType) => {

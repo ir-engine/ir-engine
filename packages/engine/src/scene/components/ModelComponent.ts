@@ -108,23 +108,24 @@ export const ModelComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    const sceneState = getState(SceneState)
     const entityUUID = getComponent(entity, UUIDComponent)
-    const entityJson = sceneState.scenes[sceneState.activeScene!].data.scene.entities[entityUUID]
-    !entityJson.components.find((componentJson) => componentJson.name === LoopAnimationComponent.jsonID) &&
+    if (!SceneState.entityHasComponent(entityUUID, LoopAnimationComponent)) {
       SceneState.addComponentsToEntity(entityUUID, [
         {
           name: LoopAnimationComponent.jsonID!,
           props: componentJsonDefaults(LoopAnimationComponent)
         }
       ])
-    !entityJson.components.find((componentJson) => componentJson.name === ShadowComponent.jsonID) &&
+    }
+
+    if (!SceneState.entityHasComponent(entityUUID, ShadowComponent)) {
       SceneState.addComponentsToEntity(entityUUID, [
         {
           name: ShadowComponent.jsonID!,
           props: componentJsonDefaults(ShadowComponent)
         }
       ])
+    }
 
     if (!json) return
     if (typeof json.src === 'string') component.src.set(json.src)
