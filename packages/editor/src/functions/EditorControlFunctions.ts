@@ -44,7 +44,11 @@ import {
   updateComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import {
+  EntityTreeComponent,
+  iterateEntityNode,
+  traverseEntityNode
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -58,6 +62,7 @@ import { dispatchAction, getMutableState, getState } from '@etherealengine/hyper
 
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import {
   computeLocalTransformMatrix,
@@ -566,7 +571,16 @@ const removeObject = (entities: Entity[]) => {
     const entity = removedParentNodes[i]
     const entityTreeComponent = getComponent(entity, EntityTreeComponent)
     if (!entityTreeComponent.parentEntity) continue
-    delete newSnapshot.data.scene.entities[getComponent(entity, UUIDComponent)]
+    const uuidsToDelete = iterateEntityNode(
+      entity,
+      (entity) => getComponent(entity, UUIDComponent),
+      (entity) => hasComponent(entity, SceneObjectComponent) && hasComponent(entity, UUIDComponent),
+      false,
+      false
+    )
+    for (const uuid of uuidsToDelete) {
+      delete newSnapshot.data.scene.entities[uuid]
+    }
   }
 
   newSnapshot.selectedEntities = []
