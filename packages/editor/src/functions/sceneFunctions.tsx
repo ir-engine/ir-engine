@@ -28,12 +28,12 @@ import i18n from 'i18next'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { SceneDataType, sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
 import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { SceneParams } from '@etherealengine/server-core/src/projects/scene/scene.class'
-import { EditorHistoryState } from '../services/EditorHistory'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
@@ -118,7 +118,7 @@ export const saveScene = async (
 ) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
-  const sceneData = getState(EditorHistoryState).history.at(-1)?.data.scene
+  const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].snapshots.at(-1)?.data.scene
 
   try {
     return await uploadToFeathersService(sceneUploadPath, thumbnailFile ? [thumbnailFile] : [], {
