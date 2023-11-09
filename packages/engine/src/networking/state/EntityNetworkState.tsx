@@ -80,7 +80,7 @@ export const EntityNetworkState = defineState({
         if (!sceneState.activeScene) {
           throw new Error('Trying to spawn an object with no active scene')
         }
-        const activeSceneID = sceneState.scenes[sceneState.activeScene].data.scene.root
+        const activeSceneID = SceneState.getCurrentScene()!.scene.root
         const activeSceneEntity = UUIDComponent.entitiesByUUID[activeSceneID]
         setComponent(entity, EntityTreeComponent, {
           parentEntity: activeSceneEntity

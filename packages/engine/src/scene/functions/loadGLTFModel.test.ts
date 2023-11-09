@@ -43,7 +43,7 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
-import { ModelComponent } from '../components/ModelComponent'
+import { ModelComponent, SceneWithEntity } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { parseGLTFModel } from './loadGLTFModel'
@@ -84,7 +84,7 @@ describe('loadGLTFModel', () => {
     })
     const entityName = 'entity name'
     const number = Math.random()
-    const mesh = new Scene()
+    const mesh = new Scene() as SceneWithEntity
     mesh.userData = {
       'xrengine.entity': entityName,
       // 'xrengine.spawn-point': '',
