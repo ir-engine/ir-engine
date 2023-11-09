@@ -70,8 +70,6 @@ import { Client } from 'minio'
 
 import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import config from '../../appconfig'
-import { getCacheDomain } from './getCacheDomain'
-import { getCachedURL } from './getCachedURL'
 import {
   PutObjectParams,
   SignedURLResponse,
@@ -249,8 +247,7 @@ export class S3Provider implements StorageProviderInterface {
    * @param key Key of object.
    */
   async getCachedObject(key: string): Promise<StorageObjectInterface> {
-    const cacheDomain = getCacheDomain(this, true)
-    const data = await fetch(getCachedURL(key, cacheDomain))
+    const data = await fetch(key)
     return { Body: Buffer.from(await data.arrayBuffer()), ContentType: (await data.headers.get('content-type')) || '' }
   }
 

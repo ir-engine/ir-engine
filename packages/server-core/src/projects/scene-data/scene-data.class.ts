@@ -164,7 +164,9 @@ export class SceneDataService
 
     const scene = await this.app.service(scenePath).create({
       id: (await v4()) as SceneID,
-      scenePath: `${projectRootPath}${newSceneName}.scene.json`,
+      scenePath: cacheDomain
+        ? getCachedURL(`${projectRootPath}${newSceneName}.scene.json`, cacheDomain)
+        : `${projectRootPath}${newSceneName}.scene.json`,
       thumbnailPath: getCachedURL(`${projectRootPath}${newSceneName}.thumbnail.ktx2`, cacheDomain),
       name: newSceneName,
       projectId: projectResult ? projectResult.data[0].id : undefined
@@ -210,7 +212,9 @@ export class SceneDataService
 
     const scene = (await this.app.service(scenePath).patch(id, {
       name: newSceneName,
-      scenePath: `${projectRoutePath}${newSceneName}.scene.json`,
+      scenePath: cacheDomain
+        ? getCachedURL(`${projectRoutePath}${newSceneName}.scene.json`, cacheDomain)
+        : `${projectRoutePath}${newSceneName}.scene.json`,
       thumbnailPath: getCachedURL(`${projectRoutePath}${newSceneName}.thumbnail.ktx2`, cacheDomain),
       projectId: projectResult ? projectResult.data[0].id : undefined
     })) as SceneType
@@ -270,14 +274,14 @@ export class SceneDataService
     let scene: SceneType
     if (sceneExists && sceneExists.data.length > 0) {
       scene = await this.app.service(scenePath).patch(sceneExists.data[0].id, {
-        scenePath: newSceneJsonPath,
+        scenePath: cacheDomain ? getCachedURL(newSceneJsonPath, cacheDomain) : newSceneJsonPath,
         thumbnailPath: getCachedURL(`${projectRoutePath}${name}.thumbnail.ktx2`, cacheDomain),
         name: name
       })
     } else {
       scene = await this.app.service(scenePath).create({
         id: (await v4()) as SceneID,
-        scenePath: newSceneJsonPath,
+        scenePath: cacheDomain ? getCachedURL(newSceneJsonPath, cacheDomain) : newSceneJsonPath,
         thumbnailPath: getCachedURL(`${projectRoutePath}${name}.thumbnail.ktx2`, cacheDomain),
         name: name,
         projectId: projectResult ? projectResult.data[0].id : undefined

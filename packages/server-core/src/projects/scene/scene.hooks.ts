@@ -53,6 +53,7 @@ const replaceProjectName = async (context: HookContext<SceneService>) => {
       throw new BadRequest(`Project ${context.params.query.projectName} not found`)
     }
     context.params.query.projectId = project.data[0].id
+    context.project = project.data[0]
     delete context.params.query.projectName
   }
 }
@@ -61,9 +62,9 @@ const deleteSceneResources = async (context: HookContext<SceneService>) => {
   const sceneName = context.params?.query?.name
   const storageProviderName = context.params?.query?.storageProvider
   const storageProvider = getStorageProvider(storageProviderName)
-  const scenePath = `scenes/${sceneName}/${sceneName}.scene.json`
-  const thumbnailPath = `scenes/${sceneName}/${sceneName}.thumbnail.ktx2`
-  const envMapPath = `scenes/${sceneName}/${sceneName}.envmap.ktx2`
+  const scenePath = `projects/${context.project.name}/${sceneName}.scene.json`
+  const thumbnailPath = `projects/${context.project.name}/${sceneName}.thumbnail.ktx2`
+  const envMapPath = `projects/${context.project.name}/${sceneName}.envmap.ktx2`
 
   await storageProvider.deleteResources([scenePath, thumbnailPath, envMapPath])
 
