@@ -81,6 +81,7 @@
     "@types/offscreencanvas": "2019.7.0",
     "@types/sinon": "10.0.13",
     "@types/three": "0.158.0",
+    "@types/webxr": "^0.5.7",
     "jsdom": "21.1.1",
     "jsdom-global": "3.0.2",
     "mocha": "10.2.0",

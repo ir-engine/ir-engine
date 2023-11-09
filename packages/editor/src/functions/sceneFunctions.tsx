@@ -30,6 +30,7 @@ import { uploadToFeathersService } from '@etherealengine/client-core/src/util/up
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
@@ -38,7 +39,6 @@ import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
 import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getState } from '@etherealengine/hyperflux'
-import { EditorHistoryState } from '../services/EditorHistory'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
@@ -119,7 +119,8 @@ export const saveScene = async (
 ) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
-  const sceneData = getState(EditorHistoryState).history.at(-1)?.data.scene
+  const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].snapshots.at(-1)?.data.scene
+
   try {
     if (!sceneData) throw new Error(i18n.t('editor:errors.sceneDataNotFound'))
     //remove gltf data from scene data

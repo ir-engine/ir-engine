@@ -72,6 +72,8 @@ const AppPage = ({ route }: { route: string }) => {
     notificationstate.snackbar.set(notistackRef.current)
   }, [notistackRef.current])
 
+  NotificationState.useNotifications()
+
   useEffect(() => {
     if (!isLoggedIn.value || projectComponents) return
     loadWebappInjection().then((result) => {

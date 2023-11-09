@@ -26,9 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { SnackbarProvider, VariantType } from 'notistack'
 
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getState } from '@etherealengine/hyperflux'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { defaultAction } from '../components/NotificationActions'
 
 const logger = multiLogger.child({ component: 'client-core:Notification' })
@@ -37,8 +40,21 @@ export const NotificationState = defineState({
   name: 'ee.client.NotificationState',
   initial: {
     snackbar: null as SnackbarProvider | null | undefined
+  },
+
+  useNotifications() {
+    useExecute(
+      () => {
+        for (const action of engineNotificationActionQueue()) {
+          NotificationService.dispatchNotify(action.text, { variant: action.variant })
+        }
+      },
+      { after: SimulationSystemGroup }
+    )
   }
 })
+
+const engineNotificationActionQueue = defineActionQueue(EngineActions.notification.matches)
 
 export type NotificationOptions = {
   variant: VariantType // 'default' | 'error' | 'success' | 'warning' | 'info'

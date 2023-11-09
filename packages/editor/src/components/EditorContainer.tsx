@@ -59,7 +59,6 @@ import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState } from '../services/EditorHelperState'
-import { EditorHistoryState } from '../services/EditorHistory'
 import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
@@ -242,7 +241,7 @@ const onCloseProject = () => {
   editorState.sceneModified.set(false)
   editorState.projectName.set(null)
   editorState.sceneName.set(null)
-  EditorHistoryState.unloadScene()
+  SceneState.unloadScene(getState(SceneState).activeScene!)
   RouterState.navigate('/studio')
 }
 
