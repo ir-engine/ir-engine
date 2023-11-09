@@ -55,7 +55,7 @@ import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
-import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
@@ -197,7 +197,7 @@ export const handleConnectingPeer = (
   spark: Spark,
   peerID: PeerID,
   user: UserType,
-  inviteCode?: string
+  inviteCode?: InviteCode
 ) => {
   const userId = user.id
 
@@ -237,7 +237,7 @@ export const handleConnectingPeer = (
 const getUserSpawnFromInvite = async (
   network: SocketWebRTCServerNetwork,
   user: UserType,
-  inviteCode: string,
+  inviteCode: InviteCode,
   iteration = 0
 ) => {
   if (inviteCode) {
