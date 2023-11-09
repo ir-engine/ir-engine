@@ -37,14 +37,14 @@ import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/f
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
 import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { useTranslation } from 'react-i18next'
-import { EditorHistoryState } from '../../../services/EditorHistory'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
@@ -68,7 +68,7 @@ const PlayModeTool = () => {
       getMutableState(EngineState).isEditing.set(true)
       graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.stop({ entity })))
 
-      EditorHistoryState.applyCurrentSnapshot()
+      SceneState.applyCurrentSnapshot(getState(SceneState).activeScene!)
       // stop all behave graph logic
     } else {
       const avatarDetails = authState.user.avatar.value
