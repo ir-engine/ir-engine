@@ -23,22 +23,151 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
-import { useEffect } from 'react'
+import { NodeCategory, SocketsList, makeEventNodeDefinition, sequence } from '@behave-graph/core'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { ComponentMap, getComponent, useOptionalComponent } from '../../../../../ecs/functions/ComponentFunctions'
-import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
+import {
+  Component,
+  ComponentMap,
+  Query,
+  defineQuery,
+  getComponent,
+  removeQuery,
+  useOptionalComponent
+} from '../../../../../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
+import {
+  SystemDefinitions,
+  SystemUUID,
+  defineSystem,
+  disableSystem,
+  startSystem
+} from '../../../../../ecs/functions/SystemFunctions'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
+import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 let systemCounter = 0
 
 type State = {
+  query: Query
   systemUUID: SystemUUID
 }
 const initialState = (): State => ({
+  query: undefined!,
   systemUUID: '' as SystemUUID
 })
 
+// very 3D specific.
+export const OnComponentState = makeEventNodeDefinition({
+  typeName: 'engine/onComponentState',
+  category: NodeCategory.Event,
+  label: 'On Component',
+  configuration: {
+    numInputs: {
+      valueType: 'number',
+      defaultValue: 1
+    }
+  },
+  in: (_, graphApi) => {
+    const sockets: SocketsList = []
+
+    sockets.push({ key: 'entity', valueType: 'entity' })
+
+    const componentName = (index) => {
+      const choices = Array.from(ComponentMap.keys()).sort()
+      return {
+        key: `componentName${index}`,
+        valueType: 'string',
+        choices: choices,
+        defaultValue: TransformComponent.name
+      }
+    }
+    const type = () => {
+      const choices = ['enter', 'exit']
+      return {
+        key: 'type',
+        valueType: 'string',
+        choices: choices,
+        defaultValue: choices[0]
+      }
+    }
+
+    const system = () => {
+      const systemDefinitions = Array.from(SystemDefinitions.keys()).map((key) => key as string)
+      const groups = systemDefinitions.filter((key) => key.includes('group')).sort()
+      const nonGroups = systemDefinitions.filter((key) => !key.includes('group')).sort()
+      const choices = [...groups, ...nonGroups]
+      return {
+        key: 'system',
+        valueType: 'string',
+        choices: choices,
+        defaultValue: InputSystemGroup
+      }
+    }
+    // unsure how to get all system groups
+
+    sockets.push({ ...type() }, { ...system() })
+
+    for (const index of sequence(1, (_.numInputs ?? OnComponentState.configuration?.numInputs.defaultValue) + 1)) {
+      sockets.push({ ...componentName(index) })
+    }
+    return sockets
+  },
+
+  out: {
+    flow: 'flow',
+    entity: 'entity'
+  },
+  initialState: initialState(),
+  init: ({ read, write, commit, graph, configuration }) => {
+    const type = read<string>('type')
+    const system = read<SystemUUID>('system')
+
+    const queryComponents: Component[] = []
+    let componentName = ''
+    for (const index of sequence(
+      1,
+      (configuration.numInputs ?? OnComponentState.configuration?.numInputs.defaultValue) + 1
+    )) {
+      const componentName2 = read<string>(`componentName${index}`)
+      const component = ComponentMap.get(componentName2)!
+      queryComponents.push(component)
+      componentName = componentName2
+    }
+    const query = defineQuery(queryComponents)[type]
+
+    const entity = read<Entity>('entity')
+    const name = entity ? getComponent(entity, NameComponent) : 'no entity'
+    const component = ComponentMap.get(componentName)!
+
+    const systemUUID = defineSystem({
+      uuid: 'behave-graph-onComponentState-' + systemCounter++,
+      execute: () => {
+        //        console.log("hello running ")
+        const c = entity ? useOptionalComponent(entity, component) : null
+        if (c) {
+          console.log('...hello2 got component...', entity, c, name)
+          //          write('entity', entity)
+          //          commit('flow')
+        }
+      }
+    })
+    console.log('hello on component starting ')
+    startSystem(systemUUID, { with: system })
+    const state: State = {
+      query,
+      systemUUID
+    }
+
+    return state
+  },
+  dispose: ({ state: { query, systemUUID }, graph: { getDependency } }) => {
+    disableSystem(systemUUID)
+    removeQuery(query)
+    return initialState()
+  }
+})
+
+/*
 export const OnComponentState = makeEventNodeDefinition({
   typeName: 'engine/onComponentState',
   category: NodeCategory.Event,
@@ -105,3 +234,4 @@ export const OnComponentState = makeEventNodeDefinition({
     return initialState()
   }
 })
+*/

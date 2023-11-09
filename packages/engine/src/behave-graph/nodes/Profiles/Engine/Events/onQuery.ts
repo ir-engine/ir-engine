@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, SocketsList, makeEventNodeDefinition, sequence } from '@behave-graph/core'
+import { Entity } from '../../../../../ecs/classes/Entity'
 import {
   Component,
   ComponentMap,
@@ -65,6 +66,8 @@ export const OnQuery = makeEventNodeDefinition({
   },
   in: (_, graphApi) => {
     const sockets: SocketsList = []
+
+    sockets.push({ key: 'entity', valueType: 'entity' })
 
     const componentName = (index) => {
       const choices = Array.from(ComponentMap.keys()).sort()
@@ -132,8 +135,16 @@ export const OnQuery = makeEventNodeDefinition({
         if (newQueryResult.length === 0) return
         if (prevQueryResult === newQueryResult) return
         const tempResult = newQueryResult
+        const entity = read<Entity>('entity')
         function delayedIteration(i) {
           if (i < tempResult.length) {
+            if (entity) {
+              if (tempResult[i] != entity) {
+                delayedIteration(i + 1)
+                return
+              }
+              console.log('hello found comparing against an entity', entity, tempResult[i])
+            }
             write('entity', tempResult[i])
             commit('flow', () => {
               delayedIteration(i + 1)
