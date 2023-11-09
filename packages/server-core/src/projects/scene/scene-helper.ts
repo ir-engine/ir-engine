@@ -47,7 +47,6 @@ export const getSceneData = async (
   app: Application,
   sceneId: SceneID,
   metadataOnly?: boolean,
-  internal = false,
   storageProviderName?: string
 ) => {
   const scene = await app.service(scenePath).get(sceneId)
@@ -62,7 +61,7 @@ export const getSceneData = async (
 
   const thumbnailUrl = thumbnailPath !== `` ? thumbnailPath : `/static/etherealengine_thumbnail.jpg`
 
-  const sceneResult = await storageProvider.getCachedObject(scene.scenePath)
+  const sceneResult = await storageProvider.getObject(scene.scenePath)
   const sceneData: SceneDataType = {
     id: sceneId,
     name: name,

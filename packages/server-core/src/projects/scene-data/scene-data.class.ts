@@ -62,13 +62,7 @@ export class SceneDataService
   }
 
   async get(id: Id, params?: SceneDataParams) {
-    return getSceneData(
-      this.app,
-      id as SceneID,
-      params?.query?.metadataOnly,
-      params?.query?.internal,
-      params?.query?.storageProvider
-    )
+    return getSceneData(this.app, id as SceneID, params?.query?.metadataOnly, params?.query?.storageProvider)
   }
 
   async find(params?: SceneDataParams) {
@@ -97,7 +91,6 @@ export class SceneDataService
         this.app,
         scene.id as SceneID,
         sceneParams?.query?.metadataOnly,
-        sceneParams?.query?.internal,
         sceneParams!.query!.storageProvider
       )
       scenes.push(sceneData)
@@ -164,9 +157,7 @@ export class SceneDataService
 
     const scene = await this.app.service(scenePath).create({
       id: (await v4()) as SceneID,
-      scenePath: cacheDomain
-        ? getCachedURL(`${projectRootPath}${newSceneName}.scene.json`, cacheDomain)
-        : `${projectRootPath}${newSceneName}.scene.json`,
+      scenePath: `${projectRootPath}${newSceneName}.scene.json`,
       thumbnailPath: getCachedURL(`${projectRootPath}${newSceneName}.thumbnail.ktx2`, cacheDomain),
       name: newSceneName,
       projectId: projectResult ? projectResult.data[0].id : undefined
@@ -212,9 +203,7 @@ export class SceneDataService
 
     const scene = (await this.app.service(scenePath).patch(id, {
       name: newSceneName,
-      scenePath: cacheDomain
-        ? getCachedURL(`${projectRoutePath}${newSceneName}.scene.json`, cacheDomain)
-        : `${projectRoutePath}${newSceneName}.scene.json`,
+      scenePath: `${projectRoutePath}${newSceneName}.scene.json`,
       thumbnailPath: getCachedURL(`${projectRoutePath}${newSceneName}.thumbnail.ktx2`, cacheDomain),
       projectId: projectResult ? projectResult.data[0].id : undefined
     })) as SceneType
@@ -274,14 +263,14 @@ export class SceneDataService
     let scene: SceneType
     if (sceneExists && sceneExists.data.length > 0) {
       scene = await this.app.service(scenePath).patch(sceneExists.data[0].id, {
-        scenePath: cacheDomain ? getCachedURL(newSceneJsonPath, cacheDomain) : newSceneJsonPath,
+        scenePath: newSceneJsonPath,
         thumbnailPath: getCachedURL(`${projectRoutePath}${name}.thumbnail.ktx2`, cacheDomain),
         name: name
       })
     } else {
       scene = await this.app.service(scenePath).create({
         id: (await v4()) as SceneID,
-        scenePath: cacheDomain ? getCachedURL(newSceneJsonPath, cacheDomain) : newSceneJsonPath,
+        scenePath: newSceneJsonPath,
         thumbnailPath: getCachedURL(`${projectRoutePath}${name}.thumbnail.ktx2`, cacheDomain),
         name: name,
         projectId: projectResult ? projectResult.data[0].id : undefined

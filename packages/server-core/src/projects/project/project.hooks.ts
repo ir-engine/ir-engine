@@ -489,9 +489,11 @@ const removeScenesFromProject = async (context: HookContext<ProjectService>) => 
     },
     paginate: false
   })) as any as SceneType[]
+
+  const project = await context.service._get(projectId)
   sceneItems.length &&
     sceneItems.forEach(async (scene) => {
-      await context.app.service(scenePath).remove(scene.id)
+      await context.app.service(scenePath).remove(scene.id, { query: { projectName: project.name } })
     })
 }
 
