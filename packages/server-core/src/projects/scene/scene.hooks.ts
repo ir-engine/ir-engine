@@ -86,13 +86,7 @@ const deleteSceneResources = async (context: HookContext<SceneService>) => {
 export default {
   before: {
     all: [() => schemaHooks.validateQuery(sceneQueryValidator), schemaHooks.resolveQuery(sceneQueryResolver)],
-    find: [
-      replaceProjectName,
-      discardQuery('metadataOnly'),
-      discardQuery('storageProvider'),
-      discardQuery('name'),
-      discardQuery('internal')
-    ],
+    find: [replaceProjectName, discardQuery('metadataOnly'), discardQuery('storageProvider'), discardQuery('internal')],
     get: [],
     create: [
       () => schemaHooks.validateData(sceneDataValidator),
