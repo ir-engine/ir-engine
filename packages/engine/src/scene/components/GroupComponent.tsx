@@ -82,6 +82,11 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.matrix = localTransform.matrix
   obj.matrixWorld = transform.matrix
   obj.matrixWorldInverse = transform.matrixInverse
+
+  Object.assign(obj, {
+    updateWorldMatrix: () => {}
+  })
+
   if (object !== Engine.instance.scene) Engine.instance.scene.add(object)
 
   // sometimes it's convenient to update the entity transform via the Object3D,
