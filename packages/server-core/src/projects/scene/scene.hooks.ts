@@ -80,7 +80,7 @@ const deleteSceneResources = async (context: HookContext<SceneService>) => {
     logger.info(sceneAssetFiles)
   }
   delete context.params.query?.storageProvider
-  delete context.params.query.projectName
+  delete context.params.query?.projectName
 }
 
 export default {
