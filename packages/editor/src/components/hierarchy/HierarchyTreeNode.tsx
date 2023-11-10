@@ -98,7 +98,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const nodeName = useComponent(node.entity, NameComponent).value
 
   const errors = node.entity ? useOptionalComponent(node.entity as Entity, ErrorComponent) : undefined
-  const firstError = errors?.keys[0]
+
   const sceneAssetLoading = useOptionalComponent(node.entity as Entity, SceneAssetPendingTagComponent)
 
   const onClickToggle = useCallback(
@@ -333,7 +333,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                 </div>
               )}
             </div>
-            {firstError && <NodeIssuesIcon node={[{ severity: 'error', message: firstError }]} />}
+            {errors?.value && <NodeIssuesIcon errors={errors.value} />}
             {sceneAssetLoading?.value && <CircularProgress className={styles.assetLoadingIndicator} />}
           </div>
         </div>
