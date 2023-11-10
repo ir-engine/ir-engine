@@ -54,7 +54,6 @@ import {
   RegisteredWidgets,
   WidgetAppActions,
   WidgetAppService,
-  WidgetAppServiceReceptorSystem,
   WidgetAppState
 } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import {
@@ -241,6 +240,5 @@ export const WidgetUISystem = defineSystem({
   uuid: 'ee.client.WidgetUISystem',
   insert: { before: TransformSystem },
   execute,
-  reactor,
-  preSystems: [WidgetAppServiceReceptorSystem]
+  reactor
 })

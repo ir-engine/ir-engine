@@ -122,7 +122,7 @@ const reactor = () => {
 
 export const IncomingNetworkSystem = defineSystem({
   uuid: 'ee.engine.IncomingNetworkSystem',
-  insert: { with: SimulationSystemGroup },
+  insert: { before: SimulationSystemGroup },
   execute,
   reactor
 })

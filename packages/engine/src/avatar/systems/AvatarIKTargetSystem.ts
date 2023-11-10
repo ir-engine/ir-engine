@@ -39,6 +39,7 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
+import { AvatarMovementSystem } from './AvatarMovementSystem'
 
 const ikTargetSpawnQueue = defineActionQueue(AvatarNetworkAction.spawnIKTarget.matches)
 
@@ -63,5 +64,6 @@ const execute = () => {
 
 export const AvatarIKTargetSystem = defineSystem({
   uuid: 'ee.engine.AvatarIKTargetSystem',
+  insert: { after: AvatarMovementSystem },
   execute
 })

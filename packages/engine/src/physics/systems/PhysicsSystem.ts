@@ -36,7 +36,6 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
-import { TriggerSystem } from '../../scene/systems/TriggerSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PhysicsSerialization } from '../PhysicsSerialization'
 import { Physics } from '../classes/Physics'
@@ -240,8 +239,7 @@ const reactor = () => {
 
 export const PhysicsSystem = defineSystem({
   uuid: 'ee.engine.PhysicsSystem',
-  insert: { after: SimulationSystemGroup },
+  insert: { with: SimulationSystemGroup },
   execute,
-  reactor,
-  subSystems: [TriggerSystem]
+  reactor
 })

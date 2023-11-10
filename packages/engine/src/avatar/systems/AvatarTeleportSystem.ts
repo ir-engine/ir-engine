@@ -58,6 +58,7 @@ import { ReferenceSpace, XRAction, XRControlsState, XRState } from '../../xr/XRS
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
+import { AvatarAnimationSystem } from './AvatarAnimationSystem'
 
 // Guideline parabola function
 const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity: Vector3): Vector3 => {
@@ -301,6 +302,7 @@ const reactor = () => {
 
 export const AvatarTeleportSystem = defineSystem({
   uuid: 'ee.engine.AvatarTeleportSystem',
+  insert: { after: AvatarAnimationSystem },
   execute,
   reactor
 })

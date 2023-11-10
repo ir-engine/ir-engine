@@ -23,22 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { WidgetAppServiceReceptorSystem } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { ClientNetworkingSystem } from '../networking/ClientNetworkingSystem'
+import { DataChannelSystem } from '../networking/DataChannelSystem'
 import { AvatarUISystem } from '../systems/AvatarUISystem'
 import { LoadingUISystem } from '../systems/LoadingUISystem'
 import { WarningUISystem } from '../systems/WarningUISystem'
 import { WidgetUISystem } from '../systems/WidgetUISystem'
+import { AvatarUIStateSystem } from '../systems/state/AvatarUIState'
 import { FilteredUsersSystem } from '../transports/FilteredUsersSystem'
 import { UserUISystem } from '../user/UserUISystem'
 
-const systems = [
-  LoadingUISystem,
+export {
+  AvatarUIStateSystem,
   AvatarUISystem,
-  WidgetUISystem,
-  UserUISystem,
+  ClientNetworkingSystem,
+  DataChannelSystem,
   FilteredUsersSystem,
+  LoadingUISystem,
+  UserUISystem,
   WarningUISystem,
-  ClientNetworkingSystem
-]
-
-export const useDefaultLocationSystems = (online: boolean) => {}
+  WidgetAppServiceReceptorSystem,
+  WidgetUISystem
+}

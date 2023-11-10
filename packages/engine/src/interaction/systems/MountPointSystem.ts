@@ -48,6 +48,7 @@ import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { SceneObjectSystem } from '../../scene/SceneModule'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -167,5 +168,6 @@ const execute = () => {
 
 export const MountPointSystem = defineSystem({
   uuid: 'ee.engine.MountPointSystem',
+  insert: { with: SceneObjectSystem },
   execute
 })

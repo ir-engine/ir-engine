@@ -226,7 +226,7 @@ const reactor = () => {
 
 export const XRUISystem = defineSystem({
   uuid: 'ee.engine.XRUISystem',
-  insert: { before: TransformSystem },
+  insert: { with: TransformSystem },
   execute,
   reactor
 })

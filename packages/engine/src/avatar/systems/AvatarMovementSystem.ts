@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Engine } from '../../ecs/classes/Engine'
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { applyGamepadInput } from '.././functions/moveAvatar'
 
@@ -33,5 +34,6 @@ const execute = () => {
 
 export const AvatarMovementSystem = defineSystem({
   uuid: 'ee.engine.AvatarMovementSystem',
+  insert: { with: SimulationSystemGroup },
   execute
 })

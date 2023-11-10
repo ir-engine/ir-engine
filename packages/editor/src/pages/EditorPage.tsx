@@ -27,45 +27,23 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
-import { useClientSystems } from '@etherealengine/client-core/src/world/useClientSystems'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import {
-  PresentationSystemGroup,
-  SimulationSystemGroup
-} from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { RenderInfoSystem } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import EditorContainer from '../components/EditorContainer'
-import { EditorInstanceNetworkingSystem } from '../components/realtime/EditorInstanceNetworkingSystem'
 import { EditorState } from '../services/EditorServices'
-import { EditorCameraSystem } from '../systems/EditorCameraSystem'
-import { EditorControlSystem } from '../systems/EditorControlSystem'
-import { EditorFlyControlSystem } from '../systems/EditorFlyControlSystem'
-import { GizmoSystem } from '../systems/GizmoSystem'
-import { ModelHandlingSystem } from '../systems/ModelHandlingSystem'
-
-import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
-import { UploadRequestSystem } from '../systems/UploadRequestSystem'
-
-// ensure all our systems are imported, #9077
-const EditorSystemsReferenced = [useDefaultLocationSystems]
 
 const useEditorSystems = () => {
-  useSystems([EditorFlyControlSystem, EditorControlSystem, EditorCameraSystem, GizmoSystem], {
-    before: PresentationSystemGroup
-  })
-
-  useSystems([ModelHandlingSystem, UploadRequestSystem], { with: SimulationSystemGroup })
-
-  useSystems([EditorInstanceNetworkingSystem, ClientNetworkingSystem, RenderInfoSystem], {
-    after: PresentationSystemGroup
-  })
+  // useSystems([EditorFlyControlSystem, EditorControlSystem, EditorCameraSystem, GizmoSystem], {
+  //   before: PresentationSystemGroup
+  // })
+  // useSystems([ModelHandlingSystem, UploadRequestSystem], { with: SimulationSystemGroup })
+  // // useSystems([EditorInstanceNetworkingSystem, ClientNetworkingSystem, RenderInfoSystem], {
+  //   after: PresentationSystemGroup
+  // })
 }
 
 export const useStudioEditor = () => {
@@ -85,7 +63,6 @@ export const useStudioEditor = () => {
     })
   }, [])
 
-  useClientSystems()
   useEditorSystems()
 
   return engineReady

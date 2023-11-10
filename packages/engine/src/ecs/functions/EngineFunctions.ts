@@ -29,8 +29,6 @@ import logger from '@etherealengine/engine/src/common/functions/logger'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { IncomingActionSystem } from '../../networking/systems/IncomingActionSystem'
-import { OutgoingActionSystem } from '../../networking/systems/OutgoingActionSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { executeFixedPipeline } from './FixedPipelineSystem'
@@ -50,9 +48,7 @@ export const InputSystemGroup = defineSystem({
 /** Run inside of fixed pipeline */
 export const SimulationSystemGroup = defineSystem({
   uuid: 'ee.engine.simulation-group',
-  insert: {},
-  preSystems: [IncomingActionSystem],
-  postSystems: [OutgoingActionSystem]
+  insert: {}
 })
 
 export const AnimationSystemGroup = defineSystem({

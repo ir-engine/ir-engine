@@ -50,6 +50,7 @@ import { PortalComponent, PortalEffects, PortalState } from '../components/Porta
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
+import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 /** @todo namespace this somehow */
 export const HyperspacePortalEffect = 'Hyperspace'
@@ -171,6 +172,7 @@ const reactor = () => {
 
 export const HyperspacePortalSystem = defineSystem({
   uuid: 'ee.engine.HyperspacePortalSystem',
+  insert: { with: SceneLoadingSystem },
   execute,
   reactor
 })

@@ -67,6 +67,7 @@ import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '.././components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from '.././components/AvatarEffectComponent'
+import { AvatarAnimationSystem } from './AvatarAnimationSystem'
 
 const lightScale = (y, r) => {
   return Math.min(1, Math.max(1e-3, y / r))
@@ -338,6 +339,7 @@ const reactor = () => {
 
 export const AvatarLoadingSystem = defineSystem({
   uuid: 'ee.engine.AvatarLoadingSystem',
+  insert: { after: AvatarAnimationSystem },
   execute,
   reactor
 })

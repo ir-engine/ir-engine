@@ -55,7 +55,6 @@ import {
   useOptionalComponent,
   useQuery
 } from '../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
@@ -63,6 +62,7 @@ import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { ReferenceSpaceTransformSystem } from '../transform/TransformModule'
 import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
@@ -368,7 +368,7 @@ const reactor = () => {
 
 export const XRAnchorSystem = defineSystem({
   uuid: 'ee.engine.XRAnchorSystem',
-  insert: { with: AnimationSystemGroup },
+  insert: { after: ReferenceSpaceTransformSystem },
   execute,
   reactor
 })

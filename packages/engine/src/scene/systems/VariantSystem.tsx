@@ -32,6 +32,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ModelComponent } from '../components/ModelComponent'
 import { VariantComponent } from '../components/VariantComponent'
 import { setModelVariant } from '../functions/loaders/VariantFunctions'
+import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const updateFrequency = 0.1
 let lastUpdate = 0
@@ -50,5 +51,6 @@ function execute() {
 
 export const VariantSystem = defineSystem({
   uuid: 'ee.engine.scene.VariantSystem',
+  insert: { with: SceneLoadingSystem },
   execute
 })

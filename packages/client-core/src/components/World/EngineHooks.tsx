@@ -68,7 +68,6 @@ import { ComputedTransformComponent } from '@etherealengine/engine/src/transform
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { useClientSystems } from '../../world/useClientSystems'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
@@ -239,7 +238,6 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
     initClient()
   }, [])
 
-  useClientSystems()
   useLocationSpawnAvatar(spectate)
   usePortalTeleport()
   useLinkTeleport()

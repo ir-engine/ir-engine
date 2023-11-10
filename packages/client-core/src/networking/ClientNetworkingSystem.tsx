@@ -46,7 +46,6 @@ import {
   onTransportCreated,
   receiveConsumerHandler
 } from '../transports/SocketWebRTCClientFunctions'
-import { DataChannelSystem } from './DataChannelSystem'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
 const consumerCreatedQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerCreated.matches)
@@ -102,6 +101,5 @@ export const ClientNetworkingSystem = defineSystem({
   uuid: 'ee.client.ClientNetworkingSystem',
   insert: { after: PresentationSystemGroup },
   execute,
-  reactor,
-  subSystems: [DataChannelSystem]
+  reactor
 })

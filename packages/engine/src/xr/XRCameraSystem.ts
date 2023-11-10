@@ -36,6 +36,7 @@ import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 
 const cameraLPos = new Vector3()
 const cameraRPos = new Vector3()
@@ -272,5 +273,6 @@ const execute = () => {
 
 export const XRCameraSystem = defineSystem({
   uuid: 'ee.engine.XRCameraSystem',
+  insert: { with: XRSystem },
   execute
 })

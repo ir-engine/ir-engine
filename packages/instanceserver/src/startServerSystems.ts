@@ -33,26 +33,32 @@ import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/sys
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
 
+import '@etherealengine/engine/src/ecs/ECSModule'
+import { MediasoupSystemGroup } from '@etherealengine/engine/src/networking/systems/MediasoupSystemGroup'
 import { ECSRecordingSystem } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+import { MediasoupServerSystem } from './MediasoupServerSystem'
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
 
-export const startMediaServerSystems = () => {
-  ;[EntityNetworkStateSystem, ServerHostNetworkSystem, ECSRecordingSystem]
-}
+const systems = [
+  EntityNetworkStateSystem,
+  ServerHostNetworkSystem,
+  ECSRecordingSystem,
+  IncomingNetworkSystem,
+  EntityNetworkStateSystem,
+  ServerHostNetworkSystem,
+  GrabbableSystem,
+  AvatarSimulationSystemGroup,
+  MotionCaptureSystem,
+  PhysicsSystem,
+  OutgoingNetworkSystem,
+  InteractiveSystem,
+  SceneSystemUpdateGroup,
+  SceneSystemLoadGroup,
+  ECSRecordingSystem,
+  MediasoupSystemGroup,
+  MediasoupServerSystem
+]
 
-export const startWorldServerSystems = () => {
-  ;[
-    IncomingNetworkSystem,
-    EntityNetworkStateSystem,
-    ServerHostNetworkSystem,
-    GrabbableSystem,
-    AvatarSimulationSystemGroup,
-    MotionCaptureSystem,
-    PhysicsSystem,
-    OutgoingNetworkSystem,
-    InteractiveSystem,
-    SceneSystemUpdateGroup,
-    SceneSystemLoadGroup,
-    ECSRecordingSystem
-  ]
-}
+export const startMediaServerSystems = () => {}
+
+export const startWorldServerSystems = () => {}

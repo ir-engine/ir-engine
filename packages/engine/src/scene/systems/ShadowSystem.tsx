@@ -62,6 +62,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
@@ -400,6 +401,7 @@ const reactor = () => {
 
 export const ShadowSystem = defineSystem({
   uuid: 'ee.engine.ShadowSystem',
+  insert: { with: AnimationSystemGroup },
   execute,
   reactor
 })

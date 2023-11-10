@@ -49,6 +49,13 @@ export type InsertSystem = {
   after?: SystemUUID
 }
 
+export interface SystemArgs {
+  uuid: string
+  insert: InsertSystem
+  execute?: () => void
+  reactor?: FC
+}
+
 export interface System {
   uuid: SystemUUID
   reactor?: FC
@@ -78,7 +85,7 @@ export function executeSystem(systemUUID: SystemUUID) {
     executeSystem(system.preSystems[i])
   }
 
-  if (!Engine.instance.activeSystemReactors.has(system.uuid) && system.reactor) {
+  if (system.reactor && !Engine.instance.activeSystemReactors.has(system.uuid)) {
     const reactor = startReactor(system.reactor)
     Engine.instance.activeSystemReactors.set(system.uuid, reactor)
   }
@@ -128,7 +135,7 @@ export function executeSystem(systemUUID: SystemUUID) {
  * @param systemConfig
  * @returns
  */
-export function defineSystem(systemConfig: Partial<Omit<System, 'enabled' | 'uuid'>> & { uuid: string }) {
+export function defineSystem(systemConfig: SystemArgs) {
   if (SystemDefinitions.has(systemConfig.uuid as SystemUUID)) {
     throw new Error(`System ${systemConfig.uuid} already exists.`)
   }
@@ -200,6 +207,23 @@ export const destroySystem = (systemUUID: SystemUUID) => {
 
   for (const preSystem of system.preSystems) {
     destroySystem(preSystem)
+  }
+
+  const insert = system.insert
+
+  if (insert?.before) {
+    const referenceSystem = SystemDefinitions.get(insert.before)!
+    referenceSystem.preSystems.splice(referenceSystem.preSystems.indexOf(system.uuid), 1)
+  }
+
+  if (insert?.with) {
+    const referenceSystem = SystemDefinitions.get(insert.with)!
+    referenceSystem.subSystems.splice(referenceSystem.subSystems.indexOf(system.uuid), 1)
+  }
+
+  if (insert?.after) {
+    const referenceSystem = SystemDefinitions.get(insert.after)!
+    referenceSystem.postSystems.splice(referenceSystem.postSystems.indexOf(system.uuid), 1)
   }
 
   SystemDefinitions.delete(systemUUID)

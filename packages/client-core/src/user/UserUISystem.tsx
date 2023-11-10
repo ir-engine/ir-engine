@@ -112,6 +112,5 @@ const reactor = () => {
 export const UserUISystem = defineSystem({
   uuid: 'ee.client.UserUISystem',
   insert: { after: PresentationSystemGroup },
-  execute: () => {},
   reactor
 })

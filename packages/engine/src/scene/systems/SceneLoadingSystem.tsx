@@ -58,6 +58,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { QueryReactor, defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
@@ -567,6 +568,7 @@ const execute = () => {
 
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })

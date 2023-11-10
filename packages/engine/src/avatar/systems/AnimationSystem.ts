@@ -28,10 +28,10 @@ import { getState } from '@etherealengine/hyperflux'
 import { VRM } from '@pixiv/three-vrm'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, getOptionalMutableComponent } from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { TransformSystem } from '../../transform/TransformModule'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
@@ -70,6 +70,6 @@ const execute = () => {
 
 export const AnimationSystem = defineSystem({
   uuid: 'ee.engine.AnimationSystem',
-  insert: { with: AnimationSystemGroup },
+  insert: { before: TransformSystem },
   execute
 })

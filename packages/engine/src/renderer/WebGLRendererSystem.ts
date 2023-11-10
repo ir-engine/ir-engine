@@ -52,7 +52,6 @@ import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { EffectMapType, defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
 import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
-import { RenderInfoSystem } from './RenderInfoSystem'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 import { updateShadowMap } from './functions/RenderSettingsFunction'
@@ -367,6 +366,5 @@ export const WebGLRendererSystem = defineSystem({
   uuid: 'ee.engine.WebGLRendererSystem',
   insert: { with: PresentationSystemGroup },
   execute,
-  reactor: isClient ? reactor : undefined,
-  postSystems: [RenderInfoSystem]
+  reactor: isClient ? reactor : undefined
 })

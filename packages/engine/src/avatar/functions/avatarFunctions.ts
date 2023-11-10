@@ -71,7 +71,6 @@ import avatarBoneMatching, {
   getAllBones,
   recursiveHipsLookup
 } from '../AvatarBoneMatching'
-import { defaultBonesData } from '../DefaultSkeletonBones'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -262,15 +261,6 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   box.expandByObject(model).getSize(tempVec3ForHeight)
   box.getCenter(tempVec3ForCenter)
   resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
-}
-
-/**
- * Creates an empty skinned mesh with the default skeleton attached.
- * The skeleton created is compatible with default animation tracks
- * @returns SkinnedMesh
- */
-export function makeDefaultSkinnedMesh() {
-  return makeSkinnedMeshFromBoneData(defaultBonesData)
 }
 
 /**

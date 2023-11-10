@@ -44,6 +44,7 @@ import {
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { CameraActions } from '../CameraState'
+import { CameraSystem } from './CameraSystem'
 
 const fadeToBlackQueue = defineActionQueue(CameraActions.fadeToBlack.matches)
 
@@ -108,5 +109,6 @@ const execute = () => {
 
 export const CameraFadeBlackEffectSystem = defineSystem({
   uuid: 'ee.engine.CameraFadeBlackEffectSystem',
+  insert: { with: CameraSystem },
   execute
 })

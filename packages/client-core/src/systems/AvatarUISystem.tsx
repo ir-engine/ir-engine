@@ -63,7 +63,6 @@ import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsSt
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
-import { AvatarUIStateSystem } from './state/AvatarUIState'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { AvatarUIContextMenuState } from './ui/UserMenuView'
 
@@ -303,6 +302,5 @@ export const AvatarUISystem = defineSystem({
   uuid: 'ee.client.AvatarUISystem',
   insert: { before: TransformSystem },
   execute,
-  reactor,
-  subSystems: [AvatarUIStateSystem]
+  reactor
 })

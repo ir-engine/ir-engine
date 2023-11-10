@@ -30,12 +30,12 @@ import { MeshBVHVisualizer } from 'three-mesh-bvh'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RaycastArgs } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RaycastHit } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
+import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import { GroupQueryReactor, GroupReactorProps } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -169,7 +169,7 @@ const reactor = () => {
 
 export const DebugRendererSystem = defineSystem({
   uuid: 'ee.engine.DebugRendererSystem',
-  insert: { before: PresentationSystemGroup },
+  insert: { before: WebGLRendererSystem },
   execute,
   reactor
 })

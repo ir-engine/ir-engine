@@ -42,6 +42,9 @@ import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { setObjectLayers } from './scene/functions/setObjectLayers'
 import { TransformComponent } from './transform/components/TransformComponent'
 
+// core module
+import '@etherealengine/engine/src/ecs/ECSModule'
+
 /**
  * Creates a new instance of the engine and engine renderer. This initializes all properties and state for the engine,
  * adds action receptors and creates a new world.

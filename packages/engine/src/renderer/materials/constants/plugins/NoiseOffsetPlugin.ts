@@ -31,6 +31,7 @@ import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../../../ecs/classes/EngineState'
 import { defineSystem } from '../../../../ecs/functions/SystemFunctions'
+import { SceneLoadingSystem } from '../../../../scene/systems/SceneLoadingSystem'
 import { MaterialPluginType } from '../../components/MaterialPluginComponent'
 import { SourceType } from '../../components/MaterialSource'
 import { MaterialLibraryState } from '../../MaterialLibrary'
@@ -175,6 +176,7 @@ const reactor = () => {
 
 export const NoiseOffsetSystem = defineSystem({
   uuid: 'ee.engine.material.NoiseOffsetSystem',
+  insert: { with: SceneLoadingSystem },
   execute,
   reactor
 })

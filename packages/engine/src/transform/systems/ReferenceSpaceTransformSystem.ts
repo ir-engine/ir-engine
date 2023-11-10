@@ -90,6 +90,6 @@ const execute = () => {
 
 export const ReferenceSpaceTransformSystem = defineSystem({
   uuid: 'ee.engine.ReferenceSpaceTransformSystem',
-  insert: { with: AnimationSystemGroup },
+  insert: { before: AnimationSystemGroup },
   execute
 })

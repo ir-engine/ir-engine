@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { XRAction } from './XRState'
@@ -60,5 +61,6 @@ const execute = () => {
 
 export const XRHapticsSystem = defineSystem({
   uuid: 'ee.engine.XRHapticsSystem',
+  insert: { after: PresentationSystemGroup },
   execute
 })

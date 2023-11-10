@@ -62,7 +62,6 @@ import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent, coneDebugHelpers, debugRays } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { CameraFadeBlackEffectSystem } from './CameraFadeBlackEffectSystem'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
@@ -351,6 +350,5 @@ export const CameraSystem = defineSystem({
   uuid: 'ee.engine.CameraSystem',
   insert: { with: AnimationSystemGroup },
   execute,
-  reactor,
-  subSystems: [CameraFadeBlackEffectSystem]
+  reactor
 })

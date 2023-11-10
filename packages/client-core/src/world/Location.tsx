@@ -31,10 +31,11 @@ import { LoadingCircle } from '@etherealengine/client-core/src/components/Loadin
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
 import { useLoadLocation, useLoadScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
 import { AppLoadingState } from '@etherealengine/engine/src/common/AppLoadingService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import '@etherealengine/client-core/src/world/ClientModule'
+import '@etherealengine/engine/src/EngineModule'
 import { useLoadEngineWithScene, useOfflineNetwork, useOnlineNetwork } from '../components/World/EngineHooks'
 
 type Props = {
@@ -60,7 +61,6 @@ const LocationPage = ({ offline }: Props) => {
   AuthService.useAPIListeners()
 
   useLoadEngineWithScene()
-  useDefaultLocationSystems(!offline)
 
   return (
     <>
