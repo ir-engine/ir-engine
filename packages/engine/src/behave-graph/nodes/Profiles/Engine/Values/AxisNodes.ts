@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Choices, NodeCategory, makeFunctionNodeDefinition } from '@behave-graph/core'
-import { defineQuery, getComponent, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
+import { Assert, Choices, NodeCategory, makeFunctionNodeDefinition } from '@behave-graph/core'
+import { Entity } from '../../../../../ecs/classes/Entity'
+import { getComponent, hasComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
 import { StandardGamepadAxes, XRStandardGamepadAxes } from '../../../../../input/state/ButtonState'
 
@@ -51,7 +52,8 @@ export const getAxis = makeFunctionNodeDefinition({
         defaultValue: choices[0].value
       }
     },
-    deadzone: 'float'
+    deadzone: 'float',
+    entity: 'entity'
   },
   out: {
     value: 'float'
@@ -59,16 +61,12 @@ export const getAxis = makeFunctionNodeDefinition({
   exec: ({ read, write, graph }) => {
     const axisKey = read<number>('axis')
     const deadzone = read<number>('deadzone')
-
-    const query = defineQuery([InputSourceComponent])
-    for (const eid of query()) {
-      const inputSource = getComponent(eid, InputSourceComponent)
-      if (!inputSource.source.gamepad) continue
-      let gamepadAxesValue = inputSource.source.gamepad?.axes[axisKey]
-      if (Math.abs(gamepadAxesValue) < deadzone) gamepadAxesValue = 0
-      write('value', gamepadAxesValue)
-    }
-
-    removeQuery(query)
+    const entity = Number(read('entity')) as Entity
+    Assert.mustBeTrue(hasComponent(entity, InputSourceComponent), 'ERROR: entity does not have Input Source component')
+    const inputSource = getComponent(entity, InputSourceComponent)
+    Assert.mustBeDefined(inputSource.source.gamepad, 'ERROR: InputSourceComponent does not have gamepad')
+    let gamepadAxesValue = inputSource.source.gamepad?.axes[axisKey]
+    if (Math.abs(gamepadAxesValue!) < deadzone) gamepadAxesValue = 0
+    write('value', gamepadAxesValue)
   }
 })

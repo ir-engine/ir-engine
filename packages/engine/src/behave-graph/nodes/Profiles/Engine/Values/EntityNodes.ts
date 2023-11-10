@@ -185,7 +185,7 @@ export const deleteEntity = makeFlowNodeDefinition({
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const entity: Entity = read('entity')
+    const entity: Entity = Number(read('entity')) as Entity
     removeEntity(entity)
     commit('flow')
   }

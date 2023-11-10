@@ -68,6 +68,7 @@ export const OnAxis = makeEventNodeDefinition({
   },
   out: {
     flow: 'flow',
+    entity: 'entity',
     value: 'float'
   },
   initialState: initialState(),
@@ -84,6 +85,7 @@ export const OnAxis = makeEventNodeDefinition({
           if (!inputSource.source.gamepad) continue
           let gamepadAxesValue = inputSource.source.gamepad?.axes[axisKey]
           if (Math.abs(gamepadAxesValue) < deadzone) gamepadAxesValue = 0
+          write('value', eid)
           write('value', gamepadAxesValue)
           commit('flow')
         }
