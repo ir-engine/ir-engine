@@ -28,6 +28,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { VRM } from '@pixiv/three-vrm'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, getOptionalMutableComponent } from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
@@ -69,5 +70,6 @@ const execute = () => {
 
 export const AnimationSystem = defineSystem({
   uuid: 'ee.engine.AnimationSystem',
+  insert: { with: AnimationSystemGroup },
   execute
 })

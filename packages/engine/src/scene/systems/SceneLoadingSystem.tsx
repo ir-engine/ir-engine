@@ -60,7 +60,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { QueryReactor, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
+import { QueryReactor, defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { SceneID, scenePath } from '../../schemas/projects/scene.schema'
@@ -398,13 +398,10 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   }, [])
 
   useEffect(() => {
-    for (const system of systemsLoaded.value) {
-      startSystem(system.systemUUID, { [system.insertOrder]: system.insertUUID })
-    }
     ready.set(true)
     return () => {
       for (const system of systemsLoaded.value) {
-        disableSystems([system.systemUUID])
+        destroySystem(system.systemUUID)
       }
     }
   }, [systemsLoaded.length])

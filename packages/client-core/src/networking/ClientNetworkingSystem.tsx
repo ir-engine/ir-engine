@@ -29,6 +29,7 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { State, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { NetworkActions, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { MediasoupMediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
@@ -99,6 +100,7 @@ const reactor = () => {
 
 export const ClientNetworkingSystem = defineSystem({
   uuid: 'ee.client.ClientNetworkingSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor,
   subSystems: [DataChannelSystem]

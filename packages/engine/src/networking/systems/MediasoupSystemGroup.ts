@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MediasoupDataProducerConsumerStateSystem } from './MediasoupDataProducerConsumerState'
 import { MediasoupMediaProducerConsumerStateSystem } from './MediasoupMediaProducerConsumerState'
@@ -30,6 +31,7 @@ import { MediasoupTransportStateSystem } from './MediasoupTransportState'
 
 export const MediasoupSystemGroup = defineSystem({
   uuid: 'ee.engine.network.MediasoupSystemGroup',
+  insert: { after: PresentationSystemGroup },
   subSystems: [
     MediasoupTransportStateSystem,
     MediasoupMediaProducerConsumerStateSystem,

@@ -41,6 +41,7 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { ObjectDirection } from '../../common/constants/Axis3D'
+import { isClient } from '../../common/functions/getEnvironment'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineQuery,
@@ -318,6 +319,7 @@ const execute = () => {
 }
 
 const reactor = () => {
+  if (!isClient) return null
   useEffect(() => {
     AssetLoader.loadAsync('/static/itemLight.png').then((texture) => {
       texture.colorSpace = SRGBColorSpace

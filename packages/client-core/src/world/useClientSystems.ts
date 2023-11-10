@@ -35,13 +35,6 @@ import { BehaveGraphSystem } from '@etherealengine/engine/src/behave-graph/syste
 import { CameraInputSystem } from '@etherealengine/engine/src/camera/systems/CameraInputSystem'
 import { CameraSystem } from '@etherealengine/engine/src/camera/systems/CameraSystem'
 import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/DebugRendererSystem'
-import {
-  AnimationSystemGroup,
-  InputSystemGroup,
-  PresentationSystemGroup,
-  SimulationSystemGroup
-} from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { ButtonCleanupSystem } from '@etherealengine/engine/src/input/systems/ButtonCleanupSystem'
 import { ClientInputSystem } from '@etherealengine/engine/src/input/systems/ClientInputSystem'
 import { GrabbableSystem } from '@etherealengine/engine/src/interaction/systems/GrabbableSystem'
@@ -58,65 +51,41 @@ import { WebGLRendererSystem } from '@etherealengine/engine/src/renderer/WebGLRe
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
 import { PortalSystem } from '@etherealengine/engine/src/scene/systems/PortalSystem'
 import { ReferenceSpaceTransformSystem } from '@etherealengine/engine/src/transform/systems/ReferenceSpaceTransformSystem'
-import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { XRAnchorSystem } from '@etherealengine/engine/src/xr/XRAnchorSystem'
 import { XRSystem } from '@etherealengine/engine/src/xr/XRSystem'
 import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
 
-export const useClientSystems = () => {
-  /** Input */
-  useSystems([XRSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem, BehaveGraphSystem], {
-    with: InputSystemGroup
-  })
+const systems = [
+  XRSystem,
+  ClientInputSystem,
+  AvatarInputSystemGroup,
+  CameraInputSystem,
+  BehaveGraphSystem,
+  IncomingNetworkSystem,
+  EntityNetworkStateSystem,
+  GrabbableSystem,
+  AvatarSimulationSystemGroup,
+  PhysicsSystem,
+  OutgoingNetworkSystem,
+  ReferenceSpaceTransformSystem,
+  XRAnchorSystem,
+  AnimationSystem,
+  MotionCaptureSystem,
+  CameraSystem,
+  AvatarAnimationSystemGroup,
+  XRUISystem,
+  InteractiveSystem,
+  MediaControlSystem,
+  MediaSystem,
+  DebugRendererSystem,
+  SceneSystemUpdateGroup,
+  WebGLRendererSystem,
+  ButtonCleanupSystem,
+  PortalSystem,
+  PositionalAudioSystem,
+  SceneSystemLoadGroup,
+  ECSRecordingSystem,
+  MediasoupSystemGroup
+]
 
-  /** Fixed */
-  useSystems([IncomingNetworkSystem, EntityNetworkStateSystem, GrabbableSystem, AvatarSimulationSystemGroup], {
-    with: SimulationSystemGroup
-  })
-
-  /** Physics */
-  useSystems([PhysicsSystem, OutgoingNetworkSystem], { after: SimulationSystemGroup })
-
-  /** Avatar / Animation */
-  useSystems(
-    [
-      ReferenceSpaceTransformSystem,
-      XRAnchorSystem,
-      AnimationSystem,
-      MotionCaptureSystem,
-      CameraSystem,
-      AvatarAnimationSystemGroup
-    ],
-    {
-      with: AnimationSystemGroup
-    }
-  )
-
-  /** Post Animation / Pre Transform */
-  useSystems([XRUISystem, InteractiveSystem, MediaControlSystem], { before: TransformSystem })
-
-  /** Post Transform / Pre Render */
-  useSystems([MediaSystem, DebugRendererSystem, SceneSystemUpdateGroup], {
-    before: PresentationSystemGroup
-  })
-
-  /** Render */
-  useSystems([WebGLRendererSystem], {
-    with: PresentationSystemGroup
-  })
-
-  /** Post Render */
-  useSystems(
-    [
-      ButtonCleanupSystem,
-      PortalSystem,
-      PositionalAudioSystem,
-      SceneSystemLoadGroup,
-      ECSRecordingSystem,
-      MediasoupSystemGroup
-    ],
-    {
-      after: PresentationSystemGroup
-    }
-  )
-}
+export const useClientSystems = () => {}

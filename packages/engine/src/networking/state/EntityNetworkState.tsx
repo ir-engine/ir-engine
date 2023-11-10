@@ -33,6 +33,7 @@ import { defineActionQueue, defineState, dispatchAction, none, receiveActions } 
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getMutableComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -155,5 +156,6 @@ const execute = () => {
 
 export const EntityNetworkStateSystem = defineSystem({
   uuid: 'ee.engine.avatar.EntityNetworkStateSystem',
+  insert: { with: SimulationSystemGroup },
   execute
 })

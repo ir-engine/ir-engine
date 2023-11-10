@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ButtonStateMap } from '../state/ButtonState'
@@ -49,5 +50,6 @@ const execute = () => {
 
 export const ButtonCleanupSystem = defineSystem({
   uuid: 'ee.engine.input.ButtonCleanupSystem',
+  insert: { after: PresentationSystemGroup },
   execute
 })

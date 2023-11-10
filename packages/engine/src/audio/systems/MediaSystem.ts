@@ -31,6 +31,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { defineQuery, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
@@ -175,6 +176,7 @@ const reactor = () => {
 
 export const MediaSystem = defineSystem({
   uuid: 'ee.engine.MediaSystem',
+  insert: { before: PresentationSystemGroup },
   execute,
   reactor
 })

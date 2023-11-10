@@ -24,12 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AvatarSimulationSystemGroup } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
-import {
-  AnimationSystemGroup,
-  PresentationSystemGroup,
-  SimulationSystemGroup
-} from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { GrabbableSystem } from '@etherealengine/engine/src/interaction/systems/GrabbableSystem'
 import { InteractiveSystem } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
@@ -43,45 +37,22 @@ import { ECSRecordingSystem } from '@etherealengine/engine/src/recording/ECSReco
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
 
 export const startMediaServerSystems = () => {
-  /** Fixed */
-  startSystems([EntityNetworkStateSystem, ServerHostNetworkSystem], {
-    with: SimulationSystemGroup
-  })
-
-  /** Post Render */
-  startSystems([ECSRecordingSystem], {
-    after: PresentationSystemGroup
-  })
+  ;[EntityNetworkStateSystem, ServerHostNetworkSystem, ECSRecordingSystem]
 }
 
 export const startWorldServerSystems = () => {
-  /** Fixed */
-  startSystems(
-    [
-      IncomingNetworkSystem,
-      EntityNetworkStateSystem,
-      ServerHostNetworkSystem,
-      GrabbableSystem,
-      AvatarSimulationSystemGroup
-    ],
-    {
-      with: SimulationSystemGroup
-    }
-  )
-
-  startSystems([MotionCaptureSystem], { with: AnimationSystemGroup })
-
-  startSystems([PhysicsSystem, OutgoingNetworkSystem], {
-    after: SimulationSystemGroup
-  })
-
-  /** Post Transform / Pre Render */
-  startSystems([InteractiveSystem, SceneSystemUpdateGroup], {
-    before: PresentationSystemGroup
-  })
-
-  /** Post Render */
-  startSystems([SceneSystemLoadGroup, ECSRecordingSystem], {
-    after: PresentationSystemGroup
-  })
+  ;[
+    IncomingNetworkSystem,
+    EntityNetworkStateSystem,
+    ServerHostNetworkSystem,
+    GrabbableSystem,
+    AvatarSimulationSystemGroup,
+    MotionCaptureSystem,
+    PhysicsSystem,
+    OutgoingNetworkSystem,
+    InteractiveSystem,
+    SceneSystemUpdateGroup,
+    SceneSystemLoadGroup,
+    ECSRecordingSystem
+  ]
 }

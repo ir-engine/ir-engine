@@ -33,6 +33,7 @@ import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
 import { TriggerSystem } from '../../scene/systems/TriggerSystem'
@@ -239,6 +240,7 @@ const reactor = () => {
 
 export const PhysicsSystem = defineSystem({
   uuid: 'ee.engine.PhysicsSystem',
+  insert: { after: SimulationSystemGroup },
   execute,
   reactor,
   subSystems: [TriggerSystem]

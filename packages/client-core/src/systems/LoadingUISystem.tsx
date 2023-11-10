@@ -56,6 +56,7 @@ import { defineState, getMutableState, getState, useHookstate } from '@ethereale
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { AuthState } from '../user/services/AuthService'
@@ -302,6 +303,7 @@ const reactor = () => {
 
 export const LoadingUISystem = defineSystem({
   uuid: 'ee.client.LoadingUISystem',
+  insert: { before: TransformSystem },
   execute,
   reactor
 })

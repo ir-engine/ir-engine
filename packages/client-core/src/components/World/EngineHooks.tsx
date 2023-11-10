@@ -77,14 +77,6 @@ export const initClient = async () => {
   await loadEngineInjection(await projects)
 }
 
-export const useLoadEngine = () => {
-  useEffect(() => {
-    initClient()
-  }, [])
-
-  useClientSystems()
-}
-
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
   const authState = useHookstate(getMutableState(AuthState))
@@ -243,7 +235,11 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const appState = useHookstate(getMutableState(AppLoadingState).state)
 
-  useLoadEngine()
+  useEffect(() => {
+    initClient()
+  }, [])
+
+  useClientSystems()
   useLocationSpawnAvatar(spectate)
   usePortalTeleport()
   useLinkTeleport()
@@ -254,6 +250,7 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
         state: AppLoadingStates.SUCCESS,
         loaded: true
       })
+      /** used by the PWA service worker */
       window.dispatchEvent(new Event('load'))
     }
   }, [engineState.sceneLoaded, engineState.loadingProgress])

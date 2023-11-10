@@ -60,6 +60,7 @@ import { isClient } from '../common/functions/getEnvironment'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { NetworkState } from '../networking/NetworkState'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
@@ -270,6 +271,7 @@ const reactor = () => {
 
 export const MotionCaptureSystem = defineSystem({
   uuid: 'ee.engine.MotionCaptureSystem',
+  insert: { with: AnimationSystemGroup },
   execute,
   reactor
 })

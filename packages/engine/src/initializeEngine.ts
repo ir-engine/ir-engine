@@ -31,7 +31,7 @@ import { Timer } from './common/functions/Timer'
 import { isClient } from './common/functions/getEnvironment'
 import { Engine } from './ecs/classes/Engine'
 import { getComponent, setComponent } from './ecs/functions/ComponentFunctions'
-import { executeSystems, startCoreSystems } from './ecs/functions/EngineFunctions'
+import { executeSystems } from './ecs/functions/EngineFunctions'
 import { createEntity } from './ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from './ecs/functions/EntityTree'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
@@ -83,6 +83,5 @@ export const createEngine = () => {
   camera.matrixWorldAutoUpdate = false
 
   if (isClient) EngineRenderer.instance = new EngineRenderer()
-  startCoreSystems()
   Engine.instance.engineTimer = Timer(executeSystems)
 }

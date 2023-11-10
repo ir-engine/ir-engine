@@ -29,11 +29,7 @@ import { useParams } from 'react-router-dom'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
-import {
-  useLoadLocation,
-  useLoadLocationScene,
-  useLoadScene
-} from '@etherealengine/client-core/src/components/World/LoadLocationScene'
+import { useLoadLocation, useLoadScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
 import { AppLoadingState } from '@etherealengine/engine/src/common/AppLoadingService'
@@ -48,8 +44,6 @@ type Props = {
 const LocationPage = ({ offline }: Props) => {
   const params = useParams()
   const appState = useHookstate(getMutableState(AppLoadingState).state)
-
-  useLoadLocationScene()
 
   if (offline) {
     useOfflineNetwork()

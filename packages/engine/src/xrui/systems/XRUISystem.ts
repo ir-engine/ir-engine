@@ -40,6 +40,7 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { XRUIState } from '../XRUIState'
 import { PointerComponent } from '../components/PointerComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
@@ -225,6 +226,7 @@ const reactor = () => {
 
 export const XRUISystem = defineSystem({
   uuid: 'ee.engine.XRUISystem',
+  insert: { before: TransformSystem },
   execute,
   reactor
 })

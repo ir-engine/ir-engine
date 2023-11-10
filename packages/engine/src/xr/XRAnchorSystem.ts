@@ -55,6 +55,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
@@ -367,6 +368,7 @@ const reactor = () => {
 
 export const XRAnchorSystem = defineSystem({
   uuid: 'ee.engine.XRAnchorSystem',
+  insert: { with: AnimationSystemGroup },
   execute,
   reactor
 })

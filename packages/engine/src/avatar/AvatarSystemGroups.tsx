@@ -27,6 +27,7 @@ import React from 'react'
 
 import { receiveActions } from '@etherealengine/hyperflux'
 
+import { AnimationSystemGroup, InputSystemGroup, SimulationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { AvatarState, AvatarStateReactor } from './state/AvatarNetworkState'
 import { AvatarAnimationSystem } from './systems/AvatarAnimationSystem'
@@ -41,11 +42,13 @@ import { FlyControlSystem } from './systems/FlyControlSystem'
 
 export const AvatarInputSystemGroup = defineSystem({
   uuid: 'ee.engine.avatar.AvatarInputSystemGroup',
+  insert: { with: InputSystemGroup },
   subSystems: [AvatarInputSystem, AvatarControllerSystem, AvatarTeleportSystem, FlyControlSystem, AvatarLoadingSystem]
 })
 
 export const AvatarSimulationSystemGroup = defineSystem({
   uuid: 'ee.engine.avatar.AvatarSimulationSystemGroup',
+  insert: { with: SimulationSystemGroup },
 
   subSystems: [AvatarMovementSystem, AvatarIKTargetSystem, AvatarAutopilotSystem],
 
@@ -60,5 +63,6 @@ export const AvatarSimulationSystemGroup = defineSystem({
 
 export const AvatarAnimationSystemGroup = defineSystem({
   uuid: 'ee.engine.avatar.AvatarAnimationSystemGroup',
+  insert: { with: AnimationSystemGroup },
   subSystems: [AvatarAnimationSystem]
 })

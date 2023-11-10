@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Dashboard from '@etherealengine/ui/src/primitives/mui/Dashboard'
 
@@ -41,7 +39,7 @@ import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
 const AdminSystemInjection = () => {
-  startSystems([UserUISystem], { after: PresentationSystemGroup })
+  UserUISystem
 }
 
 const AdminRoutes = () => {

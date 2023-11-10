@@ -70,6 +70,7 @@ import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
 const widgetLeftMenuGripOffset = new Vector3(0.08, 0, -0.05)
@@ -238,6 +239,7 @@ const reactor = () => {
 
 export const WidgetUISystem = defineSystem({
   uuid: 'ee.client.WidgetUISystem',
+  insert: { before: TransformSystem },
   execute,
   reactor,
   preSystems: [WidgetAppServiceReceptorSystem]

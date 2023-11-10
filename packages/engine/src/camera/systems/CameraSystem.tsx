@@ -47,6 +47,7 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -348,6 +349,7 @@ const reactor = () => {
 
 export const CameraSystem = defineSystem({
   uuid: 'ee.engine.CameraSystem',
+  insert: { with: AnimationSystemGroup },
   execute,
   reactor,
   subSystems: [CameraFadeBlackEffectSystem]

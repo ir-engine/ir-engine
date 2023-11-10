@@ -41,10 +41,12 @@ import { defineState, getMutableState, getState, useHookstate } from '@ethereale
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
+import { isClient } from '../common/functions/getEnvironment'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { EffectMapType, defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
@@ -294,6 +296,7 @@ export const PostProcessingSettingsState = defineState({
 })
 
 const execute = () => {
+  if (!EngineRenderer.instance) return
   const deltaSeconds = getState(EngineState).deltaSeconds
   EngineRenderer.instance.execute(deltaSeconds)
 }
@@ -362,7 +365,8 @@ const reactor = () => {
 
 export const WebGLRendererSystem = defineSystem({
   uuid: 'ee.engine.WebGLRendererSystem',
+  insert: { with: PresentationSystemGroup },
   execute,
-  reactor,
+  reactor: isClient ? reactor : undefined,
   postSystems: [RenderInfoSystem]
 })

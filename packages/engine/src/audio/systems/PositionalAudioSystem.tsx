@@ -34,6 +34,7 @@ import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctio
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { ComponentType, defineQuery, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MediaSettingsState } from '../../networking/MediaSettingsState'
@@ -237,6 +238,7 @@ const reactor = () => {
 
 export const PositionalAudioSystem = defineSystem({
   uuid: 'ee.engine.PositionalAudioSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })

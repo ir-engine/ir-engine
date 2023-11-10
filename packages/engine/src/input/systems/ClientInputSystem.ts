@@ -42,6 +42,7 @@ import {
   hasComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -587,6 +588,7 @@ const reactor = () => {
 
 export const ClientInputSystem = defineSystem({
   uuid: 'ee.engine.input.ClientInputSystem',
+  insert: { with: InputSystemGroup },
   execute,
   reactor
 })

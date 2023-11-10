@@ -27,6 +27,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import { useEffect } from 'react'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { PortalState } from '../components/PortalComponent'
 import { revertAvatarToMovingStateFromTeleport } from '../functions/loaders/PortalFunctions'
@@ -47,6 +48,7 @@ const reactor = () => {
 
 export const PortalSystem = defineSystem({
   uuid: 'ee.engine.PortalSystem',
+  insert: { after: PresentationSystemGroup },
   reactor,
   subSystems: [HyperspacePortalSystem]
 })

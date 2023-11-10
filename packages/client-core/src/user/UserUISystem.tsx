@@ -30,6 +30,7 @@ import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { FaceRetouchingNatural, Send } from '@mui/icons-material'
 
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { useTranslation } from 'react-i18next'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
@@ -110,6 +111,7 @@ const reactor = () => {
 
 export const UserUISystem = defineSystem({
   uuid: 'ee.client.UserUISystem',
+  insert: { after: PresentationSystemGroup },
   execute: () => {},
   reactor
 })

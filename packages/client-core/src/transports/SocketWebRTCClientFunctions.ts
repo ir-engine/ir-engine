@@ -107,7 +107,7 @@ import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/
 import { encode } from 'msgpackr'
 
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { defineSystem, disableSystem, startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { LocationID, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { MessageID } from '@etherealengine/engine/src/schemas/social/message.schema'
 
@@ -504,13 +504,14 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
           const errorQueue = defineActionQueue(MediasoupTransportActions.requestTransportConnectError.matches)
 
           const cleanup = () => {
-            disableSystem(systemUUID)
+            destroySystem(systemUUID)
             removeActionQueue(actionQueue)
             removeActionQueue(errorQueue)
           }
 
           const systemUUID = defineSystem({
             uuid: 'action-receptor-' + requestID,
+            insert: { after: PresentationSystemGroup },
             execute: () => {
               for (const action of actionQueue()) {
                 if (action.requestID !== requestID) return
@@ -525,7 +526,6 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
               }
             }
           })
-          startSystem(systemUUID, { after: PresentationSystemGroup })
         })
         callback()
       } catch (e) {
@@ -593,13 +593,14 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
             const errorQueue = defineActionQueue(MediaProducerActions.requestProducerError.matches)
 
             const cleanup = () => {
-              disableSystem(systemUUID)
+              destroySystem(systemUUID)
               removeActionQueue(actionQueue)
               removeActionQueue(errorQueue)
             }
 
             const systemUUID = defineSystem({
               uuid: 'action-receptor-' + requestID,
+              insert: { after: PresentationSystemGroup },
               execute: () => {
                 for (const action of actionQueue()) {
                   if (action.requestID !== requestID) return
@@ -614,7 +615,6 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
                 }
               }
             })
-            startSystem(systemUUID, { after: PresentationSystemGroup })
           })
           callback({ id: producerPromise.producerID })
         } catch (e) {
@@ -660,13 +660,14 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
             const errorQueue = defineActionQueue(MediasoupDataProducerActions.requestProducerError.matches)
 
             const cleanup = () => {
-              disableSystem(systemUUID)
+              destroySystem(systemUUID)
               removeActionQueue(actionQueue)
               removeActionQueue(errorQueue)
             }
 
             const systemUUID = defineSystem({
               uuid: 'action-receptor-' + requestID,
+              insert: { after: PresentationSystemGroup },
               execute: () => {
                 for (const action of actionQueue()) {
                   if (action.requestID !== requestID) return
@@ -681,7 +682,6 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
                 }
               }
             })
-            startSystem(systemUUID, { after: PresentationSystemGroup })
           })
           callback({ id: producerPromise.producerID })
         } catch (e) {

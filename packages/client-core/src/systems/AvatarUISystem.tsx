@@ -60,6 +60,7 @@ import { CameraComponent } from '@etherealengine/engine/src/camera/components/Ca
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { MediasoupMediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
+import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { AvatarUIStateSystem } from './state/AvatarUIState'
@@ -300,6 +301,7 @@ const reactor = () => {
 
 export const AvatarUISystem = defineSystem({
   uuid: 'ee.client.AvatarUISystem',
+  insert: { before: TransformSystem },
   execute,
   reactor,
   subSystems: [AvatarUIStateSystem]

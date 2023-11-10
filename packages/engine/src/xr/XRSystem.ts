@@ -27,6 +27,7 @@ import { useEffect } from 'react'
 
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
+import { InputSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { XR8System } from './8thwall/XR8'
 import { VPSSystem } from './VPSSystem'
@@ -85,6 +86,7 @@ const reactor = () => {
 
 export const XRSystem = defineSystem({
   uuid: 'ee.engine.XRSystem',
+  insert: { before: InputSystemGroup },
   execute,
   reactor,
   subSystems: [

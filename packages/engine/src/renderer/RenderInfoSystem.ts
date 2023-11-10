@@ -47,6 +47,8 @@ export const RenderInfoState = defineState({
 })
 
 const execute = () => {
+  if (!EngineRenderer.instance) return
+
   const state = getState(RenderInfoState)
   if (state.visible) {
     const info = EngineRenderer.instance.renderer.info

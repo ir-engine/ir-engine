@@ -44,6 +44,7 @@ import {
   setDistanceFromLocalClientComponent
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createXRUI } from '../../xrui/functions/createXRUI'
@@ -183,5 +184,6 @@ const execute = () => {
 
 export const InteractiveSystem = defineSystem({
   uuid: 'ee.engine.InteractiveSystem',
+  insert: { before: TransformSystem },
   execute
 })

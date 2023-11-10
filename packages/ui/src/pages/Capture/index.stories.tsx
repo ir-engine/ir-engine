@@ -33,7 +33,6 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { useLoadLocationScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
@@ -137,8 +136,6 @@ const decorators = [
     }, [])
 
     AuthService.useAPIListeners()
-
-    useLoadLocationScene()
 
     const locationName = 'default'
 

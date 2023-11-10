@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { BehaveGraphSystem } from '../behave-graph/systems/BehaveGraphSystem'
+import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { GrabbableComponent } from '../interaction/components/GrabbableComponent'
 import { MountPointSystem } from '../interaction/systems/MountPointSystem'
@@ -121,10 +122,12 @@ export const SceneComponents = [
 
 export const SceneSystemUpdateGroup = defineSystem({
   uuid: 'ee.engine.scene.SceneSystemUpdateGroup',
+  insert: { before: PresentationSystemGroup },
   subSystems: [BehaveGraphSystem, ParticleSystem, LightSystem, SceneObjectSystem, MountPointSystem]
 })
 
 export const SceneSystemLoadGroup = defineSystem({
   uuid: 'ee.engine.scene.SceneSystemLoadGroup',
+  insert: { after: PresentationSystemGroup },
   subSystems: [SceneLoadingSystem, VariantSystem, SceneObjectDynamicLoadSystem, MaterialLibrarySystem]
 })
