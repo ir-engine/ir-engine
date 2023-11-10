@@ -101,10 +101,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const firstError = errors?.keys[0]
   const sceneAssetLoading = useOptionalComponent(node.entity as Entity, SceneAssetPendingTagComponent)
 
-  useEffect(() => {
-    console.log('debug1 scene asset loading was', sceneAssetLoading?.value, 'and entity', node.entity)
-  }, [node.entity, sceneAssetLoading])
-
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
       e.stopPropagation()
