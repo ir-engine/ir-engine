@@ -307,7 +307,7 @@ export default defineConfig(async () => {
               ? 'dev-sw.js?dev-sw'
               : 'service-worker.js'
             : '',
-        paymentPointer: coilSetting.paymentPointer || ''
+        paymentPointer: coilSetting?.paymentPointer || ''
       }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,
