@@ -147,6 +147,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     if (projectConfig.onEvent) {
       return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
+    await createScenes(this.app, projectName)
 
     return Promise.resolve()
   }
