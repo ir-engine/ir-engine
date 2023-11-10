@@ -178,18 +178,15 @@ export function getActionConsumers() {
           uuid: `behave-graph-onAction-${dispatchName}` + systemCounter++,
           execute: () => {
             const currQueue = queue()
-            function delayedIteration(i) {
-              if (i < currQueue.length) {
-                const currAction = currQueue[i]
-                for (const [output, type] of Object.entries(outputSockets)) {
-                  write(output as any, NodetoEnginetype(currAction[output], type))
-                }
-                commit('flow', () => {
-                  delayedIteration(i + 1)
-                })
+            if (currQueue.length === 0) return
+            const tempQueue = currQueue
+            for (let i = 0; i < tempQueue.length; i++) {
+              const currAction = tempQueue[i]
+              for (const [output, type] of Object.entries(outputSockets)) {
+                write(output as any, NodetoEnginetype(currAction[output], type))
               }
+              commit('flow')
             }
-            delayedIteration(0)
             queue() // clear the queue
           }
         })

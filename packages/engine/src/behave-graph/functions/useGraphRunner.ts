@@ -95,13 +95,14 @@ export const useGraphRunner = ({
 
     ;(async () => {
       if (eventEmitter.startEvent.listenerCount) {
+        console.log('has listener count')
         eventEmitter.startEvent.emit()
 
         await engine.executeAllAsync(5)
       } else {
         console.log('has no listener count')
       }
-      onTick()
+      //onTick()
     })() // start up
 
     return () => {

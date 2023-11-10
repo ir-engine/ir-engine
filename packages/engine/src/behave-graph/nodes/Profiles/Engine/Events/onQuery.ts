@@ -52,7 +52,6 @@ const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
 
-// very 3D specific.
 export const OnQuery = makeEventNodeDefinition({
   typeName: 'engine/onQuery',
   category: NodeCategory.Event,
@@ -128,19 +127,14 @@ export const OnQuery = makeEventNodeDefinition({
       uuid: 'behave-graph-onQuery-' + systemCounter++,
       execute: () => {
         newQueryResult = query()
-        if (newQueryResult.length === 0) return // we dont want to store empty in the prev result
-        if (prevQueryResult === newQueryResult) return
+        if (newQueryResult.length === 0) return
+        if (prevQueryResult === newQueryResult) return //dont bother if same result
         const tempResult = newQueryResult
-        function delayedIteration(i) {
-          if (i < tempResult.length) {
-            write('entity', tempResult[i])
-            commit('flow', () => {
-              delayedIteration(i + 1)
-            })
-          }
+        for (let i = 0; i < tempResult.length; i++) {
+          console.log('DEBUG in code', tempResult[i])
+          write('entity', tempResult[i])
+          commit('flow')
         }
-        // Start the delayed iteration
-        delayedIteration(0)
         prevQueryResult = tempResult
       }
     })
