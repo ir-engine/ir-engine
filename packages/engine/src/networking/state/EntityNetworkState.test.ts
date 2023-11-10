@@ -75,12 +75,11 @@ describe('EntityNetworkState', () => {
     it('should spawn object owned by host', () => {
       const hostUserId = 'world' as UserID
       const userId = 'user id' as UserID
-      const peerID = 'peer id' as PeerID
+      const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
 
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
-      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
@@ -118,12 +117,11 @@ describe('EntityNetworkState', () => {
       const userId = 'user id' as UserID
       const hostId = 'host' as UserID
       const peerID = 'peer id' as PeerID
-      const peerID2 = 'peer id 2' as PeerID
+      const peerID2 = Engine.instance.store.peerID
 
       Engine.instance.userID = userId
 
       const network = NetworkState.worldNetwork as Network
-      Engine.instance.peerID = peerID2
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
@@ -161,13 +159,12 @@ describe('EntityNetworkState', () => {
       const hostUserId = 'world' as UserID
       const userId = 'user id' as UserID
       const userId2 = 'second user id' as UserID
-      const peerID = 'peer id' as PeerID
+      const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
       const peerID3 = 'peer id 3' as PeerID
 
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
-      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
@@ -203,11 +200,10 @@ describe('EntityNetworkState', () => {
 
     it('should spawn avatar owned by user', async () => {
       const userId = 'user id' as UserID
-      const peerID = 'peer id' as PeerID
+      const peerID = Engine.instance.store.peerID
 
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
-      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
 
@@ -238,12 +234,11 @@ describe('EntityNetworkState', () => {
       const hostUserId = 'world' as UserID
       const hostPeerId = 'host peer id' as PeerID
       const userId = 'user id' as UserID
-      const peerID = 'peer id' as PeerID
+      const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
 
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
-      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
@@ -310,12 +305,11 @@ describe('EntityNetworkState', () => {
     const hostUserId = 'world' as UserID
     const hostPeerId = 'host peer id' as PeerID
     const userId = 'user id' as UserID
-    const peerID = 'peer id' as PeerID
+    const peerID = Engine.instance.store.peerID
     const peerID2 = 'peer id 2' as PeerID
 
     Engine.instance.userID = userId // user being the action dispatcher
     const network = NetworkState.worldNetwork as Network
-    Engine.instance.peerID = peerID
 
     NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
     NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')

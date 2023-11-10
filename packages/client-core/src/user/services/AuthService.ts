@@ -38,6 +38,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { generateTokenPath } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
 import {
   IdentityProviderType,
@@ -72,9 +73,9 @@ export const UserSeed: UserType = {
   id: '' as UserID,
   name: '',
   isGuest: true,
-  avatarId: '',
+  avatarId: '' as AvatarID,
   avatar: {
-    id: '',
+    id: '' as AvatarID,
     name: '',
     isPublic: true,
     userId: '' as UserID,
@@ -171,6 +172,11 @@ async function _resetToGuestToken(options = { reset: true }) {
 
 export const AuthService = {
   async doLoginAuto(forceClientAuthReset?: boolean) {
+    // Oauth callbacks may be running when a guest identity-provider has been deleted.
+    // This would normally cause doLoginAuto to make a guest user, which we do not want.
+    // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
+    // The client and auth settigns will not be needed on these routes
+    if (/auth\/oauth/.test(location.pathname)) return
     const authState = getMutableState(AuthState)
     try {
       const accessToken = !forceClientAuthReset && authState?.authUser?.accessToken?.value

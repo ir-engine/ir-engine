@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  InviteCode,
   UserID,
   UserPatch,
   UserType,
@@ -192,7 +193,7 @@ const updateInviteCode = async (context: HookContext<UserService>) => {
 
   for (const item of result) {
     if (!item.isGuest && !item.inviteCode) {
-      const code = await getFreeInviteCode(context.app)
+      const code = (await getFreeInviteCode(context.app)) as InviteCode
       await context.service._patch(item.id, {
         inviteCode: code
       })

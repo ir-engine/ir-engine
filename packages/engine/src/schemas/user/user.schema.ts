@@ -33,7 +33,7 @@ import { locationAdminSchema } from '../social/location-admin.schema'
 import { locationBanSchema } from '../social/location-ban.schema'
 import { userSettingSchema } from '../user/user-setting.schema'
 import { dataValidator, queryValidator } from '../validators'
-import { avatarDataSchema } from './avatar.schema'
+import { avatarDataSchema, AvatarID } from './avatar.schema'
 import { identityProviderSchema } from './identity-provider.schema'
 import { userApiKeySchema } from './user-api-key.schema'
 
@@ -49,6 +49,7 @@ export const userScopeSchema = Type.Object(
 )
 
 export type UserID = OpaqueType<'UserID'> & string
+export type InviteCode = OpaqueType<'InviteCode'> & string
 
 // Main data model schema
 export const userSchema = Type.Object(
@@ -58,8 +59,12 @@ export const userSchema = Type.Object(
     }),
     name: Type.String(),
     isGuest: Type.Boolean(),
-    inviteCode: Type.Optional(Type.String()),
-    avatarId: Type.String({
+    inviteCode: Type.Optional(
+      TypedString<InviteCode>({
+        format: 'uuid'
+      })
+    ),
+    avatarId: TypedString<AvatarID>({
       format: 'uuid'
     }),
     avatar: Type.Ref(avatarDataSchema),

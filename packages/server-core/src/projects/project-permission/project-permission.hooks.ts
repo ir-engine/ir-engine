@@ -40,7 +40,7 @@ import {
   projectPermissionQueryValidator
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { HookContext } from '../../../declarations'
@@ -67,11 +67,11 @@ const ensureInviteCode = async (context: HookContext<ProjectPermissionService>) 
   const data: ProjectPermissionData[] = Array.isArray(context.data) ? context.data : [context.data]
 
   if (data[0].inviteCode && USER_ID_REGEX.test(data[0].inviteCode)) {
-    data[0].userId = data[0].inviteCode as UserID
+    data[0].userId = data[0].inviteCode as string as UserID
     delete data[0].inviteCode
   }
   if (data[0].userId && INVITE_CODE_REGEX.test(data[0].userId)) {
-    data[0].inviteCode = data[0].userId
+    data[0].inviteCode = data[0].userId as string as InviteCode
     delete data[0].userId
   }
   context.data = data[0]

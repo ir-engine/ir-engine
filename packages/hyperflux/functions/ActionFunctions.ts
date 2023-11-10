@@ -311,10 +311,10 @@ function defineAction<Shape extends Omit<ActionShape<Action>, keyof ActionOption
  */
 const dispatchAction = <A extends Action>(action: A) => {
   const storeId = HyperFlux.store.getDispatchId()
-  const agentId = HyperFlux.store.getPeerId()
+  const agentId = HyperFlux.store.peerID
 
   action.$from = action.$from ?? (storeId as UserID)
-  action.$peer = action.$peer ?? (agentId as PeerID)
+  action.$peer = action.$peer ?? agentId
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? HyperFlux.store.getDispatchTime() + HyperFlux.store.defaultDispatchDelay()
   action.$cache = action.$cache ?? false

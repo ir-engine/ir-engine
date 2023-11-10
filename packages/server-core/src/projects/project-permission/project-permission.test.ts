@@ -36,8 +36,9 @@ import {
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
@@ -78,29 +79,29 @@ describe('project-permission.test', () => {
     user1 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
       isGuest: false,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
     user2 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
       isGuest: false,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
     user3 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
       isGuest: false,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
     user4 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
       isGuest: false,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
     const user1ApiKeys = (await app.service(userApiKeyPath).find({

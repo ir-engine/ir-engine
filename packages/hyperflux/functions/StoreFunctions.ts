@@ -25,7 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Downgraded, State } from '@hookstate/core'
 import { merge } from 'lodash'
+import { v4 as uuidv4 } from 'uuid'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { ActionQueueHandle, addOutgoingTopicIfNecessary, ResolvedActionType, Topic } from './ActionFunctions'
 import { ReactorRoot } from './ReactorFunctions'
 
@@ -46,9 +48,9 @@ export interface HyperStore {
    * */
   getDispatchId: () => string
   /**
-   * A function which returns the agent id assigned to actions
+   * The agent id
    */
-  getPeerId: () => string
+  peerID: PeerID
   /**
    * A function which returns the current dispatch time (units are arbitrary)
    */
@@ -121,7 +123,7 @@ export function createHyperStore(options: {
     getDispatchTime: options.getDispatchTime,
     getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => null),
     defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
-
+    peerID: uuidv4() as PeerID,
     stateMap: {},
     valueMap: {},
     actions: {

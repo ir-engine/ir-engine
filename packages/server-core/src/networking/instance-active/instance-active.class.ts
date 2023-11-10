@@ -28,7 +28,7 @@ import {
   InstanceActiveType
 } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
 import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
@@ -64,7 +64,7 @@ export class InstanceActiveService implements ServiceInterface<InstanceActiveTyp
       query: {
         ended: false,
         locationId: {
-          $in: locations.map((location) => location.id)
+          $in: locations.map((location) => location.id as LocationID)
         }
       },
       paginate: false

@@ -36,7 +36,7 @@ import {
   instancePath,
   instanceQueryValidator
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
@@ -94,7 +94,7 @@ const addLocationSearchToQuery = async (context: HookContext<InstanceService>) =
       },
       {
         locationId: {
-          $in: foundLocations.map((item) => item.id)
+          $in: foundLocations.map((item) => item.id as LocationID)
         }
       }
     ]
