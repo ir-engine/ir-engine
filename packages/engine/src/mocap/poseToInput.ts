@@ -23,11 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { Vector3 } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
+import { onInteract } from '../avatar/systems/AvatarInputSystem'
+import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
+
+export type MotionCaptureActionPoses = 'sit' | 'stand' | 'none'
+export type MotionCaptureStates = 'sitting' | 'none'
+
+export const PoseState = defineState({
+  name: 'PoseState',
+  initial: () => {
+    return 'none' as MotionCaptureStates
+  }
+})
 
 const rightThighDirection = new Vector3(),
   leftThighDirection = new Vector3(),
@@ -37,11 +50,25 @@ let seatedTimer = 0
 
 export const evaluatePose = (entity: Entity) => {
   const rig = getComponent(entity, AvatarRigComponent).rig
-
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  const poseState = getMutableState(PoseState)
   if (!MotionCaptureRigComponent.solvingLowerBody[entity]) return
 
-  const seated = () => {
+  const seated = (): boolean => {
+    if (poseState.value == 'sitting') return false
+
     rig.rightUpperLeg.node.quaternion.angleTo(rig.spine.node.quaternion) > minSeatedAngle &&
       rig.leftUpperLeg.node.quaternion.angleTo(rig.spine.node.quaternion) > minSeatedAngle
+
+    seatedTimer += deltaSeconds
+    if (seatedTimer > poseHoldTime) {
+      poseState.set('sitting')
+      seatedTimer = 0
+      return true
+    }
+
+    return false
   }
+
+  if (seated()) onInteract('none', 'sit')
 }

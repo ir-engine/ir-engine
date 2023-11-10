@@ -73,8 +73,6 @@ export type MotionCaptureResults = {
   poseLandmarks: NormalizedLandmarkList
 }
 
-export type MotionCaptureActionPoses = 'sit' | 'stand' | 'none'
-
 export const sendResults = (results: MotionCaptureResults) => {
   return encode({
     timestamp: Date.now(),
