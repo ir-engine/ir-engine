@@ -31,7 +31,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { RingBuffer } from '../common/classes/RingBuffer'
 
-import { defineSystem, startSystem } from '../ecs/functions/SystemFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 
@@ -53,9 +53,7 @@ import {
   SphereGeometry,
   Vector3
 } from 'three'
-import { AvatarSimulationSystemGroup } from '../avatar/AvatarSystemGroups'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { AvatarMovementSystem } from '../avatar/systems/AvatarMovementSystem'
 import { V_010 } from '../common/constants/MathConstants'
 import { lerp } from '../common/functions/MathLerpFunctions'
 import { isClient } from '../common/functions/getEnvironment'
@@ -151,7 +149,6 @@ const execute = () => {
     const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
     if (!peers) {
       removeComponent(entity, MotionCaptureRigComponent)
-      startSystem(AvatarMovementSystem, { with: AvatarSimulationSystemGroup })
       continue
     }
     const rigComponent = getComponent(entity, AvatarRigComponent)
