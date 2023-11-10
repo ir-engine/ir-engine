@@ -30,7 +30,7 @@ import ConfirmDialog from '@etherealengine/client-core/src/common/components/Con
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import TableComponent from '../../common/Table'
 import { ChannelData, ChannelPropsTable, channelColumns } from '../../common/variables/channel'
@@ -49,7 +49,13 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
     query: {
       action: 'admin',
       $sort: { name: 1 },
-      $limit: 20,
+      $limit: 20
+    }
+  })
+
+  useSearch(
+    channelsQuery,
+    {
       $or: [
         {
           name: {
@@ -57,8 +63,10 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
           }
         }
       ]
-    }
-  })
+    },
+    search
+  )
+
   const removeChannel = useMutation(channelPath).remove
 
   const submitRemoveChannel = async () => {

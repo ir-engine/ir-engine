@@ -85,7 +85,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     addComponent(player, NetworkObjectComponent, {
       ownerId: Engine.instance.userID,
-      authorityPeerID: 'peer id' as PeerID,
+      authorityPeerID: Engine.instance.peerID,
       networkId: 0 as NetworkId
     })
     const networkObject = getComponent(player, NetworkObjectComponent)

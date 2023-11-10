@@ -77,7 +77,7 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
 
 export const locationDataResolver = resolve<LocationType, HookContext>({
   id: async () => {
-    return v4()
+    return v4() as LocationID
   },
   locationSetting: async (value, location) => {
     return {
