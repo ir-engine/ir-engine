@@ -172,3 +172,9 @@
   align-items: center;
   gap: 1rem;
 }
+
+.assetLoadingIndicator {
+  width: 1rem !important;
+  height: 1rem !important;
+  color: var(--textColor);
+}

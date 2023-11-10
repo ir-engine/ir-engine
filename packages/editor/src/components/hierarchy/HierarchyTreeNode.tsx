@@ -43,6 +43,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -98,6 +100,11 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const errors = node.entity ? useOptionalComponent(node.entity as Entity, ErrorComponent) : undefined
   const firstError = errors?.keys[0]
+  const sceneAssetLoading = useOptionalComponent(node.entity as Entity, SceneAssetPendingTagComponent)
+
+  useEffect(() => {
+    console.log('debug1 scene asset loading was', sceneAssetLoading?.value, 'and entity', node.entity)
+  }, [node.entity, sceneAssetLoading])
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -339,6 +346,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
               )}
             </div>
             {firstError && <NodeIssuesIcon node={[{ severity: 'error', message: firstError }]} />}
+            {sceneAssetLoading?.value && <CircularProgress className={styles.assetLoadingIndicator} />}
           </div>
         </div>
 
