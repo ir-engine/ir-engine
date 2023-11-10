@@ -42,11 +42,9 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
-import Text from '@etherealengine/client-core/src/common/components/Text'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -94,7 +92,6 @@ export default function HierarchyPanel() {
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const [searchHierarchy, setSearchHierarchy] = useState<string>('')
-  const isAssetLoading = useHookstate(false)
 
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
@@ -407,8 +404,7 @@ export default function HierarchyPanel() {
         onMouseDown,
         onClick,
         onToggle,
-        onUpload,
-        isAssetLoading
+        onUpload
       }}
       itemKey={(index) => index}
       outerRef={treeContainerDropTarget}
@@ -431,27 +427,20 @@ export default function HierarchyPanel() {
             <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
           </div>
         )}
-        {isAssetLoading.value ? (
-          <div className={styles.assetLoadingContainer}>
-            <Text sx={{ fontSize: 12 }}>{t('editor:hierarchy.lbl-addingEntity')}</Text>
-            <CircularProgress size={12} color="inherit" />
-          </div>
-        ) : (
-          <PropertiesPanelButton
-            variant="contained"
-            // TODO see why we have to specify capitalize here
-            style={{
-              textTransform: 'capitalize',
-              margin: '5px auto',
-              width: 'auto',
-              fontSize: '12px',
-              lineHeight: '0.5'
-            }}
-            onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
-          >
-            {t('editor:hierarchy.lbl-addEntity')}
-          </PropertiesPanelButton>
-        )}
+        <PropertiesPanelButton
+          variant="contained"
+          // TODO see why we have to specify capitalize here
+          style={{
+            textTransform: 'capitalize',
+            margin: '5px auto',
+            width: 'auto',
+            fontSize: '12px',
+            lineHeight: '0.5'
+          }}
+          onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
+        >
+          {t('editor:hierarchy.lbl-addEntity')}
+        </PropertiesPanelButton>
       </div>
       <ContextMenu open={!!anchorEl} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={() => onRenameNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
