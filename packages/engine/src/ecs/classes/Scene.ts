@@ -70,7 +70,7 @@ export const SceneState = defineState({
   }),
 
   addEntitiesToScene: (sceneID: SceneID, entities: Record<EntityUUID, EntityJson>) => {
-    const scene = SceneState.getScene(sceneID).scene
+    const scene = SceneState.getMutableScene(sceneID).scene
     for (const [uuid, data] of Object.entries(entities)) {
       scene.entities[uuid].set(data)
     }
@@ -79,10 +79,12 @@ export const SceneState = defineState({
   addComponentsToEntity: (entityUUID: EntityUUID, components: ComponentJson[]) => {
     const sceneState = getMutableState(SceneState)
     const sceneID = sceneState.scenes.keys.find((sceneID) => {
-      return sceneState.scenes[sceneID].data.scene.entities[entityUUID]
+      const scene = sceneState.scenes[sceneID].value
+      const snapshot = scene.snapshots[scene.index] as SceneSnapshotInterface
+      return !!snapshot.data.scene.entities[entityUUID]
     }) as SceneID | null
     if (!sceneID) throw new Error(`Entity ${entityUUID} does not exist in any scene`)
-    const scene = SceneState.useScene(sceneID)
+    const scene = SceneState.getMutableScene(sceneID)
     const entity = scene.scene.entities[entityUUID]
     if (!entity) throw new Error(`Entity ${entityUUID} does not exist in scene ${sceneID}`)
     for (const component of components) {
@@ -107,6 +109,12 @@ export const SceneState = defineState({
     const { scenes } = getState(SceneState)
     const scene = scenes[sceneID]
     return scene.snapshots[scene.index].data
+  },
+
+  getMutableScene: (sceneID: SceneID) => {
+    const { scenes } = getMutableState(SceneState)
+    const scene = scenes[sceneID]
+    return scene.snapshots[scene.index.value].data
   },
 
   useScene: (sceneID: SceneID) => {
