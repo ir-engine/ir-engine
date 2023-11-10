@@ -179,16 +179,18 @@ export function getActionConsumers() {
           execute: () => {
             const currQueue = queue()
             if (currQueue.length === 0) return
-            let currAction = currQueue.pop()
-            do {
-              for (const [output, type] of Object.entries(outputSockets)) {
-                write(output as any, NodetoEnginetype(currAction[output], type))
+            function delayedIteration(i) {
+              if (i < currQueue.length) {
+                const currAction = currQueue[i]
+                for (const [output, type] of Object.entries(outputSockets)) {
+                  write(output as any, NodetoEnginetype(currAction[output], type))
+                }
+                commit('flow', () => {
+                  delayedIteration(i + 1)
+                })
               }
-              commit('flow', () => {
-                currAction = currQueue.pop()
-              })
-            } while (currQueue.length > 0)
-
+            }
+            delayedIteration(0)
             queue() // clear the queue
           }
         })
