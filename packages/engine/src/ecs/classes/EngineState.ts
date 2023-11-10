@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { defineAction, defineState } from '@etherealengine/hyperflux'
 
 import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
+import { MotionCaptureActionPoses } from '../../mocap/MotionCaptureSystem'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
@@ -85,6 +86,7 @@ export class EngineActions {
   static interactedWithObject = defineAction({
     type: 'xre.engine.Engine.INTERACTED_WITH_OBJECT' as const,
     targetEntity: matchesEntity.optional(),
-    handedness: matches.string as Validator<unknown, XRHandedness>
+    handedness: matches.string as Validator<unknown, XRHandedness>,
+    pose: matches.string as Validator<unknown, MotionCaptureActionPoses>
   })
 }
