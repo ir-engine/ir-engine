@@ -27,6 +27,7 @@ import assert from 'assert'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
+import { getState } from '@etherealengine/hyperflux'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { createEngine } from '../../initializeEngine'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -69,7 +70,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set given values', () => {
-    const sceneEntity = SceneState.getRootEntity()
+    const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
 
     const entity = createEntity()
     const testUUID = 'test-uuid' as EntityUUID
@@ -90,7 +91,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set child at a given index', () => {
-    const sceneEntity = SceneState.getRootEntity()
+    const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
 
     setComponent(createEntity(), EntityTreeComponent, {
       parentEntity: sceneEntity,
@@ -133,7 +134,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should remove entity from maps', () => {
-    const sceneEntity = SceneState.getRootEntity()
+    const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
 
     const entity = createEntity()
     setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity, uuid: 'test-uuid' as EntityUUID })
@@ -155,7 +156,7 @@ describe('EntityTreeFunctions', () => {
     createEngine()
     loadEmptyScene()
 
-    root = SceneState.getRootEntity()
+    root = SceneState.getRootEntity(getState(SceneState).activeScene!)
   })
 
   afterEach(() => {
@@ -164,7 +165,7 @@ describe('EntityTreeFunctions', () => {
 
   describe('initializeEntityTree function', () => {
     it('will initialize entity tree', () => {
-      const sceneEntity = SceneState.getRootEntity()
+      const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
       assert(sceneEntity)
       assert(getComponent(sceneEntity, NameComponent), 'Root')
       assert(hasComponent(sceneEntity, VisibleComponent))

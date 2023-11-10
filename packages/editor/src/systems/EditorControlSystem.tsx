@@ -79,6 +79,7 @@ import {
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { SceneSnapshotAction, SceneSnapshotSystem, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -94,7 +95,6 @@ import {
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState } from '../services/EditorHelperState'
-import { EditorHistoryAction, EditorHistoryReceptorSystem, EditorHistoryState } from '../services/EditorHistory'
 import { EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
@@ -221,13 +221,13 @@ const onKeyX = () => {
 
 const onKeyZ = (control: boolean, shift: boolean) => {
   if (control) {
-    const state = getState(EditorHistoryState)
+    const state = getState(SceneState).scenes[getState(SceneState).activeScene!]
     if (shift) {
-      if (state.index >= state.history.length - 1) return
-      dispatchAction(EditorHistoryAction.redo({ count: 1 }))
+      if (state.index >= state.snapshots.length - 1) return
+      dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID: getState(SceneState).activeScene! }))
     } else {
       if (state.index <= 0) return
-      dispatchAction(EditorHistoryAction.undo({ count: 1 }))
+      dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
     }
   } else {
     toggleTransformSpace()
@@ -743,5 +743,5 @@ export const EditorControlSystem = defineSystem({
   uuid: 'ee.editor.EditorControlSystem',
   execute,
   reactor,
-  subSystems: [EditorSelectionReceptorSystem, EditorHistoryReceptorSystem]
+  subSystems: [EditorSelectionReceptorSystem, SceneSnapshotSystem]
 })

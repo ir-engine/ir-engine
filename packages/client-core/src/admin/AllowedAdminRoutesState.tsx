@@ -28,7 +28,7 @@ import React from 'react'
 
 export type AdminRouteStateType = {
   name: string
-  scope: string
+  scope: string | string[]
   redirect?: string
   component: React.LazyExoticComponent<() => JSX.Element>
   access: boolean

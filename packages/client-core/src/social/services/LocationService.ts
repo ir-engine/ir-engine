@@ -36,7 +36,7 @@ import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
 export const LocationSeed: LocationType = {
-  id: '',
+  id: '' as LocationID,
   name: '',
   slugifiedName: '',
   maxUsersPerInstance: 10,
