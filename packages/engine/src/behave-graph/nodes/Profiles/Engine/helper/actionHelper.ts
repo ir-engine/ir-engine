@@ -178,7 +178,6 @@ export function getActionConsumers() {
           uuid: `behave-graph-onAction-${dispatchName}` + systemCounter++,
           execute: () => {
             const currQueue = queue()
-            if (currQueue.length === 0) return
             function delayedIteration(i) {
               if (i < currQueue.length) {
                 const currAction = currQueue[i]

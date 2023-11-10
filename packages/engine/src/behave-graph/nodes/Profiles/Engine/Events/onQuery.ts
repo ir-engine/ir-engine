@@ -128,7 +128,7 @@ export const OnQuery = makeEventNodeDefinition({
       uuid: 'behave-graph-onQuery-' + systemCounter++,
       execute: () => {
         newQueryResult = query()
-        if (newQueryResult.length === 0) return
+        if (newQueryResult.length === 0) return // we dont want to store empty in the prev result
         if (prevQueryResult === newQueryResult) return
         const tempResult = newQueryResult
         function delayedIteration(i) {
