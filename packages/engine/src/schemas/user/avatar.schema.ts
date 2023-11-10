@@ -27,6 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
@@ -35,11 +36,12 @@ import { dataValidator, queryValidator } from '../validators'
 export const avatarPath = 'avatar'
 
 export const avatarMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export type AvatarID = OpaqueType<'AvatarID'> & string
 
 // Main data model schema
 export const avatarSchema = Type.Object(
   {
-    id: Type.String({
+    id: TypedString<AvatarID>({
       format: 'uuid'
     }),
     name: Type.String(),
@@ -63,9 +65,9 @@ export const avatarSchema = Type.Object(
   },
   { $id: 'Avatar', additionalProperties: false }
 )
-export type AvatarType = Static<typeof avatarSchema>
+export interface AvatarType extends Static<typeof avatarSchema> {}
 
-export type AvatarDatabaseType = Omit<AvatarType, 'user' | 'modelResource' | 'thumbnailResource'>
+export interface AvatarDatabaseType extends Omit<AvatarType, 'modelResource' | 'thumbnailResource'> {}
 
 // Schema for creating new entries
 // export const avatarDataSchema = Type.Pick(
@@ -78,13 +80,13 @@ export type AvatarDatabaseType = Omit<AvatarType, 'user' | 'modelResource' | 'th
 export const avatarDataSchema = Type.Partial(avatarSchema, {
   $id: 'AvatarData'
 })
-export type AvatarData = Static<typeof avatarDataSchema>
+export interface AvatarData extends Static<typeof avatarDataSchema> {}
 
 // Schema for updating existing entries
 export const avatarPatchSchema = Type.Partial(avatarSchema, {
   $id: 'AvatarPatch'
 })
-export type AvatarPatch = Static<typeof avatarPatchSchema>
+export interface AvatarPatch extends Static<typeof avatarPatchSchema> {}
 
 // Schema for allowed query properties
 export const avatarQueryProperties = Type.Pick(avatarSchema, [
@@ -105,11 +107,14 @@ export const avatarQuerySchema = Type.Intersect(
       }
     }),
     // Add additional query properties here
-    Type.Object({ action: Type.Optional(Type.String()) }, { additionalProperties: false })
+    Type.Object(
+      { action: Type.Optional(Type.String()), skipUser: Type.Optional(Type.Boolean()) },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )
-export type AvatarQuery = Static<typeof avatarQuerySchema>
+export interface AvatarQuery extends Static<typeof avatarQuerySchema> {}
 
 export const avatarValidator = getValidator(avatarSchema, dataValidator)
 export const avatarDataValidator = getValidator(avatarDataSchema, dataValidator)

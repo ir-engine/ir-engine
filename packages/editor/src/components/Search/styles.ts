@@ -30,7 +30,6 @@ import makeStyles from '@mui/styles/makeStyles'
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     searchRoot: {
-      width: '80px',
       display: 'flex',
       background: 'transparent',
       boxShadow: 'none',

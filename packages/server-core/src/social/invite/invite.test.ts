@@ -27,9 +27,8 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { inviteTypes } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
 import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import assert from 'assert'
 import { v1 } from 'uuid'
@@ -75,7 +74,7 @@ describe('invite.service', () => {
           videoEnabled: true,
           faceStreamingEnabled: false,
           screenSharingEnabled: false,
-          locationId: '',
+          locationId: '' as LocationID,
           createdAt: '',
           updatedAt: ''
         },
@@ -87,12 +86,7 @@ describe('invite.service', () => {
   })
 
   after(async () => {
-    // Remove test user
-    await app.service(identityProviderPath).remove(null, {
-      query: {
-        userId: testUser.id
-      }
-    })
+    await app.service(userPath).remove(testUser.id)
     await destroyEngine()
   })
 

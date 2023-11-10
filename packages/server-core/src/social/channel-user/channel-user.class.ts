@@ -33,7 +33,6 @@ import {
 } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ChannelUserParams extends KnexAdapterParams<ChannelUserQuery> {}
 
 export class ChannelUserService<

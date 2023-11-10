@@ -26,7 +26,9 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
+import { LocationID } from './location.schema'
 
 export const locationSettingPath = 'location-setting'
 
@@ -38,7 +40,7 @@ export const locationSettingSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    locationId: Type.String({
+    locationId: TypedString<LocationID>({
       format: 'uuid'
     }),
     locationType: StringEnum(['private', 'public', 'showroom']),
@@ -51,7 +53,7 @@ export const locationSettingSchema = Type.Object(
   },
   { $id: 'LocationSetting', additionalProperties: false }
 )
-export type LocationSettingType = Static<typeof locationSettingSchema>
+export interface LocationSettingType extends Static<typeof locationSettingSchema> {}
 
 // Schema for creating new entries
 export const locationSettingDataSchema = Type.Pick(
@@ -61,13 +63,13 @@ export const locationSettingDataSchema = Type.Pick(
     $id: 'LocationSettingData'
   }
 )
-export type LocationSettingData = Static<typeof locationSettingDataSchema>
+export interface LocationSettingData extends Static<typeof locationSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const locationSettingPatchSchema = Type.Partial(locationSettingSchema, {
   $id: 'LocationSettingPatch'
 })
-export type LocationSettingPatch = Static<typeof locationSettingPatchSchema>
+export interface LocationSettingPatch extends Static<typeof locationSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const locationSettingQueryProperties = Type.Pick(locationSettingSchema, [
@@ -87,7 +89,7 @@ export const locationSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type LocationSettingQuery = Static<typeof locationSettingQuerySchema>
+export interface LocationSettingQuery extends Static<typeof locationSettingQuerySchema> {}
 
 export const locationSettingValidator = getValidator(locationSettingSchema, dataValidator)
 export const locationSettingDataValidator = getValidator(locationSettingDataSchema, dataValidator)

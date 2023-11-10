@@ -82,17 +82,22 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
   }
 
   async _callOnLoad() {
-    const projects = (await super._find({
-      query: { $select: ['name'] },
-      paginate: false
-    })) as Array<{ name }>
-    await Promise.all(
-      projects.map(async ({ name }) => {
-        if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
-        const config = getProjectConfig(name)
-        if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
-      })
-    )
+    try {
+      const projects = (await super._find({
+        query: { $select: ['name'] },
+        paginate: false
+      })) as Array<{ name }>
+      await Promise.all(
+        projects.map(async ({ name }) => {
+          if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
+          const config = getProjectConfig(name)
+          if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
+        })
+      )
+    } catch (err) {
+      logger.error(err)
+      throw err
+    }
   }
 
   async _seedProject(projectName: string): Promise<any> {
@@ -148,6 +153,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
         } catch (e) {
           logger.error(e)
         }
+      } else {
+        /**@todo call onUpdate for project */
       }
 
       const { commitSHA, commitDate } = await getCommitSHADate(projectName)

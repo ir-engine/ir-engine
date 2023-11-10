@@ -30,7 +30,6 @@ import { MatchTicketData, MatchTicketQuery, MatchTicketType } from '@etherealeng
 
 import { KnexAdapterParams } from '@feathersjs/knex'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface MatchTicketParams extends KnexAdapterParams<MatchTicketQuery> {}
 
 /**

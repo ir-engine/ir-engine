@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { UserID, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserID, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import {
@@ -95,7 +95,13 @@ export const userResolver = resolve<UserType, HookContext>({
 
 export const userExternalResolver = resolve<UserType, HookContext>({
   avatar: virtual(async (user, context) => {
-    if (context.event !== 'removed' && user.avatarId) return await context.app.service(avatarPath).get(user.avatarId)
+    if (context.params?.actualQuery?.skipAvatar) return {}
+    if (context.event !== 'removed' && user.avatarId)
+      try {
+        return await context.app.service(avatarPath).get(user.avatarId, { query: { skipUser: true } })
+      } catch (err) {
+        return {}
+      }
   }),
   userSetting: virtual(async (user, context) => {
     const userSetting = (await context.app.service(userSettingPath).find({
@@ -144,7 +150,7 @@ export const userDataResolver = resolve<UserType, HookContext>({
     return name || 'Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)
   },
   inviteCode: async (inviteCode, _, context) => {
-    return inviteCode || (await getFreeInviteCode(context.app))
+    return inviteCode || ((await getFreeInviteCode(context.app)) as InviteCode)
   },
   avatarId: async (avatarId) => {
     return avatarId || undefined

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, makeAsyncNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
+import { Assert, NodeCategory, makeAsyncNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import {
@@ -61,6 +61,7 @@ export const getSpline = makeFunctionNodeDefinition({
   out: { entity: 'entity' },
   exec: ({ read, write }) => {
     const splineEntityUUID = read<string>('spline')
+    Assert.mustBeTrue(splineEntityUUID !== '', 'Please select spline entity')
     const splineEntity = UUIDComponent.entitiesByUUID[splineEntityUUID]
     write('entity', splineEntity)
   }

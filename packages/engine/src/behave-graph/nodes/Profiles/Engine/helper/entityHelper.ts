@@ -25,9 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { getState } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
-import { EngineState } from '../../../../../ecs/classes/EngineState'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { SceneState } from '../../../../../ecs/classes/Scene'
 import { getComponent, hasComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
@@ -38,7 +36,7 @@ import { createNewEditorNode } from '../../../../../scene/systems/SceneLoadingSy
 
 export const addEntityToScene = (
   componentJson: Array<ComponentJson>,
-  parentEntity = getState(SceneState).sceneEntity as Entity,
+  parentEntity = SceneState.getRootEntity(),
   beforeEntity = null as Entity | null
 ) => {
   const newEntity = createEntity()
@@ -51,7 +49,7 @@ export const addEntityToScene = (
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
   setComponent(newEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-  if (getState(EngineState).isEditor) createNewEditorNode(newEntity, componentJson, parentEntity)
+  createNewEditorNode(newEntity, componentJson, parentEntity)
 
   return newEntity
 }

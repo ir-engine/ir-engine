@@ -31,7 +31,7 @@ const dialogContainerStyles = {
   display: 'flex',
   flexDirection: 'column',
   borderRadius: '4px',
-  backgroundColor: '#282c31',
+  backgroundColor: 'var(--dockBackground)',
   maxWidth: '800px',
   minWidth: '250px',
   minHeight: '150px',
@@ -59,18 +59,22 @@ const dialogContentStyles = {
   flexDirection: 'row',
   overflow: 'hidden',
   padding: '8px',
-  minHeight: '100px'
+  minHeight: '100px',
+  fontFamily: 'var(--lato)',
+  fontSize: '12px',
+  backgroundColor: 'var(--background)'
 }
 
 const dialogBottomNavStyles = {
   display: 'flex',
+
   padding: '8px',
-  margin: 'auto',
   marginBottom: '10px'
 }
 
 const buttonStyles = {
-  minWidth: '84px'
+  minWidth: '75px',
+  margin: '10px'
 }
 
 const DialogForm = ({ tag, onSubmit, children }) => {

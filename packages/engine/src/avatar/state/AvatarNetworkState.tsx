@@ -26,7 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineState, dispatchAction, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  none,
+  useHookstate,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { Paginated } from '@feathersjs/feathers'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -36,7 +44,7 @@ import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
+import { AvatarID, AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
 import { userPath } from '../../schemas/user/user.schema'
 import { loadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
@@ -48,7 +56,7 @@ export const AvatarState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
-      avatarID?: string
+      avatarID?: AvatarID
       userAvatarDetails: AvatarType
     }
   >,
@@ -57,7 +65,7 @@ export const AvatarState = defineState({
     [
       AvatarNetworkAction.setAvatarID,
       (state, action: typeof AvatarNetworkAction.setAvatarID.matches._TYPE) => {
-        state[action.entityUUID].merge({ avatarID: action.avatarID })
+        state[action.entityUUID].merge({ avatarID: action.avatarID as AvatarID })
       }
     ],
 
@@ -88,14 +96,14 @@ export const AvatarState = defineState({
       })
   },
 
-  updateUserAvatarId(avatarId: string) {
+  updateUserAvatarId(avatarId: AvatarID) {
     Engine.instance.api
       .service(userPath)
       .patch(Engine.instance.userID, { avatarId: avatarId })
       .then(() => {
         dispatchAction(
           AvatarNetworkAction.setAvatarID({
-            avatarID: avatarId,
+            avatarID: avatarId as AvatarID,
             entityUUID: Engine.instance.userID as any as EntityUUID
           })
         )
@@ -151,9 +159,13 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     const entity = UUIDComponent.entitiesByUUID[entityUUID]
     if (!entity || !entityExists(entity)) return
 
+    const avatarDetails = state.userAvatarDetails.get(NO_PROXY)
+
     loadAvatarForUser(entity, url).catch((e) => {
-      console.error('Failed to load avatar for user', e)
-      AvatarState.selectRandomAvatar()
+      console.error('Failed to load avatar for user', e, avatarDetails)
+      if (entityUUID === (Engine.instance.userID as any)) {
+        AvatarState.selectRandomAvatar()
+      }
     })
   }, [state.userAvatarDetails])
 

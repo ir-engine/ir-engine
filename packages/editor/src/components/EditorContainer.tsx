@@ -40,8 +40,10 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { t } from 'i18next'
@@ -49,8 +51,7 @@ import { useDrop } from 'react-dnd'
 import { Vector2, Vector3 } from 'three'
 import { ItemTypes } from '../constants/AssetTypes'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
-import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
-import { loadProjectScene } from '../functions/projectFunctions'
+import { inputFileWithAddToScene } from '../functions/assetFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { getCursorSpawnPosition } from '../functions/screenSpaceFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -58,7 +59,6 @@ import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState } from '../services/EditorHelperState'
-import { EditorHistoryState } from '../services/EditorHistory'
 import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
@@ -78,6 +78,7 @@ import { GraphPanelTitle } from './graph/GraphPanelTitle'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { HierarchyPanelTitle } from './hierarchy/HierarchyPanelTitle'
 import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
+import MaterialProperties, { MaterialPropertyTitle } from './materials/MaterialEditor'
 import MaterialLibraryPanel from './materials/MaterialLibraryPanel'
 import { MaterialLibraryPanelTitle } from './materials/MaterialLibraryPanelTitle'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
@@ -90,7 +91,7 @@ const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 /**
  *component used as dock container.
  */
-export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
+export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
     '--dividerAlpha': dividerAlpha
   }
@@ -196,7 +197,7 @@ const loadScene = async (sceneName: string) => {
     if (!project.scene) {
       return
     }
-    loadProjectScene(project)
+    SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, project)
   } catch (error) {
     logger.error(error)
   }
@@ -241,7 +242,7 @@ const onCloseProject = () => {
   editorState.sceneModified.set(false)
   editorState.projectName.set(null)
   editorState.sceneName.set(null)
-  EditorHistoryState.unloadScene()
+  SceneState.unloadScene(getState(SceneState).activeScene!)
   RouterState.navigate('/studio')
 }
 
@@ -289,27 +290,7 @@ const onSaveAs = async () => {
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
 
-  const el = document.createElement('input')
-  el.type = 'file'
-  el.multiple = true
-  el.accept = '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
-  el.style.display = 'none'
-  el.onchange = async () => {
-    if (el.files && el.files.length > 0 && projectName) {
-      const fList = el.files
-      const files = [...Array(el.files.length).keys()].map((i) => fList[i])
-      const nuUrl = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map((url) => url[0])
-
-      //process zipped files
-      const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
-      const extractPromises = [...zipFiles.map((zipped) => extractZip(zipped))]
-      Promise.all(extractPromises).then(() => {
-        logger.info('extraction complete')
-      })
-    }
-  }
-  el.click()
-  el.remove()
+  if (projectName) await inputFileWithAddToScene({ projectName })
 }
 
 const onSaveScene = async () => {
@@ -490,6 +471,11 @@ const defaultLayout: LayoutData = {
                 id: 'graphPanel',
                 title: <GraphPanelTitle />,
                 content: <GraphPanel />
+              },
+              {
+                id: 'materialPropertiesPanel',
+                title: <MaterialPropertyTitle />,
+                content: <MaterialProperties />
               }
             ]
           }

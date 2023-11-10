@@ -24,14 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { API } from '@etherealengine/client-core/src/API'
-import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { Paginated } from '@feathersjs/feathers'
-import { EditorHistoryAction } from '../services/EditorHistory'
-import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
  * Gets a list of projects installed
@@ -46,15 +41,4 @@ export const getProjects = async (): Promise<ProjectType[]> => {
   } catch (error) {
     throw new Error(error)
   }
-}
-
-/**
- * Loads scene from provided project file.
- */
-export async function loadProjectScene(projectData: SceneData) {
-  EditorControlFunctions.replaceSelection([])
-
-  dispatchAction(EditorHistoryAction.clearHistory({}))
-
-  getMutableState(SceneState).sceneData.set(projectData)
 }

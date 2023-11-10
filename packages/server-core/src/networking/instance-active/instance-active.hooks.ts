@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import { instanceActiveQueryValidator } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import {
   instanceActiveExternalResolver,
@@ -46,12 +47,12 @@ export default {
       () => schemaHooks.validateQuery(instanceActiveQueryValidator),
       schemaHooks.resolveQuery(instanceActiveQueryResolver)
     ],
-    find: [verifyScope('editor', 'write')],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    find: [iff(isProvider('external'), verifyScope('instance', 'read'))],
+    get: [disallow()],
+    create: [disallow()],
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
   after: {
     all: [],

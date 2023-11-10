@@ -43,7 +43,7 @@ export const emailSubjectSchema = Type.Object(
   },
   { $id: 'EmailSubject', additionalProperties: false }
 )
-export type EmailSubjectType = Static<typeof emailSubjectSchema>
+export interface EmailSubjectType extends Static<typeof emailSubjectSchema> {}
 
 export const emailAuthSchema = Type.Object(
   {
@@ -52,7 +52,7 @@ export const emailAuthSchema = Type.Object(
   },
   { $id: 'EmailAuth', additionalProperties: false }
 )
-export type EmailAuthType = Static<typeof emailAuthSchema>
+export interface EmailAuthType extends Static<typeof emailAuthSchema> {}
 
 export const emailSmtpSchema = Type.Object(
   {
@@ -63,7 +63,7 @@ export const emailSmtpSchema = Type.Object(
   },
   { $id: 'EmailSmtp', additionalProperties: false }
 )
-export type EmailSmtpType = Static<typeof emailSmtpSchema>
+export interface EmailSmtpType extends Static<typeof emailSmtpSchema> {}
 
 // Main data model schema
 export const emailSettingSchema = Type.Object(
@@ -80,9 +80,12 @@ export const emailSettingSchema = Type.Object(
   },
   { $id: 'EmailSetting', additionalProperties: false }
 )
-export type EmailSettingType = Static<typeof emailSettingSchema>
+export interface EmailSettingType extends Static<typeof emailSettingSchema> {}
 
-export type EmailSettingDatabaseType = Omit<EmailSettingType, 'smtp' | 'subject'> & { smtp: string; subject: string }
+export interface EmailSettingDatabaseType extends Omit<EmailSettingType, 'smtp' | 'subject'> {
+  smtp: string
+  subject: string
+}
 
 // Schema for creating new entries
 export const emailSettingDataSchema = Type.Pick(
@@ -92,13 +95,13 @@ export const emailSettingDataSchema = Type.Pick(
     $id: 'EmailSettingData'
   }
 )
-export type EmailSettingData = Static<typeof emailSettingDataSchema>
+export interface EmailSettingData extends Static<typeof emailSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const emailSettingPatchSchema = Type.Partial(emailSettingSchema, {
   $id: 'EmailSettingPatch'
 })
-export type EmailSettingPatch = Static<typeof emailSettingPatchSchema>
+export interface EmailSettingPatch extends Static<typeof emailSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const emailSettingQueryProperties = Type.Pick(emailSettingSchema, [
@@ -116,7 +119,7 @@ export const emailSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type EmailSettingQuery = Static<typeof emailSettingQuerySchema>
+export interface EmailSettingQuery extends Static<typeof emailSettingQuerySchema> {}
 
 export const emailSubjectValidator = getValidator(emailSubjectSchema, dataValidator)
 export const emailAuthValidator = getValidator(emailAuthSchema, dataValidator)

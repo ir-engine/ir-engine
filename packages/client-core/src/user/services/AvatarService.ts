@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarID, avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
@@ -114,7 +114,7 @@ export const AvatarService = {
       await Promise.all(removalPromises)
 
       payload = {
-        modelResourceId: uploadResponse[0].id,
+        modelResourceId: uploadResponse[0].id as AvatarID,
         thumbnailResourceId: uploadResponse[1].id,
         name: avatarName
       }
@@ -127,7 +127,7 @@ export const AvatarService = {
       return prevAvatarList
     })
 
-    const userAvatarId = getState(AvatarNetworkState)[Engine.instance.userID]
+    const userAvatarId = getState(AvatarNetworkState)[Engine.instance.userID] as AvatarID
     if (userAvatarId === avatar.id) {
       AvatarNetworkState.updateUserAvatarId(avatar.id)
     }
@@ -137,7 +137,7 @@ export const AvatarService = {
     return Engine.instance.api.service(staticResourcePath).remove(id)
   },
 
-  async uploadAvatarModel(avatar: File, thumbnail: File, avatarName: string, isPublic: boolean, avatarId?: string) {
+  async uploadAvatarModel(avatar: File, thumbnail: File, avatarName: string, isPublic: boolean, avatarId?: AvatarID) {
     return uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
       args: {
@@ -148,7 +148,7 @@ export const AvatarService = {
     }).promise as Promise<StaticResourceType[]>
   },
 
-  async getAvatar(id: string) {
+  async getAvatar(id: AvatarID) {
     try {
       return Engine.instance.api.service(avatarPath).get(id)
     } catch (err) {
