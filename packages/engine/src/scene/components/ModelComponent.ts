@@ -160,9 +160,7 @@ function ModelReactor() {
         case 'fbx':
         case 'vrm':
         case 'usdz':
-          if (!hasComponent(entity, SceneAssetPendingTagComponent)) {
-            setComponent(entity, SceneAssetPendingTagComponent)
-          }
+          setComponent(entity, SceneAssetPendingTagComponent)
           AssetLoader.load(
             model.src,
             {

@@ -46,13 +46,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import config from '@etherealengine/common/src/config'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
-import {
-  defineComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, removeComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { StaticResourceType } from '../../schemas/media/static-resource.schema'
@@ -170,9 +164,7 @@ export function ImageReactor() {
         return addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
       }
 
-      if (!hasComponent(entity, SceneAssetPendingTagComponent)) {
-        setComponent(entity, SceneAssetPendingTagComponent)
-      }
+      setComponent(entity, SceneAssetPendingTagComponent)
       AssetLoader.loadAsync(image.source.value)
         .then((_texture) => {
           texture.set(_texture)
