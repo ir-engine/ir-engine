@@ -71,6 +71,7 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
+import { createScenes } from '../../util/createScenes'
 import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
 import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
@@ -277,6 +278,8 @@ export const onProjectEvent = async (
   eventType: keyof ProjectEventHooks,
   ...args
 ) => {
+  // In case the project has changed since the server process started
+  delete require.cache[path.resolve(projectsRootFolder, projectName, hookPath)]
   const hooks = require(path.resolve(projectsRootFolder, projectName, hookPath)).default
   if (typeof hooks[eventType] === 'function') {
     if (args && args.length > 0) {
@@ -1567,9 +1570,9 @@ export const updateProject = async (
     )
   }
   // run project install script
-  if (projectConfig.onEvent) {
+  if (projectConfig.onEvent)
     await onProjectEvent(app, projectName, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
-  }
+  await createScenes(app, projectName)
 
   const k8BatchClient = getState(ServerState).k8BatchClient
 

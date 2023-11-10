@@ -34,6 +34,7 @@ import appRootPath from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import path from 'path'
+import { createScenes } from "@etherealengine/server-core/src/util/createScenes";
 
 dotenv.config()
 const db = {
@@ -62,6 +63,7 @@ async function installAllProjects() {
     await app.service(projectPath).update('', { sourceURL: 'default-project' }, { isInternal: true, isJob: true })
     const projectConfig = getProjectConfig('default-project') ?? {}
     if (projectConfig.onEvent) await onProjectEvent(app, 'default-project', projectConfig.onEvent, 'onUpdate')
+    await createScenes(app, 'default-project')
     process.exit(0)
   } catch (e) {
     logger.fatal(e)

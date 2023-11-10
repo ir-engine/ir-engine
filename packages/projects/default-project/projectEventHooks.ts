@@ -105,7 +105,6 @@ const config = {
     return installAvatarsFromProject(app, avatarsFolder)
   },
   onUpdate: async (app: Application) => {
-    await createScenes(app, packageJson.name)
     return installAvatarsFromProject(app, avatarsFolder)
   },
   onOEmbedRequest: handleOEmbedRequest

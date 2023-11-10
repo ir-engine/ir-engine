@@ -43,6 +43,7 @@ import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import { createScenes } from '../../util/createScenes'
 import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
 import {
   deleteProjectFilesInStorageProvider,
@@ -112,6 +113,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
           if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
           const config = getProjectConfig(name)
           if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onUpdate')
+          await createScenes(this.app, name)
         })
       )
     } catch (err) {
