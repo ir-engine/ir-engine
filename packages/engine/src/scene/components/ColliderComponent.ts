@@ -56,7 +56,7 @@ import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const ColliderComponent = defineComponent({
-  name: 'ColliderComponent',
+  name: 'Collider Component',
   jsonID: 'collider',
 
   onInit(entity) {

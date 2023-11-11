@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { Group, Layers, Mesh, Scene } from 'three'
+import { Group, Layers, MathUtils, Mesh, Scene } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getState } from '@etherealengine/hyperflux'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
@@ -66,6 +67,7 @@ describe('loadGLTFModel', () => {
     const mockComponentData = { src: '' } as any
     const CustomComponent = defineComponent({
       name: 'CustomComponent',
+      jsonID: 'custom-component',
       onInit(entity) {
         return {
           val: 0
@@ -78,7 +80,8 @@ describe('loadGLTFModel', () => {
     })
 
     const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity })
+    const uuid = MathUtils.generateUUID() as EntityUUID
+    setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity, uuid })
     setComponent(entity, ModelComponent, {
       ...mockComponentData
     })
@@ -112,10 +115,17 @@ describe('loadGLTFModel', () => {
     assert.equal(typeof mockModelEntity, 'number')
     assert(getComponent(mockModelEntity, GroupComponent)[0].layers.test(expectedLayer))
 
-    // assert(hasComponent(mockSpawnPointEntity, SpawnPointComponent))
-    assert.equal(getComponent(mockSpawnPointEntity, CustomComponent).val, number)
-    assert.equal(getComponent(mockSpawnPointEntity, NameComponent), entityName)
-    assert(getComponent(mockSpawnPointEntity, GroupComponent)[0].layers.test(expectedLayer))
+    const currentScene = SceneState.getCurrentScene()!
+    const childUUID = Object.keys(currentScene.scene.entities).find((key) => {
+      const entityJson = currentScene.scene.entities[key as EntityUUID]
+      return entityJson.parent === uuid
+    })
+    assert.notEqual(childUUID, undefined)
+    const entityJson = currentScene.scene.entities[childUUID as EntityUUID]
+    assert.notEqual(entityJson, undefined)
+    const val = entityJson.components.find((component) => component.name === CustomComponent.jsonID)?.props?.val
+    assert.equal(val, number)
+    assert.equal(entityJson.name, entityName)
   })
 
   // TODO

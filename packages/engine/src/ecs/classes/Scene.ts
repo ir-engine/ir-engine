@@ -38,7 +38,7 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { useEffect } from 'react'
 import { Validator, matches } from '../../common/functions/MatchesUtils'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -76,24 +76,6 @@ export const SceneState = defineState({
     }
   },
 
-  addComponentsToEntity: (entityUUID: EntityUUID, components: ComponentJson[]) => {
-    const sceneState = getMutableState(SceneState)
-    const sceneID = sceneState.scenes.keys.find((sceneID) => {
-      const scene = sceneState.scenes[sceneID].value
-      const snapshot = scene.snapshots[scene.index] as SceneSnapshotInterface
-      return !!snapshot.data.scene.entities[entityUUID]
-    }) as SceneID | null
-    if (!sceneID) throw new Error(`Entity ${entityUUID} does not exist in any scene`)
-    const scene = SceneState.getMutableScene(sceneID)
-    const entity = scene.scene.entities[entityUUID]
-    if (!entity) throw new Error(`Entity ${entityUUID} does not exist in scene ${sceneID}`)
-    for (const component of components) {
-      const index = entity.components.findIndex((c) => c.value.name === component.name)
-      if (index === -1) entity.components[entity.components.length].set(component)
-      else entity.components[index].set(component)
-    }
-  },
-
   entityHasComponent: <C extends Component>(entityUUID: EntityUUID, component: C) => {
     const entityJson = SceneState.getCurrentScene()!.scene.entities[entityUUID]
     return entityJson.components.some((componentJson) => componentJson.name === component.jsonID)
@@ -102,7 +84,13 @@ export const SceneState = defineState({
   getCurrentScene: () => {
     const activeScene = getState(SceneState).activeScene
     if (!activeScene) return null
-    return getState(SceneState).scenes[activeScene].snapshots[getState(SceneState).scenes[activeScene].index].data
+    return SceneState.getScene(activeScene)!
+  },
+
+  getMutableCurrentScene: () => {
+    const activeSceneID = getState(SceneState).activeScene
+    if (!activeSceneID) return null
+    return SceneState.getMutableScene(activeSceneID)!
   },
 
   getScene: (sceneID: SceneID) => {

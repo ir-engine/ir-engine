@@ -35,6 +35,7 @@ import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunc
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
@@ -65,6 +66,7 @@ describe('EntityNetworkState', () => {
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.store.defaultDispatchDelay = () => 0
     startSystem(EntityNetworkStateSystem, { with: SimulationSystemGroup })
+    loadEmptyScene()
   })
 
   afterEach(() => {

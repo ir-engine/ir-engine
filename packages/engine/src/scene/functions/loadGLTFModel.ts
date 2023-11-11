@@ -286,7 +286,7 @@ export const parseGLTFModel = (entity: Entity) => {
         },
         removeFromParent: {
           value: () => {
-            if (getComponent(objEntity, EntityTreeComponent).parentEntity) {
+            if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
               setComponent(objEntity, EntityTreeComponent, {
                 parentEntity: null
               })

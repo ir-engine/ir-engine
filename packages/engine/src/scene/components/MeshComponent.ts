@@ -28,7 +28,7 @@ import { Mesh } from 'three'
 import { defineComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 export const MeshComponent = defineComponent({
-  name: 'EE_mesh',
+  name: 'Mesh Component',
   jsonID: 'mesh',
   onInit: (entity) => new Mesh(),
   onSet: (entity, component, mesh?: Mesh) => {
