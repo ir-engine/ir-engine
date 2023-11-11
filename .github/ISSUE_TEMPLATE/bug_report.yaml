@@ -29,8 +29,6 @@ body:
         - label: Linux
         - label: Android
         - label: IOS
-      validations:
-        required: false
   - type: input
     id: browser
     attributes:
@@ -39,7 +37,7 @@ body:
     validations:
       required: false
   - type: textarea
-    id: Expectation
+    id: expectation
     attributes:
       label: What is supposed happened?
       description: Please clearly describe what you expect, including any screenshots
@@ -48,7 +46,7 @@ body:
     validations:
       required: true
   - type: textarea
-    id: Reality?
+    id: reality
     attributes:
       label: What happened?
       description: Please clearly describe the issue you are facing, including any
