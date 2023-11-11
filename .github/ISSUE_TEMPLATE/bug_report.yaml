@@ -16,13 +16,19 @@ body:
       value: "0f27df2(1.5.0)"
     validations:
       required: true
-  - type: input
+  - type: checkboxes
     id: os
     attributes:
-      label: Operating System
-      description: What operating system is Ethereal Engine running on?
-    validations:
-      required: true
+      label: Operating Systems
+      description: What operating system were you using?
+      options:
+        - label: macOS
+        - label: Windows
+        - label: Linux
+        - label: Android
+        - label: IOS
+      validations:
+        required: false
   - type: input
     id: browser
     attributes:
@@ -35,6 +41,7 @@ body:
     attributes:
       label: What is supposed happened?
       description: Please clearly describe what you expect, including any screenshots that may be helpful.
+      value: "Not applicable"
     validations:
       required: true
   - type: textarea
@@ -42,6 +49,7 @@ body:
     attributes:
       label: What happened?
       description: Please clearly describe the issue you are facing, including any screenshots that may be helpful.
+      value: "Not applicable"
     validations:
       required: true
   - type: textarea
