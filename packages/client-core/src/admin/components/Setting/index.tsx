@@ -40,6 +40,7 @@ import ListItemAvatar from '@etherealengine/ui/src/primitives/mui/ListItemAvatar
 import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { userHasAccess } from '../../../user/userHasAccess'
 import styles from '../../styles/settings.module.scss'
 import Authentication from './Authentication'
@@ -61,80 +62,92 @@ const settingItems = [
     name: 'project',
     title: 'Project',
     icon: <Icon type="Code" sx={{ color: 'orange' }} />,
-    content: <Project />
+    content: <Project />,
+    scope: 'settings:read'
   },
   {
     name: 'server',
     title: 'Server',
     icon: <Iconify icon="carbon:bare-metal-server" color="orange" />,
-    content: <Server />
+    content: <Server />,
+    scope: 'settings:read'
   },
   {
     name: 'helm',
     title: 'Helm Charts',
     icon: <Icon type="Poll" sx={{ color: 'orange' }} />,
-    content: <Helm />
+    content: <Helm />,
+    scope: 'settings:read'
   },
   {
     name: 'client',
     title: 'Client',
     icon: <Icon type="ViewCompact" sx={{ color: 'orange' }} />,
     content: <Client />,
-    scope: 'settings_client:read'
+    scope: ['settings:read', `${clientSettingPath}:read`]
   },
   {
     name: 'clientTheme',
     title: 'Client Theme',
     icon: <Icon type="FormatColorFill" sx={{ color: 'orange' }} />,
-    content: <ClientTheme />
+    content: <ClientTheme />,
+    scope: ['settings:read', `${clientSettingPath}:read`]
   },
   {
     name: 'instanceServer',
     title: 'Instance Server',
     icon: <Icon type="Hub" sx={{ color: 'orange' }} />,
-    content: <InstanceServer />
+    content: <InstanceServer />,
+    scope: 'settings:read'
   },
   {
     name: 'taskServer',
     title: 'Task Server',
     icon: <Icon type="ListAlt" sx={{ color: 'orange' }} />,
-    content: <TaskServer />
+    content: <TaskServer />,
+    scope: 'settings:read'
   },
   {
     name: 'email',
     title: 'Email',
     icon: <Icon type="MailOutline" sx={{ color: 'orange' }} />,
-    content: <Email />
+    content: <Email />,
+    scope: 'settings:read'
   },
   {
     name: 'authentication',
     title: 'Authentication',
     icon: <Icon type="Lock" sx={{ color: 'orange' }} />,
-    content: <Authentication />
+    content: <Authentication />,
+    scope: 'settings:read'
   },
   {
     name: 'aws',
     title: 'AWS',
     icon: <Iconify icon="logos:aws" />,
-    content: <Aws />
+    content: <Aws />,
+    scope: 'settings:read'
   },
   {
     name: 'chargebee',
     title: 'Chargebee',
     icon: <Iconify icon="logos:chargebee-icon" />,
-    content: <ChargeBee />
+    content: <ChargeBee />,
+    scope: 'settings:read'
   },
   {
     name: 'redis',
     title: 'Redis',
     icon: <Iconify icon="logos:redis" />,
-    content: <Redis />
+    content: <Redis />,
+    scope: 'settings:read'
   },
   {
     name: 'coil',
     title: 'Coil',
     icon: <Iconify icon="simple-icons:coil" color="orange" />,
-    content: <Coil />
+    content: <Coil />,
+    scope: 'settings:read'
   }
 ]
 
@@ -147,7 +160,9 @@ const Sidebar = ({ selected, onChange }: SidebarProps) => {
   return (
     <List>
       {settingItems
-        .filter((item) => (item.scope ? userHasAccess(item.scope) : true))
+        .filter((item) =>
+          Array.isArray(item.scope) ? item.scope.find((scope) => userHasAccess(scope)) : userHasAccess(item.scope)
+        )
         .map((item) => (
           <Fragment key={item.name}>
             <ListItem
