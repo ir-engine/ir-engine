@@ -1,7 +1,9 @@
 name: Bug report
 description: Create a report to help us improve
-title: '[Bug]: '
-labels: ["bug", "triage"]
+title: "[Bug]: "
+labels:
+  - bug
+  - triage
 assignees: []
 body:
   - type: markdown
@@ -13,7 +15,7 @@ body:
     attributes:
       label: Version
       description: What version or commit of EE are you running?
-      value: "0f27df2(1.5.0)"
+      value: 0f27df2(1.5.0)
     validations:
       required: true
   - type: checkboxes
@@ -40,16 +42,18 @@ body:
     id: Expectation
     attributes:
       label: What is supposed happened?
-      description: Please clearly describe what you expect, including any screenshots that may be helpful.
-      value: "Not applicable"
+      description: Please clearly describe what you expect, including any screenshots
+        that may be helpful.
+      value: Not applicable
     validations:
       required: true
   - type: textarea
     id: Reality?
     attributes:
       label: What happened?
-      description: Please clearly describe the issue you are facing, including any screenshots that may be helpful.
-      value: "Not applicable"
+      description: Please clearly describe the issue you are facing, including any
+        screenshots that may be helpful.
+      value: Not applicable
     validations:
       required: true
   - type: textarea
