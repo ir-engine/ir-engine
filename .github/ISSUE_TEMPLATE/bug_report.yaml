@@ -33,14 +33,14 @@ body:
   - type: textarea
     id: Expectation
     attributes:
-      label: What happened?
+      label: What is supposed happened?
       description: Please clearly describe what you expect, including any screenshots that may be helpful.
     validations:
       required: true
   - type: textarea
     id: Reality?
     attributes:
-      label: What is supposed happened?
+      label: What happened?
       description: Please clearly describe the issue you are facing, including any screenshots that may be helpful.
     validations:
       required: true
