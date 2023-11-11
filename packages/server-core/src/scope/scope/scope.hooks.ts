@@ -30,7 +30,6 @@ import {
   ScopeData,
   ScopeType,
   scopeDataValidator,
-  scopePatchValidator,
   scopePath,
   scopeQueryValidator
 } from '@etherealengine/engine/src/schemas/scope/scope.schema'
@@ -39,14 +38,8 @@ import { HookContext } from '../../../declarations'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
 import verifyScopeAllowingSelf from '../../hooks/verify-scope-allowing-self'
-import {
-  scopeDataResolver,
-  scopeExternalResolver,
-  scopePatchResolver,
-  scopeQueryResolver,
-  scopeResolver
-} from '../../scope/scope/scope.resolvers'
 import { ScopeService } from './scope.class'
+import { scopeDataResolver, scopeExternalResolver, scopeQueryResolver, scopeResolver } from './scope.resolvers'
 
 /**
  * Check and maintain existing scopes
@@ -104,21 +97,17 @@ export default {
   },
   before: {
     all: [() => schemaHooks.validateQuery(scopeQueryValidator), schemaHooks.resolveQuery(scopeQueryResolver)],
-    find: [enableClientPagination(), iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
+    find: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read')), enableClientPagination()],
     get: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
+      iff(isProvider('external'), verifyScope('user', 'write'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(scopeDataValidator),
       schemaHooks.resolveData(scopeDataResolver),
       checkExistingScopes
     ],
     update: [disallow()],
-    patch: [
-      disallow(),
-      () => schemaHooks.validateData(scopePatchValidator),
-      schemaHooks.resolveData(scopePatchResolver)
-    ],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write'))]
+    patch: [disallow()],
+    remove: [iff(isProvider('external'), verifyScope('user', 'write'), verifyScope('admin', 'admin'))]
   },
 
   after: {

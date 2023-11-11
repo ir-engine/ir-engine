@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
-import { UserID, userSchema } from '../user/user.schema'
+import { InviteCode, UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 
 export const projectPermissionPath = 'project-permission'
@@ -53,25 +53,34 @@ export const projectPermissionSchema = Type.Object(
   },
   { $id: 'ProjectPermission', additionalProperties: false }
 )
-export type ProjectPermissionType = Static<typeof projectPermissionSchema>
+export interface ProjectPermissionType extends Static<typeof projectPermissionSchema> {}
 
 // Schema for creating new entries
 export const projectPermissionDataProperties = Type.Partial(projectPermissionSchema)
 
 export const projectPermissionDataSchema = Type.Intersect(
-  [projectPermissionDataProperties, Type.Object({ inviteCode: Type.Optional(Type.String()) })],
+  [
+    projectPermissionDataProperties,
+    Type.Object({
+      inviteCode: Type.Optional(
+        TypedString<InviteCode>({
+          format: 'uuid'
+        })
+      )
+    })
+  ],
   {
     $id: 'ProjectPermissionData',
     additionalProperties: false
   }
 )
-export type ProjectPermissionData = Static<typeof projectPermissionDataSchema>
+export interface ProjectPermissionData extends Static<typeof projectPermissionDataSchema> {}
 
 // Schema for updating existing entries
 export const projectPermissionPatchSchema = Type.Partial(projectPermissionSchema, {
   $id: 'ProjectPermissionPatch'
 })
-export type ProjectPermissionPatch = Static<typeof projectPermissionPatchSchema>
+export interface ProjectPermissionPatch extends Static<typeof projectPermissionPatchSchema> {}
 
 // Schema for allowed query properties
 export const projectPermissionQueryProperties = Type.Pick(projectPermissionSchema, [
@@ -88,7 +97,7 @@ export const projectPermissionQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type ProjectPermissionQuery = Static<typeof projectPermissionQuerySchema>
+export interface ProjectPermissionQuery extends Static<typeof projectPermissionQuerySchema> {}
 
 export const projectPermissionValidator = getValidator(projectPermissionSchema, dataValidator)
 export const projectPermissionDataValidator = getValidator(projectPermissionDataSchema, dataValidator)

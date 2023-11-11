@@ -69,18 +69,11 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       {linkComponent.sceneNav.value ? (
         <>
-          <InputGroup name="ProjectName" label={t('editor:properties.linkComp.lbl-projname')}>
+          <InputGroup name="Location" label={t('editor:properties.linkComp.lbl-locaiton')}>
             <ControlledStringInput
-              value={linkComponent.projectName.value}
-              onChange={updateProperty(LinkComponent, 'projectName')}
-              onRelease={commitProperty(LinkComponent, 'projectName')}
-            />
-          </InputGroup>
-          <InputGroup name="SceneName" label={t('editor:properties.linkComp.lbl-scenename')}>
-            <ControlledStringInput
-              value={linkComponent.sceneName.value}
-              onChange={updateProperty(LinkComponent, 'sceneName')}
-              onRelease={commitProperty(LinkComponent, 'sceneName')}
+              value={linkComponent.location.value}
+              onChange={updateProperty(LinkComponent, 'location')}
+              onRelease={commitProperty(LinkComponent, 'location')}
             />
           </InputGroup>
         </>

@@ -56,19 +56,19 @@ export const userKickSchema = Type.Object(
   },
   { $id: 'UserKick', additionalProperties: false }
 )
-export type UserKickType = Static<typeof userKickSchema>
+export interface UserKickType extends Static<typeof userKickSchema> {}
 
 // Schema for creating new entries
 export const userKickDataSchema = Type.Pick(userKickSchema, ['duration', 'userId', 'instanceId'], {
   $id: 'UserKickData'
 })
-export type UserKickData = Static<typeof userKickDataSchema>
+export interface UserKickData extends Static<typeof userKickDataSchema> {}
 
 // Schema for updating existing entries
 export const userKickPatchSchema = Type.Partial(userKickSchema, {
   $id: 'UserKickPatch'
 })
-export type UserKickPatch = Static<typeof userKickPatchSchema>
+export interface UserKickPatch extends Static<typeof userKickPatchSchema> {}
 
 // Schema for allowed query properties
 export const userKickQueryProperties = Type.Pick(userKickSchema, ['id', 'duration', 'userId', 'instanceId'])
@@ -80,7 +80,7 @@ export const userKickQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type UserKickQuery = Static<typeof userKickQuerySchema>
+export interface UserKickQuery extends Static<typeof userKickQuerySchema> {}
 
 export const userKickValidator = getValidator(userKickSchema, dataValidator)
 export const userKickDataValidator = getValidator(userKickDataSchema, dataValidator)

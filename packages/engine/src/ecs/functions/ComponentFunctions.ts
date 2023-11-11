@@ -121,7 +121,7 @@ export const defineComponent = <
     SoAComponentType<Schema> &
     Component<ComponentType, Schema, JSON, SetJSON, Error>
   Component.isComponent = true
-  Component.onInit = (entity) => undefined as any
+  Component.onInit = (entity) => true as any
   Component.onSet = (entity, component, json) => {}
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
@@ -232,9 +232,8 @@ export const setComponent = <C extends Component>(
   if (!bitECS.entityExists(Engine.instance, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
-  let value = args
   if (!hasComponent(entity, Component)) {
-    value = Component.onInit(entity) ?? args
+    const value = Component.onInit(entity)
     Component.existenceMapState[entity].set(true)
     Component.existenceMapPromiseResolver[entity]?.resolve?.()
 
@@ -529,7 +528,7 @@ export function useComponent<C extends Component<any>>(entity: Entity, Component
  */
 export function useOptionalComponent<C extends Component<any>>(entity: Entity, Component: C) {
   const hasComponent = useHookstate(Component.existenceMapState[entity]).value
-  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined) //in the case that this is called before a component is set we need a hookstate present for react
+  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined, subscribable()) //in the case that this is called before a component is set we need a hookstate present for react
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return hasComponent ? component : undefined
 }

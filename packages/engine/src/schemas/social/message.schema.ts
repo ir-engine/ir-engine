@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
@@ -35,11 +36,12 @@ import { ChannelID } from './channel.schema'
 export const messagePath = 'message'
 
 export const messageMethods = ['create', 'find'] as const
+export type MessageID = OpaqueType<'MessageID'> & string
 
 // Main data model schema
 export const messageSchema = Type.Object(
   {
-    id: Type.String({
+    id: TypedString<MessageID>({
       format: 'uuid'
     }),
     text: Type.String(),
@@ -54,9 +56,9 @@ export const messageSchema = Type.Object(
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'Message', additionalProperties: false }
+  { $id: 'Message' as MessageID, additionalProperties: false }
 )
-export type MessageType = Static<typeof messageSchema>
+export interface MessageType extends Static<typeof messageSchema> {}
 
 // Schema for creating new entries
 export const messageDataProperties = Type.Partial(messageSchema)
@@ -77,13 +79,13 @@ export const messageDataSchema = Type.Intersect(
     additionalProperties: false
   }
 )
-export type MessageData = Static<typeof messageDataSchema>
+export interface MessageData extends Static<typeof messageDataSchema> {}
 
 // Schema for updating existing entries
 export const messagePatchSchema = Type.Partial(messageSchema, {
   $id: 'MessagePatch'
 })
-export type MessagePatch = Static<typeof messagePatchSchema>
+export interface MessagePatch extends Static<typeof messagePatchSchema> {}
 
 // Schema for allowed query properties
 export const messageQueryProperties = Type.Pick(messageSchema, [
@@ -102,7 +104,7 @@ export const messageQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type MessageQuery = Static<typeof messageQuerySchema>
+export interface MessageQuery extends Static<typeof messageQuerySchema> {}
 
 export const messageValidator = getValidator(messageSchema, dataValidator)
 export const messageDataValidator = getValidator(messageDataSchema, dataValidator)

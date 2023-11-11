@@ -23,22 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Object3D } from 'three'
-
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 
 export type HeirarchyTreeNodeType = {
   depth: number
-  entityNode: EntityOrObjectUUID
+  entity: Entity
   childIndex: number
   lastChild: boolean
-  /**
-   * @param obj3d is used for exploding models, it will eventually be replaced when
-   *   the scene graph is implemented on the ECS instead of threejs
-   */
-  obj3d?: Object3D
   isLeaf?: boolean
   isCollapsed?: boolean
   selected?: boolean
@@ -53,18 +47,21 @@ export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
  * @param  {entityNode}    collapsedNodes
  */
 export function* heirarchyTreeWalker(
-  treeNode: EntityOrObjectUUID,
-  selectedEntities: (Entity | string)[],
+  treeNode: Entity,
+  selectedEntities: Entity[],
   collapsedNodes: HeirarchyTreeCollapsedNodeType
 ): Generator<HeirarchyTreeNodeType> {
   if (!treeNode) return
 
   const stack = [] as HeirarchyTreeNodeType[]
 
-  stack.push({ depth: 0, entityNode: treeNode, childIndex: 0, lastChild: true })
+  stack.push({ depth: 0, entity: treeNode, childIndex: 0, lastChild: true })
 
   while (stack.length !== 0) {
-    const { depth, entityNode, childIndex, lastChild } = stack.pop() as HeirarchyTreeNodeType
+    const { depth, entity: entityNode, childIndex, lastChild } = stack.pop() as HeirarchyTreeNodeType
+
+    if (!entityExists(entityNode)) continue
+
     const isCollapsed = collapsedNodes[entityNode]
 
     const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)
@@ -73,7 +70,7 @@ export function* heirarchyTreeWalker(
       isLeaf: entityTreeComponent.children.length === 0,
       isCollapsed,
       depth,
-      entityNode,
+      entity: entityNode,
       selected: selectedEntities.includes(entityNode),
       active: selectedEntities.length > 0 && entityNode === selectedEntities[selectedEntities.length - 1],
       childIndex,
@@ -87,7 +84,7 @@ export function* heirarchyTreeWalker(
         if (node) {
           stack.push({
             depth: depth + 1,
-            entityNode: entityTreeComponent.children[i],
+            entity: entityTreeComponent.children[i],
             childIndex: i,
             lastChild: i === 0
           })

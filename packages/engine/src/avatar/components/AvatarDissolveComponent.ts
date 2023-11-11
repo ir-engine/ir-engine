@@ -112,7 +112,7 @@ export const AvatarDissolveComponent = defineComponent({
     }
 
     const fragmentTextureShader = `
-      #include <output_fragment>
+      #include <opaque_fragment>
       float offset = vPosition - time;
       vec4 textureColor = texture2D(map, vUv3);
       ${textureShader}
@@ -147,7 +147,7 @@ export const AvatarDissolveComponent = defineComponent({
     vertexShader = vertexShader.replace('#include <clipping_planes_pars_vertex>', vertexHeaderShader)
     vertexShader = vertexShader.replace('#include <fog_vertex>', vertexUVShader)
     fragmentShader = fragmentShader.replace('#include <clipping_planes_pars_fragment>', fragmentHeaderShader)
-    fragmentShader = fragmentShader.replace('#include <output_fragment>', fragmentTextureShader)
+    fragmentShader = fragmentShader.replace('#include <opaque_fragment>', fragmentTextureShader)
 
     if (isShaderMaterial) {
       material.vertexShader = vertexShader

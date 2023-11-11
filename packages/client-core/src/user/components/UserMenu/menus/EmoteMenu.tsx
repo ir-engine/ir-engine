@@ -58,61 +58,151 @@ export const useEmoteMenuHooks = () => {
 
   let [items, setItems] = useState([
     {
-      body: <img src="/static/Wave.svg" alt="Wave" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Wave.svg"
+          alt="Wave"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(animationStates.wave)
       }
     },
     {
-      body: <img src="/static/clap1.svg" alt="Clap" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/clap1.svg"
+          alt="Clap"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(animationStates.clap)
       }
     },
     {
-      body: <img src="/static/Dance1.svg" alt="Dance 1" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Dance1.svg"
+          alt="Dance 1"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(animationStates.dance1)
       }
     },
     {
-      body: <img src="/static/Dance2.svg" alt="Dance 2" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Dance2.svg"
+          alt="Dance 2"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(animationStates.dance2)
       }
     },
     {
-      body: <img src="/static/Dance3.svg" alt="Dance 3" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Dance3.svg"
+          alt="Dance 3"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(animationStates.dance3)
       }
     },
     {
-      body: <img src="/static/Dance4.svg" alt="Dance 4" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Dance4.svg"
+          alt="Dance 4"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(animationStates.dance4)
       }
     },
     {
-      body: <img src="/static/Kiss.svg" alt="Kiss" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Kiss.svg"
+          alt="Kiss"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(animationStates.kiss)
       }
     },
     {
-      body: <img src="/static/Cry.svg" alt="Cry" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Cry.svg"
+          alt="Cry"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(animationStates.cry)
       }
     },
     {
-      body: <img src="/static/Laugh.svg" alt="Laugh" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Laugh.svg"
+          alt="Laugh"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(animationStates.laugh)
       }
     },
     {
-      body: <img src="/static/Defeat.svg" alt="Defeat" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Defeat.svg"
+          alt="Defeat"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(animationStates.defeat)
       }

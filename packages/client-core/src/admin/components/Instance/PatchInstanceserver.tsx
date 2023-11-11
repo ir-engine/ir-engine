@@ -35,7 +35,7 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
@@ -82,10 +82,11 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
       locationError = "Location can't be empty"
       state.locationError.set(locationError)
     } else {
-      patchInstanceserver({ locationId: state.location.value, count: state.count.value }).then((patchResponse) =>
-        NotificationService.dispatchNotify(patchResponse.message, {
-          variant: patchResponse.status ? 'success' : 'error'
-        })
+      patchInstanceserver({ locationId: state.location.value as LocationID, count: state.count.value }).then(
+        (patchResponse) =>
+          NotificationService.dispatchNotify(patchResponse.message, {
+            variant: patchResponse.status ? 'success' : 'error'
+          })
       )
       onClose()
     }

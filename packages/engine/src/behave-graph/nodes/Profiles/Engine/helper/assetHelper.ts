@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
-import { Entity } from '../../../../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
 import { ImageComponent } from '../../../../../scene/components/ImageComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { ModelComponent } from '../../../../../scene/components/ModelComponent'
@@ -36,28 +36,29 @@ import { addEntityToScene } from './entityHelper'
 export async function addMediaComponent(url: string, parent?: Entity | null, before?: Entity | null) {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
-
+  let newEntity = UndefinedEntity
   if (contentType.startsWith('model/')) {
-    addEntityToScene([{ name: ModelComponent.jsonID, props: { src: url } }], parent!, before)
+    newEntity = addEntityToScene([{ name: ModelComponent.jsonID, props: { src: url } }], parent!, before)
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
-    addEntityToScene(
+    newEntity = addEntityToScene(
       [{ name: VideoComponent.jsonID }, { name: MediaComponent.jsonID, props: { resources: [url] } }],
       parent!,
       before
     )
   } else if (contentType.startsWith('image/')) {
-    addEntityToScene([{ name: ImageComponent.jsonID, props: { source: url } }], parent!, before)
+    newEntity = addEntityToScene([{ name: ImageComponent.jsonID, props: { source: url } }], parent!, before)
   } else if (contentType.startsWith('audio/')) {
-    addEntityToScene(
+    newEntity = addEntityToScene(
       [{ name: PositionalAudioComponent.jsonID }, { name: MediaComponent.jsonID, props: { resources: [url] } }],
       parent!,
       before
     )
   } else if (url.includes('.uvol')) {
-    addEntityToScene(
+    newEntity = addEntityToScene(
       [{ name: VolumetricComponent.jsonID }, { name: MediaComponent.jsonID, props: { resources: [url] } }],
       parent!,
       before
     )
   }
+  return newEntity
 }

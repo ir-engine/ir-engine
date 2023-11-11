@@ -34,7 +34,7 @@ export const projectBranchSchema = Type.Object(
   },
   { $id: 'ProjectBranch', additionalProperties: false }
 )
-export type ProjectBranchType = Static<typeof projectBranchSchema>
+export interface ProjectBranchType extends Static<typeof projectBranchSchema> {}
 
 // Main data model schema
 export const projectBranchesSchema = Type.Object(
@@ -49,7 +49,7 @@ export const projectBranchesSchema = Type.Object(
   },
   { $id: 'ProjectBranches', additionalProperties: false }
 )
-export type ProjectBranchesType = Static<typeof projectBranchesSchema>
+export interface ProjectBranchesType extends Static<typeof projectBranchesSchema> {}
 
 export const projectBranchValidator = getValidator(projectBranchSchema, dataValidator)
 export const projectBranchesValidator = getValidator(projectBranchesSchema, dataValidator)

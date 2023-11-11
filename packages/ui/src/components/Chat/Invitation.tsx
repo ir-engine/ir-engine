@@ -44,7 +44,7 @@ export const Invitation = () => {
   return (
     <div className="w-[460px] h-[70%] absolute flex-1 bg-[#15171B] flex flex-wrap">
       <div className="w-full h-[70px] bg-[#15171B] flex flex-wrap gap-3">
-        <button>
+        <button className="m-0">
           <div
             className={`mr-[50px] ml-[80px] ${activeButton === 1 ? 'text-[#935CFF]' : 'text-[#ffff]'}`}
             onClick={() => {
@@ -56,7 +56,7 @@ export const Invitation = () => {
           </div>
         </button>
         <div className="box-border mr-8 w-[70px] border-t-[1px] mt-7 border-solid border-[#f6f7f8] rotate-90" />
-        <button>
+        <button className="m-0">
           <div
             className={`ml-[20px] ${activeButton === 2 ? 'text-[#935CFF]' : 'text-[#ffff]'}`}
             onClick={() => {

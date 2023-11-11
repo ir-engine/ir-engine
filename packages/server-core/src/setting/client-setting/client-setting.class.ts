@@ -33,7 +33,6 @@ import {
   ClientSettingType
 } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ClientSettingParams extends KnexAdapterParams<ClientSettingQuery> {}
 
 /**
