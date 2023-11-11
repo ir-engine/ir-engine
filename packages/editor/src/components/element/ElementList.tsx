@@ -61,11 +61,13 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { GroupAddOutlined as PlaceHolderIcon } from '@mui/icons-material'
 import { IconButton, PopoverPosition } from '@mui/material'
 
+import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { Vector3 } from 'three'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -109,7 +111,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     DirectionalLightComponent,
     HemisphereLightComponent
   ],
-  FX: [ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
+  FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
   Scripting: [SystemComponent, BehaveGraphComponent],
   Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, SplineTrackComponent, SplineComponent]
 }

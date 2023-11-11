@@ -31,15 +31,12 @@ import { getState } from '@etherealengine/hyperflux'
 import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentType,
-  componentJsonDefaults,
   defineComponent,
   getComponent,
   getMutableComponent,
@@ -64,7 +61,6 @@ import iterateObject3D from '../util/iterateObject3D'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
-import { ShadowComponent } from './ShadowComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VariantComponent } from './VariantComponent'
 
@@ -84,7 +80,7 @@ function clearMaterials(model: ComponentType<typeof ModelComponent>) {
 }
 
 export const ModelComponent = defineComponent({
-  name: 'EE_model',
+  name: 'Model Component',
   jsonID: 'gltf-model',
 
   onInit: (entity) => {
@@ -108,25 +104,6 @@ export const ModelComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    const entityUUID = getComponent(entity, UUIDComponent)
-    if (!SceneState.entityHasComponent(entityUUID, LoopAnimationComponent)) {
-      SceneState.addComponentsToEntity(entityUUID, [
-        {
-          name: LoopAnimationComponent.jsonID!,
-          props: componentJsonDefaults(LoopAnimationComponent)
-        }
-      ])
-    }
-
-    if (!SceneState.entityHasComponent(entityUUID, ShadowComponent)) {
-      SceneState.addComponentsToEntity(entityUUID, [
-        {
-          name: ShadowComponent.jsonID!,
-          props: componentJsonDefaults(ShadowComponent)
-        }
-      ])
-    }
-
     if (!json) return
     if (typeof json.src === 'string') component.src.set(json.src)
     if (typeof json.generateBVH === 'boolean') component.generateBVH.set(json.generateBVH)
@@ -192,14 +169,6 @@ function ModelReactor() {
               removeError(entity, ModelComponent, 'LOADING_ERROR')
               loadedAsset.scene.userData.src = model.src
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
-              // const modelEntities = iterateEntityNode(
-              //   entity,
-              //   (child) => child,
-              //   (child) => child !== entity && hasComponent(child, GLTFLoadedComponent)
-              // )
-              // for (const modelEntity of modelEntities) {
-              //   removeEntity(modelEntity)
-              // }
               modelComponent.asset.set(loadedAsset)
               if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
               model.scene && removeObjectFromGroup(entity, model.scene)
