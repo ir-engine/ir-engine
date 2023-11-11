@@ -51,7 +51,6 @@ import {
   ComponentJSONIDMap,
   ComponentMap,
   getComponent,
-  hasComponent,
   removeComponent,
   serializeComponent,
   setComponent,
@@ -153,80 +152,6 @@ const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
     change.obj[change.property] = change.nu
   }
   return data
-}
-
-export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Promise<Entity[]> => {
-  const entityMap = {} as { [key: string]: Entity }
-  const entities = Object.entries(sceneData.entities).filter(([uuid]) => uuid !== sceneData.root) as [
-    EntityUUID,
-    EntityJson
-  ][]
-  const idMap = new Map<EntityUUID, EntityUUID>()
-  const loadedEntities = UUIDComponent.entitiesByUUID
-
-  const rootEntity = assetRoot ?? SceneState.getRootEntity(getState(SceneState).activeScene!)
-  const rootId = sceneData.root
-
-  entities.forEach(([_uuid, eJson]) => {
-    //check if uuid already exists in scene
-    let uuid = _uuid
-    if (loadedEntities[uuid]) {
-      uuid = MathUtils.generateUUID() as EntityUUID
-      idMap.set(_uuid, uuid)
-    }
-    const eNode = createEntity()
-    const parent = eJson.parent ? UUIDComponent.entitiesByUUID[eJson.parent] : rootEntity
-    setComponent(eNode, EntityTreeComponent, { parentEntity: parent })
-    setComponent(eNode, UUIDComponent, uuid)
-    entityMap[uuid] = eNode
-  })
-  entities.forEach(([_uuid, _data]) => {
-    let uuid = _uuid
-    if (idMap.has(uuid)) {
-      uuid = idMap.get(uuid)!
-    }
-    const data = iterateReplaceID(_data, idMap)
-    deserializeSceneEntity(entityMap[uuid], data)
-  })
-  const result = [] as Entity[]
-  entities.forEach(([_uuid, data]) => {
-    let uuid = _uuid
-    if (idMap.has(uuid)) {
-      uuid = idMap.get(uuid)!
-    }
-    const sceneEntity = data
-    const node = entityMap[uuid]
-    let parentId = sceneEntity.parent
-    if (parentId) {
-      if (idMap.has(parentId)) parentId = idMap.get(parentId)!
-      if (parentId === rootId) {
-        const rootUUID = getComponent(rootEntity, UUIDComponent)
-        sceneEntity.parent = rootUUID
-        parentId = rootUUID
-        result.push(node)
-      }
-    }
-    setComponent(node, EntityTreeComponent, {
-      parentEntity: parentId
-        ? parentId === getComponent(rootEntity, UUIDComponent)
-          ? rootEntity
-          : entityMap[parentId]
-        : rootEntity
-    })
-  })
-  hasComponent(rootEntity, TransformComponent) &&
-    getComponent(rootEntity, EntityTreeComponent)
-      .children.filter((child) => hasComponent(child, TransformComponent))
-      .map((child) => {
-        const transform = getComponent(child, TransformComponent)
-        setComponent(child, EntityTreeComponent, { parentEntity: rootEntity })
-        setComponent(child, LocalTransformComponent, {
-          position: transform.position,
-          rotation: transform.rotation,
-          scale: transform.scale
-        })
-      })
-  return result
 }
 
 export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson) => {
