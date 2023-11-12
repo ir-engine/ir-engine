@@ -23,31 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/** List of Asset Types. */
-export enum AssetType {
-  glB = 'glb',
-  glTF = 'gltf',
-  FBX = 'fbx',
-  OBJ = 'obj',
-  VRM = 'vrm',
-  PNG = 'png',
-  JPEG = 'jpeg',
-  TGA = 'tga',
-  MP4 = 'mp4',
-  TS = 'ts',
-  MKV = 'mkv',
-  AVI = 'avi',
-  MP3 = 'mp3',
-  OGG = 'ogg',
-  M4A = 'm4a',
-  AAC = 'acc',
-  CSV = 'csv',
-  PlainText = 'text',
-  DOC = 'doc',
-  XLS = 'xls',
-  Script = 'script',
-  DDS = 'dds',
-  KTX2 = 'ktx2',
-  USDZ = 'usdz',
-  M3U8 = 'm3u8'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { defineAction, defineState, none } from '@etherealengine/hyperflux'
+import matches from 'ts-matches'
+import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
+import { NetworkTopics } from '../../networking/classes/Network'
+
+export class MountPointActions {
+  static mountInteraction = defineAction({
+    type: 'ee.engine.interactions.MOUNT' as const,
+    mounted: matches.boolean,
+    targetMount: matchesEntityUUID,
+    mountedEntity: matchesEntityUUID,
+    $topic: NetworkTopics.world
+  })
 }
+
+export const MountPointState = defineState({
+  name: 'MountPointState',
+  initial: {} as Record<EntityUUID, EntityUUID>,
+  receptors: [
+    [
+      MountPointActions.mountInteraction,
+      (state, action: typeof MountPointActions.mountInteraction.matches._TYPE) => {
+        if (action.mounted) state[action.targetMount].merge(action.mountedEntity)
+        else state[action.targetMount].set(none)
+      }
+    ]
+  ]
+})

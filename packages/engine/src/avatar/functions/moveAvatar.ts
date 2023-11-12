@@ -90,7 +90,6 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const controller = getComponent(entity, AvatarControllerComponent)
   const avatarHeight = getComponent(entity, AvatarComponent)?.avatarHeight ?? 1.6
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
-
   desiredMovement.copy(V_000)
 
   const { isMovementControlsEnabled, isCameraAttachedToAvatar } = getState(XRControlsState)
