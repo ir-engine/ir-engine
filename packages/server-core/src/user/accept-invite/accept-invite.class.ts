@@ -29,7 +29,7 @@ import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeTypeInterface, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
@@ -153,7 +153,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
             userId: inviteeIdentityProvider.userId,
             type: 'admin:admin'
           }
-        })) as Paginated<ScopeType>
+        })) as Paginated<ScopeTypeInterface>
         if (existingAdminScope.total === 0)
           await this.app.service(scopePath).create({
             userId: inviteeIdentityProvider.userId,

@@ -30,7 +30,7 @@ import {
   instancePath,
   InstanceType
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { scopePath, ScopeTypeInterface } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { channelPath, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
@@ -77,7 +77,7 @@ export default (app: Application): void => {
           type: 'admin:admin'
         },
         paginate: false
-      })) as ScopeType[]
+      })) as ScopeTypeInterface[]
 
       const targetIds = adminScopes.map((admin) => admin.userId)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

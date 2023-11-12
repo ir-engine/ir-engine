@@ -49,7 +49,7 @@ export const scopeSchema = Type.Object(
   },
   { $id: 'Scope', additionalProperties: false }
 )
-export interface ScopeType extends Static<typeof scopeSchema> {}
+export interface ScopeTypeInterface extends Static<typeof scopeSchema> {}
 
 // Schema for creating new entries
 export const scopeDataSchema = Type.Pick(scopeSchema, ['type', 'userId'], {
