@@ -81,10 +81,24 @@ export class LocalStorage implements StorageProviderInterface {
     this._store = fsStore(this.PATH_PREFIX)
 
     if (getState(ServerState).serverMode === ServerMode.API && !config.testEnabled) {
-      require('child_process').spawn('npm', ['run', 'serve-local-files'], {
-        cwd: process.cwd(),
-        stdio: 'inherit'
-      })
+      require('child_process').spawn(
+        'npx',
+        [
+          'http-server',
+          `${this.PATH_PREFIX}`,
+          '--ssl',
+          `--cert ${config.server.certPath}`,
+          `--key ${config.server.keyPath}`,
+          '--port 8642',
+          '--cors=*',
+          '--brotli',
+          '--gzip'
+        ],
+        {
+          cwd: process.cwd(),
+          stdio: 'inherit'
+        }
+      )
     }
     this.getOriginURLs().then((result) => (this.originURLs = result))
   }
