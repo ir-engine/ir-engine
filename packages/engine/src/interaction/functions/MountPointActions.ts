@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineAction, defineState, none } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { NetworkTopics } from '../../networking/classes/Network'
@@ -43,12 +43,10 @@ export const MountPointState = defineState({
   name: 'MountPointState',
   initial: {} as Record<EntityUUID, EntityUUID>,
   receptors: [
-    [
-      MountPointActions.mountInteraction,
-      (state, action: typeof MountPointActions.mountInteraction.matches._TYPE) => {
-        if (action.mounted) state[action.targetMount].merge(action.mountedEntity)
-        else state[action.targetMount].set(none)
-      }
-    ]
+    MountPointActions.mountInteraction.receive((action) => {
+      const state = getMutableState(MountPointState)
+      if (action.mounted) state[action.targetMount].merge(action.mountedEntity)
+      else state[action.targetMount].set(none)
+    })
   ]
 })
