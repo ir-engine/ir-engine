@@ -30,7 +30,7 @@ import {
   instancePath,
   InstanceType
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { scopePath, ScopeTypeInterface } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { scopePath, ScopeType, ScopeTypeInterface } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { channelPath, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
@@ -74,7 +74,7 @@ export default (app: Application): void => {
     try {
       const adminScopes = (await app.service(scopePath).find({
         query: {
-          type: 'admin:admin'
+          type: 'admin:admin' as ScopeType
         },
         paginate: false
       })) as ScopeTypeInterface[]

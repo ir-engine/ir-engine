@@ -37,7 +37,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
-import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -116,8 +116,11 @@ const restrictUserRemove = async (context: HookContext<UserService>) => {
   const loggedInUser = context.params.user as UserType
   if (await checkScope(loggedInUser, 'user', 'write')) {
     const isRemovedUserAdmin =
-      (await context.app.service(scopePath).find({ query: { userId: context.id as UserID, type: 'admin:admin' } }))
-        .total > 0
+      (
+        await context.app
+          .service(scopePath)
+          .find({ query: { userId: context.id as UserID, type: 'admin:admin' as ScopeType } })
+      ).total > 0
 
     if (isRemovedUserAdmin && !(await checkScope(loggedInUser, 'admin', 'admin'))) {
       throw new MethodNotAllowed('Must be an admin to remove admins')
