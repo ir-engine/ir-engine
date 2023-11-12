@@ -27,7 +27,8 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createState, none } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 
 const entitiesByUUID = {} as Record<EntityUUID, Entity>
 
@@ -66,5 +67,14 @@ export const UUIDComponent = defineComponent({
   },
 
   entitiesByUUIDState: createState(entitiesByUUID),
-  entitiesByUUID: entitiesByUUID as Readonly<typeof entitiesByUUID>
+  entitiesByUUID: entitiesByUUID as Readonly<typeof entitiesByUUID>,
+
+  getEntityByUUID: (uuid: EntityUUID) => {
+    let entity = UUIDComponent.entitiesByUUID[uuid]
+    if (entity === undefined) {
+      entity = createEntity()
+      setComponent(entity, UUIDComponent, uuid)
+    }
+    return entity
+  }
 })

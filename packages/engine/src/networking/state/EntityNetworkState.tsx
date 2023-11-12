@@ -23,62 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { memo, useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { defineState, dispatchAction, getMutableState, none, receiveActions } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  none,
+  receiveActions,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { getMutableComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { setComponent } from '../../ecs/functions/ComponentFunctions'
+import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-
-export const receiveRequestAuthorityOverObject = (
-  action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE
-) => {
-  // Authority request can only be processed by owner
-  if (Engine.instance.userID !== action.ownerId) return
-
-  const ownerId = action.ownerId
-  const entity = NetworkObjectComponent.getNetworkObject(ownerId, action.networkId)
-  if (!entity)
-    return console.log(
-      `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
-    )
-
-  /**
-   * Custom logic for disallowing transfer goes here
-   */
-  dispatchAction(
-    WorldNetworkAction.transferAuthorityOfObject({
-      ownerId: action.ownerId,
-      networkId: action.networkId,
-      newAuthority: action.newAuthority
-    })
-  )
-}
-
-export const receiveTransferAuthorityOfObject = (
-  action: typeof WorldNetworkAction.transferAuthorityOfObject.matches._TYPE
-) => {
-  // Authority request can only be processed by owner
-  if (action.$from !== action.ownerId) return
-
-  const entity = NetworkObjectComponent.getNetworkObject(action.ownerId, action.networkId)
-  if (!entity)
-    return console.log(
-      `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
-    )
-
-  getMutableComponent(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
-}
+import { NetworkState } from '../NetworkState'
 
 export const EntityNetworkState = defineState({
   name: 'ee.EntityNetworkState',
@@ -88,7 +58,8 @@ export const EntityNetworkState = defineState({
     {
       ownerId: UserID
       networkId: NetworkId
-      peerId: PeerID
+      authorityPeerId: PeerID
+      requestingPeerId?: PeerID
       spawnPosition: Vector3
       spawnRotation: Quaternion
     }
@@ -96,40 +67,83 @@ export const EntityNetworkState = defineState({
 
   receptors: [
     WorldNetworkAction.spawnObject.receive((action) => {
-      const state = getMutableState(EntityNetworkState)
-      const entity = UUIDComponent.entitiesByUUID[action.entityUUID] ?? createEntity()
-      setComponent(entity, UUIDComponent, action.entityUUID)
-      setComponent(entity, NetworkObjectComponent, {
-        ownerId: action.$from,
-        authorityPeerID: action.$peer,
-        networkId: action.networkId
-      })
-      setComponent(entity, TransformComponent, { position: action.position!, rotation: action.rotation! })
-
-      state[action.entityUUID].merge({
+      getMutableState(EntityNetworkState)[action.entityUUID].merge({
         ownerId: action.$from,
         networkId: action.networkId,
-        peerId: action.$peer,
+        authorityPeerId: action.$peer,
         spawnPosition: action.position ?? new Vector3(),
         spawnRotation: action.rotation ?? new Quaternion()
       })
     }),
 
-    WorldNetworkAction.requestAuthorityOverObject.receive(receiveRequestAuthorityOverObject),
+    WorldNetworkAction.requestAuthorityOverObject.receive((action) => {
+      getMutableState(EntityNetworkState)[action.entityUUID].requestingPeerId.set(action.$peer)
+    }),
 
-    WorldNetworkAction.transferAuthorityOfObject.receive(receiveTransferAuthorityOfObject),
+    WorldNetworkAction.transferAuthorityOfObject.receive((action) => {
+      const networkState = getState(NetworkState)
+      const state = getMutableState(EntityNetworkState)
+      const fromUserId = networkState.networks[action.$network].peers[action.$peer].userId
+      const ownerUserId = state[action.entityUUID].ownerId.value
+      if (fromUserId !== ownerUserId) return // Authority transfer can only be initiated by owner
+      state[action.entityUUID].authorityPeerId.set(action.newAuthority)
+    }),
 
     WorldNetworkAction.destroyObject.receive((action) => {
-      const state = getMutableState(EntityNetworkState)
-      state[action.entityUUID].set(none)
-      const entity = UUIDComponent.entitiesByUUID[action.entityUUID]
-      if (!entity) return
-      removeEntity(entity)
+      getMutableState(EntityNetworkState)[action.entityUUID].set(none)
     })
   ]
 })
 
+const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
+  const state = useHookstate(getMutableState(EntityNetworkState))[props.uuid]
+
+  useEffect(() => {
+    const entity = UUIDComponent.getEntityByUUID(props.uuid)
+    setComponent(entity, TransformComponent, {
+      position: state.spawnPosition.value!,
+      rotation: state.spawnRotation.value!
+    })
+    return () => {
+      removeEntity(entity)
+    }
+  }, [])
+
+  useEffect(() => {
+    const entity = UUIDComponent.getEntityByUUID(props.uuid)
+    setComponent(entity, NetworkObjectComponent, {
+      ownerId: state.ownerId.value,
+      authorityPeerID: state.authorityPeerId.value,
+      networkId: state.networkId.value
+    })
+  }, [state])
+
+  useEffect(() => {
+    if (!state.requestingPeerId.value) return
+    // Authority request can only be processed by owner
+    if (state.ownerId.value !== Engine.instance.userID) return
+    dispatchAction(
+      WorldNetworkAction.transferAuthorityOfObject({
+        entityUUID: props.uuid,
+        newAuthority: state.requestingPeerId.value
+      })
+    )
+  }, [state.requestingPeerId])
+
+  return null
+})
+
 export const EntityNetworkStateSystem = defineSystem({
   uuid: 'ee.EntityNetworkStateSystem',
-  execute: () => receiveActions(EntityNetworkState)
+  execute: () => receiveActions(EntityNetworkState),
+  reactor: () => {
+    const state = getMutableState(EntityNetworkState)
+    return (
+      <>
+        {state.keys.map((uuid: EntityUUID) => (
+          <EntityNetworkReactor uuid={uuid} key={uuid} />
+        ))}
+      </>
+    )
+  }
 })

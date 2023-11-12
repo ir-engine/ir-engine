@@ -38,7 +38,6 @@ import {
 import React, { useEffect } from 'react'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InstanceID } from '../../schemas/networking/instance.schema'
 import { ChannelID } from '../../schemas/social/channel.schema'
@@ -212,26 +211,12 @@ export const MediasoupMediaProducerConsumerState = defineState({
     }),
 
     MediaProducerActions.producerClosed.receive((action) => {
-      const state = getMutableState(MediasoupMediaProducerConsumerState)
-      // removed create/close cached actions for this producer
-      const cachedActions = Engine.instance.store.actions.cached
-      const peerCachedActions = cachedActions.filter(
-        (cachedAction) =>
-          (MediaProducerActions.producerCreated.matches.test(cachedAction) ||
-            MediaProducerActions.producerPaused.matches.test(cachedAction) ||
-            MediaProducerActions.producerClosed.matches.test(cachedAction)) &&
-          cachedAction.producerID === action.producerID
-      )
-      for (const cachedAction of peerCachedActions) {
-        cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
-      }
-
       const networkID = action.$network as InstanceID
-      if (!state.value[networkID]) return
+      const state = getMutableState(MediasoupMediaProducerConsumerState)
 
-      state[networkID].producers[action.producerID].set(none)
+      state[networkID]?.producers[action.producerID].set(none)
 
-      if (!Object.keys(state[networkID].producers).length && !Object.keys(state[networkID].consumers).length) {
+      if (!state[networkID]?.producers.keys.length && !state[networkID]?.consumers.keys.length) {
         state[networkID].set(none)
       }
     }),

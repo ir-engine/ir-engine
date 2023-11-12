@@ -27,7 +27,6 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { defineAction, defineState, getMutableState, getState, none, receiveActions } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InstanceID } from '../../schemas/networking/instance.schema'
 import { NetworkState } from '../NetworkState'
@@ -151,27 +150,11 @@ export const MediasoupTransportState = defineState({
       state[networkID][action.transportID].connected.set(true)
     }),
     MediasoupTransportActions.transportClosed.receive((action) => {
+      const network = action.$network
       const state = getMutableState(MediasoupTransportState)
-
-      // removed create/close cached actions for this producer
-      const cachedActions = Engine.instance.store.actions.cached
-      const peerCachedActions = cachedActions.filter(
-        (cachedAction) =>
-          (MediasoupTransportActions.transportCreated.matches.test(cachedAction) ||
-            MediasoupTransportActions.transportClosed.matches.test(cachedAction)) &&
-          cachedAction.transportID === action.transportID
-      )
-      for (const cachedAction of peerCachedActions) {
-        cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
-      }
-
-      const networkID = action.$network
-      if (!state.value[networkID]) return
-
-      state[networkID].transports[action.transportID].set(none)
-
-      if (!Object.keys(state[networkID].transports).length && !Object.keys(state[networkID].consumers).length) {
-        state[networkID].set(none)
+      state[network]?.transports[action.transportID].set(none)
+      if (!state[network].transports.keys.length && !state[network].consumers.keys.length) {
+        state[network].set(none)
       }
     })
   ]

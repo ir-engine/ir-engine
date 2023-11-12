@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { defineAction, defineState, getMutableState, getState, none, receiveActions } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
-import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InstanceID } from '../../schemas/networking/instance.schema'
 
@@ -169,24 +168,10 @@ export const MediasoupDataProducerConsumerState = defineState({
 
     MediasoupDataProducerActions.producerClosed.receive((action) => {
       const state = getMutableState(MediasoupDataProducerConsumerState)
-      // removed create/close cached actions for this producer
-      const cachedActions = Engine.instance.store.actions.cached
-      const peerCachedActions = cachedActions.filter(
-        (cachedAction) =>
-          (MediasoupDataProducerActions.producerCreated.matches.test(cachedAction) ||
-            MediasoupDataProducerActions.producerClosed.matches.test(cachedAction)) &&
-          cachedAction.producerID === action.producerID
-      )
-      for (const cachedAction of peerCachedActions) {
-        cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
-      }
-
       const networkID = action.$network as InstanceID
       if (!state.value[networkID]) return
-
       state[networkID].producers[action.producerID].set(none)
-
-      if (!Object.keys(state[networkID].producers).length && !Object.keys(state[networkID].consumers).length) {
+      if (!state[networkID].producers.keys.length && !state[networkID].consumers.keys.length) {
         state[networkID].set(none)
       }
     }),
@@ -213,10 +198,8 @@ export const MediasoupDataProducerConsumerState = defineState({
       const state = getMutableState(MediasoupDataProducerConsumerState)
       const networkID = action.$network as InstanceID
       if (!state.value[networkID]) return
-
       state[networkID].consumers[action.consumerID].set(none)
-
-      if (!Object.keys(state[networkID].consumers).length && !Object.keys(state[networkID].consumers).length) {
+      if (!state[networkID].consumers.keys.length && !state[networkID].consumers.keys.length) {
         state[networkID].set(none)
       }
     })

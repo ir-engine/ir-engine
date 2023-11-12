@@ -31,7 +31,6 @@ import {
   matchesNetworkId,
   matchesPeerID,
   matchesQuaternion,
-  matchesUserId,
   matchesVector3,
   matchesWithDefault
 } from '../../common/functions/MatchesUtils'
@@ -70,16 +69,14 @@ export class WorldNetworkAction {
 
   static requestAuthorityOverObject = defineAction({
     type: 'ee.engine.world.REQUEST_AUTHORITY_OVER_OBJECT',
-    ownerId: matchesUserId,
-    networkId: matchesNetworkId,
+    entityUUID: matchesEntityUUID,
     newAuthority: matchesPeerID,
     $topic: NetworkTopics.world
   })
 
   static transferAuthorityOfObject = defineAction({
     type: 'ee.engine.world.TRANSFER_AUTHORITY_OF_OBJECT',
-    ownerId: matchesUserId,
-    networkId: matchesNetworkId,
+    entityUUID: matchesEntityUUID,
     newAuthority: matchesPeerID,
     $topic: NetworkTopics.world
   })
