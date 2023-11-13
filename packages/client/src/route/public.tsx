@@ -53,7 +53,7 @@ function RouterComp() {
       <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
         <Routes>
           {customRoutes.map(({ component: Element, props, route }) => (
-            <Route key={'custom-index'} path={route} element={<Element {...props} />} />
+            <Route key={'custom-index'} path={route + '/*'} element={<Element {...props} />} />
           ))}
           <Route key={'index'} path={'/'} element={<$index />} />
           <Route key={'admin'} path={'/admin/*'} element={<$admin />} />
