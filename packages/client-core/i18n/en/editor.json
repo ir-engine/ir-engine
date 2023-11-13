@@ -912,7 +912,7 @@
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
-    "isseus": "Issues:"
+    "issues": "Issues"
   },
   "materialLibrary": {
     "lbl": "Material Library",
