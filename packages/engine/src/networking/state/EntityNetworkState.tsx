@@ -37,7 +37,8 @@ import {
   getState,
   none,
   receiveActions,
-  useHookstate
+  useHookstate,
+  useMutableState
 } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -137,7 +138,7 @@ export const EntityNetworkStateSystem = defineSystem({
   uuid: 'ee.EntityNetworkStateSystem',
   execute: () => receiveActions(EntityNetworkState),
   reactor: () => {
-    const state = getMutableState(EntityNetworkState)
+    const state = useMutableState(EntityNetworkState)
     return (
       <>
         {state.keys.map((uuid: EntityUUID) => (
