@@ -25,10 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { Engine, GraphJSON, GraphNodes, ILifecycleEventEmitter, IRegistry, readGraphFromJSON } from '@behave-graph/core'
 import { useCallback, useEffect, useState } from 'react'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../ecs/functions/SystemFunctions'
 
 /** Runs the behavior graph by building the execution
  * engine and triggering start on the lifecycle event emitter.
  */
+let systemCounter = 0
 export const useGraphRunner = ({
   graphJson,
   autoRun = false,
@@ -40,7 +43,7 @@ export const useGraphRunner = ({
 }) => {
   const [engine, setEngine] = useState<Engine>()
   const [run, setRun] = useState(autoRun)
-
+  const [system, setSystem] = useState<SystemUUID>()
   const play = useCallback(() => {
     setRun(true)
   }, [])
@@ -77,20 +80,21 @@ export const useGraphRunner = ({
 
   useEffect(() => {
     if (!engine || !run) return
-
     engine.executeAllSync()
-
-    let timeout: NodeJS.Timeout
 
     const eventEmitter = registry.dependencies?.ILifecycleEventEmitter as ILifecycleEventEmitter
 
-    const onTick = async () => {
-      eventEmitter.tickEvent.emit()
-
-      // eslint-disable-next-line no-await-in-loop
-      await engine.executeAllAsync(500)
-
-      timeout = setTimeout(onTick, 50)
+    if (!system) {
+      const systemUUID = defineSystem({
+        uuid: 'behave-graph-asyncExecute' + systemCounter++,
+        execute: async () => {
+          eventEmitter.tickEvent.emit()
+          await engine.executeAllAsync(500)
+        }
+      })
+      setSystem(systemUUID)
+    } else {
+      startSystem(system, { after: PresentationSystemGroup })
     }
 
     ;(async () => {
@@ -102,11 +106,10 @@ export const useGraphRunner = ({
       } else {
         console.log('has no listener count')
       }
-      //onTick()
     })() // start up
 
     return () => {
-      clearTimeout(timeout)
+      if (system) disableSystem(system)
     }
   }, [engine, registry.dependencies?.ILifecycleEventEmitter, run])
 
