@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { Forbidden } from '@feathersjs/errors'
 import { NullableId, Paginated, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import appRootPath from 'app-root-path'
-import fs from 'fs'
 import path from 'path/posix'
 
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
@@ -42,7 +41,7 @@ import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projec
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
+import { getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -73,7 +72,6 @@ export class FileBrowserService
 
   /**
    * Returns the metadata for a single file or directory
-   * @param params
    */
   async get(key: string, params?: FileBrowserParams) {
     if (!key) return false
@@ -85,9 +83,6 @@ export class FileBrowserService
 
   /**
    * Return the metadata for each file in a directory
-   * @param directory
-   * @param params
-   * @returns
    */
   async find(params?: FileBrowserParams) {
     if (!params) params = {}
@@ -139,13 +134,10 @@ export class FileBrowserService
 
   /**
    * Create a directory
-   * @param directory: string
-   * @param params
-   * @returns
    */
   async create(directory: string, params?: FileBrowserParams) {
     const storageProvider = getStorageProvider(params?.query?.storageProviderName)
-    if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
+    if (directory[0] === '/') directory = directory.slice(1)
 
     const parentPath = path.dirname(directory)
     const key = await getIncrementalName(path.basename(directory), parentPath, storageProvider, true)
@@ -156,17 +148,11 @@ export class FileBrowserService
 
     await storageProvider.createInvalidation([key])
 
-    fs.mkdirSync(path.join(projectsRootFolder, parentPath, key))
-
     return result
   }
 
   /**
    * Move content from one path to another
-   * @param id
-   * @param data
-   * @param params
-   * @returns
    */
   async update(id: NullableId, data: FileBrowserUpdate, params?: FileBrowserParams) {
     const storageProviderName = data.storageProviderName
@@ -187,20 +173,11 @@ export class FileBrowserService
       storageProvider.createInvalidation([newNamePath])
     ])
 
-    if (data.isCopy) {
-      copyRecursiveSync(oldNamePath, newNamePath)
-    } else {
-      fs.renameSync(oldNamePath, newNamePath)
-    }
-
     return result
   }
 
   /**
    * Upload file
-   * @param id
-   * @param data
-   * @param params
    */
   async patch(id: NullableId, data: FileBrowserPatch, params?: FileBrowserParams) {
     const storageProviderName = data.storageProviderName
@@ -262,20 +239,11 @@ export class FileBrowserService
       await storageProvider.createInvalidation([key])
     }
 
-    const filePath = path.join(projectsRootFolder, key)
-    const parentDirPath = path.dirname(filePath)
-
-    if (!fs.existsSync(parentDirPath)) fs.mkdirSync(parentDirPath, { recursive: true })
-    fs.writeFileSync(filePath, data.body)
-
     return url
   }
 
   /**
    * Remove a directory
-   * @param key
-   * @param params
-   * @returns
    */
   async remove(key: string, params?: FileBrowserParams) {
     const storageProviderName = params?.query?.storageProviderName
@@ -286,12 +254,6 @@ export class FileBrowserService
     await storageProvider.createInvalidation([key])
 
     const filePath = path.join(projectsRootFolder, key)
-
-    if (fs.lstatSync(filePath).isDirectory()) {
-      fs.rmSync(filePath, { force: true, recursive: true })
-    } else {
-      fs.unlinkSync(filePath)
-    }
 
     const staticResource = (await this.app.service(staticResourcePath).find({
       query: {
