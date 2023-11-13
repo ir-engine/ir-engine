@@ -31,6 +31,7 @@ import { dispatchAction, getMutableState, getState, useHookstate } from '@ethere
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
@@ -432,6 +433,8 @@ const raycaster = new Raycaster()
 const bboxHitTarget = new Vector3()
 
 const execute = () => {
+  if (!isClient) return null
+
   const pointerState = getState(InputState).pointerState
   const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
   pointerScreenRaycaster.setFromCamera(
@@ -579,6 +582,8 @@ const execute = () => {
 }
 
 const reactor = () => {
+  if (!isClient) return null
+
   const xrState = useHookstate(getMutableState(XRState))
 
   useEffect(addClientInputListeners, [xrState.session])

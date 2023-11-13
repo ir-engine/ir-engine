@@ -68,8 +68,9 @@ const avatarAudioStreams: WeakMap<ComponentType<typeof NetworkObjectComponent>, 
 
 const execute = () => {
   const audioState = getState(AudioState)
-
   const audioContext = audioState.audioContext
+  if (!audioContext) return
+
   const network = NetworkState.mediaNetwork
   const mediaSettings = getState(MediaSettingsState)
   const immersiveMedia = mediaSettings.immersiveMedia

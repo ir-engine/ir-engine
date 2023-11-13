@@ -138,6 +138,8 @@ const execute = () => {
 }
 
 const reactor = () => {
+  if (!isClient) return null
+
   useEffect(() => {
     const audioContext = getState(AudioState).audioContext
 
@@ -145,24 +147,22 @@ const reactor = () => {
       if (audioContext.state === 'suspended') audioContext.resume()
     }
 
-    if (isClient) {
-      // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
-      // in order to ensure media will play programmatically
-      const handleAutoplay = () => {
-        enableAudioContext()
-        window.removeEventListener('pointerup', handleAutoplay)
-        window.removeEventListener('keypress', handleAutoplay)
-        window.removeEventListener('touchend', handleAutoplay)
-        EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
-        EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
-      }
-      // TODO: add destroy callbacks
-      window.addEventListener('pointerup', handleAutoplay)
-      window.addEventListener('keypress', handleAutoplay)
-      window.addEventListener('touchend', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
+    // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
+    // in order to ensure media will play programmatically
+    const handleAutoplay = () => {
+      enableAudioContext()
+      window.removeEventListener('pointerup', handleAutoplay)
+      window.removeEventListener('keypress', handleAutoplay)
+      window.removeEventListener('touchend', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
     }
+    // TODO: add destroy callbacks
+    window.addEventListener('pointerup', handleAutoplay)
+    window.addEventListener('keypress', handleAutoplay)
+    window.addEventListener('touchend', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
 
     return () => {
       for (const sound of Object.values(AudioEffectPlayer.SOUNDS)) delete AudioEffectPlayer.instance.bufferMap[sound]

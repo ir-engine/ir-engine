@@ -36,16 +36,6 @@ import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projec
 import EditorContainer from '../components/EditorContainer'
 import { EditorState } from '../services/EditorServices'
 
-const useEditorSystems = () => {
-  // useSystems([EditorFlyControlSystem, EditorControlSystem, EditorCameraSystem, GizmoSystem], {
-  //   before: PresentationSystemGroup
-  // })
-  // useSystems([ModelHandlingSystem, UploadRequestSystem], { with: SimulationSystemGroup })
-  // // useSystems([EditorInstanceNetworkingSystem, ClientNetworkingSystem, RenderInfoSystem], {
-  //   after: PresentationSystemGroup
-  // })
-}
-
 export const useStudioEditor = () => {
   const [engineReady, setEngineReady] = useState(false)
 
@@ -62,8 +52,6 @@ export const useStudioEditor = () => {
       })
     })
   }, [])
-
-  useEditorSystems()
 
   return engineReady
 }

@@ -69,13 +69,19 @@ export const EntityNetworkState = defineState({
         })
         setComponent(entity, TransformComponent, { position: action.position!, rotation: action.rotation! })
 
+        const spawnPosition = new Vector3()
+        if (action.position) spawnPosition.copy(action.position)
+
+        const spawnRotation = new Quaternion()
+        if (action.rotation) spawnRotation.copy(action.rotation)
+
         state[action.entityUUID].merge({
           ownerId: action.$from,
           networkId: action.networkId,
           peerId: action.$peer,
           prefab: action.prefab,
-          spawnPosition: action.position ?? new Vector3(),
-          spawnRotation: action.rotation ?? new Quaternion()
+          spawnPosition,
+          spawnRotation
         })
       }
     ],

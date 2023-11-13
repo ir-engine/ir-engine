@@ -39,6 +39,7 @@ import { InputState } from '../../input/state/InputState'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 
+import { isClient } from '../../common/functions/getEnvironment'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { XRUIState } from '../XRUIState'
@@ -192,6 +193,8 @@ const execute = () => {
 }
 
 const reactor = () => {
+  if (!isClient) return null
+
   useEffect(() => {
     // @ts-ignore
     // console.log(JSON.stringify(xrui.WebLayerModule.WebLayerManager.instance.textureLoader.workerConfig))

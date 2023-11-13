@@ -33,6 +33,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
@@ -146,6 +147,8 @@ const execute = () => {
 }
 
 const reactor = () => {
+  if (!isClient) return null
+
   useEffect(() => {
     PortalEffects.set(HyperspacePortalEffect, HyperspaceTagComponent)
 
@@ -167,6 +170,7 @@ const reactor = () => {
       getMutableState(HyperspacePortalSystemState).set({ transition: null! })
     }
   }, [])
+
   return null
 }
 

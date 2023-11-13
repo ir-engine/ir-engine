@@ -34,8 +34,8 @@ import { AuthService } from '@etherealengine/client-core/src/user/services/AuthS
 import { AppLoadingState } from '@etherealengine/engine/src/common/AppLoadingService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import '@etherealengine/client-core/src/world/ClientModule'
-import '@etherealengine/engine/src/EngineModule'
+import './LocationModule'
+
 import { useLoadEngineWithScene, useOfflineNetwork, useOnlineNetwork } from '../components/World/EngineHooks'
 
 type Props = {

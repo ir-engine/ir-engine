@@ -27,8 +27,9 @@ import { Noise } from 'noisejs'
 import { useEffect } from 'react'
 import { DataTexture, IUniform, LinearFilter, RedFormat, RepeatWrapping, Uniform, UnsignedByteType } from 'three'
 
-import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
+import { isClient } from '../../../../common/functions/getEnvironment'
 import { EngineState } from '../../../../ecs/classes/EngineState'
 import { defineSystem } from '../../../../ecs/functions/SystemFunctions'
 import { SceneLoadingSystem } from '../../../../scene/systems/SceneLoadingSystem'
@@ -129,10 +130,14 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const materialLibrary = getMutableState(MaterialLibraryState)
+  if (!isClient) return null
+
+  const noiseOffset = useHookstate(getMutableState(MaterialLibraryState).plugins.noiseOffset)
+
   useEffect(() => {
-    const pluginState = materialLibrary.plugins['noiseOffset']
-    const plugin = pluginState.get(NO_PROXY)
+    if (!noiseOffset?.value || noiseOffset.parameters['noiseTexture']) return
+
+    const plugin = noiseOffset.get(NO_PROXY)
     time = plugin.parameters['time']
     // Create new Perlin noise instance
     const noise = new Noise(Math.random())
@@ -169,8 +174,9 @@ const reactor = () => {
     noiseTexture.magFilter = LinearFilter
     noiseTexture.unpackAlignment = 1
     noiseTexture.needsUpdate = true
-    pluginState.parameters['noiseTexture'].set(noiseTexture)
-  }, [])
+    noiseOffset.parameters['noiseTexture'].set(noiseTexture)
+  }, [noiseOffset])
+
   return null
 }
 

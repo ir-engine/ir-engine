@@ -337,8 +337,8 @@ const NetworkedSceneObjectReactor = () => {
         WorldNetworkAction.spawnObject({
           entityUUID: uuid,
           prefab: '',
-          position: transform.position,
-          rotation: transform.rotation
+          position: transform.position.clone(),
+          rotation: transform.rotation.clone()
         })
       )
     }

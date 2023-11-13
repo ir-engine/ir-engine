@@ -140,6 +140,8 @@ export function defineSystem(systemConfig: SystemArgs) {
     throw new Error(`System ${systemConfig.uuid} already exists.`)
   }
 
+  console.log(`Registered system ${systemConfig.uuid}`)
+
   const system = {
     preSystems: [],
     execute: () => {},

@@ -63,11 +63,11 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import config from '@etherealengine/server-core/src/appconfig'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
+import './InstanceServerModule'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
 import { SocketWebRTCServerNetwork, getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
-import { startMediaServerSystems, startWorldServerSystems } from './startServerSystems'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
@@ -257,7 +257,6 @@ const loadEngine = async (app: Application, sceneId: SceneID) => {
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    startMediaServerSystems()
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
@@ -269,7 +268,6 @@ const loadEngine = async (app: Application, sceneId: SceneID) => {
       .service(scenePath)
       .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
 
-    startWorldServerSystems()
     await loadEngineInjection(projects)
 
     const sceneUpdatedListener = async () => {

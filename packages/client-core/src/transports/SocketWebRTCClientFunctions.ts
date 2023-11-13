@@ -510,7 +510,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
           }
 
           const systemUUID = defineSystem({
-            uuid: 'action-receptor-' + requestID,
+            uuid: '[WebRTC] transport connected ' + requestID,
             insert: { after: PresentationSystemGroup },
             execute: () => {
               for (const action of actionQueue()) {
@@ -599,7 +599,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
             }
 
             const systemUUID = defineSystem({
-              uuid: 'action-receptor-' + requestID,
+              uuid: '[WebRTC] media producer ' + requestID,
               insert: { after: PresentationSystemGroup },
               execute: () => {
                 for (const action of actionQueue()) {
@@ -666,7 +666,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
             }
 
             const systemUUID = defineSystem({
-              uuid: 'action-receptor-' + requestID,
+              uuid: '[WebRTC] data producer ' + requestID,
               insert: { after: PresentationSystemGroup },
               execute: () => {
                 for (const action of actionQueue()) {

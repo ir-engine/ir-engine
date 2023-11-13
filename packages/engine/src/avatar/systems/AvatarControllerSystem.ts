@@ -48,6 +48,7 @@ import { XRAction } from '../../xr/XRState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { respawnAvatar } from '../functions/respawnAvatar'
+import { AvatarInputSystem } from './AvatarInputSystem'
 
 const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
 const controllerQuery = defineQuery([AvatarControllerComponent])
@@ -129,5 +130,6 @@ const execute = () => {
 
 export const AvatarControllerSystem = defineSystem({
   uuid: 'ee.engine.AvatarControllerSystem',
+  insert: { after: AvatarInputSystem },
   execute
 })

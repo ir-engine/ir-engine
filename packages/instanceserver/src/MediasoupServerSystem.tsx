@@ -26,7 +26,7 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import React, { useEffect } from 'react'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
@@ -41,7 +41,6 @@ import {
 import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { MediasoupRecordingSystem } from './MediasoupRecordingFunctions'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import {
   createOutgoingDataProducer,
@@ -137,8 +136,7 @@ export const reactor = () => {
 
 export const MediasoupServerSystem = defineSystem({
   uuid: 'ee.instanceserver.MediasoupServerSystem',
-  insert: { with: SimulationSystemGroup },
+  insert: { after: PresentationSystemGroup },
   execute,
-  reactor,
-  preSystems: [MediasoupRecordingSystem]
+  reactor
 })
