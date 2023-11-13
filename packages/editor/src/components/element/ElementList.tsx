@@ -65,6 +65,7 @@ import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/co
 import { BatchedMeshComponent } from '@etherealengine/engine/src/scene/components/BatchedMeshComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
+import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { Vector3 } from 'three'
@@ -103,7 +104,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     SceneDynamicLoadTagComponent,
     BatchedMeshComponent
   ],
-  Interaction: [SpawnPointComponent, PortalComponent, LinkComponent],
+  Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
   Lighting: [
     AmbientLightComponent,
     PointLightComponent,
