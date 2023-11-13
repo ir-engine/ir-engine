@@ -815,7 +815,8 @@
     "mountPoint": {
       "name": "Mount point",
       "description": "An object with a pose to define interactable behaviors.",
-      "lbl-type": "Type"
+      "lbl-type": "Type",
+      "lbl-dismount": "Dismount point, offsets this transform"
     }
   },
   "projects": {
@@ -911,7 +912,7 @@
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
-    "isseus": "Issues:"
+    "issues": "Issues"
   },
   "materialLibrary": {
     "lbl": "Material Library",

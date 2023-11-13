@@ -29,6 +29,7 @@ import { Vector3 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
@@ -173,7 +174,7 @@ const execute = () => {
     const panner = AudioNodeGroups.get(audioObj)?.panner!
     if (!panner) continue
 
-    getAvatarBoneWorldPosition(entity, 'Head', _vec3)
+    getAvatarBoneWorldPosition(entity, VRMHumanBoneName.Head, _vec3)
     const { rotation } = getComponent(entity, TransformComponent)
 
     updateAudioPanner(panner, _vec3, rotation, endTime, mediaSettings)
