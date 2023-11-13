@@ -137,7 +137,7 @@ const onShiftLeft = () => {
   controller.isWalking.set(!controller.isWalking.value)
 }
 
-const onInteract = (handedness: XRHandedness = 'none', pose: MotionCaptureActionPoses = 'none') => {
+export const onInteract = (handedness: XRHandedness = 'none', pose: MotionCaptureActionPoses = 'none') => {
   dispatchAction(
     EngineActions.interactedWithObject({
       targetEntity: getState(InteractState).available[0],
