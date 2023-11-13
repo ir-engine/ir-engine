@@ -65,12 +65,7 @@ import { AnimationState } from '../AnimationManager'
 import config from '@etherealengine/common/src/config'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
-import avatarBoneMatching, {
-  BoneNames,
-  findSkinnedMeshes,
-  getAllBones,
-  recursiveHipsLookup
-} from '../AvatarBoneMatching'
+import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -299,10 +294,10 @@ export function makeSkinnedMeshFromBoneData(bonesData) {
   return group
 }
 
-export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
+export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
   const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
-  if (!avatarRigComponent) return false
-  const bone = avatarRigComponent.rig?.[boneName.toLowerCase()] as VRMHumanBone
+  if (!avatarRigComponent || !avatarRigComponent.rig) return false
+  const bone = avatarRigComponent.rig[boneName] as VRMHumanBone
   if (!bone) return false
   const el = bone.node.matrixWorld.elements
   position.set(el[12], el[13], el[14])
