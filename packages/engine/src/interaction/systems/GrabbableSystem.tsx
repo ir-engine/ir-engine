@@ -40,6 +40,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { matches, matchesEntityUUID } from '../../common/functions/MatchesUtils'
@@ -237,7 +238,7 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       removeComponent(xrui.entity, VisibleComponent)
     }
   } else {
-    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
+    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Hips, vec3)
     const distance = vec3.distanceToSquared(transform.position)
     const inRange = distance < 5
     if (transition.state === 'OUT' && inRange) {
@@ -339,6 +340,7 @@ const execute = () => {
   if (getState(EngineState).isEditor) return
   receiveActions(GrabbableState)
 
+  /** @todo this should move to input group */
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (nonCapturedInputSource) {
     const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
@@ -357,6 +359,7 @@ const execute = () => {
 
   /**
    * @todo use an XRUI pool
+   * @todo this should move to animation group
    */
   if (isClient)
     for (const entity of grabbableQuery.enter()) {

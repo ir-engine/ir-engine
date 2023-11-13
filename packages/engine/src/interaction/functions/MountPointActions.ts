@@ -23,40 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Theme } from '@mui/material/styles'
-import createStyles from '@mui/styles/createStyles'
-import makeStyles from '@mui/styles/makeStyles'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { defineAction, defineState, none } from '@etherealengine/hyperflux'
+import matches from 'ts-matches'
+import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
+import { NetworkTopics } from '../../networking/classes/Network'
 
-export const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    searchRoot: {
-      display: 'flex',
-      background: 'transparent',
-      boxShadow: 'none',
-      alignItems: 'center'
-    },
-    input: {
-      width: '120px',
-      color: '#ffffff',
-      fontSize: '0.8rem'
-    },
-    iconButton: {
-      width: '20px',
-      height: '20px',
-      color: '#ffffff',
-      marginLeft: '4px'
-    },
-    searchRootB: {
-      position: 'absolute',
-      left: '7rem',
-      top: '-2px',
-      width: '80px',
-      zIndex: '10',
-      display: 'flex',
-      alignItems: 'center',
-      background: 'transparent',
-      border: 'none',
-      boxShadow: 'none'
-    }
+export class MountPointActions {
+  static mountInteraction = defineAction({
+    type: 'ee.engine.interactions.MOUNT' as const,
+    mounted: matches.boolean,
+    targetMount: matchesEntityUUID,
+    mountedEntity: matchesEntityUUID,
+    $topic: NetworkTopics.world
   })
-)
+}
+
+export const MountPointState = defineState({
+  name: 'MountPointState',
+  initial: {} as Record<EntityUUID, EntityUUID>,
+  receptors: [
+    [
+      MountPointActions.mountInteraction,
+      (state, action: typeof MountPointActions.mountInteraction.matches._TYPE) => {
+        if (action.mounted) state[action.targetMount].merge(action.mountedEntity)
+        else state[action.targetMount].set(none)
+      }
+    ]
+  ]
+})

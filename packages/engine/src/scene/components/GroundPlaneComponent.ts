@@ -94,6 +94,8 @@ export const GroundPlaneComponent = defineComponent({
     const component = useComponent(entity, GroundPlaneComponent)
 
     useEffect(() => {
+      setComponent(entity, SceneAssetPendingTagComponent)
+
       const radius = 10000
 
       const mesh = new Mesh(
@@ -118,7 +120,7 @@ export const GroundPlaneComponent = defineComponent({
       const physicsWorld = getState(PhysicsState).physicsWorld
       Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
 
-      if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
+      removeComponent(entity, SceneAssetPendingTagComponent)
 
       return () => {
         if (!entityExists(entity)) return
