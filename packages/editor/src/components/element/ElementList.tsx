@@ -65,6 +65,7 @@ import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/compon
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
+import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
@@ -103,7 +104,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     VariantComponent,
     SceneDynamicLoadTagComponent
   ],
-  Interaction: [SpawnPointComponent, PortalComponent, LinkComponent],
+  Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
   Lighting: [
     AmbientLightComponent,
     PointLightComponent,

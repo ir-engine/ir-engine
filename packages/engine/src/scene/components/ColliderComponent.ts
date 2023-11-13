@@ -168,6 +168,8 @@ export const ColliderComponent = defineComponent({
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
     useEffect(() => {
+      setComponent(entity, SceneAssetPendingTagComponent)
+
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
       const physicsWorld = getState(PhysicsState).physicsWorld
 
@@ -267,7 +269,7 @@ export const ColliderComponent = defineComponent({
         rigidbody.scale.copy(transformComponent.scale.value)
       }
 
-      if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
+      removeComponent(entity, SceneAssetPendingTagComponent)
     }, [isLoadedFromGLTF, colliderComponent, transformComponent, localTransformComponent, groupComponent?.length])
 
     return null

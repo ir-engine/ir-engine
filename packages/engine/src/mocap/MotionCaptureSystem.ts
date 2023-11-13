@@ -180,18 +180,20 @@ const execute = () => {
       )
 
       if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
-      localbone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
+      if (MotionCaptureRigComponent.solvingLowerBody[entity])
+        localbone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
       localbone.scale.set(1, 1, 1)
     }
 
     const hipBone = rigComponent.localRig.hips.node
-    hipBone.position.set(
-      MotionCaptureRigComponent.hipPosition.x[entity],
-      MotionCaptureRigComponent.hipPosition.y[entity],
-      MotionCaptureRigComponent.hipPosition.z[entity]
-    )
-
-    hipBone.updateMatrixWorld(true)
+    if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
+      hipBone.position.set(
+        MotionCaptureRigComponent.hipPosition.x[entity],
+        MotionCaptureRigComponent.hipPosition.y[entity],
+        MotionCaptureRigComponent.hipPosition.z[entity]
+      )
+      hipBone.updateMatrixWorld(true)
+    }
 
     const worldHipsParent = rigComponent.rig.hips.node.parent
     if (worldHipsParent)
