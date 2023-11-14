@@ -23,32 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
-import React, { Suspense } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { defineAction, defineState, none } from '@etherealengine/hyperflux'
+import matches from 'ts-matches'
+import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
+import { NetworkTopics } from '../../networking/classes/Network'
 
-import { CustomRoute } from '@etherealengine/client-core/src/common/services/RouterService'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-
-const CustomRoutes = ({ customRoutes }: { customRoutes: CustomRoute[] }) => {
-  if (customRoutes === null) return <Routes></Routes>
-
-  const location = useLocation()
-  const { pathname } = location
-
-  const matchedRoutes = customRoutes.filter((customRoute) => customRoute.route.split('/')[1] === pathname.split('/')[1])
-
-  return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingCustom')} />}>
-      <Routes>
-        {matchedRoutes.map((customRoute, idx) => {
-          const { route, component, props: p } = customRoute
-          const Element = component as any
-          return <Route key={`custom-route-${idx}`} path={route} element={<Element />} {...p} />
-        })}
-      </Routes>
-    </Suspense>
-  )
+export class MountPointActions {
+  static mountInteraction = defineAction({
+    type: 'ee.engine.interactions.MOUNT' as const,
+    mounted: matches.boolean,
+    targetMount: matchesEntityUUID,
+    mountedEntity: matchesEntityUUID,
+    $topic: NetworkTopics.world
+  })
 }
 
-export default CustomRoutes
+export const MountPointState = defineState({
+  name: 'MountPointState',
+  initial: {} as Record<EntityUUID, EntityUUID>,
+  receptors: [
+    [
+      MountPointActions.mountInteraction,
+      (state, action: typeof MountPointActions.mountInteraction.matches._TYPE) => {
+        if (action.mounted) state[action.targetMount].merge(action.mountedEntity)
+        else state[action.targetMount].set(none)
+      }
+    ]
+  ]
+})

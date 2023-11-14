@@ -40,8 +40,9 @@ import {
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AvatarMovementSystem } from '@etherealengine/engine/src/avatar/systems/AvatarMovementSystem'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { defineSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem, disableSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { ECSRecordingActions } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { defineActionQueue } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
@@ -59,6 +60,7 @@ const NotifyRecordingErrorSystem = defineSystem({
 
 const startCaptureSystems = () => {
   startSystems([ClientNetworkingSystem, NotifyRecordingErrorSystem], { after: PresentationSystemGroup })
+  disableSystem(AvatarMovementSystem)
 }
 
 export const CaptureLocation = () => {

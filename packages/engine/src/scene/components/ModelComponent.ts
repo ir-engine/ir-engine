@@ -160,6 +160,7 @@ function ModelReactor() {
         case 'fbx':
         case 'vrm':
         case 'usdz':
+          setComponent(entity, SceneAssetPendingTagComponent)
           AssetLoader.load(
             model.src,
             {
@@ -176,6 +177,7 @@ function ModelReactor() {
               if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
               model.scene && removeObjectFromGroup(entity, model.scene)
               modelComponent.scene.set(loadedAsset.scene)
+              removeComponent(entity, SceneAssetPendingTagComponent)
             },
             (onprogress) => {
               if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
