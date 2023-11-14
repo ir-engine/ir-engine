@@ -217,7 +217,7 @@ function ModelReactor() {
 
     if (groupComponent?.value?.find((group: any) => group === scene)) return
 
-    const childSpawnedEntities = parseGLTFModel(entity)
+    parseGLTFModel(entity)
     setComponent(entity, BoundingBoxComponent)
   }, [modelComponent.scene])
 
