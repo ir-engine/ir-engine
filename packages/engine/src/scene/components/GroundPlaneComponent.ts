@@ -30,9 +30,17 @@ import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 
 import { getState } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, removeComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { EngineState } from '../../ecs/classes/EngineState'
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { Physics } from '../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -40,6 +48,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
@@ -61,7 +70,15 @@ export const GroundPlaneComponent = defineComponent({
     if (matches.boolean.test(json.visible)) component.visible.set(json.visible)
     if (matches.object.test(json.mesh)) component.mesh.set(json.mesh as any)
 
-    setComponent(entity, SceneAssetPendingTagComponent)
+    /**
+     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
+     */
+    if (
+      !getState(EngineState).sceneLoaded &&
+      hasComponent(entity, SceneObjectComponent) &&
+      !hasComponent(entity, RigidBodyComponent)
+    )
+      setComponent(entity, SceneAssetPendingTagComponent)
   },
 
   toJSON(entity, component) {
