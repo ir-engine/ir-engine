@@ -144,12 +144,18 @@ export const SceneState = defineState({
 })
 
 export const SceneServices = {
-  setCurrentScene: async (projectName: string, sceneName: string) => {
-    const sceneData = await Engine.instance.api
+  setCurrentScene: (projectName: string, sceneName: string) => {
+    Engine.instance.api
       .service(scenePath)
       .get(null, { query: { project: projectName, name: sceneName } })
-    /**@todo replace projectName/sceneName with sceneID once #9119 */
-    SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, sceneData)
+      .then((sceneData) => {
+        /**@todo replace projectName/sceneName with sceneID once #9119 */
+        SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, sceneData)
+      })
+
+    return () => {
+      SceneState.unloadScene(`${projectName}/${sceneName}` as SceneID)
+    }
   }
 }
 

@@ -266,15 +266,10 @@ export const useOnlineNetwork = () => {
   }, [])
 }
 
-export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
+export const useOfflineNetwork = () => {
   const engineState = useHookstate(getMutableState(EngineState))
   const authState = useHookstate(getMutableState(AuthState))
 
-  useEffect(() => {
-    engineState.connectedWorld.set(true)
-  }, [])
-
-  /** OFFLINE */
   useEffect(() => {
     if (engineState.sceneLoaded.value) {
       const userId = Engine.instance.userID
@@ -287,6 +282,10 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
       addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
+      NetworkState.worldNetwork.authenticated = true
+      NetworkState.worldNetwork.connected = true
+      NetworkState.worldNetwork.ready = true
+
       NetworkPeerFunctions.createPeer(
         NetworkState.worldNetwork as Network,
         peerID,
@@ -296,5 +295,5 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
         authState.user.name.value
       )
     }
-  }, [engineState.connectedWorld, engineState.sceneLoaded])
+  }, [engineState.sceneLoaded])
 }

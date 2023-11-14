@@ -110,9 +110,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
 
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
-    !!Engine.instance.localClientEntity &&
-    engineState.connectedWorld.value &&
-    hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
+    !!Engine.instance.localClientEntity && hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
   const onClickRespawn = (): void => {
     Engine.instance.localClientEntity && respawnAvatar(Engine.instance.localClientEntity)

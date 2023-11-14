@@ -300,7 +300,7 @@ const loadEngine = async (app: Application, sceneId: SceneID) => {
   networkState.connected.set(true)
   networkState.ready.set(true)
 
-  getMutableState(EngineState).connectedWorld.set(true)
+  getMutableState(InstanceServerState).ready.set(true)
 }
 
 /**
@@ -399,10 +399,10 @@ const createOrUpdateInstance = async (
     await loadEngine(app, sceneId)
   } else {
     try {
-      if (!getState(EngineState).connectedWorld)
+      if (!getState(InstanceServerState).ready)
         await new Promise<void>((resolve) => {
           const interval = setInterval(() => {
-            if (getState(EngineState).connectedWorld) {
+            if (getState(InstanceServerState).ready) {
               clearInterval(interval)
               resolve()
             }
