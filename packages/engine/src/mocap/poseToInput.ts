@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
-import { Vector3 } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { onInteract } from '../avatar/systems/AvatarInputSystem'
 import { EngineState } from '../ecs/classes/EngineState'
@@ -42,9 +41,7 @@ export const PoseState = defineState({
   }
 })
 
-const rightThighDirection = new Vector3(),
-  leftThighDirection = new Vector3(),
-  minSeatedAngle = 1.25, //radians
+const minSeatedAngle = 1.25, //radians
   poseHoldTime = 0.5 //seconds
 let poseHoldTimer = 0
 
@@ -77,4 +74,5 @@ export const evaluatePose = (entity: Entity) => {
   }
 
   if (getLegsSeatedChange('sitting')) onInteract('none', 'sit')
+  if (getLegsSeatedChange('none')) onInteract('none', 'stand')
 }
