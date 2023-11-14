@@ -32,7 +32,6 @@ import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   NO_PROXY,
-  State,
   defineActionQueue,
   dispatchAction,
   getMutableState,
@@ -372,7 +371,12 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     <>
       {selfEntityState.value &&
         entityState.components.map((compState) => (
-          <ComponentLoadReactor key={compState.name.value} componentState={compState} entity={selfEntityState.value} />
+          <ComponentLoadReactor
+            key={compState.name.value}
+            sceneID={props.sceneID}
+            componentID={compState.value.name}
+            entityUUID={props.entityUUID}
+          />
         ))}
     </>
   )
@@ -448,21 +452,28 @@ const EntityChildLoadReactor = (props: { parentEntity: Entity; entityUUID: Entit
         entityJSONState.components.map((compState) => (
           <ComponentLoadReactor
             key={compState.name.value + ' - ' + selfEntityState.value}
-            componentState={compState}
-            entity={selfEntityState.value}
+            sceneID={props.sceneID}
+            componentID={compState.value.name}
+            entityUUID={props.entityUUID}
           />
         ))}
     </>
   )
 }
 
-const ComponentLoadReactor = (props: { componentState: State<ComponentJson>; entity: Entity }) => {
+const ComponentLoadReactor = (props: { sceneID: SceneID; componentID: string; entityUUID: EntityUUID }) => {
+  const entityJSONState = SceneState.useScene(props.sceneID).scene.entities[props.entityUUID]
+  const componentState = entityJSONState.components.find((comp) => comp.value.name === props.componentID)
+
   useEffect(() => {
-    const entity = props.entity
+    if (!componentState?.value) return
+
+    const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
+
     /** @todo - we have to check for existence here, as the dynamic loading parent component takes a re-render to load in */
     if (!entity || !entityExists(entity)) return console.warn('Entity does not exist', entity)
 
-    const component = props.componentState.get(NO_PROXY)
+    const component = componentState.get(NO_PROXY)
 
     const Component = ComponentJSONIDMap.get(component.name)
     if (!Component) return console.warn('[SceneLoading] could not find component name', component.name)
@@ -480,7 +491,29 @@ const ComponentLoadReactor = (props: { componentState: State<ComponentJson>; ent
       if (!entity || !entityExists(entity)) return
       removeComponent(entity, ComponentJSONIDMap.get(component.name)!)
     }
-  }, [props.componentState, props.entity])
+  }, [])
+
+  useEffect(() => {
+    if (!componentState?.value) return
+
+    const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
+
+    /** @todo - we have to check for existence here, as the dynamic loading parent component takes a re-render to load in */
+    if (!entity || !entityExists(entity)) return console.warn('Entity does not exist', entity)
+
+    const component = componentState.get(NO_PROXY)
+
+    const Component = ComponentJSONIDMap.get(component.name)
+    if (!Component) return console.warn('[SceneLoading] could not find component name', component.name)
+
+    try {
+      setComponent(entity, Component, component.props)
+    } catch (e) {
+      console.error(`Error loading scene entity: `, getComponent(entity, UUIDComponent), entity, component)
+      console.error(e)
+      return
+    }
+  }, [componentState])
 
   return null
 }
