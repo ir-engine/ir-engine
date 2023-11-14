@@ -73,10 +73,9 @@ export const useLoadLocation = (props: { locationName: string }) => {
    * Once we have the location, fetch the current scene data
    */
   useEffect(() => {
-    if (locationState.currentLocation.location.sceneId.value) {
-      const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
-      SceneServices.setCurrentScene(project, scene)
-    }
+    if (!locationState.currentLocation.location.sceneId.value) return
+    const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
+    return SceneServices.setCurrentScene(project, scene)
   }, [locationState.currentLocation.location.sceneId])
 }
 
