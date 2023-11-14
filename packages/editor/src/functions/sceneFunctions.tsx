@@ -29,10 +29,11 @@ import { API } from '@etherealengine/client-core/src/API'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
 import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { getState } from '@etherealengine/hyperflux'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
@@ -113,7 +114,7 @@ export const saveScene = async (
 ) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
-  const sceneData = serializeWorld()
+  const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].snapshots.at(-1)?.data.scene
 
   try {
     return await uploadToFeathersService(sceneUploadPath, thumbnailFile ? [thumbnailFile] : [], {

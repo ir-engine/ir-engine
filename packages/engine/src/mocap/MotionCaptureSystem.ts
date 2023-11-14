@@ -55,8 +55,10 @@ import {
 } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { V_010 } from '../common/constants/MathConstants'
+import { lerp } from '../common/functions/MathLerpFunctions'
 import { isClient } from '../common/functions/getEnvironment'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkState } from '../networking/NetworkState'
 import { RendererState } from '../renderer/RendererState'
@@ -178,18 +180,32 @@ const execute = () => {
       )
 
       if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
-      localbone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
+      if (MotionCaptureRigComponent.solvingLowerBody[entity])
+        localbone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
       localbone.scale.set(1, 1, 1)
     }
 
     const hipBone = rigComponent.localRig.hips.node
-    hipBone.position.set(
-      MotionCaptureRigComponent.hipPosition.x[entity],
-      MotionCaptureRigComponent.hipPosition.y[entity],
-      MotionCaptureRigComponent.hipPosition.z[entity]
-    )
+    if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
+      hipBone.position.set(
+        MotionCaptureRigComponent.hipPosition.x[entity],
+        MotionCaptureRigComponent.hipPosition.y[entity],
+        MotionCaptureRigComponent.hipPosition.z[entity]
+      )
+      hipBone.updateMatrixWorld(true)
+    }
 
-    hipBone.updateMatrixWorld(true)
+    const worldHipsParent = rigComponent.rig.hips.node.parent
+    if (worldHipsParent)
+      if (MotionCaptureRigComponent.solvingLowerBody[entity])
+        worldHipsParent.position.setY(
+          lerp(
+            worldHipsParent.position.y,
+            MotionCaptureRigComponent.footOffset[entity],
+            getState(EngineState).deltaSeconds * 5
+          )
+        )
+      else worldHipsParent.position.setY(0)
 
     const avatarDebug = getState(RendererState).avatarDebug
     helperGroup.visible = avatarDebug

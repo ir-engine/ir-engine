@@ -62,7 +62,6 @@ import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsE
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
-import { XRELoader } from './XRELoader'
 
 // import { instanceGLTF } from '../functions/transformGLTF'
 
@@ -187,7 +186,6 @@ const handleLODs = (asset: Object3D): Object3D => {
  */
 const getAssetType = (assetFileName: string): AssetType => {
   assetFileName = assetFileName.toLowerCase()
-  if (assetFileName.endsWith('.xre.gltf')) return AssetType.XRE
   const suffix = assetFileName.split('.').pop()
   switch (suffix) {
     case 'gltf':
@@ -274,7 +272,6 @@ const textureLoader = () => new TextureLoader()
 const fileLoader = () => new FileLoader()
 const audioLoader = () => new AudioLoader()
 const tgaLoader = () => new TGALoader()
-const xreLoader = () => new XRELoader(fileLoader())
 const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
   load: (src, onLoad) => {
@@ -296,8 +293,6 @@ const usdzLoader = () => new USDZLoader()
 
 export const getLoader = (assetType: AssetType) => {
   switch (assetType) {
-    case AssetType.XRE:
-      return xreLoader()
     case AssetType.KTX2:
       return ktx2Loader()
     case AssetType.DDS:
@@ -384,9 +379,7 @@ const load = (
 
   const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
-  if (args.assetRoot && (loader as XRELoader).isXRELoader) {
-    ;(loader as XRELoader).rootNode = args.assetRoot
-  }
+
   const callback = assetLoadCallback(url, args, assetType, onLoad)
 
   try {

@@ -35,6 +35,7 @@ import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import OptimizationPersist from 'vite-plugin-optimize-persist'
 import PkgConfig from 'vite-plugin-package-config'
+import svgr from 'vite-plugin-svgr'
 
 import manifest from './manifest.default.json'
 import PWA from './pwa.config'
@@ -281,6 +282,7 @@ export default defineConfig(async () => {
       }
     },
     plugins: [
+      svgr(),
       PkgConfig(), // must be in front of optimizationPersist
       OptimizationPersist(),
       nodePolyfills(),
@@ -305,7 +307,7 @@ export default defineConfig(async () => {
               ? 'dev-sw.js?dev-sw'
               : 'service-worker.js'
             : '',
-        paymentPointer: coilSetting.paymentPointer || ''
+        paymentPointer: coilSetting?.paymentPointer || ''
       }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,
@@ -318,8 +320,7 @@ export default defineConfig(async () => {
     ].filter(Boolean),
     resolve: {
       alias: {
-        'react-json-tree': 'react-json-tree/lib/umd/react-json-tree',
-        '@mui/styled-engine': '@mui/styled-engine-sc/'
+        'react-json-tree': 'react-json-tree/lib/umd/react-json-tree'
       }
     },
     build: {

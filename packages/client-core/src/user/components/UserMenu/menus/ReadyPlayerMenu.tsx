@@ -171,7 +171,9 @@ const ReadyPlayerMenu = () => {
               margin: -24,
               width: '100%',
               height: '100%',
-              zIndex: 2
+              zIndex: 2,
+              maxWidth: '100%',
+              border: 0
             }}
             src={config.client.readyPlayerMeUrl}
           />

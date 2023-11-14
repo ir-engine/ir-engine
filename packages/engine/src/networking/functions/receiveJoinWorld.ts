@@ -35,6 +35,8 @@ import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { Engine } from '../../ecs/classes/Engine'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { AvatarID } from '../../schemas/user/avatar.schema'
+import { InviteCode } from '../../schemas/user/user.schema'
 import { WorldState } from '../interfaces/WorldState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
@@ -53,7 +55,7 @@ export type AuthTask = {
 }
 
 export type JoinWorldRequestData = {
-  inviteCode?: string
+  inviteCode?: InviteCode
 }
 
 export type JoinWorldProps = {
@@ -63,7 +65,7 @@ export type JoinWorldProps = {
 
 export type SpawnInWorldProps = {
   avatarSpawnPose: { position: Vector3; rotation: Quaternion }
-  avatarID: string
+  avatarID: AvatarID
   name: string
 }
 

@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getState } from '@etherealengine/hyperflux'
 
+import { getState } from '@etherealengine/hyperflux'
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { createEngine } from '../../initializeEngine'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
@@ -41,14 +42,10 @@ import { createEntity } from '../functions/EntityFunctions'
 import { getComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
 import {
   EntityTreeComponent,
-  addEntityNodeChild,
   destroyEntityTree,
   findIndexOfEntityNode,
-  getEntityNodeArrayFromEntities,
-  initializeSceneEntity,
   iterateEntityNode,
   removeFromEntityTree,
-  reparentEntityNode,
   traverseEntityNode,
   traverseEntityNodeParent
 } from './EntityTree'
@@ -56,6 +53,7 @@ import {
 describe('EntityTreeComponent', () => {
   beforeEach(() => {
     createEngine()
+    loadEmptyScene()
   })
 
   afterEach(() => {
@@ -72,7 +70,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set given values', () => {
-    const sceneEntity = getState(SceneState).sceneEntity
+    const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
 
     const entity = createEntity()
     const testUUID = 'test-uuid' as EntityUUID
@@ -93,7 +91,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set child at a given index', () => {
-    const sceneEntity = getState(SceneState).sceneEntity
+    const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
 
     setComponent(createEntity(), EntityTreeComponent, {
       parentEntity: sceneEntity,
@@ -136,7 +134,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should remove entity from maps', () => {
-    const sceneEntity = getState(SceneState).sceneEntity
+    const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
 
     const entity = createEntity()
     setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity, uuid: 'test-uuid' as EntityUUID })
@@ -156,8 +154,9 @@ describe('EntityTreeFunctions', () => {
 
   beforeEach(() => {
     createEngine()
+    loadEmptyScene()
 
-    root = getState(SceneState).sceneEntity
+    root = SceneState.getRootEntity(getState(SceneState).activeScene!)
   })
 
   afterEach(() => {
@@ -166,10 +165,9 @@ describe('EntityTreeFunctions', () => {
 
   describe('initializeEntityTree function', () => {
     it('will initialize entity tree', () => {
-      initializeSceneEntity()
-      const sceneEntity = getState(SceneState).sceneEntity
+      const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
       assert(sceneEntity)
-      assert(getComponent(sceneEntity, NameComponent), 'scene')
+      assert(getComponent(sceneEntity, NameComponent), 'Root')
       assert(hasComponent(sceneEntity, VisibleComponent))
       assert(hasComponent(sceneEntity, SceneTagComponent))
       assert(hasComponent(sceneEntity, TransformComponent))
@@ -182,20 +180,20 @@ describe('EntityTreeFunctions', () => {
   describe('addEntityNodeChild function', () => {
     it('will not add entity node if already added', () => {
       const node = createEntity()
-      addEntityNodeChild(node, root)
+      setComponent(node, EntityTreeComponent, { parentEntity: root })
       const rootNode = getComponent(root, EntityTreeComponent)
       assert.equal(rootNode.children.length, 1)
-      addEntityNodeChild(node, root)
+      setComponent(node, EntityTreeComponent, { parentEntity: root })
       assert.equal(rootNode.children.length, 1)
     })
 
     it('will reparent node if parent entity is different in passed node', () => {
       const child = createEntity()
-      addEntityNodeChild(child, root)
+      setComponent(child, EntityTreeComponent, { parentEntity: root })
 
       const parent = createEntity()
       setComponent(parent, EntityTreeComponent, { parentEntity: null })
-      addEntityNodeChild(child, parent)
+      setComponent(child, EntityTreeComponent, { parentEntity: parent })
 
       const parentNode = getComponent(parent, EntityTreeComponent)
       const childNode = getComponent(child, EntityTreeComponent)
@@ -216,11 +214,11 @@ describe('EntityTreeFunctions', () => {
       const node_0_0_0 = createEntity()
       const node_0_1_0 = createEntity()
 
-      addEntityNodeChild(node_0, root)
-      addEntityNodeChild(node_0_0, node_0)
-      addEntityNodeChild(node_0_1, node_0)
-      addEntityNodeChild(node_0_0_0, node_0_0)
-      addEntityNodeChild(node_0_1_0, node_0_1)
+      setComponent(node_0, EntityTreeComponent, { parentEntity: root })
+      setComponent(node_0_0, EntityTreeComponent, { parentEntity: node_0 })
+      setComponent(node_0_1, EntityTreeComponent, { parentEntity: node_0 })
+      setComponent(node_0_0_0, EntityTreeComponent, { parentEntity: node_0_0 })
+      setComponent(node_0_1_0, EntityTreeComponent, { parentEntity: node_0_1 })
 
       destroyEntityTree(node_0)
 
@@ -241,11 +239,11 @@ describe('EntityTreeFunctions', () => {
       const node_0_0_0 = createEntity()
       const node_0_1_0 = createEntity()
 
-      addEntityNodeChild(node_0, root)
-      addEntityNodeChild(node_0_0, node_0)
-      addEntityNodeChild(node_0_1, node_0)
-      addEntityNodeChild(node_0_0_0, node_0_0)
-      addEntityNodeChild(node_0_1_0, node_0_1)
+      setComponent(node_0, EntityTreeComponent, { parentEntity: root })
+      setComponent(node_0_0, EntityTreeComponent, { parentEntity: node_0 })
+      setComponent(node_0_1, EntityTreeComponent, { parentEntity: node_0 })
+      setComponent(node_0_0_0, EntityTreeComponent, { parentEntity: node_0_0 })
+      setComponent(node_0_1_0, EntityTreeComponent, { parentEntity: node_0_1 })
 
       removeFromEntityTree(node_0)
 
@@ -258,24 +256,6 @@ describe('EntityTreeFunctions', () => {
     })
   })
 
-  describe('reparentEntityNode function', () => {
-    it('will reparent passed entity node to new parent', () => {
-      const node_0 = createEntity()
-      const node_1 = createEntity()
-      addEntityNodeChild(node_0, root)
-      addEntityNodeChild(node_1, root)
-
-      reparentEntityNode(node_0, node_1)
-
-      const node0 = getComponent(node_0, EntityTreeComponent)
-      const node1 = getComponent(node_1, EntityTreeComponent)
-
-      assert.equal(node0.parentEntity, node_1)
-      assert.equal(node1.children.length, 1)
-      assert.equal(node1.children[0], node_0)
-    })
-  })
-
   describe('traverseEntityNode function', () => {
     it('will traverse the childern nodes and run the callback function on them', () => {
       const node_0 = createEntity()
@@ -284,11 +264,11 @@ describe('EntityTreeFunctions', () => {
       const node_0_0_0 = createEntity()
       const node_0_1_0 = createEntity()
 
-      addEntityNodeChild(node_0, root)
-      addEntityNodeChild(node_0_0, node_0)
-      addEntityNodeChild(node_0_1, node_0)
-      addEntityNodeChild(node_0_0_0, node_0_0)
-      addEntityNodeChild(node_0_1_0, node_0_1)
+      setComponent(node_0, EntityTreeComponent, { parentEntity: root })
+      setComponent(node_0_0, EntityTreeComponent, { parentEntity: node_0 })
+      setComponent(node_0_1, EntityTreeComponent, { parentEntity: node_0 })
+      setComponent(node_0_0_0, EntityTreeComponent, { parentEntity: node_0_0 })
+      setComponent(node_0_1_0, EntityTreeComponent, { parentEntity: node_0_1 })
 
       const visited = [] as Entity[]
 
@@ -319,11 +299,11 @@ describe('EntityTreeFunctions', () => {
       const node_0_0_0 = createEntity()
       const node_0_1_0 = createEntity()
 
-      addEntityNodeChild(node_0, root)
-      addEntityNodeChild(node_0_0, node_0)
-      addEntityNodeChild(node_0_1, node_0)
-      addEntityNodeChild(node_0_0_0, node_0_0)
-      addEntityNodeChild(node_0_1_0, node_0_1)
+      setComponent(node_0, EntityTreeComponent, { parentEntity: root })
+      setComponent(node_0_0, EntityTreeComponent, { parentEntity: node_0 })
+      setComponent(node_0_1, EntityTreeComponent, { parentEntity: node_0 })
+      setComponent(node_0_0_0, EntityTreeComponent, { parentEntity: node_0_0 })
+      setComponent(node_0_1_0, EntityTreeComponent, { parentEntity: node_0_1 })
 
       const visited = [] as Entity[]
 
@@ -351,7 +331,7 @@ describe('EntityTreeFunctions', () => {
       const nodes = [] as Entity[]
       for (let i = 0; i < 4; i++) {
         nodes[i] = createEntity()
-        addEntityNodeChild(nodes[i], i === 0 ? root : nodes[i - 1])
+        setComponent(nodes[i], EntityTreeComponent, { parentEntity: i === 0 ? root : nodes[i - 1] })
       }
 
       const visited = [] as Entity[]
@@ -372,67 +352,24 @@ describe('EntityTreeFunctions', () => {
     })
   })
 
-  describe('getEntityNodeArrayFromEntities function', () => {
-    it('will return entity node array from passed entities', () => {
-      const nodes = [] as Entity[]
-      for (let i = 0; i < 4; i++) {
-        nodes[i] = createEntity()
-        addEntityNodeChild(nodes[i], root)
-      }
-
-      const entities = [nodes[0], nodes[2]]
-
-      const retrivedNodes = getEntityNodeArrayFromEntities(entities) as Entity[]
-
-      retrivedNodes.forEach((node) => assert(entities.includes(node)))
-    })
-
-    it('will remove entity for which there is no node', () => {
-      const nodes = [] as Entity[]
-      for (let i = 0; i < 4; i++) {
-        nodes[i] = createEntity()
-        addEntityNodeChild(nodes[i], root)
-      }
-
-      const fakeEntity = createEntity()
-      const entities = [nodes[0], nodes[2], fakeEntity]
-
-      const retrivedNodes = getEntityNodeArrayFromEntities(entities)
-
-      retrivedNodes.forEach((node) => assert.notEqual(node, fakeEntity))
-    })
-  })
-
   describe('findIndexOfEntityNode function', () => {
     it('will return index of passed entity node', () => {
       const testNode = createEntity()
-      addEntityNodeChild(createEntity(), root)
-      addEntityNodeChild(createEntity(), root)
-      addEntityNodeChild(testNode, root)
-      addEntityNodeChild(createEntity(), root)
+      setComponent(createEntity(), EntityTreeComponent, { parentEntity: root })
+      setComponent(createEntity(), EntityTreeComponent, { parentEntity: root })
+      setComponent(testNode, EntityTreeComponent, { parentEntity: root })
+      setComponent(createEntity(), EntityTreeComponent, { parentEntity: root })
 
-      assert.equal(
-        findIndexOfEntityNode(
-          getEntityNodeArrayFromEntities(getComponent(root, EntityTreeComponent).children),
-          testNode
-        ),
-        2
-      )
+      assert.equal(findIndexOfEntityNode(getComponent(root, EntityTreeComponent).children, testNode), 2)
     })
 
     it('will return -1 if it can not find the index of the passed node', () => {
       const testNode = createEntity()
-      addEntityNodeChild(createEntity(), root)
-      addEntityNodeChild(createEntity(), root)
-      addEntityNodeChild(createEntity(), root)
+      setComponent(createEntity(), EntityTreeComponent, { parentEntity: root })
+      setComponent(createEntity(), EntityTreeComponent, { parentEntity: root })
+      setComponent(createEntity(), EntityTreeComponent, { parentEntity: root })
 
-      assert.equal(
-        findIndexOfEntityNode(
-          getEntityNodeArrayFromEntities(getComponent(root, EntityTreeComponent).children),
-          testNode
-        ),
-        -1
-      )
+      assert.equal(findIndexOfEntityNode(getComponent(root, EntityTreeComponent).children, testNode), -1)
     })
   })
 })

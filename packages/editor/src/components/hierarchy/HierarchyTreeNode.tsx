@@ -26,32 +26,29 @@ Ethereal Engine. All Rights Reserved.
 import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import { Object3D } from 'three'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getAllComponents,
   getComponent,
-  hasComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import {
-  EntityTreeComponent,
-  getEntityNodeArrayFromEntities
-} from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
+import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
-import { addMediaNode } from '../../functions/addMediaNode'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
@@ -66,7 +63,7 @@ import styles from './styles.module.scss'
  * @return {string}
  */
 export const getNodeElId = (node: HeirarchyTreeNodeType) => {
-  return 'hierarchy-node-' + (node.obj3d ? node.obj3d.uuid : node.entityNode)
+  return 'hierarchy-node-' + node.entity
 }
 
 export type RenameNodeData = {
@@ -98,14 +95,11 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const data = props.data
   const selectionState = useHookstate(getMutableState(SelectionState))
 
-  const nodeName = node.obj3d
-    ? node.obj3d.name ?? node.obj3d.uuid
-    : hasComponent(node.entityNode as Entity, NameComponent)
-    ? useComponent(node.entityNode as Entity, NameComponent).value
-    : ''
+  const nodeName = useComponent(node.entity, NameComponent).value
 
-  const errors = node.entityNode ? useOptionalComponent(node.entityNode as Entity, ErrorComponent) : undefined
-  const firstError = errors?.keys[0]
+  const errors = node.entity ? useOptionalComponent(node.entity as Entity, ErrorComponent) : undefined
+
+  const sceneAssetLoading = useOptionalComponent(node.entity as Entity, SceneAssetPendingTagComponent)
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -145,7 +139,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       return {
         type: ItemTypes.Node,
         multiple,
-        value: multiple ? getEntityNodeArrayFromEntities(selectedEntities) : selectedEntities[0]
+        value: multiple ? selectedEntities : selectedEntities[0]
       }
     },
     canDrag() {
@@ -159,24 +153,22 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   })
 
   const dropItem = (node: HeirarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
-    const isObj3D = !node.entityNode && node.obj3d
-    if (isObj3D) return
-    let parentNode: Entity | null = null
-    let beforeNode: Entity | null = null
+    let parentNode: Entity
+    let beforeNode: Entity
 
     if (place === 'Before') {
-      const entityTreeComponent = getComponent(node.entityNode as Entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity
-      beforeNode = node.entityNode as Entity
+      const entityTreeComponent = getComponent(node.entity as Entity, EntityTreeComponent)
+      parentNode = entityTreeComponent?.parentEntity!
+      beforeNode = node.entity as Entity
     } else if (place === 'After') {
-      const entityTreeComponent = getComponent(node.entityNode as Entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity
+      const entityTreeComponent = getComponent(node.entity as Entity, EntityTreeComponent)
+      parentNode = entityTreeComponent?.parentEntity!
       const parentTreeComponent = getComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
       if (!node.lastChild && parentNode && parentTreeComponent?.children.length > node.childIndex + 1) {
         beforeNode = parentTreeComponent.children[node.childIndex + 1]
       }
     } else {
-      parentNode = node.entityNode as Entity
+      parentNode = node.entity as Entity
     }
 
     if (!parentNode)
@@ -219,33 +211,22 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     }
   }
 
-  const canDropItem = (entityNode: Entity | Object3D, dropOn?: boolean) => {
+  const canDropItem = (entityNode: Entity, dropOn?: boolean) => {
     return (item, monitor): boolean => {
       //check if monitor is over or object is not parent element
       if (!monitor.isOver()) return false
-      const isObject3D = typeof entityNode === 'object'
-      const eNode = entityNode as Entity
-      const obj3d = entityNode as Object3D
 
-      if (!dropOn && !isObject3D) {
-        const entityTreeComponent = getComponent(eNode, EntityTreeComponent)
+      if (!dropOn) {
+        const entityTreeComponent = getComponent(entityNode, EntityTreeComponent)
         if (!entityTreeComponent) return false
       }
-      if (dropOn && isObject3D && !obj3d.parent) return false
       if (item.type === ItemTypes.Node) {
-        const entityTreeComponent = getComponent(eNode, EntityTreeComponent)
+        const entityTreeComponent = getComponent(entityNode, EntityTreeComponent)
         return (
           (dropOn || !!entityTreeComponent.parentEntity) &&
           !(item.multiple
-            ? item.value.some((otherObject) => isAncestor(otherObject, eNode))
-            : isAncestor(item.value, eNode))
-        )
-      } else if (isObject3D) {
-        return (
-          (dropOn || !!obj3d.parent) &&
-          !(item.multiple
-            ? item.value.some((otherObject) => typeof otherObject !== 'string' || isAncestor(otherObject, obj3d.uuid))
-            : isAncestor(item.value, obj3d.uuid))
+            ? item.value.some((otherObject) => isAncestor(otherObject, entityNode))
+            : isAncestor(item.value, entityNode))
         )
       }
       return true
@@ -255,7 +236,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const [{ canDropBefore, isOverBefore }, beforeDropTarget] = useDrop({
     accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
     drop: dropItem(node, 'Before'),
-    canDrop: canDropItem((node.entityNode as Entity) ?? node.obj3d!),
+    canDrop: canDropItem(node.entity),
     collect: (monitor) => ({
       canDropBefore: monitor.canDrop(),
       isOverBefore: monitor.isOver()
@@ -265,7 +246,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const [{ canDropAfter, isOverAfter }, afterDropTarget] = useDrop({
     accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
     drop: dropItem(node, 'After'),
-    canDrop: canDropItem((node.entityNode as Entity) ?? node.obj3d!),
+    canDrop: canDropItem(node.entity),
     collect: (monitor) => ({
       canDropAfter: monitor.canDrop(),
       isOverAfter: monitor.isOver()
@@ -275,7 +256,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const [{ canDropOn, isOverOn }, onDropTarget] = useDrop({
     accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
     drop: dropItem(node, 'On'),
-    canDrop: canDropItem((node.entityNode as Entity) ?? node.obj3d!, true),
+    canDrop: canDropItem(node.entity, true),
     collect: (monitor) => ({
       canDropOn: monitor.canDrop(),
       isOverOn: monitor.isOver()
@@ -286,14 +267,13 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const editors =
-    typeof node.entityNode === 'number' && entityExists(node.entityNode as Entity)
-      ? getAllComponents(node.entityNode as Entity)
-          .map((c) => EntityNodeEditor.get(c)!)
-          .filter((c) => !!c)
-      : []
-  const IconComponent = editors.length && editors[editors.length - 1].iconComponent
-  const renaming = data.renamingNode && data.renamingNode.entity === node.entityNode
+  const editors = entityExists(node.entity as Entity)
+    ? getAllComponents(node.entity as Entity)
+        .map((c) => EntityNodeEditor.get(c)!)
+        .filter((c) => !!c)
+    : []
+  const IconComponent = editors.reduce((acc, c) => c.iconComponent || acc, null)
+  const renaming = data.renamingNode && data.renamingNode.entity === node.entity
   const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
 
   return (
@@ -305,7 +285,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         onKeyDown={onNodeKeyDown}
         className={
           styles.treeNodeContainer +
-          (node.obj3d ? ' ' + styles.obj3d : '') +
           (node.depth === 0 ? ' ' + styles.rootNode : '') +
           (node.selected ? ' ' + styles.selected : '') +
           (node.active ? ' ' + styles.active : '')
@@ -353,7 +332,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                 </div>
               )}
             </div>
-            {firstError && <NodeIssuesIcon node={[{ severity: 'error', message: firstError }]} />}
+            {errors?.value && <NodeIssuesIcon errors={errors.value} />}
+            {sceneAssetLoading?.value && <CircularProgress className={styles.assetLoadingIndicator} />}
           </div>
         </div>
 

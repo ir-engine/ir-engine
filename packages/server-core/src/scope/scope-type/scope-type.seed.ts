@@ -28,6 +28,7 @@ import { Knex } from 'knex'
 import { scopeTypePath, ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
+import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { getDateTimeSql } from '../../util/datetime-sql'
 
 export const scopeTypeSeed = [
@@ -83,6 +84,9 @@ export const scopeTypeSeed = [
     type: 'invite:read'
   },
   {
+    type: 'invite:write'
+  },
+  {
     type: 'channel:read'
   },
   {
@@ -111,6 +115,12 @@ export const scopeTypeSeed = [
   },
   {
     type: 'settings:write'
+  },
+  {
+    type: `${clientSettingPath}:read`
+  },
+  {
+    type: `${clientSettingPath}:write`
   },
   {
     type: 'server:read'

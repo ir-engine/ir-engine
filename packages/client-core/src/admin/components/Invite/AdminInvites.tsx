@@ -32,7 +32,7 @@ import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import TableComponent from '../../common/Table'
@@ -66,6 +66,15 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
 
   const invitesQuery = useFind(invitePath, {
     query: {
+      $sort: { id: 1 },
+      $limit: 20
+    }
+  })
+  const removeInvite = useMutation(invitePath).remove
+
+  useSearch(
+    invitesQuery,
+    {
       $or: [
         {
           inviteType: {
@@ -77,12 +86,10 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
             $like: '%' + search + '%'
           }
         }
-      ],
-      $sort: { id: 1 },
-      $limit: 20
-    }
-  })
-  const removeInvite = useMutation(invitePath).remove
+      ]
+    },
+    search
+  )
 
   const deleteInvite = () => {
     removeInvite(inviteId.value)

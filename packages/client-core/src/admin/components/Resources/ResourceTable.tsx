@@ -52,6 +52,7 @@ const ResourceTable = ({ className, search }: Props) => {
   const adminResourceCount = adminResourceState.total
 
   const page = useHookstate(0)
+  const lastPage = useHookstate<number | null>(null)
   const rowsPerPage = useHookstate(RESOURCE_PAGE_LIMIT)
   const openConfirm = useHookstate(false)
   const resourceId = useHookstate('')
@@ -71,6 +72,20 @@ const ResourceTable = ({ className, search }: Props) => {
       ResourceService.fetchAdminResources(page.value, search, sortField.value, fieldOrder.value)
     }
   }, [fieldOrder.value])
+
+  useEffect(() => {
+    if (search) {
+      if (!lastPage.value) {
+        lastPage.set(page.value)
+        page.set(0)
+      }
+    } else {
+      if (lastPage.value) {
+        page.set(lastPage.value)
+        lastPage.set(null)
+      }
+    }
+  }, [search])
 
   const handleRowsPerPageChange = (value: number) => {
     rowsPerPage.set(value)

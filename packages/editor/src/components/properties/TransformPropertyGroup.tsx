@@ -27,7 +27,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Vector3 } from 'three'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   defineQuery,
   getComponent,
@@ -35,9 +34,8 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
-import { TransformSpace, TransformSpaceType } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import {
   LocalTransformComponent,
   TransformComponent
@@ -73,14 +71,12 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   const onChangeDynamicLoad = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
-      (n) => typeof n !== 'string'
-    ) as Entity[]
+    const nodes = getMutableState(SelectionState).selectedEntities.value
     EditorControlFunctions.addOrRemoveComponent(nodes, SceneDynamicLoadTagComponent, value)
   }
 
   const onChangePosition = (value: Vector3) => {
-    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
+    const nodes = getMutableState(SelectionState).selectedEntities.value
     EditorControlFunctions.positionObject(nodes, [value])
     LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
 
@@ -94,7 +90,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   const onChangeRotation = (value: Euler) => {
-    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
+    const nodes = getMutableState(SelectionState).selectedEntities.value
     EditorControlFunctions.rotateObject(nodes, [value])
     LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
 
@@ -111,8 +107,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     if (useGlobalTransformComponent.value) {
       transformComponent.scale.set(value)
     }
-    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
-    EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.local as TransformSpaceType, true)
+    const nodes = getMutableState(SelectionState).selectedEntities.value
+    EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.local, true)
     LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
   }
 

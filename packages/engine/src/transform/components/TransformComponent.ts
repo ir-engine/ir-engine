@@ -27,14 +27,13 @@ import { Types } from 'bitecs'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
-import { getMutableState } from '@etherealengine/hyperflux'
 
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
+  getComponent,
   getOptionalComponent,
   hasComponent,
   setComponent
@@ -96,6 +95,8 @@ export const TransformComponent = defineComponent({
     if (rotation) component.rotation.value.copy(rotation)
     if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
 
+    /** @todo the rest of this onSet is necessary until #9193 */
+
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
     component.matrixInverse.value.copy(component.matrix.value).invert()
 
@@ -116,7 +117,8 @@ export const TransformComponent = defineComponent({
     delete TransformComponent.dirtyTransforms[entity]
   },
 
-  dirtyTransforms: {} as Record<Entity, boolean>
+  dirtyTransforms: {} as Record<Entity, boolean>,
+  transformsNeedSorting: false
 })
 
 export const LocalTransformComponent = defineComponent({
@@ -165,7 +167,7 @@ export const LocalTransformComponent = defineComponent({
 
   onSet: (entity, component, json: Partial<DeepReadonly<TransformComponentType>> = {}) => {
     if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
-    getMutableState(EngineState).transformsNeedSorting.set(true)
+    TransformComponent.transformsNeedSorting = true
 
     const position = json.position?.isVector3
       ? json.position
@@ -191,6 +193,21 @@ export const LocalTransformComponent = defineComponent({
 
     if (scale) component.scale.value.copy(scale)
 
+    /** @todo the rest of this onSet is necessary until #9193 */
+
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
+
+    // ensure TransformComponent is updated immediately, raising warnings if it does not have a parent
+    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+    if (!entityTree) return console.warn('Entity does not have EntityTreeComponent', entity)
+
+    const parentTransform = entityTree?.parentEntity
+      ? getOptionalComponent(entityTree.parentEntity, TransformComponent)
+      : undefined
+    if (!parentTransform) return console.warn('Entity does not have parent TransformComponent', entity)
+
+    const transform = getComponent(entity, TransformComponent)
+    transform.matrix.multiplyMatrices(parentTransform.matrix, component.matrix.value)
+    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
   }
 })

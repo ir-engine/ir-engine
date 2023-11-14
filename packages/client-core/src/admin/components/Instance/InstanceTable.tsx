@@ -32,7 +32,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import TableComponent from '../../common/Table'
 import { InstanceData, instanceColumns } from '../../common/variables/instance'
@@ -43,8 +43,6 @@ interface Props {
   className?: string
   search: string
 }
-
-const INSTANCE_PAGE_LIMIT = 100
 
 const InstanceTable = ({ className, search }: Props) => {
   const { t } = useTranslation()
@@ -59,10 +57,12 @@ const InstanceTable = ({ className, search }: Props) => {
     query: {
       $sort: { createdAt: 1 },
       $limit: 20,
-      action: 'admin',
-      search
+      action: 'admin'
     }
   })
+
+  useSearch(instancesQuery, { search }, search)
+
   const removeInstance = useMutation(instancePath).remove
 
   const submitRemoveInstance = async () => {

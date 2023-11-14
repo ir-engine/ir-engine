@@ -56,6 +56,6 @@ export const projectDestinationCheckSchema = Type.Object(
   { $id: 'ProjectDestinationCheck', additionalProperties: false }
 )
 
-export type ProjectDestinationCheckType = Static<typeof projectDestinationCheckSchema>
+export interface ProjectDestinationCheckType extends Static<typeof projectDestinationCheckSchema> {}
 
 export const projectDestinationCheckValidator = getValidator(projectDestinationCheckSchema, queryValidator)

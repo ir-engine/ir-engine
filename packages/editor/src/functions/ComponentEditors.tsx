@@ -34,7 +34,6 @@ import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { FogSettingsComponent } from '@etherealengine/engine/src/scene/components/FogSettingsComponent'
 import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/components/HemisphereLightComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 // import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
@@ -70,14 +69,11 @@ import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
 import EnvMapEditor from '../components/properties/EnvMapEditor'
 import { FogSettingsEditor } from '../components/properties/FogSettingsEditor'
 import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEditor'
-import GroupNodeEditor from '../components/properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 // import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
-import { LoadVolumeComponent } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEditor'
-import LoadVolumeNodeEditor from '../components/properties/LoadVolumeNodeEditor'
 
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
@@ -128,11 +124,9 @@ EntityNodeEditor.set(ShadowComponent, ShadowProperties)
 EntityNodeEditor.set(LoopAnimationComponent, LoopAnimationNodeEditor)
 EntityNodeEditor.set(ParticleSystemComponent, ParticleSystemNodeEditor)
 EntityNodeEditor.set(PrimitiveGeometryComponent, PrimitiveGeometryNodeEditor)
-
 EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
 EntityNodeEditor.set(MountPointComponent, MountPointNodeEditor)
 EntityNodeEditor.set(ColliderComponent, ColliderNodeEditor)
-EntityNodeEditor.set(GroupComponent, GroupNodeEditor)
 EntityNodeEditor.set(SceneTagComponent, SceneNodeEditor)
 EntityNodeEditor.set(ScenePreviewCameraComponent, ScenePreviewCameraNodeEditor)
 EntityNodeEditor.set(SkyboxComponent, SkyboxNodeEditor)
@@ -155,5 +149,4 @@ EntityNodeEditor.set(VariantComponent, VariantNodeEditor)
 EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
 EntityNodeEditor.set(SplineTrackComponent, SplineTrackNodeEditor)
 EntityNodeEditor.set(BehaveGraphComponent, BehaveGraphNodeEditor)
-EntityNodeEditor.set(LoadVolumeComponent, LoadVolumeNodeEditor)
 EntityNodeEditor.set(LinkComponent, LinkNodeEditor)

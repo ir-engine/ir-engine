@@ -37,23 +37,24 @@ import {
   setComponent,
   useQuery
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import {
-  EntityTreeComponent,
-  getAllEntitiesInTree,
-  getEntityNodeArrayFromEntities
-} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import {
+  TransformMode,
+  TransformModeType,
+  TransformPivotType,
+  TransformSpaceType
+} from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { SceneSnapshotAction, SceneSnapshotSystem, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
-import { SceneState } from '../../../engine/src/ecs/classes/Scene'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -67,7 +68,6 @@ import {
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState } from '../services/EditorHelperState'
-import { EditorHistoryAction, EditorHistoryReceptorSystem, EditorHistoryState } from '../services/EditorHistory'
 import { EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
 
 const raycaster = new Raycaster()
@@ -76,10 +76,22 @@ const raycastIgnoreLayers = new Layers()
 
 const isMacOS = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
 let lastZoom = 0
+let prevRotationAngle = 0
+
+let selectedEntities: Entity[]
+let selectedParentEntities: Entity[]
+let lastSelectedEntities = [] as Entity[]
+// let gizmoObj: TransformGizmo
+let transformMode: TransformModeType
+let transformPivot: TransformPivotType
+let transformSpace: TransformSpaceType
+let transformModeChanged = false
+let transformPivotChanged = false
+let transformSpaceChanged = false
 let dragging = false
 
 const onKeyQ = () => {
-  /*const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+  /*const nodes = getState(SelectionState).selectedEntities
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
@@ -91,7 +103,7 @@ const onKeyQ = () => {
 }
 
 const onKeyE = () => {
-  /*const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+  /*const nodes = getState(SelectionState).selectedEntities
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
@@ -106,8 +118,7 @@ const onEscape = () => {
 }
 const onKeyF = () => {
   const editorCameraState = getMutableState(EditorCameraState)
-  const selectedEntities = getMutableState(SelectionState).selectedEntities.value
-  editorCameraState.focusedObjects.set(getEntityNodeArrayFromEntities(selectedEntities))
+  editorCameraState.focusedObjects.set(selectedEntities)
   editorCameraState.refocus.set(true)
 }
 
@@ -133,13 +144,13 @@ const onKeyX = () => {
 
 const onKeyZ = (control: boolean, shift: boolean) => {
   if (control) {
-    const state = getState(EditorHistoryState)
+    const state = getState(SceneState).scenes[getState(SceneState).activeScene!]
     if (shift) {
-      if (state.index >= state.history.length - 1) return
-      dispatchAction(EditorHistoryAction.redo({ count: 1 }))
+      if (state.index >= state.snapshots.length - 1) return
+      dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID: getState(SceneState).activeScene! }))
     } else {
       if (state.index <= 0) return
-      dispatchAction(EditorHistoryAction.undo({ count: 1 }))
+      dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
     }
   } else {
     toggleTransformSpace()
@@ -155,7 +166,7 @@ const onMinus = () => {
 }
 
 const onDelete = () => {
-  EditorControlFunctions.removeObject(getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities))
+  EditorControlFunctions.removeObject(getState(SelectionState).selectedEntities)
 }
 
 function copy(event) {
@@ -227,13 +238,8 @@ const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount = 0): v
   const excludeObjects = [] as Object3D[]
   const selectionState = getState(SelectionState)
   for (const e of selectionState.selectedParentEntities) {
-    if (typeof e === 'string') {
-      const obj = scene.getObjectByProperty('uuid', e)
-      if (obj) excludeObjects.push(obj)
-    } else {
-      const group = getComponent(e, GroupComponent)
-      if (group) excludeObjects.push(...group)
-    }
+    const group = getComponent(e, GroupComponent)
+    if (group) excludeObjects.push(...group)
   }
 
   findIntersectObjects(Engine.instance.scene, excludeObjects, raycastIgnoreLayers)
@@ -341,7 +347,7 @@ const reactor = () => {
   const sceneObjectEntities = useQuery([SceneObjectComponent])
   const selectionState = useHookstate(getMutableState(SelectionState))
   const sceneState = useHookstate(getMutableState(SceneState))
-
+  const sceneQuery = defineQuery([SceneObjectComponent])
   useEffect(() => {
     // todo figure out how to do these with our input system
     window.addEventListener('copy', copy)
@@ -357,7 +363,7 @@ const reactor = () => {
     const selectedEntities = selectionState.selectedEntities
     if (!selectedEntities.value) return
 
-    for (const entity of getAllEntitiesInTree(sceneState.sceneEntity.value)) {
+    for (const entity of sceneQuery()) {
       if (!hasComponent(entity, TransformGizmoComponent)) continue
       removeComponent(entity as Entity, TransformGizmoComponent)
     }
@@ -386,5 +392,5 @@ export const EditorControlSystem = defineSystem({
   uuid: 'ee.editor.EditorControlSystem',
   execute,
   reactor,
-  subSystems: [EditorSelectionReceptorSystem, EditorHistoryReceptorSystem]
+  subSystems: [EditorSelectionReceptorSystem, SceneSnapshotSystem]
 })

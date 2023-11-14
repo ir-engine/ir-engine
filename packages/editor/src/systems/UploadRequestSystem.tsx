@@ -23,31 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 
-import GridViewIcon from '@mui/icons-material/GridView'
+import { UploadRequestState } from '@etherealengine/engine/src/assets/state/UploadRequestState'
+import { uploadProjectFiles } from '../functions/assetFunctions'
 
-import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
+const clearUploadQueueAction = defineAction({
+  type: 'ee.editor.clearUploadQueueAction'
+})
 
-/**
- * GroupNodeEditor used to render group of multiple objects.
- *
- * @type {class component}
- */
-export const GroupNodeEditor: EditorComponentType = (props) => {
-  const { t } = useTranslation()
-
-  return (
-    <NodeEditor
-      {...props}
-      name={t('editor:properties.group.name')}
-      description={t('editor:properties.group.description')}
-    ></NodeEditor>
-  )
-}
-
-GroupNodeEditor.iconComponent = GridViewIcon
-
-export default GroupNodeEditor
+export const UploadRequestSystem = defineSystem({
+  uuid: 'ee.editor.UploadRequestSystem',
+  reactor: () => {
+    const uploadRequestState = useState(getMutableState(UploadRequestState))
+    useEffect(() => {
+      const uploadRequests = uploadRequestState.queue.value
+      if (uploadRequests.length === 0) return
+      const uploadPromises = uploadRequests.map((uploadRequest) => {
+        return uploadProjectFiles(uploadRequest.projectName, [uploadRequest.file], true)
+      })
+      uploadRequestState.queue.set([])
+    }, [uploadRequestState.queue.length])
+    return null
+  }
+})

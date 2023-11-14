@@ -140,7 +140,7 @@ function updateCameraFromXRViewerPose() {
       renderer.setRenderTarget(newRenderTarget)
     }
 
-    cameraTransform.position.copy(pose.transform.position as any).multiplyScalar(1 / xrState.sceneScale)
+    cameraTransform.position.copy(pose.transform.position as any)
     cameraTransform.rotation.copy(pose.transform.orientation as any)
     cameraTransform.matrix
       .compose(cameraTransform.position, cameraTransform.rotation, V_111)
@@ -190,7 +190,7 @@ function updateCameraFromXRViewerPose() {
         viewCamera.matrixWorldAutoUpdate = false
       }
 
-      viewCamera.position.copy(view.transform.position as any).multiplyScalar(1 / xrState.sceneScale)
+      viewCamera.position.copy(view.transform.position as any)
       viewCamera.quaternion.copy(view.transform.orientation as any)
       viewCamera.matrixWorld
         .compose(viewCamera.position, viewCamera.quaternion, V_111)
