@@ -23,18 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Mesh } from 'three'
 import { convertToBatchedMesh } from '../../assets/classes/BatchedMesh'
+import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import iterateObject3D from '../util/iterateObject3D'
-import { GroupComponent, addObjectToGroup } from './GroupComponent'
+import { GroupComponent, Object3DWithEntity, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const BatchedMeshComponent = defineComponent({
   name: 'BatchedMeshComponent',
   jsonID: 'batched-mesh',
+
   onInit: (entity) => ({
     active: false
   }),
@@ -48,6 +51,8 @@ export const BatchedMeshComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const batchedMeshComponent = useComponent(entity, BatchedMeshComponent)
+    const batchArrary = useHookstate({} as Record<Entity, Object3DWithEntity>)
+    //getComponent(entity, EntityTreeComponent).children
 
     useEffect(() => {
       if (batchedMeshComponent.active.value) {
@@ -56,6 +61,8 @@ export const BatchedMeshComponent = defineComponent({
           entity,
           (childEntity) => {
             const scene = getComponent(childEntity, GroupComponent)[0]!
+            batchArrary[childEntity].set(scene)
+            removeObjectFromGroup(childEntity, scene)
             return iterateObject3D(
               scene,
               (object) => object as Mesh,
@@ -72,10 +79,43 @@ export const BatchedMeshComponent = defineComponent({
           false
         ).flat()
         //create batched mesh from these meshes
-        const batchedMesh = new Mesh()
+        //const batchedMesh = new Mesh()
+
         const result = convertToBatchedMesh(meshes)
+        //remove the original entity
         //add batched mesh to this entity's GroupComponent to be rendered
+
         addObjectToGroup(entity, result)
+
+        /*for(const batchEntity of batchArrary){
+         const batchObject= getComponent(batchEntity, GroupComponent)[0]
+         removeObjectFromGroup(entity,batchObject)
+          //removeEntity(batchEntity)
+        }*/
+      }
+
+      if (!batchedMeshComponent.active.value && hasComponent(entity, GroupComponent)) {
+        const batchedObject = getComponent(entity, GroupComponent)[0]
+
+        removeObjectFromGroup(entity, batchedObject)
+
+        const batch = Object.entries(batchArrary.get(NO_PROXY))
+
+        for (const [childEntity, root] of batch) {
+          addObjectToGroup(Number.parseFloat(childEntity) as Entity, root)
+        }
+        /*
+        for(const batchEntity of batchArrary){
+             
+            //if i add it back as a object the entity can't move the transform
+            const unbatchObject= getComponent(batchEntity, GroupComponent)[0] 
+            addObjectToGroup(entity,unbatchObject)
+            //object.push(unbatchObject)
+            //add entity childern to batched meshed
+            //setComponent(unbatchObject.entity, EntityTreeComponent, { parentEntity:entity })
+             
+        }
+         */
       }
     }, [batchedMeshComponent.active])
 
