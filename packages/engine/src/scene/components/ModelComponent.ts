@@ -129,7 +129,7 @@ export const ModelComponent = defineComponent({
     }
   },
 
-  errors: ['LOADING_ERROR', 'INVALID_URL'],
+  errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
   reactor: ModelReactor
 })
@@ -161,7 +161,7 @@ function ModelReactor() {
         case 'usdz':
           setComponent(entity, SceneAssetPendingTagComponent)
           AssetLoader.load(
-            model.src,
+            'https://google.com',
             {
               ignoreDisposeGeometry: model.generateBVH,
               uuid
@@ -188,7 +188,7 @@ function ModelReactor() {
             },
             (err) => {
               removeComponent(entity, SceneAssetPendingTagComponent)
-              addError(entity, ModelComponent, 'INVALID_URL', err.message)
+              addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
             }
           )
           break
