@@ -428,11 +428,16 @@ const EntityChildLoadReactor = (props: { parentEntity: Entity; entityUUID: Entit
       uuid: props.entityUUID,
       childIndex: entityJSONState.index.value
     })
-    setComponent(entity, NameComponent, entityJSONState.name.value)
     return () => {
       removeEntity(entity)
     }
   }, [dynamicParentState?.loaded, parentLoaded])
+
+  useEffect(() => {
+    const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
+    if (!entity) return
+    setComponent(entity, NameComponent, entityJSONState.name.value)
+  }, [entityJSONState.name, selfEntityState])
 
   useEffect(() => {
     const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
@@ -494,6 +499,7 @@ const ComponentLoadReactor = (props: { sceneID: SceneID; componentID: string; en
   }, [])
 
   useEffect(() => {
+    console.log('componentState', componentState)
     if (!componentState?.value) return
 
     const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
