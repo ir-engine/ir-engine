@@ -50,7 +50,7 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { StandardGamepadButton, XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
-import { MotionCaptureActionPoses } from '../../mocap/MotionCaptureSystem'
+import { MotionCaptureActionPoses } from '../../mocap/poseToInput'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
