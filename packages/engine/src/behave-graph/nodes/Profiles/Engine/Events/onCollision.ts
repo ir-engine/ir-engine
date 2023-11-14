@@ -31,8 +31,8 @@ import {
   Query,
   defineQuery,
   getComponent,
-  removeQuery,
-  useOptionalComponent
+  hasComponent,
+  removeQuery
 } from '../../../../../ecs/functions/ComponentFunctions'
 import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
 import {
@@ -42,36 +42,47 @@ import {
   disableSystem,
   startSystem
 } from '../../../../../ecs/functions/SystemFunctions'
+import { CollisionComponent } from '../../../../../physics/components/CollisionComponent'
+import { RigidBodyComponent } from '../../../../../physics/components/RigidBodyComponent'
+import { ColliderComponent } from '../../../../../scene/components/ColliderComponent'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 let systemCounter = 0
 
+// define a type for state
 type State = {
   query: Query
   systemUUID: SystemUUID
 }
+
+// define initial state based on a type
 const initialState = (): State => ({
   query: undefined!,
   systemUUID: '' as SystemUUID
 })
 
-// very 3D specific.
-export const OnComponentState = makeEventNodeDefinition({
-  typeName: 'engine/onComponentState',
+// a behave graph node
+export const OnCollision = makeEventNodeDefinition({
+  typeName: 'engine/onCollision',
   category: NodeCategory.Event,
-  label: 'On Component',
+  label: 'Collision Events',
+
+  // socket configuration support
   configuration: {
     numInputs: {
       valueType: 'number',
       defaultValue: 1
     }
   },
+
+  // flow node inputs
   in: (_, graphApi) => {
     const sockets: SocketsList = []
 
     sockets.push({ key: 'entity', valueType: 'entity' })
 
+    // any component can be listened to
     const componentName = (index) => {
       const choices = Array.from(ComponentMap.keys()).sort()
       return {
@@ -81,6 +92,8 @@ export const OnComponentState = makeEventNodeDefinition({
         defaultValue: TransformComponent.name
       }
     }
+
+    // can listen to entry or exit of that component (being added or removed)
     const type = () => {
       const choices = ['enter', 'exit']
       return {
@@ -91,6 +104,7 @@ export const OnComponentState = makeEventNodeDefinition({
       }
     }
 
+    // a 'system' is defining the system
     const system = () => {
       const systemDefinitions = Array.from(SystemDefinitions.keys()).map((key) => key as string)
       const groups = systemDefinitions.filter((key) => key.includes('group')).sort()
@@ -103,13 +117,16 @@ export const OnComponentState = makeEventNodeDefinition({
         defaultValue: InputSystemGroup
       }
     }
-    // unsure how to get all system groups
+    // @todo unsure how to get all system groups
 
+    // build a list of sockets to paint to the display for the user interface to behave graph
     sockets.push({ ...type() }, { ...system() })
 
-    for (const index of sequence(1, (_.numInputs ?? OnComponentState.configuration?.numInputs.defaultValue) + 1)) {
+    // tack on the components to that same display
+    for (const index of sequence(1, (_.numInputs ?? OnCollision.configuration?.numInputs.defaultValue) + 1)) {
       sockets.push({ ...componentName(index) })
     }
+
     return sockets
   },
 
@@ -117,42 +134,90 @@ export const OnComponentState = makeEventNodeDefinition({
     flow: 'flow',
     entity: 'entity'
   },
+
   initialState: initialState(),
+
   init: ({ read, write, commit, graph, configuration }) => {
     const type = read<string>('type')
     const system = read<SystemUUID>('system')
 
     const queryComponents: Component[] = []
-    let componentName = ''
     for (const index of sequence(
       1,
-      (configuration.numInputs ?? OnComponentState.configuration?.numInputs.defaultValue) + 1
+      (configuration.numInputs ?? OnCollision.configuration?.numInputs.defaultValue) + 1
     )) {
-      const componentName2 = read<string>(`componentName${index}`)
-      const component = ComponentMap.get(componentName2)!
+      const componentName = read<string>(`componentName${index}`)
+      const component = ComponentMap.get(componentName)!
       queryComponents.push(component)
-      componentName = componentName2
     }
-    const query = defineQuery(queryComponents)[type]
 
     const entity = read<Entity>('entity')
     const name = entity ? getComponent(entity, NameComponent) : 'no entity'
-    const component = ComponentMap.get(componentName)!
+
+    //const query = defineQuery(queryComponents)[type]
+    const query = defineQuery([CollisionComponent])[type]
+
+    interface Schema {
+      [key: Entity]: any
+    }
+    const candidates: Schema = {}
 
     const systemUUID = defineSystem({
-      uuid: 'behave-graph-onComponentState-' + systemCounter++,
+      uuid: 'behave-graph-onCollision-' + systemCounter++,
       execute: () => {
-        //        console.log("hello running ")
-        const c = entity ? useOptionalComponent(entity, component) : null
-        if (c) {
-          console.log('...hello2 got component...', entity, c, name)
-          //          write('entity', entity)
-          //          commit('flow')
+        // find candidates that are in collision
+
+        // find candidates with colliders - this happens rarely
+        // it's kind of crazy to do this in this way...
+
+        const results = query()
+        for (const entity of results) {
+          if (!hasComponent(entity, NameComponent)) {
+            console.warn('hello colliding entity has no name', entity)
+            continue
+          }
+          const name = getComponent(entity, NameComponent)
+
+          if (!hasComponent(entity, RigidBodyComponent)) {
+            console.warn('hello entity has no rigidbody', entity, name)
+          }
+          // const rigidbody = getComponent(entity, RigidBodyComponent)
+
+          if (!hasComponent(entity, ColliderComponent)) {
+            console.warn('hello entity has no collider', entity, name)
+          }
+          //const colliders = getComponent(entity, ColliderComponent)
+
+          if (!hasComponent(entity, CollisionComponent)) {
+            console.warn('hello entity has no collision', entity, name)
+          }
+          const collision = getComponent(entity, CollisionComponent)
+          console.log('... hello found collision able....', entity, name, collision)
+
+          //for (let i = 0; i < rigidbody.body.numColliders(); i++) {
+          //  const collider = rigidbody.body.collider(i)
+          //  const collisionGroup = collider.collisionGroups()
+          //}
+
+          candidates[entity] = collision
+        }
+
+        for (const entity in candidates) {
+          const collision = candidates[entity]
+          //console.log("... hello found collisions....",entity,collision)
+          for (const [e, hit] of collision) {
+            console.log('... hello found an actual collision....', e, hit)
+            //if (e === getComponent(entity, GolfClubComponent).clubBodyEntity) {
+            //}
+          }
         }
       }
     })
-    console.log('hello on component starting ')
+
+    // start the actual system
     startSystem(systemUUID, { with: system })
+
+    // return a copy of the state for some reason? @todo why?
     const state: State = {
       query,
       systemUUID
