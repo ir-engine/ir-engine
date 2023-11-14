@@ -30,6 +30,7 @@ import { Quaternion, Vector3 } from 'three'
 import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 
 import matches from 'ts-matches'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getComponent,
@@ -51,6 +52,7 @@ import { computeTransformMatrix, updateGroupChildren } from '../../transform/sys
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { GroupComponent } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -127,7 +129,12 @@ export const ColliderComponent = defineComponent({
       }
     }
 
-    setComponent(entity, SceneAssetPendingTagComponent)
+    if (
+      !getState(EngineState).sceneLoaded &&
+      hasComponent(entity, SceneObjectComponent) &&
+      !hasComponent(entity, RigidBodyComponent)
+    )
+      setComponent(entity, SceneAssetPendingTagComponent)
     setComponent(entity, InputComponent)
   },
 
