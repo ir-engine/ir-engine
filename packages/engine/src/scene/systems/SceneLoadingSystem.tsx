@@ -325,8 +325,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 
   useEffect(() => {
     ready.set(true)
+    const systems = [...systemsLoaded.value]
     return () => {
-      for (const system of systemsLoaded.value) {
+      for (const system of systems) {
         destroySystem(system.systemUUID)
       }
     }
