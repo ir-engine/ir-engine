@@ -25,15 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
-import { defineActionQueue, defineState, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { useEffect } from 'react'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
+import { getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -50,34 +54,17 @@ const fadeToBlackQueue = defineActionQueue(CameraActions.fadeToBlack.matches)
 
 const CameraFadeBlackEffectSystemState = defineState({
   name: 'CameraFadeBlackEffectSystemState',
-  initial: () => {
-    const geometry = new SphereGeometry(10)
-    const material = new MeshBasicMaterial({
-      transparent: true,
-      side: DoubleSide,
-      depthWrite: true,
-      depthTest: false
-    })
-
-    const mesh = new Mesh(geometry, material)
-    mesh.scale.set(-1, 1, -1)
-    mesh.renderOrder = 1
-    mesh.name = 'Camera Fade Transition'
-    const entity = createEntity()
-    addObjectToGroup(entity, mesh)
-    setObjectLayers(mesh, ObjectLayers.Scene)
-    const transition = createTransitionState(0.25, 'OUT')
-
-    return {
-      transition,
-      mesh,
-      entity
-    }
+  initial: {} as {
+    transition: ReturnType<typeof createTransitionState>
+    mesh: Mesh<SphereGeometry, MeshBasicMaterial>
+    entity: Entity
   }
 })
 
 const execute = () => {
   const { transition, mesh, entity } = getState(CameraFadeBlackEffectSystemState)
+  if (!entity) return
+
   for (const action of fadeToBlackQueue()) {
     transition.setState(action.in ? 'IN' : 'OUT')
     if (action.in) {
@@ -107,8 +94,48 @@ const execute = () => {
   })
 }
 
+const reactor = () => {
+  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
+
+  useEffect(() => {
+    if (!activeScene.value) return
+
+    const geometry = new SphereGeometry(10)
+    const material = new MeshBasicMaterial({
+      transparent: true,
+      side: DoubleSide,
+      depthWrite: true,
+      depthTest: false
+    })
+
+    const mesh = new Mesh(geometry, material)
+    mesh.scale.set(-1, 1, -1)
+    mesh.renderOrder = 1
+    mesh.name = 'Camera Fade Transition'
+    const entity = createEntity()
+    setComponent(entity, NameComponent, mesh.name)
+    addObjectToGroup(entity, mesh)
+    setObjectLayers(mesh, ObjectLayers.Scene)
+    const transition = createTransitionState(0.25, 'OUT')
+
+    getMutableState(CameraFadeBlackEffectSystemState).set({
+      transition,
+      mesh,
+      entity
+    })
+
+    return () => {
+      removeEntity(entity)
+      getMutableState(CameraFadeBlackEffectSystemState).set({} as any)
+    }
+  }, [activeScene])
+
+  return null
+}
+
 export const CameraFadeBlackEffectSystem = defineSystem({
   uuid: 'ee.engine.CameraFadeBlackEffectSystem',
   insert: { with: CameraSystem },
-  execute
+  execute,
+  reactor
 })
