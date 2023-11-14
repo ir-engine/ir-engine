@@ -30,7 +30,6 @@ import { Quaternion, Vector3 } from 'three'
 import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 
 import matches from 'ts-matches'
-import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getComponent,
@@ -52,7 +51,6 @@ import { computeTransformMatrix, updateGroupChildren } from '../../transform/sys
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { GroupComponent } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -129,16 +127,7 @@ export const ColliderComponent = defineComponent({
       }
     }
 
-    /**
-     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
-     */
-    if (
-      !getState(EngineState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
-      !hasComponent(entity, RigidBodyComponent)
-    )
-      setComponent(entity, SceneAssetPendingTagComponent)
-
+    setComponent(entity, SceneAssetPendingTagComponent)
     setComponent(entity, InputComponent)
   },
 
@@ -167,7 +156,7 @@ export const ColliderComponent = defineComponent({
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
     useEffect(() => {
-      setComponent(entity, SceneAssetPendingTagComponent)
+      removeComponent(entity, SceneAssetPendingTagComponent)
 
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
       const physicsWorld = getState(PhysicsState).physicsWorld
@@ -266,8 +255,6 @@ export const ColliderComponent = defineComponent({
         rigidbody.body.setRotation(transformComponent.rotation.value, true)
         rigidbody.scale.copy(transformComponent.scale.value)
       }
-
-      removeComponent(entity, SceneAssetPendingTagComponent)
     }, [isLoadedFromGLTF, colliderComponent, transformComponent, localTransformComponent, groupComponent?.length])
 
     return null
