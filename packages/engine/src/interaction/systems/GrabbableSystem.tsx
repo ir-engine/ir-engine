@@ -338,6 +338,7 @@ const execute = () => {
   if (getState(EngineState).isEditor) return
   receiveActions(GrabbableState)
 
+  /** @todo this should move to input group */
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (nonCapturedInputSource) {
     const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
@@ -356,6 +357,7 @@ const execute = () => {
 
   /**
    * @todo use an XRUI pool
+   * @todo this should move to animation group
    */
   if (isClient)
     for (const entity of grabbableQuery.enter()) {

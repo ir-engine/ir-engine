@@ -49,63 +49,19 @@ const App = () => {
         <Routes>
           {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
           <Route
-            key={'admin'}
-            path={'/admin/*'}
+            key={'default'}
+            path={'*'}
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
                 <Engine>
-                  <AppPage route={'admin'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
-            key={'index'}
-            path={'/'}
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'index'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
-            key={'location'}
-            path={'/location/*'}
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'location'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
-            key={'studio'}
-            path={'/studio/*'}
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'studio'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
-            key={'offline'}
-            path={'/offline/*'}
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'offline'} />
+                  <AppPage />
                 </Engine>
               </Suspense>
             }
           />
           {/* This will become redundant and we can embed the TailwindPage directly */}
           <Route
-            key={'default'}
+            key={'default-tw'}
             path={'/*'}
             element={
               <Suspense>
