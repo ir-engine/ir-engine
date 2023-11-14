@@ -32,9 +32,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { destroyEngine, Engine } from '../../../ecs/classes/Engine'
 import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { SimulationSystemGroup } from '../../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { defineSystem, startSystem, SystemDefinitions, SystemUUID } from '../../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../../initializeEngine'
 import {
   GrassProperties,
@@ -48,7 +46,6 @@ import { GRASS_PROPERTIES_DEFAULT_VALUES, SCATTER_PROPERTIES_DEFAULT_VALUES } fr
 describe('InstancingFunctions', async () => {
   let entity: Entity
   let sandbox: SinonSandbox
-  let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
   }
@@ -60,19 +57,6 @@ describe('InstancingFunctions', async () => {
 
     getMutableState(EngineState).publicPath.set('')
     await Promise.all([])
-
-    let resolve: () => void
-    nextFixedStep = new Promise<void>((r) => (resolve = r))
-
-    SystemDefinitions.delete('test.system' as SystemUUID)
-    const system = defineSystem({
-      uuid: 'test.system',
-      execute: () => {
-        resolve()
-        nextFixedStep = new Promise<void>((r) => (resolve = r))
-      }
-    })
-    startSystem(system, { after: SimulationSystemGroup })
   })
   afterEach(async () => {
     sandbox.restore()
