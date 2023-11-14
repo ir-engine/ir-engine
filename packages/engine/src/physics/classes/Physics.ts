@@ -61,7 +61,8 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -524,8 +525,11 @@ const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, hand
   const entity1 = (rigidBody1?.userData as any)['entity']
   const entity2 = (rigidBody2?.userData as any)['entity']
 
-  const collisionComponent1 = getOptionalComponent(entity1, CollisionComponent)
-  const collisionComponent2 = getOptionalComponent(entity2, CollisionComponent)
+  setComponent(entity1, CollisionComponent)
+  setComponent(entity2, CollisionComponent)
+
+  const collisionComponent1 = getComponent(entity1, CollisionComponent)
+  const collisionComponent2 = getComponent(entity2, CollisionComponent)
 
   if (started) {
     const type = isTriggerEvent ? CollisionEvents.TRIGGER_START : CollisionEvents.COLLISION_START

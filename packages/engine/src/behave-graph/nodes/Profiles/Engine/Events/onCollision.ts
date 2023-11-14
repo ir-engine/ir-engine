@@ -23,15 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, SocketsList, makeEventNodeDefinition, sequence } from '@behave-graph/core'
+import { NodeCategory, SocketsList, makeEventNodeDefinition } from '@behave-graph/core'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import {
-  Component,
-  ComponentMap,
   Query,
   defineQuery,
   getComponent,
-  hasComponent,
+  removeComponent,
   removeQuery
 } from '../../../../../ecs/functions/ComponentFunctions'
 import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
@@ -43,10 +41,7 @@ import {
   startSystem
 } from '../../../../../ecs/functions/SystemFunctions'
 import { CollisionComponent } from '../../../../../physics/components/CollisionComponent'
-import { RigidBodyComponent } from '../../../../../physics/components/RigidBodyComponent'
-import { ColliderComponent } from '../../../../../scene/components/ColliderComponent'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
-import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 let systemCounter = 0
 
@@ -82,17 +77,6 @@ export const OnCollision = makeEventNodeDefinition({
 
     sockets.push({ key: 'entity', valueType: 'entity' })
 
-    // any component can be listened to
-    const componentName = (index) => {
-      const choices = Array.from(ComponentMap.keys()).sort()
-      return {
-        key: `componentName${index}`,
-        valueType: 'string',
-        choices: choices,
-        defaultValue: TransformComponent.name
-      }
-    }
-
     // can listen to entry or exit of that component (being added or removed)
     const type = () => {
       const choices = ['enter', 'exit']
@@ -117,22 +101,17 @@ export const OnCollision = makeEventNodeDefinition({
         defaultValue: InputSystemGroup
       }
     }
-    // @todo unsure how to get all system groups
 
     // build a list of sockets to paint to the display for the user interface to behave graph
     sockets.push({ ...type() }, { ...system() })
-
-    // tack on the components to that same display
-    for (const index of sequence(1, (_.numInputs ?? OnCollision.configuration?.numInputs.defaultValue) + 1)) {
-      sockets.push({ ...componentName(index) })
-    }
 
     return sockets
   },
 
   out: {
     flow: 'flow',
-    entity: 'entity'
+    entity: 'entity',
+    target: 'entity'
   },
 
   initialState: initialState(),
@@ -141,20 +120,8 @@ export const OnCollision = makeEventNodeDefinition({
     const type = read<string>('type')
     const system = read<SystemUUID>('system')
 
-    const queryComponents: Component[] = []
-    for (const index of sequence(
-      1,
-      (configuration.numInputs ?? OnCollision.configuration?.numInputs.defaultValue) + 1
-    )) {
-      const componentName = read<string>(`componentName${index}`)
-      const component = ComponentMap.get(componentName)!
-      queryComponents.push(component)
-    }
+    const entityFilter = read<Entity>('entity')
 
-    const entity = read<Entity>('entity')
-    const name = entity ? getComponent(entity, NameComponent) : 'no entity'
-
-    //const query = defineQuery(queryComponents)[type]
     const query = defineQuery([CollisionComponent])[type]
 
     interface Schema {
@@ -165,51 +132,19 @@ export const OnCollision = makeEventNodeDefinition({
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onCollision-' + systemCounter++,
       execute: () => {
-        // find candidates that are in collision
-
-        // find candidates with colliders - this happens rarely
-        // it's kind of crazy to do this in this way...
-
         const results = query()
         for (const entity of results) {
-          if (!hasComponent(entity, NameComponent)) {
-            console.warn('hello colliding entity has no name', entity)
-            continue
-          }
+          if (entityFilter && entityFilter != entity) continue
           const name = getComponent(entity, NameComponent)
-
-          if (!hasComponent(entity, RigidBodyComponent)) {
-            console.warn('hello entity has no rigidbody', entity, name)
-          }
-          // const rigidbody = getComponent(entity, RigidBodyComponent)
-
-          if (!hasComponent(entity, ColliderComponent)) {
-            console.warn('hello entity has no collider', entity, name)
-          }
-          //const colliders = getComponent(entity, ColliderComponent)
-
-          if (!hasComponent(entity, CollisionComponent)) {
-            console.warn('hello entity has no collision', entity, name)
-          }
           const collision = getComponent(entity, CollisionComponent)
-          console.log('... hello found collision able....', entity, name, collision)
-
-          //for (let i = 0; i < rigidbody.body.numColliders(); i++) {
-          //  const collider = rigidbody.body.collider(i)
-          //  const collisionGroup = collider.collisionGroups()
-          //}
-
-          candidates[entity] = collision
-        }
-
-        for (const entity in candidates) {
-          const collision = candidates[entity]
-          //console.log("... hello found collisions....",entity,collision)
+          // @todo maybe there should be that delay timer hack?
           for (const [e, hit] of collision) {
-            console.log('... hello found an actual collision....', e, hit)
-            //if (e === getComponent(entity, GolfClubComponent).clubBodyEntity) {
-            //}
+            write('entity', entity)
+            write('target', e)
+            commit('flow', () => {})
           }
+          // @todo this should be done in the physics engine rather than here - hack
+          removeComponent(entity, CollisionComponent)
         }
       }
     })
@@ -231,72 +166,3 @@ export const OnCollision = makeEventNodeDefinition({
     return initialState()
   }
 })
-
-/*
-export const OnComponentState = makeEventNodeDefinition({
-  typeName: 'engine/onComponentState',
-  category: NodeCategory.Event,
-  label: 'On Component State',
-  in: {
-    entity: 'entity',
-    componentName: (_, graphApi) => {
-      const choices = Array.from(ComponentMap.keys()).sort()
-      choices.unshift('none')
-      return {
-        valueType: 'string',
-        choices: choices
-      }
-    }
-  },
-  out: {
-    flow: 'flow',
-    entity: 'entity'
-  },
-  initialState: initialState(),
-  init: ({ read, write, commit, graph }) => {
-    const entity = read<Entity>('entity')
-    const componentName = read<string>('componentName')
-    const Component = ComponentMap.get(componentName)!
-
-    const name = getComponent(entity, NameComponent)
-
-    const systemUUID = defineSystem({
-      uuid: 'behave-graph-onComponentState-' + systemCounter++,
-      execute: () => {
-        console.log('... hello2 execute oncomponent running')
-        const c = entity ? useOptionalComponent(entity, Component) : null
-        if (c) {
-          console.log('...hello2 got component...', entity, c)
-          write('entity', entity)
-          commit('flow')
-        }
-      },
-
-      reactor: () => {
-        console.log('... hello3 reactor oncomponent running')
-        const c = entity ? useOptionalComponent(entity, Component) : null
-        useEffect(() => {
-          if (c) {
-            console.log('...hello3 got component...', entity, c)
-            write('entity', entity)
-            commit('flow')
-          }
-        }, [c])
-        return null
-      }
-    })
-
-    console.log('.... hello2 got entity and now starting system', entity, name, componentName)
-    startSystem(systemUUID, {})
-
-    const state: State = {
-      systemUUID
-    }
-    return state
-  },
-  dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
-    disableSystem(systemUUID)
-    return initialState()
-  }
-})
-*/

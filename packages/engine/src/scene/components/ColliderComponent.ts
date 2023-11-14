@@ -44,6 +44,7 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { Physics } from '../../physics/classes/Physics'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -161,6 +162,10 @@ export const ColliderComponent = defineComponent({
     const colliderComponent = useComponent(entity, ColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
+
+    if (!hasComponent(entity, CollisionComponent)) {
+      setComponent(entity, CollisionComponent)
+    }
 
     useEffect(() => {
       removeComponent(entity, SceneAssetPendingTagComponent)
