@@ -478,8 +478,6 @@ const ComponentLoadReactor = (props: { componentState: State<ComponentJson>; ent
     return () => {
       // if entity has been removed, we don't need to remove components
       if (!entity || !entityExists(entity)) return
-      // if component still exists, we don't need to remove it in the return
-      if (props.componentState.value) return
       removeComponent(entity, ComponentJSONIDMap.get(component.name)!)
     }
   }, [props.componentState, props.entity])

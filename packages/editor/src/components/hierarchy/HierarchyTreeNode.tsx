@@ -267,13 +267,12 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const editors =
-    typeof node.entity === 'number' && entityExists(node.entity as Entity)
-      ? getAllComponents(node.entity as Entity)
-          .map((c) => EntityNodeEditor.get(c)!)
-          .filter((c) => !!c)
-      : []
-  const IconComponent = editors.length && editors[editors.length - 1].iconComponent
+  const editors = entityExists(node.entity as Entity)
+    ? getAllComponents(node.entity as Entity)
+        .map((c) => EntityNodeEditor.get(c)!)
+        .filter((c) => !!c)
+    : []
+  const IconComponent = editors.reduce((acc, c) => c.iconComponent || acc, null)
   const renaming = data.renamingNode && data.renamingNode.entity === node.entity
   const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
 
