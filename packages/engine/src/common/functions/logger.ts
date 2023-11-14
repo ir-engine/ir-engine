@@ -48,6 +48,12 @@ const engineCache = new NodeCache()
 // Schedule the data push at a certain time (e.g., every hour)
 schedule.scheduleJob('*/15 * * * * *', pushToEngine)
 
+// Client-side early close/refres send logs
+if (typeof window !== 'undefined') {
+  console.log('Window unload event triggered. Sending logs...')
+  window.addEventListener('unload', pushToEngine)
+}
+
 // Function to cache a string
 function cacheLog(value: string): void {
   const timestamp = new Date().getTime().toString()
