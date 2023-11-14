@@ -60,17 +60,6 @@ const App = () => {
             }
           />
           <Route
-            key={'index'}
-            path={'/'}
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'index'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
             key={'location'}
             path={'/location/*'}
             element={

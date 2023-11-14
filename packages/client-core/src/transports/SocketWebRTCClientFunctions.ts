@@ -395,9 +395,6 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
     if (spectateUserId) {
       dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
     }
-
-    // todo move to a reactor
-    getMutableState(EngineState).connectedWorld.set(true)
   }
 
   ;(network.transport.mediasoupDevice.loaded

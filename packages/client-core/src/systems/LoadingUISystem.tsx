@@ -142,9 +142,9 @@ function LoadingReactor() {
 
   /** Scene data changes */
   useEffect(() => {
-    if (!activeScene.value) return
-    const sceneData = getState(SceneState).scenes[activeScene.value]
-    const envmapURL = sceneData.data.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
+    const sceneData = SceneState.getCurrentScene()
+    if (!sceneData) return
+    const envmapURL = sceneData.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
     if (envmapURL && mesh.userData.url !== envmapURL) {
       mesh.userData.url = envmapURL
       setDefaultPalette()
@@ -239,11 +239,7 @@ const execute = () => {
   mesh.updateMatrixWorld(true)
 
   // add a slow rotation to animate on desktop, otherwise just keep it static for VR
-  // if (!getState(EngineState).connectedWorld) {
-  //   getComponent(Engine.instance.cameraEntity, CameraComponent).rotateY(world.delta * 0.35)
-  // } else {
-  //   // todo: figure out how to make this work properly for VR #7256
-  // }
+  // getComponent(Engine.instance.cameraEntity, CameraComponent).rotateY(world.delta * 0.35)
 
   mainThemeColor.set(ui.state.colors.alternate.value)
 

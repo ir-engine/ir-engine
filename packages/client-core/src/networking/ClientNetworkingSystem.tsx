@@ -77,8 +77,7 @@ const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
     const sendTransport = MediasoupTransportState.getTransport(props.networkID, 'send') as WebRTCTransportExtension
     const recvTransport = MediasoupTransportState.getTransport(props.networkID, 'recv') as WebRTCTransportExtension
     networkState.ready.set(!!recvTransport && !!sendTransport)
-  }, [transportState.keys])
-  // TODO - see why we have to use .value here instead of just the hookstate object
+  }, [transportState])
 
   return null
 }
