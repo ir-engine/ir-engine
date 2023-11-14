@@ -31,22 +31,14 @@ import { MessageContainer } from '@etherealengine/ui/src/components/Chat/Message
 
 import './index.css'
 
-import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import '@etherealengine/engine/src/EngineModule'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystem, useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-
-const useChatSystems = () => {
-  useSystem(MediaSystem, { before: PresentationSystemGroup })
-  useSystems([ClientNetworkingSystem], { after: PresentationSystemGroup })
-}
 
 export const initializeEngineForChat = async () => {
   const projects = Engine.instance.api.service(projectsPath).find()
@@ -67,8 +59,6 @@ export function ChatPage() {
       roomID: false
     })
   }, [])
-
-  useChatSystems()
 
   return (
     <div className="w-full container mx-auto pointer-events-auto">

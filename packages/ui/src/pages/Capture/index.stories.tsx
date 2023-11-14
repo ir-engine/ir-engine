@@ -33,15 +33,10 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystem, useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
@@ -56,12 +51,6 @@ import 'daisyui/dist/full.css'
 import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
-
-const useCaptureSystems = () => {
-  useSystem(MotionCaptureSystem, { with: InputSystemGroup })
-  useSystem(MediaSystem, { before: PresentationSystemGroup })
-  useSystems([ClientNetworkingSystem], { after: PresentationSystemGroup })
-}
 
 const initializeEngineForRecorder = async () => {
   // const projects = API.instance.client.service(projectsPath).find()
@@ -88,8 +77,6 @@ const decorators = [
     useEffect(() => {
       notificationstate.snackbar.set(notistackRef.current)
     }, [notistackRef.current])
-
-    useCaptureSystems()
 
     useEffect(() => {
       if (selfUser?.id.value && projectState.updateNeeded.value) {

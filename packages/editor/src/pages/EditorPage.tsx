@@ -32,7 +32,10 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
+import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
+import '@etherealengine/engine/src/EngineModule'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import '../EditorModule'
 import EditorContainer from '../components/EditorContainer'
 import { EditorState } from '../services/EditorServices'
 

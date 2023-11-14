@@ -31,16 +31,13 @@ import Dashboard from '@etherealengine/ui/src/primitives/mui/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
 import { AuthState } from '../user/services/AuthService'
-import { UserUISystem } from '../user/UserUISystem'
 import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
 import Analytics from './components/Analytics'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
-const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
+import '@etherealengine/engine/src/EngineModule'
 
-const AdminSystemInjection = () => {
-  UserUISystem
-}
+const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
 const AdminRoutes = () => {
   const location = useLocation()
@@ -51,7 +48,6 @@ const AdminRoutes = () => {
   const scopes = admin?.scopes?.value
 
   useEffect(() => {
-    AdminSystemInjection()
     allowedRoutes.set(DefaultAdminRoutes)
   }, [])
 
