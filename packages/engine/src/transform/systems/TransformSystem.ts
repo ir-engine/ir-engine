@@ -306,7 +306,7 @@ const execute = () => {
   const engineState = getState(EngineState)
   const xrFrame = getState(XRState).xrFrame
 
-  let needsSorting = engineState.transformsNeedSorting
+  let needsSorting = TransformComponent.transformsNeedSorting
 
   for (const entity of transformQuery.enter()) {
     sortedTransformEntities.push(entity)
@@ -324,7 +324,7 @@ const execute = () => {
     for (const entity of sortedTransformEntities) updateTransformDepth(entity)
     for (const entity of sortedTransformEntities) updateOriginChildEntities(entity)
     insertionSort(sortedTransformEntities, compareReferenceDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
-    getMutableState(EngineState).transformsNeedSorting.set(false)
+    TransformComponent.transformsNeedSorting = false
   }
 
   /**
