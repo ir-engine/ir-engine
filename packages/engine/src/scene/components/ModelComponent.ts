@@ -35,6 +35,7 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentType,
   defineComponent,
@@ -46,7 +47,8 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -172,7 +174,21 @@ function ModelReactor() {
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
               modelComponent.asset.set(loadedAsset)
               if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
-              model.scene && removeObjectFromGroup(entity, model.scene)
+              if (model.scene) {
+                const childEntities = iterateEntityNode(
+                  entity,
+                  (childEntity) => childEntity,
+                  (childEntity) => childEntity !== entity
+                )
+                for (let i = childEntities.length - 1; i >= 0; i--) {
+                  const childEntity = childEntities[i]
+                  const uuid = getComponent(childEntity, UUIDComponent)
+                  removeEntity(childEntity)
+                  const currentScene = getState(SceneState).activeScene!
+                  SceneState.removeEntitiesFromScene(currentScene, [uuid])
+                }
+                removeObjectFromGroup(entity, model.scene)
+              }
               modelComponent.scene.set(loadedAsset.scene)
             },
             (onprogress) => {
@@ -214,8 +230,6 @@ function ModelReactor() {
             removeComponent(entity, SceneAssetPendingTagComponent)
         })
     else if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
-
-    if (groupComponent?.value?.find((group: any) => group === scene)) return
 
     parseGLTFModel(entity)
     setComponent(entity, BoundingBoxComponent)

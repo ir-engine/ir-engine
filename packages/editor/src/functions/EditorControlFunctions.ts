@@ -506,11 +506,8 @@ const groupObjects = (entities: Entity[]) => {
   const childIndex = parentEntityTreeComponent.children.length
   const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
 
-  const groupEntity = createEntity()
-
   const groupEntityUUID = MathUtils.generateUUID() as EntityUUID
 
-  removeEntity(groupEntity)
   newSnapshot.data.scene.entities[groupEntityUUID] = {
     name: 'New Group',
     components: [

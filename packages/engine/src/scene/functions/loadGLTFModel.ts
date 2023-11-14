@@ -155,9 +155,9 @@ export const parseObjectComponentsFromGLTF = (
     eJson.components.push({
       name: LocalTransformComponent.jsonID,
       props: {
-        position: mesh.position,
-        rotation: mesh.quaternion,
-        scale: mesh.scale
+        position: mesh.position.clone(),
+        rotation: mesh.quaternion.clone(),
+        scale: mesh.scale.clone()
       }
     })
 

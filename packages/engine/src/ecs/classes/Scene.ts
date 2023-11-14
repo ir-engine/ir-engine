@@ -76,6 +76,13 @@ export const SceneState = defineState({
     }
   },
 
+  removeEntitiesFromScene: (sceneID: SceneID, entities: EntityUUID[]) => {
+    const scene = SceneState.getMutableScene(sceneID).scene
+    for (const uuid of entities) {
+      scene.entities[uuid].set(none)
+    }
+  },
+
   entityHasComponent: <C extends Component>(entityUUID: EntityUUID, component: C) => {
     const entityJson = SceneState.getCurrentScene()!.scene.entities[entityUUID]
     return entityJson.components.some((componentJson) => componentJson.name === component.jsonID)

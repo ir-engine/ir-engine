@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { startCase } from 'lodash'
 import { useEffect } from 'react'
-import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
@@ -97,15 +96,13 @@ export const createNewEditorNode = (
   //   componentJson.length ? `New ${startCase(componentJson[0].name.toLowerCase())}` : `New Entity`
   // )
   const name = componentJson.length ? `New ${startCase(componentJson[0].name.toLowerCase())}` : `New Entity`
-  const uuid: EntityUUID =
-    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? MathUtils.generateUUID()
   const sceneState = getState(SceneState)
   const entityJson: EntityJson = {
     name,
     components: deserializedJson,
     parent: getComponent(parentEntity, UUIDComponent)
   }
-  SceneState.addEntitiesToScene(sceneState.activeScene!, { [uuid]: entityJson })
+  SceneState.addEntitiesToScene(sceneState.activeScene!, { [entityNode]: entityJson })
 }
 
 export const splitLazyLoadedSceneEntities = (json: SceneJson) => {
