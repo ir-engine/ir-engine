@@ -140,11 +140,10 @@ function ModelReactor() {
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const variantComponent = useOptionalComponent(entity, VariantComponent)
   const model = modelComponent.value
-  const source = model.src
 
   // update src
   useEffect(() => {
-    if (source === model.scene?.userData?.src) return
+    if (model.src === model.scene?.userData?.src) return
     try {
       if (model.scene) {
         clearMaterials(model)
@@ -188,8 +187,8 @@ function ModelReactor() {
               })
             },
             (err) => {
-              console.error(err)
               removeComponent(entity, SceneAssetPendingTagComponent)
+              addError(entity, ModelComponent, 'INVALID_URL', err.message)
             }
           )
           break
