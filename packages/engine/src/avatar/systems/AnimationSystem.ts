@@ -27,12 +27,20 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { VRM } from '@pixiv/three-vrm'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, getComponent, getOptionalMutableComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalMutableComponent,
+  hasComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { MeshComponent } from '../../scene/components/MeshComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformSystem } from '../../transform/TransformModule'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
@@ -53,6 +61,14 @@ const execute = () => {
     const animationComponent = getComponent(entity, AnimationComponent)
     const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
+    /** @todo for some reason, the animation clips do not apply their data to the proxified quaternions */
+    if (hasComponent(entity, ModelComponent))
+      traverseEntityNode(entity, (childEntity) => {
+        const mesh = getComponent(childEntity, MeshComponent)
+        if (!mesh) return
+        const rotation = getComponent(childEntity, LocalTransformComponent).rotation
+        rotation.copy(mesh.quaternion)
+      })
     const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
     animationActionComponent?._action.value &&
       animationActionComponent?.time.set(animationActionComponent._action.value.time)

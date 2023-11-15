@@ -55,6 +55,7 @@ import { ShadowComponent } from '../components/ShadowComponent'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
+import iterateObject3D from '../util/iterateObject3D'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
@@ -152,8 +153,11 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
       for (const layer of layers) {
         if (layer.has(obj)) layer.delete(obj)
       }
-
-      obj.traverse(disposeObject3D)
+      if (obj.isProxified) {
+        disposeObject3D(obj)
+      } else {
+        iterateObject3D(obj, disposeObject3D)
+      }
     }
   }, [])
 

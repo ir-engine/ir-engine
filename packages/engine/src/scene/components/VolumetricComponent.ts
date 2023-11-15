@@ -40,7 +40,6 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PlayMode } from '../constants/PlayMode'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup, getNextTrack } from './MediaComponent'
-import { ShadowComponent } from './ShadowComponent'
 import { UVOL1Component } from './UVOL1Component'
 import { UVOL2Component } from './UVOL2Component'
 
@@ -81,9 +80,8 @@ export function handleAutoplay(
 }
 
 export const VolumetricComponent = defineComponent({
-  name: 'EE_volumetric',
+  name: 'Volumetric Component',
   jsonID: 'volumetric',
-
   onInit: (entity) => {
     return {
       paths: [] as string[],
@@ -112,7 +110,6 @@ export const VolumetricComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    setComponent(entity, ShadowComponent)
     if (!json) return
     if (typeof json.paths === 'object') {
       component.paths.set(json.paths)

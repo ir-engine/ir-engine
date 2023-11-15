@@ -27,9 +27,14 @@ import i18n from 'i18next'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
 import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
@@ -117,6 +122,19 @@ export const saveScene = async (
   const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].snapshots.at(-1)?.data.scene
 
   try {
+    if (!sceneData) throw new Error(i18n.t('editor:errors.sceneDataNotFound'))
+    //remove gltf data from scene data
+    for (const entityUUID of Object.keys(sceneData.entities)) {
+      if (!sceneData.entities[entityUUID]) continue //entity has already been removed from save data
+      const entity = UUIDComponent.entitiesByUUID[entityUUID as EntityUUID]
+      if (hasComponent(entity, GLTFLoadedComponent)) {
+        //delete anything that is a child of any GLTF-loaded entity
+        iterateEntityNode(entity, (entity) => {
+          if (!hasComponent(entity, UUIDComponent)) return
+          delete sceneData.entities[getComponent(entity, UUIDComponent)]
+        })
+      }
+    }
     return await uploadToFeathersService(sceneUploadPath, thumbnailFile ? [thumbnailFile] : [], {
       project: projectName,
       name: sceneName,

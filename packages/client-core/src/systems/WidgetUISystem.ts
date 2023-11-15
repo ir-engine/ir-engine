@@ -30,7 +30,6 @@ import { isDev } from '@etherealengine/common/src/config'
 import { V_001, V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
-  addComponent,
   defineQuery,
   getComponent,
   hasComponent,
@@ -91,8 +90,7 @@ const WidgetUISystemState = defineState({
     setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
     setComponent(widgetMenuUI.entity, LocalTransformComponent)
     removeComponent(widgetMenuUI.entity, VisibleComponent)
-
-    addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
+    setComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
     // const helper = new AxesHelper(0.1)
     // setObjectLayers(helper, ObjectLayers.Gizmos)
     // addObjectToGroup(widgetMenuUI.entity, helper)
