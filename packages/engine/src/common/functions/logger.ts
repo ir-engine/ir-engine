@@ -48,7 +48,7 @@ const engineCache = new NodeCache()
 // Schedule the data push at a certain time (e.g., every hour)
 schedule.scheduleJob('*/15 * * * * *', pushToEngine)
 
-// Client-side early close/refres send logs
+// Early close/refresh send logs
 if (typeof window !== 'undefined') {
   window.addEventListener('unload', pushToEngine)
 }
