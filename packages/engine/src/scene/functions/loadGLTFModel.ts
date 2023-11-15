@@ -28,10 +28,8 @@ import { AnimationMixer, InstancedMesh, Mesh, Object3D } from 'three'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
 import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { getState } from '@etherealengine/hyperflux'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
   ComponentMap,
@@ -174,8 +172,7 @@ export const parseObjectComponentsFromGLTF = (
 
 export const parseGLTFModel = (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
-  if (!model.scene) return []
-  const scene = model.scene
+  const scene = model.scene!
   scene.updateMatrixWorld(true)
 
   // always parse components first using old ECS parsing schema
@@ -264,7 +261,7 @@ export const parseGLTFModel = (entity: Entity) => {
         parent: {
           get() {
             if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-              return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)[0]
+              return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0]
             }
             return null
           },
@@ -320,8 +317,5 @@ export const parseGLTFModel = (entity: Entity) => {
     })
   }
 
-  //add spawned entities to scene state
-  SceneState.addEntitiesToScene(getState(SceneState).activeScene!, entityJson)
-
-  return spawnedEntities
+  return entityJson
 }

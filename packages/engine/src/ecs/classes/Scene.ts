@@ -38,12 +38,11 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { useEffect } from 'react'
 import { Validator, matches } from '../../common/functions/MatchesUtils'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
-import { Component } from '../functions/ComponentFunctions'
 import { defineSystem } from '../functions/SystemFunctions'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
@@ -69,25 +68,6 @@ export const SceneState = defineState({
     background: null as null | Color | Texture
   }),
 
-  addEntitiesToScene: (sceneID: SceneID, entities: Record<EntityUUID, EntityJson>) => {
-    const scene = SceneState.getMutableScene(sceneID).scene
-    for (const [uuid, data] of Object.entries(entities)) {
-      scene.entities[uuid].set(data)
-    }
-  },
-
-  removeEntitiesFromScene: (sceneID: SceneID, entities: EntityUUID[]) => {
-    const scene = SceneState.getMutableScene(sceneID).scene
-    for (const uuid of entities) {
-      scene.entities[uuid].set(none)
-    }
-  },
-
-  entityHasComponent: <C extends Component>(entityUUID: EntityUUID, component: C) => {
-    const entityJson = SceneState.getCurrentScene()!.scene.entities[entityUUID]
-    return entityJson.components.some((componentJson) => componentJson.name === component.jsonID)
-  },
-
   getCurrentScene: () => {
     const activeScene = getState(SceneState).activeScene
     if (!activeScene) return null
@@ -103,6 +83,7 @@ export const SceneState = defineState({
   getScene: (sceneID: SceneID) => {
     const { scenes } = getState(SceneState)
     const scene = scenes[sceneID]
+    if (!scene) return null
     return scene.snapshots[scene.index].data
   },
 

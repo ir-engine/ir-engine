@@ -28,11 +28,17 @@ import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterf
 import { MathUtils } from 'three'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { SceneState } from '../../../../../ecs/classes/Scene'
-import { getComponent, hasComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import {
+  ComponentJSONIDMap,
+  getComponent,
+  hasComponent,
+  setComponent
+} from '../../../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../../../../ecs/functions/EntityTree'
 import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
-import { createNewEditorNode } from '../../../../../scene/systems/SceneLoadingSystem'
+import { VisibleComponent } from '../../../../../scene/components/VisibleComponent'
+import { LocalTransformComponent } from '../../../../../transform/components/TransformComponent'
 
 export const addEntityToScene = (
   componentJson: Array<ComponentJson>,
@@ -48,9 +54,14 @@ export const addEntityToScene = (
     }
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
+  setComponent(newEntity, LocalTransformComponent)
   const uuid = MathUtils.generateUUID() as EntityUUID
   setComponent(newEntity, UUIDComponent, uuid)
-  createNewEditorNode(uuid, componentJson, parentEntity)
+  setComponent(newEntity, VisibleComponent)
+  for (const component of componentJson) {
+    if (ComponentJSONIDMap.has(component.name))
+      setComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
+  }
 
   return newEntity
 }
