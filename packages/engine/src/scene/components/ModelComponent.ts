@@ -53,10 +53,10 @@ import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxCo
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { SceneID } from '../../schemas/projects/scene.schema'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
+import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
@@ -216,7 +216,7 @@ function ModelReactor() {
     setComponent(entity, BoundingBoxComponent)
 
     const loadedJsonHierarchy = parseGLTFModel(entity)
-    const uuid = (getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src) as SceneID
+    const uuid = getModelSceneID(entity)
     getMutableState(SceneState).scenes[uuid].set({
       snapshots: [
         {

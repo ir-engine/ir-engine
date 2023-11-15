@@ -35,8 +35,20 @@ import {
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
+import { SceneID } from '../../../schemas/projects/scene.schema'
 import { MeshComponent } from '../../components/MeshComponent'
 import { ModelComponent } from '../../components/ModelComponent'
+import { UUIDComponent } from '../../components/UUIDComponent'
+
+export function getModelSceneID(entity: Entity): SceneID {
+  if (!hasComponent(entity, ModelComponent)) {
+    throw new Error('Entity does not have a ModelComponent')
+  }
+  if (!hasComponent(entity, UUIDComponent)) {
+    throw new Error('Entity does not have a UUIDComponent')
+  }
+  return (getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src) as SceneID
+}
 
 export function getModelResources(entity: Entity): ResourceTransforms {
   const model = getComponent(entity, ModelComponent)
