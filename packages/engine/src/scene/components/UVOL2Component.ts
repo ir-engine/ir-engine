@@ -64,6 +64,7 @@ import {
   GeometryFormat,
   PlayerManifest,
   TextureFormat,
+  TextureType,
   UVOL_TYPE,
   UniformSolveTarget
 } from '../constants/UVOLTypes'
@@ -93,19 +94,32 @@ export const calculatePriority = (manifest: PlayerManifest) => {
   geometryTargets.forEach((target, index) => {
     manifest.geometry.targets[target].priority = index
   })
+  const textureTargets = {
+    baseColor: [] as string[],
+    normal: [] as string[],
+    metallicRoughness: [] as string[],
+    emissive: [] as string[],
+    occlusion: [] as string[]
+  }
 
-  const textureTargets = Object.keys(manifest.texture.baseColor.targets)
-  textureTargets.sort((a, b) => {
-    const aData = manifest.texture.baseColor.targets[a]
-    const bData = manifest.texture.baseColor.targets[b]
-    const aPixelPerSec = aData.frameRate * aData.settings.resolution.width * aData.settings.resolution.height
-    const bPixelPerSec = bData.frameRate * bData.settings.resolution.width * bData.settings.resolution.height
-    return aPixelPerSec - bPixelPerSec
-  })
-  textureTargets.forEach((target, index) => {
-    manifest.texture.baseColor.targets[target].priority = index
-  })
-  return [manifest, geometryTargets, textureTargets] as [PlayerManifest, string[], string[]]
+  const textureTypes = Object.keys(manifest.texture)
+  for (let i = 0; i < textureTypes.length; i++) {
+    const textureType = textureTypes[i]
+    const currentTextureTargets = Object.keys(manifest.texture[textureType].targets)
+    currentTextureTargets.sort((a, b) => {
+      const aData = manifest.texture[textureType].targets[a]
+      const bData = manifest.texture[textureType].targets[b]
+      const aPixelPerSec = aData.frameRate * aData.settings.resolution.width * aData.settings.resolution.height
+      const bPixelPerSec = bData.frameRate * bData.settings.resolution.width * bData.settings.resolution.height
+      return aPixelPerSec - bPixelPerSec
+    })
+    currentTextureTargets.forEach((target, index) => {
+      manifest.texture[textureType].targets[target].priority = index
+    })
+    textureTargets[textureType] = currentTextureTargets
+  }
+
+  return [manifest, geometryTargets, textureTargets] as [PlayerManifest, string[], typeof textureTargets]
 }
 
 export const UVOL2Component = defineComponent({
@@ -119,9 +133,21 @@ export const UVOL2Component = defineComponent({
       data: {} as PlayerManifest,
       hasAudio: false,
       geometryTarget: 0,
-      textureTarget: 0,
+      textureTarget: {
+        baseColor: 0,
+        normal: 0,
+        metallicRoughness: 0,
+        emissive: 0,
+        occlusion: 0
+      },
       geometryTargets: [] as string[],
-      textureTargets: [] as string[],
+      textureTargets: {
+        baseColor: [] as string[],
+        normal: [] as string[],
+        metallicRoughness: [] as string[],
+        emissive: [] as string[],
+        occlusion: [] as string[]
+      },
       initialGeometryBuffersLoaded: false,
       initialTextureBuffersLoaded: false,
       firstGeometryFrameLoaded: false,
@@ -214,8 +240,13 @@ const resolvePath = (
 
 const KEY_PADDING = 7
 
-const createKey = (target: string, index: number) => {
-  return target + index.toString().padStart(KEY_PADDING, '0')
+const createKey = (target: string, index: number, textureType?: TextureType) => {
+  let key = target
+  if (textureType) {
+    key += '_' + textureType + '_'
+  }
+  key += index.toString().padStart(KEY_PADDING, '0')
+  return key
 }
 
 type KeyframeAttribute = {
@@ -511,25 +542,29 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const adjustGeometryTarget = (metric: number) => {
+    const currentTarget = component.geometryTarget.value
+    const targetsCount = component.geometryTargets.value.length
     if (metric >= 0.25) {
-      if (component.geometryTarget.value > 0) {
-        component.geometryTarget.set(component.geometryTarget.value - 1)
+      if (currentTarget > 0) {
+        component.geometryTarget.set(currentTarget - 1)
       }
     } else if (metric < 0.1) {
-      if (component.geometryTarget.value < component.geometryTargets.value.length - 1) {
-        component.geometryTarget.set(component.geometryTarget.value + 1)
+      if (currentTarget < targetsCount - 1) {
+        component.geometryTarget.set(currentTarget + 1)
       }
     }
   }
 
-  const adjustTextureTarget = (metric: number) => {
+  const adjustTextureTarget = (textureType: TextureType, metric: number) => {
+    const currentTarget = component.textureTarget[textureType].value
+    const targetsCount = component.textureTargets.value[textureType].length
     if (metric >= 0.25) {
-      if (component.textureTarget.value > 0) {
-        component.textureTarget.set(component.textureTarget.value - 1)
+      if (currentTarget > 0) {
+        component.textureTarget[textureType].set(currentTarget - 1)
       }
     } else if (metric < 0.1) {
-      if (component.textureTarget.value < component.textureTargets.value.length - 1) {
-        component.textureTarget.set(component.textureTarget.value + 1)
+      if (currentTarget < targetsCount - 1) {
+        component.textureTarget[textureType].set(currentTarget + 1)
       }
     }
   }
@@ -574,13 +609,16 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
   }
 
-  const fetchTextures = () => {
+  const fetchTextures = (textureType: TextureType) => {
+    const textureTypeData = component.data.texture[textureType].value
+    if (!textureTypeData) return
     const currentBufferLength = textureBufferHealth.current - (currentTime.current - volumetric.startTime.value)
     if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) || pendingTextureRequests.current > 0) {
       return
     }
-    const target = component.textureTargets.value[component.textureTarget.value]
-    const targetData = component.data.value.texture.baseColor.targets[target]
+    const targetIndex = component.textureTarget[textureType].value
+    const target = component.textureTargets[textureType][targetIndex].value
+    const targetData = textureTypeData.targets[target]
     const frameRate = targetData.frameRate
     const startFrame = Math.round((textureBufferHealth.current + volumetric.startTime.value) * frameRate)
     if (startFrame >= targetData.frameCount) {
@@ -618,7 +656,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           return
         }
         const i = j + startFrame
-        const key = createKey(target, i)
+        const key = createKey(target, i, textureType)
         texture.name = key
         pendingTextureRequests.current--
         textureBuffer.set(key, texture)
@@ -634,13 +672,13 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       const playTime = textureBufferHealth.current - oldBufferHealth
       const fetchTime = (Date.now() - startTime) / 1000
       const metric = fetchTime / playTime
-      adjustTextureTarget(metric)
+      adjustTextureTarget(textureType, metric)
     })
   }
 
   const bufferLoop = () => {
     fetchGeometry()
-    fetchTextures()
+    fetchTextures('baseColor')
   }
 
   useEffect(() => {
@@ -868,50 +906,82 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
   }
 
-  const setTexture = (target: string, index: number, currentTime: number) => {
-    const key = createKey(target, index)
+  const setMap = (textureType: TextureType, texture: CompressedTexture) => {
+    let oldTextureKey = ''
+
+    if (mesh.material instanceof ShaderMaterial) {
+      const material = mesh.material as ShaderMaterial
+      if (textureType === 'baseColor' && material.uniforms.map.value !== texture) {
+        texture.repeat.copy(repeat)
+        texture.offset.copy(offset)
+        texture.updateMatrix()
+        oldTextureKey = material.uniforms.map.value?.name ?? ''
+        material.uniforms.map.value = texture
+        material.uniforms.map.value.needsUpdate = true
+        material.uniforms.mapTransform.value.copy(texture.matrix)
+      } else if (textureType === 'emissive' && material.uniforms.emissiveMap.value !== texture) {
+        texture.repeat.copy(repeat)
+        texture.offset.copy(offset)
+        texture.updateMatrix()
+        oldTextureKey = material.uniforms.emissiveMap.value?.name ?? ''
+        material.uniforms.emissiveMap.value = texture
+        material.uniforms.emissiveMap.value.needsUpdate = true
+        material.uniforms.emissiveMapTransform.value.copy(texture.matrix)
+      } else if (textureType === 'normal' && material.uniforms.normalMap.value !== texture) {
+        texture.repeat.copy(repeat)
+        texture.offset.copy(offset)
+        texture.updateMatrix()
+        oldTextureKey = material.uniforms.normalMap.value?.name ?? ''
+        material.uniforms.normalMap.value = texture
+        material.uniforms.normalMap.value.needsUpdate = true
+        material.uniforms.normalMapTransform.value.copy(texture.matrix)
+      } else if (textureType === 'metallicRoughness' && material.uniforms.roughnessMap.value !== texture) {
+        texture.repeat.copy(repeat)
+        texture.offset.copy(offset)
+        texture.updateMatrix()
+        oldTextureKey = material.uniforms.roughnessMap.value?.name ?? ''
+        material.uniforms.roughnessMap.value = texture
+        material.uniforms.roughnessMap.value.needsUpdate = true
+        material.uniforms.roughnessMapTransform.value.copy(texture.matrix)
+      } else if (textureType === 'occlusion' && material.uniforms.aoMap.value !== texture) {
+        texture.repeat.copy(repeat)
+        texture.offset.copy(offset)
+        texture.updateMatrix()
+        oldTextureKey = material.uniforms.aoMap.value?.name ?? ''
+        material.uniforms.aoMap.value = texture
+        material.uniforms.aoMap.value.needsUpdate = true
+        material.uniforms.aoMapTransform.value.copy(texture.matrix)
+      }
+    } else {
+      const material = mesh.material as MeshBasicMaterial
+      if (textureType === 'baseColor') {
+        oldTextureKey = material.map?.name ?? ''
+        material.map = texture
+        material.map.needsUpdate = true
+      }
+    }
+    const oldTexture = textureBuffer.get(oldTextureKey)
+    if (oldTexture) {
+      oldTexture.dispose()
+    }
+    textureBuffer.delete(oldTextureKey)
+  }
+
+  const setTexture = (textureType: TextureType, target: string, index: number, currentTime: number) => {
+    const key = createKey(target, index, textureType)
     if (!textureBuffer.has(key)) {
-      const targets = component.textureTargets.value
+      const targets = component.textureTargets[textureType].value
       for (let i = 0; i < targets.length; i++) {
         const _frameRate = component.data.value.texture.baseColor.targets[targets[i]].frameRate
         const _index = getFrame(currentTime, _frameRate)
-        if (textureBuffer.has(createKey(targets[i], _index))) {
-          setTexture(targets[i], _index, currentTime)
+        if (textureBuffer.has(createKey(targets[i], _index, textureType))) {
+          setTexture(textureType, targets[i], _index, currentTime)
           return
         }
       }
     } else {
       const texture = textureBuffer.get(key)!
-      if (mesh.material instanceof ShaderMaterial) {
-        const oldTextureKey = mesh.material.uniforms.map.value?.name ?? ''
-        if (mesh.material.uniforms.map.value !== texture) {
-          mesh.material.uniforms.map.value = texture
-          mesh.material.uniforms.map.value.needsUpdate = true
-          texture.repeat.copy(repeat)
-          texture.offset.copy(offset)
-          texture.updateMatrix()
-          mesh.material.uniforms.mapTransform.value.copy(texture.matrix)
-          const oldTexture = textureBuffer.get(oldTextureKey)
-          if (oldTexture) {
-            oldTexture.dispose()
-          }
-          textureBuffer.delete(oldTextureKey)
-        }
-      } else {
-        const material = mesh.material as MeshBasicMaterial
-        const oldTextureKey = material.map?.name ?? ''
-        if (material.map !== texture) {
-          texture.repeat.copy(repeat)
-          texture.offset.copy(offset)
-          material.map = texture
-          material.map.needsUpdate = true
-          const oldTexture = textureBuffer.get(oldTextureKey)
-          if (oldTexture) {
-            oldTexture.dispose()
-          }
-          textureBuffer.delete(oldTextureKey)
-        }
-      }
+      setMap(textureType, texture)
     }
   }
 
@@ -962,11 +1032,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const updateTexture = (currentTime: number) => {
-    const textureTarget = component.textureTargets.value[component.textureTarget.value]
+    const textureTarget = component.textureTargets['baseColor'].value[component.textureTarget['baseColor'].value]
     const textureFrame = Math.round(
       currentTime * component.data.value.texture.baseColor.targets[textureTarget].frameRate
     )
-    setTexture(textureTarget, textureFrame, currentTime)
+    setTexture('baseColor', textureTarget, textureFrame, currentTime)
   }
 
   const update = () => {
