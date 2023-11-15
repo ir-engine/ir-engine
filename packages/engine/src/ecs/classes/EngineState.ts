@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { defineAction, defineState } from '@etherealengine/hyperflux'
 
 import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
-import { MotionCaptureActionPoses } from '../../mocap/MotionCaptureSystem'
+import { MotionCaptureActionPoses } from '../../mocap/poseToInput'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({

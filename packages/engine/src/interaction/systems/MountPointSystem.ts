@@ -43,6 +43,7 @@ import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   defineQuery,
   getComponent,
@@ -79,6 +80,36 @@ const execute = () => {
 
   if (getState(EngineState).isEditor) return
 
+  const unmountEntity = (entity: Entity) => {
+    const rigidBody = getComponent(entity, RigidBodyComponent)
+    getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
+    dispatchAction(
+      AvatarNetworkAction.setAnimationState({
+        filePath: defaultAnimationPath + animationStates.seated + '.fbx',
+        clipName: animationStates.seated,
+        needsSkip: true,
+        entityUUID: getComponent(entity, UUIDComponent)
+      })
+    )
+
+    const sittingComponent = getComponent(entity, SittingComponent)
+
+    dispatchAction(
+      MountPointActions.mountInteraction({
+        mounted: false,
+        mountedEntity: getComponent(entity, UUIDComponent),
+        targetMount: getComponent(sittingComponent.mountPointEntity, UUIDComponent)
+      })
+    )
+    const mountTransform = getComponent(sittingComponent.mountPointEntity, TransformComponent)
+    const mountComponent = getComponent(sittingComponent.mountPointEntity, MountPointComponent)
+    //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
+    const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrix)
+    teleportAvatar(entity, dismountPoint)
+    rigidBody.body.setEnabled(true)
+    removeComponent(entity, SittingComponent)
+  }
+
   for (const entity of mountPointQuery.enter()) {
     const mountPoint = getComponent(entity, MountPointComponent)
     setComponent(entity, BoundingBoxComponent, {
@@ -99,6 +130,12 @@ const execute = () => {
     const avatarUUID = getComponent(avatarEntity, UUIDComponent)
     const mountPoint = getComponent(action.targetEntity, MountPointComponent)
     const mountPointUUID = getComponent(action.targetEntity, UUIDComponent)
+
+    //unmount if we get an interaction event and are already seated
+    if (avatarUUID === getState(MountPointState)[mountPointUUID]) {
+      unmountEntity(avatarEntity)
+      continue
+    }
 
     if (mountPoint.type !== MountPoint.seat || getState(MountPointState)[mountPointUUID]) continue
 
@@ -151,35 +188,7 @@ const execute = () => {
 
   for (const entity of sittingIdleQuery()) {
     const controller = getComponent(entity, AvatarControllerComponent)
-    if (controller.gamepadLocalInput.lengthSq() > 0.01) {
-      const rigidBody = getComponent(entity, RigidBodyComponent)
-      getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
-      dispatchAction(
-        AvatarNetworkAction.setAnimationState({
-          filePath: defaultAnimationPath + animationStates.seated + '.fbx',
-          clipName: animationStates.seated,
-          needsSkip: true,
-          entityUUID: getComponent(entity, UUIDComponent)
-        })
-      )
-
-      const sittingComponent = getComponent(entity, SittingComponent)
-
-      dispatchAction(
-        MountPointActions.mountInteraction({
-          mounted: false,
-          mountedEntity: getComponent(entity, UUIDComponent),
-          targetMount: getComponent(sittingComponent.mountPointEntity, UUIDComponent)
-        })
-      )
-      const mountTransform = getComponent(sittingComponent.mountPointEntity, TransformComponent)
-      const mountComponent = getComponent(sittingComponent.mountPointEntity, MountPointComponent)
-      //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
-      const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrix)
-      teleportAvatar(entity, dismountPoint)
-      rigidBody.body.setEnabled(true)
-      removeComponent(entity, SittingComponent)
-    }
+    if (controller.gamepadLocalInput.lengthSq() > 0.01) unmountEntity(entity)
   }
 }
 
@@ -192,7 +201,7 @@ export const MountPointSystem = defineSystem({
       //temporary logic for setting visibility of hints until interactive system is refactored
       for (const mountEntity of mountPointQuery()) {
         setVisibleComponent(
-          InteractiveUI.get(mountEntity)?.xrui.entity!,
+          InteractiveUI.get(mountEntity)!.xrui.entity!,
           !mountedEntities[getComponent(mountEntity, UUIDComponent)].value
         )
       }
