@@ -54,13 +54,13 @@ import {
   Vector3
 } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
+import { AnimationSystem } from '../avatar/systems/AnimationSystem'
 import { V_010 } from '../common/constants/MathConstants'
 import { lerp } from '../common/functions/MathLerpFunctions'
 import { isClient } from '../common/functions/getEnvironment'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { NetworkState } from '../networking/NetworkState'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
@@ -135,6 +135,7 @@ const execute = () => {
     const data = mocapData.getFirst()
     const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
+    if (!entity) continue
 
     timeSeriesMocapLastSeen.set(peerID, Date.now())
     setComponent(entity, MotionCaptureRigComponent)
@@ -273,7 +274,7 @@ const reactor = () => {
 
 export const MotionCaptureSystem = defineSystem({
   uuid: 'ee.engine.MotionCaptureSystem',
-  insert: { with: AnimationSystemGroup },
+  insert: { with: AnimationSystem },
   execute,
   reactor
 })

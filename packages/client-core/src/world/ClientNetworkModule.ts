@@ -23,21 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { WidgetAppServiceReceptorSystem } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { AvatarUISystem } from '../systems/AvatarUISystem'
-import { LoadingUISystem } from '../systems/LoadingUISystem'
-import { WarningUISystem } from '../systems/WarningUISystem'
-import { WidgetUISystem } from '../systems/WidgetUISystem'
-import { AvatarUIStateSystem } from '../systems/state/AvatarUIState'
-import { UserUISystem } from '../user/UserUISystem'
-import './ClientNetworkModule'
+import { ClientNetworkingSystem } from '../networking/ClientNetworkingSystem'
+import { DataChannelSystem } from '../networking/DataChannelSystem'
+import { FilteredUsersSystem } from '../transports/FilteredUsersSystem'
 
-export {
-  AvatarUIStateSystem,
-  AvatarUISystem,
-  LoadingUISystem,
-  UserUISystem,
-  WarningUISystem,
-  WidgetAppServiceReceptorSystem,
-  WidgetUISystem
-}
+export { ClientNetworkingSystem, DataChannelSystem, FilteredUsersSystem }

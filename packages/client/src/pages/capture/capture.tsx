@@ -41,7 +41,7 @@ import { ECSRecordingActions } from '@etherealengine/engine/src/recording/ECSRec
 import { defineActionQueue } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 
-import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
+import '@etherealengine/client-core/src/world/ClientNetworkModule'
 import '@etherealengine/engine/src/EngineModule'
 
 const ecsRecordingErrorActionQueue = defineActionQueue(ECSRecordingActions.error.matches)

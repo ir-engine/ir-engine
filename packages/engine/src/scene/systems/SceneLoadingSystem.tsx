@@ -498,7 +498,6 @@ const ComponentLoadReactor = (props: { sceneID: SceneID; componentID: string; en
   }, [])
 
   useEffect(() => {
-    console.log('componentState', componentState)
     if (!componentState?.value) return
 
     const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
