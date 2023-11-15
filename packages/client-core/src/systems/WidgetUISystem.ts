@@ -192,7 +192,7 @@ const execute = () => {
     }
   } else {
     if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
-      //removeComponent(widgetMenuUI.entity, EntityTreeComponent)
+      removeComponent(widgetMenuUI.entity, EntityTreeComponent)
       removeComponent(widgetMenuUI.entity, LocalTransformComponent)
       setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.cameraEntity, () =>
         ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, 0.1)
