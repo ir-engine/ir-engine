@@ -132,7 +132,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         )}
       </InputGroup>
       {localTransformComponent && (
-        <InputGroup name="Use Local Transform" label={t('editor:properties.transform.lbl-useGlobalTransform')}>
+        <InputGroup name="Use Global Transform" label={t('editor:properties.transform.lbl-useGlobalTransform')}>
           <BooleanInput
             disabled={!localTransformComponent}
             value={localTransformComponent?.value && useGlobalTransformComponent.value}

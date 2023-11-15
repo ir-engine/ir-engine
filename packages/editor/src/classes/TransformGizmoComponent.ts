@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import {
   defineComponent,
   getComponent,
-  removeComponent,
   setComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -43,14 +42,13 @@ import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { SnapMode, TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { Matrix4, Object3D } from 'three'
+import { Object3D } from 'three'
+import { degToRad } from 'three/src/math/MathUtils'
 import { EditorHelperState } from '../services/EditorHelperState'
 //import { setDragging } from '../systems/EditorControlSystem'
 
@@ -72,22 +70,24 @@ export const TransformGizmoComponent = defineComponent({
     const entity = useEntityContext()
     const gizmoComponent = useComponent(entity, TransformGizmoComponent)
     const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-
+    const entityTreeComponent = useComponent(entity, EntityTreeComponent)
+    const parentEntity = entityTreeComponent.parentEntity.value
+    const transform = useComponent(entity, TransformComponent)
     useExecute(
       // transfer editor control system logic
       () => {
         gizmoComponent.value.updateMatrixWorld()
+        gizmoComponent.value.dragging
+          ? entityTreeComponent.parentEntity.set(null)
+          : entityTreeComponent.parentEntity.set(parentEntity)
       },
-      { with: PresentationSystemGroup }
+      { before: PresentationSystemGroup }
     )
 
     useEffect(() => {
-      // create dummy object to attach gizmo to
+      // create dummy object to attach gizmo to, we can only attach to three js objects
       const dummy = new Object3D()
       dummy.name = 'gizmoProxy'
-      const localTransform = getComponent(entity, LocalTransformComponent)
-      const entityTree = getComponent(entity, EntityTreeComponent)
-      removeComponent(entity, LocalTransformComponent) /// band aid fix until we can make gizmo handle local transform
 
       // create dummy Entity for gizmo helper
       const dummyEntity = createEntity()
@@ -107,14 +107,6 @@ export const TransformGizmoComponent = defineComponent({
       return () => {
         removeObjectFromGroup(entity, dummy)
         removeEntity(dummyEntity)
-        const matrix = new Matrix4()
-        const parentTransform = getComponent(entityTree.parentEntity!, TransformComponent)
-        const entityTransform = getComponent(entity, TransformComponent)
-
-        const localMatrix = matrix.copy(entityTransform.matrix).premultiply(parentTransform.matrixInverse)
-        localMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
-
-        if (localTransform) setComponent(entity, LocalTransformComponent, localTransform) // add it back in
       }
     }, [])
 
@@ -123,12 +115,56 @@ export const TransformGizmoComponent = defineComponent({
       gizmoComponent.value.setMode(mode)
     }, [editorHelperState.transformMode])
 
-    useEffect(() => {}, [editorHelperState.transformPivot])
+    useEffect(() => {
+      const mode = editorHelperState.transformMode.value
+      gizmoComponent.value.setMode(mode)
+    }, [editorHelperState.transformMode])
+
+    useEffect(() => {
+      switch (editorHelperState.transformPivot.value) {
+        case TransformPivot.Selection:
+          break
+        case TransformPivot.Center:
+          break
+        case TransformPivot.Bottom:
+          break
+        case TransformPivot.Origin:
+          break
+      }
+    }, [editorHelperState.transformPivot])
 
     useEffect(() => {
       const space = editorHelperState.transformSpace.value
       gizmoComponent.value.setSpace(space)
     }, [editorHelperState.transformSpace])
+
+    useEffect(() => {
+      switch (editorHelperState.snapMode.value) {
+        case SnapMode.Disabled: // continous update
+          gizmoComponent.value.setTranslationSnap(null)
+          gizmoComponent.value.setRotationSnap(null)
+          gizmoComponent.value.setScaleSnap(null)
+          break
+        case SnapMode.Grid:
+          gizmoComponent.value.setTranslationSnap(editorHelperState.translationSnap.value)
+          gizmoComponent.value.setRotationSnap(degToRad(editorHelperState.rotationSnap.value))
+          gizmoComponent.value.setScaleSnap(editorHelperState.scaleSnap.value)
+          break
+      }
+    }, [editorHelperState.snapMode])
+
+    useEffect(() => {
+      gizmoComponent.value.setTranslationSnap(editorHelperState.translationSnap.value)
+    }, [editorHelperState.translationSnap])
+
+    useEffect(() => {
+      gizmoComponent.value.setRotationSnap(degToRad(editorHelperState.rotationSnap.value))
+    }, [editorHelperState.rotationSnap])
+
+    useEffect(() => {
+      gizmoComponent.value.setScaleSnap(editorHelperState.scaleSnap.value)
+    }, [editorHelperState.scaleSnap])
+
     return null
   }
 })
