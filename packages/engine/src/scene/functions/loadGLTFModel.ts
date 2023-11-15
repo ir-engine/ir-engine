@@ -290,11 +290,6 @@ export const parseGLTFModel = (entity: Entity) => {
             }
           }
         },
-        traverse: {
-          value: (callback: (obj3d: Object3D) => void) => {
-            callback(obj)
-          }
-        },
         isProxified: {
           get() {
             return true
