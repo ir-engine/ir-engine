@@ -50,7 +50,7 @@ const instancedMeshVariantQuery = defineQuery([
 
 function execute() {
   const engineState = getState(EngineState)
-  if (engineState.isEditor) return
+  if (!engineState.sceneLoaded) return
 
   if (engineState.elapsedSeconds - lastUpdate < updateFrequency) return
   lastUpdate = engineState.elapsedSeconds

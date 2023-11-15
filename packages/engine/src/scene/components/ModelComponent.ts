@@ -141,6 +141,7 @@ function ModelReactor() {
   // update src
   useEffect(() => {
     if (source === model.scene?.userData?.src) return
+    if (variantComponent && !variantComponent.calculated) return
     try {
       if (model.scene) {
         clearMaterials(model)
