@@ -170,58 +170,6 @@ const loadTextureAsync = (url: string) => {
   })
 }
 
-const uniformSolveVertexShader = `
-#include <common>
-#include <logdepthbuf_pars_vertex>
-out vec2 vMapUv;
-
-attribute vec4 keyframeA;
-attribute vec4 keyframeB;
-uniform float mixRatio;
-
-uniform vec2 repeat;
-uniform vec2 offset;
-
-// HEADER_REPLACE_START
-// HEADER_REPLACE_END
-
-
-void main() {
-  // MAIN_REPLACE_START
-  // MAIN_REPLACE_END
-
-   vMapUv = uv * repeat + offset;
-
-   vec4 localPosition = vec4(position, 1.0);
-
-   localPosition.x += mix(keyframeA.x, keyframeB.x, mixRatio); 
-   localPosition.y += mix(keyframeA.y, keyframeB.y, mixRatio);
-   localPosition.z += mix(keyframeA.z, keyframeB.z, mixRatio);
-
-   gl_Position = projectionMatrix * modelViewMatrix * localPosition;
-   #include <logdepthbuf_vertex>
-}`
-
-const uniformSolveFragmentShader = `
-#include <common>
-#include <logdepthbuf_pars_fragment>
-
-in vec2 vMapUv;
-uniform sampler2D map;
-
-// HEADER_REPLACE_START
-// HEADER_REPLACE_END
-
-void main() {
-  vec4 color = texture2D(map, vMapUv);
-  gl_FragColor = color;
-
-  // MAIN_REPLACE_START
-  // MAIN_REPLACE_END
-
-  #include <logdepthbuf_fragment>
-}`
-
 const countHashes = (str: string) => {
   let result = 0
   for (let i = 0; i < str.length; i++) {
@@ -264,7 +212,6 @@ const resolvePath = (
 }
 
 const KEY_PADDING = 7
-const EPSILON = 0.00001 // For float comparison
 
 const createKey = (target: string, index: number) => {
   return target + index.toString().padStart(KEY_PADDING, '0')
