@@ -44,12 +44,7 @@ import { InputSourceComponent } from '@etherealengine/engine/src/input/component
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import {
-  TransformMode,
-  TransformModeType,
-  TransformPivotType,
-  TransformSpaceType
-} from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
@@ -76,18 +71,7 @@ const raycastIgnoreLayers = new Layers()
 
 const isMacOS = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
 let lastZoom = 0
-let prevRotationAngle = 0
-
 let selectedEntities: Entity[]
-let selectedParentEntities: Entity[]
-let lastSelectedEntities = [] as Entity[]
-// let gizmoObj: TransformGizmo
-let transformMode: TransformModeType
-let transformPivot: TransformPivotType
-let transformSpace: TransformSpaceType
-let transformModeChanged = false
-let transformPivotChanged = false
-let transformSpaceChanged = false
 let dragging = false
 
 const onKeyQ = () => {
@@ -118,7 +102,7 @@ const onEscape = () => {
 }
 const onKeyF = () => {
   const editorCameraState = getMutableState(EditorCameraState)
-  editorCameraState.focusedObjects.set(selectedEntities)
+  editorCameraState.focusedObjects.set(getState(SelectionState).selectedEntities)
   editorCameraState.refocus.set(true)
 }
 
