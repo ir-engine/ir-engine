@@ -39,8 +39,8 @@ import {
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
 import { loadEmptyScene } from '../../../engine/tests/util/loadEmptyScene'
 import { EditorControlFunctions } from './EditorControlFunctions'
@@ -155,12 +155,12 @@ describe.skip('EditorControlFunctions', () => {
     })
 
     it('creates prefab of given type', () => {
-      EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode)
+      EditorControlFunctions.createObjectFromSceneElement([{ name: ShadowComponent.jsonID }], rootNode)
       // assert(hasComponent(entity, EntityTreeComponent))
       // assert.equal(getComponent(entity, EntityTreeComponent).parentEntity, rootNode)
       // assert.equal(getComponent(rootNode, EntityTreeComponent).children.length, 1)
       // assert.equal(getComponent(rootNode, EntityTreeComponent).children[0], entity)
-      // assert(hasComponent(entity, GroupComponent))
+      // assert(hasComponent(entity, ShadowComponent))
     })
 
     it('places created prefab before passed objects', () => {
@@ -172,7 +172,7 @@ describe.skip('EditorControlFunctions', () => {
       setComponent(createEntity(), EntityTreeComponent, { parentEntity: rootNode })
       console.log(rootNode)
 
-      EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode, before)
+      EditorControlFunctions.createObjectFromSceneElement([{ name: ShadowComponent.jsonID }], rootNode, before)
 
       // assert.equal(getComponent(entity, EntityTreeComponent).parentEntity, rootNode)
       // assert.equal(getComponent(rootNode, EntityTreeComponent).children.length, 6)
@@ -180,9 +180,9 @@ describe.skip('EditorControlFunctions', () => {
     })
 
     it('creates unique name for each newly created objects', () => {
-      EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode)
-      EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode)
-      EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode)
+      EditorControlFunctions.createObjectFromSceneElement([{ name: ShadowComponent.jsonID }], rootNode)
+      EditorControlFunctions.createObjectFromSceneElement([{ name: ShadowComponent.jsonID }], rootNode)
+      EditorControlFunctions.createObjectFromSceneElement([{ name: ShadowComponent.jsonID }], rootNode)
 
       // assert.equal(getComponent(entity1, NameComponent), 'New Group')
       // assert.equal(getComponent(entity2, NameComponent), 'New Group 2')

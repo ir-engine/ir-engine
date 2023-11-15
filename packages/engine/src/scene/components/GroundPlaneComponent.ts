@@ -94,8 +94,6 @@ export const GroundPlaneComponent = defineComponent({
     const component = useComponent(entity, GroundPlaneComponent)
 
     useEffect(() => {
-      setComponent(entity, SceneAssetPendingTagComponent)
-
       const radius = 10000
 
       const mesh = new Mesh(
