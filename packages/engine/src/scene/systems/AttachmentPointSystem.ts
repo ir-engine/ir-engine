@@ -33,6 +33,7 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AttachmentPointComponent } from '../components/AttachmentPointComponent'
+import { GroupComponent } from '../components/GroupComponent'
 
 const execute = () => {
   const attachmentPointQuery = defineQuery([AttachmentPointComponent])
@@ -82,9 +83,10 @@ const execute = () => {
       //rotation offset between closestRotation and selectedTransform
       const offsetRotation = closestRotation.clone().multiply(selectedTransformFinal.rotation.clone().invert())
       //rotation along object coordinate y
-      const rotationQuaternion = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
-      const finalRotation = selectTransform.rotation.multiply(offsetRotation).multiply(rotationQuaternion)
 
+      const finalRotation = selectTransform.rotation.multiply(offsetRotation)
+
+      // const rotationQuaternion = new Quaternion().setFromAxisAngle(newaxis.axis, Math.PI)
       //offset between shortest attachment point and select point
       const offset = closestPosition.clone().sub(selectedTransformFinal.position)
 
@@ -92,6 +94,8 @@ const execute = () => {
         position: selectTransform.position.clone().add(offset),
         rotation: finalRotation
       })
+
+      getComponent(selectParententityFinal, GroupComponent)[0].rotateY(Math.PI)
     }
   }
 }
