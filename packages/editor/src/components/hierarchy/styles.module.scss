@@ -82,7 +82,7 @@
       padding: 2px 4px;
       outline: none;
       border-radius: 3px;
-      margin:0;
+      margin: 0;
     }
   }
 
@@ -125,8 +125,8 @@
   border: none;
   background: transparent;
   color: var(--textColor);
-  margin:0;
-  
+  margin: 0;
+
   &:hover {
     opacity: 0.8;
     color: var(--textColor);
@@ -161,4 +161,30 @@
 
 .checkboxChecked {
   color: var(--iconButtonColor) !important;
+}
+
+.assetLoadingIndicator {
+  width: 1rem !important;
+  height: 1rem !important;
+  color: var(--textColor);
+}
+
+.issuesTooltipContainer {
+  display: inline-block;
+  pointer-events: none;
+  background-color: rgb(21 23 27 / 90%);
+  border-radius: 3px;
+  padding: 8px;
+  max-width: 320px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  user-select: none;
+
+  .issuesTooltipHeading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-weight: bolder;
+  }
 }

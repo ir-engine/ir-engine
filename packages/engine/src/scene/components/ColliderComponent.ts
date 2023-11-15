@@ -129,16 +129,12 @@ export const ColliderComponent = defineComponent({
       }
     }
 
-    /**
-     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
-     */
     if (
       !getState(EngineState).sceneLoaded &&
       hasComponent(entity, SceneObjectComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )
       setComponent(entity, SceneAssetPendingTagComponent)
-
     setComponent(entity, InputComponent)
   },
 
@@ -167,6 +163,8 @@ export const ColliderComponent = defineComponent({
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
     useEffect(() => {
+      removeComponent(entity, SceneAssetPendingTagComponent)
+
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
       const physicsWorld = getState(PhysicsState).physicsWorld
 
@@ -264,8 +262,6 @@ export const ColliderComponent = defineComponent({
         rigidbody.body.setRotation(transformComponent.rotation.value, true)
         rigidbody.scale.copy(transformComponent.scale.value)
       }
-
-      if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
     }, [isLoadedFromGLTF, colliderComponent, transformComponent, localTransformComponent, groupComponent?.length])
 
     return null
