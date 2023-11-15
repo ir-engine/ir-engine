@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Mesh, Scene, SkinnedMesh } from 'three'
+import { Scene, SkinnedMesh } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -40,27 +40,23 @@ import {
   ComponentType,
   defineComponent,
   getComponent,
-  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
-import { enableObjectLayer } from '../functions/setObjectLayers'
-import iterateObject3D from '../util/iterateObject3D'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
@@ -174,6 +170,9 @@ function ModelReactor() {
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
               modelComponent.asset.set(loadedAsset)
               if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
+              //todo: move into SceneState reactor logic
+              //we unmount all of the entities that come from a source file based on when the source is no longer being referenced by the parent
+              //model/scene component
               if (model.scene) {
                 const childEntities = iterateEntityNode(
                   entity,
@@ -183,7 +182,6 @@ function ModelReactor() {
                 for (let i = childEntities.length - 1; i >= 0; i--) {
                   const childEntity = childEntities[i]
                   const uuid = getComponent(childEntity, UUIDComponent)
-                  removeEntity(childEntity)
                   const currentScene = getState(SceneState).activeScene!
                   SceneState.removeEntitiesFromScene(currentScene, [uuid])
                 }
@@ -242,10 +240,13 @@ function ModelReactor() {
 
     let active = true
 
-    const skinnedMeshSearch = iterateObject3D(
-      scene,
-      (skinnedMesh) => skinnedMesh,
-      (ob: SkinnedMesh) => ob.isSkinnedMesh
+    // check for skinned meshes, and turn off frustum culling for them
+    const skinnedMeshSearch = iterateEntityNode(
+      scene.entity,
+      (childEntity) => getComponent(childEntity, MeshComponent),
+      (childEntity) =>
+        hasComponent(childEntity, MeshComponent) &&
+        (getComponent(childEntity, MeshComponent) as SkinnedMesh).isSkinnedMesh
     )
 
     if (skinnedMeshSearch[0]) {
@@ -255,21 +256,6 @@ function ModelReactor() {
         skinnedMesh.frustumCulled = false
       }
       setComponent(entity, FrustumCullCameraComponent)
-    }
-
-    if (model.generateBVH) {
-      enableObjectLayer(scene, ObjectLayers.Camera, false)
-      const bvhDone = [] as Promise<void>[]
-      scene.traverse((obj: Mesh) => {
-        bvhDone.push(generateMeshBVH(obj))
-      })
-      // trigger group state invalidation when bvh is done
-      Promise.all(bvhDone).then(() => {
-        if (!active) return
-        const group = getMutableComponent(entity, GroupComponent)
-        if (group) group.set([...group.value])
-        enableObjectLayer(scene, ObjectLayers.Camera, !model.avoidCameraOcclusion && model.generateBVH)
-      })
     }
 
     return () => {

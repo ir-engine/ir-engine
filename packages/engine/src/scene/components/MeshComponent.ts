@@ -25,7 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Mesh } from 'three'
 
-import { defineComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useEffect } from 'react'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { generateMeshBVH } from '../functions/bvhWorkerPool'
 
 export const MeshComponent = defineComponent({
   name: 'Mesh Component',
@@ -36,5 +39,13 @@ export const MeshComponent = defineComponent({
       component.set(mesh)
       MeshComponent.valueMap[entity] = mesh
     }
+  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const mesh = getComponent(entity, MeshComponent)
+    useEffect(() => {
+      generateMeshBVH(mesh)
+    }, [])
+    return null
   }
 })

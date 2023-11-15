@@ -32,13 +32,17 @@ import {
   ResourceID,
   ResourceTransforms
 } from '../../../assets/classes/ModelTransform'
-import { ComponentType } from '../../../ecs/functions/ComponentFunctions'
+import { ComponentType, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
+import { MeshComponent } from '../../components/MeshComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 import iterateObject3D from '../../util/iterateObject3D'
 
 export function getModelResources(model: ComponentType<typeof ModelComponent>): ResourceTransforms {
   if (!model?.scene) return { geometries: [], images: [] }
-  const geometries: GeometryTransformParameters[] = iterateObject3D(model.scene, (mesh: Mesh) => {
+  const geometries: GeometryTransformParameters[] = iterateEntityNode(model.scene.entity, (entity) => {
+    if (!hasComponent(entity, MeshComponent)) return []
+    const mesh = getComponent(entity, MeshComponent)
     if (!mesh?.isMesh || !mesh.geometry) return []
     mesh.name && (mesh.geometry.name = mesh.name)
     return [mesh.geometry]
