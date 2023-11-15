@@ -105,7 +105,7 @@ export const calculatePriority = (manifest: PlayerManifest) => {
   textureTargets.forEach((target, index) => {
     manifest.texture.baseColor.targets[target].priority = index
   })
-  return manifest
+  return [manifest, geometryTargets, textureTargets] as [PlayerManifest, string[], string[]]
 }
 
 export const UVOL2Component = defineComponent({
@@ -116,11 +116,12 @@ export const UVOL2Component = defineComponent({
       canPlay: false,
       playbackStartTime: 0,
       manifestPath: '',
-      isBuffering: false,
       data: {} as PlayerManifest,
       hasAudio: false,
-      geometryTarget: '',
-      textureTarget: '',
+      geometryTarget: 0,
+      textureTarget: 0,
+      geometryTargets: [] as string[],
+      textureTargets: [] as string[],
       initialGeometryBuffersLoaded: false,
       initialTextureBuffersLoaded: false,
       firstGeometryFrameLoaded: false,
@@ -230,18 +231,15 @@ function UVOL2Reactor() {
   const volumetric = useComponent(entity, VolumetricComponent)
   const component = useComponent(entity, UVOL2Component)
 
-  const geometryTargets = useRef(Object.keys(component.data.value.geometry.targets))
-  const textureTargets = useRef(Object.keys(component.data.value.texture.baseColor.targets))
-
   const mediaElement = getMutableComponent(entity, MediaElementComponent).value
   const audioContext = getState(AudioState).audioContext
   const audio = mediaElement.element
 
   const geometryBuffer = useMemo(() => new Map<string, Mesh | BufferGeometry | KeyframeAttribute>(), [])
   const textureBuffer = useMemo(() => new Map<string, CompressedTexture>(), [])
-  const maxBufferHealth = 10 // seconds
+  const maxBufferHealth = 5 // seconds
   const minBufferToPlay = 2 // seconds
-  const bufferThreshold = 5 // seconds. If buffer health is less than this, fetch new data
+  const bufferThreshold = 3 // seconds. If buffer health is less than this, fetch new data
   const repeat = useMemo(() => new Vector2(1, 1), [])
   const offset = useMemo(() => new Vector2(0, 0), [])
 
@@ -343,8 +341,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       setComponent(entity, UVOLDissolveComponent)
     }
 
-    const sortedManifest = calculatePriority(component.data.get({ noproxy: true }))
+    const [sortedManifest, sortedGeometryTargets, sortedTextureTargets] = calculatePriority(
+      component.data.get({ noproxy: true })
+    )
     component.data.set(sortedManifest)
+    component.geometryTargets.set(sortedGeometryTargets)
+    component.textureTargets.set(sortedTextureTargets)
     const shadow = getMutableComponent(entity, ShadowComponent)
     if (sortedManifest.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
       // TODO: Cast shadows properly with uniform solve
@@ -355,23 +357,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       shadow.receive.set(true)
     }
 
-    geometryTargets.current = Object.keys(sortedManifest.geometry.targets)
-    geometryTargets.current.sort((a, b) => {
-      return sortedManifest.geometry.targets[a].priority - sortedManifest.geometry.targets[b].priority
-    })
-
-    textureTargets.current = Object.keys(sortedManifest.texture.baseColor.targets)
-    textureTargets.current.sort((a, b) => {
-      return sortedManifest.texture.baseColor.targets[a].priority - sortedManifest.texture.baseColor.targets[b].priority
-    })
-
     if (sortedManifest.audio) {
       component.hasAudio.set(true)
       audio.src = resolvePath(sortedManifest.audio.path, component.manifestPath.value, sortedManifest.audio.formats[0])
       audio.playbackRate = sortedManifest.audio.playbackRate
     }
-    component.geometryTarget.set(geometryTargets.current[0])
-    component.textureTarget.set(textureTargets.current[0])
+
     currentTime.current = volumetric.startTime.value
     const intervalId = setInterval(bufferLoop, 3000)
     bufferLoop() // calling now because setInterval will call after 3 seconds
@@ -521,28 +512,24 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const adjustGeometryTarget = (metric: number) => {
     if (metric >= 0.25) {
-      const currentTargetIndex = geometryTargets.current.indexOf(component.geometryTarget.value)
-      if (currentTargetIndex > 0) {
-        component.geometryTarget.set(geometryTargets.current[currentTargetIndex - 1])
+      if (component.geometryTarget.value > 0) {
+        component.geometryTarget.set(component.geometryTarget.value - 1)
       }
     } else if (metric < 0.1) {
-      const currentTargetIndex = geometryTargets.current.indexOf(component.geometryTarget.value)
-      if (currentTargetIndex < geometryTargets.current.length - 1) {
-        component.geometryTarget.set(geometryTargets.current[currentTargetIndex + 1])
+      if (component.geometryTarget.value < component.geometryTargets.value.length - 1) {
+        component.geometryTarget.set(component.geometryTarget.value + 1)
       }
     }
   }
 
   const adjustTextureTarget = (metric: number) => {
     if (metric >= 0.25) {
-      const currentTargetIndex = textureTargets.current.indexOf(component.textureTarget.value)
-      if (currentTargetIndex > 0) {
-        component.textureTarget.set(textureTargets.current[currentTargetIndex - 1])
+      if (component.textureTarget.value > 0) {
+        component.textureTarget.set(component.textureTarget.value - 1)
       }
     } else if (metric < 0.1) {
-      const currentTargetIndex = textureTargets.current.indexOf(component.textureTarget.value)
-      if (currentTargetIndex < textureTargets.current.length - 1) {
-        component.textureTarget.set(textureTargets.current[currentTargetIndex + 1])
+      if (component.textureTarget.value < component.textureTargets.value.length - 1) {
+        component.textureTarget.set(component.textureTarget.value + 1)
       }
     }
   }
@@ -552,7 +539,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) || pendingGeometryRequests.current > 0) {
       return
     }
-    const target = component.geometryTarget.value ? component.geometryTarget.value : geometryTargets.current[0]
+
+    const target = component.geometryTargets.value[component.geometryTarget.value]
 
     const targetData = component.data.value.geometry.targets[target]
     const frameRate = targetData.frameRate
@@ -591,7 +579,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) || pendingTextureRequests.current > 0) {
       return
     }
-    const target = component.textureTarget.value ? component.textureTarget.value : textureTargets.current[0]
+    const target = component.textureTargets.value[component.textureTarget.value]
     const targetData = component.data.value.texture.baseColor.targets[target]
     const frameRate = targetData.frameRate
     const startFrame = Math.round((textureBufferHealth.current + volumetric.startTime.value) * frameRate)
@@ -654,13 +642,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     fetchGeometry()
     fetchTextures()
   }
-
-  useEffect(() => {
-    if (component.isBuffering.value) {
-      component.geometryTarget.set(geometryTargets.current[0])
-      component.textureTarget.set(textureTargets.current[0])
-    }
-  }, [component.isBuffering])
 
   useEffect(() => {
     if (!component.initialGeometryBuffersLoaded.value || !component.initialTextureBuffersLoaded.value) {
@@ -747,7 +728,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const getAttribute = (name: KeyframeName, currentTime: number) => {
-    const currentGeometryTarget = component.geometryTarget.value
+    const currentGeometryTarget = component.geometryTargets.value[component.geometryTarget.value]
     let index = getFrame(currentTime, component.data.value.geometry.targets[currentGeometryTarget].frameRate, false)
     if (name === 'keyframeA') {
       index = Math.floor(index)
@@ -756,10 +737,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
     const key = createKey(currentGeometryTarget, index)
     if (!geometryBuffer.has(key)) {
-      const targets = Object.keys(component.data.value.geometry.targets)
+      const targets = component.geometryTargets.value
 
       for (let i = 0; i < targets.length; i++) {
-        const _target = targets[i]
+        const _target = component.geometryTargets.value[i]
         const _targetData = component.data.value.geometry.targets[_target]
         let _index = getFrame(currentTime, _targetData.frameRate, false)
         if (name === 'keyframeA') {
@@ -841,7 +822,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     if (!geometryBuffer.has(key)) {
       const frameRate = targetData.frameRate
-      const targets = Object.keys(component.data.value.geometry.targets)
+      const targets = component.geometryTargets.value
       for (let i = 0; i < targets.length; i++) {
         const _target = targets[i]
         const _frameRate = component.data.value.geometry.targets[_target].frameRate
@@ -890,7 +871,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const setTexture = (target: string, index: number, currentTime: number) => {
     const key = createKey(target, index)
     if (!textureBuffer.has(key)) {
-      const targets = Object.keys(component.data.value.texture.baseColor.targets)
+      const targets = component.textureTargets.value
       for (let i = 0; i < targets.length; i++) {
         const _frameRate = component.data.value.texture.baseColor.targets[targets[i]].frameRate
         const _index = getFrame(currentTime, _frameRate)
@@ -967,7 +948,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const updateNonUniformSolve = (currentTime: number) => {
-    const geometryTarget = component.geometryTarget.value
+    const geometryTarget = component.geometryTargets.value[component.geometryTarget.value]
     const geometryFrame = Math.round(currentTime * component.data.value.geometry.targets[geometryTarget].frameRate)
     setGeometry(geometryTarget, geometryFrame)
   }
@@ -981,7 +962,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const updateTexture = (currentTime: number) => {
-    const textureTarget = component.textureTarget.value
+    const textureTarget = component.textureTargets.value[component.textureTarget.value]
     const textureFrame = Math.round(
       currentTime * component.data.value.texture.baseColor.targets[textureTarget].frameRate
     )
