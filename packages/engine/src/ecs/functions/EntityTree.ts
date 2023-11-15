@@ -70,6 +70,10 @@ export const EntityTreeComponent = defineComponent({
   onSet: (entity, component, json?: Readonly<EntityTreeSetType>) => {
     if (!json) return
 
+    if (entity === json.parentEntity) {
+      throw new Error('Entity cannot be its own parent: ' + entity)
+    }
+
     // If a previous parentEntity, remove this entity from its children
     if (component.parentEntity.value && component.parentEntity.value !== json.parentEntity) {
       const oldParent = getMutableComponent(component.parentEntity.value, EntityTreeComponent)

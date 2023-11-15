@@ -110,7 +110,7 @@ export const ModelComponent = defineComponent({
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
-    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent) && !component.scene.value)
       setComponent(entity, SceneAssetPendingTagComponent)
   },
 
@@ -155,7 +155,6 @@ function ModelReactor() {
         case 'fbx':
         case 'vrm':
         case 'usdz':
-          setComponent(entity, SceneAssetPendingTagComponent)
           AssetLoader.load(
             model.src,
             {
@@ -224,10 +223,9 @@ function ModelReactor() {
       EngineRenderer.instance.renderer
         .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
         .then(() => {
-          if (hasComponent(entity, SceneAssetPendingTagComponent))
-            removeComponent(entity, SceneAssetPendingTagComponent)
+          removeComponent(entity, SceneAssetPendingTagComponent)
         })
-    else if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
+    else removeComponent(entity, SceneAssetPendingTagComponent)
 
     parseGLTFModel(entity)
     setComponent(entity, BoundingBoxComponent)

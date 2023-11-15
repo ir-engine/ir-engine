@@ -72,6 +72,7 @@ export const SceneState = defineState({
   addEntitiesToScene: (sceneID: SceneID, entities: Record<EntityUUID, EntityJson>) => {
     const scene = SceneState.getMutableScene(sceneID).scene
     for (const [uuid, data] of Object.entries(entities)) {
+      if (scene.entities.value[uuid]) return
       scene.entities[uuid].set(data)
     }
   },
