@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Scene, SkinnedMesh } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
@@ -52,10 +53,11 @@ import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxCo
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
+import { SceneID } from '../../schemas/projects/scene.schema'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
-import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
@@ -132,7 +134,6 @@ export const ModelComponent = defineComponent({
 function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const groupComponent = useOptionalComponent(entity, GroupComponent)
   const variantComponent = useOptionalComponent(entity, VariantComponent)
   const model = modelComponent.value
   const source = model.src
@@ -147,8 +148,6 @@ function ModelReactor() {
       if (!model.src) return
       const uuid = getComponent(entity, UUIDComponent)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
-      //wait for variant component to calculate if present
-      if (variantComponent && variantComponent.calculated.value === false) return
       switch (fileExtension) {
         case 'glb':
         case 'gltf':
@@ -169,23 +168,6 @@ function ModelReactor() {
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
               modelComponent.asset.set(loadedAsset)
               if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
-              //todo: move into SceneState reactor logic
-              //we unmount all of the entities that come from a source file based on when the source is no longer being referenced by the parent
-              //model/scene component
-              if (model.scene) {
-                const childEntities = iterateEntityNode(
-                  entity,
-                  (childEntity) => childEntity,
-                  (childEntity) => childEntity !== entity
-                )
-                for (let i = childEntities.length - 1; i >= 0; i--) {
-                  const childEntity = childEntities[i]
-                  const uuid = getComponent(childEntity, UUIDComponent)
-                  const currentScene = getState(SceneState).activeScene!
-                  SceneState.removeEntitiesFromScene(currentScene, [uuid])
-                }
-                removeObjectFromGroup(entity, model.scene)
-              }
               modelComponent.scene.set(loadedAsset.scene)
             },
             (onprogress) => {
@@ -230,8 +212,27 @@ function ModelReactor() {
         })
     else removeComponent(entity, SceneAssetPendingTagComponent)
 
-    parseGLTFModel(entity)
     setComponent(entity, BoundingBoxComponent)
+
+    const loadedJsonHierarchy = parseGLTFModel(entity)
+    const uuid = (getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src) as SceneID
+    getMutableState(SceneState).scenes[uuid].set({
+      snapshots: [
+        {
+          data: {
+            scene: { entities: loadedJsonHierarchy, root: '' as EntityUUID, version: 0 },
+            name: '',
+            project: '',
+            thumbnailUrl: ''
+          },
+          selectedEntities: []
+        }
+      ],
+      index: 0
+    })
+    return () => {
+      getMutableState(SceneState).scenes[uuid].set(none)
+    }
   }, [modelComponent.scene])
 
   // update scene

@@ -38,7 +38,7 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { useEffect } from 'react'
 import { Validator, matches } from '../../common/functions/MatchesUtils'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -68,22 +68,6 @@ export const SceneState = defineState({
     background: null as null | Color | Texture
   }),
 
-  /** @deprecated */
-  addEntitiesToScene: (sceneID: SceneID, entities: Record<EntityUUID, EntityJson>) => {
-    const scene = SceneState.getMutableScene(sceneID).scene
-    for (const [uuid, data] of Object.entries(entities)) {
-      scene.entities[uuid].set(data)
-    }
-  },
-
-  /** @deprecated */
-  removeEntitiesFromScene: (sceneID: SceneID, entities: EntityUUID[]) => {
-    const scene = SceneState.getMutableScene(sceneID).scene
-    for (const uuid of entities) {
-      scene.entities[uuid].set(none)
-    }
-  },
-
   getCurrentScene: () => {
     const activeScene = getState(SceneState).activeScene
     if (!activeScene) return null
@@ -99,6 +83,7 @@ export const SceneState = defineState({
   getScene: (sceneID: SceneID) => {
     const { scenes } = getState(SceneState)
     const scene = scenes[sceneID]
+    if (!scene) return null
     return scene.snapshots[scene.index].data
   },
 

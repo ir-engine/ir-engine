@@ -23,12 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { startCase } from 'lodash'
 import { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   ErrorBoundary,
   NO_PROXY,
@@ -50,8 +47,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
-  ComponentMap,
-  componentJsonDefaults,
   getComponent,
   hasComponent,
   removeComponent,
@@ -74,40 +69,6 @@ import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-
-export const createNewEditorNode = (
-  entityNode: EntityUUID,
-  componentJson: Array<ComponentJson>,
-  parentEntity = SceneState.getRootEntity(getState(SceneState).activeScene!) as Entity
-): void => {
-  const components = [
-    ...componentJson,
-    { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
-    { name: ComponentMap.get(LocalTransformComponent.name)!.jsonID! }
-  ]
-  const deserializedJson: ComponentJson[] = components.map((json) => {
-    const component = ComponentJSONIDMap.get(json.name)!
-    return {
-      name: component.name,
-      props: {
-        ...componentJsonDefaults(component),
-        ...json.props
-      }
-    }
-  })
-  // const name = getUniqueName(
-  //   entityNode,
-  //   componentJson.length ? `New ${startCase(componentJson[0].name.toLowerCase())}` : `New Entity`
-  // )
-  const name = componentJson.length ? `New ${startCase(componentJson[0].name.toLowerCase())}` : `New Entity`
-  const sceneState = getState(SceneState)
-  const entityJson: EntityJson = {
-    name,
-    components: deserializedJson,
-    parent: getComponent(parentEntity, UUIDComponent)
-  }
-  SceneState.addEntitiesToScene(sceneState.activeScene!, { [entityNode]: entityJson })
-}
 
 const reactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
@@ -185,7 +146,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const systemsLoaded = useHookstate([] as SystemImportType[])
 
   useEffect(() => {
-    if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS) {
+    const isActiveScene = getState(SceneState).activeScene === props.sceneID
+
+    if (isActiveScene && getState(AppLoadingState).state !== AppLoadingStates.SUCCESS) {
       getMutableState(AppLoadingState).merge({
         state: AppLoadingStates.SCENE_LOADING,
         loaded: false
@@ -197,10 +160,11 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 
     getSystemsFromSceneData(project, scene).then((systems) => {
       // wait to set scene loading state until systems are loaded
-      getMutableState(EngineState).merge({
-        sceneLoading: true,
-        sceneLoaded: false
-      })
+      if (isActiveScene)
+        getMutableState(EngineState).merge({
+          sceneLoading: true,
+          sceneLoaded: false
+        })
 
       if (systems.length) {
         systemsLoaded.set(systems)
@@ -208,6 +172,8 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
         ready.set(true)
       }
     })
+
+    if (!isActiveScene) return
 
     const sceneUpdatedListener = async () => {
       const [projectName, sceneName] = props.sceneID.split('/')
@@ -340,9 +306,7 @@ const EntityChildLoadReactor = (props: {
       childIndex: entityJSONState.index.value
     })
     return () => {
-      !SceneState.getScene(props.sceneID).scene.entities[props.entityUUID] && //do not remove entity if it is simply being reparented
-        entityExists(entity) && //do not remove entity if it has already been removed elsewhere
-        removeEntity(entity)
+      removeEntity(entity)
     }
   }, [dynamicParentState?.loaded, parentLoaded])
 

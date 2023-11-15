@@ -2,10 +2,12 @@ import { InstancedMesh, Material, Object3D, Vector3 } from 'three'
 
 import { DistanceFromCameraComponent } from '@etherealengine/engine/src/transform/components/DistanceComponents'
 
+import { getState } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
 import { isMobile } from '../../../common/functions/isMobile'
 import { Engine } from '../../../ecs/classes/Engine'
+import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, getMutableComponent } from '../../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
@@ -47,6 +49,8 @@ Ethereal Engine. All Rights Reserved.
  * @param entity
  */
 export function setModelVariant(entity: Entity) {
+  if (getState(EngineState).isEditing) return
+
   const variantComponent = getMutableComponent(entity, VariantComponent)
   const modelComponent = getMutableComponent(entity, ModelComponent)
 

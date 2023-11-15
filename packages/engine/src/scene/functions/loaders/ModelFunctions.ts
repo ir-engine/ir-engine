@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DracoOptions } from '@gltf-transform/functions'
-import { Material, Mesh, Texture } from 'three'
+import { Material, Texture } from 'three'
 
 import {
   GeometryTransformParameters,
@@ -32,15 +32,16 @@ import {
   ResourceID,
   ResourceTransforms
 } from '../../../assets/classes/ModelTransform'
-import { ComponentType, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../../ecs/classes/Entity'
+import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { MeshComponent } from '../../components/MeshComponent'
 import { ModelComponent } from '../../components/ModelComponent'
-import iterateObject3D from '../../util/iterateObject3D'
 
-export function getModelResources(model: ComponentType<typeof ModelComponent>): ResourceTransforms {
+export function getModelResources(entity: Entity): ResourceTransforms {
+  const model = getComponent(entity, ModelComponent)
   if (!model?.scene) return { geometries: [], images: [] }
-  const geometries: GeometryTransformParameters[] = iterateEntityNode(model.scene.entity, (entity) => {
+  const geometries: GeometryTransformParameters[] = iterateEntityNode(entity, (entity) => {
     if (!hasComponent(entity, MeshComponent)) return []
     const mesh = getComponent(entity, MeshComponent)
     if (!mesh?.isMesh || !mesh.geometry) return []
@@ -73,7 +74,8 @@ export function getModelResources(model: ComponentType<typeof ModelComponent>): 
     })
     .filter((x, i, arr) => arr.indexOf(x) === i) // remove duplicates
 
-  const images: ImageTransformParameters[] = iterateObject3D(model.scene, (mesh: Mesh) => {
+  const images: ImageTransformParameters[] = iterateEntityNode(entity, (entity) => {
+    const mesh = getComponent(entity, MeshComponent)
     if (!mesh?.isMesh || !mesh.material) return []
     const textures: Texture[] = Object.entries(mesh.material)
       .filter(([, x]) => x?.isTexture)
