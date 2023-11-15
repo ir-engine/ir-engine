@@ -104,7 +104,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput value={modelComponent.src.value} onChange={commitProperty(ModelComponent, 'src')} />
         {errors?.LOADING_ERROR ||
-          (errors?.INVALID_URL && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
+          (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
       <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
         <BooleanInput

@@ -161,7 +161,7 @@ function ModelReactor() {
         case 'usdz':
           setComponent(entity, SceneAssetPendingTagComponent)
           AssetLoader.load(
-            'https://google.com',
+            model.src,
             {
               ignoreDisposeGeometry: model.generateBVH,
               uuid
