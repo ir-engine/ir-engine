@@ -50,7 +50,6 @@ schedule.scheduleJob('*/15 * * * * *', pushToEngine)
 
 // Client-side early close/refres send logs
 if (typeof window !== 'undefined') {
-  console.log('Window unload event triggered. Sending logs...')
   window.addEventListener('unload', pushToEngine)
 }
 
