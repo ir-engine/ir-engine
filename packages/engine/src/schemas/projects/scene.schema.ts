@@ -153,7 +153,9 @@ export const sceneQuerySchema = Type.Intersect(
       {
         storageProviderName: Type.Optional(Type.String()),
         metadataOnly: Type.Optional(Type.Boolean()),
-        paginate: Type.Optional(Type.Boolean())
+        internal: Type.Optional(Type.Boolean()),
+        paginate: Type.Optional(Type.Boolean()),
+        sceneKey: Type.Optional(Type.String())
       },
       { additionalProperties: false }
     )

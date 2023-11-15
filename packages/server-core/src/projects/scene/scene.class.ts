@@ -34,14 +34,14 @@ import defaultSceneSeed from '@etherealengine/projects/default-project/default.s
 
 import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import {
   SceneCreateData,
   SceneDataType,
   SceneMetadataCreate,
   ScenePatch,
   SceneQuery,
-  SceneUpdate
+  SceneUpdate,
+  scenePath
 } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -80,16 +80,11 @@ export class SceneService
 
     const scenes: SceneDataType[] = []
     for (const project of projects) {
-      const { data } = await this.app.service(sceneDataPath).get(null, {
+      const sceneData = await this.app.service(scenePath).get(null, {
         ...params,
-        query: { ...params?.query, projectName: project.name, metadataOnly: true, internal: true }
+        query: { ...params?.query, project: project.name, metadataOnly: true, internal: true }
       })
-      scenes.push(
-        ...data.map((d) => {
-          d.project = project.name
-          return d
-        })
-      )
+      scenes.push(sceneData)
     }
 
     for (const [index, _] of scenes.entries()) {
@@ -102,13 +97,16 @@ export class SceneService
   async get(id: NullableId, params?: SceneParams) {
     const projectName = params?.query?.project?.toString()
     const metadataOnly = params?.query?.metadataOnly
-    const sceneName = params?.query?.name?.toString()
-    const project = (await this.app
-      .service(projectPath)
-      .find({ ...params, query: { name: projectName!, $limit: 1 } })) as Paginated<ProjectType>
-    if (project.data.length === 0) throw new Error(`No project named ${projectName!} exists`)
+    const sceneKey = params?.query?.sceneKey?.toString()
 
-    const sceneData = await getSceneData(projectName!, sceneName!, metadataOnly, params!.provider == null)
+    if (projectName) {
+      const project = (await this.app
+        .service(projectPath)
+        .find({ ...params, query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
+      if (project.data.length === 0) throw new Error(`No project named ${projectName} exists`)
+    }
+
+    const sceneData = await getSceneData(sceneKey!, metadataOnly, params!.provider == null)
 
     return sceneData as SceneDataType
   }
@@ -120,12 +118,14 @@ export class SceneService
 
     const storageProvider = getStorageProvider(storageProviderName)
 
-    const projectResult = (await this.app
-      .service(projectPath)
-      .find({ ...params, query: { name: project, $limit: 1 } })) as Paginated<ProjectType>
-    if (projectResult.data.length === 0) throw new Error(`No project named ${project} exists`)
+    if (project) {
+      const projectResult = (await this.app
+        .service(projectPath)
+        .find({ ...params, query: { name: project, $limit: 1 } })) as Paginated<ProjectType>
+      if (projectResult.data.length === 0) throw new Error(`No project named ${project} exists`)
+    }
 
-    const projectRoutePath = `projects/${project}/`
+    const directory = `projects/${project}/assets/scenes/`
 
     let newSceneName = NEW_SCENE_NAME
     let counter = 1
@@ -133,7 +133,7 @@ export class SceneService
     // eslint-disable-next-line no-constant-condition
     while (true) {
       if (counter > 1) newSceneName = NEW_SCENE_NAME + '-' + counter
-      if (!(await storageProvider.doesExist(`${newSceneName}.scene.json`, projectRoutePath))) break
+      if (!(await storageProvider.doesExist(`${newSceneName}.scene.json`, directory))) break
 
       counter++
     }
@@ -144,25 +144,24 @@ export class SceneService
           `default${ext}`,
           `${newSceneName}${ext}`,
           `projects/default-project`,
-          projectRoutePath,
+          directory,
           true
         )
       )
     )
     try {
-      await storageProvider.createInvalidation(
-        sceneAssetFiles.map((asset) => `projects/${project}/${newSceneName}${asset}`)
-      )
+      await storageProvider.createInvalidation(sceneAssetFiles.map((asset) => `${directory}${newSceneName}${asset}`))
     } catch (e) {
       logger.error(e)
       logger.info(sceneAssetFiles)
     }
 
     if (isDev) {
-      const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects/' + project) + '/'
+      const projectPathLocal =
+        path.resolve(appRootPath.path, 'packages/projects/projects/' + project) + '/assets/scenes/'
       for (const ext of sceneAssetFiles) {
         fs.copyFileSync(
-          path.resolve(appRootPath.path, `packages/projects/default-project/default${ext}`),
+          path.resolve(appRootPath.path, `packages/projects/default-project/assets/scenes/default${ext}`),
           path.resolve(projectPathLocal + newSceneName + ext)
         )
       }
@@ -176,27 +175,26 @@ export class SceneService
 
     const storageProvider = getStorageProvider(storageProviderName)
 
-    const projectResult = (await this.app
-      .service(projectPath)
-      .find({ ...params, query: { name: project, $limit: 1 } })) as Paginated<ProjectType>
-    if (projectResult.data.length === 0) throw new Error(`No project named ${project} exists`)
+    if (project) {
+      const projectResult = (await this.app
+        .service(projectPath)
+        .find({ ...params, query: { name: project, $limit: 1 } })) as Paginated<ProjectType>
+      if (projectResult.data.length === 0) throw new Error(`No project named ${project} exists`)
+    }
 
-    const projectRoutePath = `projects/${project}/`
+    const directory = `projects/${project}/assets/scenes/`
 
     for (const ext of sceneAssetFiles) {
       const oldSceneJsonName = `${oldSceneName}${ext}`
       const newSceneJsonName = `${newSceneName}${ext}`
 
-      if (await storageProvider.doesExist(oldSceneJsonName, projectRoutePath)) {
-        await storageProvider.moveObject(oldSceneJsonName, newSceneJsonName, projectRoutePath, projectRoutePath)
+      if (await storageProvider.doesExist(oldSceneJsonName, directory)) {
+        await storageProvider.moveObject(oldSceneJsonName, newSceneJsonName, directory, directory)
         try {
-          await storageProvider.createInvalidation([
-            projectRoutePath + oldSceneJsonName,
-            projectRoutePath + newSceneJsonName
-          ])
+          await storageProvider.createInvalidation([directory + oldSceneJsonName, directory + newSceneJsonName])
         } catch (e) {
           logger.error(e)
-          logger.info(projectRoutePath + oldSceneJsonName, projectRoutePath + newSceneJsonName)
+          logger.info(directory + oldSceneJsonName, directory + newSceneJsonName)
         }
       }
     }
@@ -205,12 +203,12 @@ export class SceneService
       for (const ext of sceneAssetFiles) {
         const oldSceneJsonPath = path.resolve(
           appRootPath.path,
-          `packages/projects/projects/${project}/${oldSceneName}${ext}`
+          `packages/projects/projects/${project}/assets/scenes/${oldSceneName}${ext}`
         )
         if (fs.existsSync(oldSceneJsonPath)) {
           const newSceneJsonPath = path.resolve(
             appRootPath.path,
-            `packages/projects/projects/${project}/${newSceneName}${ext}`
+            `packages/projects/projects/${project}/assets/scenes/${newSceneName}${ext}`
           )
           fs.renameSync(oldSceneJsonPath, newSceneJsonPath)
         }
@@ -230,12 +228,16 @@ export class SceneService
 
       const storageProvider = getStorageProvider(storageProviderName)
 
-      const projectResult = (await this.app
-        .service(projectPath)
-        .find({ ...params, query: { name: project }, paginate: false })) as ProjectType[]
-      if (projectResult.length === 0) throw new Error(`No project named ${project} exists`)
+      if (project) {
+        const projectResult = (await this.app
+          .service(projectPath)
+          .find({ ...params, query: { name: project }, paginate: false })) as ProjectType[]
+        if (projectResult.length === 0) throw new Error(`No project named ${project} exists`)
+      }
 
-      const newSceneJsonPath = `projects/${project}/${name}.scene.json`
+      const directory = `projects/${project}/assets/scenes/`
+
+      const newSceneJsonPath = `${directory}${name}.scene.json`
       await storageProvider.putObject({
         Key: newSceneJsonPath,
         Body: Buffer.from(
@@ -245,7 +247,7 @@ export class SceneService
       })
 
       if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
-        const sceneThumbnailPath = `projects/${project}/${name}.thumbnail.ktx2`
+        const sceneThumbnailPath = `${directory}${name}.thumbnail.ktx2`
         await storageProvider.putObject({
           Key: sceneThumbnailPath,
           Body: thumbnailBuffer as Buffer,
@@ -254,17 +256,14 @@ export class SceneService
       }
 
       try {
-        await storageProvider.createInvalidation(sceneAssetFiles.map((asset) => `projects/${project}/${name}${asset}`))
+        await storageProvider.createInvalidation(sceneAssetFiles.map((asset) => `${directory}${name}${asset}`))
       } catch (e) {
         logger.error(e)
         logger.info(sceneAssetFiles)
       }
 
       if (isDev) {
-        const newSceneJsonPathLocal = path.resolve(
-          appRootPath.path,
-          `packages/projects/projects/${project}/${name}.scene.json`
-        )
+        const newSceneJsonPathLocal = path.resolve(appRootPath.path, `packages/projects/${directory}${name}.scene.json`)
 
         fs.writeFileSync(
           path.resolve(newSceneJsonPathLocal),
@@ -278,7 +277,7 @@ export class SceneService
         if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
           const sceneThumbnailPath = path.resolve(
             appRootPath.path,
-            `packages/projects/projects/${project}/${name}.thumbnail.ktx2`
+            `packages/projects/${directory}${name}.thumbnail.ktx2`
           )
           fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer as Buffer)
         }
@@ -300,24 +299,26 @@ export class SceneService
 
     const name = cleanString(sceneName!.toString())
 
-    const project = (await this.app
-      .service(projectPath)
-      .find({ ...params, query: { name: projectName }, paginate: false })) as any as ProjectType[]
-    if (project.length === 0) throw new Error(`No project named ${projectName} exists`)
+    if (projectName) {
+      const project = (await this.app
+        .service(projectPath)
+        .find({ ...params, query: { name: projectName }, paginate: false })) as any as ProjectType[]
+      if (project.length === 0) throw new Error(`No project named ${projectName} exists`)
+    }
+
+    const directory = `projects/${projectName}/assets/scenes/`
 
     for (const ext of sceneAssetFiles) {
-      const assetFilePath = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/${name}${ext}`)
+      const assetFilePath = path.resolve(appRootPath.path, `packages/${directory}${projectName}/${name}${ext}`)
       if (fs.existsSync(assetFilePath)) {
         fs.rmSync(path.resolve(assetFilePath))
       }
     }
 
-    await storageProvider.deleteResources(sceneAssetFiles.map((ext) => `projects/${projectName}/${name}${ext}`))
+    await storageProvider.deleteResources(sceneAssetFiles.map((ext) => `${directory}${name}${ext}`))
 
     try {
-      await storageProvider.createInvalidation(
-        sceneAssetFiles.map((asset) => `projects/${projectName}/${sceneName}${asset}`)
-      )
+      await storageProvider.createInvalidation(sceneAssetFiles.map((asset) => `${directory}${sceneName}${asset}`))
     } catch (e) {
       logger.error(e)
       logger.info(sceneAssetFiles)

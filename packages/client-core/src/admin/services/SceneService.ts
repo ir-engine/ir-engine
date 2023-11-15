@@ -58,10 +58,10 @@ export const AdminSceneService = {
       lastFetched: Date.now()
     })
   },
-  fetchAdminScene: async (projectName: string, sceneName: string) => {
+  fetchAdminScene: async (sceneKey: string) => {
     const scene = await Engine.instance.api
       .service(scenePath)
-      .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
+      .get(null, { query: { sceneKey: sceneKey, metadataOnly: false } })
     getMutableState(AdminSceneState).merge({
       singleScene: scene,
       retrieving: false,
