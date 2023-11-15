@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -49,7 +48,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
    **/
   await new Promise<void>((resolve) => {
     const interval = setInterval(() => {
-      if (getState(EngineState).connectedWorld) {
+      if (getState(InstanceServerState).ready) {
         clearInterval(interval)
         resolve()
       }

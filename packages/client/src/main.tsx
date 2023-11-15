@@ -49,19 +49,52 @@ const App = () => {
         <Routes>
           {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
           <Route
-            key={'default'}
-            path={'*'}
+            key={'admin'}
+            path={'/admin/*'}
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
                 <Engine>
-                  <AppPage />
+                  <AppPage route={'admin'} />
+                </Engine>
+              </Suspense>
+            }
+          />
+          <Route
+            key={'location'}
+            path={'/location/*'}
+            element={
+              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                <Engine>
+                  <AppPage route={'location'} />
+                </Engine>
+              </Suspense>
+            }
+          />
+          <Route
+            key={'studio'}
+            path={'/studio/*'}
+            element={
+              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                <Engine>
+                  <AppPage route={'studio'} />
+                </Engine>
+              </Suspense>
+            }
+          />
+          <Route
+            key={'offline'}
+            path={'/offline/*'}
+            element={
+              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                <Engine>
+                  <AppPage route={'offline'} />
                 </Engine>
               </Suspense>
             }
           />
           {/* This will become redundant and we can embed the TailwindPage directly */}
           <Route
-            key={'default-tw'}
+            key={'default'}
             path={'/*'}
             element={
               <Suspense>

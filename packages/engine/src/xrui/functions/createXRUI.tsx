@@ -48,11 +48,10 @@ import { XRUIStateContext } from '../XRUIStateContext'
 export function createXRUI<S extends State<any> | null>(
   UIFunc: React.FC,
   state = null as S,
-  settings: { interactable: boolean } = { interactable: true }
+  settings: { interactable: boolean } = { interactable: true },
+  entity = createEntity()
 ): XRUI<S> {
   if (!isClient) throw new Error('XRUI is not supported in nodejs')
-
-  const entity = createEntity()
 
   const containerElement = document.createElement('div')
   containerElement.style.position = 'fixed'
