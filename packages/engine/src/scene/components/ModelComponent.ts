@@ -222,7 +222,10 @@ function ModelReactor() {
     if (EngineRenderer.instance)
       EngineRenderer.instance.renderer
         .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
-        .then(() => {
+        .catch(() => {
+          addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
+        })
+        .finally(() => {
           removeComponent(entity, SceneAssetPendingTagComponent)
         })
     else removeComponent(entity, SceneAssetPendingTagComponent)

@@ -264,7 +264,7 @@ export const parseGLTFModel = (entity: Entity) => {
         parent: {
           get() {
             if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-              return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)[0]
+              return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0]
             }
             return null
           },

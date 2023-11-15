@@ -52,6 +52,7 @@ import {
   ComponentMap,
   componentJsonDefaults,
   getComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useOptionalComponent,
@@ -64,6 +65,7 @@ import { NetworkState } from '../../networking/NetworkState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
@@ -157,6 +159,7 @@ const NetworkedSceneObjectReactor = () => {
   useEffect(() => {
     if (NetworkState.worldNetwork?.isHosting) {
       if (!entityExists(entity)) return
+      if (hasComponent(entity, GLTFLoadedComponent)) return
       const uuid = getComponent(entity, UUIDComponent)
       const transform = getComponent(entity, TransformComponent)
       dispatchAction(

@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Mesh } from 'three'
 
-import { defineComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineComponent, getMutableComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
@@ -42,10 +43,10 @@ export const MeshComponent = defineComponent({
   },
   reactor: () => {
     const entity = useEntityContext()
-    const mesh = getComponent(entity, MeshComponent)
+    const mesh = useHookstate(getMutableComponent(entity, MeshComponent))
     useEffect(() => {
-      generateMeshBVH(mesh)
-    }, [])
+      generateMeshBVH(mesh.value)
+    }, [mesh])
     return null
   }
 })
