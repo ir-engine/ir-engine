@@ -230,11 +230,8 @@ function UVOL2Reactor() {
   const volumetric = useComponent(entity, VolumetricComponent)
   const component = useComponent(entity, UVOL2Component)
 
-  // These are accessed very frequently, Better not to fetch from state everytime
-  const manifest = useRef(component.data.value)
-  const manifestPath = useMemo(() => component.manifestPath.value, [])
-  const geometryTargets = useRef(Object.keys(manifest.current.geometry.targets))
-  const textureTargets = useRef(Object.keys(manifest.current.texture.baseColor.targets))
+  const geometryTargets = useRef(Object.keys(component.data.value.geometry.targets))
+  const textureTargets = useRef(Object.keys(component.data.value.texture.baseColor.targets))
 
   const mediaElement = getMutableComponent(entity, MediaElementComponent).value
   const audioContext = getState(AudioState).audioContext
@@ -249,9 +246,9 @@ function UVOL2Reactor() {
   const offset = useMemo(() => new Vector2(0, 0), [])
 
   const material = useMemo(() => {
-    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
+    if (component.data.value.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
       const firstTarget = Object.keys(component.data.value.geometry.targets)[0]
-      const hasNormals = !manifest.current.geometry.targets[firstTarget].settings.excludeNormals
+      const hasNormals = !component.data.value.geometry.targets[firstTarget].settings.excludeNormals
       const shaderType = hasNormals ? 'physical' : 'basic'
 
       let vertexShader = ShaderLib[shaderType].vertexShader.replace(
@@ -346,10 +343,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       setComponent(entity, UVOLDissolveComponent)
     }
 
-    manifest.current = calculatePriority(component.data.get({ noproxy: true }))
-    component.data.set(manifest.current)
+    const sortedManifest = calculatePriority(component.data.get({ noproxy: true }))
+    component.data.set(sortedManifest)
     const shadow = getMutableComponent(entity, ShadowComponent)
-    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
+    if (sortedManifest.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
       // TODO: Cast shadows properly with uniform solve
       shadow.cast.set(false)
       shadow.receive.set(false)
@@ -358,22 +355,20 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       shadow.receive.set(true)
     }
 
-    geometryTargets.current = Object.keys(manifest.current.geometry.targets)
+    geometryTargets.current = Object.keys(sortedManifest.geometry.targets)
     geometryTargets.current.sort((a, b) => {
-      return manifest.current.geometry.targets[a].priority - manifest.current.geometry.targets[b].priority
+      return sortedManifest.geometry.targets[a].priority - sortedManifest.geometry.targets[b].priority
     })
 
-    textureTargets.current = Object.keys(manifest.current.texture.baseColor.targets)
+    textureTargets.current = Object.keys(sortedManifest.texture.baseColor.targets)
     textureTargets.current.sort((a, b) => {
-      return (
-        manifest.current.texture.baseColor.targets[a].priority - manifest.current.texture.baseColor.targets[b].priority
-      )
+      return sortedManifest.texture.baseColor.targets[a].priority - sortedManifest.texture.baseColor.targets[b].priority
     })
 
-    if (manifest.current.audio) {
+    if (sortedManifest.audio) {
       component.hasAudio.set(true)
-      audio.src = resolvePath(manifest.current.audio.path, manifestPath, manifest.current.audio.formats[0])
-      audio.playbackRate = manifest.current.audio.playbackRate
+      audio.src = resolvePath(sortedManifest.audio.path, component.manifestPath.value, sortedManifest.audio.formats[0])
+      audio.playbackRate = sortedManifest.audio.playbackRate
     }
     component.geometryTarget.set(geometryTargets.current[0])
     component.textureTarget.set(textureTargets.current[0])
@@ -408,14 +403,20 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const fetchNonUniformSolveGeometry = (startFrame: number, endFrame: number, target: string) => {
     // TODO: Needs thorough testing
-    const targetData = manifest.current.geometry.targets[target]
+    const targetData = component.data.value.geometry.targets[target]
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
     const oldBufferHealth = geometryBufferHealth.current
     const startTime = Date.now()
 
     for (let i = startFrame; i <= endFrame; i++) {
-      const frameURL = resolvePath(manifest.current.geometry.path, manifestPath, targetData.format, target, i)
+      const frameURL = resolvePath(
+        component.data.value.geometry.path,
+        component.manifestPath.value,
+        targetData.format,
+        target,
+        i
+      )
       pendingGeometryRequests.current++
       promises.push(loadGeometryAsync(frameURL, targetData))
     }
@@ -448,14 +449,20 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const fetchUniformSolveGeometry = (startSegment: number, endSegment: number, target: string, extraTime: number) => {
-    const targetData = manifest.current.geometry.targets[target] as UniformSolveTarget
+    const targetData = component.data.value.geometry.targets[target] as UniformSolveTarget
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
     const oldBufferHealth = geometryBufferHealth.current
     const startTime = Date.now()
 
     for (let i = startSegment; i <= endSegment; i++) {
-      const segmentURL = resolvePath(manifest.current.geometry.path, manifestPath, targetData.format, target, i)
+      const segmentURL = resolvePath(
+        component.data.value.geometry.path,
+        component.manifestPath.value,
+        targetData.format,
+        target,
+        i
+      )
       pendingGeometryRequests.current++
       promises.push(loadGeometryAsync(segmentURL, targetData))
     }
@@ -547,7 +554,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
     const target = component.geometryTarget.value ? component.geometryTarget.value : geometryTargets.current[0]
 
-    const targetData = manifest.current.geometry.targets[target]
+    const targetData = component.data.value.geometry.targets[target]
     const frameRate = targetData.frameRate
     const frameCount = targetData.frameCount
 
@@ -585,7 +592,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       return
     }
     const target = component.textureTarget.value ? component.textureTarget.value : textureTargets.current[0]
-    const targetData = manifest.current.texture.baseColor.targets[target]
+    const targetData = component.data.value.texture.baseColor.targets[target]
     const frameRate = targetData.frameRate
     const startFrame = Math.round((textureBufferHealth.current + volumetric.startTime.value) * frameRate)
     if (startFrame >= targetData.frameCount) {
@@ -606,8 +613,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     for (let i = startFrame; i <= endFrame; i++) {
       const textureURL = resolvePath(
-        manifest.current.texture.baseColor.path,
-        manifestPath,
+        component.data.value.texture.baseColor.path,
+        component.manifestPath.value,
         targetData.format,
         target,
         i
@@ -673,7 +680,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       let headerTemplate: RegExp | undefined = /\/\/\sHEADER_REPLACE_START([\s\S]*?)\/\/\sHEADER_REPLACE_END/
       let mainTemplate: RegExp | undefined = /\/\/\sMAIN_REPLACE_START([\s\S]*?)\/\/\sMAIN_REPLACE_END/
 
-      if (manifest.current.type !== UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE || 1 == 1) {
+      if (component.data.value.type !== UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE || 1 == 1) {
         headerTemplate = undefined
         mainTemplate = undefined
       }
@@ -741,7 +748,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const getAttribute = (name: KeyframeName, currentTime: number) => {
     const currentGeometryTarget = component.geometryTarget.value
-    let index = getFrame(currentTime, manifest.current.geometry.targets[currentGeometryTarget].frameRate, false)
+    let index = getFrame(currentTime, component.data.value.geometry.targets[currentGeometryTarget].frameRate, false)
     if (name === 'keyframeA') {
       index = Math.floor(index)
     } else {
@@ -749,11 +756,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
     const key = createKey(currentGeometryTarget, index)
     if (!geometryBuffer.has(key)) {
-      const targets = Object.keys(manifest.current.geometry.targets)
+      const targets = Object.keys(component.data.value.geometry.targets)
 
       for (let i = 0; i < targets.length; i++) {
         const _target = targets[i]
-        const _targetData = manifest.current.geometry.targets[_target]
+        const _targetData = component.data.value.geometry.targets[_target]
         let _index = getFrame(currentTime, _targetData.frameRate, false)
         if (name === 'keyframeA') {
           _index = Math.floor(_index)
@@ -830,14 +837,14 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const setGeometry = (target: string, index: number) => {
     const key = createKey(target, index)
-    const targetData = manifest.current.geometry.targets[target]
+    const targetData = component.data.value.geometry.targets[target]
 
     if (!geometryBuffer.has(key)) {
       const frameRate = targetData.frameRate
-      const targets = Object.keys(manifest.current.geometry.targets)
+      const targets = Object.keys(component.data.value.geometry.targets)
       for (let i = 0; i < targets.length; i++) {
         const _target = targets[i]
-        const _frameRate = manifest.current.geometry.targets[_target].frameRate
+        const _frameRate = component.data.value.geometry.targets[_target].frameRate
         const _index = Math.round((index * _frameRate) / frameRate)
         if (geometryBuffer.has(createKey(_target, _index))) {
           setGeometry(_target, _index)
@@ -883,9 +890,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const setTexture = (target: string, index: number, currentTime: number) => {
     const key = createKey(target, index)
     if (!textureBuffer.has(key)) {
-      const targets = Object.keys(manifest.current.texture.baseColor.targets)
+      const targets = Object.keys(component.data.value.texture.baseColor.targets)
       for (let i = 0; i < targets.length; i++) {
-        const _frameRate = manifest.current.texture.baseColor.targets[targets[i]].frameRate
+        const _frameRate = component.data.value.texture.baseColor.targets[targets[i]].frameRate
         const _index = getFrame(currentTime, _frameRate)
         if (textureBuffer.has(createKey(targets[i], _index))) {
           setTexture(targets[i], _index, currentTime)
@@ -944,11 +951,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     } else if (keyframeA && keyframeB) {
       const keyframeAIndex = parseInt(keyframeA.position.name.slice(-KEY_PADDING))
       const keyframeATarget = keyframeA.position.name.slice(0, -KEY_PADDING)
-      const keyframeATime = keyframeAIndex / manifest.current.geometry.targets[keyframeATarget].frameRate
+      const keyframeATime = keyframeAIndex / component.data.value.geometry.targets[keyframeATarget].frameRate
 
       const keyframeBIndex = parseInt(keyframeB.position.name.slice(-KEY_PADDING))
       const keyframeBTarget = keyframeB.position.name.slice(0, -KEY_PADDING)
-      const keyframeBTime = keyframeBIndex / manifest.current.geometry.targets[keyframeBTarget].frameRate
+      const keyframeBTime = keyframeBIndex / component.data.value.geometry.targets[keyframeBTarget].frameRate
 
       const d1 = Math.abs(currentTime - keyframeATime)
       const d2 = Math.abs(currentTime - keyframeBTime)
@@ -961,12 +968,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const updateNonUniformSolve = (currentTime: number) => {
     const geometryTarget = component.geometryTarget.value
-    const geometryFrame = Math.round(currentTime * manifest.current.geometry.targets[geometryTarget].frameRate)
+    const geometryFrame = Math.round(currentTime * component.data.value.geometry.targets[geometryTarget].frameRate)
     setGeometry(geometryTarget, geometryFrame)
   }
 
   const updateGeometry = (currentTime: number) => {
-    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
+    if (component.data.value.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
       updateUniformSolve(currentTime)
     } else {
       updateNonUniformSolve(currentTime)
@@ -975,7 +982,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const updateTexture = (currentTime: number) => {
     const textureTarget = component.textureTarget.value
-    const textureFrame = Math.round(currentTime * manifest.current.texture.baseColor.targets[textureTarget].frameRate)
+    const textureFrame = Math.round(
+      currentTime * component.data.value.texture.baseColor.targets[textureTarget].frameRate
+    )
     setTexture(textureTarget, textureFrame, currentTime)
   }
 
@@ -998,12 +1007,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (!component.canPlay.value || !volumetric.initialBuffersLoaded.value) {
       return
     }
-    if (manifest.current.audio) {
+    if (component.data.value.audio) {
       currentTime.current = audio.currentTime
     } else {
       currentTime.current = volumetric.startTime.value + (Date.now() - component.playbackStartTime.value) / 1000
     }
-    if (currentTime.current > manifest.current.duration || audio.ended) {
+    if (currentTime.current > component.data.value.duration || audio.ended) {
       volumetric.ended.set(true)
       return
     }
