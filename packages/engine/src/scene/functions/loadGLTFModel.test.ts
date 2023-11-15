@@ -27,7 +27,7 @@ import assert from 'assert'
 import { Group, Layers, MathUtils, Mesh, Scene } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine } from '../../ecs/classes/Engine'
@@ -48,6 +48,7 @@ import { ModelComponent, SceneWithEntity } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { parseGLTFModel } from './loadGLTFModel'
+import { getModelSceneID } from './loaders/ModelFunctions'
 
 describe('loadGLTFModel', () => {
   beforeEach(() => {
@@ -103,8 +104,24 @@ describe('loadGLTFModel', () => {
       GroupComponent,
       CustomComponent /*, SpawnPointComponent*/
     ])
-
-    parseGLTFModel(entity)
+    //todo: revise this so that we're forcing the sceneloadingsystem to execute its reactors,
+    //      then we can validate the ECS data directly like we were doing before
+    const jsonHierarchy = parseGLTFModel(entity)
+    const sceneID = getModelSceneID(entity)
+    getMutableState(SceneState).scenes[sceneID].set({
+      snapshots: [
+        {
+          data: {
+            scene: { entities: jsonHierarchy, root: '' as EntityUUID, version: 0 },
+            name: '',
+            project: '',
+            thumbnailUrl: ''
+          },
+          selectedEntities: []
+        }
+      ],
+      index: 0
+    })
 
     const expectedLayer = new Layers()
     expectedLayer.set(ObjectLayers.Scene)
@@ -114,8 +131,9 @@ describe('loadGLTFModel', () => {
 
     assert.equal(typeof mockModelEntity, 'number')
     assert(getComponent(mockModelEntity, GroupComponent)[0].layers.test(expectedLayer))
-
-    const currentScene = SceneState.getCurrentScene()!
+    const modelSceneID = getModelSceneID(entity)
+    const currentScene = SceneState.getScene(modelSceneID)!
+    assert.notEqual(currentScene, null)
     const childUUID = Object.keys(currentScene.scene.entities).find((key) => {
       const entityJson = currentScene.scene.entities[key as EntityUUID]
       return entityJson.parent === uuid
