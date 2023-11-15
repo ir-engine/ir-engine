@@ -23,31 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { defineAction, defineState, none } from '@etherealengine/hyperflux'
+import matches from 'ts-matches'
+import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
+import { NetworkTopics } from '../../networking/classes/Network'
 
-import GridViewIcon from '@mui/icons-material/GridView'
-
-import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
-
-/**
- * GroupNodeEditor used to render group of multiple objects.
- *
- * @type {class component}
- */
-export const GroupNodeEditor: EditorComponentType = (props) => {
-  const { t } = useTranslation()
-
-  return (
-    <NodeEditor
-      {...props}
-      name={t('editor:properties.group.name')}
-      description={t('editor:properties.group.description')}
-    ></NodeEditor>
-  )
+export class MountPointActions {
+  static mountInteraction = defineAction({
+    type: 'ee.engine.interactions.MOUNT' as const,
+    mounted: matches.boolean,
+    targetMount: matchesEntityUUID,
+    mountedEntity: matchesEntityUUID,
+    $topic: NetworkTopics.world
+  })
 }
 
-GroupNodeEditor.iconComponent = GridViewIcon
-
-export default GroupNodeEditor
+export const MountPointState = defineState({
+  name: 'MountPointState',
+  initial: {} as Record<EntityUUID, EntityUUID>,
+  receptors: [
+    [
+      MountPointActions.mountInteraction,
+      (state, action: typeof MountPointActions.mountInteraction.matches._TYPE) => {
+        if (action.mounted) state[action.targetMount].merge(action.mountedEntity)
+        else state[action.targetMount].set(none)
+      }
+    ]
+  ]
+})
