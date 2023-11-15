@@ -30,6 +30,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
+  ErrorBoundary,
   NO_PROXY,
   State,
   defineActionQueue,
@@ -277,12 +278,13 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     <>
       {selfEntityState.value &&
         entityState.components.map((compState) => (
-          <ComponentLoadReactor
-            key={compState.name.value}
-            componentID={compState.value.name}
-            entityUUID={props.entityUUID}
-            componentJSONState={compState}
-          />
+          <ErrorBoundary key={compState.name.value}>
+            <ComponentLoadReactor
+              componentID={compState.value.name}
+              entityUUID={props.entityUUID}
+              componentJSONState={compState}
+            />
+          </ErrorBoundary>
         ))}
     </>
   )
@@ -296,17 +298,14 @@ const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) 
     <>
       {/* Ensure parent has loaded */}
       {parentEntityState.value && (
-        <EntityChildLoadReactor
-          /**
-           * @todo key is needed as dynamic loading with { loaded: true } for some reason
-           * will cause the entity to be removed immediately, causing react errors
-           */
-          key={props.entityUUID + ' - ' + parentEntityState.value}
-          parentEntity={parentEntityState.value}
-          entityUUID={props.entityUUID}
-          sceneID={props.sceneID}
-          entityJSONState={entityState}
-        />
+        <ErrorBoundary key={props.entityUUID + ' - ' + parentEntityState.value}>
+          <EntityChildLoadReactor
+            parentEntity={parentEntityState.value}
+            entityUUID={props.entityUUID}
+            sceneID={props.sceneID}
+            entityJSONState={entityState}
+          />
+        </ErrorBoundary>
       )}
     </>
   )
@@ -369,12 +368,13 @@ const EntityChildLoadReactor = (props: {
     <>
       {selfEntityState.value &&
         entityJSONState.components.map((compState) => (
-          <ComponentLoadReactor
-            key={compState.name.value + ' - ' + selfEntityState.value}
-            componentID={compState.value.name}
-            entityUUID={props.entityUUID}
-            componentJSONState={compState}
-          />
+          <ErrorBoundary key={compState.value.name + ' - ' + selfEntityState.value}>
+            <ComponentLoadReactor
+              componentID={compState.value.name}
+              entityUUID={props.entityUUID}
+              componentJSONState={compState}
+            />
+          </ErrorBoundary>
         ))}
     </>
   )
