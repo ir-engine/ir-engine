@@ -119,15 +119,8 @@ export const OnCollision = makeEventNodeDefinition({
   init: ({ read, write, commit, graph, configuration }) => {
     const type = read<string>('type')
     const system = read<SystemUUID>('system')
-
     const entityFilter = read<Entity>('entity')
-
     const query = defineQuery([CollisionComponent])[type]
-
-    interface Schema {
-      [key: Entity]: any
-    }
-    const candidates: Schema = {}
 
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onCollision-' + systemCounter++,

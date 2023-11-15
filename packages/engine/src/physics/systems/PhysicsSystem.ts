@@ -204,6 +204,15 @@ const execute = () => {
     RigidBodyComponent.angularVelocity.y[entity] = angvel.y
     RigidBodyComponent.angularVelocity.z[entity] = angvel.z
   }
+
+  /*
+  for (const collisionEntity of collisionQuery()) {
+    const collisionComponent = getComponent(collisionEntity, CollisionComponent)
+    if(!collisionComponent.values.length) {
+      removeComponent(collisionEntity, CollisionComponent)
+    }
+  }
+  */
 }
 
 const reactor = () => {
