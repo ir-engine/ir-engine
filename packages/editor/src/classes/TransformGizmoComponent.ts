@@ -42,13 +42,14 @@ import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { SnapMode, TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { SnapMode, TransformPivot, TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { Object3D } from 'three'
+import { Euler, Object3D } from 'three'
 import { degToRad } from 'three/src/math/MathUtils'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { EditorHelperState } from '../services/EditorHelperState'
 //import { setDragging } from '../systems/EditorControlSystem'
 
@@ -71,15 +72,12 @@ export const TransformGizmoComponent = defineComponent({
     const gizmoComponent = useComponent(entity, TransformGizmoComponent)
     const editorHelperState = useHookstate(getMutableState(EditorHelperState))
     const entityTreeComponent = useComponent(entity, EntityTreeComponent)
+    const transformComponent = useComponent(entity, TransformComponent)
     const parentEntity = entityTreeComponent.parentEntity.value
-    const transform = useComponent(entity, TransformComponent)
+
     useExecute(
-      // transfer editor control system logic
       () => {
         gizmoComponent.value.updateMatrixWorld()
-        gizmoComponent.value.dragging
-          ? entityTreeComponent.parentEntity.set(null)
-          : entityTreeComponent.parentEntity.set(parentEntity)
       },
       { before: PresentationSystemGroup }
     )
@@ -88,7 +86,18 @@ export const TransformGizmoComponent = defineComponent({
       // create dummy object to attach gizmo to, we can only attach to three js objects
       const dummy = new Object3D()
       dummy.name = 'gizmoProxy'
-
+      gizmoComponent.value.addEventListener('dragging-changed', (event) => {
+        event.value ? entityTreeComponent.parentEntity.set(null) : entityTreeComponent.parentEntity.set(parentEntity)
+      })
+      gizmoComponent.value.addEventListener('mouseUp', (event) => {
+        EditorControlFunctions.positionObject([entity], [transformComponent.value.position])
+        EditorControlFunctions.rotateObject(
+          [entity],
+          [new Euler().setFromQuaternion(transformComponent.value.rotation)]
+        )
+        EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], TransformSpace.local, true)
+        EditorControlFunctions.commitTransformSave([entity])
+      })
       // create dummy Entity for gizmo helper
       const dummyEntity = createEntity()
       setComponent(dummyEntity, NameComponent, 'gizmoEntity')
@@ -121,6 +130,7 @@ export const TransformGizmoComponent = defineComponent({
     }, [editorHelperState.transformMode])
 
     useEffect(() => {
+      //TODO: implement gizmo attachment for multiple entities selected
       switch (editorHelperState.transformPivot.value) {
         case TransformPivot.Selection:
           break

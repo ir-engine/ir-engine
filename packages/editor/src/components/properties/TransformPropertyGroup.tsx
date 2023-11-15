@@ -81,11 +81,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
 
     if (useGlobalTransformComponent.value) {
-      transformComponent.position.set(value)
-    }
-    for (const entity of gizmoQuery()) {
-      const gizmoTransform = getComponent(entity, TransformComponent)
-      gizmoTransform.position.set(value.x, value.y, value.z)
+      transformComponent.position.set(transformComponent.value.position.copy(value))
     }
   }
 
@@ -97,15 +93,11 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     if (useGlobalTransformComponent.value) {
       transformComponent.rotation.set(transformComponent.rotation.value.setFromEuler(value))
     }
-    for (const entity of gizmoQuery()) {
-      const gizmoTransform = getComponent(entity, TransformComponent)
-      gizmoTransform.rotation.setFromEuler(value, true)
-    }
   }
 
   const onChangeScale = (value: Vector3) => {
     if (useGlobalTransformComponent.value) {
-      transformComponent.scale.set(value)
+      transformComponent.scale.set(transformComponent.value.scale.copy(value))
     }
     const nodes = getMutableState(SelectionState).selectedEntities.value
     EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.local, true)
