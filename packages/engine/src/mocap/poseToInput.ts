@@ -55,9 +55,9 @@ export const evaluatePose = (entity: Entity) => {
     let metTargetStateAngle =
       rig.rightUpperLeg.node.quaternion.angleTo(rig.spine.node.quaternion) < minSeatedAngle &&
       rig.leftUpperLeg.node.quaternion.angleTo(rig.spine.node.quaternion) < minSeatedAngle
-    metTargetStateAngle = toState == 'sitting' ? metTargetStateAngle : !metTargetStateAngle
+    metTargetStateAngle = toState == 'sitting' ? !metTargetStateAngle : metTargetStateAngle
 
-    if (!metTargetStateAngle || poseState.value !== toState) return false
+    if (!metTargetStateAngle || poseState.value === toState) return false
 
     poseHoldTimer += deltaSeconds
     if (poseHoldTimer > poseHoldTime) {
