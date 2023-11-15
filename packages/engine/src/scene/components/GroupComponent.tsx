@@ -48,7 +48,6 @@ export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
-  jsonID: 'group',
 
   onInit: (entity: Entity) => {
     return [] as Object3DWithEntity[]
