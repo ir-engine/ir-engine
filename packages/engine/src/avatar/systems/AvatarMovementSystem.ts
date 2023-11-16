@@ -26,11 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { applyGamepadInput } from '.././functions/moveAvatar'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
-const controlledAvatarEntity = defineQuery([AvatarControllerComponent, NetworkObjectAuthorityTag])
+const controlledAvatarEntity = defineQuery([AvatarControllerComponent])
 
 const execute = () => {
   for (const entity of controlledAvatarEntity()) applyGamepadInput(entity)
