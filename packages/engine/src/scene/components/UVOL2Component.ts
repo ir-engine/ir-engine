@@ -306,7 +306,7 @@ function UVOL2Reactor() {
 
   const geometryBuffer = useMemo(() => new Map<string, Mesh | BufferGeometry | KeyframeAttribute>(), [])
   const textureBuffer = useMemo(() => new Map<string, CompressedTexture>(), [])
-  const maxBufferHealth = 5 // seconds
+  const maxBufferHealth = 7 // seconds
   const minBufferToPlay = 2 // seconds
   const bufferThreshold = 3 // seconds. If buffer health is less than this, fetch new data
   const repeat = useMemo(() => new Vector2(1, 1), [])
