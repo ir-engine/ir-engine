@@ -47,6 +47,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_001 } from '../../common/constants/MathConstants'
+import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -62,6 +63,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
@@ -350,6 +352,7 @@ const updateDropShadowTransforms = () => {
 }
 
 const execute = () => {
+  if (!isClient) return
   const renderState = getState(RendererState)
 
   const useShadows = getShadowsEnabled()
@@ -366,6 +369,8 @@ const execute = () => {
 }
 
 const reactor = () => {
+  if (!isClient) return null
+
   const useShadows = useShadowsEnabled()
 
   useEffect(() => {
@@ -400,6 +405,7 @@ const reactor = () => {
 
 export const ShadowSystem = defineSystem({
   uuid: 'ee.engine.ShadowSystem',
+  insert: { with: AnimationSystemGroup },
   execute,
   reactor
 })

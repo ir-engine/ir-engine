@@ -128,9 +128,7 @@ export const NetworkObjectComponent = defineComponent({
    * @returns
    */
   getUserAvatarEntity(userId: UserID) {
-    return NetworkObjectComponent.getOwnedNetworkObjectsWithComponent(userId, AvatarComponent).find((eid) => {
-      return getComponent(eid, AvatarComponent).primary
-    })!
+    return avatarNetworkObjectQuery().find((eid) => getComponent(eid, NetworkObjectComponent).ownerId === userId)!
   },
 
   /**
@@ -169,6 +167,7 @@ export const NetworkObjectComponent = defineComponent({
  * Network object query
  */
 const networkObjectQuery = defineQuery([NetworkObjectComponent])
+const avatarNetworkObjectQuery = defineQuery([NetworkObjectComponent, AvatarComponent])
 
 /**
  * Authority is peer-specific.

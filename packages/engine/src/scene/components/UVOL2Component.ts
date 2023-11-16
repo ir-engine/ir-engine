@@ -50,7 +50,8 @@ import {
   getMutableComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -68,7 +69,7 @@ import {
   UVOL_TYPE,
   UniformSolveTarget
 } from '../constants/UVOLTypes'
-import getFirstMesh from '../util/getFirstMesh'
+import getFirstMesh from '../util/meshUtils'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
@@ -297,6 +298,7 @@ function UVOL2Reactor() {
   const entity = useEntityContext()
   const volumetric = useComponent(entity, VolumetricComponent)
   const component = useComponent(entity, UVOL2Component)
+  const shadow = useOptionalComponent(entity, ShadowComponent)
 
   const mediaElement = getMutableComponent(entity, MediaElementComponent).value
   const audioContext = getState(AudioState).audioContext
@@ -492,6 +494,18 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       audio.src = ''
     }
   }, [])
+
+  useEffect(() => {
+    if (!shadow) return
+    if (component.data.value.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
+      // TODO: Cast shadows properly with uniform solve
+      shadow.cast.set(false)
+      shadow.receive.set(false)
+    } else {
+      shadow.cast.set(true)
+      shadow.receive.set(true)
+    }
+  }, [shadow])
 
   const fetchNonUniformSolveGeometry = (startFrame: number, endFrame: number, target: string) => {
     // TODO: Needs thorough testing

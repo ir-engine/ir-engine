@@ -30,7 +30,6 @@ import { isDev } from '@etherealengine/common/src/config'
 import { V_001, V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
-  addComponent,
   defineQuery,
   getComponent,
   hasComponent,
@@ -54,7 +53,6 @@ import {
   RegisteredWidgets,
   WidgetAppActions,
   WidgetAppService,
-  WidgetAppServiceReceptorSystem,
   WidgetAppState
 } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import {
@@ -70,6 +68,7 @@ import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
 const widgetLeftMenuGripOffset = new Vector3(0.08, 0, -0.05)
@@ -91,8 +90,7 @@ const WidgetUISystemState = defineState({
     setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
     setComponent(widgetMenuUI.entity, LocalTransformComponent)
     removeComponent(widgetMenuUI.entity, VisibleComponent)
-
-    addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
+    setComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
     // const helper = new AxesHelper(0.1)
     // setObjectLayers(helper, ObjectLayers.Gizmos)
     // addObjectToGroup(widgetMenuUI.entity, helper)
@@ -238,7 +236,7 @@ const reactor = () => {
 
 export const WidgetUISystem = defineSystem({
   uuid: 'ee.client.WidgetUISystem',
+  insert: { before: TransformSystem },
   execute,
-  reactor,
-  preSystems: [WidgetAppServiceReceptorSystem]
+  reactor
 })
