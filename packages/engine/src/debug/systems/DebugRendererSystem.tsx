@@ -66,9 +66,9 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
 
     function addMeshBVHVisualizer(obj: Mesh) {
       const mesh = obj as any as Mesh
-      if (mesh.isMesh && mesh.geometry?.boundsTree) {
+      if (mesh.isMesh && mesh.parent && mesh.geometry?.boundsTree) {
         const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
-        mesh.parent!.add(meshBVHVisualizer)
+        mesh.parent.add(meshBVHVisualizer)
         visualizers.push(meshBVHVisualizer)
         meshBVHVisualizers.push(meshBVHVisualizer)
         meshBVHVisualizer.depth = 20
