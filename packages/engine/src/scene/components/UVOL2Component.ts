@@ -454,11 +454,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   useEffect(() => {
     if (!shadow) return
-    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE && shadow) {
+    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
       // TODO: Cast shadows properly with uniform solve
       shadow.cast.set(false)
       shadow.receive.set(false)
-    } else if (shadow) {
+    } else {
       shadow.cast.set(true)
       shadow.receive.set(true)
     }
