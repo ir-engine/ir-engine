@@ -132,7 +132,10 @@ const execute = () => {
     const mountPointUUID = getComponent(action.targetEntity, UUIDComponent)
 
     //unmount if we get an interaction event and are already seated
-    if (avatarUUID === getState(MountPointState)[mountPointUUID]) {
+    if (
+      avatarUUID === getState(MountPointState)[mountPointUUID] &&
+      (action.pose === 'stand' || action.pose === 'none')
+    ) {
       unmountEntity(avatarEntity)
       continue
     }
