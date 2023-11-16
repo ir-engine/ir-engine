@@ -42,6 +42,7 @@ import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProd
 import { decode } from 'msgpackr'
 import React, { useEffect } from 'react'
 import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from '../transports/SocketWebRTCClientFunctions'
+import { ClientNetworkingSystem } from './ClientNetworkingSystem'
 
 export async function createDataConsumer(
   network: SocketWebRTCClientNetwork,
@@ -189,6 +190,7 @@ export const DataChannels = () => {
 
 export const DataChannelSystem = defineSystem({
   uuid: 'ee.client.DataChannelSystem',
+  insert: { after: ClientNetworkingSystem },
   execute,
   reactor: DataChannels
 })

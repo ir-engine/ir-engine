@@ -30,7 +30,7 @@ import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHoo
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem, disableSystem, startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
@@ -99,6 +99,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
 
     const AvatarSelectRenderSystem = defineSystem({
       uuid: 'ee.client.AvatarSelectRenderSystem-' + i++,
+      insert: { after: PresentationSystemGroup },
       execute: () => {
         // only render if this menu is open
         if (!!panel.current && state.renderer.value) {
@@ -108,10 +109,8 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       }
     })
 
-    startSystem(AvatarSelectRenderSystem, { after: PresentationSystemGroup })
-
     return () => {
-      disableSystem(AvatarSelectRenderSystem)
+      destroySystem(AvatarSelectRenderSystem)
       // todo - do we need to remove the system defintion?
       removeEntity(state.entity.value)
       window.removeEventListener('resize', resize)
