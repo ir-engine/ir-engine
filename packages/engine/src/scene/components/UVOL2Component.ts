@@ -134,6 +134,8 @@ const getDefines = (manifest: PlayerManifest) => {
       NORMALMAP_UV: 'uv'
     },
     metallicRoughness: {
+      USE_METALNESSMAP: '',
+      METALNESSMAP_UV: 'uv',
       USE_ROUGHNESSMAP: '',
       ROUGHNESSMAP_UV: 'uv'
     },
@@ -222,9 +224,12 @@ const loadGeometryAsync = (url: string, targetData: DRACOTarget | GLBTarget | Un
   })
 }
 
-const loadTextureAsync = (url: string) => {
+const loadTextureAsync = (url: string, repeat: Vector2, offset: Vector2) => {
   return new Promise<CompressedTexture>((resolve, reject) => {
     getState(AssetLoaderState).gltfLoader.ktx2Loader!.load(url, (texture) => {
+      texture.repeat.copy(repeat)
+      texture.offset.copy(offset)
+      texture.updateMatrix()
       EngineRenderer.instance.renderer.initTexture(texture)
       resolve(texture)
     })
@@ -731,7 +736,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         textureType
       )
       pendingTextureRequests[textureType]++
-      promises.push(loadTextureAsync(textureURL))
+      promises.push(loadTextureAsync(textureURL, repeat, offset))
     }
 
     Promise.allSettled(promises).then((values) => {
@@ -997,48 +1002,36 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const setMap = (textureType: TextureType, texture: CompressedTexture) => {
     let oldTextureKey = ''
+    if (!texture.repeat.equals(repeat) || !texture.offset.equals(offset)) {
+      texture.repeat.copy(repeat)
+      texture.offset.copy(offset)
+      texture.updateMatrix()
+    }
 
     if (mesh.material instanceof ShaderMaterial) {
       const material = mesh.material as ShaderMaterial
       if (textureType === 'baseColor' && material.uniforms.map.value !== texture) {
-        texture.repeat.copy(repeat)
-        texture.offset.copy(offset)
-        texture.updateMatrix()
         oldTextureKey = material.uniforms.map.value?.name ?? ''
         material.uniforms.map.value = texture
-        material.uniforms.map.value.needsUpdate = true
         material.uniforms.mapTransform.value.copy(texture.matrix)
       } else if (textureType === 'emissive' && material.uniforms.emissiveMap.value !== texture) {
-        texture.repeat.copy(repeat)
-        texture.offset.copy(offset)
-        texture.updateMatrix()
         oldTextureKey = material.uniforms.emissiveMap.value?.name ?? ''
         material.uniforms.emissiveMap.value = texture
-        material.uniforms.emissiveMap.value.needsUpdate = true
         material.uniforms.emissiveMapTransform.value.copy(texture.matrix)
       } else if (textureType === 'normal' && material.uniforms.normalMap.value !== texture) {
-        texture.repeat.copy(repeat)
-        texture.offset.copy(offset)
-        texture.updateMatrix()
         oldTextureKey = material.uniforms.normalMap.value?.name ?? ''
         material.uniforms.normalMap.value = texture
-        material.uniforms.normalMap.value.needsUpdate = true
         material.uniforms.normalMapTransform.value.copy(texture.matrix)
       } else if (textureType === 'metallicRoughness' && material.uniforms.roughnessMap.value !== texture) {
-        texture.repeat.copy(repeat)
-        texture.offset.copy(offset)
-        texture.updateMatrix()
         oldTextureKey = material.uniforms.roughnessMap.value?.name ?? ''
         material.uniforms.roughnessMap.value = texture
-        material.uniforms.roughnessMap.value.needsUpdate = true
         material.uniforms.roughnessMapTransform.value.copy(texture.matrix)
+
+        material.uniforms.metalnessMap.value = texture
+        material.uniforms.metalnessMapTransform.value.copy(texture.matrix)
       } else if (textureType === 'occlusion' && material.uniforms.aoMap.value !== texture) {
-        texture.repeat.copy(repeat)
-        texture.offset.copy(offset)
-        texture.updateMatrix()
         oldTextureKey = material.uniforms.aoMap.value?.name ?? ''
         material.uniforms.aoMap.value = texture
-        material.uniforms.aoMap.value.needsUpdate = true
         material.uniforms.aoMapTransform.value.copy(texture.matrix)
       }
     } else {
@@ -1052,8 +1045,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const oldTexture = textureBuffer.get(oldTextureKey)
     if (oldTexture) {
       oldTexture.dispose()
+      textureBuffer.delete(oldTextureKey)
     }
-    textureBuffer.delete(oldTextureKey)
   }
 
   const setTexture = (textureType: TextureType, target: string, index: number, currentTime: number) => {
