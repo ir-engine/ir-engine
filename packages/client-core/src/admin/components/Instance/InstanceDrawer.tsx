@@ -38,7 +38,7 @@ import { useFind, useMutation } from '@etherealengine/engine/src/common/function
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { InstanceID, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -104,7 +104,7 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
   const instanceUsersQuery = useUsersInInstance(selectedInstance?.id ?? ('' as InstanceID))
   const kickUser = useKickUser()
 
-  const createData = (id: UserID, name: string) => ({
+  const createData = (id: UserID, name: UserName) => ({
     id,
     name,
     action: (

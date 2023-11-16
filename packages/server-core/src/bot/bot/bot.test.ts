@@ -38,7 +38,7 @@ import {
   RoomCode,
   locationPath
 } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -89,7 +89,7 @@ describe('bot.service', () => {
   })
 
   before(async () => {
-    const name = 'test-bot-user-name-' + v1()
+    const name = ('test-bot-user-name-' + v1()) as UserName
     const avatarName = 'test-bot-avatar-name-' + v1()
 
     const avatar = await app.service(avatarPath).create({
