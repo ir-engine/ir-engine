@@ -46,16 +46,16 @@ export default {
   },
 
   before: {
-    all: [
+    all: [() => schemaHooks.validateQuery(userAvatarQueryValidator), schemaHooks.resolveQuery(userAvatarQueryResolver)],
+    find: [disallow('external')],
+    get: [disallow('external')],
+    create: [
       disallow('external'),
-      () => schemaHooks.validateQuery(userAvatarQueryValidator),
-      schemaHooks.resolveQuery(userAvatarQueryResolver)
+      () => schemaHooks.validateData(userAvatarDataValidator),
+      schemaHooks.resolveData(userAvatarDataResolver)
     ],
-    find: [],
-    get: [],
-    create: [() => schemaHooks.validateData(userAvatarDataValidator), schemaHooks.resolveData(userAvatarDataResolver)],
     patch: [() => schemaHooks.validateData(userAvatarPatchValidator), schemaHooks.resolveData(userAvatarPatchResolver)],
-    remove: []
+    remove: [disallow('external')]
   },
 
   after: {
