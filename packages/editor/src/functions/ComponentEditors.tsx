@@ -39,6 +39,7 @@ import { ImageComponent } from '@etherealengine/engine/src/scene/components/Imag
 // import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
+import { MeshComponent } from '@etherealengine/engine/src/scene/components/MeshComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
@@ -83,6 +84,7 @@ import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import { MediaSettingsEditor } from '../components/properties/MediaSettingsEditor'
+import { MeshNodeEditor } from '../components/properties/MeshNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
 import ParticleSystemNodeEditor from '../components/properties/ParticleSystemNodeEditor'
@@ -119,6 +121,7 @@ EntityNodeEditor.set(AmbientLightComponent, AmbientLightNodeEditor)
 EntityNodeEditor.set(PointLightComponent, PointLightNodeEditor)
 EntityNodeEditor.set(SpotLightComponent, SpotLightNodeEditor)
 EntityNodeEditor.set(GroundPlaneComponent, GroundPlaneNodeEditor)
+EntityNodeEditor.set(MeshComponent, MeshNodeEditor)
 EntityNodeEditor.set(ModelComponent, ModelNodeEditor)
 EntityNodeEditor.set(ShadowComponent, ShadowProperties)
 EntityNodeEditor.set(LoopAnimationComponent, LoopAnimationNodeEditor)

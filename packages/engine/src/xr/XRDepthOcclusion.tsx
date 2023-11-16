@@ -42,6 +42,7 @@ import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
 import { ReferenceSpace, XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 import { XRCPUDepthInformation } from './XRTypes'
 
 const DepthOcclusionPluginID = 'DepthOcclusionPlugin'
@@ -310,6 +311,7 @@ const reactor = () => {
 
 export const XRDepthOcclusionSystem = defineSystem({
   uuid: 'ee.engine.XRDepthOcclusionSystem',
+  insert: { after: XRSystem },
   execute,
   reactor
 })

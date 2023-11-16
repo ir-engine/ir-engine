@@ -33,6 +33,7 @@ import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { RendererState } from '../renderer/RendererState'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 
 type XRPreferredReflectionFormat = 'srgba8' | 'rgba16f'
 declare global {
@@ -220,6 +221,7 @@ const reactor = () => {
 
 export const XRLightProbeSystem = defineSystem({
   uuid: 'ee.engine.XRLightProbeSystem',
+  insert: { with: XRSystem },
   execute,
   reactor
 })

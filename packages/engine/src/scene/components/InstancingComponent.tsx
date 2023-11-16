@@ -23,17 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, Object3D } from 'three'
+import { InstancedBufferAttribute } from 'three'
 
-import iterateObject3D from './iterateObject3D'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export default function getFirstMesh(obj3d: Object3D): Mesh | null {
-  const meshes = iterateObject3D(
-    obj3d,
-    (child) => child,
-    (child: Mesh) => child?.isMesh,
-    false,
-    true
-  )
-  return meshes.length > 0 ? meshes[0] : null
-}
+export const InstancingComponent = defineComponent({
+  name: 'EE_instancing',
+  jsonID: 'instancing',
+  onInit: (entity) => ({
+    instanceMatrix: new InstancedBufferAttribute(new Float32Array(16), 16)
+  }),
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (json.instanceMatrix instanceof InstancedBufferAttribute) {
+      component.instanceMatrix.set(json.instanceMatrix)
+    } else if (Array.isArray(json.instanceMatrix)) {
+      component.instanceMatrix.value.set(json.instanceMatrix)
+    }
+  }
+})

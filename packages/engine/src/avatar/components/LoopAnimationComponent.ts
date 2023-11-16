@@ -33,6 +33,7 @@ import {
   NormalAnimationBlendMode
 } from 'three'
 
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -124,6 +125,8 @@ export const LoopAnimationComponent = defineComponent({
 
     const animComponent = useOptionalComponent(entity, AnimationComponent)
 
+    const lastAnimationPack = useHookstate('')
+
     useEffect(() => {
       const clip = animComponent?.animations[loopAnimationComponent.activeClipIndex.value].value
       if (!animComponent || !modelComponent?.scene?.value || !clip) {
@@ -131,10 +134,9 @@ export const LoopAnimationComponent = defineComponent({
         return
       }
       animComponent.mixer.time.set(0)
+      const assetObject = modelComponent.asset.get(NO_PROXY)
       const action = animComponent.mixer.value.clipAction(
-        modelComponent.asset instanceof VRM
-          ? retargetMixamoAnimation(clip, modelComponent.scene.value, modelComponent.asset)
-          : clip
+        assetObject instanceof VRM ? retargetMixamoAnimation(clip, modelComponent.scene.value, assetObject) : clip
       )
       loopAnimationComponent._action.set(action)
       return () => {
@@ -223,13 +225,21 @@ export const LoopAnimationComponent = defineComponent({
     }, [modelComponent?.scene, loopAnimationComponent.hasAvatarAnimations])
 
     useEffect(() => {
-      if (!modelComponent?.scene?.value || !animComponent || !loopAnimationComponent.animationPack.value) return
+      if (
+        !modelComponent?.scene?.value ||
+        !animComponent ||
+        !loopAnimationComponent.animationPack.value ||
+        lastAnimationPack.value === loopAnimationComponent.animationPack.value
+      )
+        return
 
       AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
+        if (animComponent.promised) return
         const animations = model.userData ? model.animations : model.scene.animations
+        lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
         animComponent.animations.set(animations)
       })
-    }, [modelComponent?.asset, loopAnimationComponent.animationPack])
+    }, [animComponent, loopAnimationComponent.animationPack])
 
     return null
   }

@@ -45,12 +45,12 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 
 import { XRState } from '../../xr/XRState'
 
 import { InputState } from '../../input/state/InputState'
 
+import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -130,7 +130,7 @@ export const handleCameraZoom = (cameraEntity: Entity, value: number): void => {
   followComponent.zoomLevel = nextZoomLevel
 }
 
-const avatarControllerQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
+const avatarControllerQuery = defineQuery([AvatarControllerComponent])
 
 const onKeyV = () => {
   for (const entity of avatarControllerQuery()) {
@@ -267,5 +267,6 @@ const execute = () => {
 
 export const CameraInputSystem = defineSystem({
   uuid: 'ee.engine.CameraInputSystem',
+  insert: { with: InputSystemGroup },
   execute
 })

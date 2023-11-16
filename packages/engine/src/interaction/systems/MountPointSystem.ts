@@ -38,7 +38,7 @@ import { useEffect } from 'react'
 import { animationStates, defaultAnimationPath } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { teleportAvatar } from '../../avatar/functions/moveAvatar'
+import { teleportAvatar, updateLocalAvatarPosition } from '../../avatar/functions/moveAvatar'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
@@ -58,6 +58,8 @@ import { MountPoint, MountPointComponent } from '../../scene/components/MountPoi
 import { SittingComponent } from '../../scene/components/SittingComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
+
+import { AvatarMovementSystem } from '../../avatar/systems/AvatarMovementSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
@@ -82,7 +84,7 @@ const execute = () => {
 
   const unmountEntity = (entity: Entity) => {
     const rigidBody = getComponent(entity, RigidBodyComponent)
-    getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
+
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
         filePath: defaultAnimationPath + animationStates.seated + '.fbx',
@@ -94,6 +96,7 @@ const execute = () => {
 
     const sittingComponent = getComponent(entity, SittingComponent)
 
+    AvatarControllerComponent.releaseMovement(Engine.instance.localClientEntity, sittingComponent.mountPointEntity)
     dispatchAction(
       MountPointActions.mountInteraction({
         mounted: false,
@@ -141,36 +144,21 @@ const execute = () => {
     }
 
     if (mountPoint.type !== MountPoint.seat || getState(MountPointState)[mountPointUUID]) continue
+    if (hasComponent(avatarEntity, SittingComponent)) continue
 
     /**todo add logic for different mount types */
     const avatar = getComponent(avatarEntity, AvatarComponent)
-
-    if (hasComponent(avatarEntity, SittingComponent)) continue
     const mountTransform = getComponent(action.targetEntity!, TransformComponent)
     const rigidBody = getComponent(avatarEntity, RigidBodyComponent)
-    rigidBody.body.setTranslation(
-      {
-        x: mountTransform.position.x,
-        y: mountTransform.position.y - avatar.avatarHalfHeight * 0.5,
-        z: mountTransform.position.z
-      },
-      true
-    )
-    rigidBody.body.setRotation(
-      {
-        x: mountTransform.rotation.x,
-        y: mountTransform.rotation.y,
-        z: mountTransform.rotation.z,
-        w: mountTransform.rotation.w
-      },
-      true
-    )
-    rigidBody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
-    rigidBody.body.setEnabled(false)
+    rigidBody.targetKinematicPosition.copy(mountTransform.position).y -= avatar.avatarHalfHeight * 0.5
+    rigidBody.targetKinematicRotation.copy(mountTransform.rotation)
+    updateLocalAvatarPosition(avatarEntity)
+
     setComponent(avatarEntity, SittingComponent, {
       mountPointEntity: action.targetEntity!
     })
-    getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
+
+    AvatarControllerComponent.captureMovement(avatarEntity, action.targetEntity)
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
         filePath: defaultAnimationPath + animationStates.seated + '.fbx',
@@ -195,21 +183,24 @@ const execute = () => {
   }
 }
 
+const reactor = () => {
+  const mountedEntities = useHookstate(getMutableState(MountPointState))
+  useEffect(() => {
+    //temporary logic for setting visibility of hints until interactive system is refactored
+    for (const mountEntity of mountPointQuery()) {
+      setVisibleComponent(
+        InteractiveUI.get(mountEntity)!.xrui.entity!,
+        !mountedEntities[getComponent(mountEntity, UUIDComponent)].value
+      )
+    }
+  }, [mountedEntities])
+
+  return null
+}
+
 export const MountPointSystem = defineSystem({
   uuid: 'ee.engine.MountPointSystem',
+  insert: { before: AvatarMovementSystem },
   execute,
-  reactor: () => {
-    const mountedEntities = useHookstate(getMutableState(MountPointState))
-    useEffect(() => {
-      //temporary logic for setting visibility of hints until interactive system is refactored
-      for (const mountEntity of mountPointQuery()) {
-        setVisibleComponent(
-          InteractiveUI.get(mountEntity)!.xrui.entity!,
-          !mountedEntities[getComponent(mountEntity, UUIDComponent)].value
-        )
-      }
-    }, [mountedEntities])
-
-    return null
-  }
+  reactor
 })

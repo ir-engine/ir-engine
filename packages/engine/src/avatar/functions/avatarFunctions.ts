@@ -46,7 +46,6 @@ import { iOS } from '../../common/functions/isMobile'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -66,7 +65,6 @@ import config from '@etherealengine/common/src/config'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
-import { defaultBonesData } from '../DefaultSkeletonBones'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -115,9 +113,7 @@ export const loadAvatarForUser = async (
     throw new Error('Avatar model already loading')
 
   if (loadingEffect) {
-    if (hasComponent(entity, AvatarControllerComponent)) {
-      getComponent(entity, AvatarControllerComponent).movementEnabled = false
-    }
+    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
   }
 
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(false)
@@ -138,12 +134,13 @@ export const loadAvatarForUser = async (
     const avatar = getComponent(entity, AvatarComponent)
     const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(entity, avatar?.model)
     const effectEntity = createEntity()
-    addComponent(effectEntity, AvatarEffectComponent, {
+    setComponent(effectEntity, AvatarEffectComponent, {
       sourceEntity: entity,
       opacityMultiplier: 1,
       dissolveMaterials: dissolveMaterials as ShaderMaterial[],
       originMaterials: avatarMaterials as MaterialMap[]
     })
+    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
   }
 
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
@@ -171,7 +168,6 @@ export const createIKAnimator = async (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const animations = await getAnimations()
   const manager = getState(AnimationState)
-  const avatar = getComponent(entity, AvatarComponent)
 
   for (let i = 0; i < animations!.length; i++) {
     animations[i] = retargetMixamoAnimation(
@@ -260,15 +256,6 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
 }
 
 /**
- * Creates an empty skinned mesh with the default skeleton attached.
- * The skeleton created is compatible with default animation tracks
- * @returns SkinnedMesh
- */
-export function makeDefaultSkinnedMesh() {
-  return makeSkinnedMeshFromBoneData(defaultBonesData)
-}
-
-/**
  * Creates an empty skinned mesh using list of bones to build skeleton structure
  * @returns SkinnedMesh
  */
@@ -290,7 +277,7 @@ export function makeSkinnedMeshFromBoneData(bonesData) {
   })
 
   // we assume that root bone is the first one
-  const hipBone = bones[0]
+  const hipBone = bones[0] as Bone & { entity: Entity }
   hipBone.updateWorldMatrix(false, true)
 
   const group = new Group()

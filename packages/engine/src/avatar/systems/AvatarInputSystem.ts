@@ -49,6 +49,7 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { StandardGamepadButton, XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
+import { ClientInputSystem } from '../../input/systems/ClientInputSystem'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
 import { MotionCaptureActionPoses } from '../../mocap/poseToInput'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
@@ -321,5 +322,6 @@ const execute = () => {
 
 export const AvatarInputSystem = defineSystem({
   uuid: 'ee.engine.AvatarInputSystem',
+  insert: { after: ClientInputSystem },
   execute
 })

@@ -207,7 +207,7 @@ export const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], thresho
 }
 
 export function solveMotionCapturePose(
-  entity,
+  entity: Entity,
   newLandmarks?: NormalizedLandmarkList,
   newScreenlandmarks?: NormalizedLandmarkList
 ) {
