@@ -31,8 +31,8 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { createEngine } from '../../initializeEngine'
 import { destroyEngine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
-import { executeSystems, SimulationSystemGroup } from './EngineFunctions'
-import { defineSystem, startSystem } from './SystemFunctions'
+import { SimulationSystemGroup, executeSystems } from './EngineFunctions'
+import { defineSystem } from './SystemFunctions'
 
 const MockState = defineState({
   name: 'MockState',
@@ -45,6 +45,7 @@ const execute = () => {
 
 const MockSystem = defineSystem({
   uuid: 'test.MockSystem',
+  insert: { with: SimulationSystemGroup },
   execute
 })
 
@@ -52,13 +53,12 @@ describe('FixedPipelineSystem', () => {
   beforeEach(() => {
     createEngine()
   })
+
   afterEach(() => {
     return destroyEngine()
   })
 
   it('can run multiple simultion ticks to catch up to elapsed time', async () => {
-    startSystem(MockSystem, { with: SimulationSystemGroup })
-
     const mockState = getMutableState(MockState)
     assert.equal(mockState.count.value, 0)
 
@@ -71,8 +71,6 @@ describe('FixedPipelineSystem', () => {
   })
 
   it('can skip simulation ticks to catch up to elapsed time', async () => {
-    startSystem(MockSystem, { with: SimulationSystemGroup })
-
     const mockState = getMutableState(MockState)
     const engineState = getMutableState(EngineState)
 

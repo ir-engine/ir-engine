@@ -27,14 +27,6 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { AnimationSystem } from '@etherealengine/engine/src/avatar/systems/AnimationSystem'
-import { AvatarAnimationSystem } from '@etherealengine/engine/src/avatar/systems/AvatarAnimationSystem'
-import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/DebugRendererSystem'
-import { AnimationSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystem, useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { WebGLRendererSystem } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
-import { SceneObjectSystem } from '@etherealengine/engine/src/scene/systems/SceneObjectSystem'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
@@ -54,25 +46,6 @@ const Avatar = () => {
   const [openAvatarDrawer, setOpenAvatarDrawer] = useState(false)
   const [openDeleteAvatarModal, setOpenDeleteAvatarModal] = React.useState(false)
   const [selectedAvatarIds, setSelectedAvatarIds] = useState(() => new Set<string>())
-
-  /** Avatar / Animation */
-  useSystems([AnimationSystem, AvatarAnimationSystem], {
-    with: AnimationSystemGroup
-  })
-
-  /** Post Transform / Pre Render */
-  useSystems([SceneObjectSystem, DebugRendererSystem, SceneSystemUpdateGroup], {
-    before: PresentationSystemGroup
-  })
-
-  /** Render */
-  useSystem(WebGLRendererSystem, {
-    with: PresentationSystemGroup
-  })
-
-  useSystem(SceneSystemLoadGroup, {
-    after: PresentationSystemGroup
-  })
 
   const handleChange = (e: any) => {
     setSearch(e.target.value)

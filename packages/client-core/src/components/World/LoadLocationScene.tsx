@@ -24,11 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useEffect } from 'react'
 
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -43,6 +41,10 @@ export const useLoadLocation = (props: { locationName: string }) => {
   useEffect(() => {
     LocationState.setLocationName(props.locationName)
   }, [])
+
+  useEffect(() => {
+    if (locationState.locationName.value) LocationService.getLocationByName(locationState.locationName.value)
+  }, [locationState.locationName.value])
 
   useEffect(() => {
     if (locationState.invalidLocation.value) {
@@ -84,38 +86,4 @@ export const useLoadScene = (props: { projectName: string; sceneName: string }) 
     LocationState.setLocationName(`${props.projectName}/${props.sceneName}`)
     loadSceneJsonOffline(props.projectName, props.sceneName)
   }, [])
-}
-
-export const useLoadLocationScene = () => {
-  const { t } = useTranslation()
-  const authState = useHookstate(getMutableState(AuthState))
-  const locationState = useHookstate(getMutableState(LocationState))
-  const isUserBanned = locationState.currentLocation.selfUserBanned.value
-  const userNotAuthorized = locationState.currentLocation.selfNotAuthorized.value
-
-  /**
-   * Once we have logged in, retrieve the location data
-   */
-  useEffect(() => {
-    const selfUser = authState.user
-    const currentLocation = locationState.currentLocation.location
-
-    const isUserBanned =
-      selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id.value) != null
-    LocationState.socialSelfUserBanned(isUserBanned)
-
-    if (
-      !isUserBanned &&
-      !locationState.fetchingCurrentLocation.value &&
-      locationState.locationName.value &&
-      authState.isLoggedIn.value
-    ) {
-      LocationService.getLocationByName(locationState.locationName.value)
-    }
-  }, [authState.isLoggedIn.value, locationState.locationName.value])
-
-  if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
-  if (userNotAuthorized) return <div className="not-authorized">{t('location.notAuthorizedAtLocation')}</div>
-
-  return null
 }

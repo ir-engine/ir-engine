@@ -32,6 +32,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { XRState } from '../../xr/XRState'
+import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const reactor = () => {
   const background = useHookstate(getMutableState(SceneState).background)
@@ -56,6 +57,6 @@ const reactor = () => {
 
 export const EnvironmentSystem = defineSystem({
   uuid: 'ee.engine.EnvironmentSystem',
-  execute: () => {},
+  insert: { with: SceneLoadingSystem },
   reactor
 })

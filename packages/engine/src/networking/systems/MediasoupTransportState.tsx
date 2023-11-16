@@ -28,6 +28,7 @@ import { defineAction, defineState, getState, none, receiveActions } from '@ethe
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InstanceID } from '../../schemas/networking/instance.schema'
 import { NetworkState } from '../NetworkState'
@@ -188,5 +189,6 @@ const execute = () => {
 
 export const MediasoupTransportStateSystem = defineSystem({
   uuid: 'ee.engine.network.mediasoup.MediasoupTransportStateSystem',
+  insert: { after: PresentationSystemGroup },
   execute
 })

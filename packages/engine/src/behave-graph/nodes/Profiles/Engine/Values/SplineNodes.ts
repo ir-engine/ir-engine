@@ -33,7 +33,7 @@ import {
   setComponent
 } from '../../../../../ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
+import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SplineComponent } from '../../../../../scene/components/SplineComponent'
 import { SplineTrackComponent } from '../../../../../scene/components/SplineTrackComponent'
@@ -111,6 +111,7 @@ export const addSplineTrack = makeAsyncNodeDefinition({
     write('entity', entity)
     const systemUUID = defineSystem({
       uuid: 'behave-graph-spline-tracker-' + systemCounter++,
+      insert: { with: PresentationSystemGroup },
       execute: () => {
         // can we hook into the spline track reactor somehow? this feels wasteful, but probably the right way to do it
         const splineTrack = getComponent(entity, SplineTrackComponent)
@@ -122,13 +123,12 @@ export const addSplineTrack = makeAsyncNodeDefinition({
         if (Math.floor(splineTrack.alpha) > spline!.elements.length - 1) {
           commit('trackEnd')
           finished?.()
-          disableSystem(systemUUID) // we only want to run it once
+          destroySystem(systemUUID) // we only want to run it once
           return
         }
       }
     })
 
-    startSystem(systemUUID, { with: PresentationSystemGroup })
     commit('flow')
     const state: State = {
       systemUUID
@@ -137,7 +137,7 @@ export const addSplineTrack = makeAsyncNodeDefinition({
     return state
   },
   dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
-    if (systemUUID) disableSystem(systemUUID) // for if we shut down the graph early
+    if (systemUUID) destroySystem(systemUUID) // for if we shut down the graph early
     return initialState()
   }
 })

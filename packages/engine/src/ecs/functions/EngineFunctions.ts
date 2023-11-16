@@ -29,60 +29,37 @@ import logger from '@etherealengine/engine/src/common/functions/logger'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { IncomingActionSystem } from '../../networking/systems/IncomingActionSystem'
-import { OutgoingActionSystem } from '../../networking/systems/OutgoingActionSystem'
-import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { executeFixedPipeline } from './FixedPipelineSystem'
-import { SystemDefinitions, defineSystem, enableSystems, executeSystem } from './SystemFunctions'
+import { SystemDefinitions, defineSystem, executeSystem } from './SystemFunctions'
+
+export const RootSystemGroup = defineSystem({
+  uuid: 'ee.engine.root-group',
+  insert: {},
+  execute: executeFixedPipeline
+})
 
 export const InputSystemGroup = defineSystem({
-  uuid: 'ee.engine.input-group'
+  uuid: 'ee.engine.input-group',
+  insert: { before: RootSystemGroup }
 })
 
 /** Run inside of fixed pipeline */
 export const SimulationSystemGroup = defineSystem({
   uuid: 'ee.engine.simulation-group',
-  preSystems: [IncomingActionSystem],
-  postSystems: [OutgoingActionSystem]
+  insert: {}
 })
 
 export const AnimationSystemGroup = defineSystem({
-  uuid: 'ee.engine.animation-group'
+  uuid: 'ee.engine.animation-group',
+  insert: { with: RootSystemGroup }
 })
 
 export const PresentationSystemGroup = defineSystem({
-  uuid: 'ee.engine.presentation-group'
+  uuid: 'ee.engine.presentation-group',
+  insert: { after: RootSystemGroup }
 })
-
-/**
- * 1. input group
- * 2. fixed pipeline (simulation group)
- * 3. animation group
- * 4. transform system
- * 5. presentation group
- */
-export const RootSystemGroup = defineSystem({
-  uuid: 'ee.engine.root-group',
-  preSystems: [InputSystemGroup],
-  execute: executeFixedPipeline,
-  subSystems: [AnimationSystemGroup, TransformSystem],
-  postSystems: [PresentationSystemGroup]
-})
-
-export const startCoreSystems = () => {
-  enableSystems([
-    RootSystemGroup,
-    IncomingActionSystem,
-    OutgoingActionSystem,
-    InputSystemGroup,
-    SimulationSystemGroup,
-    AnimationSystemGroup,
-    TransformSystem,
-    PresentationSystemGroup
-  ])
-}
 
 export const getDAG = (systemUUID = RootSystemGroup, depth = 0) => {
   const system = SystemDefinitions.get(systemUUID)
@@ -94,7 +71,7 @@ export const getDAG = (systemUUID = RootSystemGroup, depth = 0) => {
 
   if (systemUUID === RootSystemGroup) getDAG(SimulationSystemGroup, depth + 1)
 
-  console.log('-'.repeat(depth), system.uuid.split('.').pop(), Engine.instance.activeSystems.has(system.uuid))
+  console.log('-'.repeat(depth), system.uuid.split('.').pop())
 
   for (const subSystem of system.subSystems) {
     getDAG(subSystem, depth + 1)

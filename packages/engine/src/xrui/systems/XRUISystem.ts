@@ -39,7 +39,9 @@ import { InputState } from '../../input/state/InputState'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 
+import { isClient } from '../../common/functions/getEnvironment'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { XRUIState } from '../XRUIState'
 import { PointerComponent } from '../components/PointerComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
@@ -191,6 +193,8 @@ const execute = () => {
 }
 
 const reactor = () => {
+  if (!isClient) return null
+
   useEffect(() => {
     // @ts-ignore
     // console.log(JSON.stringify(xrui.WebLayerModule.WebLayerManager.instance.textureLoader.workerConfig))
@@ -225,6 +229,7 @@ const reactor = () => {
 
 export const XRUISystem = defineSystem({
   uuid: 'ee.engine.XRUISystem',
+  insert: { with: TransformSystem },
   execute,
   reactor
 })

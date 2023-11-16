@@ -63,7 +63,6 @@ export const LocationSeed: LocationType = {
 export const LocationState = defineState({
   name: 'LocationState',
   initial: () => ({
-    offline: false,
     locationName: null! as string,
     currentLocation: {
       location: LocationSeed as LocationType,
@@ -71,9 +70,6 @@ export const LocationState = defineState({
       selfUserBanned: false,
       selfNotAuthorized: false
     },
-    updateNeeded: true,
-    currentLocationUpdateNeeded: true,
-    fetchingCurrentLocation: false,
     invalidLocation: false
   }),
 
@@ -83,15 +79,12 @@ export const LocationState = defineState({
 
   fetchingCurrentSocialLocation: () => {
     getMutableState(LocationState).merge({
-      fetchingCurrentLocation: true,
       currentLocation: {
         location: LocationSeed as LocationType,
         bannedUsers: [] as string[],
         selfUserBanned: false,
         selfNotAuthorized: false
-      },
-      updateNeeded: true,
-      currentLocationUpdateNeeded: true
+      }
     })
   },
 
@@ -109,9 +102,7 @@ export const LocationState = defineState({
         bannedUsers,
         selfUserBanned: false,
         selfNotAuthorized: false
-      },
-      currentLocationUpdateNeeded: false,
-      fetchingCurrentLocation: false
+      }
     })
   },
 
@@ -123,23 +114,15 @@ export const LocationState = defineState({
         selfUserBanned: false,
         selfNotAuthorized: false
       },
-      currentLocationUpdateNeeded: false,
-      fetchingCurrentLocation: false,
       invalidLocation: true
     })
   },
 
-  socialLocationBanCreated: () => {
-    getMutableState(LocationState).merge({ currentLocationUpdateNeeded: true })
-  },
-
   socialSelfUserBanned: (banned: boolean) => {
-    getMutableState(LocationState).merge({ currentLocationUpdateNeeded: true })
     getMutableState(LocationState).currentLocation.merge({ selfUserBanned: banned })
   },
 
   socialLocationNotAuthorized: () => {
-    getMutableState(LocationState).merge({ currentLocationUpdateNeeded: true })
     getMutableState(LocationState).currentLocation.merge({ selfNotAuthorized: true })
   }
 })
@@ -193,7 +176,6 @@ export const LocationService = {
         userId: userId,
         locationId: locationId
       })
-      LocationState.socialLocationBanCreated()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

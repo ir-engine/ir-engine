@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState, StateDefinition } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { MaterialComponentType } from './components/MaterialComponent'
 import { MaterialPluginType } from './components/MaterialPluginComponent'
@@ -42,23 +42,15 @@ import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import { registerMaterialPrototype } from './functions/MaterialLibraryFunctions'
 import { registerMaterialPlugin } from './functions/MaterialPluginFunctions'
 
-export type MaterialLibraryType = {
-  prototypes: Record<string, MaterialPrototypeComponentType>
-  materials: Record<string, MaterialComponentType>
-  plugins: Record<string, MaterialPluginType>
-  sources: Record<string, MaterialSourceComponentType>
-  initialized: boolean
-}
-
-export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = defineState({
+export const MaterialLibraryState = defineState({
   name: 'MaterialLibraryState',
   initial: {
-    prototypes: {},
-    materials: {},
-    plugins: {},
-    sources: {},
+    prototypes: {} as Record<string, MaterialPrototypeComponentType>,
+    materials: {} as Record<string, MaterialComponentType>,
+    plugins: {} as Record<string, MaterialPluginType>,
+    sources: {} as Record<string, MaterialSourceComponentType>,
     initialized: false
-  } as MaterialLibraryType
+  }
 })
 
 export function initializeMaterialLibrary() {
