@@ -30,7 +30,7 @@ import ConfirmDialog from '@etherealengine/client-core/src/common/components/Con
 import { useHookstate } from '@etherealengine/hyperflux'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
@@ -122,7 +122,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
         </>
       ),
       id: invite.id,
-      name: invite.invitee?.name || invite.token || '',
+      name: invite.invitee?.name || (invite.token as UserName) || ('' as UserName),
       passcode: invite.passcode,
       type: invite.inviteType,
       targetObjectId: invite.targetObjectId,

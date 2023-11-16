@@ -31,7 +31,7 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { InviteCode, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserName, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Forbidden } from '@feathersjs/errors'
 import { Application } from '../../declarations'
 import { createFeathersKoaApp } from '../createApp'
@@ -58,7 +58,7 @@ describe('verify-scope', () => {
   })
 
   it('should fail if user does not have scope', async () => {
-    const name = `Test #${Math.random()}`
+    const name = `Test #${Math.random()}` as UserName
     const isGuest = true
 
     let user = await app.service(userPath).create({
@@ -89,7 +89,7 @@ describe('verify-scope', () => {
   })
 
   it('should verify guest has scope', async () => {
-    const name = `Test #${Math.random()}`
+    const name = `Test #${Math.random()}` as UserName
     const isGuest = true
 
     let user = await app.service(userPath).create({
@@ -117,7 +117,7 @@ describe('verify-scope', () => {
   })
 
   it('should verify user has scope', async () => {
-    const name = `Test #${Math.random()}`
+    const name = `Test #${Math.random()}` as UserName
     const isGuest = false
 
     let user = await app.service(userPath).create({
@@ -153,7 +153,7 @@ describe('verify-scope', () => {
   })
 
   it('should verify admin', async () => {
-    const name = `Test #${Math.random()}`
+    const name = `Test #${Math.random()}` as UserName
     const isGuest = false
 
     let user = await app.service(userPath).create({

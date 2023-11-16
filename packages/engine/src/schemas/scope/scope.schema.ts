@@ -36,10 +36,12 @@ export const scopePath = 'scope'
 export const scopeMethods = ['create', 'find', 'remove'] as const
 export type ScopeType = OpaqueType<'ScopeType'> & string
 
+export type ScopeID = OpaqueType<'ScopeID'> & string
+
 // Main data model schema
 export const scopeSchema = Type.Object(
   {
-    id: Type.String({
+    id: TypedString<ScopeID>({
       format: 'uuid'
     }),
     type: TypedString<ScopeType>({
