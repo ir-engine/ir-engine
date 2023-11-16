@@ -23,31 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import { Mesh, Object3D } from 'three'
 
-import GridViewIcon from '@mui/icons-material/GridView'
+import iterateObject3D from './iterateObject3D'
 
-import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
-
-/**
- * GroupNodeEditor used to render group of multiple objects.
- *
- * @type {class component}
- */
-export const GroupNodeEditor: EditorComponentType = (props) => {
-  const { t } = useTranslation()
-
-  return (
-    <NodeEditor
-      {...props}
-      name={t('editor:properties.group.name')}
-      description={t('editor:properties.group.description')}
-    ></NodeEditor>
+export default function getFirstMesh(obj3d: Object3D): Mesh | null {
+  const meshes = iterateObject3D(
+    obj3d,
+    (child) => child,
+    (child: Mesh) => child?.isMesh,
+    false,
+    true
   )
+  return meshes.length > 0 ? meshes[0] : null
 }
 
-GroupNodeEditor.iconComponent = GridViewIcon
-
-export default GroupNodeEditor
+export function getMeshes(obj3d: Object3D): Mesh[] {
+  return iterateObject3D(
+    obj3d,
+    (child) => child,
+    (child: Mesh) => child?.isMesh,
+    false,
+    false
+  )
+}

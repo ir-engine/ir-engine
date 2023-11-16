@@ -24,22 +24,23 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Mesh, Scene, SkinnedMesh } from 'three'
+import { Scene, SkinnedMesh } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentType,
   defineComponent,
   getComponent,
-  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -47,24 +48,23 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
-import { enableObjectLayer } from '../functions/setObjectLayers'
-import iterateObject3D from '../util/iterateObject3D'
-import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { getModelSceneID } from '../functions/loaders/ModelFunctions'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
-import { ShadowComponent } from './ShadowComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VariantComponent } from './VariantComponent'
+
+export type SceneWithEntity = Scene & { entity: Entity }
 
 function clearMaterials(model: ComponentType<typeof ModelComponent>) {
   if (!model.scene) return
@@ -80,7 +80,7 @@ function clearMaterials(model: ComponentType<typeof ModelComponent>) {
 }
 
 export const ModelComponent = defineComponent({
-  name: 'EE_model',
+  name: 'Model Component',
   jsonID: 'gltf-model',
 
   onInit: (entity) => {
@@ -89,7 +89,7 @@ export const ModelComponent = defineComponent({
       generateBVH: true,
       avoidCameraOcclusion: false,
       // internal
-      scene: null as Scene | null,
+      scene: null as SceneWithEntity | null,
       asset: null as VRM | GLTF | null,
       hasSkinnedMesh: false
     }
@@ -104,9 +104,6 @@ export const ModelComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    setComponent(entity, LoopAnimationComponent)
-    setComponent(entity, ShadowComponent)
-
     if (!json) return
     if (typeof json.src === 'string') component.src.set(json.src)
     if (typeof json.generateBVH === 'boolean') component.generateBVH.set(json.generateBVH)
@@ -115,7 +112,7 @@ export const ModelComponent = defineComponent({
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
-    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent) && !component.scene.value)
       setComponent(entity, SceneAssetPendingTagComponent)
   },
 
@@ -137,7 +134,6 @@ export const ModelComponent = defineComponent({
 function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const groupComponent = useOptionalComponent(entity, GroupComponent)
   const variantComponent = useOptionalComponent(entity, VariantComponent)
   const model = modelComponent.value
   const source = model.src
@@ -145,6 +141,7 @@ function ModelReactor() {
   // update src
   useEffect(() => {
     if (source === model.scene?.userData?.src) return
+    if (variantComponent && !variantComponent.calculated) return
     try {
       if (model.scene) {
         clearMaterials(model)
@@ -152,15 +149,12 @@ function ModelReactor() {
       if (!model.src) return
       const uuid = getComponent(entity, UUIDComponent)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
-      //wait for variant component to calculate if present
-      if (variantComponent && variantComponent.calculated.value === false) return
       switch (fileExtension) {
         case 'glb':
         case 'gltf':
         case 'fbx':
         case 'vrm':
         case 'usdz':
-          setComponent(entity, SceneAssetPendingTagComponent)
           AssetLoader.load(
             model.src,
             {
@@ -175,9 +169,7 @@ function ModelReactor() {
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
               modelComponent.asset.set(loadedAsset)
               if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
-              model.scene && removeObjectFromGroup(entity, model.scene)
               modelComponent.scene.set(loadedAsset.scene)
-              removeComponent(entity, SceneAssetPendingTagComponent)
             },
             (onprogress) => {
               if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
@@ -213,20 +205,34 @@ function ModelReactor() {
     if (EngineRenderer.instance)
       EngineRenderer.instance.renderer
         .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
-        .then(() => {
-          if (hasComponent(entity, SceneAssetPendingTagComponent))
-            removeComponent(entity, SceneAssetPendingTagComponent)
+        .catch(() => {
+          addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
         })
-    else if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
+        .finally(() => {
+          removeComponent(entity, SceneAssetPendingTagComponent)
+        })
+    else removeComponent(entity, SceneAssetPendingTagComponent)
 
-    if (groupComponent?.value?.find((group: any) => group === scene)) return
-
-    const childSpawnedEntities = parseGLTFModel(entity)
     setComponent(entity, BoundingBoxComponent)
 
+    const loadedJsonHierarchy = parseGLTFModel(entity)
+    const uuid = getModelSceneID(entity)
+    getMutableState(SceneState).scenes[uuid].set({
+      snapshots: [
+        {
+          data: {
+            scene: { entities: loadedJsonHierarchy, root: '' as EntityUUID, version: 0 },
+            name: '',
+            project: '',
+            thumbnailUrl: ''
+          },
+          selectedEntities: []
+        }
+      ],
+      index: 0
+    })
     return () => {
-      removeObjectFromGroup(entity, scene)
-      childSpawnedEntities.forEach((e) => removeEntityNodeRecursively(e))
+      getMutableState(SceneState).scenes[uuid].set(none)
     }
   }, [modelComponent.scene])
 
@@ -237,10 +243,13 @@ function ModelReactor() {
 
     let active = true
 
-    const skinnedMeshSearch = iterateObject3D(
-      scene,
-      (skinnedMesh) => skinnedMesh,
-      (ob: SkinnedMesh) => ob.isSkinnedMesh
+    // check for skinned meshes, and turn off frustum culling for them
+    const skinnedMeshSearch = iterateEntityNode(
+      scene.entity,
+      (childEntity) => getComponent(childEntity, MeshComponent),
+      (childEntity) =>
+        hasComponent(childEntity, MeshComponent) &&
+        (getComponent(childEntity, MeshComponent) as SkinnedMesh).isSkinnedMesh
     )
 
     if (skinnedMeshSearch[0]) {
@@ -250,21 +259,6 @@ function ModelReactor() {
         skinnedMesh.frustumCulled = false
       }
       setComponent(entity, FrustumCullCameraComponent)
-    }
-
-    if (model.generateBVH) {
-      enableObjectLayer(scene, ObjectLayers.Camera, false)
-      const bvhDone = [] as Promise<void>[]
-      scene.traverse((obj: Mesh) => {
-        bvhDone.push(generateMeshBVH(obj))
-      })
-      // trigger group state invalidation when bvh is done
-      Promise.all(bvhDone).then(() => {
-        if (!active) return
-        const group = getMutableComponent(entity, GroupComponent)
-        if (group) group.set([...group.value])
-        enableObjectLayer(scene, ObjectLayers.Camera, !model.avoidCameraOcclusion && model.generateBVH)
-      })
     }
 
     return () => {

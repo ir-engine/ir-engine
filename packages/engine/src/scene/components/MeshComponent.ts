@@ -23,24 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { defineState } from '@etherealengine/hyperflux'
+import { Mesh } from 'three'
 
-type AgonesGameServer = {
-  status: {
-    address: string // IP
-  }
-  objectMeta: {
-    name: string
-  }
-}
+import { defineComponent, getMutableComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { generateMeshBVH } from '../functions/bvhWorkerPool'
 
-export const InstanceServerState = defineState({
-  name: 'InstanceServerState',
-  initial: {
-    ready: false,
-    instance: null! as InstanceType,
-    isMediaInstance: false,
-    instanceServer: null! as AgonesGameServer
+export const MeshComponent = defineComponent({
+  name: 'Mesh Component',
+  jsonID: 'mesh',
+  onInit: (entity) => new Mesh(),
+  onSet: (entity, component, mesh?: Mesh) => {
+    if (mesh instanceof Mesh) {
+      component.set(mesh)
+      MeshComponent.valueMap[entity] = mesh
+    }
+  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const mesh = useHookstate(getMutableComponent(entity, MeshComponent))
+    useEffect(() => {
+      generateMeshBVH(mesh.value)
+    }, [mesh])
+    return null
   }
 })

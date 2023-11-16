@@ -39,6 +39,7 @@ import { ColliderComponent } from './components/ColliderComponent'
 import { DirectionalLightComponent } from './components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
 import { EnvmapComponent } from './components/EnvmapComponent'
+import { FogSettingsComponent } from './components/FogSettingsComponent'
 import { GroundPlaneComponent } from './components/GroundPlaneComponent'
 import { GroupComponent } from './components/GroupComponent'
 import { HemisphereLightComponent } from './components/HemisphereLightComponent'
@@ -46,11 +47,13 @@ import { ImageComponent } from './components/ImageComponent'
 import { InteriorComponent } from './components/InteriorComponent'
 import { LinkComponent } from './components/LinkComponent'
 import { MediaComponent } from './components/MediaComponent'
+import { MediaSettingsComponent } from './components/MediaSettingsComponent'
 import { MountPointComponent } from './components/MountPointComponent'
 import { OceanComponent } from './components/OceanComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
 import { PointLightComponent } from './components/PointLightComponent'
 import { PostProcessingComponent } from './components/PostProcessingComponent'
+import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from './components/RenderSettingsComponent'
 import { SceneDynamicLoadTagComponent } from './components/SceneDynamicLoadTagComponent'
 import { ScenePreviewCameraComponent } from './components/ScenePreviewCamera'
@@ -66,7 +69,6 @@ import { VideoComponent } from './components/VideoComponent'
 import { VisibleComponent } from './components/VisibleComponent'
 import { VolumetricComponent } from './components/VolumetricComponent'
 import { WaterComponent } from './components/WaterComponent'
-import { FogSettingState } from './systems/FogSystem'
 import { LightSystem } from './systems/LightSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
@@ -86,21 +88,24 @@ export const SceneComponents = [
   DirectionalLightComponent,
   EnvMapBakeComponent,
   EnvmapComponent,
-  FogSettingState,
+  FogSettingsComponent,
   GroundPlaneComponent,
   GroupComponent,
   HemisphereLightComponent,
   ImageComponent,
   InteriorComponent,
   MediaComponent,
+  MediaSettingsComponent,
   MountPointComponent,
   OceanComponent,
   ParticleSystemComponent,
   PointLightComponent,
   PostProcessingComponent,
+  PrimitiveGeometryComponent,
   RenderSettingsComponent,
   SceneDynamicLoadTagComponent,
   ScenePreviewCameraComponent,
+  PostProcessingComponent,
   ScreenshareTargetComponent,
   ShadowComponent,
   SkyboxComponent,
