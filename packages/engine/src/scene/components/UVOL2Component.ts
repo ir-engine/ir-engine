@@ -48,10 +48,10 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getMutableComponent,
-  getOptionalMutableComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -283,6 +283,7 @@ function UVOL2Reactor() {
   const entity = useEntityContext()
   const volumetric = useComponent(entity, VolumetricComponent)
   const component = useComponent(entity, UVOL2Component)
+  const shadow = useOptionalComponent(entity, ShadowComponent)
 
   // These are accessed very frequently, Better not to fetch from state everytime
   const manifest = useRef(component.data.value)
@@ -402,15 +403,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     manifest.current = calculatePriority(component.data.get({ noproxy: true }))
     component.data.set(manifest.current)
-    const shadow = getOptionalMutableComponent(entity, ShadowComponent)
-    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE && shadow) {
-      // TODO: Cast shadows properly with uniform solve
-      shadow.cast.set(false)
-      shadow.receive.set(false)
-    } else if (shadow) {
-      shadow.cast.set(true)
-      shadow.receive.set(true)
-    }
 
     geometryTargets.current = Object.keys(manifest.current.geometry.targets)
     geometryTargets.current.sort((a, b) => {
@@ -459,6 +451,18 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       audio.src = ''
     }
   }, [])
+
+  useEffect(() => {
+    if (!shadow) return
+    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE && shadow) {
+      // TODO: Cast shadows properly with uniform solve
+      shadow.cast.set(false)
+      shadow.receive.set(false)
+    } else if (shadow) {
+      shadow.cast.set(true)
+      shadow.receive.set(true)
+    }
+  }, [shadow])
 
   const fetchNonUniformSolveGeometry = (startFrame: number, endFrame: number, target: string) => {
     // TODO: Needs thorough testing
