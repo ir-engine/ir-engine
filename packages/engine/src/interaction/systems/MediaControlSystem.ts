@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { getState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
+import { isClient } from '../../common/functions/getEnvironment'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
@@ -67,7 +68,7 @@ const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaCo
 const mediaQuery = defineQuery([MediaComponent])
 
 const execute = () => {
-  if (getState(EngineState).isEditor) return
+  if (getState(EngineState).isEditor || !isClient) return
 
   for (const entity of mediaQuery.enter()) {
     if (!getComponent(entity, MediaComponent).controls) continue
