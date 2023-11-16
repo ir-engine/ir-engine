@@ -143,7 +143,11 @@ function ModelReactor() {
 
   // update src
   useEffect(() => {
-    if (model.src === model.scene?.userData?.src) return
+    if (model.src === model.scene?.userData?.src) {
+      removeError(entity, ModelComponent, 'INVALID_SOURCE')
+      removeError(entity, ModelComponent, 'LOADING_ERROR')
+      return
+    }
     try {
       if (model.scene) {
         clearMaterials(model)
