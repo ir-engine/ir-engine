@@ -32,7 +32,7 @@ import { useEffect } from 'react'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { createEngine } from '../../initializeEngine'
 import { AvatarID } from '../../schemas/user/avatar.schema'
-import { userPath } from '../../schemas/user/user.schema'
+import { UserName, userPath } from '../../schemas/user/user.schema'
 import { EventDispatcher } from '../classes/EventDispatcher'
 import { useFind, useGet, useMutation } from './FeathersHooks'
 
@@ -40,8 +40,8 @@ describe('FeathersHooks', () => {
   beforeEach(() => {
     createEngine()
     const db = [
-      { id: '1', name: 'John' },
-      { id: '2', name: 'Jane' }
+      { id: '1', name: 'John' as UserName },
+      { id: '2', name: 'Jane' as UserName }
     ]
     const eventDispatcher = new EventDispatcher()
     ;(Engine.instance.api as any) = {
@@ -197,7 +197,7 @@ describe('FeathersHooks', () => {
         rerender()
       })
       await act(() => {
-        result.current.create({ name: 'Jack', avatarId: '' as AvatarID, isGuest: true, scopes: [] })
+        result.current.create({ name: 'Jack' as UserName, avatarId: '' as AvatarID, isGuest: true, scopes: [] })
       })
       const findHook = renderHook(() => {
         return useFind(userPath)
@@ -238,7 +238,7 @@ describe('FeathersHooks', () => {
         rerender()
       })
       await act(() => {
-        result.current.patch('1', { name: 'Jack' })
+        result.current.patch('1', { name: 'Jack' as UserName })
       })
       const findHook = renderHook(() => {
         return useFind(userPath)
@@ -287,7 +287,7 @@ describe('FeathersHooks', () => {
         await act(() => {
           Engine.instance.api
             .service(userPath)
-            .create({ name: 'Jack', avatarId: '' as AvatarID, isGuest: true, scopes: [] })
+            .create({ name: 'Jack' as UserName, avatarId: '' as AvatarID, isGuest: true, scopes: [] })
         })
         await act(() => {
           rerender()
@@ -310,7 +310,7 @@ describe('FeathersHooks', () => {
         await act(() => {
           Engine.instance.api
             .service(userPath)
-            .create({ name: 'Jack', avatarId: '' as AvatarID, isGuest: true, scopes: [] })
+            .create({ name: 'Jack' as UserName, avatarId: '' as AvatarID, isGuest: true, scopes: [] })
         })
         await act(() => {
           rerender()
@@ -366,7 +366,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          Engine.instance.api.service(userPath).patch('1', { name: 'Jack' })
+          Engine.instance.api.service(userPath).patch('1', { name: 'Jack' as UserName })
         })
         await act(() => {
           rerender()
@@ -386,7 +386,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          Engine.instance.api.service(userPath).patch('1', { name: 'Jack' })
+          Engine.instance.api.service(userPath).patch('1', { name: 'Jack' as UserName })
         })
         await act(() => {
           rerender()
