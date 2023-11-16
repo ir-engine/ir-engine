@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
@@ -37,7 +36,8 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   ComponentType,
   getMutableComponent,
-  hasComponent
+  hasComponent,
+  useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { MaterialSource, SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
 import MeshBasicMaterial from '@etherealengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
@@ -62,14 +62,8 @@ import GLTFTransformProperties from './GLTFTransformProperties'
 import LightmapBakerProperties from './LightmapBakerProperties'
 import './ModelTransformProperties.css'
 
-export default function ModelTransformProperties({
-  modelState,
-  onChangeModel
-}: {
-  modelState: State<ComponentType<typeof ModelComponent>>
-  onChangeModel: any
-}) {
-  const { t } = useTranslation()
+export default function ModelTransformProperties({ entity, onChangeModel }: { entity: Entity; onChangeModel: any }) {
+  const modelState = useComponent(entity, ModelComponent)
   const selectionState = useHookstate(getMutableState(SelectionState))
   const transforming = useHookstate<boolean>(false)
   const transformHistory = useHookstate<string[]>([])
@@ -199,7 +193,7 @@ export default function ModelTransformProperties({
   }, [modelState.src])
 
   useEffect(() => {
-    transformParms.resources.set(getModelResources(modelState.value))
+    transformParms.resources.set(getModelResources(entity))
   }, [modelState.scene])
 
   return (
