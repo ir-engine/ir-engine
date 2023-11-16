@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DracoOptions } from '@gltf-transform/functions'
-import { Material, Mesh, Texture } from 'three'
+import { Material, Texture } from 'three'
 
 import {
   GeometryTransformParameters,
@@ -32,13 +32,30 @@ import {
   ResourceID,
   ResourceTransforms
 } from '../../../assets/classes/ModelTransform'
-import { ComponentType } from '../../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../../ecs/classes/Entity'
+import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
+import { SceneID } from '../../../schemas/projects/scene.schema'
+import { MeshComponent } from '../../components/MeshComponent'
 import { ModelComponent } from '../../components/ModelComponent'
-import iterateObject3D from '../../util/iterateObject3D'
+import { UUIDComponent } from '../../components/UUIDComponent'
 
-export function getModelResources(model: ComponentType<typeof ModelComponent>): ResourceTransforms {
+export function getModelSceneID(entity: Entity): SceneID {
+  if (!hasComponent(entity, ModelComponent)) {
+    throw new Error('Entity does not have a ModelComponent')
+  }
+  if (!hasComponent(entity, UUIDComponent)) {
+    throw new Error('Entity does not have a UUIDComponent')
+  }
+  return (getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src) as SceneID
+}
+
+export function getModelResources(entity: Entity): ResourceTransforms {
+  const model = getComponent(entity, ModelComponent)
   if (!model?.scene) return { geometries: [], images: [] }
-  const geometries: GeometryTransformParameters[] = iterateObject3D(model.scene, (mesh: Mesh) => {
+  const geometries: GeometryTransformParameters[] = iterateEntityNode(entity, (entity) => {
+    if (!hasComponent(entity, MeshComponent)) return []
+    const mesh = getComponent(entity, MeshComponent)
     if (!mesh?.isMesh || !mesh.geometry) return []
     mesh.name && (mesh.geometry.name = mesh.name)
     return [mesh.geometry]
@@ -69,7 +86,8 @@ export function getModelResources(model: ComponentType<typeof ModelComponent>): 
     })
     .filter((x, i, arr) => arr.indexOf(x) === i) // remove duplicates
 
-  const images: ImageTransformParameters[] = iterateObject3D(model.scene, (mesh: Mesh) => {
+  const images: ImageTransformParameters[] = iterateEntityNode(entity, (entity) => {
+    const mesh = getComponent(entity, MeshComponent)
     if (!mesh?.isMesh || !mesh.material) return []
     const textures: Texture[] = Object.entries(mesh.material)
       .filter(([, x]) => x?.isTexture)

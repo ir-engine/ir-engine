@@ -78,7 +78,6 @@ import { GraphPanelTitle } from './graph/GraphPanelTitle'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { HierarchyPanelTitle } from './hierarchy/HierarchyPanelTitle'
 import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
-import MaterialProperties, { MaterialPropertyTitle } from './materials/MaterialEditor'
 import MaterialLibraryPanel from './materials/MaterialLibraryPanel'
 import { MaterialLibraryPanelTitle } from './materials/MaterialLibraryPanelTitle'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
@@ -471,11 +470,6 @@ const defaultLayout: LayoutData = {
                 id: 'graphPanel',
                 title: <GraphPanelTitle />,
                 content: <GraphPanel />
-              },
-              {
-                id: 'materialPropertiesPanel',
-                title: <MaterialPropertyTitle />,
-                content: <MaterialProperties />
               }
             ]
           }

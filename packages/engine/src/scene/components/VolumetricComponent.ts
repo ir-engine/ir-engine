@@ -81,9 +81,8 @@ export function handleAutoplay(
 }
 
 export const VolumetricComponent = defineComponent({
-  name: 'EE_volumetric',
+  name: 'Volumetric Component',
   jsonID: 'volumetric',
-
   onInit: (entity) => {
     return {
       paths: [] as string[],
@@ -112,7 +111,6 @@ export const VolumetricComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    setComponent(entity, ShadowComponent)
     if (!json) return
     if (typeof json.paths === 'object') {
       component.paths.set(json.paths)
@@ -169,6 +167,7 @@ export function VolumetricReactor() {
     setComponent(entity, MediaElementComponent, {
       element: document.createElement('video') as HTMLMediaElement
     })
+    setComponent(entity, ShadowComponent)
     const videoElement = getMutableComponent(entity, MediaElementComponent)
     const element = videoElement.element.value as HTMLVideoElement
     element.playsInline = true
