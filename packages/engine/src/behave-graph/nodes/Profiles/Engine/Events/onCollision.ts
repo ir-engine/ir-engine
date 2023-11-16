@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, SocketsList, makeEventNodeDefinition } from '@behave-graph/core'
+import { NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import {
   Query,
@@ -32,15 +32,9 @@ import {
   removeComponent,
   removeQuery
 } from '../../../../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import {
-  SystemDefinitions,
-  SystemUUID,
-  defineSystem,
-  disableSystem,
-  startSystem
-} from '../../../../../ecs/functions/SystemFunctions'
+import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
 import { CollisionComponent } from '../../../../../physics/components/CollisionComponent'
+import { PhysicsSystem } from '../../../../../physics/systems/PhysicsSystem'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 
 let systemCounter = 0
@@ -63,49 +57,10 @@ export const OnCollision = makeEventNodeDefinition({
   category: NodeCategory.Event,
   label: 'Collision Events',
 
-  // socket configuration support
-  configuration: {
-    numInputs: {
-      valueType: 'number',
-      defaultValue: 1
-    }
-  },
+  configuration: {},
 
-  // flow node inputs
-  in: (_, graphApi) => {
-    const sockets: SocketsList = []
-
-    sockets.push({ key: 'entity', valueType: 'entity' })
-
-    // can listen to entry or exit of that component (being added or removed)
-    const type = () => {
-      const choices = ['enter', 'exit']
-      return {
-        key: 'type',
-        valueType: 'string',
-        choices: choices,
-        defaultValue: choices[0]
-      }
-    }
-
-    // a 'system' is defining the system
-    const system = () => {
-      const systemDefinitions = Array.from(SystemDefinitions.keys()).map((key) => key as string)
-      const groups = systemDefinitions.filter((key) => key.includes('group')).sort()
-      const nonGroups = systemDefinitions.filter((key) => !key.includes('group')).sort()
-      const choices = [...groups, ...nonGroups]
-      return {
-        key: 'system',
-        valueType: 'string',
-        choices: choices,
-        defaultValue: InputSystemGroup
-      }
-    }
-
-    // build a list of sockets to paint to the display for the user interface to behave graph
-    sockets.push({ ...type() }, { ...system() })
-
-    return sockets
+  in: {
+    entity: 'entity'
   },
 
   out: {
@@ -117,10 +72,8 @@ export const OnCollision = makeEventNodeDefinition({
   initialState: initialState(),
 
   init: ({ read, write, commit, graph, configuration }) => {
-    const type = read<string>('type')
-    const system = read<SystemUUID>('system')
     const entityFilter = read<Entity>('entity')
-    const query = defineQuery([CollisionComponent])[type]
+    const query = defineQuery([CollisionComponent]).enter
 
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onCollision-' + systemCounter++,
@@ -143,7 +96,7 @@ export const OnCollision = makeEventNodeDefinition({
     })
 
     // start the actual system
-    startSystem(systemUUID, { with: system })
+    startSystem(systemUUID, { after: PhysicsSystem })
 
     // return a copy of the state for some reason? @todo why?
     const state: State = {
