@@ -30,7 +30,7 @@ import {
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls'
+import { TransformControls } from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'

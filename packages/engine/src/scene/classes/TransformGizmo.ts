@@ -1,105 +1,744 @@
-/*
-CPAL-1.0 License
-
-The contents of this file are subject to the Common Public Attribution License
-Version 1.0. (the "License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
-The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
-Exhibit A has been modified to be consistent with Exhibit B.
-
-Software distributed under the License is distributed on an "AS IS" basis,
-WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
-specific language governing rights and limitations under the License.
-
-The Original Code is Ethereal Engine.
-
-The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
-
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
-*/
-
+/* eslint-disable @typescript-eslint/ban-types */
 import {
   BoxGeometry,
   BufferGeometry,
   CylinderGeometry,
+  DoubleSide,
+  Euler,
   Float32BufferAttribute,
-  Intersection,
   Line,
   LineBasicMaterial,
+  Material,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
-  MeshStandardMaterial,
   Object3D,
+  Object3DEventMap,
   OctahedronGeometry,
+  PlaneGeometry,
+  Quaternion,
   Raycaster,
   SphereGeometry,
   TorusGeometry,
-  Vector2,
   Vector3
 } from 'three'
 
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import {
-  TransformAxisActionType,
-  TransformAxisType,
-  TransformMode,
-  TransformModeType,
-  TransformSpaceType
-} from '../../scene/constants/transformConstants'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
+const _raycaster = new Raycaster()
 
-type AxisInfo = {
-  type: TransformAxisActionType
-  axis: TransformAxisType
-  planeNormal: Vector3
-  selectionColorTarget: MeshStandardMaterial
-  rotationTarget?: Object3D
-  startMarker?: Object3D
-  startMarkerLocal?: Object3D
-  endMarker?: Object3D
-  rotationStartObject?: Object3D
-  rotationEndObject?: Object3D
+const _tempVector = new Vector3()
+const _tempVector2 = new Vector3()
+const _tempQuaternion = new Quaternion()
+const _unit = {
+  X: new Vector3(1, 0, 0),
+  Y: new Vector3(0, 1, 0),
+  Z: new Vector3(0, 0, 1)
 }
 
-type MeshWithAxisInfo = Mesh & { axisInfo: AxisInfo }
+const _changeEvent = { type: 'change' }
+const _mouseDownEvent = { type: 'mouseDown' }
+const _mouseUpEvent = { type: 'mouseUp', mode: null }
+const _objectChangeEvent = { type: 'objectChange' }
 
-let gizmoGltf: GLTF = null!
-const GLTF_PATH = '/static/editor/TransformGizmo.glb' // STATIC
-export default class TransformGizmo extends Object3D {
-  gizmo: any
+export interface TransformControlsEventMap extends Object3DEventMap {
+  change: {}
+  mouseDown: {}
+  mouseUp: {}
+  objectChange: {}
+  'camera-changed': { value: unknown }
+  'object-changed': { value: unknown }
+  'enabled-changed': { value: unknown }
+  'axis-changed': { value: unknown }
+  'mode-changed': { value: unknown }
+  'translationSnap-changed': { value: unknown }
+  'rotationSnap-changed': { value: unknown }
+  'scaleSnap-changed': { value: unknown }
+  'space-changed': { value: unknown }
+  'size-changed': { value: unknown }
+  'dragging-changed': { value: unknown }
+  'showX-changed': { value: unknown }
+  'showY-changed': { value: unknown }
+  'showZ-changed': { value: unknown }
+  'worldPosition-changed': { value: unknown }
+  'worldPositionStart-changed': { value: unknown }
+  'worldQuaternion-changed': { value: unknown }
+  'worldQuaternionStart-changed': { value: unknown }
+  'cameraPosition-changed': { value: unknown }
+  'cameraQuaternion-changed': { value: unknown }
+  'pointStart-changed': { value: unknown }
+  'pointEnd-changed': { value: unknown }
+  'rotationAxis-changed': { value: unknown }
+  'rotationAngle-changed': { value: unknown }
+  'eye-changed': { value: unknown }
+}
+
+class TransformControls extends Object3D<TransformControlsEventMap> {
+  isTransformControls: boolean
+  domElement: any
+  private _gizmo: TransformControlsGizmo
+  private _plane: TransformControlsPlane
+  _offset: Vector3
+  _startNorm: Vector3
+  _endNorm: Vector3
+  _cameraScale: Vector3
+  _parentPosition: Vector3
+  _parentQuaternion: Quaternion
+  _parentQuaternionInv: Quaternion
+  _parentScale: Vector3
+  _worldScaleStart: Vector3
+  _worldQuaternionInv: Quaternion
+  _worldScale: Vector3
+  _positionStart: Vector3
+  _quaternionStart: Quaternion
+  _scaleStart: Vector3
+  _getPointer: (event: any) => { x: number; y: number; button: any }
+  _onPointerDown: (event: any) => void
+  _onPointerHover: (event: any) => void
+  _onPointerMove: (event: any) => void
+  _onPointerUp: (event: any) => void
+  object: Object3D
+  camera: any
+  dragging: boolean
+  mode: any
+  axis: any
+  pointStart: any
+  space: any
+  pointEnd: any
+  translationSnap: any
+  scaleSnap: any
+  rotationAxis: any
+  rotationAngle: number
+  rotationSnap: any
+  enabled: any
+  size: any
+
+  constructor(camera, domElement) {
+    super()
+
+    if (domElement === undefined) {
+      console.warn('THREE.TransformControls: The second parameter "domElement" is now mandatory.')
+      domElement = document
+    }
+
+    this.isTransformControls = true
+
+    this.visible = false
+    this.domElement = domElement
+    this.domElement.style.touchAction = 'none' // disable touch scroll
+
+    const _gizmo = new TransformControlsGizmo()
+    this._gizmo = _gizmo
+    this.add(_gizmo)
+
+    const _plane = new TransformControlsPlane()
+    this._plane = _plane
+    this.add(_plane)
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const scope = this
+
+    /**
+     * Define a property on an object with a default value.
+     * @param {string} propName - The name of the property.
+     * @param {*} defaultValue - The default value for the property.
+     */
+    function defineProperty<T>(propName, defaultValue: T) {
+      let propValue: T = defaultValue as T
+
+      Object.defineProperty(scope, propName, {
+        get: function () {
+          return propValue !== undefined ? propValue : defaultValue
+        },
+
+        set: function (value: T) {
+          if (propValue !== value) {
+            propValue = value
+            _plane[propName] = value
+            _gizmo[propName] = value
+
+            scope.dispatchEvent({ type: (propName + '-changed') as any, value: value })
+            scope.dispatchEvent(_changeEvent as any)
+          }
+        }
+      })
+
+      scope[propName] = defaultValue as T
+      _plane[propName] = defaultValue as T
+      _gizmo[propName] = defaultValue as T
+    }
+
+    // Define properties with getters/setter
+    // Setting the defined property will automatically trigger change event
+    // Defined properties are passed down to gizmo and plane
+
+    defineProperty('camera', camera)
+    defineProperty('object', undefined)
+    defineProperty('enabled', true)
+    defineProperty('axis', null)
+    defineProperty('mode', 'translate')
+    defineProperty('translationSnap', null)
+    defineProperty('rotationSnap', null)
+    defineProperty('scaleSnap', null)
+    defineProperty('space', 'world')
+    defineProperty('size', 1)
+    defineProperty('dragging', false)
+    defineProperty('showX', true)
+    defineProperty('showY', true)
+    defineProperty('showZ', true)
+
+    // Reusable utility variables
+
+    const worldPosition = new Vector3()
+    const worldPositionStart = new Vector3()
+    const worldQuaternion = new Quaternion()
+    const worldQuaternionStart = new Quaternion()
+    const cameraPosition = new Vector3()
+    const cameraQuaternion = new Quaternion()
+    const pointStart = new Vector3()
+    const pointEnd = new Vector3()
+    const rotationAxis = new Vector3()
+    const rotationAngle = 0
+    const eye = new Vector3()
+
+    // TODO: remove properties unused in plane and gizmo
+
+    defineProperty('worldPosition', worldPosition)
+    defineProperty('worldPositionStart', worldPositionStart)
+    defineProperty('worldQuaternion', worldQuaternion)
+    defineProperty('worldQuaternionStart', worldQuaternionStart)
+    defineProperty('cameraPosition', cameraPosition)
+    defineProperty('cameraQuaternion', cameraQuaternion)
+    defineProperty('pointStart', pointStart)
+    defineProperty('pointEnd', pointEnd)
+    defineProperty('rotationAxis', rotationAxis)
+    defineProperty('rotationAngle', rotationAngle)
+    defineProperty('eye', eye)
+
+    this._offset = new Vector3()
+    this._startNorm = new Vector3()
+    this._endNorm = new Vector3()
+    this._cameraScale = new Vector3()
+
+    this._parentPosition = new Vector3()
+    this._parentQuaternion = new Quaternion()
+    this._parentQuaternionInv = new Quaternion()
+    this._parentScale = new Vector3()
+
+    this._worldScaleStart = new Vector3()
+    this._worldQuaternionInv = new Quaternion()
+    this._worldScale = new Vector3()
+
+    this._positionStart = new Vector3()
+    this._quaternionStart = new Quaternion()
+    this._scaleStart = new Vector3()
+
+    this._getPointer = getPointer.bind(this)
+    this._onPointerDown = onPointerDown.bind(this)
+    this._onPointerHover = onPointerHover.bind(this)
+    this._onPointerMove = onPointerMove.bind(this)
+    this._onPointerUp = onPointerUp.bind(this)
+
+    this.domElement.addEventListener('pointerdown', this._onPointerDown)
+    this.domElement.addEventListener('pointermove', this._onPointerHover)
+    this.domElement.addEventListener('pointerup', this._onPointerUp)
+  }
+
+  // updateMatrixWorld  updates key transformation variables
+  updateMatrixWorld() {
+    if (this.object !== undefined) {
+      this.object.updateMatrixWorld()
+
+      if (this.object.parent === null) {
+        console.error('TransformControls: The attached 3D object must be a part of the scene graph.')
+      } else {
+        this.object.parent.matrixWorld.decompose(this._parentPosition, this._parentQuaternion, this._parentScale)
+      }
+      this.object.matrixWorld.decompose(this.worldPosition as any, this.worldQuaternion as any, this._worldScale)
+
+      this._parentQuaternionInv.copy(this._parentQuaternion).invert()
+      this._worldQuaternionInv.copy(this.worldQuaternion as any).invert()
+    }
+    this.camera.updateMatrixWorld()
+    this.camera.matrixWorld.decompose(this.cameraPosition, this.cameraQuaternion, this._cameraScale)
+
+    if (this.camera.isOrthographicCamera) {
+      this.camera.getWorldDirection(this.eye).negate()
+    } else {
+      ;(this.eye as any).copy(this.cameraPosition).sub(this.worldPosition).normalize()
+    }
+
+    super.updateMatrixWorld(this as any)
+  }
+  worldPosition(worldPosition: any, worldQuaternion: any, _worldScale: any) {
+    throw new Error('Method not implemented.')
+  }
+  worldQuaternion(worldPosition: any, worldQuaternion: any, _worldScale: any) {
+    throw new Error('Method not implemented.')
+  }
+  cameraPosition(cameraPosition: any, cameraQuaternion: any, _cameraScale: any) {
+    throw new Error('Method not implemented.')
+  }
+  cameraQuaternion(cameraPosition: any, cameraQuaternion: any, _cameraScale: any) {
+    throw new Error('Method not implemented.')
+  }
+  eye(eye: any) {
+    throw new Error('Method not implemented.')
+  }
+
+  pointerHover(pointer) {
+    if (this.object === undefined || this.dragging === true) return
+
+    _raycaster.setFromCamera(pointer, this.camera)
+
+    const intersect = intersectObjectWithRay(this._gizmo.picker[this.mode], _raycaster, true)
+
+    if (intersect) {
+      this.axis = intersect.object.name
+    } else {
+      this.axis = null
+    }
+  }
+
+  pointerDown(pointer) {
+    if (this.object === undefined || this.dragging === true || pointer.button !== 0) return
+
+    if (this.axis !== null) {
+      _raycaster.setFromCamera(pointer, this.camera)
+
+      const planeIntersect = intersectObjectWithRay(this._plane, _raycaster, true)
+
+      if (planeIntersect) {
+        this.object.updateMatrixWorld()
+        this.object.parent!.updateMatrixWorld()
+
+        this._positionStart.copy(this.object.position)
+        this._quaternionStart.copy(this.object.quaternion)
+        this._scaleStart.copy(this.object.scale)
+
+        this.object.matrixWorld.decompose(
+          this.worldPositionStart as any,
+          this.worldQuaternionStart as any,
+          this._worldScaleStart
+        )
+
+        this.pointStart.copy(planeIntersect.point).sub(this.worldPositionStart)
+      }
+
+      this.dragging = true
+      ;(_mouseDownEvent as any).mode = this.mode
+      this.dispatchEvent(_mouseDownEvent as any)
+    }
+  }
+  worldPositionStart(worldPositionStart: any, worldQuaternionStart: any, _worldScaleStart: any) {
+    throw new Error('Method not implemented.')
+  }
+  worldQuaternionStart(worldPositionStart: any, worldQuaternionStart: any, _worldScaleStart: any) {
+    throw new Error('Method not implemented.')
+  }
+
+  pointerMove(pointer) {
+    const axis = this.axis
+    const mode = this.mode
+    const object = this.object
+    let space = this.space
+
+    if (mode === 'scale') {
+      space = 'local'
+    } else if (axis === 'E' || axis === 'XYZE' || axis === 'XYZ') {
+      space = 'world'
+    }
+
+    if (object === undefined || axis === null || this.dragging === false || pointer.button !== -1) return
+
+    _raycaster.setFromCamera(pointer, this.camera)
+
+    const planeIntersect = intersectObjectWithRay(this._plane, _raycaster, true)
+
+    if (!planeIntersect) return
+
+    this.pointEnd.copy(planeIntersect.point).sub(this.worldPositionStart)
+
+    if (mode === 'translate') {
+      // Apply translate
+
+      this._offset.copy(this.pointEnd).sub(this.pointStart)
+
+      if (space === 'local' && axis !== 'XYZ') {
+        this._offset.applyQuaternion(this._worldQuaternionInv)
+      }
+
+      if (axis.indexOf('X') === -1) this._offset.x = 0
+      if (axis.indexOf('Y') === -1) this._offset.y = 0
+      if (axis.indexOf('Z') === -1) this._offset.z = 0
+
+      if (space === 'local' && axis !== 'XYZ') {
+        this._offset.applyQuaternion(this._quaternionStart).divide(this._parentScale)
+      } else {
+        this._offset.applyQuaternion(this._parentQuaternionInv).divide(this._parentScale)
+      }
+
+      object.position.copy(this._offset).add(this._positionStart)
+
+      // Apply translation snap
+
+      if (this.translationSnap) {
+        if (space === 'local') {
+          object.position.applyQuaternion(_tempQuaternion.copy(this._quaternionStart).invert())
+
+          if (axis.search('X') !== -1) {
+            object.position.x = Math.round(object.position.x / this.translationSnap) * this.translationSnap
+          }
+
+          if (axis.search('Y') !== -1) {
+            object.position.y = Math.round(object.position.y / this.translationSnap) * this.translationSnap
+          }
+
+          if (axis.search('Z') !== -1) {
+            object.position.z = Math.round(object.position.z / this.translationSnap) * this.translationSnap
+          }
+
+          object.position.applyQuaternion(this._quaternionStart)
+        }
+
+        if (space === 'world') {
+          if (object.parent) {
+            object.position.add(_tempVector.setFromMatrixPosition(object.parent.matrixWorld))
+          }
+
+          if (axis.search('X') !== -1) {
+            object.position.x = Math.round(object.position.x / this.translationSnap) * this.translationSnap
+          }
+
+          if (axis.search('Y') !== -1) {
+            object.position.y = Math.round(object.position.y / this.translationSnap) * this.translationSnap
+          }
+
+          if (axis.search('Z') !== -1) {
+            object.position.z = Math.round(object.position.z / this.translationSnap) * this.translationSnap
+          }
+
+          if (object.parent) {
+            object.position.sub(_tempVector.setFromMatrixPosition(object.parent.matrixWorld))
+          }
+        }
+      }
+    } else if (mode === 'scale') {
+      if (axis.search('XYZ') !== -1) {
+        let d = this.pointEnd.length() / this.pointStart.length()
+
+        if (this.pointEnd.dot(this.pointStart) < 0) d *= -1
+
+        _tempVector2.set(d, d, d)
+      } else {
+        _tempVector.copy(this.pointStart)
+        _tempVector2.copy(this.pointEnd)
+
+        _tempVector.applyQuaternion(this._worldQuaternionInv)
+        _tempVector2.applyQuaternion(this._worldQuaternionInv)
+
+        _tempVector2.divide(_tempVector)
+
+        if (axis.search('X') === -1) {
+          _tempVector2.x = 1
+        }
+
+        if (axis.search('Y') === -1) {
+          _tempVector2.y = 1
+        }
+
+        if (axis.search('Z') === -1) {
+          _tempVector2.z = 1
+        }
+      }
+
+      // Apply scale
+
+      object.scale.copy(this._scaleStart).multiply(_tempVector2)
+
+      if (this.scaleSnap) {
+        if (axis.search('X') !== -1) {
+          object.scale.x = Math.round(object.scale.x / this.scaleSnap) * this.scaleSnap || this.scaleSnap
+        }
+
+        if (axis.search('Y') !== -1) {
+          object.scale.y = Math.round(object.scale.y / this.scaleSnap) * this.scaleSnap || this.scaleSnap
+        }
+
+        if (axis.search('Z') !== -1) {
+          object.scale.z = Math.round(object.scale.z / this.scaleSnap) * this.scaleSnap || this.scaleSnap
+        }
+      }
+    } else if (mode === 'rotate') {
+      this._offset.copy(this.pointEnd).sub(this.pointStart)
+
+      const ROTATION_SPEED =
+        20 / (this.worldPosition as any).distanceTo(_tempVector.setFromMatrixPosition(this.camera.matrixWorld))
+
+      let _inPlaneRotation = false
+
+      if (axis === 'XYZE') {
+        this.rotationAxis.copy(this._offset).cross(this.eye).normalize()
+        this.rotationAngle =
+          this._offset.dot(_tempVector.copy(this.rotationAxis).cross(this.eye as any)) * ROTATION_SPEED
+      } else if (axis === 'X' || axis === 'Y' || axis === 'Z') {
+        this.rotationAxis.copy(_unit[axis])
+
+        _tempVector.copy(_unit[axis])
+
+        if (space === 'local') {
+          _tempVector.applyQuaternion(this.worldQuaternion as any)
+        }
+
+        _tempVector.cross(this.eye as any)
+
+        // When _tempVector is 0 after cross with this.eye the vectors are parallel and should use in-plane rotation logic.
+        if (_tempVector.length() === 0) {
+          _inPlaneRotation = true
+        } else {
+          this.rotationAngle = this._offset.dot(_tempVector.normalize()) * ROTATION_SPEED
+        }
+      }
+
+      if (axis === 'E' || _inPlaneRotation) {
+        this.rotationAxis.copy(this.eye)
+        this.rotationAngle = this.pointEnd.angleTo(this.pointStart)
+
+        this._startNorm.copy(this.pointStart).normalize()
+        this._endNorm.copy(this.pointEnd).normalize()
+
+        this.rotationAngle *= this._endNorm.cross(this._startNorm).dot(this.eye as any) < 0 ? 1 : -1
+      }
+
+      // Apply rotation snap
+
+      if (this.rotationSnap) this.rotationAngle = Math.round(this.rotationAngle / this.rotationSnap) * this.rotationSnap
+
+      // Apply rotate
+      if (space === 'local' && axis !== 'E' && axis !== 'XYZE') {
+        object.quaternion.copy(this._quaternionStart)
+        object.quaternion.multiply(_tempQuaternion.setFromAxisAngle(this.rotationAxis, this.rotationAngle)).normalize()
+      } else {
+        this.rotationAxis.applyQuaternion(this._parentQuaternionInv)
+        object.quaternion.copy(_tempQuaternion.setFromAxisAngle(this.rotationAxis, this.rotationAngle))
+        object.quaternion.multiply(this._quaternionStart).normalize()
+      }
+    }
+
+    this.dispatchEvent(_changeEvent as any)
+    this.dispatchEvent(_objectChangeEvent as any)
+  }
+
+  pointerUp(pointer) {
+    if (pointer.button !== 0) return
+
+    if (this.dragging && this.axis !== null) {
+      _mouseUpEvent.mode = this.mode
+      this.dispatchEvent(_mouseUpEvent as any)
+    }
+
+    this.dragging = false
+    this.axis = null
+  }
+
+  dispose() {
+    this.domElement.removeEventListener('pointerdown', this._onPointerDown)
+    this.domElement.removeEventListener('pointermove', this._onPointerHover)
+    this.domElement.removeEventListener('pointermove', this._onPointerMove)
+    this.domElement.removeEventListener('pointerup', this._onPointerUp)
+
+    this.traverse(function (child: Mesh) {
+      if (child.geometry) child.geometry.dispose()
+      if (child.material) (child.material as Material).dispose()
+    })
+  }
+
+  // Set current object
+  attach(object) {
+    this.object = object
+    this.visible = true
+
+    return this
+  }
+
+  // Detach from object
+  detach() {
+    this.object = undefined as any
+    this.visible = false
+    this.axis = null
+
+    return this
+  }
+
+  reset() {
+    if (!this.enabled) return
+
+    if (this.dragging) {
+      this.object.position.copy(this._positionStart)
+      this.object.quaternion.copy(this._quaternionStart)
+      this.object.scale.copy(this._scaleStart)
+
+      this.dispatchEvent(_changeEvent as any)
+      this.dispatchEvent(_objectChangeEvent as any)
+
+      this.pointStart.copy(this.pointEnd)
+    }
+  }
+
+  getRaycaster() {
+    return _raycaster
+  }
+
+  // TODO: deprecate
+
+  getMode() {
+    return this.mode
+  }
+
+  setMode(mode) {
+    this.mode = mode
+  }
+
+  setTranslationSnap(translationSnap) {
+    this.translationSnap = translationSnap
+  }
+
+  setRotationSnap(rotationSnap) {
+    this.rotationSnap = rotationSnap
+  }
+
+  setScaleSnap(scaleSnap) {
+    this.scaleSnap = scaleSnap
+  }
+
+  setSize(size) {
+    this.size = size
+  }
+
+  setSpace(space) {
+    this.space = space
+  }
+}
+
+// mouse / touch event handlers
+
+function getPointer(event) {
+  if (this.domElement.ownerDocument.pointerLockElement) {
+    return {
+      x: 0,
+      y: 0,
+      button: event.button
+    }
+  } else {
+    const rect = this.domElement.getBoundingClientRect()
+
+    return {
+      x: ((event.clientX - rect.left) / rect.width) * 2 - 1,
+      y: (-(event.clientY - rect.top) / rect.height) * 2 + 1,
+      button: event.button
+    }
+  }
+}
+
+function onPointerHover(event) {
+  if (!this.enabled) return
+
+  switch (event.pointerType) {
+    case 'mouse':
+    case 'pen':
+      this.pointerHover(this._getPointer(event))
+      break
+  }
+}
+
+function onPointerDown(event) {
+  if (!this.enabled) return
+
+  if (!document.pointerLockElement) {
+    this.domElement.setPointerCapture(event.pointerId)
+  }
+
+  this.domElement.addEventListener('pointermove', this._onPointerMove)
+
+  this.pointerHover(this._getPointer(event))
+  this.pointerDown(this._getPointer(event))
+}
+
+function onPointerMove(event) {
+  if (!this.enabled) return
+
+  this.pointerMove(this._getPointer(event))
+}
+
+function onPointerUp(event) {
+  if (!this.enabled) return
+
+  this.domElement.releasePointerCapture(event.pointerId)
+
+  this.domElement.removeEventListener('pointermove', this._onPointerMove)
+
+  this.pointerUp(this._getPointer(event))
+}
+
+function intersectObjectWithRay(object, raycaster, includeInvisible?) {
+  const allIntersections = raycaster.intersectObject(object, true)
+
+  for (let i = 0; i < allIntersections.length; i++) {
+    if (allIntersections[i].object.visible || includeInvisible) {
+      return allIntersections[i]
+    }
+  }
+
+  return false
+}
+
+//
+
+// Reusable utility variables
+
+const _tempEuler = new Euler()
+const _alignVector = new Vector3(0, 1, 0)
+const _zeroVector = new Vector3(0, 0, 0)
+const _lookAtMatrix = new Matrix4()
+const _tempQuaternion2 = new Quaternion()
+const _identityQuaternion = new Quaternion()
+const _dirVector = new Vector3()
+const _tempMatrix = new Matrix4()
+
+const _unitX = new Vector3(1, 0, 0)
+const _unitY = new Vector3(0, 1, 0)
+const _unitZ = new Vector3(0, 0, 1)
+
+const _v1 = new Vector3()
+const _v2 = new Vector3()
+const _v3 = new Vector3()
+
+class TransformControlsGizmo extends Object3D {
   picker: any
-  helper: any
-  raycaster: Raycaster
-  raycasterResults: Intersection<Object3D>[]
-  translateControls: Object3D
-  rotateControls: Object3D
-  scaleControls: Object3D
-  mode: TransformModeType
-  space: TransformSpaceType
+  isTransformControlsGizmo: boolean
+  gizmo: {}
+  helper: {}
+  mode: string
+  space: any
   worldQuaternion: any
+  camera: any
+  size: any
   axis: any
   dragging: any
   showX: boolean
   showY: boolean
   showZ: boolean
   enabled: any
+  type: any
 
   constructor() {
     super()
-    this.name = 'TransformGizmo'
-    this.load()
-  }
 
-  async create() {
+    this.isTransformControlsGizmo = true
+
+    this.type = 'TransformControlsGizmo'
+    this.name = 'TransformControlsGizmo'
+
+    // shared materials
+
     const gizmoMaterial = new MeshBasicMaterial({
       depthTest: false,
       depthWrite: false,
@@ -159,6 +798,7 @@ export default class TransformGizmo extends Object3D {
     matGray.color.setHex(0x787878)
 
     // reusable geometry
+
     const arrowGeometry = new CylinderGeometry(0, 0.04, 0.1, 12)
     arrowGeometry.translate(0, 0.05, 0)
 
@@ -362,571 +1002,311 @@ export default class TransformGizmo extends Object3D {
       return gizmo
     }
 
+    // Gizmo creation
+
     this.gizmo = {}
     this.picker = {}
     this.helper = {}
-    this.add((this.gizmo[TransformMode.translate] = setupGizmo(gizmoTranslate)))
-    this.add((this.gizmo[TransformMode.rotate] = setupGizmo(gizmoRotate)))
-    this.add((this.gizmo[TransformMode.scale] = setupGizmo(gizmoScale)))
-    this.add((this.picker[TransformMode.translate] = setupGizmo(pickerTranslate)))
-    this.add((this.picker[TransformMode.rotate] = setupGizmo(pickerRotate)))
-    this.add((this.picker[TransformMode.scale] = setupGizmo(pickerScale)))
-    this.add((this.helper[TransformMode.translate] = setupGizmo(helperTranslate)))
-    this.add((this.helper[TransformMode.rotate] = setupGizmo(helperRotate)))
-    this.add((this.helper[TransformMode.scale] = setupGizmo(helperScale)))
-    const geometryScaleValue = 2
-    const geometryScale = new Vector3(1, 1, 1).multiplyScalar(geometryScaleValue)
-    for (const mode in this.gizmo) {
-      this.gizmo[mode].scale.copy(geometryScale)
-      this.helper[mode].scale.copy(geometryScale)
-      this.picker[mode].scale.copy(geometryScale)
-    }
+
+    this.add((this.gizmo['translate'] = setupGizmo(gizmoTranslate)))
+    this.add((this.gizmo['rotate'] = setupGizmo(gizmoRotate)))
+    this.add((this.gizmo['scale'] = setupGizmo(gizmoScale)))
+    this.add((this.picker['translate'] = setupGizmo(pickerTranslate)))
+    this.add((this.picker['rotate'] = setupGizmo(pickerRotate)))
+    this.add((this.picker['scale'] = setupGizmo(pickerScale)))
+    this.add((this.helper['translate'] = setupGizmo(helperTranslate)))
+    this.add((this.helper['rotate'] = setupGizmo(helperRotate)))
+    this.add((this.helper['scale'] = setupGizmo(helperScale)))
+
     // Pickers should be hidden always
 
-    this.picker[TransformMode.Translate].visible = false
-    this.picker[TransformMode.Rotate].visible = false
-    this.picker[TransformMode.Scale].visible = false
+    this.picker['translate'].visible = false
+    this.picker['rotate'].visible = false
+    this.picker['scale'].visible = false
   }
 
-  async load() {
-    //gizmoGltf = await AssetLoader.loadAsync(GLTF_PATH, { ignoreDisposeGeometry: true })
-    this.create()
-    //this.model = gizmoGltf.scene
-    //this.add(this.model)
-    //this.selectionColor = new Color().setRGB(1, 1, 1)
-    //this.previousColor = new Color()
-    this.raycasterResults = []
-    this.translateControls = this.gizmo[TransformMode.Translate]
-    setObjectLayers(this, ObjectLayers.TransformGizmo)
-
-    this.raycaster = new Raycaster()
-    this.raycaster.layers.set(ObjectLayers.TransformGizmo)
-    /*
-    this.translateXAxis = this.translateControls.getObjectByName('X') as MeshWithAxisInfo
-    
-    this.translateXAxis.axisInfo = {
-      type: TransformAxisAction.Translate,
-      axis: TransformAxis.X,
-      planeNormal: new Vector3(0, 1, 0),
-      selectionColorTarget: this.translateXAxis.material as MeshStandardMaterial
-    }
-
-    this.translateYAxis = this.translateControls.getObjectByName('Y') as MeshWithAxisInfo
-    this.translateYAxis.axisInfo = {
-      type: TransformAxisAction.Translate,
-      axis: TransformAxis.Y,
-      planeNormal: new Vector3(0, 0, 1),
-      selectionColorTarget: this.translateYAxis.material as MeshStandardMaterial
-    }
-
-    this.translateZAxis = this.translateControls.getObjectByName('Z') as MeshWithAxisInfo
-    this.translateZAxis.axisInfo = {
-      type: TransformAxisAction.Translate,
-      axis: TransformAxis.Z,
-      planeNormal: new Vector3(0, 1, 0),
-      selectionColorTarget: this.translateZAxis.material as MeshStandardMaterial
-    }
-
-    this.translateXYPlane = this.translateControls.getObjectByName('XY') as MeshWithAxisInfo
-    this.translateXYPlane.axisInfo = {
-      type: TransformAxisAction.Translate,
-      axis: TransformAxis.XY,
-      planeNormal: new Vector3(0, 0, 1),
-      selectionColorTarget: this.translateXYPlane.material as MeshStandardMaterial
-    }
-
-    this.translateYZPlane = this.translateControls.getObjectByName('YZ') as MeshWithAxisInfo
-    this.translateYZPlane.axisInfo = {
-      type: TransformAxisAction.Translate,
-      axis: TransformAxis.YZ,
-      planeNormal: new Vector3(1, 0, 0),
-      selectionColorTarget: this.translateYZPlane.material as MeshStandardMaterial
-    }
-
-    this.translateXZPlane = this.translateControls.getObjectByName('XZ') as MeshWithAxisInfo
-    this.translateXZPlane.axisInfo = {
-      type: TransformAxisAction.Translate,
-      axis: TransformAxis.XZ,
-      planeNormal: new Vector3(0, 1, 0),
-      selectionColorTarget: this.translateXZPlane.material as MeshStandardMaterial
-    }
-
-    this.translateXYZ = this.translateControls.getObjectByName('XYZ') as MeshWithAxisInfo
-    this.translateXYZ.axisInfo = {
-      type: TransformAxisAction.Translate,
-      axis: TransformAxis.XZ,
-      planeNormal: new Vector3(0, 1, 0),
-      selectionColorTarget: this.translateXZPlane.material as MeshStandardMaterial
-    }
-    */
-    this.rotateControls = this.gizmo[TransformMode.Rotate]
-    /*
-    this.rotateXAxis = this.rotateControls.getObjectByName('X')!
-    const rotateXAxisDisk = this.rotateXAxis.getObjectByName('RotateXAxisDisk') as MeshWithAxisInfo
-    const rotateXAxisStart = this.rotateXAxis.getObjectByName('RotateXAxisStart')!
-    const rotateXAxisEnd = this.rotateXAxis.getObjectByName('RotateXAxisEnd')!
-
-    const localRotateXAxisStart = rotateXAxisStart.clone()
-    rotateXAxisDisk.axisInfo = {
-      type: TransformAxisAction.Rotate,
-      axis: TransformAxis.X,
-      planeNormal: new Vector3(1, 0, 0),
-      rotationTarget: rotateXAxisDisk,
-      startMarker: rotateXAxisStart,
-      startMarkerLocal: localRotateXAxisStart,
-      endMarker: rotateXAxisEnd,
-      selectionColorTarget: rotateXAxisDisk.material as MeshStandardMaterial
-    }
-
-    this.rotateYAxis = this.rotateControls.getObjectByName('Y')!
-    const rotateYAxisDisk = this.rotateYAxis.getObjectByName('RotateYAxisDisk') as MeshWithAxisInfo
-    const rotateYAxisStart = this.rotateYAxis.getObjectByName('RotateYAxisStart')!
-    const rotateYAxisEnd = this.rotateYAxis.getObjectByName('RotateYAxisEnd')!
-
-    const localRotateYAxisStart = rotateYAxisStart.clone()
-    rotateYAxisDisk.axisInfo = {
-      type: TransformAxisAction.Rotate,
-      axis: TransformAxis.Y,
-      planeNormal: new Vector3(0, 1, 0),
-      rotationTarget: rotateYAxisDisk,
-      startMarker: rotateYAxisStart,
-      startMarkerLocal: localRotateYAxisStart,
-      endMarker: rotateYAxisEnd,
-      selectionColorTarget: rotateYAxisDisk.material as MeshStandardMaterial
-    }
-
-    this.rotateZAxis = this.rotateControls.getObjectByName('RotateZAxis')!
-    const rotateZAxisDisk = this.rotateZAxis.getObjectByName('RotateZAxisDisk') as MeshWithAxisInfo
-    const rotateZAxisStart = this.rotateZAxis.getObjectByName('RotateZAxisStart')!
-    const rotateZAxisEnd = this.rotateZAxis.getObjectByName('RotateZAxisEnd')!
-
-    const localRotateZAxisStart = rotateZAxisStart.clone()
-    rotateZAxisDisk.axisInfo = {
-      type: TransformAxisAction.Rotate,
-      axis: TransformAxis.Z,
-      planeNormal: new Vector3(0, 0, 1),
-      rotationTarget: rotateZAxisDisk,
-      startMarker: rotateZAxisStart,
-      startMarkerLocal: localRotateZAxisStart,
-      endMarker: rotateZAxisEnd,
-      selectionColorTarget: rotateZAxisDisk.material as MeshStandardMaterial
-    }
-    */
-    this.scaleControls = this.gizmo[TransformMode.Scale]
-    /*
-    this.scaleXAxis = this.scaleControls.getObjectByName('ScaleXAxis') as MeshWithAxisInfo
-    this.scaleXAxis.axisInfo = {
-      type: TransformAxisAction.Scale,
-      axis: TransformAxis.X,
-      planeNormal: new Vector3(0, 0, 1),
-      selectionColorTarget: this.scaleXAxis.material as MeshStandardMaterial
-    }
-
-    this.scaleYAxis = this.scaleControls.getObjectByName('ScaleYAxis') as MeshWithAxisInfo
-    this.scaleYAxis.axisInfo = {
-      type: TransformAxisAction.Scale,
-      axis: TransformAxis.Y,
-      planeNormal: new Vector3(0, 0, 1),
-      selectionColorTarget: this.scaleYAxis.material as MeshStandardMaterial
-    }
-
-    this.scaleZAxis = this.scaleControls.getObjectByName('ScaleZAxis') as MeshWithAxisInfo
-    this.scaleZAxis.axisInfo = {
-      type: TransformAxisAction.Scale,
-      axis: TransformAxis.Z,
-      planeNormal: new Vector3(0, 1, 0),
-      selectionColorTarget: this.scaleZAxis.material as MeshStandardMaterial
-    }
-
-    this.scaleXYPlane = this.scaleControls.getObjectByName('ScaleXYPlane') as MeshWithAxisInfo
-    this.scaleXYPlane.axisInfo = {
-      type: TransformAxisAction.Scale,
-      axis: TransformAxis.XY,
-      planeNormal: new Vector3(0, 0, 1),
-      selectionColorTarget: this.scaleXYPlane.material as MeshStandardMaterial
-    }
-
-    this.scaleYZPlane = this.scaleControls.getObjectByName('ScaleYZPlane') as MeshWithAxisInfo
-    this.scaleYZPlane.axisInfo = {
-      type: TransformAxisAction.Scale,
-      axis: TransformAxis.YZ,
-      planeNormal: new Vector3(1, 0, 0),
-      selectionColorTarget: this.scaleYZPlane.material as MeshStandardMaterial
-    }
-
-    this.scaleXZPlane = this.scaleControls.getObjectByName('ScaleXZPlane') as MeshWithAxisInfo
-    this.scaleXZPlane.axisInfo = {
-      type: TransformAxisAction.Scale,
-      axis: TransformAxis.XZ,
-      planeNormal: new Vector3(0, 1, 0),
-      selectionColorTarget: this.scaleXZPlane.material as MeshStandardMaterial
-    }
-
-    this.scaleUniformHandle = this.scaleControls.getObjectByName('ScaleUniformHandle') as MeshWithAxisInfo
-    this.scaleUniformHandle.axisInfo = {
-      type: TransformAxisAction.Scale,
-      axis: TransformAxis.XYZ,
-      planeNormal: new Vector3(0, 1, 0),
-      selectionColorTarget: this.scaleUniformHandle.material as MeshStandardMaterial
-    }
-
-    rotateXAxisStart.visible = false
-    rotateXAxisEnd.visible = false
-    rotateYAxisStart.visible = false
-    rotateYAxisEnd.visible = false
-    rotateZAxisStart.visible = false
-    rotateZAxisEnd.visible = false
-    */
-    this.translateControls.visible = true
-    this.rotateControls.visible = false
-    this.scaleControls.visible = false
-
-    if (!this.mode) this.mode = TransformMode.Disabled
-
-    this.traverse((obj: Mesh<any, MeshBasicMaterial>) => {
-      if (obj.isMesh) {
-        obj.renderOrder = 100
-      }
-    })
-
-    this.setTransformMode(this.mode)
-  }
-
-  setTransformMode(mode: TransformModeType): void {
-    this.mode = mode
-
-    for (const mode in this.gizmo) {
-      this.gizmo[mode].visible = false
-      this.helper[mode].visible = false
-    }
-
-    switch (mode) {
-      case TransformMode.Translate:
-      //this.activeControls = [this.translateControls]
-      case TransformMode.Rotate:
-      //this.activeControls = [this.rotateControls]
-      case TransformMode.Scale:
-        //this.activeControls = [this.scaleControls]
-        this.gizmo[mode].visible = true
-        this.helper[mode].visible = true
-        break
-      case TransformMode.Combined:
-        this.translateControls.visible = true
-        this.rotateControls.visible = true
-        this.scaleControls.visible = true
-        //this.activeControls = [this.translateControls, this.rotateControls, this.scaleControls]
-        break
-      default:
-        break
-    }
-  }
-
-  setLocalScaleHandlesVisible(visible: boolean): void {
-    /*this.scaleXAxis.visible = visible
-    this.scaleYAxis.visible = visible
-    this.scaleZAxis.visible = visible
-    this.scaleXYPlane.visible = visible
-    this.scaleYZPlane.visible = visible
-    this.scaleXZPlane.visible = visible*/
-  }
-
-  raycastAxis(target: Vector2, camera = getComponent(Engine.instance.cameraEntity, CameraComponent)) {
-    this.raycasterResults.length = 0
-    this.raycaster.setFromCamera(target, camera)
-
-    const intersect = intersectObjectWithRay(this.gizmo.picker[this.mode], this.raycaster)
-
-    if (intersect) {
-      this.axis = intersect.object.name
-    } else {
-      this.axis = null
-    }
-  }
+  // updateMatrixWorld will update transformations and appearance of individual handles
 
   updateMatrixWorld(force) {
-    //const space = ( this.mode === TransformMode.Scale ) ? TransformSpace.Local : this.space; // scale always oriented to local rotation
+    const space = this.mode === 'scale' ? 'local' : this.space // scale always oriented to local rotation
 
-    //const quaternion = ( space === TransformSpace.Local ) ? this.worldQuaternion : _identityQuaternion;
+    const quaternion = space === 'local' ? this.worldQuaternion : _identityQuaternion
 
     // Show only gizmos for current transform mode
-    this.gizmo[TransformMode.Translate].visible = this.mode === TransformMode.Translate
-    this.gizmo[TransformMode.Rotate].visible = this.mode === TransformMode.Rotate
-    this.gizmo[TransformMode.Scale].visible = this.mode === TransformMode.Scale
 
-    this.helper[TransformMode.Translate].visible = this.mode === TransformMode.Translate
-    this.helper[TransformMode.Rotate].visible = this.mode === TransformMode.Rotate
-    this.helper[TransformMode.Scale].visible = this.mode === TransformMode.Scale
+    this.gizmo['translate'].visible = this.mode === 'translate'
+    this.gizmo['rotate'].visible = this.mode === 'rotate'
+    this.gizmo['scale'].visible = this.mode === 'scale'
 
-    let handles: Mesh[] = []
+    this.helper['translate'].visible = this.mode === 'translate'
+    this.helper['rotate'].visible = this.mode === 'rotate'
+    this.helper['scale'].visible = this.mode === 'scale'
+
+    let handles = []
     handles = handles.concat(this.picker[this.mode].children)
     handles = handles.concat(this.gizmo[this.mode].children)
     handles = handles.concat(this.helper[this.mode].children)
 
     for (let i = 0; i < handles.length; i++) {
-      const handle = handles[i]
+      const handle: Mesh = handles[i]
 
       // hide aligned to camera
 
       handle.visible = true
       handle.rotation.set(0, 0, 0)
-      /*
-			handle.position.copy( this.worldPosition ); //  make it copy the position of entity its attached to
+      handle.position.copy(this.worldPosition as any)
+
+      let factor
+
+      if (this.camera.isOrthographicCamera) {
+        factor = (this.camera.top - this.camera.bottom) / this.camera.zoom
+      } else {
+        factor =
+          (this.worldPosition as any).distanceTo(this.cameraPosition) *
+          Math.min((1.9 * Math.tan((Math.PI * this.camera.fov) / 360)) / this.camera.zoom, 7)
+      }
+
+      handle.scale.set(1, 1, 1).multiplyScalar((factor * this.size) / 4)
+
+      // TODO: simplify helpers and consider decoupling from gizmo
+
+      if ((handle as any).tag === 'helper') {
+        handle.visible = false
+
+        if (handle.name === 'AXIS') {
+          handle.visible = !!this.axis
+
+          if (this.axis === 'X') {
+            _tempQuaternion.setFromEuler(_tempEuler.set(0, 0, 0))
+            handle.quaternion.copy(quaternion).multiply(_tempQuaternion)
+
+            if (
+              Math.abs(
+                _alignVector
+                  .copy(_unitX)
+                  .applyQuaternion(quaternion)
+                  .dot(this.eye as any)
+              ) > 0.9
+            ) {
+              handle.visible = false
+            }
+          }
+
+          if (this.axis === 'Y') {
+            _tempQuaternion.setFromEuler(_tempEuler.set(0, 0, Math.PI / 2))
+            handle.quaternion.copy(quaternion).multiply(_tempQuaternion)
+
+            if (
+              Math.abs(
+                _alignVector
+                  .copy(_unitY)
+                  .applyQuaternion(quaternion)
+                  .dot(this.eye as any)
+              ) > 0.9
+            ) {
+              handle.visible = false
+            }
+          }
+
+          if (this.axis === 'Z') {
+            _tempQuaternion.setFromEuler(_tempEuler.set(0, Math.PI / 2, 0))
+            handle.quaternion.copy(quaternion).multiply(_tempQuaternion)
+
+            if (
+              Math.abs(
+                _alignVector
+                  .copy(_unitZ)
+                  .applyQuaternion(quaternion)
+                  .dot(this.eye as any)
+              ) > 0.9
+            ) {
+              handle.visible = false
+            }
+          }
+
+          if (this.axis === 'XYZE') {
+            _tempQuaternion.setFromEuler(_tempEuler.set(0, Math.PI / 2, 0))
+            _alignVector.copy(this.rotationAxis as any)
+            handle.quaternion.setFromRotationMatrix(_lookAtMatrix.lookAt(_zeroVector, _alignVector, _unitY))
+            handle.quaternion.multiply(_tempQuaternion)
+            handle.visible = this.dragging
+          }
+
+          if (this.axis === 'E') {
+            handle.visible = false
+          }
+        } else if (handle.name === 'START') {
+          handle.position.copy(this.worldPositionStart as any)
+          handle.visible = this.dragging
+        } else if (handle.name === 'END') {
+          handle.position.copy(this.worldPosition as any)
+          handle.visible = this.dragging
+        } else if (handle.name === 'DELTA') {
+          handle.position.copy(this.worldPositionStart as any)
+          handle.quaternion.copy(this.worldQuaternionStart as any)
+          _tempVector
+            .set(1e-10, 1e-10, 1e-10)
+            .add(this.worldPositionStart as any)
+            .sub(this.worldPosition as any)
+            .multiplyScalar(-1)
+          _tempVector.applyQuaternion((this.worldQuaternionStart as any).clone().invert())
+          handle.scale.copy(_tempVector)
+          handle.visible = this.dragging
+        } else {
+          handle.quaternion.copy(quaternion)
+
+          if (this.dragging) {
+            handle.position.copy(this.worldPositionStart as any)
+          } else {
+            handle.position.copy(this.worldPosition as any)
+          }
+
+          if (this.axis) {
+            handle.visible = this.axis.search(handle.name) !== -1
+          }
+        }
+
+        // If updating helper, skip rest of the loop
+        continue
+      }
+
+      // Align handles to current local or world rotation
+
+      handle.quaternion.copy(quaternion)
+
+      if (this.mode === 'translate' || this.mode === 'scale') {
+        // Hide translate and scale axis facing the camera
+
+        const AXIS_HIDE_THRESHOLD = 0.99
+        const PLANE_HIDE_THRESHOLD = 0.2
+
+        if (handle.name === 'X') {
+          if (
+            Math.abs(
+              _alignVector
+                .copy(_unitX)
+                .applyQuaternion(quaternion)
+                .dot(this.eye as any)
+            ) > AXIS_HIDE_THRESHOLD
+          ) {
+            handle.scale.set(1e-10, 1e-10, 1e-10)
+            handle.visible = false
+          }
+        }
+
+        if (handle.name === 'Y') {
+          if (
+            Math.abs(
+              _alignVector
+                .copy(_unitY)
+                .applyQuaternion(quaternion)
+                .dot(this.eye as any)
+            ) > AXIS_HIDE_THRESHOLD
+          ) {
+            handle.scale.set(1e-10, 1e-10, 1e-10)
+            handle.visible = false
+          }
+        }
+
+        if (handle.name === 'Z') {
+          if (
+            Math.abs(
+              _alignVector
+                .copy(_unitZ)
+                .applyQuaternion(quaternion)
+                .dot(this.eye as any)
+            ) > AXIS_HIDE_THRESHOLD
+          ) {
+            handle.scale.set(1e-10, 1e-10, 1e-10)
+            handle.visible = false
+          }
+        }
+
+        if (handle.name === 'XY') {
+          if (
+            Math.abs(
+              _alignVector
+                .copy(_unitZ)
+                .applyQuaternion(quaternion)
+                .dot(this.eye as any)
+            ) < PLANE_HIDE_THRESHOLD
+          ) {
+            handle.scale.set(1e-10, 1e-10, 1e-10)
+            handle.visible = false
+          }
+        }
+
+        if (handle.name === 'YZ') {
+          if (
+            Math.abs(
+              _alignVector
+                .copy(_unitX)
+                .applyQuaternion(quaternion)
+                .dot(this.eye as any)
+            ) < PLANE_HIDE_THRESHOLD
+          ) {
+            handle.scale.set(1e-10, 1e-10, 1e-10)
+            handle.visible = false
+          }
+        }
+
+        if (handle.name === 'XZ') {
+          if (
+            Math.abs(
+              _alignVector
+                .copy(_unitY)
+                .applyQuaternion(quaternion)
+                .dot(this.eye as any)
+            ) < PLANE_HIDE_THRESHOLD
+          ) {
+            handle.scale.set(1e-10, 1e-10, 1e-10)
+            handle.visible = false
+          }
+        }
+      } else if (this.mode === 'rotate') {
+        // Align handles to current local or world rotation
+
+        _tempQuaternion2.copy(quaternion)
+        _alignVector.copy(this.eye as any).applyQuaternion(_tempQuaternion.copy(quaternion).invert())
+
+        if (handle.name.search('E') !== -1) {
+          handle.quaternion.setFromRotationMatrix(_lookAtMatrix.lookAt(this.eye as any, _zeroVector, _unitY))
+        }
+
+        if (handle.name === 'X') {
+          _tempQuaternion.setFromAxisAngle(_unitX, Math.atan2(-_alignVector.y, _alignVector.z))
+          _tempQuaternion.multiplyQuaternions(_tempQuaternion2, _tempQuaternion)
+          handle.quaternion.copy(_tempQuaternion)
+        }
+
+        if (handle.name === 'Y') {
+          _tempQuaternion.setFromAxisAngle(_unitY, Math.atan2(_alignVector.x, _alignVector.z))
+          _tempQuaternion.multiplyQuaternions(_tempQuaternion2, _tempQuaternion)
+          handle.quaternion.copy(_tempQuaternion)
+        }
+
+        if (handle.name === 'Z') {
+          _tempQuaternion.setFromAxisAngle(_unitZ, Math.atan2(_alignVector.y, _alignVector.x))
+          _tempQuaternion.multiplyQuaternions(_tempQuaternion2, _tempQuaternion)
+          handle.quaternion.copy(_tempQuaternion)
+        }
+      }
+
+      // Hide disabled axes
+      handle.visible = handle.visible && (handle.name.indexOf('X') === -1 || this.showX)
+      handle.visible = handle.visible && (handle.name.indexOf('Y') === -1 || this.showY)
+      handle.visible = handle.visible && (handle.name.indexOf('Z') === -1 || this.showZ)
+      handle.visible = handle.visible && (handle.name.indexOf('E') === -1 || (this.showX && this.showY && this.showZ))
 
-			let factor;
-
-			/*if ( this.camera.isOrthographicCamera ) {
-
-				factor = ( this.camera.top - this.camera.bottom ) / this.camera.zoom; // put this in when we have an ortho camera
-
-			} else {
-
-			factor = this.worldPosition.distanceTo( this.cameraPosition ) * Math.min( 1.9 * Math.tan( Math.PI * this.camera.fov / 360 ) / this.camera.zoom, 7 );
-
-			//}
-
-			handle.scale.set( 1, 1, 1 ).multiplyScalar( factor * this.size / 4 );
-
-			// TODO: simplify helpers and consider decoupling from gizmo
-
-			if ( (handle as any).tag === 'helper' ) {
-
-				handle.visible = false;
-
-				if ( handle.name === 'AXIS' ) {
-
-					handle.visible = !! this.axis;
-
-					if ( this.axis === 'X' ) {
-
-						_tempQuaternion.setFromEuler( _tempEuler.set( 0, 0, 0 ) );
-						handle.quaternion.copy( quaternion ).multiply( _tempQuaternion );
-
-						if ( Math.abs( _alignVector.copy( _unitX ).applyQuaternion( quaternion ).dot( this.eye ) ) > 0.9 ) { // dissappear on parallel view angle
-
-							handle.visible = false;
-
-						}
-
-					}
-
-					if ( this.axis === 'Y' ) {
-
-						_tempQuaternion.setFromEuler( _tempEuler.set( 0, 0, Math.PI / 2 ) );
-						handle.quaternion.copy( quaternion ).multiply( _tempQuaternion );
-
-						if ( Math.abs( _alignVector.copy( _unitY ).applyQuaternion( quaternion ).dot( this.eye ) ) > 0.9 ) {
-
-							handle.visible = false;
-
-						}
-
-					}
-
-					if ( this.axis === 'Z' ) {
-
-						_tempQuaternion.setFromEuler( _tempEuler.set( 0, Math.PI / 2, 0 ) );
-						handle.quaternion.copy( quaternion ).multiply( _tempQuaternion );
-
-						if ( Math.abs( _alignVector.copy( _unitZ ).applyQuaternion( quaternion ).dot( this.eye ) ) > 0.9 ) {
-
-							handle.visible = false;
-
-						}
-
-					}
-
-					if ( this.axis === 'XYZE' ) {
-
-						_tempQuaternion.setFromEuler( _tempEuler.set( 0, Math.PI / 2, 0 ) );
-						_alignVector.copy( this.rotationAxis );
-						handle.quaternion.setFromRotationMatrix( _lookAtMatrix.lookAt( _zeroVector, _alignVector, _unitY ) );
-						handle.quaternion.multiply( _tempQuaternion );
-						handle.visible = this.dragging;
-
-					}
-
-					if ( this.axis === 'E' ) {
-
-						handle.visible = false;
-
-					}
-
-
-				} else if ( handle.name === 'START' ) {// for translate
-
-					handle.position.copy( this.worldPositionStart );
-					handle.visible = this.dragging;
-
-				} else if ( handle.name === 'END' ) { // for translate 
-
-					handle.position.copy( this.worldPosition );
-					handle.visible = this.dragging;
-
-				} else if ( handle.name === 'DELTA' ) { //for the line 
-
-					handle.position.copy( this.worldPositionStart );
-					handle.quaternion.copy( this.worldQuaternionStart );
-					_tempVector.set( 1e-10, 1e-10, 1e-10 ).add( this.worldPositionStart ).sub( this.worldPosition ).multiplyScalar( - 1 );
-					_tempVector.applyQuaternion( this.worldQuaternionStart.clone().invert() );
-					handle.scale.copy( _tempVector );
-					handle.visible = this.dragging;
-
-				} else {
-
-					handle.quaternion.copy( quaternion );
-
-					if ( this.dragging ) {
-
-						handle.position.copy( this.worldPositionStart );
-
-					} else {
-
-						handle.position.copy( this.worldPosition );
-
-					}
-
-					if ( this.axis ) {
-
-						handle.visible = this.axis.search( handle.name ) !== - 1;
-
-					}
-
-				}
-
-				// If updating helper, skip rest of the loop
-				continue;
-
-			}
-
-			// Align handles to current local or world rotation
-
-			handle.quaternion.copy( quaternion );
-
-			if ( this.mode === 'translate' || this.mode === 'scale' ) {
-
-				// Hide translate and scale axis facing the camera
-
-				const AXIS_HIDE_THRESHOLD = 0.99;
-				const PLANE_HIDE_THRESHOLD = 0.2;
-
-				if ( handle.name === 'X' ) {
-
-					if ( Math.abs( _alignVector.copy( _unitX ).applyQuaternion( quaternion ).dot( this.eye ) ) > AXIS_HIDE_THRESHOLD ) {
-
-						handle.scale.set( 1e-10, 1e-10, 1e-10 );
-						handle.visible = false;
-
-					}
-
-				}
-
-				if ( handle.name === 'Y' ) {
-
-					if ( Math.abs( _alignVector.copy( _unitY ).applyQuaternion( quaternion ).dot( this.eye ) ) > AXIS_HIDE_THRESHOLD ) {
-
-						handle.scale.set( 1e-10, 1e-10, 1e-10 );
-						handle.visible = false;
-
-					}
-
-				}
-
-				if ( handle.name === 'Z' ) {
-
-					if ( Math.abs( _alignVector.copy( _unitZ ).applyQuaternion( quaternion ).dot( this.eye ) ) > AXIS_HIDE_THRESHOLD ) {
-
-						handle.scale.set( 1e-10, 1e-10, 1e-10 );
-						handle.visible = false;
-
-					}
-
-				}
-
-				if ( handle.name === 'XY' ) {
-
-					if ( Math.abs( _alignVector.copy( _unitZ ).applyQuaternion( quaternion ).dot( this.eye ) ) < PLANE_HIDE_THRESHOLD ) {
-
-						handle.scale.set( 1e-10, 1e-10, 1e-10 );
-						handle.visible = false;
-
-					}
-
-				}
-
-				if ( handle.name === 'YZ' ) {
-
-					if ( Math.abs( _alignVector.copy( _unitX ).applyQuaternion( quaternion ).dot( this.eye ) ) < PLANE_HIDE_THRESHOLD ) {
-
-						handle.scale.set( 1e-10, 1e-10, 1e-10 );
-						handle.visible = false;
-
-					}
-
-				}
-
-				if ( handle.name === 'XZ' ) {
-
-					if ( Math.abs( _alignVector.copy( _unitY ).applyQuaternion( quaternion ).dot( this.eye ) ) < PLANE_HIDE_THRESHOLD ) {
-
-						handle.scale.set( 1e-10, 1e-10, 1e-10 );
-						handle.visible = false;
-
-					}
-
-				}
-
-			} else if ( this.mode === 'rotate' ) {
-
-				// Align handles to current local or world rotation
-
-				_tempQuaternion2.copy( quaternion );
-				_alignVector.copy( this.eye ).applyQuaternion( _tempQuaternion.copy( quaternion ).invert() );
-
-				if ( handle.name.search( 'E' ) !== - 1 ) {
-
-					handle.quaternion.setFromRotationMatrix( _lookAtMatrix.lookAt( this.eye, _zeroVector, _unitY ) );
-
-				}
-
-				if ( handle.name === 'X' ) {
-
-					_tempQuaternion.setFromAxisAngle( _unitX, Math.atan2( - _alignVector.y, _alignVector.z ) );
-					_tempQuaternion.multiplyQuaternions( _tempQuaternion2, _tempQuaternion );
-					handle.quaternion.copy( _tempQuaternion );
-
-				}
-
-				if ( handle.name === 'Y' ) {
-
-					_tempQuaternion.setFromAxisAngle( _unitY, Math.atan2( _alignVector.x, _alignVector.z ) );
-					_tempQuaternion.multiplyQuaternions( _tempQuaternion2, _tempQuaternion );
-					handle.quaternion.copy( _tempQuaternion );
-
-				}
-
-				if ( handle.name === 'Z' ) {
-
-					_tempQuaternion.setFromAxisAngle( _unitZ, Math.atan2( _alignVector.y, _alignVector.x ) );
-					_tempQuaternion.multiplyQuaternions( _tempQuaternion2, _tempQuaternion );
-					handle.quaternion.copy( _tempQuaternion );
-
-				}
-
-			}
-      
-			// Hide disabled axes
-			handle.visible = handle.visible && ( handle.name.indexOf( 'X' ) === - 1 || this.showX );
-			handle.visible = handle.visible && ( handle.name.indexOf( 'Y' ) === - 1 || this.showY );
-			handle.visible = handle.visible && ( handle.name.indexOf( 'Z' ) === - 1 || this.showZ );
-			handle.visible = handle.visible && ( handle.name.indexOf( 'E' ) === - 1 || ( this.showX && this.showY && this.showZ ) );
-      */
       // highlight selected axis
+
       ;(handle.material as any)._color = (handle.material as any)._color || (handle.material as any).color.clone()
-      ;(handle.material as any)._opacity = (handle.material as any)._opacity || (handle.material as any).opacity
+      ;(handle.material as any) = (handle.material as any)._opacity || (handle.material as any).opacity
+
       ;(handle.material as any).color.copy((handle.material as any)._color)
       ;(handle.material as any).opacity = (handle.material as any)._opacity
 
-      if (this.axis) {
+      if (this.enabled && this.axis) {
         if (handle.name === this.axis) {
           ;(handle.material as any).color.setHex(0xffff00)
           ;(handle.material as any).opacity = 1.0
@@ -943,21 +1323,128 @@ export default class TransformGizmo extends Object3D {
 
     super.updateMatrixWorld(force)
   }
-
-  clone(): this {
-    // You can only have one instance of TransformControls so return a dummy object when cloning.
-    return new Object3D().copy(this) as this
+  worldPosition(worldPosition: any) {
+    throw new Error('Method not implemented.')
+  }
+  cameraPosition(cameraPosition: any) {
+    throw new Error('Method not implemented.')
+  }
+  eye(eye: any): number {
+    throw new Error('Method not implemented.')
+  }
+  rotationAxis(rotationAxis: any) {
+    throw new Error('Method not implemented.')
+  }
+  worldPositionStart(worldPositionStart: any) {
+    throw new Error('Method not implemented.')
+  }
+  worldQuaternionStart(worldQuaternionStart: any) {
+    throw new Error('Method not implemented.')
   }
 }
 
-function intersectObjectWithRay(object, raycaster, includeInvisible = false) {
-  const allIntersections = raycaster.intersectObject(object, true)
+//
 
-  for (let i = 0; i < allIntersections.length; i++) {
-    if (allIntersections[i].object.visible || includeInvisible) {
-      return allIntersections[i]
+class TransformControlsPlane extends Mesh {
+  isTransformControlsPlane: boolean
+  space: any
+  mode: string
+  worldQuaternion: Quaternion
+  axis: any
+  type: any
+  constructor() {
+    super(
+      new PlaneGeometry(100000, 100000, 2, 2),
+      new MeshBasicMaterial({
+        visible: false,
+        wireframe: true,
+        side: DoubleSide,
+        transparent: true,
+        opacity: 0.1,
+        toneMapped: false
+      })
+    )
+
+    this.isTransformControlsPlane = true
+
+    this.type = 'TransformControlsPlane'
+    this.name = 'TransformControlsPlane'
+  }
+
+  updateMatrixWorld(force) {
+    let space = this.space
+
+    this.position.copy(this.worldPosition as any)
+
+    if (this.mode === 'scale') space = 'local' // scale always oriented to local rotation
+
+    _v1.copy(_unitX).applyQuaternion(space === 'local' ? this.worldQuaternion : _identityQuaternion)
+    _v2.copy(_unitY).applyQuaternion(space === 'local' ? this.worldQuaternion : _identityQuaternion)
+    _v3.copy(_unitZ).applyQuaternion(space === 'local' ? this.worldQuaternion : _identityQuaternion)
+
+    // Align the plane for current transform mode, axis and space.
+
+    _alignVector.copy(_v2)
+
+    switch (this.mode) {
+      case 'translate':
+      case 'scale':
+        switch (this.axis) {
+          case 'X':
+            _alignVector.copy(this.eye as any).cross(_v1)
+            _dirVector.copy(_v1).cross(_alignVector)
+            break
+          case 'Y':
+            _alignVector.copy(this.eye as any).cross(_v2)
+            _dirVector.copy(_v2).cross(_alignVector)
+            break
+          case 'Z':
+            _alignVector.copy(this.eye as any).cross(_v3)
+            _dirVector.copy(_v3).cross(_alignVector)
+            break
+          case 'XY':
+            _dirVector.copy(_v3)
+            break
+          case 'YZ':
+            _dirVector.copy(_v1)
+            break
+          case 'XZ':
+            _alignVector.copy(_v3)
+            _dirVector.copy(_v2)
+            break
+          case 'XYZ':
+          case 'E':
+            _dirVector.set(0, 0, 0)
+            break
+        }
+
+        break
+      case 'rotate':
+      default:
+        // special case for rotate
+        _dirVector.set(0, 0, 0)
     }
-  }
 
-  return false
+    if (_dirVector.length() === 0) {
+      // If in rotate mode, make the plane parallel to camera
+      this.quaternion.copy(this.cameraQuaternion as any)
+    } else {
+      _tempMatrix.lookAt(_tempVector.set(0, 0, 0), _dirVector, _alignVector)
+
+      this.quaternion.setFromRotationMatrix(_tempMatrix)
+    }
+
+    super.updateMatrixWorld(force)
+  }
+  worldPosition(worldPosition: any) {
+    throw new Error('Method not implemented.')
+  }
+  eye(eye: any) {
+    throw new Error('Method not implemented.')
+  }
+  cameraQuaternion(cameraQuaternion: any) {
+    throw new Error('Method not implemented.')
+  }
 }
+
+export { TransformControls, TransformControlsGizmo, TransformControlsPlane }
