@@ -43,6 +43,8 @@ import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
+import MaterialEditor from '../materials/MaterialEditor'
+import { MaterialSelectionState } from '../materials/MaterialLibraryState'
 import { CoreNodeEditor } from './CoreNodeEditor'
 
 const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
@@ -118,6 +120,8 @@ export const PropertiesPanelContainer = () => {
     ? UUIDComponent.entitiesByUUID[lockedNode] ?? lockedNode
     : selectedEntities[selectedEntities.length - 1]
 
+  const materialID = useHookstate(getMutableState(MaterialSelectionState)).selectedMaterial.value
+
   return (
     <div
       style={{
@@ -125,7 +129,9 @@ export const PropertiesPanelContainer = () => {
         height: '100%'
       }}
     >
-      {entity ? (
+      {materialID ? (
+        <MaterialEditor materialID={materialID} />
+      ) : entity ? (
         <EntityEditor entity={entity} key={entity} multiEdit={multiEdit} />
       ) : (
         <div

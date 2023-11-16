@@ -36,6 +36,7 @@ import {
   receiveActions
 } from '@etherealengine/hyperflux'
 
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
@@ -63,6 +64,7 @@ describe('spawnAvatarReceptor', () => {
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.userID = 'user' as UserID
+    loadEmptyScene()
   })
 
   afterEach(() => {
