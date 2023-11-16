@@ -54,9 +54,10 @@ import {
   useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { QueryReactor, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
+import { QueryReactor, defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
@@ -128,8 +129,8 @@ const NetworkedSceneObjectReactor = () => {
         WorldNetworkAction.spawnObject({
           entityUUID: uuid,
           prefab: '',
-          position: transform.position,
-          rotation: transform.rotation
+          position: transform.position.clone(),
+          rotation: transform.rotation.clone()
         })
       )
     }
@@ -195,13 +196,11 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   }, [])
 
   useEffect(() => {
-    for (const system of systemsLoaded.value) {
-      startSystem(system.systemUUID, { [system.insertOrder]: system.insertUUID })
-    }
     ready.set(true)
+    const systems = [...systemsLoaded.value]
     return () => {
-      for (const system of systemsLoaded.value) {
-        disableSystems([system.systemUUID])
+      for (const system of systems) {
+        destroySystem(system.systemUUID)
       }
     }
   }, [systemsLoaded.length])
@@ -412,6 +411,7 @@ const execute = () => {
 
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })

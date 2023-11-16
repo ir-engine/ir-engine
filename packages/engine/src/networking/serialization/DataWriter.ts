@@ -286,7 +286,7 @@ export const writeEntity = (
 }
 
 export const writeEntities = (v: ViewCursor, network: Network, entities: Entity[]) => {
-  const entitySchema = Object.values(getState(NetworkState).networkSchema)
+  const entitySchema = NetworkState.orderedNetworkSchema
 
   const writeCount = spaceUint32(v)
 
