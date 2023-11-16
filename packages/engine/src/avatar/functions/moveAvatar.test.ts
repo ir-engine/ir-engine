@@ -36,6 +36,7 @@ import {
   receiveActions
 } from '@etherealengine/hyperflux'
 
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -57,6 +58,7 @@ describe('moveAvatar function tests', () => {
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.userID = 'userId' as UserID
+    loadEmptyScene()
   })
 
   afterEach(() => {

@@ -23,31 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import { Mesh } from 'three'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { defineComponent, getMutableComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { generateMeshBVH } from '../functions/bvhWorkerPool'
 
-import { ScatterPlot } from '@mui/icons-material'
-
-import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
-
-export const InstancingNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
-  const { t } = useTranslation()
-  const entity = props.entity
-
-  const instancingComponent = useComponent(entity, InstancingComponent)
-
-  return (
-    <NodeEditor
-      name={t('editor:properties.instancing.name')}
-      description={t('editor:properties.instancing.description')}
-      {...props}
-    ></NodeEditor>
-  )
-}
-
-InstancingNodeEditor.iconComponent = ScatterPlot
+export const MeshComponent = defineComponent({
+  name: 'Mesh Component',
+  jsonID: 'mesh',
+  onInit: (entity) => new Mesh(),
+  onSet: (entity, component, mesh?: Mesh) => {
+    if (mesh instanceof Mesh) {
+      component.set(mesh)
+      MeshComponent.valueMap[entity] = mesh
+    }
+  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const mesh = useHookstate(getMutableComponent(entity, MeshComponent))
+    useEffect(() => {
+      generateMeshBVH(mesh.value)
+    }, [mesh])
+    return null
+  }
+})
