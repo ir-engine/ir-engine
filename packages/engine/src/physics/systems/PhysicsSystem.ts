@@ -226,7 +226,7 @@ const reactor = () => {
 
     return () => {
       const physicsWorld = getMutableState(PhysicsState).physicsWorld
-      physicsWorld.value.free()
+      physicsWorld.value?.free()
       physicsWorld.set(null!)
       drainCollisions = null!
       drainContacts = null!

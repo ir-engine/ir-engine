@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import Sinon from 'sinon'
 import { Mesh } from 'three'
+// hack to make tests happy
+import '../../EngineModule'
 
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 

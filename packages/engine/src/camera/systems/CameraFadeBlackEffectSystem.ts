@@ -34,7 +34,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import { getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -125,7 +125,7 @@ const reactor = () => {
     })
 
     return () => {
-      removeEntity(entity)
+      if (entityExists(entity)) removeEntity(entity)
       getMutableState(CameraFadeBlackEffectSystemState).set({} as any)
     }
   }, [activeScene])
