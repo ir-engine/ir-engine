@@ -33,11 +33,11 @@ import { FaceRetouchingNatural, Send } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
+import AvatarCreatorMenu from './components/UserMenu/menus/AvatarCreatorMenu'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
 import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
 import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
 import ProfileMenu from './components/UserMenu/menus/ProfileMenu'
-import ReadyPlayerMenu from './components/UserMenu/menus/ReadyPlayerMenu'
 import SettingMenu from './components/UserMenu/menus/SettingMenu'
 import ShareMenu from './components/UserMenu/menus/ShareMenu'
 
@@ -54,10 +54,16 @@ export const EmoteIcon = () => (
   </svg>
 )
 
+export const SupportedSdks = {
+  Avaturn: 'Avaturn',
+  ReadyPlayerMe: 'ReadyPlayerMe'
+}
+
 export const UserMenus = {
   Profile: 'user.Profile',
   Settings: 'user.Settings',
   ReadyPlayer: 'user.ReadyPlayer',
+  Avaturn: 'user.Avaturn',
   AvatarSelect: 'user.AvatarSelect',
   AvatarModify: 'user.AvatarModify',
   Share: 'user.Share',
@@ -76,7 +82,12 @@ const reactor = () => {
       [UserMenus.Settings]: SettingMenu,
       [UserMenus.AvatarSelect]: AvatarSelectMenu,
       [UserMenus.AvatarModify]: AvatarModifyMenu,
-      [UserMenus.ReadyPlayer]: ReadyPlayerMenu,
+      [UserMenus.ReadyPlayer]: () => {
+        return <AvatarCreatorMenu selectedSdk={SupportedSdks.ReadyPlayerMe} />
+      },
+      [UserMenus.Avaturn]: () => {
+        return <AvatarCreatorMenu selectedSdk={SupportedSdks.Avaturn} />
+      },
       [UserMenus.Share]: ShareMenu,
       [UserMenus.Emote]: EmoteMenu
     })
@@ -94,6 +105,7 @@ const reactor = () => {
         [UserMenus.AvatarSelect]: none,
         [UserMenus.AvatarModify]: none,
         [UserMenus.ReadyPlayer]: none,
+        [UserMenus.Avaturn]: none,
         [UserMenus.Share]: none,
         [UserMenus.Emote]: none
       })

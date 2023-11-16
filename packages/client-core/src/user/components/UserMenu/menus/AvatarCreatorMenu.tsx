@@ -39,25 +39,29 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
+import { SupportedSdks, UserMenus } from '../../../UserUISystem'
 import { AvatarService } from '../../../services/AvatarService'
-import { UserMenus } from '../../../UserUISystem'
-import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
 enum LoadingState {
   None,
-  LoadingRPM,
+  LoadingCreator,
   Downloading,
   LoadingPreview,
   Uploading
 }
 
-const ReadyPlayerMenu = () => {
+interface Props {
+  selectedSdk?: string
+}
+
+const AvatarCreatorMenu = ({ selectedSdk }: Props) => {
   const { t } = useTranslation()
   const [selectedBlob, setSelectedBlob] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
-  const [loading, setLoading] = useState(LoadingState.LoadingRPM)
+  const [loading, setLoading] = useState(LoadingState.LoadingCreator)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -67,9 +71,18 @@ const ReadyPlayerMenu = () => {
     }
   }, [avatarUrl])
 
-  const handleMessageEvent = async (event) => {
-    const url = event.data
+  const getSdkUrl = (selectedsdk) => {
+    switch (selectedSdk) {
+      case SupportedSdks.Avaturn:
+        return config.client.avaturnUrl
+      case SupportedSdks.ReadyPlayerMe:
+      default:
+        return config.client.readyPlayerMeUrl
+    }
+  }
 
+  const handleReadyPlayerMeMessageEvent = async (event) => {
+    const url = event.data
     const avatarIdRegexExec = AVATAR_ID_REGEX.exec(url)
 
     if (url && url.toString().toLowerCase().startsWith('http')) {
@@ -92,6 +105,55 @@ const ReadyPlayerMenu = () => {
         setError(t('user:usermenu.avatar.selectValidFile'))
         setLoading(LoadingState.None)
       }
+    }
+  }
+
+  const handleAvaturnMessageEvent = async (event) => {
+    const response = event.data
+
+    let json
+    try {
+      json = JSON.parse(response)
+    } catch (error) {
+      console.log('Error parsing the event data.')
+      return
+    }
+
+    if (json.source !== 'avaturn') return // always check the source its always 'avaturn'
+
+    // Get avatar GLB URL
+    if (json.eventName === 'v2.avatar.exported') {
+      const url = json.data.url
+      console.log('DEBUG url', url)
+      const avatarIdRegexExec = AVATAR_ID_REGEX.exec(url)
+      if (url && url.toString().toLowerCase().startsWith('http')) {
+        setLoading(LoadingState.Downloading)
+        setError('')
+        setAvatarName(avatarIdRegexExec ? avatarIdRegexExec[1] : generateAvatarId())
+
+        try {
+          const res = await fetch(response)
+          const data = await res.blob()
+          setLoading(LoadingState.LoadingPreview)
+          setAvatarUrl(url)
+          setSelectedBlob(data)
+        } catch (error) {
+          console.error(error)
+          setError(t('user:usermenu.avatar.selectValidFile'))
+          setLoading(LoadingState.None)
+        }
+      }
+    }
+  }
+
+  const handleMessageEvent = async (event) => {
+    switch (selectedSdk) {
+      case SupportedSdks.Avaturn:
+        handleAvaturnMessageEvent(event)
+        break
+      case SupportedSdks.ReadyPlayerMe:
+      default:
+        handleReadyPlayerMeMessageEvent(event)
     }
   }
 
@@ -138,7 +200,7 @@ const ReadyPlayerMenu = () => {
   return (
     <Menu
       open
-      maxWidth={loading === LoadingState.LoadingRPM ? 'sm' : 'xs'}
+      maxWidth={loading === LoadingState.LoadingCreator ? 'sm' : 'xs'}
       showBackButton={avatarPreviewLoaded ? true : false}
       title={avatarPreviewLoaded ? t('user:avatar.titleSelectThumbnail') : undefined}
       onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
@@ -146,7 +208,7 @@ const ReadyPlayerMenu = () => {
     >
       <Box
         className={styles.menuContent}
-        sx={{ minHeight: loading === LoadingState.LoadingRPM ? '450px !important' : '370px !important' }}
+        sx={{ minHeight: loading === LoadingState.LoadingCreator ? '450px !important' : '370px !important' }}
       >
         {loading !== LoadingState.None && (
           <LoadingView
@@ -159,12 +221,12 @@ const ReadyPlayerMenu = () => {
                 ? t('user:avatar.loadingPreview')
                 : loading === LoadingState.Uploading
                 ? t('user:avatar.uploading')
-                : t('user:avatar.loadingRPM')
+                : t(`user:avatar.loading${selectedSdk}`)
             }
           />
         )}
 
-        {loading === LoadingState.LoadingRPM && (
+        {loading === LoadingState.LoadingCreator && (
           <iframe
             style={{
               position: 'absolute',
@@ -175,7 +237,7 @@ const ReadyPlayerMenu = () => {
               maxWidth: '100%',
               border: 0
             }}
-            src={config.client.readyPlayerMeUrl}
+            src={getSdkUrl(selectedSdk)}
           />
         )}
 
@@ -190,7 +252,7 @@ const ReadyPlayerMenu = () => {
           />
         )}
 
-        {loading !== LoadingState.LoadingRPM && (
+        {loading !== LoadingState.LoadingCreator && (
           <Box padding="10px 0">
             <AvatarPreview
               avatarUrl={avatarUrl}
@@ -211,4 +273,4 @@ const ReadyPlayerMenu = () => {
   )
 }
 
-export default ReadyPlayerMenu
+export default AvatarCreatorMenu
