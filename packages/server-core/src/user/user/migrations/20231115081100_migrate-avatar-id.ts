@@ -42,22 +42,24 @@ export async function up(knex: Knex): Promise<void> {
   if (avatarIdColumnExists === true) {
     const users = await trx.select().from(userPath)
 
-    const userAvatars = await Promise.all(
-      users
-        .filter((item) => item.avatarId)
-        .map(
-          async (user) =>
-            ({
-              id: v4(),
-              userId: user.id,
-              avatarId: user.avatarId,
-              createdAt: await getDateTimeSql(),
-              updatedAt: await getDateTimeSql()
-            }) as UserAvatarType
-        )
-    )
+    if (users.length > 0) {
+      const userAvatars = await Promise.all(
+        users
+          .filter((item) => item.avatarId)
+          .map(
+            async (user) =>
+              ({
+                id: v4(),
+                userId: user.id,
+                avatarId: user.avatarId,
+                createdAt: await getDateTimeSql(),
+                updatedAt: await getDateTimeSql()
+              }) as UserAvatarType
+          )
+      )
 
-    await trx.from(userAvatarPath).insert(userAvatars)
+      await trx.from(userAvatarPath).insert(userAvatars)
+    }
   }
 
   await trx.raw('SET FOREIGN_KEY_CHECKS=1')

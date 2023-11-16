@@ -101,8 +101,7 @@ export const userQueryProperties = Type.Pick(userSchema, [
   'id',
   'name',
   'isGuest',
-  'inviteCode',
-  'avatarId'
+  'inviteCode'
   // 'scopes'   Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
 ])
 export const userQuerySchema = Type.Intersect(

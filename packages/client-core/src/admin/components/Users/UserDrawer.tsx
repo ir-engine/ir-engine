@@ -45,7 +45,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { AvatarID, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { UserData, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserData, UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
@@ -68,7 +68,7 @@ export interface UserDrawerProps {
 }
 
 export const defaultState = {
-  id: '' as AvatarID,
+  id: '' as UserID,
   name: '',
   avatar: '',
   isGuest: true,
@@ -242,7 +242,7 @@ const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }
     if (selectedUser) {
       state.set({
         ...defaultState,
-        id: selectedUser.id as unknown as AvatarID,
+        id: selectedUser.id as UserID,
         name: selectedUser.name || '',
         avatar: selectedUser.avatarId || '',
         isGuest: selectedUser.isGuest,
