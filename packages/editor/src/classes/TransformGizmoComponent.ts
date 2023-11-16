@@ -43,7 +43,7 @@ import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { SnapMode, TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { SnapMode, TransformPivot, TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import {
   LocalTransformComponent,
@@ -51,8 +51,9 @@ import {
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { Object3D } from 'three'
+import { Euler, Object3D } from 'three'
 import { degToRad } from 'three/src/math/MathUtils'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { EditorHelperState } from '../services/EditorHelperState'
 
 export const TransformGizmoComponent = defineComponent({
@@ -86,19 +87,14 @@ export const TransformGizmoComponent = defineComponent({
 
     useEffect(() => {
       // create dummy object to attach gizmo to, we can only attach to three js objects
-
-      gizmoComponent.value.addEventListener('dragging-changed', (event) => {
-        event.value ? entityTreeComponent.parentEntity.set(null) : entityTreeComponent.parentEntity.set(parentEntity)
-      })
       gizmoComponent.value.addEventListener('mouseUp', (event) => {
-        entityTreeComponent.parentEntity.set(parentEntity)
-        /*EditorControlFunctions.positionObject([entity], [transformComponent.value.position])
+        EditorControlFunctions.positionObject([entity], [transformComponent.value.position])
         EditorControlFunctions.rotateObject(
           [entity],
           [new Euler().setFromQuaternion(transformComponent.value.rotation)]
         )
         EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], TransformSpace.local, true)
-        EditorControlFunctions.commitTransformSave([entity])*/
+        EditorControlFunctions.commitTransformSave([entity])
       })
 
       const dummy = new Object3D()
@@ -119,6 +115,7 @@ export const TransformGizmoComponent = defineComponent({
       gizmoComponent.value.attach(dummy)
       addObjectToGroup(dummyEntity, gizmoComponent.value)
       removeComponent(dummyEntity, LocalTransformComponent)
+
       return () => {
         removeObjectFromGroup(entity, dummy)
         removeEntity(dummyEntity)

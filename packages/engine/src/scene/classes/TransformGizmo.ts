@@ -1218,7 +1218,6 @@ class TransformControlsGizmo extends Object3D {
       handle.visible = handle.visible && (handle.name.indexOf('E') === -1 || (this.showX && this.showY && this.showZ))
 
       // highlight selected axis
-      console.log('DEBUG ', handle)
 
       handle.material._color = handle.material._color || handle.material.color.clone()
       handle.material._opacity = handle.material._opacity || handle.material.opacity
