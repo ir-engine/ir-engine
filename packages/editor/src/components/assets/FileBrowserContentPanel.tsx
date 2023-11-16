@@ -152,6 +152,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const originalPath = `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
   const selectedDirectory = useHookstate(originalPath)
+  const nestingDirectory = useHookstate('projects')
   const fileProperties = useHookstate<FileType | null>(null)
   const isLoading = useHookstate(true)
 
@@ -191,6 +192,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   useEffect(() => {
     refreshDirectory()
   }, [selectedDirectory])
+
+  useEffect(() => {
+    FileBrowserService.getNestingDirectory().then((directory) => nestingDirectory.set(directory))
+  }, [])
 
   const refreshDirectory = async () => {
     await FileBrowserService.fetchFiles(selectedDirectory.value, page)
@@ -352,6 +357,17 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       changeDirectoryByPath(newPath)
     }
 
+    let nestingDirectoryFiles = nestingDirectory.value.split('/')
+    let breadcrumbDirectoryFiles = selectedDirectory.value
+      .slice(1, -1)
+      .split('/')
+      .filter((file, idx) => {
+        if (idx < nestingDirectoryFiles.length && file === nestingDirectoryFiles[idx]) {
+          return false
+        }
+        return true
+      })
+
     return (
       <Breadcrumbs
         style={{}}
@@ -359,26 +375,23 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         classes={{ separator: styles.separator, li: styles.breadcrumb, ol: styles.breadcrumbList }}
         separator="›"
       >
-        {selectedDirectory.value
-          .slice(1, -1)
-          .split('/')
-          .map((file, index, arr) =>
-            arr.length - 1 == index ? (
-              <Typography key={file} style={{ fontSize: '0.9rem' }}>
-                {file}
-              </Typography>
-            ) : (
-              <Link
-                underline="hover"
-                key={file}
-                color="#5d646c"
-                style={{ fontSize: '0.9rem' }}
-                onClick={() => handleBreadcrumbDirectoryClick(file)}
-              >
-                {file}
-              </Link>
-            )
-          )}
+        {breadcrumbDirectoryFiles.map((file, index, arr) =>
+          arr.length - 1 == index ? (
+            <Typography key={file} style={{ fontSize: '0.9rem' }}>
+              {file}
+            </Typography>
+          ) : (
+            <Link
+              underline="hover"
+              key={file}
+              color="#5d646c"
+              style={{ fontSize: '0.9rem' }}
+              onClick={() => handleBreadcrumbDirectoryClick(file)}
+            >
+              {file}
+            </Link>
+          )
+        )}
       </Breadcrumbs>
     )
   }

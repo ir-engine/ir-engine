@@ -83,7 +83,11 @@ export class FileBrowserService
   /**
    * Returns the metadata for a single file or directory
    */
-  async get(key: string, params?: FileBrowserParams) {
+  async get(key: string, params?: FileBrowserParams & { query: { getNestingDirectory?: boolean } }) {
+    if (params?.query?.getNestingDirectory) {
+      return params.nestingDirectory || 'projects'
+    }
+
     if (!key) return false
     const storageProvider = getStorageProvider()
     const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
