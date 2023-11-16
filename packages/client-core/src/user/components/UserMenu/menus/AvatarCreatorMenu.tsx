@@ -39,7 +39,8 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
-import { SupportedSdks, UserMenus } from '../../../UserUISystem'
+import { UserMenus } from '../../../UserUISystem'
+
 import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
@@ -52,11 +53,12 @@ enum LoadingState {
   Uploading
 }
 
-interface Props {
-  selectedSdk?: string
+export const SupportedSdks = {
+  Avaturn: 'Avaturn',
+  ReadyPlayerMe: 'ReadyPlayerMe'
 }
 
-const AvatarCreatorMenu = ({ selectedSdk }: Props) => {
+const AvatarCreatorMenu = (selectedSdk: string) => () => {
   const { t } = useTranslation()
   const [selectedBlob, setSelectedBlob] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
@@ -71,7 +73,7 @@ const AvatarCreatorMenu = ({ selectedSdk }: Props) => {
     }
   }, [avatarUrl])
 
-  const getSdkUrl = (selectedsdk) => {
+  const getSdkUrl = () => {
     switch (selectedSdk) {
       case SupportedSdks.Avaturn:
         return config.client.avaturnUrl
@@ -237,7 +239,7 @@ const AvatarCreatorMenu = ({ selectedSdk }: Props) => {
               maxWidth: '100%',
               border: 0
             }}
-            src={getSdkUrl(selectedSdk)}
+            src={getSdkUrl()}
           />
         )}
 

@@ -33,7 +33,7 @@ import { FaceRetouchingNatural, Send } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
-import AvatarCreatorMenu from './components/UserMenu/menus/AvatarCreatorMenu'
+import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
 import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
 import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
@@ -53,11 +53,6 @@ export const EmoteIcon = () => (
     />
   </svg>
 )
-
-export const SupportedSdks = {
-  Avaturn: 'Avaturn',
-  ReadyPlayerMe: 'ReadyPlayerMe'
-}
 
 export const UserMenus = {
   Profile: 'user.Profile',
@@ -82,12 +77,8 @@ const reactor = () => {
       [UserMenus.Settings]: SettingMenu,
       [UserMenus.AvatarSelect]: AvatarSelectMenu,
       [UserMenus.AvatarModify]: AvatarModifyMenu,
-      [UserMenus.ReadyPlayer]: () => {
-        return <AvatarCreatorMenu selectedSdk={SupportedSdks.ReadyPlayerMe} />
-      },
-      [UserMenus.Avaturn]: () => {
-        return <AvatarCreatorMenu selectedSdk={SupportedSdks.Avaturn} />
-      },
+      [UserMenus.ReadyPlayer]: AvatarCreatorMenu(SupportedSdks.ReadyPlayerMe),
+      [UserMenus.Avaturn]: AvatarCreatorMenu(SupportedSdks.Avaturn),
       [UserMenus.Share]: ShareMenu,
       [UserMenus.Emote]: EmoteMenu
     })
