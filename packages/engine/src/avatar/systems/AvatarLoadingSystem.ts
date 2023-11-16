@@ -47,7 +47,6 @@ import {
   defineQuery,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -64,7 +63,6 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { setupObject } from '../../scene/systems/SceneObjectSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
-import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '.././components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from '.././components/AvatarEffectComponent'
 import { AvatarAnimationSystem } from './AvatarAnimationSystem'
@@ -278,12 +276,6 @@ const execute = () => {
         }
       }
     }
-  }
-
-  for (const entity of dissolveQuery.enter()) {
-    const effectComponent = getComponent(entity, AvatarEffectComponent)
-    if (hasComponent(effectComponent.sourceEntity, AvatarControllerComponent))
-      getComponent(effectComponent.sourceEntity, AvatarControllerComponent).movementEnabled = true
   }
 
   for (const entity of dissolveQuery()) {

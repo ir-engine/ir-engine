@@ -132,7 +132,8 @@ const execute = () => {
     setComponent(avatarEntity, SittingComponent, {
       mountPointEntity: action.targetEntity!
     })
-    getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
+
+    AvatarControllerComponent.captureMovement(avatarEntity, action.targetEntity)
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
         filePath: defaultAnimationPath + animationStates.seated + '.fbx',
@@ -155,7 +156,7 @@ const execute = () => {
     const controller = getComponent(entity, AvatarControllerComponent)
     if (controller.gamepadLocalInput.lengthSq() > 0.01) {
       const rigidBody = getComponent(entity, RigidBodyComponent)
-      getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
+
       dispatchAction(
         AvatarNetworkAction.setAnimationState({
           filePath: defaultAnimationPath + animationStates.seated + '.fbx',
@@ -167,6 +168,7 @@ const execute = () => {
 
       const sittingComponent = getComponent(entity, SittingComponent)
 
+      AvatarControllerComponent.releaseMovement(Engine.instance.localClientEntity, sittingComponent.mountPointEntity)
       dispatchAction(
         MountPointActions.mountInteraction({
           mounted: false,

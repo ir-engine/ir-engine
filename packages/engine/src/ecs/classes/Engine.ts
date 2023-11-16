@@ -40,6 +40,7 @@ import type { ServiceTypes } from '@etherealengine/common/declarations'
 
 import { getAllEntities } from 'bitecs'
 import { Timer } from '../../common/functions/Timer'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
 import { Query, QueryComponents, removeQuery } from '../functions/ComponentFunctions'
 import { removeEntity } from '../functions/EntityFunctions'
@@ -104,12 +105,16 @@ export class Engine {
   /**
    * The camera entity
    */
-  cameraEntity: Entity = UndefinedEntity
+  cameraEntity = UndefinedEntity
 
   /**
    * The local client entity
    */
-  localClientEntity = UndefinedEntity
+  get localClientEntity() {
+    return NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
+  }
+
+  activeInputReceiverEntity = UndefinedEntity
 
   reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 

@@ -45,7 +45,6 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 
 import { XRState } from '../../xr/XRState'
 
@@ -131,7 +130,7 @@ export const handleCameraZoom = (cameraEntity: Entity, value: number): void => {
   followComponent.zoomLevel = nextZoomLevel
 }
 
-const avatarControllerQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
+const avatarControllerQuery = defineQuery([AvatarControllerComponent])
 
 const onKeyV = () => {
   for (const entity of avatarControllerQuery()) {

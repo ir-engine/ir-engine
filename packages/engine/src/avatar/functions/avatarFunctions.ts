@@ -113,9 +113,7 @@ export const loadAvatarForUser = async (
     throw new Error('Avatar model already loading')
 
   if (loadingEffect) {
-    if (hasComponent(entity, AvatarControllerComponent)) {
-      getComponent(entity, AvatarControllerComponent).movementEnabled = false
-    }
+    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
   }
 
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(false)
@@ -142,6 +140,7 @@ export const loadAvatarForUser = async (
       dissolveMaterials: dissolveMaterials as ShaderMaterial[],
       originMaterials: avatarMaterials as MaterialMap[]
     })
+    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
   }
 
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)

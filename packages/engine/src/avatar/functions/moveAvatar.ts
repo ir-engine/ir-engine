@@ -116,13 +116,15 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     viewerMovement.copy(V_000)
   }
 
-  if (!isMovementControlsEnabled) {
+  const isMovementCaptured = controller.movementCaptured.length
+
+  if (!isMovementControlsEnabled || isMovementCaptured) {
     rigidbody.targetKinematicPosition.copy(rigidbody.position).add(desiredMovement)
     updateLocalAvatarPositionAttachedMode()
     return
   }
 
-  if (controller.movementEnabled && additionalMovement) desiredMovement.add(additionalMovement)
+  if (additionalMovement) desiredMovement.add(additionalMovement)
 
   const avatarCollisionGroups = controller.bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
 
@@ -273,7 +275,7 @@ export const applyGamepadInput = (entity: Entity) => {
   applyVerticalVelocity(controller, avatarMovementSettings)
 
   // apply gamepad movement and gravity
-  if (controller.movementEnabled) controller.verticalVelocity -= 9.81 * deltaSeconds
+  if (!controller.movementCaptured.length) controller.verticalVelocity -= 9.81 * deltaSeconds
   const verticalMovement = controller.verticalVelocity * deltaSeconds
   _additionalMovement.set(
     controller.gamepadWorldMovement.x,
