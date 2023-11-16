@@ -43,6 +43,7 @@ import { useEffect } from 'react'
 import { Validator, matches } from '../../common/functions/MatchesUtils'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
+import { PresentationSystemGroup } from '../functions/EngineFunctions'
 import { defineSystem } from '../functions/SystemFunctions'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
@@ -210,7 +211,6 @@ export const EditorTopic = 'editor' as Topic
 const undoQueue = defineActionQueue(SceneSnapshotAction.undo.matches)
 const redoQueue = defineActionQueue(SceneSnapshotAction.redo.matches)
 const clearHistoryQueue = defineActionQueue(SceneSnapshotAction.clearHistory.matches)
-const appendSnapshotQueue = defineActionQueue(SceneSnapshotAction.appendSnapshot.matches)
 const modifyQueue = defineActionQueue(SceneSnapshotAction.createSnapshot.matches)
 
 const execute = () => {
@@ -261,6 +261,7 @@ const reactor = () => {
 
 export const SceneSnapshotSystem = defineSystem({
   uuid: 'ee.scene.SceneSnapshotSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })
