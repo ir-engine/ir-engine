@@ -32,7 +32,7 @@ import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/sch
 import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { InviteCode, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
 describe('channel-user service', () => {
@@ -53,7 +53,7 @@ describe('channel-user service', () => {
 
   it('will remove user from channel if they are the owner', async () => {
     const user = await app.service(userPath).create({
-      name: 'user',
+      name: 'user' as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode,
@@ -96,7 +96,7 @@ describe('channel-user service', () => {
 
   it('will not remove user if they are not the owner', async () => {
     const user = await app.service(userPath).create({
-      name: 'user',
+      name: 'user' as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode,
@@ -104,7 +104,7 @@ describe('channel-user service', () => {
     })
 
     const user2 = await app.service(userPath).create({
-      name: 'user2',
+      name: 'user2' as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode,
@@ -178,7 +178,7 @@ describe('channel-user service', () => {
 
   it('user can not add themselves to a channel', async () => {
     const user = await app.service(userPath).create({
-      name: 'user',
+      name: 'user' as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode,
