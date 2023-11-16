@@ -38,7 +38,7 @@ import { UUIDComponent } from '../../components/UUIDComponent'
 
 export const setAvatarToLocationTeleportingState = () => {
   switchCameraMode(Engine.instance.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
-  getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = false
+  AvatarControllerComponent.releaseMovement(Engine.instance.localClientEntity, getState(PortalState).activePortalEntity)
   /*dispatchAction(
     AvatarNetworkAction.setAnimationState({
       animationState: AvatarStates.FALL_IDLE,
@@ -54,7 +54,7 @@ export const revertAvatarToMovingStateFromTeleport = () => {
   getState(EntityNetworkState)[getComponent(localClientEntity, UUIDComponent)].spawnPosition.copy(
     activePortal!.remoteSpawnPosition
   )
-  getComponent(localClientEntity, AvatarControllerComponent).movementEnabled = true
+  AvatarControllerComponent.captureMovement(Engine.instance.localClientEntity, getState(PortalState).activePortalEntity)
 
   // teleport player to where the portal spawn position is
   teleportAvatar(localClientEntity, activePortal!.remoteSpawnPosition)

@@ -63,6 +63,13 @@ export const NetworkState = defineState({
     }
   },
 
+  /** must be explicitly ordered as objects return keys in assignment order */
+  get orderedNetworkSchema() {
+    return Object.keys(getState(NetworkState).networkSchema)
+      .sort()
+      .map((key) => getState(NetworkState).networkSchema[key])
+  },
+
   get worldNetwork() {
     const state = getState(NetworkState)
     return state.networks[state.hostIds.world!]!

@@ -36,6 +36,7 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
 import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSessionFunctions'
 import { ReferenceSpace, XRAction, XRState } from '../XRState'
+import { XRSystem } from '../XRSystem'
 import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
 import { XRFrameProxy, XRRigidTransform, XRSessionProxy, XRSpace } from './XR8WebXRProxy'
@@ -370,6 +371,7 @@ const reactor = () => {
 
 export const XR8System = defineSystem({
   uuid: 'ee.engine.XR8System',
+  insert: { with: XRSystem },
   execute,
   reactor
 })
