@@ -40,6 +40,7 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PlayMode } from '../constants/PlayMode'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup, getNextTrack } from './MediaComponent'
+import { ShadowComponent } from './ShadowComponent'
 import { UVOL1Component } from './UVOL1Component'
 import { UVOL2Component } from './UVOL2Component'
 
@@ -166,6 +167,7 @@ export function VolumetricReactor() {
     setComponent(entity, MediaElementComponent, {
       element: document.createElement('video') as HTMLMediaElement
     })
+    setComponent(entity, ShadowComponent)
     const videoElement = getMutableComponent(entity, MediaElementComponent)
     const element = videoElement.element.value as HTMLVideoElement
     element.playsInline = true
