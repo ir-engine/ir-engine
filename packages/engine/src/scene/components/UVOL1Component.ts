@@ -47,7 +47,8 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -113,6 +114,7 @@ function UVOL1Reactor() {
   const entity = useEntityContext()
   const volumetric = useComponent(entity, VolumetricComponent)
   const component = useComponent(entity, UVOL1Component)
+  const shadow = useOptionalComponent(entity, ShadowComponent)
   const videoElement = getMutableComponent(entity, MediaElementComponent).value
   const audioContext = getState(AudioState).audioContext
   const video = videoElement.element as HTMLVideoElement
@@ -160,9 +162,6 @@ function UVOL1Reactor() {
     if (volumetric.useLoadingEffect.value) {
       setComponent(entity, UVOLDissolveComponent)
     }
-    const shadow = getMutableComponent(entity, ShadowComponent)
-    shadow.cast.set(true)
-    shadow.receive.set(true)
 
     video.src = component.manifestPath.value.replace('.manifest', '.mp4')
     video.load()
@@ -180,6 +179,13 @@ function UVOL1Reactor() {
       video.src = ''
     }
   }, [])
+
+  useEffect(() => {
+    if (shadow) {
+      shadow.cast.set(true)
+      shadow.receive.set(true)
+    }
+  }, [shadow])
 
   useEffect(() => {
     if (component.loadingEffectStarted.value && !component.loadingEffectEnded.value) {

@@ -23,31 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import { Mesh, Object3D } from 'three'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import iterateObject3D from './iterateObject3D'
 
-import { ScatterPlot } from '@mui/icons-material'
-
-import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
-
-export const InstancingNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
-  const { t } = useTranslation()
-  const entity = props.entity
-
-  const instancingComponent = useComponent(entity, InstancingComponent)
-
-  return (
-    <NodeEditor
-      name={t('editor:properties.instancing.name')}
-      description={t('editor:properties.instancing.description')}
-      {...props}
-    ></NodeEditor>
+export default function getFirstMesh(obj3d: Object3D): Mesh | null {
+  const meshes = iterateObject3D(
+    obj3d,
+    (child) => child,
+    (child: Mesh) => child?.isMesh,
+    false,
+    true
   )
+  return meshes.length > 0 ? meshes[0] : null
 }
 
-InstancingNodeEditor.iconComponent = ScatterPlot
+export function getMeshes(obj3d: Object3D): Mesh[] {
+  return iterateObject3D(
+    obj3d,
+    (child) => child,
+    (child: Mesh) => child?.isMesh,
+    false,
+    false
+  )
+}

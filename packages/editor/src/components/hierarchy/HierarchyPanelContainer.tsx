@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { memo, useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import Hotkeys from 'react-hot-keys'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeList, areEqual } from 'react-window'
+import { FixedSizeList } from 'react-window'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -96,11 +96,11 @@ export default function HierarchyPanel() {
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
 
-  const MemoTreeNode = memo(
+  const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
       <HierarchyTreeNode {...props} key={props.data.nodes[props.index].entity} onContextMenu={onContextMenu} />
     ),
-    areEqual
+    [nodes]
   )
 
   if (searchHierarchy.length > 0) {
