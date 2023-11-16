@@ -377,6 +377,13 @@ export interface BasePlayerManifest {
       targets: Record<string, KTX2TextureTarget | ASTCTextureTarget>
     }
   }>
+  materialProperties?: {
+    normalMapType?: number
+    normalScale?: [number, number]
+    roughness?: number
+    emissiveIntensity?: number
+    aoMapIntensity?: number /* Occlusion */
+  }
 }
 
 export interface DRACO_Manifest extends BasePlayerManifest {

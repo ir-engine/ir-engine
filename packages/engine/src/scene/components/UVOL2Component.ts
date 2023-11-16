@@ -122,6 +122,38 @@ export const calculatePriority = (manifest: PlayerManifest) => {
   return [manifest, geometryTargets, textureTargets] as [PlayerManifest, string[], typeof textureTargets]
 }
 
+const getDefines = (manifest: PlayerManifest) => {
+  const DEFINES = {
+    baseColor: {
+      USE_MAP: '',
+      MAP_UV: 'uv'
+    },
+    normal: {
+      USE_NORMALMAP: '',
+      NORMALMAP_UV: 'uv'
+    },
+    metallicRoughness: {
+      USE_ROUGHNESSMAP: '',
+      ROUGHNESSMAP_UV: 'uv'
+    },
+    emissive: {
+      USE_EMISSIVEMAP: '',
+      EMISSIVEMAP_UV: 'uv'
+    },
+    occlusion: {
+      USE_AOMAP: '',
+      AOMAP_UV: 'uv'
+    }
+  }
+  let requiredDefines = {} as Record<string, string>
+  const textureTypes = Object.keys(manifest.texture)
+  for (let i = 0; i < textureTypes.length; i++) {
+    const textureType = textureTypes[i]
+    requiredDefines = { ...requiredDefines, ...DEFINES[textureType] }
+  }
+  return requiredDefines
+}
+
 export const UVOL2Component = defineComponent({
   name: 'UVOL2Component',
 
@@ -148,6 +180,7 @@ export const UVOL2Component = defineComponent({
         emissive: [] as string[],
         occlusion: [] as string[]
       },
+      textureTypes: [] as TextureType[],
       initialGeometryBuffersLoaded: false,
       initialTextureBuffersLoaded: false,
       firstGeometryFrameLoaded: false,
@@ -212,11 +245,14 @@ const resolvePath = (
   manifestPath: string,
   format: AudioFileFormat | GeometryFormat | TextureFormat,
   target?: string,
-  index?: number
+  index?: number,
+  textureType?: TextureType
 ) => {
   let resolvedPath = path
   resolvedPath = path.replace('[ext]', FORMAT_TO_EXTENSION[format])
-  resolvedPath = resolvedPath.replace('[type]', 'baseColor')
+  if (textureType) {
+    resolvedPath = resolvedPath.replace('[type]', textureType)
+  }
   if (target !== undefined) {
     resolvedPath = resolvedPath.replace('[target]', target)
   }
@@ -275,9 +311,10 @@ function UVOL2Reactor() {
   const offset = useMemo(() => new Vector2(0, 0), [])
 
   const material = useMemo(() => {
-    if (component.data.value.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
-      const firstTarget = Object.keys(component.data.value.geometry.targets)[0]
-      const hasNormals = !component.data.value.geometry.targets[firstTarget].settings.excludeNormals
+    const manifest = component.data.value
+    if (manifest.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
+      const firstTarget = Object.keys(manifest.geometry.targets)[0]
+      const hasNormals = !manifest.geometry.targets[firstTarget].settings.excludeNormals
       const shaderType = hasNormals ? 'physical' : 'basic'
 
       let vertexShader = ShaderLib[shaderType].vertexShader.replace(
@@ -333,14 +370,26 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         }
       }
       const allUniforms = UniformsUtils.merge([ShaderLib.physical.uniforms, UniformsLib.lights, uniforms])
+      const defines = getDefines(manifest)
+      if (manifest.materialProperties) {
+        const keys = Object.keys(manifest.materialProperties)
+        for (let i = 0; i < keys.length; i++) {
+          const key = keys[i]
+          if (key !== 'normalScale') {
+            allUniforms[key].value = manifest.materialProperties[key]
+          } else {
+            allUniforms[key].value = new Vector2(
+              manifest.materialProperties[key]![0],
+              manifest.materialProperties[key]![1]
+            )
+          }
+        }
+      }
       const _material = new ShaderMaterial({
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
         uniforms: allUniforms,
-        defines: {
-          USE_MAP: '',
-          MAP_UV: 'uv'
-        },
+        defines: defines,
         lights: true
       })
       return _material
@@ -357,14 +406,32 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }, [])
 
   const pendingGeometryRequests = useRef(0)
-  const pendingTextureRequests = useRef(0)
+  const pendingTextureRequests = useMemo(
+    () => ({
+      baseColor: 0,
+      normal: 0,
+      metallicRoughness: 0,
+      emissive: 0,
+      occlusion: 0
+    }),
+    []
+  )
 
   /**
    * This says until how long can we play geometry buffers without fetching new data.
    * For eg: If it geometryBufferHealth = 25, it implies, we can play upto 00:25 seconds
    */
   const geometryBufferHealth = useRef(0) // in seconds
-  const textureBufferHealth = useRef(0) // in seconds
+  const textureBufferHealth = useMemo(
+    () => ({
+      baseColor: 0,
+      normal: 0,
+      metallicRoughness: 0,
+      emissive: 0,
+      occlusion: 0
+    }),
+    []
+  )
   const currentTime = useRef(0) // in seconds
 
   useEffect(() => {
@@ -378,6 +445,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     component.data.set(sortedManifest)
     component.geometryTargets.set(sortedGeometryTargets)
     component.textureTargets.set(sortedTextureTargets)
+    const textureTypes = Object.keys(sortedManifest.texture)
+    component.textureTypes.set(textureTypes as TextureType[])
+
     const shadow = getMutableComponent(entity, ShadowComponent)
     if (sortedManifest.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
       // TODO: Cast shadows properly with uniform solve
@@ -612,15 +682,15 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const fetchTextures = (textureType: TextureType) => {
     const textureTypeData = component.data.texture[textureType].value
     if (!textureTypeData) return
-    const currentBufferLength = textureBufferHealth.current - (currentTime.current - volumetric.startTime.value)
-    if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) || pendingTextureRequests.current > 0) {
+    const currentBufferLength = textureBufferHealth[textureType] - (currentTime.current - volumetric.startTime.value)
+    if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) || pendingTextureRequests[textureType] > 0) {
       return
     }
     const targetIndex = component.textureTarget[textureType].value
     const target = component.textureTargets[textureType][targetIndex].value
     const targetData = textureTypeData.targets[target]
     const frameRate = targetData.frameRate
-    const startFrame = Math.round((textureBufferHealth.current + volumetric.startTime.value) * frameRate)
+    const startFrame = Math.round((textureBufferHealth[textureType] + volumetric.startTime.value) * frameRate)
     if (startFrame >= targetData.frameCount) {
       // fetched all frames
       return
@@ -643,9 +713,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         component.manifestPath.value,
         targetData.format,
         target,
-        i
+        i,
+        textureType
       )
-      pendingTextureRequests.current++
+      pendingTextureRequests[textureType]++
       promises.push(loadTextureAsync(textureURL))
     }
 
@@ -658,10 +729,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         const i = j + startFrame
         const key = createKey(target, i, textureType)
         texture.name = key
-        pendingTextureRequests.current--
+        pendingTextureRequests[textureType]--
         textureBuffer.set(key, texture)
-        textureBufferHealth.current += 1 / frameRate
-        if (textureBufferHealth.current >= minBufferToPlay && !component.initialTextureBuffersLoaded.value) {
+        textureBufferHealth[textureType] += 1 / frameRate
+        if (textureBufferHealth[textureType] >= minBufferToPlay && !component.initialTextureBuffersLoaded.value) {
           component.initialTextureBuffersLoaded.set(true)
         }
         if (!component.firstTextureFrameLoaded.value) {
@@ -669,7 +740,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         }
       })
 
-      const playTime = textureBufferHealth.current - oldBufferHealth
+      const playTime = textureBufferHealth[textureType] - oldBufferHealth
       const fetchTime = (Date.now() - startTime) / 1000
       const metric = fetchTime / playTime
       adjustTextureTarget(textureType, metric)
@@ -678,7 +749,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const bufferLoop = () => {
     fetchGeometry()
-    fetchTextures('baseColor')
+    for (let i = 0; i < component.textureTypes.value.length; i++) {
+      fetchTextures(component.textureTypes.value[i])
+    }
   }
 
   useEffect(() => {
@@ -693,7 +766,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       return
     }
     updateGeometry(currentTime.current)
-    updateTexture(currentTime.current)
+    updateAllTextures(currentTime.current)
 
     if (volumetric.useLoadingEffect.value) {
       let headerTemplate: RegExp | undefined = /\/\/\sHEADER_REPLACE_START([\s\S]*?)\/\/\sHEADER_REPLACE_END/
@@ -748,7 +821,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     component.playbackStartTime.set(Date.now())
     volumetric.startTime.set(currentTime.current)
     geometryBufferHealth.current -= currentTime.current
-    textureBufferHealth.current -= currentTime.current
+    component.textureTypes.value.forEach((textureType) => {
+      textureBufferHealth[textureType] -= currentTime.current
+    })
 
     if (mesh.material !== material) {
       mesh.material = material
@@ -972,7 +1047,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (!textureBuffer.has(key)) {
       const targets = component.textureTargets[textureType].value
       for (let i = 0; i < targets.length; i++) {
-        const _frameRate = component.data.value.texture.baseColor.targets[targets[i]].frameRate
+        const _frameRate = component.data.value.texture[textureType]!.targets[targets[i]].frameRate
         const _index = getFrame(currentTime, _frameRate)
         if (textureBuffer.has(createKey(targets[i], _index, textureType))) {
           setTexture(textureType, targets[i], _index, currentTime)
@@ -1031,12 +1106,18 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
   }
 
-  const updateTexture = (currentTime: number) => {
-    const textureTarget = component.textureTargets['baseColor'].value[component.textureTarget['baseColor'].value]
+  const updateAllTextures = (currentTime: number) => {
+    component.textureTypes.value.forEach((textureType) => {
+      updateTexture(textureType, currentTime)
+    })
+  }
+
+  const updateTexture = (textureType: TextureType, currentTime: number) => {
+    const textureTarget = component.textureTargets[textureType].value[component.textureTarget[textureType].value]
     const textureFrame = Math.round(
-      currentTime * component.data.value.texture.baseColor.targets[textureTarget].frameRate
+      currentTime * component.data.value.texture[textureType]!.targets[textureTarget].frameRate
     )
-    setTexture('baseColor', textureTarget, textureFrame, currentTime)
+    setTexture(textureType, textureTarget, textureFrame, currentTime)
   }
 
   const update = () => {
@@ -1069,7 +1150,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     updateGeometry(currentTime.current)
-    updateTexture(currentTime.current)
+    updateAllTextures(currentTime.current)
   }
 
   useExecute(update, {
