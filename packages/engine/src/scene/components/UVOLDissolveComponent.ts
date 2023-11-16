@@ -204,6 +204,9 @@ if (positionY < lowerOffset) {
     const dissolveComponent = getComponent(entity, UVOLDissolveComponent)
     if (!dissolveComponent) return true
     dissolveComponent.currentTime += deltaTime
+    if (!mesh.geometry.boundingBox) {
+      mesh.geometry.computeBoundingBox()
+    }
     const minY = mesh.geometry.boundingBox!.min.y
     const maxY = mesh.geometry.boundingBox!.max.y
     const duration = dissolveComponent.duration
