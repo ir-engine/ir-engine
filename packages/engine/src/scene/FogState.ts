@@ -23,16 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../../ecs/classes/Engine'
-import { UndefinedEntity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { State, defineState } from '@etherealengine/hyperflux'
+import { FogType } from './constants/FogType'
 
-export const LocalInputTagComponent = defineComponent({
-  name: 'LocalInputTagComponent',
-  onSet: (entity) => {
-    Engine.instance.localClientEntity = entity
-  },
-  onRemove: (entity) => {
-    Engine.instance.localClientEntity = UndefinedEntity
-  }
+export const DefaultFogState = {
+  type: FogType.Disabled as FogType,
+  color: '#FFFFFF',
+  density: 0.005,
+  near: 1,
+  far: 1000,
+  timeScale: 1,
+  height: 0.05
+}
+
+export type FogState = State<typeof DefaultFogState>
+
+export const FogSettingState = defineState({
+  name: 'FogSettingState',
+  initial: DefaultFogState
 })

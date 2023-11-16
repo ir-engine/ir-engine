@@ -29,7 +29,7 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { FogSettingState } from '../systems/FogSystem'
+import { FogSettingState } from '../FogState'
 
 export const FogSettingsComponent = defineComponent({
   name: 'FogSettingsComponent',
