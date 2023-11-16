@@ -46,6 +46,7 @@ import {
   setDistanceFromLocalClientComponent
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { InteractableComponent } from '../components/InteractableComponent'
@@ -191,5 +192,6 @@ const execute = () => {
 
 export const InteractiveSystem = defineSystem({
   uuid: 'ee.engine.InteractiveSystem',
+  insert: { before: TransformSystem },
   execute
 })

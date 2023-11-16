@@ -28,6 +28,7 @@ import { defineAction, getMutableState, useState } from '@etherealengine/hyperfl
 import { useEffect } from 'react'
 
 import { UploadRequestState } from '@etherealengine/engine/src/assets/state/UploadRequestState'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { uploadProjectFiles } from '../functions/assetFunctions'
 
 const clearUploadQueueAction = defineAction({
@@ -36,6 +37,7 @@ const clearUploadQueueAction = defineAction({
 
 export const UploadRequestSystem = defineSystem({
   uuid: 'ee.editor.UploadRequestSystem',
+  insert: { after: PresentationSystemGroup },
   reactor: () => {
     const uploadRequestState = useState(getMutableState(UploadRequestState))
     useEffect(() => {

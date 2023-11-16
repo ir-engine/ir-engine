@@ -38,8 +38,16 @@ import {
 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  defineActionQueue,
+  defineState,
+  getMutableState,
+  getState,
+  none,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
+import React from 'react'
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
@@ -55,13 +63,14 @@ import {
   useOptionalComponent,
   useQuery
 } from '../ecs/functions/ComponentFunctions'
-import { createEntity } from '../ecs/functions/EntityFunctions'
+import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { ReferenceSpaceTransformSystem } from '../transform/TransformModule'
 import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
@@ -204,21 +213,8 @@ const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
 
 export const XRAnchorSystemState = defineState({
   name: 'XRAnchorSystemState',
-  initial: () => {
-    const scenePlacementEntity = createEntity()
-    setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
-    setComponent(scenePlacementEntity, LocalTransformComponent)
-    setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-    setComponent(scenePlacementEntity, VisibleComponent, true)
-    setComponent(scenePlacementEntity, InputComponent, { highlight: false, grow: false })
-
-    // const originAxesHelper = new AxesHelper(10000)
-    // setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
-    // addObjectToGroup(scenePlacementEntity, originAxesHelper)
-
-    return {
-      scenePlacementEntity
-    }
+  initial: {} as {
+    scenePlacementEntity: Entity
   }
 })
 
@@ -226,6 +222,7 @@ const execute = () => {
   const xrState = getState(XRState)
 
   const { scenePlacementEntity } = getState(XRAnchorSystemState)
+  if (!scenePlacementEntity) return
 
   for (const action of xrSessionChangedQueue()) {
     if (!action.active) {
@@ -251,7 +248,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
+const XRPlacementReactor = () => {
   const xrState = getMutableState(XRState)
   const scenePlacementEntity = getState(XRAnchorSystemState).scenePlacementEntity
   const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
@@ -365,8 +362,34 @@ const reactor = () => {
   return null
 }
 
+export const reactor = () => {
+  const scenePlacementEntity = useHookstate(getMutableState(XRAnchorSystemState).scenePlacementEntity)
+
+  useEffect(() => {
+    const scenePlacementEntity = createEntity()
+    setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
+    setComponent(scenePlacementEntity, LocalTransformComponent)
+    setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(scenePlacementEntity, VisibleComponent, true)
+    setComponent(scenePlacementEntity, InputComponent, { highlight: false, grow: false })
+
+    // const originAxesHelper = new AxesHelper(10000)
+    // setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
+    // addObjectToGroup(scenePlacementEntity, originAxesHelper)
+    getMutableState(XRAnchorSystemState).scenePlacementEntity.set(scenePlacementEntity)
+
+    return () => {
+      removeEntity(scenePlacementEntity)
+      getMutableState(XRAnchorSystemState).scenePlacementEntity.set(none)
+    }
+  }, [])
+
+  return scenePlacementEntity.value ? <XRPlacementReactor /> : null
+}
+
 export const XRAnchorSystem = defineSystem({
   uuid: 'ee.engine.XRAnchorSystem',
+  insert: { after: ReferenceSpaceTransformSystem },
   execute,
-  reactor
+  reactor: XRPlacementReactor
 })

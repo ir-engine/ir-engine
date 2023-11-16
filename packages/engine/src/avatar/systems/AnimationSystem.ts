@@ -38,7 +38,9 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MeshComponent } from '../../scene/components/MeshComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { TransformSystem } from '../../transform/TransformModule'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
@@ -84,5 +86,6 @@ const execute = () => {
 
 export const AnimationSystem = defineSystem({
   uuid: 'ee.engine.AnimationSystem',
+  insert: { before: TransformSystem },
   execute
 })
