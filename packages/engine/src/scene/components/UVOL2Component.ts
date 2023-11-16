@@ -48,6 +48,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getMutableComponent,
+  getOptionalMutableComponent,
   removeComponent,
   setComponent,
   useComponent
@@ -401,12 +402,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     manifest.current = calculatePriority(component.data.get({ noproxy: true }))
     component.data.set(manifest.current)
-    const shadow = getMutableComponent(entity, ShadowComponent)
-    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
+    const shadow = getOptionalMutableComponent(entity, ShadowComponent)
+    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE && shadow) {
       // TODO: Cast shadows properly with uniform solve
       shadow.cast.set(false)
       shadow.receive.set(false)
-    } else {
+    } else if (shadow) {
       shadow.cast.set(true)
       shadow.receive.set(true)
     }

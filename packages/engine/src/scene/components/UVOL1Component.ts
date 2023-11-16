@@ -44,6 +44,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getMutableComponent,
+  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -160,9 +161,11 @@ function UVOL1Reactor() {
     if (volumetric.useLoadingEffect.value) {
       setComponent(entity, UVOLDissolveComponent)
     }
-    const shadow = getMutableComponent(entity, ShadowComponent)
-    shadow.cast.set(true)
-    shadow.receive.set(true)
+    const shadow = getOptionalMutableComponent(entity, ShadowComponent)
+    if (shadow) {
+      shadow.cast.set(true)
+      shadow.receive.set(true)
+    }
 
     video.src = component.manifestPath.value.replace('.manifest', '.mp4')
     video.load()
