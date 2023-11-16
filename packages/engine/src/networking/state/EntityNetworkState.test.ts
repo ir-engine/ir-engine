@@ -40,8 +40,6 @@ import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { startSystem } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -53,7 +51,6 @@ import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 import { NetworkState } from '../NetworkState'
 import {
   EntityNetworkState,
-  EntityNetworkStateSystem,
   receiveRequestAuthorityOverObject,
   receiveTransferAuthorityOfObject
 } from './EntityNetworkState'
@@ -65,7 +62,6 @@ describe('EntityNetworkState', () => {
     await Physics.load()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.store.defaultDispatchDelay = () => 0
-    startSystem(EntityNetworkStateSystem, { with: SimulationSystemGroup })
     loadEmptyScene()
   })
 

@@ -40,6 +40,7 @@ import { localConfig } from '@etherealengine/server-core/src/config'
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
@@ -326,5 +327,6 @@ const reactor = () => {
 
 export const MediasoupRecordingSystem = defineSystem({
   uuid: 'MediasoupRecordingSystem',
+  insert: { after: PresentationSystemGroup },
   reactor
 })

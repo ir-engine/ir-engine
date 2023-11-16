@@ -26,24 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import React, { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Dashboard from '@etherealengine/ui/src/primitives/mui/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
 import { AuthState } from '../user/services/AuthService'
-import { UserUISystem } from '../user/UserUISystem'
 import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
 import Analytics from './components/Analytics'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
-const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
+import '@etherealengine/engine/src/EngineModule'
 
-const AdminSystemInjection = () => {
-  startSystems([UserUISystem], { after: PresentationSystemGroup })
-}
+const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
 const AdminRoutes = () => {
   const location = useLocation()
@@ -54,8 +48,6 @@ const AdminRoutes = () => {
   const scopes = admin?.scopes?.value
 
   useEffect(() => {
-    AdminSystemInjection()
-    getMutableState(EngineState).isEngineInitialized.set(true)
     allowedRoutes.set(DefaultAdminRoutes)
   }, [])
 

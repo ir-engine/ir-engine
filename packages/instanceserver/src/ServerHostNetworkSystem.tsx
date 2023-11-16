@@ -35,6 +35,7 @@ import { RecordingID } from '@etherealengine/engine/src/schemas/recording/record
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
@@ -106,6 +107,7 @@ const reactor = () => {
 
 export const ServerHostNetworkSystem = defineSystem({
   uuid: 'ee.instanceserver.ServerHostNetworkSystem',
+  insert: { with: SimulationSystemGroup },
   execute,
   reactor
 })

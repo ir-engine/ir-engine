@@ -33,6 +33,7 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputState } from '../../input/state/InputState'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
+import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createMediaControlsUI } from '../functions/mediaControlsUI'
@@ -83,5 +84,6 @@ const execute = () => {
 
 export const MediaControlSystem = defineSystem({
   uuid: 'ee.engine.MediaControlSystem',
+  insert: { before: TransformSystem },
   execute
 })

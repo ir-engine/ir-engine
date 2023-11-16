@@ -28,6 +28,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkState } from '../NetworkState'
@@ -73,5 +74,6 @@ const execute = () => {
 
 export const OutgoingNetworkSystem = defineSystem({
   uuid: 'ee.engine.OutgoingNetworkSystem',
+  insert: { after: SimulationSystemGroup },
   execute
 })

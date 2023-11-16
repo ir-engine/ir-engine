@@ -33,6 +33,7 @@ import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { XRDetectedMeshComponent } from './XRDetectedMeshComponent'
 import { XRDetectedPlaneComponent } from './XRDetectedPlaneComponent'
 import { ReferenceSpace, XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 
 /** https://github.com/immersive-web/webxr-samples/blob/main/proposals/plane-detection.html */
 
@@ -126,6 +127,7 @@ const reactor = () => {
 
 export const XRDetectedMeshSystem = defineSystem({
   uuid: 'ee.engine.XRDetectedMeshSystem',
+  insert: { with: XRSystem },
   execute,
   reactor
 })

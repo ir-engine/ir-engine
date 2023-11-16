@@ -31,6 +31,7 @@ import { defineActionQueue, getState, removeActionQueue } from '@etherealengine/
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { SceneObjectSystem } from './SceneObjectSystem'
 
 const batchRenderer = new BatchedParticleRenderer()
 
@@ -60,6 +61,7 @@ const reactor = () => {
 
 export const ParticleSystem = defineSystem({
   uuid: 'ee.engine.ParticleSystem',
+  insert: { with: SceneObjectSystem },
   execute,
   reactor
 })
