@@ -30,6 +30,7 @@ import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFi
 import { Button } from '@etherealengine/editor/src/components/inputs/Button'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InviteService, InviteState } from '../../social/services/InviteService'
 import { AuthState } from '../../user/services/AuthService'
 import styles from './index.module.scss'
@@ -62,7 +63,8 @@ const InviteToast = () => {
       <div className={`${styles.toastContainer} `}>
         {newestInvite?.inviteType && (
           <span>
-            {capitalizeFirstLetter(newestInvite?.inviteType).replace('-', ' ')} invite from {newestInvite.user?.name}
+            {capitalizeFirstLetter(newestInvite?.inviteType).replace('-', ' ')} invite from{' '}
+            {newestInvite.user?.name as UserName}
           </span>
         )}
         <div className={`${styles.btnContainer}`}>

@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { ScopeQuery, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeID, ScopeQuery, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
@@ -41,7 +41,7 @@ export const scopeExternalResolver = resolve<ScopeType, HookContext>({
 
 export const scopeDataResolver = resolve<ScopeType, HookContext>({
   id: async () => {
-    return v4()
+    return v4() as ScopeID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
