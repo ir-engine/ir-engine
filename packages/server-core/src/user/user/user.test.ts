@@ -145,8 +145,6 @@ describe('user.test', () => {
   it('should not be able to patch user scopes without being admin', async () => {
     const userWriteUser = await app.service(userPath).create({
       name: `Test UserWrite #${Math.random()}` as UserName,
-      scopes: [{ type: 'user:write' }],
-      name: `Test UserWrite #${Math.random()}`,
       scopes: [{ type: 'user:write' as ScopeType }],
       avatarId: avatar.id
     })
@@ -154,8 +152,6 @@ describe('user.test', () => {
 
     const userWithScopes = await app.service(userPath).create({
       name: `Test UserWithScopes #${Math.random()}` as UserName,
-      scopes: [{ type: 'editor:write' }],
-      name: `Test UserWithScopes #${Math.random()}`,
       scopes: [{ type: 'editor:write' as ScopeType }],
       avatarId: avatar.id
     })
@@ -183,15 +179,11 @@ describe('user.test', () => {
   it('should not be able to remove admin users without being admin', async () => {
     const adminUser = await app.service(userPath).create({
       name: `Test Admin #${Math.random()}` as UserName,
-      scopes: [{ type: 'admin:admin' }],
-      name: `Test Admin #${Math.random()}`,
       scopes: [{ type: 'admin:admin' as ScopeType }],
       avatarId: avatar.id
     })
     const userWriteUser = await app.service(userPath).create({
       name: `Test UserWrite #${Math.random()}` as UserName,
-      scopes: [{ type: 'admin:admin' }],
-      name: `Test UserWrite #${Math.random()}`,
       scopes: [{ type: 'admin:admin' as ScopeType }],
       avatarId: avatar.id
     })
