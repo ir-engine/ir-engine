@@ -29,6 +29,7 @@ import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-
 
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
+import { Engine } from '../classes/Engine'
 
 //@ts-ignore
 Vector3.prototype.toJSON = function () {
@@ -125,8 +126,12 @@ BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 declare module 'three/src/core/Object3D' {
   export interface Object3D {
     matrixWorldAutoUpdate: boolean
+    /** @deprecated use ECS hierarchy instead [#9308](https://github.com/EtherealEngine/etherealengine/issues/9308) */
+    add(...object: Object3D[]): this
   }
 }
+
+Engine.instance.scene.add()
 
 declare module 'three/src/math/Quaternion' {
   export interface Quaternion {
