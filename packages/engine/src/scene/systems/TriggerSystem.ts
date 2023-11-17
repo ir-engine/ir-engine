@@ -27,6 +27,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
+import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
 import { ColliderHitEvent, CollisionEvents } from '../../physics/types/PhysicsTypes'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -79,5 +80,6 @@ const execute = () => {
 
 export const TriggerSystem = defineSystem({
   uuid: 'ee.engine.TriggerSystem',
+  insert: { with: PhysicsSystem },
   execute
 })

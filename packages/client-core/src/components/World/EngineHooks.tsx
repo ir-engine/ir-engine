@@ -68,25 +68,12 @@ import { ComputedTransformComponent } from '@etherealengine/engine/src/transform
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { startClientSystems } from '../../world/startClientSystems'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const initClient = async () => {
-  if (getMutableState(EngineState).isEngineInitialized.value) return
-
   const projects = Engine.instance.api.service(projectsPath).find()
-
-  startClientSystems()
   await loadEngineInjection(await projects)
-
-  getMutableState(EngineState).isEngineInitialized.set(true)
-}
-
-export const useLoadEngine = () => {
-  useEffect(() => {
-    initClient()
-  }, [])
 }
 
 export const useLocationSpawnAvatar = (spectate = false) => {
@@ -247,7 +234,10 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const appState = useHookstate(getMutableState(AppLoadingState).state)
 
-  useLoadEngine()
+  useEffect(() => {
+    initClient()
+  }, [])
+
   useLocationSpawnAvatar(spectate)
   usePortalTeleport()
   useLinkTeleport()
@@ -258,6 +248,7 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
         state: AppLoadingStates.SUCCESS,
         loaded: true
       })
+      /** used by the PWA service worker */
       window.dispatchEvent(new Event('load'))
     }
   }, [engineState.sceneLoaded, engineState.loadingProgress])

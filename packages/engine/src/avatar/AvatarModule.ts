@@ -23,12 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { receiveActions } from '@etherealengine/hyperflux'
-
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { AvatarState, AvatarStateReactor } from './state/AvatarNetworkState'
+import { AvatarNetworkSystem } from './state/AvatarNetworkState'
+import { AnimationSystem } from './systems/AnimationSystem'
 import { AvatarAnimationSystem } from './systems/AvatarAnimationSystem'
 import { AvatarAutopilotSystem } from './systems/AvatarAutopilotSystem'
 import { AvatarControllerSystem } from './systems/AvatarControllerSystem'
@@ -39,26 +35,16 @@ import { AvatarMovementSystem } from './systems/AvatarMovementSystem'
 import { AvatarTeleportSystem } from './systems/AvatarTeleportSystem'
 import { FlyControlSystem } from './systems/FlyControlSystem'
 
-export const AvatarInputSystemGroup = defineSystem({
-  uuid: 'ee.engine.avatar.AvatarInputSystemGroup',
-  subSystems: [AvatarInputSystem, AvatarControllerSystem, AvatarTeleportSystem, FlyControlSystem, AvatarLoadingSystem]
-})
-
-export const AvatarSimulationSystemGroup = defineSystem({
-  uuid: 'ee.engine.avatar.AvatarSimulationSystemGroup',
-
-  subSystems: [AvatarMovementSystem, AvatarIKTargetSystem, AvatarAutopilotSystem],
-
-  execute: () => {
-    receiveActions(AvatarState)
-  },
-
-  reactor: () => {
-    return <AvatarStateReactor />
-  }
-})
-
-export const AvatarAnimationSystemGroup = defineSystem({
-  uuid: 'ee.engine.avatar.AvatarAnimationSystemGroup',
-  subSystems: [AvatarAnimationSystem]
-})
+export default {
+  AvatarNetworkSystem,
+  AnimationSystem,
+  AvatarAnimationSystem,
+  AvatarAutopilotSystem,
+  AvatarControllerSystem,
+  AvatarIKTargetSystem,
+  AvatarInputSystem,
+  AvatarLoadingSystem,
+  AvatarMovementSystem,
+  AvatarTeleportSystem,
+  FlyControlSystem
+}

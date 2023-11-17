@@ -29,6 +29,7 @@ import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { clearModelResources, uploadProjectFiles } from '../functions/assetFunctions'
 
 const beginModelExportQueue = defineActionQueue(BufferHandlerExtension.beginModelExport.matches)
@@ -76,6 +77,7 @@ const reactor = () => {
 
 export const ModelHandlingSystem = defineSystem({
   uuid: 'ee.editor.ModelHandlingSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })

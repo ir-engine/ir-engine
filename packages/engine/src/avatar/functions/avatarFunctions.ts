@@ -65,7 +65,6 @@ import config from '@etherealengine/common/src/config'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
-import { defaultBonesData } from '../DefaultSkeletonBones'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -113,9 +112,7 @@ export const loadAvatarForUser = async (
     throw new Error('Avatar model already loading')
 
   if (loadingEffect) {
-    if (hasComponent(entity, AvatarControllerComponent)) {
-      getComponent(entity, AvatarControllerComponent).movementEnabled = false
-    }
+    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
   }
 
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(false)
@@ -142,6 +139,7 @@ export const loadAvatarForUser = async (
       dissolveMaterials: dissolveMaterials as ShaderMaterial[],
       originMaterials: avatarMaterials as MaterialMap[]
     })
+    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
   }
 
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
@@ -255,15 +253,6 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   box.expandByObject(model).getSize(tempVec3ForHeight)
   box.getCenter(tempVec3ForCenter)
   resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
-}
-
-/**
- * Creates an empty skinned mesh with the default skeleton attached.
- * The skeleton created is compatible with default animation tracks
- * @returns SkinnedMesh
- */
-export function makeDefaultSkinnedMesh() {
-  return makeSkinnedMeshFromBoneData(defaultBonesData)
 }
 
 /**
