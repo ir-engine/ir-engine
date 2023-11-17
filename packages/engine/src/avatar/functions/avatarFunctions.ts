@@ -62,6 +62,7 @@ import { XRState } from '../../xr/XRState'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
+import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
@@ -99,7 +100,13 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   //   )
   //   sourceRig = parseAvatarModelAsset(sourceVRM)!.humanoid.normalizedHumanBones
   // }
-  const model = await AssetLoader.loadAsync(avatarURL)
+
+  //check if the url to the file has a file extension, if not, assume it's a glb
+  const fileExtensionRegex = /\.[0-9a-z]+$/i
+  const override = fileExtensionRegex.test(avatarURL) ? undefined : AssetType.glB
+
+  const model = await AssetLoader.loadAsync(avatarURL, undefined, undefined, override)
+  console.log(avatarURL, model)
   return parseAvatarModelAsset(model)
 }
 
