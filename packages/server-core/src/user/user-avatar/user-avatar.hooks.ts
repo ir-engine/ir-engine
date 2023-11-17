@@ -47,7 +47,7 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(userAvatarQueryValidator), schemaHooks.resolveQuery(userAvatarQueryResolver)],
-    find: [disallow('external')],
+    find: [],
     get: [disallow('external')],
     create: [
       disallow('external'),

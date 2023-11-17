@@ -23,12 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { userAvatarMethods, userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
+import {
+  UserAvatarType,
+  userAvatarMethods,
+  userAvatarPath
+} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '@etherealengine/server-core/declarations'
+import _ from 'lodash'
+import logger from '../../ServerLogger'
+import config from '../../appconfig'
 import { UserAvatarService } from './user-avatar.class'
 import userAvatarDocs from './user-avatar.docs'
 import hooks from './user-avatar.hooks'
+
+import {
+  InstanceAttendanceType,
+  instanceAttendancePath
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { Knex } from 'knex'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
@@ -54,4 +68,45 @@ export default (app: Application): void => {
 
   const service = app.service(userAvatarPath)
   service.hooks(hooks)
+
+  // when seeding db, no need to patch users
+  if (config.db.forceRefresh) return
+
+  /**
+   * This method find all users
+   * @returns users
+   */
+  service.publish('patched', async (data: UserAvatarType, context) => {
+    try {
+      const userId = data.userId
+
+      const instances = (await app.service(instanceAttendancePath).find({
+        query: {
+          userId,
+          ended: false
+        },
+        paginate: false
+      })) as any as InstanceAttendanceType[]
+
+      const knexClient: Knex = app.get('knexClient')
+
+      const layerUsers = await knexClient
+        .from(userAvatarPath)
+        .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, '=', `${userAvatarPath}.userId`)
+        .whereIn(
+          `${instanceAttendancePath}.instanceId`,
+          instances.map((instance) => instance.instanceId)
+        )
+        .whereNot(`${userAvatarPath}.userId`, userId)
+        .select()
+        .options({ nestTables: true })
+
+      const targetIds = _.uniq(layerUsers.map((item) => item[userAvatarPath].userId))
+
+      return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
+    } catch (err) {
+      logger.error(err)
+      throw err
+    }
+  })
 }
