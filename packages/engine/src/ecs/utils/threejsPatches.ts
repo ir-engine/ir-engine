@@ -125,6 +125,8 @@ BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 declare module 'three/src/core/Object3D' {
   export interface Object3D {
     matrixWorldAutoUpdate: boolean
+    /** @deprecated use ECS hierarchy instead [#9308](https://github.com/EtherealEngine/etherealengine/issues/9308) */
+    add(...object: Object3D[]): this
   }
 }
 
