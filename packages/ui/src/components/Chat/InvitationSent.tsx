@@ -25,14 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import UserIcon from './assets/user.svg'
 
 export const InvitationSent = () => {
-  const InviteSent: { name: string; date: string }[] = [
-    { name: 'John Laouireen', date: '12 Aug 2021' },
-    { name: 'John Laouireen', date: '12 Aug 2021' },
-    { name: 'John Laouireen', date: '12 Aug 2021' },
-    { name: 'John Laouireen', date: '12 Aug 2021' }
+  const InviteSent: { name: UserName; date: string }[] = [
+    { name: 'John Laouireen' as UserName, date: '12 Aug 2021' },
+    { name: 'John Laouireen' as UserName, date: '12 Aug 2021' },
+    { name: 'John Laouireen' as UserName, date: '12 Aug 2021' },
+    { name: 'John Laouireen' as UserName, date: '12 Aug 2021' }
   ]
   return (
     <div className="w-[460px] h-[86%] bg-[#15171B]">

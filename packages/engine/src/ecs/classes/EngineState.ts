@@ -47,7 +47,6 @@ export const EngineState = defineState({
     sceneLoading: false,
     sceneLoaded: false,
     loadingProgress: 0,
-    isTeleporting: false,
     spectating: false,
     avatarLoadingEffect: true,
     /**
