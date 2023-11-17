@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Box3, Vector3 } from 'three'
+import { Box3, Quaternion, Vector3 } from 'three'
 
 import {
   defineActionQueue,
@@ -60,6 +60,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 
 import { AvatarMovementSystem } from '../../avatar/systems/AvatarMovementSystem'
+import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
@@ -151,7 +152,7 @@ const execute = () => {
     const mountTransform = getComponent(action.targetEntity!, TransformComponent)
     const rigidBody = getComponent(avatarEntity, RigidBodyComponent)
     rigidBody.targetKinematicPosition.copy(mountTransform.position).y -= avatar.avatarHalfHeight * 0.5
-    rigidBody.targetKinematicRotation.copy(mountTransform.rotation)
+    setComponent(avatarEntity, TransformComponent, { rotation: mountTransform.rotation })
     updateLocalAvatarPosition(avatarEntity)
 
     setComponent(avatarEntity, SittingComponent, {
@@ -180,8 +181,19 @@ const execute = () => {
   for (const entity of sittingIdleQuery()) {
     const controller = getComponent(entity, AvatarControllerComponent)
     if (controller.gamepadLocalInput.lengthSq() > 0.01) unmountEntity(entity)
+    const mountTransform = getComponent(getComponent(entity, SittingComponent).mountPointEntity, TransformComponent)
+    const avatarTransform = getComponent(entity, TransformComponent)
+    const hipsQaut = new Quaternion(
+      MotionCaptureRigComponent.rig.hips.x[entity],
+      MotionCaptureRigComponent.rig.hips.y[entity],
+      MotionCaptureRigComponent.rig.hips.z[entity],
+      MotionCaptureRigComponent.rig.hips.w[entity]
+    )
+    avatarTransform.rotation.copy(mountTransform.rotation).multiply(hipsQaut.invert())
   }
 }
+
+const _angle = new Vector3()
 
 const reactor = () => {
   const mountedEntities = useHookstate(getMutableState(MountPointState))
