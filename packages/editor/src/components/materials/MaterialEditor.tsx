@@ -73,7 +73,6 @@ export function MaterialEditor(props: { materialID: string }) {
   const materialComponent = materialLibrary.materials[materialID]
   const prototypeComponent = materialLibrary.prototypes.value[materialComponent.prototype.value]
   const material = materialFromId(materialID).material
-  const loadingData = useHookstate(false)
   const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
     label: prototype.prototypeId,
     value: prototype.prototypeId
@@ -116,7 +115,6 @@ export function MaterialEditor(props: { materialID: string }) {
         thumbnails[k].set(none)
       }
     })
-    loadingData.set(true)
     await Promise.all(
       Object.entries(material).map(async ([field, texture]: [string, Texture]) => {
         if (texture?.isTexture) {
@@ -125,7 +123,6 @@ export function MaterialEditor(props: { materialID: string }) {
         }
       })
     )
-    loadingData.set(false)
   }
 
   const clearThumbs = useCallback(async () => {
@@ -134,21 +131,11 @@ export function MaterialEditor(props: { materialID: string }) {
   }, [])
 
   useEffect(() => {
-    loadingData.set(true)
-    clearThumbs()
-      .then(createThumbnails)
-      .then(() => {
-        loadingData.set(false)
-      })
+    clearThumbs().then(createThumbnails).then(checkThumbs)
   }, [materialComponent.prototype, materialComponent.material.uuid])
 
-  useEffect(() => {
-    if (loadingData.value) return
-    checkThumbs()
-  }, [materialComponent.parameters, materialComponent.material])
-
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
         <StringInput
           value={materialComponent.material.name.value}
@@ -178,22 +165,18 @@ export function MaterialEditor(props: { materialID: string }) {
         </div>
       </InputGroup>
       <br />
-      {!loadingData.value && (
-        <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
-          <SelectInput
-            value={materialComponent.prototype.value}
-            options={prototypes}
-            onChange={(protoId) => {
-              const nuMat = changeMaterialPrototype(material, protoId)
-              materialComponent.set(materialFromId(nuMat!.uuid))
-              // prototypeComponent = prototypeFromId(materialComponent.prototype.value)
-            }}
-          />
-        </InputGroup>
-      )}
+      <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
+        <SelectInput
+          value={materialComponent.prototype.value}
+          options={prototypes}
+          onChange={(protoId) => {
+            const nuMat = changeMaterialPrototype(material, protoId)
+            materialComponent.set(materialFromId(nuMat!.uuid))
+            // prototypeComponent = prototypeFromId(materialComponent.prototype.value)
+          }}
+        />
+      </InputGroup>
       <Divider className={styles.divider} />
-      <br />
-      {loadingData.value && <div>{t('editor:properties.mesh.material.loading')}</div>}
       <ParameterInput
         entity={material.uuid}
         values={materialComponent.parameters.value}
