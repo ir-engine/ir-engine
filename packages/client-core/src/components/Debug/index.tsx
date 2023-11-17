@@ -55,7 +55,6 @@ import styles from './styles.module.scss'
 
 type DesiredType =
   | {
-      enabled?: boolean
       preSystems?: Record<SystemUUID, DesiredType>
       simulation?: DesiredType
       subSystems?: Record<SystemUUID, DesiredType>
@@ -66,11 +65,9 @@ type DesiredType =
 const convertSystemTypeToDesiredType = (system: System): DesiredType => {
   const { preSystems, subSystems, postSystems } = system
   if (preSystems.length === 0 && subSystems.length === 0 && postSystems.length === 0) {
-    return Engine.instance.activeSystems.has(system.uuid)
+    return true
   }
-  const desired: DesiredType = {
-    enabled: Engine.instance.activeSystems.has(system.uuid)
-  }
+  const desired: DesiredType = {}
   if (preSystems.length > 0) {
     desired.preSystems = preSystems.reduce(
       (acc, uuid) => {
@@ -101,7 +98,6 @@ const convertSystemTypeToDesiredType = (system: System): DesiredType => {
       {} as Record<SystemUUID, DesiredType>
     )
   }
-  if (system.uuid === RootSystemGroup) delete desired.enabled
   return desired
 }
 
@@ -302,18 +298,6 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
             const systemReactor = system ? Engine.instance.activeSystemReactors.get(system.uuid) : undefined
             return (
               <>
-                <input
-                  type="checkbox"
-                  style={{ margin: 0 }}
-                  checked={value ? true : false}
-                  onChange={() => {
-                    if (Engine.instance.activeSystems.has(system.uuid)) {
-                      Engine.instance.activeSystems.delete(system.uuid)
-                    } else {
-                      Engine.instance.activeSystems.add(system.uuid)
-                    }
-                  }}
-                ></input>
                 {systemReactor?.error.value && (
                   <span style={{ color: 'red' }}>
                     {systemReactor.error.value.name}: {systemReactor.error.value.message}

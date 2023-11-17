@@ -106,6 +106,14 @@ export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactN
   }
 )
 
+export const ErrorBoundary = createErrorBoundary(function error(props, error?: Error) {
+  if (error) {
+    return null
+  } else {
+    return <React.Fragment>{props.children}</React.Fragment>
+  }
+})
+
 export function startReactor(Reactor: React.FC): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true

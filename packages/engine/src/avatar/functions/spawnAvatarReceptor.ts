@@ -35,7 +35,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import { getComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
@@ -71,17 +70,15 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   if (!entity) throw new Error(`Entity with UUID ${entityUUID} does not exist.`)
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
-  const primary = ownerID === (entityUUID as string as UserID)
+  const isOwner = ownerID === (entityUUID as string as UserID)
 
-  // if (primary) {
+  // if (isOwner) {
   //   const existingAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(entityUUID as string as UserID)
-
   //   // already spawned into the world on another device or tab
   //   if (existingAvatarEntity) return
   // }
 
   setComponent(entity, AvatarComponent, {
-    primary,
     avatarHalfHeight: defaultAvatarHalfHeight,
     avatarHeight: defaultAvatarHeight,
     model: null
@@ -117,7 +114,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
-    setComponent(entity, LocalInputTagComponent, true)
   } else {
     createAvatarRigidBody(entity)
     createAvatarCollider(entity)
@@ -181,6 +177,11 @@ export const createAvatarController = (entity: Entity) => {
   const orientation = cameraForward.x * avatarForward.z - cameraForward.z * avatarForward.x
   if (orientation > 0) targetTheta = 2 * Math.PI - targetTheta
   setTargetCameraRotation(Engine.instance.cameraEntity, 0, targetTheta, 0.01)
+
+  setComponent(entity, AvatarControllerComponent, {
+    bodyCollider: createAvatarCollider(entity),
+    controller: Physics.createCharacterController(getState(PhysicsState).physicsWorld, {})
+  })
 
   setComponent(entity, CollisionComponent)
 }

@@ -73,6 +73,7 @@ import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
+import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -405,6 +406,7 @@ const reactor = () => {
 
 export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
+  insert: { after: AnimationSystem },
   execute,
   reactor
 })

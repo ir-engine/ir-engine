@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { getState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
+import { isClient } from '../../common/functions/getEnvironment'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
@@ -33,6 +34,7 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputState } from '../../input/state/InputState'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
+import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createMediaControlsUI } from '../functions/mediaControlsUI'
@@ -66,7 +68,7 @@ const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaCo
 const mediaQuery = defineQuery([MediaComponent])
 
 const execute = () => {
-  if (getState(EngineState).isEditor) return
+  if (getState(EngineState).isEditor || !isClient) return
 
   for (const entity of mediaQuery.enter()) {
     if (!getComponent(entity, MediaComponent).controls) continue
@@ -83,5 +85,6 @@ const execute = () => {
 
 export const MediaControlSystem = defineSystem({
   uuid: 'ee.engine.MediaControlSystem',
+  insert: { before: TransformSystem },
   execute
 })

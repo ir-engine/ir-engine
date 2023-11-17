@@ -39,11 +39,11 @@ import {
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, hasComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -55,9 +55,7 @@ import { ShadowComponent } from '../components/ShadowComponent'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { EnvironmentSystem } from './EnvironmentSystem'
-import { FogSystem } from './FogSystem'
-import { ShadowSystem } from './ShadowSystem'
+import iterateObject3D from '../util/iterateObject3D'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
@@ -155,8 +153,11 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
       for (const layer of layers) {
         if (layer.has(obj)) layer.delete(obj)
       }
-
-      obj.traverse(disposeObject3D)
+      if (obj.isProxified) {
+        disposeObject3D(obj)
+      } else {
+        iterateObject3D(obj, disposeObject3D)
+      }
     }
   }, [])
 
@@ -222,7 +223,7 @@ const reactor = () => {
 
 export const SceneObjectSystem = defineSystem({
   uuid: 'ee.engine.SceneObjectSystem',
+  insert: { after: AnimationSystemGroup },
   execute,
-  reactor,
-  subSystems: isClient ? [FogSystem, EnvironmentSystem, ShadowSystem] : []
+  reactor
 })

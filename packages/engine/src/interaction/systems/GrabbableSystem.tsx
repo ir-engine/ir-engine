@@ -55,6 +55,7 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { NetworkState } from '../../networking/NetworkState'
@@ -375,6 +376,7 @@ const execute = () => {
 
 export const GrabbableSystem = defineSystem({
   uuid: 'ee.engine.GrabbableSystem',
+  insert: { with: SimulationSystemGroup },
   execute,
   reactor: GrabbablesReactor
 })

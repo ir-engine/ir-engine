@@ -38,6 +38,7 @@ import {
 import React, { useEffect } from 'react'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InstanceID } from '../../schemas/networking/instance.schema'
 import { ChannelID } from '../../schemas/social/channel.schema'
@@ -469,6 +470,7 @@ const reactor = () => {
 
 export const MediasoupMediaProducerConsumerStateSystem = defineSystem({
   uuid: 'ee.engine.network.mediasoup.MediasoupMediaProducerConsumerStateSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })

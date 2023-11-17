@@ -23,16 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../../ecs/classes/Engine'
-import { UndefinedEntity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { Mesh, Object3D } from 'three'
 
-export const LocalInputTagComponent = defineComponent({
-  name: 'LocalInputTagComponent',
-  onSet: (entity) => {
-    Engine.instance.localClientEntity = entity
-  },
-  onRemove: (entity) => {
-    Engine.instance.localClientEntity = UndefinedEntity
-  }
-})
+import iterateObject3D from './iterateObject3D'
+
+export default function getFirstMesh(obj3d: Object3D): Mesh | null {
+  const meshes = iterateObject3D(
+    obj3d,
+    (child) => child,
+    (child: Mesh) => child?.isMesh,
+    false,
+    true
+  )
+  return meshes.length > 0 ? meshes[0] : null
+}
+
+export function getMeshes(obj3d: Object3D): Mesh[] {
+  return iterateObject3D(
+    obj3d,
+    (child) => child,
+    (child: Mesh) => child?.isMesh,
+    false,
+    false
+  )
+}

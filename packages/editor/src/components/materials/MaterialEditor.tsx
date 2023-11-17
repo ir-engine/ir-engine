@@ -37,7 +37,7 @@ import {
   materialFromId
 } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { removeMaterialPlugin } from '@etherealengine/engine/src/renderer/materials/functions/MaterialPluginFunctions'
-import { State, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
+import { State, getMutableState, none, useState } from '@etherealengine/hyperflux'
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
 import { Box, Divider, Stack } from '@mui/material'
@@ -52,7 +52,6 @@ import StringInput from '../inputs/StringInput'
 import PaginatedList from '../layout/PaginatedList'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import { InfoTooltip } from '../layout/Tooltip'
-import { MaterialSelectionState } from './MaterialLibraryState'
 
 type ThumbnailData = {
   src: string
@@ -291,37 +290,4 @@ export const MaterialPropertyTitle = () => {
   )
 }
 
-export const MaterialProperties = () => {
-  const { t } = useTranslation()
-
-  const selectedMaterialID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
-
-  const material = selectedMaterialID.value ? materialFromId(selectedMaterialID.value) : undefined
-
-  return (
-    <div
-      style={{
-        overflowY: 'auto',
-        height: '100%'
-      }}
-    >
-      {material && selectedMaterialID.value ? (
-        <MaterialEditor key={`${selectedMaterialID}-MaterialEditor`} materialID={selectedMaterialID.value} />
-      ) : (
-        <div
-          style={{
-            height: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            color: 'var(--textColor)'
-          }}
-        >
-          {t('editor:properties.noNodeSelected')}
-        </div>
-      )}
-    </div>
-  )
-}
-
-export default MaterialProperties
+export default MaterialEditor

@@ -37,6 +37,7 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { InputState } from '../../input/state/InputState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FlyControlComponent } from '../components/FlyControlComponent'
+import { AvatarInputSystem } from './AvatarInputSystem'
 
 const EPSILON = 10e-5
 const IDENTITY = new Matrix4().identity()
@@ -128,5 +129,6 @@ const execute = () => {
 
 export const FlyControlSystem = defineSystem({
   uuid: 'ee.engine.FlyControlSystem',
+  insert: { after: AvatarInputSystem },
   execute
 })

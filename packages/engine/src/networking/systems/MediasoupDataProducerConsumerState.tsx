@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { defineAction, defineState, getMutableState, getState, none, receiveActions } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InstanceID } from '../../schemas/networking/instance.schema'
 
@@ -212,5 +213,6 @@ const execute = () => {
 
 export const MediasoupDataProducerConsumerStateSystem = defineSystem({
   uuid: 'ee.engine.network.mediasoup.MediasoupDataProducerConsumerStateSystem',
+  insert: { after: PresentationSystemGroup },
   execute
 })

@@ -32,6 +32,7 @@ import {
   dispatchAction,
   getMutableState,
   none,
+  receiveActions,
   useHookstate,
   useState
 } from '@etherealengine/hyperflux'
@@ -39,7 +40,9 @@ import {
 import { Paginated } from '@feathersjs/feathers'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { entityExists } from '../../ecs/functions/EntityFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AvatarID, AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
@@ -160,3 +163,12 @@ export const AvatarStateReactor = () => {
     </>
   )
 }
+
+export const AvatarNetworkSystem = defineSystem({
+  uuid: 'ee.engine.avatar.AvatarNetworkSystem',
+  insert: { with: SimulationSystemGroup },
+  execute: () => {
+    receiveActions(AvatarState)
+  },
+  reactor: AvatarStateReactor
+})

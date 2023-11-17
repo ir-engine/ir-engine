@@ -31,7 +31,6 @@ import {
   defineAction,
   defineActionQueue,
   defineState,
-  dispatchAction,
   getMutableState,
   getState,
   none,
@@ -43,11 +42,11 @@ import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/Scen
 import { useEffect } from 'react'
 import { Validator, matches } from '../../common/functions/MatchesUtils'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { migrateSceneData } from '../../scene/systems/SceneLoadingSystem'
 import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
+import { PresentationSystemGroup } from '../functions/EngineFunctions'
 import { defineSystem } from '../functions/SystemFunctions'
 import { Engine } from './Engine'
-import { EngineActions, EngineState } from './EngineState'
+import { EngineState } from './EngineState'
 import { UndefinedEntity } from './Entity'
 
 export interface SceneSnapshotInterface {
@@ -73,7 +72,26 @@ export const SceneState = defineState({
   getCurrentScene: () => {
     const activeScene = getState(SceneState).activeScene
     if (!activeScene) return null
-    return getState(SceneState).scenes[activeScene].snapshots[getState(SceneState).scenes[activeScene].index].data
+    return SceneState.getScene(activeScene)!
+  },
+
+  getMutableCurrentScene: () => {
+    const activeSceneID = getState(SceneState).activeScene
+    if (!activeSceneID) return null
+    return SceneState.getMutableScene(activeSceneID)!
+  },
+
+  getScene: (sceneID: SceneID) => {
+    const { scenes } = getState(SceneState)
+    const scene = scenes[sceneID]
+    if (!scene) return null
+    return scene.snapshots[scene.index].data
+  },
+
+  getMutableScene: (sceneID: SceneID) => {
+    const { scenes } = getMutableState(SceneState)
+    const scene = scenes[sceneID]
+    return scene.snapshots[scene.index.value].data
   },
 
   useScene: (sceneID: SceneID) => {
@@ -105,18 +123,10 @@ export const SceneState = defineState({
   // Snapshots
   resetHistory: (sceneID: SceneID) => {
     if (!getState(SceneState).scenes[sceneID]) throw new Error(`Scene ${sceneID} does not exist.`)
-    const sceneData = getState(SceneState).scenes[sceneID].snapshots[0].data
-    let migratedSceneData
-    try {
-      migratedSceneData = migrateSceneData(sceneData)
-    } catch (e) {
-      console.error(e)
-      migratedSceneData = JSON.parse(JSON.stringify(sceneData))
-      dispatchAction(EngineActions.notification({ text: 'Failed to migrate scene.', variant: 'error' }))
-    }
+    const data = getState(SceneState).scenes[sceneID].snapshots[0].data
     getMutableState(SceneState).scenes[sceneID].set({
       index: 0,
-      snapshots: [{ data: migratedSceneData, selectedEntities: [] }]
+      snapshots: [{ data, selectedEntities: [] }]
     })
     SceneState.applyCurrentSnapshot(sceneID)
   },
@@ -201,7 +211,6 @@ export const EditorTopic = 'editor' as Topic
 const undoQueue = defineActionQueue(SceneSnapshotAction.undo.matches)
 const redoQueue = defineActionQueue(SceneSnapshotAction.redo.matches)
 const clearHistoryQueue = defineActionQueue(SceneSnapshotAction.clearHistory.matches)
-const appendSnapshotQueue = defineActionQueue(SceneSnapshotAction.appendSnapshot.matches)
 const modifyQueue = defineActionQueue(SceneSnapshotAction.createSnapshot.matches)
 
 const execute = () => {
@@ -252,6 +261,7 @@ const reactor = () => {
 
 export const SceneSnapshotSystem = defineSystem({
   uuid: 'ee.scene.SceneSnapshotSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })

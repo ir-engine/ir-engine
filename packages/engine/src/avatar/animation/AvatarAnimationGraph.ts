@@ -114,6 +114,7 @@ export const loadAvatarAnimation = (entity: Entity, filePath: string, clipName?:
     //load from default-project/assets/animations
     AssetLoader.loadAsync(filePath).then((animationsAsset: GLTF) => {
       //if no clipname specified, set first animation name to state name for lookup
+      if (animationsAsset.scene.animations.length == 0) return
       animationsAsset.scene.animations[0].name = clipName!
       switch (fileType) {
         case 'fbx':

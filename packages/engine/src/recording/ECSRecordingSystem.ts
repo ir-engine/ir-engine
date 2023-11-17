@@ -78,6 +78,7 @@ import matches, { Validator } from 'ts-matches'
 import { checkScope } from '../common/functions/checkScope'
 import { isClient } from '../common/functions/getEnvironment'
 import { matchesUserId } from '../common/functions/MatchesUtils'
+import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'
 import { PhysicsSerialization } from '../physics/PhysicsSerialization'
 
@@ -852,5 +853,6 @@ const execute = () => {
 
 export const ECSRecordingSystem = defineSystem({
   uuid: 'ee.engine.ECSRecordingSystem',
+  insert: { after: PresentationSystemGroup },
   execute
 })

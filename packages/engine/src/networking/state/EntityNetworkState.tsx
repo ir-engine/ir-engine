@@ -30,20 +30,14 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import {
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  none,
-  receiveActions,
-  useHookstate,
-  useMutableState
-} from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getState, none, receiveActions, useMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { SceneState } from '../../ecs/classes/Scene'
 import { setComponent } from '../../ecs/functions/ComponentFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -101,6 +95,16 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
 
   useEffect(() => {
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
+    const sceneState = getState(SceneState)
+    if (!sceneState.activeScene) {
+      throw new Error('Trying to spawn an object with no active scene')
+    }
+    // TODO: get the active scene for each world network
+    const activeSceneID = SceneState.getCurrentScene()!.scene.root
+    const activeSceneEntity = UUIDComponent.entitiesByUUID[activeSceneID]
+    setComponent(entity, EntityTreeComponent, {
+      parentEntity: activeSceneEntity
+    })
     setComponent(entity, TransformComponent, {
       position: state.spawnPosition.value!,
       rotation: state.spawnRotation.value!
@@ -135,7 +139,7 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
 })
 
 export const EntityNetworkStateSystem = defineSystem({
-  uuid: 'ee.EntityNetworkStateSystem',
+  uuid: 'ee.networking.EntityNetworkStateSystem',
   execute: () => receiveActions(EntityNetworkState),
   reactor: () => {
     const state = useMutableState(EntityNetworkState)
@@ -146,5 +150,6 @@ export const EntityNetworkStateSystem = defineSystem({
         ))}
       </>
     )
-  }
+  },
+  insert: { with: SimulationSystemGroup }
 })

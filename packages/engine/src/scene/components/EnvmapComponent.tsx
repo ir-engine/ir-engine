@@ -59,6 +59,7 @@ import { RendererState } from '../../renderer/RendererState'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
+import iterateObject3D from '../util/iterateObject3D'
 import { applyBoxProjection, EnvMapBakeComponent } from './EnvMapBakeComponent'
 import { GroupComponent } from './GroupComponent'
 import { UUIDComponent } from './UUIDComponent'
@@ -225,7 +226,7 @@ function updateEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
     if (obj instanceof Scene) {
       obj.environment = envmap
     } else {
-      obj.traverse((child: Mesh<any, MeshStandardMaterial | MeshStandardMaterial[]>) => {
+      iterateObject3D(obj, (child: Mesh<any, MeshStandardMaterial | MeshStandardMaterial[]>) => {
         if (!child.material) return
         if (Array.isArray(child.material)) {
           child.material.forEach((mat: MeshStandardMaterial) => {

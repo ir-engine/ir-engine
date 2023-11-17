@@ -27,6 +27,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { defineAction, defineState, getMutableState, getState, none, receiveActions } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InstanceID } from '../../schemas/networking/instance.schema'
 import { NetworkState } from '../NetworkState'
@@ -166,5 +167,6 @@ const execute = () => {
 
 export const MediasoupTransportStateSystem = defineSystem({
   uuid: 'ee.engine.network.mediasoup.MediasoupTransportStateSystem',
+  insert: { after: PresentationSystemGroup },
   execute
 })
