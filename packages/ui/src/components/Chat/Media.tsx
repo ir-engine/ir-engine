@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Resizable } from 're-resizable'
 import DownloadIcon from './assets/download-icon.svg'
 import DownloadImage1 from './assets/download-image1.png'
@@ -38,10 +39,10 @@ export const Media = () => {
     { image: DownloadImage3 }
   ]
 
-  const SharedFiles: { username: string; date: string; filesize: string; image: string }[] = [
-    { username: 'Dwark Matts', date: '12 Aug 2021', filesize: '428KB', image: DownloadIcon },
-    { username: 'Dwark Matts', date: '12 Aug 2021', filesize: '428KB', image: DownloadIcon },
-    { username: 'Dwark Matts', date: '12 Aug 2021', filesize: '428KB', image: DownloadIcon }
+  const SharedFiles: { username: UserName; date: string; filesize: string; image: string }[] = [
+    { username: 'Dwark Matts' as UserName, date: '12 Aug 2021', filesize: '428KB', image: DownloadIcon },
+    { username: 'Dwark Matts' as UserName, date: '12 Aug 2021', filesize: '428KB', image: DownloadIcon },
+    { username: 'Dwark Matts' as UserName, date: '12 Aug 2021', filesize: '428KB', image: DownloadIcon }
   ]
 
   return (

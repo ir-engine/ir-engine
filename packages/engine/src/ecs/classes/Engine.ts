@@ -114,17 +114,9 @@ export class Engine {
     return NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
   }
 
-  activeInputReceiverEntity = UndefinedEntity
-
   reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 
   entityQuery = () => getAllEntities(Engine.instance) as Entity[]
-
-  systemGroups = {} as {
-    input: SystemUUID
-    simulation: SystemUUID
-    presentation: SystemUUID
-  }
 
   /** value is ref count - should never be below zero */
   // activeSystems = new Map<SystemUUID, number>()
