@@ -32,6 +32,7 @@ import { deepEqual } from '@etherealengine/engine/src/common/functions/deepEqual
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
+import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { HyperFlux } from './StoreFunctions'
 
@@ -296,7 +297,9 @@ function defineAction<Shape extends Omit<ActionShape<Action>, keyof ActionOption
     return { ...shape, ...extendShape, type: [extendShape.type, ...(Array.isArray(type) ? type : [type])] }
   }
   actionCreator.receive = (actionReceptor: (action: ResolvedAction) => void) => {
-    return [matchesShape, actionReceptor] as [Validator<unknown, ResolvedAction>, typeof actionReceptor]
+    const hookableReceptor = createHookableFunction(actionReceptor)
+    hookableReceptor['receivesAction'] = matchesShape
+    return hookableReceptor as typeof hookableReceptor & { receivesAction: typeof matchesShape }
   }
 
   ActionDefinitions[actionCreator.type as string] = actionCreator

@@ -30,7 +30,16 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { defineState, dispatchAction, getState, none, receiveActions, useMutableState } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  none,
+  receiveActions,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
@@ -60,34 +69,32 @@ export const EntityNetworkState = defineState({
     }
   >,
 
-  receptors: [
-    WorldNetworkAction.spawnObject.receive((action) => {
-      getMutableState(EntityNetworkState)[action.entityUUID].merge({
-        ownerId: action.$from,
-        networkId: action.networkId,
-        authorityPeerId: action.$peer,
-        spawnPosition: action.position ?? new Vector3(),
-        spawnRotation: action.rotation ?? new Quaternion()
-      })
-    }),
-
-    WorldNetworkAction.requestAuthorityOverObject.receive((action) => {
-      getMutableState(EntityNetworkState)[action.entityUUID].requestingPeerId.set(action.$peer)
-    }),
-
-    WorldNetworkAction.transferAuthorityOfObject.receive((action) => {
-      const networkState = getState(NetworkState)
-      const state = getMutableState(EntityNetworkState)
-      const fromUserId = networkState.networks[action.$network].peers[action.$peer].userId
-      const ownerUserId = state[action.entityUUID].ownerId.value
-      if (fromUserId !== ownerUserId) return // Authority transfer can only be initiated by owner
-      state[action.entityUUID].authorityPeerId.set(action.newAuthority)
-    }),
-
-    WorldNetworkAction.destroyObject.receive((action) => {
-      getMutableState(EntityNetworkState)[action.entityUUID].set(none)
+  onSpawnObject: WorldNetworkAction.spawnObject.receive((action) => {
+    getMutableState(EntityNetworkState)[action.entityUUID].merge({
+      ownerId: action.$from,
+      networkId: action.networkId,
+      authorityPeerId: action.$peer,
+      spawnPosition: action.position ?? new Vector3(),
+      spawnRotation: action.rotation ?? new Quaternion()
     })
-  ]
+  }),
+
+  onRequestAuthorityOverObject: WorldNetworkAction.requestAuthorityOverObject.receive((action) => {
+    getMutableState(EntityNetworkState)[action.entityUUID].requestingPeerId.set(action.$peer)
+  }),
+
+  onTransferAuhtorityOfObject: WorldNetworkAction.transferAuthorityOfObject.receive((action) => {
+    const networkState = getState(NetworkState)
+    const state = getMutableState(EntityNetworkState)
+    const fromUserId = networkState.networks[action.$network].peers[action.$peer].userId
+    const ownerUserId = state[action.entityUUID].ownerId.value
+    if (fromUserId !== ownerUserId) return // Authority transfer can only be initiated by owner
+    state[action.entityUUID].authorityPeerId.set(action.newAuthority)
+  }),
+
+  onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
+    getMutableState(EntityNetworkState)[action.entityUUID].set(none)
+  })
 })
 
 const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {

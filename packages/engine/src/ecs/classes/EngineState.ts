@@ -48,7 +48,7 @@ export const EngineState = defineState({
     loadingProgress: 0,
     isTeleporting: false,
     spectating: false,
-    avatarLoadingEffect: true,
+    avatarLoadingEffect: false,
     /**
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
      */

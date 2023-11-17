@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { createState, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
-import type { Function, Object, String } from 'ts-toolbelt'
+import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
@@ -41,7 +41,9 @@ const logger = multiLogger.child({ component: 'hyperflux:State' })
 
 export const NO_PROXY = { noproxy: true }
 
-export type StateActionReceptor<S, A extends ActionShape<Action>> = [Validator<unknown, A>, (action: any) => void]
+export type StateActionReceptor<S, A extends ActionShape<Action>> = ((action: any) => void) & {
+  matchesAction: Validator<A, any>
+}
 
 export type StateDefinition<S> = {
   name: string
@@ -103,6 +105,10 @@ export function registerState<S>(StateDefinition: StateDefinition<S>) {
   }
 }
 
+export function isReceptor<S>(f: any): f is StateActionReceptor<S, any> {
+  return 'matchesAction' in f
+}
+
 export function receiveActions<S>(StateDefinition: StateDefinition<S>) {
   if (!StateDefinition.receptors) throw new Error(`State ${StateDefinition.name} has no receptors.`)
   const store = HyperFlux.store
@@ -112,8 +118,10 @@ export function receiveActions<S>(StateDefinition: StateDefinition<S>) {
   // const state = store.stateMap[StateDefinition.name] as State<S>
   for (const a of actions) {
     // TODO: implement state snapshots, rewind / replay when receiving actions out of order, etc.
-    for (const receptor of StateDefinition.receptors) {
-      receptor[0].test(a) && receptor[1](a)
+    for (const key of Object.keys(StateDefinition)) {
+      const possibleReceptor = StateDefinition[key]
+      if (!isReceptor(possibleReceptor)) continue
+      possibleReceptor.matchesAction(a) && possibleReceptor(a)
     }
   }
 }
@@ -132,11 +140,11 @@ export function useMutableState<S, P extends string>(StateDefinition: StateDefin
 export function useMutableState<S, P extends string>(
   StateDefinition: StateDefinition<S>,
   path: Function.AutoPath<State<S>, P>
-): Object.Path<State<S>, String.Split<P, '.'>>
+): _Object.Path<State<S>, String.Split<P, '.'>>
 export function useMutableState<S, P extends string>(
   StateDefinition: StateDefinition<S>,
   path?: Function.AutoPath<State<S>, P>
-): Object.Path<State<S>, String.Split<P, '.'>> {
+): _Object.Path<State<S>, String.Split<P, '.'>> {
   const rootState = getMutableState(StateDefinition)
   const resolvedState = path ? resolveObject(rootState, path as any) : rootState
   return useHookstate(resolvedState) as any
