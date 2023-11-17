@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { Mesh } from 'three'
-import { convertToBatchedMesh } from '../../assets/classes/BatchedMesh'
+import { Material, Mesh } from 'three'
+import { BatchedMesh, convertToBatchedMeshMat } from '../../assets/classes/BatchedMesh'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -52,17 +52,22 @@ export const BatchedMeshComponent = defineComponent({
     const entity = useEntityContext()
     const batchedMeshComponent = useComponent(entity, BatchedMeshComponent)
     const batchArrary = useHookstate({} as Record<Entity, Object3DWithEntity>)
+
     //getComponent(entity, EntityTreeComponent).children
 
     useEffect(() => {
+      //let isMounted=true
       if (batchedMeshComponent.active.value) {
         //iterate children of this entity and add them to the batch
+
         const meshes: Mesh[] = iterateEntityNode(
           entity,
           (childEntity) => {
             const scene = getComponent(childEntity, GroupComponent)[0]!
+            //save the child entity and unlink the object
             batchArrary[childEntity].set(scene)
             removeObjectFromGroup(childEntity, scene)
+
             return iterateObject3D(
               scene,
               (object) => object as Mesh,
@@ -81,17 +86,24 @@ export const BatchedMeshComponent = defineComponent({
         //create batched mesh from these meshes
         //const batchedMesh = new Mesh()
 
-        const result = convertToBatchedMesh(meshes)
-        //remove the original entity
-        //add batched mesh to this entity's GroupComponent to be rendered
+        let results: BatchedMesh[] = []
+        results.push(convertToBatchedMeshMat(meshes, meshes[0].material as Material))
+        //let matArray:Material[]=[]
+        //matArray.push(meshes[0].material as Material)
+        let matTypeArray: string[] = []
+        matTypeArray.push((meshes[0].material as Material).type)
+        //batch with material
+        for (const mesh of meshes) {
+          if (matTypeArray.includes((mesh.material as Material).type)) continue
+          matTypeArray.push((mesh.material as Material).type)
+          const batchMesh = convertToBatchedMeshMat(meshes, mesh.material as Material)
+          results.push(batchMesh)
+          //matArray.push( mesh.material as Material)
+        }
 
-        addObjectToGroup(entity, result)
-
-        /*for(const batchEntity of batchArrary){
-         const batchObject= getComponent(batchEntity, GroupComponent)[0]
-         removeObjectFromGroup(entity,batchObject)
-          //removeEntity(batchEntity)
-        }*/
+        for (const r of results) {
+          addObjectToGroup(entity, r)
+        }
       }
 
       if (!batchedMeshComponent.active.value && hasComponent(entity, GroupComponent)) {

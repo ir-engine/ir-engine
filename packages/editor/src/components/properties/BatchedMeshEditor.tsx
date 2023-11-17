@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { BatchedMeshComponent } from '@etherealengine/engine/src/scene/components/BatchedMeshComponent'
@@ -32,7 +31,7 @@ import { BatchedMeshComponent } from '@etherealengine/engine/src/scene/component
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty } from './Util'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  *
@@ -41,14 +40,12 @@ import { EditorComponentType, commitProperty } from './Util'
  * @type {[component class]}
  */
 export const BatchedMeshEditor: EditorComponentType = (props) => {
-  const { t } = useTranslation()
-
   const batchComponent = useComponent(props.entity, BatchedMeshComponent)
 
   return (
-    <NodeEditor {...props} name={t('batched')} description={t('batched mesh')}>
-      <InputGroup name="batched" label={t('batched mesh')}>
-        <BooleanInput value={batchComponent.active.value} onChange={commitProperty(BatchedMeshComponent, 'active')} />
+    <NodeEditor {...props} name={'batched'} description={'batched mesh'}>
+      <InputGroup name="batched" label={'batched mesh'}>
+        <BooleanInput value={batchComponent.active.value} onChange={updateProperty(BatchedMeshComponent, 'active')} />
       </InputGroup>
     </NodeEditor>
   )
