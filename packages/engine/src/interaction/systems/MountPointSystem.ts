@@ -181,6 +181,7 @@ const execute = () => {
   for (const entity of sittingIdleQuery()) {
     const controller = getComponent(entity, AvatarControllerComponent)
     if (controller.gamepadLocalInput.lengthSq() > 0.01) unmountEntity(entity)
+    if (!hasComponent(entity, MotionCaptureRigComponent)) continue
     const mountTransform = getComponent(getComponent(entity, SittingComponent).mountPointEntity, TransformComponent)
     const avatarTransform = getComponent(entity, TransformComponent)
     const hipsQaut = new Quaternion(
