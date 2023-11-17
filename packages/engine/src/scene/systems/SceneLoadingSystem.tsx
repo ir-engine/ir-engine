@@ -30,7 +30,6 @@ import {
   ErrorBoundary,
   NO_PROXY,
   State,
-  defineActionQueue,
   dispatchAction,
   getMutableState,
   getState,
@@ -42,7 +41,7 @@ import { Not } from 'bitecs'
 import React from 'react'
 import { AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
@@ -77,8 +76,6 @@ const reactor = () => {
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
 
   useEffect(() => {
-    if (!getState(EngineState).sceneLoading) return
-
     const values = Object.values(assetLoadingState.value)
     const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
     const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
@@ -89,10 +86,8 @@ const reactor = () => {
     if (!sceneAssetPendingTagQuery.length && !getState(EngineState).sceneLoaded) {
       for (const entity of sceneAssetPendingTagQuery) removeComponent(entity, SceneAssetPendingTagComponent)
       getMutableState(EngineState).merge({
-        sceneLoading: false,
         sceneLoaded: true
       })
-      dispatchAction(EngineActions.sceneLoaded({}))
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }
   }, [sceneAssetPendingTagQuery.length, assetLoadingState])
@@ -231,7 +226,7 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     setComponent(entity, UUIDComponent, props.entityUUID)
     setComponent(entity, SceneTagComponent, true)
     setComponent(entity, TransformComponent)
-    setComponent(entity, SceneObjectComponent)
+    setComponent(entity, SceneObjectComponent, props.sceneID)
     setComponent(entity, EntityTreeComponent, { parentEntity: null })
 
     return () => {
@@ -298,7 +293,7 @@ const EntityChildLoadReactor = (props: {
     const entity = UUIDComponent.entitiesByUUID[props.entityUUID] ?? createEntity()
 
     const parentEntity = parentEntityState.value
-    setComponent(entity, SceneObjectComponent)
+    setComponent(entity, SceneObjectComponent, props.sceneID)
     setComponent(entity, EntityTreeComponent, {
       parentEntity,
       uuid: props.entityUUID,
@@ -403,15 +398,8 @@ const ComponentLoadReactor = (props: {
   return null
 }
 
-const sceneLoadedActionQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
-
-const execute = () => {
-  if (sceneLoadedActionQueue().length) getMutableState(EngineState).merge({ sceneLoading: false, sceneLoaded: true })
-}
-
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',
   insert: { after: PresentationSystemGroup },
-  execute,
   reactor
 })

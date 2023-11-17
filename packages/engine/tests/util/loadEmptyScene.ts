@@ -58,6 +58,6 @@ export const loadEmptyScene = () => {
   setComponent(entity, UUIDComponent, 'root' as EntityUUID)
   setComponent(entity, SceneTagComponent, true)
   setComponent(entity, TransformComponent)
-  setComponent(entity, SceneObjectComponent)
+  setComponent(entity, SceneObjectComponent, 'test' as SceneID)
   setComponent(entity, EntityTreeComponent, { parentEntity: null })
 }

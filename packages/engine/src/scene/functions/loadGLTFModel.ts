@@ -145,7 +145,8 @@ export const parseObjectComponentsFromGLTF = (
       parent: parentUuid
     }
 
-    if (hasComponent(entity, SceneObjectComponent)) setComponent(e, SceneObjectComponent)
+    if (hasComponent(entity, SceneObjectComponent))
+      setComponent(e, SceneObjectComponent, getComponent(entity, SceneObjectComponent))
 
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
@@ -214,7 +215,7 @@ export const parseGLTFModel = (entity: Entity) => {
         components: [],
         parent: getComponent(parentEntity, UUIDComponent)
       }
-      setComponent(objEntity, SceneObjectComponent)
+      setComponent(objEntity, SceneObjectComponent, getComponent(entity, SceneObjectComponent))
       setComponent(objEntity, EntityTreeComponent, {
         parentEntity,
         uuid

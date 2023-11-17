@@ -24,6 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { SceneID } from '../../schemas/projects/scene.schema'
 
 /** Used to identity an entity that has been loaded as part of a scene */
-export const SceneObjectComponent = defineComponent({ name: 'SceneObjectComponent' })
+export const SceneObjectComponent = defineComponent({
+  name: 'SceneObjectComponent',
+
+  onInit() {
+    return '' as SceneID
+  },
+
+  onSet(entity, component, sceneID: SceneID) {
+    if (!sceneID) return
+
+    component.set(sceneID)
+    SceneObjectComponent.valueMap[entity] = sceneID
+  }
+})

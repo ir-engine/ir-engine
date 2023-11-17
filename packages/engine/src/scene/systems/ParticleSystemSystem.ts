@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BatchedParticleRenderer } from 'three.quarks'
 
-import { defineActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { SceneObjectSystem } from './SceneObjectSystem'
 
@@ -39,21 +39,16 @@ export function getBatchRenderer() {
   return batchRenderer
 }
 
-const sceneLoadListener = defineActionQueue(EngineActions.sceneLoaded.matches)
-
 const execute = () => {
-  for (const action of sceneLoadListener()) {
-    batchRenderer!.parent === null && Engine.instance.scene.add(batchRenderer!)
-  }
   const deltaSeconds = getState(EngineState).deltaSeconds
   batchRenderer && batchRenderer.update(deltaSeconds)
 }
 
 const reactor = () => {
   useEffect(() => {
+    Engine.instance.scene.add(batchRenderer!)
     return () => {
-      removeActionQueue(sceneLoadListener)
-      batchRenderer!.parent !== null && Engine.instance.scene.remove(batchRenderer!)
+      Engine.instance.scene.remove(batchRenderer!)
     }
   }, [])
   return null

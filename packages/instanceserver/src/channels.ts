@@ -31,7 +31,7 @@ import { decode } from 'jsonwebtoken'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
@@ -56,7 +56,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserKickType, userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { State, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { State, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -258,7 +258,6 @@ const loadEngine = async (app: Application, sceneId: SceneID) => {
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
     await loadEngineInjection(projects)
-    dispatchAction(EngineActions.sceneLoaded({}))
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
