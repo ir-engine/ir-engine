@@ -41,12 +41,12 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { ObjectDirection } from '../../common/constants/Axis3D'
+import { isClient } from '../../common/functions/getEnvironment'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineQuery,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -63,9 +63,9 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { setupObject } from '../../scene/systems/SceneObjectSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
-import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '.././components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from '.././components/AvatarEffectComponent'
+import { AvatarAnimationSystem } from './AvatarAnimationSystem'
 
 const lightScale = (y, r) => {
   return Math.min(1, Math.max(1e-3, y / r))
@@ -278,12 +278,6 @@ const execute = () => {
     }
   }
 
-  for (const entity of dissolveQuery.enter()) {
-    const effectComponent = getComponent(entity, AvatarEffectComponent)
-    if (hasComponent(effectComponent.sourceEntity, AvatarControllerComponent))
-      getComponent(effectComponent.sourceEntity, AvatarControllerComponent).movementEnabled = true
-  }
-
   for (const entity of dissolveQuery()) {
     const effectComponent = getComponent(entity, AvatarEffectComponent)
     if (AvatarDissolveComponent.updateDissolveEffect(effectComponent.dissolveMaterials, entity, delta)) {
@@ -318,6 +312,7 @@ const execute = () => {
 }
 
 const reactor = () => {
+  if (!isClient) return null
   useEffect(() => {
     AssetLoader.loadAsync('/static/itemLight.png').then((texture) => {
       texture.colorSpace = SRGBColorSpace
@@ -336,6 +331,7 @@ const reactor = () => {
 
 export const AvatarLoadingSystem = defineSystem({
   uuid: 'ee.engine.AvatarLoadingSystem',
+  insert: { after: AvatarAnimationSystem },
   execute,
   reactor
 })

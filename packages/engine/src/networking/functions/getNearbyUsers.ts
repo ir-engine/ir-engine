@@ -23,13 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Not } from 'bitecs'
-
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
@@ -37,12 +34,7 @@ type NearbyUser = { id: UserID; distance: number }
 
 const compareDistance = (a: NearbyUser, b: NearbyUser) => a.distance - b.distance
 
-const remoteAvatars = defineQuery([
-  NetworkObjectComponent,
-  AvatarComponent,
-  TransformComponent,
-  Not(LocalInputTagComponent)
-])
+const remoteAvatars = defineQuery([NetworkObjectComponent, AvatarComponent, TransformComponent])
 
 export function getNearbyUsers(userId: UserID, nonChannelUserIds: UserID[]): Array<UserID> {
   const userAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(userId)

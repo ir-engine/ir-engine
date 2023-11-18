@@ -47,6 +47,7 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -61,7 +62,6 @@ import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent, coneDebugHelpers, debugRays } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { CameraFadeBlackEffectSystem } from './CameraFadeBlackEffectSystem'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
@@ -348,7 +348,7 @@ const reactor = () => {
 
 export const CameraSystem = defineSystem({
   uuid: 'ee.engine.CameraSystem',
+  insert: { with: AnimationSystemGroup },
   execute,
-  reactor,
-  subSystems: [CameraFadeBlackEffectSystem]
+  reactor
 })

@@ -27,14 +27,15 @@ import React from 'react'
 import { ImCross } from 'react-icons/im'
 import { TiTick } from 'react-icons/ti'
 
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import UserIcon from './assets/user.svg'
 
 export const InvitationReceived = () => {
-  const InviteReceived: { name: string; date: string }[] = [
-    { name: 'John Laouireen', date: '12 Aug 2021' },
-    { name: 'John Laouireen', date: '12 Aug 2021' },
-    { name: 'John Laouireen', date: '12 Aug 2021' },
-    { name: 'John Laouireen', date: '12 Aug 2021' }
+  const InviteReceived: { name: UserName; date: string }[] = [
+    { name: 'John Laouireen' as UserName, date: '12 Aug 2021' },
+    { name: 'John Laouireen' as UserName, date: '12 Aug 2021' },
+    { name: 'John Laouireen' as UserName, date: '12 Aug 2021' },
+    { name: 'John Laouireen' as UserName, date: '12 Aug 2021' }
   ]
 
   return (

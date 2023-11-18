@@ -51,6 +51,7 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { authenticationSettingPath } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
@@ -175,7 +176,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }
 
   const handleUpdateUsername = () => {
-    const name = username.value.trim()
+    const name = username.value.trim() as UserName
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
       // @ts-ignore
@@ -422,9 +423,9 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         </Box>
 
         <InputText
-          name="username"
+          name={'username' as UserName}
           label={t('user:usermenu.profile.lbl-username')}
-          value={username.value || ''}
+          value={username.value || ('' as UserName)}
           error={errorUsername.value}
           sx={{ mt: 4 }}
           endIcon={<Icon type="Check" />}

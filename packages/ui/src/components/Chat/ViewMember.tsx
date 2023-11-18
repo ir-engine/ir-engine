@@ -26,16 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { MdDelete } from 'react-icons/md'
 
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import UserIcon from './assets/user.svg'
 
 export const ViewMember = () => {
-  const Members: { name: string }[] = [
-    { name: 'John Laouireen' },
-    { name: 'John Laouireen' },
-    { name: 'John Laouireen' },
-    { name: 'John Laouireen' },
-    { name: 'John Laouireen' },
-    { name: 'John Laouireen' }
+  const Members: { name: UserName }[] = [
+    { name: 'John Laouireen' as UserName },
+    { name: 'John Laouireen' as UserName },
+    { name: 'John Laouireen' as UserName },
+    { name: 'John Laouireen' as UserName },
+    { name: 'John Laouireen' as UserName },
+    { name: 'John Laouireen' as UserName }
   ]
 
   return (

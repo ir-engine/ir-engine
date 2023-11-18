@@ -44,6 +44,7 @@ import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDC
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
+import { AnimationSystem } from '@etherealengine/engine/src/avatar/systems/AnimationSystem'
 import { MediaStreamState } from '../../transports/MediaStreams'
 
 const FACE_EXPRESSION_THRESHOLD = 0.1
@@ -292,5 +293,6 @@ const execute = () => {
 /** @todo - this system currently is not used and has been replaced by the /capture route */
 export const WebcamInputSystem = defineSystem({
   uuid: 'ee.client.WebcamInputSystem',
+  insert: { with: AnimationSystem },
   execute
 })

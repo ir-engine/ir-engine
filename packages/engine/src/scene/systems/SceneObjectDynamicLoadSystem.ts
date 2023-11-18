@@ -37,6 +37,7 @@ import {
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
+import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 let accumulator = 0
 
@@ -74,5 +75,6 @@ const execute = () => {
 
 export const SceneObjectDynamicLoadSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneObjectDynamicLoadSystem',
+  insert: { with: SceneLoadingSystem },
   execute
 })

@@ -29,6 +29,7 @@ import { defineQuery, getComponent, getMutableComponent } from '../ecs/functions
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { LocalTransformComponent } from '../transform/components/TransformComponent'
 import { PersistentAnchorActions, PersistentAnchorComponent } from './XRAnchorComponents'
+import { XRPersistentAnchorSystem } from './XRPersistentAnchorSystem'
 
 const vpsAnchorQuery = defineQuery([PersistentAnchorComponent])
 const vpsAnchorFoundQueue = defineActionQueue(PersistentAnchorActions.anchorFound.matches)
@@ -71,5 +72,6 @@ const execute = () => {
 
 export const VPSSystem = defineSystem({
   uuid: 'ee.engine.VPSSystem',
+  insert: { after: XRPersistentAnchorSystem },
   execute
 })
