@@ -63,7 +63,6 @@ import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFun
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
@@ -71,9 +70,14 @@ import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFu
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
-export const initClient = async () => {
-  const projects = Engine.instance.api.service(projectsPath).find()
-  await loadEngineInjection(await projects)
+export const useEngineInjection = () => {
+  const loaded = useHookstate(false)
+  useEffect(() => {
+    loadEngineInjection().then(() => {
+      loaded.set(true)
+    })
+  }, [])
+  return loaded.value
 }
 
 export const useLocationSpawnAvatar = (spectate = false) => {
@@ -233,10 +237,6 @@ type Props = {
 export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const appState = useHookstate(getMutableState(AppLoadingState).state)
-
-  useEffect(() => {
-    initClient()
-  }, [])
 
   useLocationSpawnAvatar(spectate)
   usePortalTeleport()
