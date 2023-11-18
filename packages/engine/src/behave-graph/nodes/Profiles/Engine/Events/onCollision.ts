@@ -32,10 +32,11 @@ import {
   removeComponent,
   removeQuery
 } from '../../../../../ecs/functions/ComponentFunctions'
-import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
+import { SystemUUID, defineSystem } from '../../../../../ecs/functions/SystemFunctions'
 import { CollisionComponent } from '../../../../../physics/components/CollisionComponent'
 import { PhysicsSystem } from '../../../../../physics/systems/PhysicsSystem'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
+import { TransformSystem } from '../../../../../transform/TransformModule'
 
 let systemCounter = 0
 
@@ -82,6 +83,7 @@ export const OnCollision = makeEventNodeDefinition({
 
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onCollision-' + systemCounter++,
+      insert: { before: TransformSystem },
       execute: () => {
         const results = query()
         for (const entity of results) {
@@ -110,7 +112,7 @@ export const OnCollision = makeEventNodeDefinition({
     return state
   },
   dispose: ({ state: { query, systemUUID }, graph: { getDependency } }) => {
-    disableSystem(systemUUID)
+    //    disableSystem(systemUUID)
     removeQuery(query)
     return initialState()
   }
