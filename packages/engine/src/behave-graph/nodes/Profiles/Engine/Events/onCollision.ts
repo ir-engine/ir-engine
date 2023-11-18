@@ -57,8 +57,10 @@ export const OnCollision = makeEventNodeDefinition({
   category: NodeCategory.Event,
   label: 'Collision Events',
 
+  // socket configuration support
   configuration: {},
 
+  // flow node inputs
   in: {
     entity: 'entity'
   },
@@ -73,7 +75,10 @@ export const OnCollision = makeEventNodeDefinition({
 
   init: ({ read, write, commit, graph, configuration }) => {
     const entityFilter = read<Entity>('entity')
-    const query = defineQuery([CollisionComponent]).enter
+    const query = defineQuery([CollisionComponent])
+
+    // @todo this could be moved to a global system
+    // @todo this could be using useComponent although that is asynchronous
 
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onCollision-' + systemCounter++,
@@ -95,10 +100,8 @@ export const OnCollision = makeEventNodeDefinition({
       }
     })
 
-    // start the actual system
     startSystem(systemUUID, { after: PhysicsSystem })
 
-    // return a copy of the state for some reason? @todo why?
     const state: State = {
       query,
       systemUUID
