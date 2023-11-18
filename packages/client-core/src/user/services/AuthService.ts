@@ -48,6 +48,7 @@ import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-to
 import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
 import { magicLinkPath } from '@etherealengine/engine/src/schemas/user/magic-link.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { UserAvatarPatch, userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 import {
   UserSettingID,
   UserSettingPatch,
@@ -668,6 +669,19 @@ export const AuthService = {
         }
       }
 
+      const userAvatarPatchedListener = async (userAvatar: UserAvatarPatch) => {
+        console.log('USER AVATAR PATCHED %o', userAvatar)
+
+        if (!userAvatar.userId) return
+
+        const selfUser = getMutableState(AuthState).user
+
+        if (selfUser.id.value === userAvatar.userId) {
+          const user = await Engine.instance.api.service(userPath).get(userAvatar.userId)
+          getMutableState(AuthState).user.merge(user)
+        }
+      }
+
       const locationBanCreatedListener = async (params) => {
         const selfUser = getState(AuthState).user
         const currentLocation = getState(LocationState).currentLocation.location
@@ -680,10 +694,12 @@ export const AuthService = {
       }
 
       Engine.instance.api.service(userPath).on('patched', userPatchedListener)
+      Engine.instance.api.service(userAvatarPath).on('patched', userAvatarPatchedListener)
       Engine.instance.api.service(locationBanPath).on('created', locationBanCreatedListener)
 
       return () => {
         Engine.instance.api.service(userPath).off('patched', userPatchedListener)
+        Engine.instance.api.service(userAvatarPath).off('patched', userAvatarPatchedListener)
         Engine.instance.api.service(locationBanPath).off('created', locationBanCreatedListener)
       }
     }, [])
