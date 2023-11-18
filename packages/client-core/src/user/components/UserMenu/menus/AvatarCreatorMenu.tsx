@@ -41,6 +41,8 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { UserMenus } from '../../../UserUISystem'
 
+import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
+import { isAvaturn } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
 import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
@@ -93,7 +95,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
       setAvatarName(avatarIdRegexExec ? avatarIdRegexExec[1] : generateAvatarId())
 
       try {
-        const assetType = AssetLoader.getAssetType(url)
+        const assetType = AssetLoader.getAssetType(url) ?? isAvaturn(url) ? AssetType.glB : null
         if (assetType) {
           const res = await fetch(url)
           const data = await res.blob()
@@ -112,7 +114,6 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
 
   const handleAvaturnMessageEvent = async (event) => {
     const response = event.data
-
     let json
     try {
       json = JSON.parse(response)
@@ -134,7 +135,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
         setAvatarName(avatarIdRegexExec ? avatarIdRegexExec[1] : generateAvatarId())
 
         try {
-          const res = await fetch(response)
+          const res = await fetch(url)
           const data = await res.blob()
           setLoading(LoadingState.LoadingPreview)
           setAvatarUrl(url)
@@ -182,7 +183,10 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
     newContext?.drawImage(avatarCanvas, 0, 0)
 
     const thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
-    const modelName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.glb'
+    const modelName = !isAvaturn(avatarUrl)
+      ? avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.glb'
+      : avatarUrl.split('/').pop() + '.glb'
+    console.log(modelName)
 
     const blob = await getCanvasBlob(canvas)
 

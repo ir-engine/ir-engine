@@ -81,6 +81,7 @@ const client = {
   tosAddress: globalThis.process.env['VITE_TERMS_OF_SERVICE_ADDRESS'],
   readyPlayerMeUrl: globalThis.process.env['VITE_READY_PLAYER_ME_URL'],
   avaturnUrl: globalThis.process.env['VITE_AVATURN_URL'],
+  avaturnAPI: globalThis.process.env['VITE_AVATURN_API'],
   key8thWall: globalThis.process.env['VITE_8TH_WALL']!,
   featherStoreKey: globalThis.process.env['VITE_FEATHERS_STORE_KEY'],
   gaMeasurementId: globalThis.process.env['VITE_GA_MEASUREMENT_ID']

@@ -93,6 +93,13 @@ export const parseAvatarModelAsset = (model: any) => {
   return vrm as VRM
 }
 
+export const isAvaturn = (url: string) => {
+  const fileExtensionRegex = /\.[0-9a-z]+$/i
+  const avaturnUrl = config.client.avaturnAPI
+  if (avaturnUrl && !fileExtensionRegex.test(url)) return url.startsWith(avaturnUrl)
+  else return false
+}
+
 export const loadAvatarModelAsset = async (avatarURL: string) => {
   // if (!sourceRig) {
   //   const sourceVRM = await AssetLoader.loadAsync(
@@ -102,8 +109,8 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   // }
 
   //check if the url to the file has a file extension, if not, assume it's a glb
-  const fileExtensionRegex = /\.[0-9a-z]+$/i
-  const override = fileExtensionRegex.test(avatarURL) ? undefined : AssetType.glB
+
+  const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
 
   const model = await AssetLoader.loadAsync(avatarURL, undefined, undefined, override)
   console.log(avatarURL, model)
@@ -115,6 +122,7 @@ export const loadAvatarForUser = async (
   avatarURL: string,
   loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 ) => {
+  console.log(avatarURL)
   if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
     throw new Error('Avatar model already loading')
 
