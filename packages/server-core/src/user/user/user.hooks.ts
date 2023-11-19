@@ -43,6 +43,7 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { MethodNotAllowed } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
@@ -52,6 +53,7 @@ import persistData from '../../hooks/persist-data'
 import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
 import getFreeInviteCode from '../../util/get-free-invite-code'
+import { userAvatarDataResolver } from '../user-avatar/user-avatar.resolvers'
 import { UserService } from './user.class'
 import {
   userDataResolver,
@@ -205,6 +207,39 @@ const updateInviteCode = async (context: HookContext<UserService>) => {
 }
 
 /**
+ * Add or updates the user's avatar if they don't have one.
+ * @param context
+ */
+const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
+  const data: UserType[] = Array.isArray(context['actualData']) ? context['actualData'] : [context['actualData']]
+
+  for (const item of data) {
+    if (item?.avatarId) {
+      const existingUserAvatar = await context.app.service(userAvatarPath).find({
+        query: {
+          userId: item.id
+        }
+      })
+
+      if (existingUserAvatar.data.length === 0) {
+        const userAvatarData = await userAvatarDataResolver.resolve(
+          {
+            userId: item.id,
+            avatarId: item.avatarId
+          },
+          context
+        )
+        await context.app.service(userAvatarPath).create(userAvatarData)
+      } else if (existingUserAvatar.data[0].avatarId !== item.avatarId) {
+        await context.app.service(userAvatarPath).patch(existingUserAvatar.data[0].id, {
+          avatarId: item.avatarId
+        })
+      }
+    }
+  }
+}
+
+/**
  * Add the user's settings
  * @param context
  */
@@ -299,7 +334,7 @@ export default createSkippableHooks(
         () => schemaHooks.validateData(userDataValidator),
         schemaHooks.resolveData(userDataResolver),
         persistData,
-        discard('scopes')
+        discard('scopes', 'avatarId')
       ],
       update: [disallow()],
       patch: [
@@ -309,7 +344,7 @@ export default createSkippableHooks(
         disallowNonId,
         removeUserScopes,
         addUserScopes(false),
-        discard('scopes')
+        discard('scopes', 'avatarId')
       ],
       remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
     },
@@ -318,9 +353,9 @@ export default createSkippableHooks(
       all: [],
       find: [],
       get: [],
-      create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode],
+      create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode, addUpdateUserAvatar],
       update: [],
-      patch: [updateInviteCode],
+      patch: [updateInviteCode, addUpdateUserAvatar],
       remove: []
     },
 
