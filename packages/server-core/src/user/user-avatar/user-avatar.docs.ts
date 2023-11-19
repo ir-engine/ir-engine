@@ -23,22 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { config } from '@etherealengine/common/src/config'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
+import {
+  userAvatarDataSchema,
+  userAvatarPatchSchema,
+  userAvatarQuerySchema,
+  userAvatarSchema
+} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 
-export const DEFAULT_PROFILE_IMG_PLACEHOLDER = `${config.client.fileServer}/projects/default-project/assets/default-silhouette.svg`
-
-export const useUserAvatarThumbnail = (userId?: UserID) => {
-  const userAvatar = useFind(userAvatarPath, {
-    query: {
-      userId
-    }
-  })
-
-  const avatar = useGet(avatarPath, userAvatar.data?.[0]?.avatarId)
-  return avatar.data?.thumbnailResource?.url ?? DEFAULT_PROFILE_IMG_PLACEHOLDER
-}
+export default createSwaggerServiceOptions({
+  schemas: {
+    userAvatarDataSchema,
+    userAvatarPatchSchema,
+    userAvatarQuerySchema,
+    userAvatarSchema
+  },
+  docs: {
+    description: 'User avatar service description',
+    securities: ['all']
+  }
+})
