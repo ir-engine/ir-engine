@@ -96,8 +96,8 @@ export const EditorPage = () => {
   const editorState = useHookstate(getMutableState(EditorState))
 
   useEffect(() => {
-    const { projectName, sceneName } = params
-    getMutableState(EditorState).merge({ projectName: projectName ?? null, sceneName: sceneName ?? null })
+    const { projectName } = params
+    getMutableState(EditorState).merge({ projectName: projectName ?? null })
   }, [params])
 
   return <>{projectState.projects.value.length && editorState.projectName.value && <EditorContainer />}</>

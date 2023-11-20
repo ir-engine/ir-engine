@@ -179,13 +179,6 @@ const SceneLoadingProgress = () => {
   )
 }
 
-const reRouteToLoadScene = async (newSceneName: string) => {
-  const { projectName, sceneName } = getState(EditorState)
-  if (sceneName === newSceneName) return
-  if (!projectName || !newSceneName) return
-  RouterState.navigate(`/studio/${projectName}/${newSceneName}`)
-}
-
 const loadScene = async (sceneName: string) => {
   const { projectName } = getState(EditorState)
   try {
@@ -210,8 +203,9 @@ const onNewScene = async () => {
   try {
     const sceneData = await createNewScene(projectName)
     if (!sceneData) return
-
-    reRouteToLoadScene(sceneData.name)
+    const { sceneName } = getState(EditorState)
+    if (sceneName === sceneData.name) return
+    getMutableState(EditorState).merge({ sceneName: sceneData.name })
   } catch (error) {
     logger.error(error)
   }
@@ -409,7 +403,7 @@ const defaultLayout: LayoutData = {
                     <PanelTitle>Scenes</PanelTitle>
                   </PanelDragContainer>
                 ),
-                content: <ScenesPanel newScene={onNewScene} loadScene={reRouteToLoadScene} />
+                content: <ScenesPanel newScene={onNewScene} loadScene={loadScene} />
               },
               {
                 id: 'filesPanel',
@@ -519,7 +513,7 @@ const EditorContainer = () => {
 
   useEffect(() => {
     if (sceneName.value) {
-      logger.info(`Loading scene ${sceneName.value} via given url`)
+      logger.info(`Loading scene ${sceneName.value}`)
       loadScene(sceneName.value)
     }
   }, [sceneName])

@@ -49,7 +49,6 @@ const EditorRouter = () => {
     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingEditor')} />}>
       <PopupMenuInline />
       <Routes>
-        <Route path=":projectName/:sceneName" element={<EditorPage />} />
         <Route path=":projectName" element={<EditorPage />} />
         <Route path="*" element={<ProjectPage />} />
       </Routes>
