@@ -30,7 +30,7 @@ import { Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 } from 't
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
   applyIncomingActions,
   clearOutgoingActions,
@@ -146,7 +146,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     }
 
     const userId = 'user id' as UserID
-    const userName = 'user name'
+    const userName = 'user name' as UserName
     const userIndex = 1
     Engine.instance.userID = userId
 

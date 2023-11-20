@@ -38,9 +38,9 @@ import {
   hasComponent,
   removeComponent
 } from '../../src/ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup, executeSystems } from '../../src/ecs/functions/EngineFunctions'
+import { executeSystems, RootSystemGroup } from '../../src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
-import { defineSystem, startSystem } from '../../src/ecs/functions/SystemFunctions'
+import { defineSystem } from '../../src/ecs/functions/SystemFunctions'
 import { createEngine } from '../../src/initializeEngine'
 import { loadEmptyScene } from '../util/loadEmptyScene'
 
@@ -81,13 +81,13 @@ const execute = () => {
 
 const MockSystem = defineSystem({
   uuid: 'MockSystem',
+  insert: { with: RootSystemGroup },
   execute
 })
 
 describe('ECS', () => {
   beforeEach(async () => {
     createEngine()
-    startSystem(MockSystem, { with: AnimationSystemGroup })
     loadEmptyScene()
     MockSystemState.set(SceneState.getRootEntity(getState(SceneState).activeScene!), [])
   })

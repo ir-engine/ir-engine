@@ -38,6 +38,7 @@ import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-
 import logger from '../../ServerLogger'
 
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -158,7 +159,7 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
 
   if (avatars.length > 0) {
     const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.length)]
-    await context.app.service(userPath).patch(
+    await context.app.service(userAvatarPath).patch(
       null,
       {
         avatarId: randomReplacementAvatar.id as AvatarID

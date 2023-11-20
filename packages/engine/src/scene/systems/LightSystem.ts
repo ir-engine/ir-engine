@@ -28,6 +28,7 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { SelectTagComponent } from '../components/SelectTagComponent'
+import { SceneObjectSystem } from './SceneObjectSystem'
 
 const directionalLightSelectQuery = defineQuery([TransformComponent, DirectionalLightComponent, SelectTagComponent])
 
@@ -41,5 +42,6 @@ const execute = () => {
 
 export const LightSystem = defineSystem({
   uuid: 'ee.engine.LightSystem',
+  insert: { with: SceneObjectSystem },
   execute
 })
