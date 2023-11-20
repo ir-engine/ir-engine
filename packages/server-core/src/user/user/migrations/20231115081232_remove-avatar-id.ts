@@ -37,8 +37,14 @@ export async function up(knex: Knex): Promise<void> {
   const avatarIdColumnExists = await trx.schema.hasColumn(userPath, 'avatarId')
 
   if (avatarIdColumnExists === true) {
+    try {
+      await trx.schema.alterTable(userPath, async (table) => {
+        table.dropForeign('avatarId')
+      })
+    } catch (err) {
+      //If the foreign key doesn't exist, then move on
+    }
     await trx.schema.alterTable(userPath, async (table) => {
-      table.dropForeign('avatarId')
       table.dropColumn('avatarId')
     })
   }
