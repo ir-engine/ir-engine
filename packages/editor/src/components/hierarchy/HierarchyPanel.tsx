@@ -27,10 +27,12 @@ import React from 'react'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 
+import { TabData } from 'rc-dock'
 import { useTranslation } from 'react-i18next'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import { InfoTooltip } from '../layout/Tooltip'
 import styles from '../styles.module.scss'
+import HierarchyPanelContainer from './HierarchyPanelContainer'
 
 export const HierarchyPanelTitle = () => {
   const { t } = useTranslation()
@@ -47,4 +49,11 @@ export const HierarchyPanelTitle = () => {
       </PanelDragContainer>
     </div>
   )
+}
+
+export const HierarchyPanelTab: TabData = {
+  id: 'hierarchyPanel',
+  closable: true,
+  title: <HierarchyPanelTitle />,
+  content: <HierarchyPanelContainer />
 }
