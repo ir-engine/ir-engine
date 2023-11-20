@@ -61,6 +61,8 @@ export function createXRUI<S extends State<any> | null>(
   rootElement.render(
     //@ts-ignore
     <EntityContext.Provider value={entity}>
+      {/* 
+      // @ts-ignore */}
       <XRUIStateContext.Provider value={state}>
         <UIFunc />
       </XRUIStateContext.Provider>
