@@ -28,8 +28,6 @@ import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/function
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 
-const GIZMO_SIZE = 10
-
 const gizmoQuery = defineQuery([TransformGizmoComponent])
 
 const execute = () => {
