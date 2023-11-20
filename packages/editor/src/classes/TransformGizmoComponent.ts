@@ -35,9 +35,6 @@ import { TransformControls } from '@etherealengine/engine/src/scene/classes/Tran
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -74,16 +71,7 @@ export const TransformGizmoComponent = defineComponent({
     const entity = useEntityContext()
     const gizmoComponent = useComponent(entity, TransformGizmoComponent)
     const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-    const entityTreeComponent = useComponent(entity, EntityTreeComponent)
     const transformComponent = useComponent(entity, TransformComponent)
-    const parentEntity = entityTreeComponent.parentEntity.value
-
-    useExecute(
-      () => {
-        gizmoComponent.value.updateMatrixWorld()
-      },
-      { before: PresentationSystemGroup }
-    )
 
     useEffect(() => {
       // create dummy object to attach gizmo to, we can only attach to three js objects

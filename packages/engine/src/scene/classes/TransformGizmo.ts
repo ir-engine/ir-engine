@@ -1245,7 +1245,6 @@ class TransformControlsGizmo extends Object3D {
 }
 
 //
-
 class TransformControlsPlane extends Mesh {
   [x: string]: any
   isTransformControlsPlane: boolean
