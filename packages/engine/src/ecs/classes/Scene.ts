@@ -38,11 +38,10 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { useEffect } from 'react'
 import { Validator, matches } from '../../common/functions/MatchesUtils'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
+import { SceneDataType, SceneID, SceneJsonType, scenePath } from '../../schemas/projects/scene.schema'
 import { PresentationSystemGroup } from '../functions/EngineFunctions'
 import { defineSystem } from '../functions/SystemFunctions'
 import { Engine } from './Engine'
@@ -193,7 +192,7 @@ export class SceneSnapshotAction {
   static appendSnapshot = defineAction({
     type: 'ee.scene.snapshot.APPEND_SNAPSHOT' as const,
     sceneID: matches.string as Validator<unknown, SceneID>,
-    json: matches.object as Validator<unknown, SceneJson>
+    json: matches.object as Validator<unknown, SceneJsonType>
     // $topic: EditorTopic,
     // $cache: true
   })
@@ -202,7 +201,7 @@ export class SceneSnapshotAction {
     type: 'ee.scene.snapshot.CREATE_SNAPSHOT' as const,
     sceneID: matches.string as Validator<unknown, SceneID>,
     selectedEntities: matches.array as Validator<unknown, Array<EntityUUID>>,
-    data: matches.object as Validator<unknown, SceneData>
+    data: matches.object as Validator<unknown, SceneDataType>
   })
 }
 

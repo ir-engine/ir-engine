@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
@@ -129,7 +128,7 @@ describe('scene.test', () => {
     })
 
     it('should save or update an existing scene', async () => {
-      const newSceneData = structuredClone(defaultSceneSeed) as unknown as SceneJson
+      const newSceneData = structuredClone(defaultSceneSeed) as unknown as SceneJsonType
       const updatedVersion = Math.floor(Math.random() * 100)
       newSceneData.version = updatedVersion
       const newParsedSceneData = parseStorageProviderURLs(structuredClone(newSceneData))

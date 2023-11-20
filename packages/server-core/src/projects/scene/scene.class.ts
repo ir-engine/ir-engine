@@ -29,7 +29,6 @@ import fs from 'fs'
 import path from 'path'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
 import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
@@ -37,6 +36,7 @@ import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/pro
 import {
   SceneCreateData,
   SceneDataType,
+  SceneJsonType,
   SceneMetadataCreate,
   ScenePatch,
   SceneQuery,
@@ -257,7 +257,7 @@ export class SceneService
       await storageProvider.putObject({
         Key: newSceneJsonPath,
         Body: Buffer.from(
-          JSON.stringify(cleanStorageProviderURLs(parsedSceneData ?? (defaultSceneSeed as unknown as SceneJson)))
+          JSON.stringify(cleanStorageProviderURLs(parsedSceneData ?? (defaultSceneSeed as unknown as SceneJsonType)))
         ),
         ContentType: 'application/json'
       })
@@ -284,7 +284,7 @@ export class SceneService
         fs.writeFileSync(
           path.resolve(newSceneJsonPathLocal),
           JSON.stringify(
-            cleanStorageProviderURLs(parsedSceneData ?? (defaultSceneSeed as unknown as SceneJson)),
+            cleanStorageProviderURLs(parsedSceneData ?? (defaultSceneSeed as unknown as SceneJsonType)),
             null,
             2
           )

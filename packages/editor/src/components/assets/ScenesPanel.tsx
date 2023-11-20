@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 import { CompressedTexture } from 'three'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
@@ -39,6 +38,7 @@ import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
@@ -56,13 +56,13 @@ const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
  */
 export default function ScenesPanel({ loadScene, newScene }) {
   const { t } = useTranslation()
-  const [scenes, setScenes] = useState<SceneData[]>([])
+  const [scenes, setScenes] = useState<SceneDataType[]>([])
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
   const [isDeleteOpen, setDeleteOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
-  const [activeScene, setActiveScene] = useState<SceneData | null>(null)
+  const [activeScene, setActiveScene] = useState<SceneDataType | null>(null)
   const editorState = useHookstate(getMutableState(EditorState))
   const [scenesLoading, setScenesLoading] = useState(true)
 

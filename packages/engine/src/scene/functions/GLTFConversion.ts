@@ -27,11 +27,11 @@ import { MathUtils, Object3D } from 'three'
 
 import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { sceneRelativePathIdentifier } from '../../common/functions/parseSceneJSON'
+import { EntityJsonType, SceneJsonType } from '../../schemas/projects/scene.schema'
 
-export const nodeToEntityJson = (node: any): EntityJson => {
+export const nodeToEntityJson = (node: any): EntityJsonType => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
   const uuid = node.extras?.uuid ? node.extras.uuid : MathUtils.generateUUID()
   return {
@@ -45,11 +45,11 @@ export const nodeToEntityJson = (node: any): EntityJson => {
   }
 }
 
-export const gltfToSceneJson = (gltf: any): SceneJson => {
+export const gltfToSceneJson = (gltf: any): SceneJsonType => {
   handleScenePaths(gltf, 'decode')
   const rootGL = gltf.scenes[gltf.scene]
   const rootUuid = MathUtils.generateUUID() as EntityUUID
-  const result: SceneJson = {
+  const result: SceneJsonType = {
     entities: {},
     root: rootUuid,
     version: 2.0
