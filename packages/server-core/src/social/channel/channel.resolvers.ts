@@ -42,14 +42,12 @@ export const channelResolver = resolve<ChannelType, HookContext>({
 export const channelExternalResolver = resolve<ChannelType, HookContext>({
   channelUsers: virtual(async (channel, context) => {
     if (context.method === 'find' && !context.params.query.instanceId) {
-      const channelUsers = (await context.app.service(channelUserPath).find({
+      return (await context.app.service(channelUserPath).find({
         query: {
           channelId: channel.id
         },
         paginate: false
       })) as ChannelUserType[]
-
-      return channelUsers
     }
   }),
   messages: virtual(async (channel, context) => {
