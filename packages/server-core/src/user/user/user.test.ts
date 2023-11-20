@@ -30,7 +30,7 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -55,7 +55,7 @@ describe('user.test', () => {
   })
 
   it('should create a user with guest role', async () => {
-    const name = `Test #${Math.random()}`
+    const name = `Test #${Math.random()}` as UserName
     const isGuest = true
 
     const item = await app.service(userPath).create({
@@ -73,7 +73,7 @@ describe('user.test', () => {
   })
 
   it('should create a user with user role', async () => {
-    const name = `Test #${Math.random()}`
+    const name = `Test #${Math.random()}` as UserName
     const isGuest = false
 
     const item = await app.service(userPath).create({
@@ -113,7 +113,7 @@ describe('user.test', () => {
 
   it('should patch users', async () => {
     for (const user of users) {
-      const newName = v1()
+      const newName = v1() as UserName
       await app.service(userPath).patch(
         user.id,
         {
@@ -129,7 +129,7 @@ describe('user.test', () => {
   })
 
   it('should patch a user with a query without affecting users not part of that query', async () => {
-    const newName = v1()
+    const newName = v1() as UserName
     const user1 = users[0]
     const user2 = users[1]
     await app.service(userPath).patch(user1.id, {
@@ -143,19 +143,19 @@ describe('user.test', () => {
 
   it('should not be able to patch user scopes without being admin', async () => {
     const userWriteUser = await app.service(userPath).create({
-      name: `Test UserWrite #${Math.random()}`,
+      name: `Test UserWrite #${Math.random()}` as UserName,
       scopes: [{ type: 'user:write' }],
       avatarId: avatar.id
     })
     const userWriteUserApiKey = await app.service(userApiKeyPath).create({ userId: userWriteUser.id })
 
     const userWithScopes = await app.service(userPath).create({
-      name: `Test UserWithScopes #${Math.random()}`,
+      name: `Test UserWithScopes #${Math.random()}` as UserName,
       scopes: [{ type: 'editor:write' }],
       avatarId: avatar.id
     })
 
-    const newName = `Test UserWithScopes 2 #${Math.random()}`
+    const newName = `Test UserWithScopes 2 #${Math.random()}` as UserName
 
     const patchUserResult = await app.service(userPath).patch(
       userWithScopes.id,
@@ -177,12 +177,12 @@ describe('user.test', () => {
 
   it('should not be able to remove admin users without being admin', async () => {
     const adminUser = await app.service(userPath).create({
-      name: `Test Admin #${Math.random()}`,
+      name: `Test Admin #${Math.random()}` as UserName,
       scopes: [{ type: 'admin:admin' }],
       avatarId: avatar.id
     })
     const userWriteUser = await app.service(userPath).create({
-      name: `Test UserWrite #${Math.random()}`,
+      name: `Test UserWrite #${Math.random()}` as UserName,
       scopes: [{ type: 'admin:admin' }],
       avatarId: avatar.id
     })

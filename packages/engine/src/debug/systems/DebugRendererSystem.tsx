@@ -35,6 +35,7 @@ import { RaycastArgs } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RaycastHit } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
+import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import { GroupQueryReactor, GroupReactorProps } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -66,9 +67,9 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
 
     function addMeshBVHVisualizer(obj: Mesh) {
       const mesh = obj as any as Mesh
-      if (mesh.isMesh && mesh.geometry?.boundsTree) {
+      if (mesh.isMesh && mesh.parent && mesh.geometry?.boundsTree) {
         const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
-        mesh.parent!.add(meshBVHVisualizer)
+        mesh.parent.add(meshBVHVisualizer)
         visualizers.push(meshBVHVisualizer)
         meshBVHVisualizers.push(meshBVHVisualizer)
         meshBVHVisualizer.depth = 20
@@ -168,6 +169,7 @@ const reactor = () => {
 
 export const DebugRendererSystem = defineSystem({
   uuid: 'ee.engine.DebugRendererSystem',
+  insert: { before: WebGLRendererSystem },
   execute,
   reactor
 })

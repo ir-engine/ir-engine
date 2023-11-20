@@ -29,10 +29,10 @@ import { useHookstate } from '@etherealengine/hyperflux'
 
 import { Pause, PlayArrow } from '@mui/icons-material'
 
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
-import { createXRUI } from '../../xrui/functions/createXRUI'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { MediaComponent, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 
 export function createMediaControlsView(entity: Entity) {
   const MediaControls = () => <MediaControlsView entity={entity} />

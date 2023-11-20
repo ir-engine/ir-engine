@@ -33,11 +33,8 @@ import { LoadingCircle } from '@etherealengine/client-core/src/components/Loadin
 import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
-import { UserUISystem } from '@etherealengine/client-core/src/user/UserUISystem'
 import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/EditorPage'
 import { ProjectPage } from '@etherealengine/editor/src/pages/ProjectPage'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 const EditorRouter = () => {
@@ -60,8 +57,6 @@ const EditorProtectedRoutes = () => {
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
   const [isAuthorized, setAuthorized] = useState<boolean | null>(null)
-
-  useSystems([UserUISystem], { after: PresentationSystemGroup })
 
   useEffect(() => {
     if (user.scopes.value) {

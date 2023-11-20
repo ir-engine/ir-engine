@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { avatarMethods, avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { userAvatarPath, UserAvatarType } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -63,12 +64,12 @@ export default (app: Application): void => {
       const { params } = context
       let targetIds = [params.user?.id]
       const usersWithAvatar = (
-        (await app.service(userPath).find({
+        (await app.service(userAvatarPath).find({
           query: {
             avatarId: data.id
           }
-        })) as Paginated<UserType>
-      ).data.map((user) => user.id)
+        })) as Paginated<UserAvatarType>
+      ).data.map((item) => item.userId)
       targetIds = targetIds.concat(usersWithAvatar)
       return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {

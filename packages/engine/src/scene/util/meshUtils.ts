@@ -23,29 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { WebLayer3D } from '@etherealengine/xrui'
+import { Mesh, Object3D } from 'three'
 
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { createMediaControlsView } from '../ui/MediaControlsUI'
+import iterateObject3D from './iterateObject3D'
 
-export const createMediaControlsUI = (entity: Entity) => {
-  const ui = createMediaControlsView(entity)
+export default function getFirstMesh(obj3d: Object3D): Mesh | null {
+  const meshes = iterateObject3D(
+    obj3d,
+    (child) => child,
+    (child: Mesh) => child?.isMesh,
+    false,
+    true
+  )
+  return meshes.length > 0 ? meshes[0] : null
+}
 
-  setComponent(ui.entity, EntityTreeComponent, { parentEntity: entity })
-  setComponent(ui.entity, NameComponent, 'mediacontrols-ui-' + entity)
-
-  ui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-    const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
-    mat.transparent = true
-  })
-
-  const transform = getComponent(entity, TransformComponent)
-  const uiTransform = getComponent(ui.entity, TransformComponent)
-  uiTransform.position.copy(transform.position)
-
-  return ui
+export function getMeshes(obj3d: Object3D): Mesh[] {
+  return iterateObject3D(
+    obj3d,
+    (child) => child,
+    (child: Mesh) => child?.isMesh,
+    false,
+    false
+  )
 }

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
@@ -34,10 +35,12 @@ export const scopePath = 'scope'
 
 export const scopeMethods = ['create', 'find', 'remove'] as const
 
+export type ScopeID = OpaqueType<'ScopeID'> & string
+
 // Main data model schema
 export const scopeSchema = Type.Object(
   {
-    id: Type.String({
+    id: TypedString<ScopeID>({
       format: 'uuid'
     }),
     type: Type.String(),
