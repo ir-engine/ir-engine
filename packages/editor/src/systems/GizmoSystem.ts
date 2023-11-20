@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 
@@ -43,5 +44,6 @@ const execute = () => {
 
 export const GizmoSystem = defineSystem({
   uuid: 'ee.editor.GizmoSystem',
+  insert: { before: PresentationSystemGroup },
   execute
 })

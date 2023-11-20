@@ -29,7 +29,7 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -41,7 +41,7 @@ describe('invite-code-lookup service', () => {
     app = createFeathersKoaApp()
     await app.setup()
 
-    const name = `Test #${Math.random()}`
+    const name = `Test #${Math.random()}` as UserName
     const avatarName = 'CyberbotGreen'
     const isGuest = true
 

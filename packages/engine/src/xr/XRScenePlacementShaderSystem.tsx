@@ -28,6 +28,7 @@ import { Material, Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { GroupQueryReactor, Object3DWithEntity } from '../scene/components/GroupComponent'
 import { SceneObjectComponent } from '../scene/components/SceneObjectComponent'
@@ -107,6 +108,6 @@ const reactor = () => {
 
 export const XRScenePlacementShaderSystem = defineSystem({
   uuid: 'ee.engine.XRScenePlacementShaderSystem',
-  execute: () => {},
+  insert: { after: PresentationSystemGroup },
   reactor
 })

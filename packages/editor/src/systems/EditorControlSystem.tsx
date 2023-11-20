@@ -48,7 +48,8 @@ import { TransformMode } from '@etherealengine/engine/src/scene/constants/transf
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { SceneSnapshotAction, SceneSnapshotSystem, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
@@ -63,7 +64,7 @@ import {
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState } from '../services/EditorHelperState'
-import { EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
+import { SelectionState } from '../services/SelectionServices'
 
 const raycaster = new Raycaster()
 const raycasterResults: Intersection<Object3D>[] = []
@@ -374,7 +375,7 @@ const reactor = () => {
 
 export const EditorControlSystem = defineSystem({
   uuid: 'ee.editor.EditorControlSystem',
+  insert: { before: PresentationSystemGroup },
   execute,
-  reactor,
-  subSystems: [EditorSelectionReceptorSystem, SceneSnapshotSystem]
+  reactor
 })

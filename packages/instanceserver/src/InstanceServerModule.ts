@@ -23,16 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../../ecs/classes/Engine'
-import { UndefinedEntity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import '@etherealengine/engine/src/EngineModule'
+import { MediasoupRecordingSystem } from './MediasoupRecordingSystem'
+import { MediasoupServerSystem } from './MediasoupServerSystem'
+import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
 
-export const LocalInputTagComponent = defineComponent({
-  name: 'LocalInputTagComponent',
-  onSet: (entity) => {
-    Engine.instance.localClientEntity = entity
-  },
-  onRemove: (entity) => {
-    Engine.instance.localClientEntity = UndefinedEntity
-  }
-})
+export { MediasoupServerSystem, ServerHostNetworkSystem, MediasoupRecordingSystem }

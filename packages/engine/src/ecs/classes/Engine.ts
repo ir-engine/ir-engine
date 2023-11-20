@@ -40,10 +40,11 @@ import type { ServiceTypes } from '@etherealengine/common/declarations'
 
 import { getAllEntities } from 'bitecs'
 import { Timer } from '../../common/functions/Timer'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
 import { Query, QueryComponents, removeQuery } from '../functions/ComponentFunctions'
 import { removeEntity } from '../functions/EntityFunctions'
-import { disableAllSystems, SystemUUID } from '../functions/SystemFunctions'
+import { SystemUUID } from '../functions/SystemFunctions'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
 
@@ -104,24 +105,21 @@ export class Engine {
   /**
    * The camera entity
    */
-  cameraEntity: Entity = UndefinedEntity
+  cameraEntity = UndefinedEntity
 
   /**
    * The local client entity
    */
-  localClientEntity = UndefinedEntity
+  get localClientEntity() {
+    return NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
+  }
 
   reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 
   entityQuery = () => getAllEntities(Engine.instance) as Entity[]
 
-  systemGroups = {} as {
-    input: SystemUUID
-    simulation: SystemUUID
-    presentation: SystemUUID
-  }
-
-  activeSystems = new Set<SystemUUID>()
+  /** value is ref count - should never be below zero */
+  // activeSystems = new Map<SystemUUID, number>()
   currentSystemUUID = '__null__' as SystemUUID
   activeSystemReactors = new Map<SystemUUID, ReactorRoot>()
 }
@@ -151,9 +149,6 @@ export async function destroyEngine() {
   for (const query of Engine.instance.reactiveQueryStates) {
     removeQuery(query.query)
   }
-
-  /** Unload and clean up all systems */
-  await disableAllSystems()
 
   const activeReactors = [] as Promise<void>[]
 

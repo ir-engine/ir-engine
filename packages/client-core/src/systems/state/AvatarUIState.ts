@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { defineAction, defineState, none, receiveActions } from '@etherealengine/hyperflux'
@@ -55,6 +56,7 @@ export const AvatarUIState = defineState({
 
 export const AvatarUIStateSystem = defineSystem({
   uuid: 'ee.engine.avatar.AvatarUIStateSystem',
+  insert: { after: PresentationSystemGroup },
   execute: () => {
     receiveActions(AvatarUIState)
   }
