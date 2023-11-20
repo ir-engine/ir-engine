@@ -43,6 +43,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { t } from 'i18next'
 import { Resizable } from 're-resizable'
@@ -93,7 +94,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
 
   const { videoStream: videoStreamState } = peerMediaChannelState
 
-  const username = getUsername()
+  const username = getUsername() as UserName
 
   const ref = useRef<HTMLVideoElement>(null)
 

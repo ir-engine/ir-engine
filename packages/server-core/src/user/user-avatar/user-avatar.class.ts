@@ -23,29 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { WebLayer3D } from '@etherealengine/xrui'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { createMediaControlsView } from '../ui/MediaControlsUI'
+import {
+  UserAvatarData,
+  UserAvatarPatch,
+  UserAvatarQuery,
+  UserAvatarType
+} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 
-export const createMediaControlsUI = (entity: Entity) => {
-  const ui = createMediaControlsView(entity)
+export interface UserAvatarParams extends KnexAdapterParams<UserAvatarQuery> {}
 
-  setComponent(ui.entity, EntityTreeComponent, { parentEntity: entity })
-  setComponent(ui.entity, NameComponent, 'mediacontrols-ui-' + entity)
-
-  ui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-    const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
-    mat.transparent = true
-  })
-
-  const transform = getComponent(entity, TransformComponent)
-  const uiTransform = getComponent(ui.entity, TransformComponent)
-  uiTransform.position.copy(transform.position)
-
-  return ui
-}
+export class UserAvatarService<T = UserAvatarType, ServiceParams extends Params = UserAvatarParams> extends KnexService<
+  UserAvatarType,
+  UserAvatarData,
+  UserAvatarParams,
+  UserAvatarPatch
+> {}

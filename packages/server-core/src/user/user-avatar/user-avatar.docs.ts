@@ -23,32 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { RouteID, RouteQuery, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
+import {
+  userAvatarDataSchema,
+  userAvatarPatchSchema,
+  userAvatarQuerySchema,
+  userAvatarSchema
+} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
-
-export const routeResolver = resolve<RouteType, HookContext>({
-  createdAt: virtual(async (route) => fromDateTimeSql(route.createdAt)),
-  updatedAt: virtual(async (route) => fromDateTimeSql(route.updatedAt))
-})
-
-export const routeExternalResolver = resolve<RouteType, HookContext>({})
-
-export const routeDataResolver = resolve<RouteType, HookContext>({
-  id: async () => {
-    return v4() as RouteID
+export default createSwaggerServiceOptions({
+  schemas: {
+    userAvatarDataSchema,
+    userAvatarPatchSchema,
+    userAvatarQuerySchema,
+    userAvatarSchema
   },
-  createdAt: getDateTimeSql,
-  updatedAt: getDateTimeSql
+  docs: {
+    description: 'User avatar service description',
+    securities: ['all']
+  }
 })
-
-export const routePatchResolver = resolve<RouteType, HookContext>({
-  updatedAt: getDateTimeSql
-})
-
-export const routeQueryResolver = resolve<RouteQuery, HookContext>({})
