@@ -68,25 +68,12 @@ import { ComputedTransformComponent } from '@etherealengine/engine/src/transform
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { startClientSystems } from '../../world/startClientSystems'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const initClient = async () => {
-  if (getMutableState(EngineState).isEngineInitialized.value) return
-
   const projects = Engine.instance.api.service(projectsPath).find()
-
-  startClientSystems()
   await loadEngineInjection(await projects)
-
-  getMutableState(EngineState).isEngineInitialized.set(true)
-}
-
-export const useLoadEngine = () => {
-  useEffect(() => {
-    initClient()
-  }, [])
 }
 
 export const useLocationSpawnAvatar = (spectate = false) => {
@@ -247,7 +234,10 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const appState = useHookstate(getMutableState(AppLoadingState).state)
 
-  useLoadEngine()
+  useEffect(() => {
+    initClient()
+  }, [])
+
   useLocationSpawnAvatar(spectate)
   usePortalTeleport()
   useLinkTeleport()
@@ -258,6 +248,7 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
         state: AppLoadingStates.SUCCESS,
         loaded: true
       })
+      /** used by the PWA service worker */
       window.dispatchEvent(new Event('load'))
     }
   }, [engineState.sceneLoaded, engineState.loadingProgress])
@@ -275,15 +266,10 @@ export const useOnlineNetwork = () => {
   }, [])
 }
 
-export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
+export const useOfflineNetwork = () => {
   const engineState = useHookstate(getMutableState(EngineState))
   const authState = useHookstate(getMutableState(AuthState))
 
-  useEffect(() => {
-    engineState.connectedWorld.set(true)
-  }, [])
-
-  /** OFFLINE */
   useEffect(() => {
     if (engineState.sceneLoaded.value) {
       const userId = Engine.instance.userID
@@ -296,6 +282,10 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
       addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
+      NetworkState.worldNetwork.authenticated = true
+      NetworkState.worldNetwork.connected = true
+      NetworkState.worldNetwork.ready = true
+
       NetworkPeerFunctions.createPeer(
         NetworkState.worldNetwork as Network,
         peerID,
@@ -305,5 +295,5 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
         authState.user.name.value
       )
     }
-  }, [engineState.connectedWorld, engineState.sceneLoaded])
+  }, [engineState.sceneLoaded])
 }

@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
@@ -46,5 +47,6 @@ const execute = () => {
 
 export const GizmoSystem = defineSystem({
   uuid: 'ee.editor.GizmoSystem',
+  insert: { before: PresentationSystemGroup },
   execute
 })

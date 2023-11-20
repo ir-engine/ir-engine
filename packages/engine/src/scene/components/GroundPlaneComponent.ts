@@ -118,7 +118,7 @@ export const GroundPlaneComponent = defineComponent({
       const physicsWorld = getState(PhysicsState).physicsWorld
       Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
 
-      if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
+      removeComponent(entity, SceneAssetPendingTagComponent)
 
       return () => {
         if (!entityExists(entity)) return

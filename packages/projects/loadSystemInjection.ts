@@ -26,19 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import type { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 import { ComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import {
-  SystemComponent,
-  convertSystemComponentJSON
-} from '@etherealengine/engine/src/scene/components/SystemComponent'
+import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 
 export type SystemImportType = {
   systemUUID: SystemUUID
-  insertUUID: SystemUUID
-  insertOrder: 'before' | 'with' | 'after'
-  args: Record<any, any>
   entityUUID: EntityUUID
 }
 
@@ -47,10 +40,7 @@ export const getSystemsFromSceneData = (project: string, sceneData: SceneJson): 
   for (const [uuid, entity] of Object.entries(sceneData.entities)) {
     for (const component of entity.components) {
       if (component.name === 'system') {
-        const data = convertSystemComponentJSON(component.props)
-        if ((isClient && data.enableClient) || (!isClient && data.enableServer)) {
-          systems.push(importSystem(project, data, uuid as EntityUUID))
-        }
+        systems.push(importSystem(project, component.props, uuid as EntityUUID))
       }
     }
   }
@@ -63,7 +53,7 @@ export const importSystem = async (
   entityUUID: EntityUUID
 ) => {
   console.info(`Getting system definition at ${data.filePath} from project ${project}`, data)
-  const { filePath, insertUUID, insertOrder, args } = data
+  const { filePath } = data
   const pathname = filePath.replace(config.client.fileServer!, '')
   const filePathRelative = pathname.replace(`/projects/${project}/src/systems/`, '')
   if (filePathRelative === pathname) {
@@ -86,5 +76,5 @@ export const importSystem = async (
   }
   system.sceneSystem = true
 
-  return { systemUUID, insertUUID, insertOrder, args, entityUUID }
+  return { systemUUID, entityUUID }
 }

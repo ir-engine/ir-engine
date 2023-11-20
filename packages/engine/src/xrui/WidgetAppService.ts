@@ -33,6 +33,7 @@ import {
 import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { matches, Validator } from '../common/functions/MatchesUtils'
+import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { Widget } from './Widgets'
 
@@ -168,5 +169,7 @@ export const execute = () => {
 
 export const WidgetAppServiceReceptorSystem = defineSystem({
   uuid: 'ee.engine.widgets.WidgetAppServiceReceptorSystem',
+
+  insert: { after: PresentationSystemGroup },
   execute
 })

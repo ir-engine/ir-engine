@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 
 export type HeirarchyTreeNodeType = {
@@ -58,6 +59,9 @@ export function* heirarchyTreeWalker(
 
   while (stack.length !== 0) {
     const { depth, entity: entityNode, childIndex, lastChild } = stack.pop() as HeirarchyTreeNodeType
+
+    if (!entityExists(entityNode)) continue
+
     const isCollapsed = collapsedNodes[entityNode]
 
     const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)

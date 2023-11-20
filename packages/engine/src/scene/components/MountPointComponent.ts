@@ -28,7 +28,7 @@ import { ArrowHelper, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { matches } from '../../common/functions/MatchesUtils'
+import { matches, matchesVector3 } from '../../common/functions/MatchesUtils'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
@@ -49,18 +49,21 @@ export const MountPointComponent = defineComponent({
   onInit: (entity) => {
     return {
       type: MountPoint.seat as MountPointTypes,
-      helper: null as ArrowHelper | null
+      helper: null as ArrowHelper | null,
+      dismountOffset: new Vector3(0, 0, 0)
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
     if (matches.string.test(json.type)) component.type.set(json.type)
+    if (matchesVector3.test(json.dismountOffset)) component.dismountOffset.set(json.dismountOffset)
   },
 
   toJSON: (entity, component) => {
     return {
-      type: component.type.value
+      type: component.type.value,
+      dismountOffset: component.dismountOffset.value
     }
   },
 

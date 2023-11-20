@@ -27,6 +27,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {
+  AvatarID,
   AvatarType,
   avatarDataValidator,
   avatarPatchValidator,
@@ -37,6 +38,7 @@ import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-
 import logger from '../../ServerLogger'
 
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -149,7 +151,7 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
   const avatars = (await context.app.service(avatarPath).find({
     query: {
       id: {
-        $ne: context.id?.toString()
+        $ne: context.id?.toString() as AvatarID
       }
     },
     paginate: false
@@ -157,14 +159,14 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
 
   if (avatars.length > 0) {
     const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.length)]
-    await context.app.service(userPath).patch(
+    await context.app.service(userAvatarPath).patch(
       null,
       {
-        avatarId: randomReplacementAvatar.id
+        avatarId: randomReplacementAvatar.id as AvatarID
       },
       {
         query: {
-          avatarId: context.id?.toString()
+          avatarId: context.id?.toString() as AvatarID
         }
       }
     )
@@ -179,7 +181,7 @@ export default {
   before: {
     all: [() => schemaHooks.validateQuery(avatarQueryValidator), schemaHooks.resolveQuery(avatarQueryResolver)],
     find: [
-      iffElse(isAction('admin'), verifyScope('admin', 'admin'), ensureUserAccessibleAvatars),
+      iffElse(isAction('admin'), verifyScope('globalAvatars', 'read'), ensureUserAccessibleAvatars),
       persistQuery,
       discardQuery('action'),
       discardQuery('skipUser'),
@@ -193,12 +195,12 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('globalAvatars', 'write')),
       () => schemaHooks.validateData(avatarPatchValidator),
       schemaHooks.resolveData(avatarPatchResolver)
     ],
     remove: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('globalAvatars', 'write')),
       disallowNonId,
       removeAvatarResources,
       updateUserAvatars

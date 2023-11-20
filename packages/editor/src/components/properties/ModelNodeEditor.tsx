@@ -120,7 +120,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
-      <ModelTransformProperties modelState={modelComponent} onChangeModel={commitProperty(ModelComponent, 'src')} />
+      <ModelTransformProperties entity={entity} onChangeModel={commitProperty(ModelComponent, 'src')} />
       {!exporting.value && modelComponent.src.value && (
         <Well>
           <ModelInput value={exportPath.value} onChange={onChangeExportPath} />

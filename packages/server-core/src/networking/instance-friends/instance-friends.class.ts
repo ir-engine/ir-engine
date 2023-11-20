@@ -27,7 +27,7 @@ import type { ServiceInterface } from '@feathersjs/feathers'
 
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
@@ -85,7 +85,7 @@ export class InstanceFriendsService implements ServiceInterface<InstanceType, In
 
       const locationIds = filteredInstances
         .map((instance) => (instance?.locationId ? instance.locationId : undefined))
-        .filter((instance) => instance !== undefined) as string[]
+        .filter((instance) => instance !== undefined) as LocationID[]
 
       const locations = (await this.app.service(locationPath).find({
         query: {

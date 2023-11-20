@@ -30,6 +30,7 @@ import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { EditorState } from '../../services/EditorServices'
 import { EditorActiveInstanceState } from './EditorActiveInstanceService'
@@ -64,6 +65,7 @@ const reactor = () => {
 
 export const EditorInstanceNetworkingSystem = defineSystem({
   uuid: 'ee.editor.EditorInstanceNetworkingSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })

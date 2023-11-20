@@ -39,7 +39,7 @@ import { ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
-import { Entity } from '../classes/Entity'
+import { Entity, UndefinedEntity } from '../classes/Entity'
 import { EntityContext } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
@@ -121,7 +121,7 @@ export const defineComponent = <
     SoAComponentType<Schema> &
     Component<ComponentType, Schema, JSON, SetJSON, Error>
   Component.isComponent = true
-  Component.onInit = (entity) => undefined as any
+  Component.onInit = (entity) => true as any
   Component.onSet = (entity, component, json) => {}
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
@@ -232,9 +232,8 @@ export const setComponent = <C extends Component>(
   if (!bitECS.entityExists(Engine.instance, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
-  let value = args
   if (!hasComponent(entity, Component)) {
-    value = Component.onInit(entity) ?? args
+    const value = Component.onInit(entity)
     Component.existenceMapState[entity].set(true)
     Component.existenceMapPromiseResolver[entity]?.resolve?.()
 
@@ -358,6 +357,18 @@ export const removeComponent = async <C extends Component>(entity: Entity, compo
     //component.stateMap[entity]?.destroy
     //delete component.stateMap[entity]
   }
+}
+
+export const componentJsonDefaults = <C extends Component>(component: C) => {
+  const initial = component.onInit(UndefinedEntity)
+  const pseudoState: Record<string, { value: any; get: () => any }> = {}
+  for (const key of Object.keys(initial)) {
+    pseudoState[key] = {
+      value: initial[key],
+      get: () => initial[key]
+    }
+  }
+  return component.toJSON(UndefinedEntity, pseudoState as any)
 }
 
 export const getAllComponents = (entity: Entity): Component[] => {

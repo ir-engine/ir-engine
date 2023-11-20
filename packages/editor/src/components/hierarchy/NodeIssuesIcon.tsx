@@ -23,81 +23,49 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useMemo } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 
+import { ErrorComponentType } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import Tooltip from '../layout/Tooltip'
+import styles from './styles.module.scss'
 
-const issuesTooltipContainerStyles = {
-  display: 'inline-block',
-  pointerEvents: 'none',
-  backgroundColor: 'rgba(21, 23, 27, 0.9)',
-  borderRadius: '3px',
-  padding: '8px',
-  maxWidth: '320px',
-  overflow: 'hidden',
-  overflowWrap: 'break-word',
-  userSelect: 'none'
-}
-
-const issueIconStyles = (color): React.CSSProperties => ({
+const issueIconStyles = {
   width: '16px',
   height: 'auto',
   fontSize: 'inherit',
-  color: color
-})
+  color: '#ff0000'
+}
 
-export function NodeIssuesIcon({ node }) {
-  const theme = useMemo(
-    () => ({
-      yellow: '#ffcc00',
-      red: '#ff0000'
-      // Add other theme colors here
-    }),
-    []
-  )
+export function NodeIssuesIcon({ errors }: { errors: ErrorComponentType }) {
   const { t } = useTranslation()
 
-  const severityToColor = useMemo(
-    () => ({
-      warning: theme.yellow,
-      error: theme.red
-    }),
-    [theme]
-  )
+  const renderTooltipInfo = () => {
+    let errorDetails: string[] = []
 
-  const renderInfo = useCallback(() => {
+    Object.entries(errors).forEach(([componentName, errorDetail]) => {
+      Object.entries(errorDetail).forEach(([errorKey, errorValue]) => {
+        errorDetails.push(
+          errorValue ? `${componentName} (${errorKey}): ${errorValue}` : `${componentName}: ${errorKey}`
+        )
+      })
+    })
+
     return (
-      <div style={issuesTooltipContainerStyles as React.CSSProperties}>
-        <h6 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('editor:hierarchy.isseus')}</h6>
-        <ul style={{ listStyle: 'none' }}>
-          {node.map((issue, i) => {
-            return (
-              <li key={i}>
-                <ErrorOutlineIcon style={issueIconStyles(severityToColor[issue.severity])} fontSize="small" />{' '}
-                {issue.message}
-              </li>
-            )
-          })}
-        </ul>
+      <div className={styles.issuesTooltipContainer}>
+        <span className={styles.issuesTooltipHeading}>{t('editor:hierarchy.issues')}</span>
+        {errorDetails.map((errorDetail) => (
+          <div style={{ marginTop: '0.5rem' }}>{errorDetail}</div>
+        ))}
       </div>
     )
-  }, [node, severityToColor])
-
-  let maxSeverity = 'warning'
-
-  for (const issue of node) {
-    if (issue.severity === 'error') {
-      maxSeverity = 'error'
-      break
-    }
   }
 
   return (
-    <Tooltip title={renderInfo()}>
-      <ErrorOutlineIcon style={issueIconStyles(severityToColor[maxSeverity])} />
+    <Tooltip title={renderTooltipInfo()}>
+      <ErrorOutlineIcon style={issueIconStyles} />
     </Tooltip>
   )
 }

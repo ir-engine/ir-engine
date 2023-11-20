@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
@@ -36,7 +36,7 @@ import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
 export const LocationSeed: LocationType = {
-  id: '',
+  id: '' as LocationID,
   name: '',
   slugifiedName: '',
   maxUsersPerInstance: 10,
@@ -45,7 +45,7 @@ export const LocationSeed: LocationType = {
   isFeatured: false,
   locationSetting: {
     id: '',
-    locationId: '',
+    locationId: '' as LocationID,
     audioEnabled: false,
     screenSharingEnabled: false,
     faceStreamingEnabled: false,
@@ -63,7 +63,6 @@ export const LocationSeed: LocationType = {
 export const LocationState = defineState({
   name: 'LocationState',
   initial: () => ({
-    offline: false,
     locationName: null! as string,
     currentLocation: {
       location: LocationSeed as LocationType,
@@ -71,9 +70,6 @@ export const LocationState = defineState({
       selfUserBanned: false,
       selfNotAuthorized: false
     },
-    updateNeeded: true,
-    currentLocationUpdateNeeded: true,
-    fetchingCurrentLocation: false,
     invalidLocation: false
   }),
 
@@ -83,15 +79,12 @@ export const LocationState = defineState({
 
   fetchingCurrentSocialLocation: () => {
     getMutableState(LocationState).merge({
-      fetchingCurrentLocation: true,
       currentLocation: {
         location: LocationSeed as LocationType,
         bannedUsers: [] as string[],
         selfUserBanned: false,
         selfNotAuthorized: false
-      },
-      updateNeeded: true,
-      currentLocationUpdateNeeded: true
+      }
     })
   },
 
@@ -109,9 +102,7 @@ export const LocationState = defineState({
         bannedUsers,
         selfUserBanned: false,
         selfNotAuthorized: false
-      },
-      currentLocationUpdateNeeded: false,
-      fetchingCurrentLocation: false
+      }
     })
   },
 
@@ -123,29 +114,21 @@ export const LocationState = defineState({
         selfUserBanned: false,
         selfNotAuthorized: false
       },
-      currentLocationUpdateNeeded: false,
-      fetchingCurrentLocation: false,
       invalidLocation: true
     })
   },
 
-  socialLocationBanCreated: () => {
-    getMutableState(LocationState).merge({ currentLocationUpdateNeeded: true })
-  },
-
   socialSelfUserBanned: (banned: boolean) => {
-    getMutableState(LocationState).merge({ currentLocationUpdateNeeded: true })
     getMutableState(LocationState).currentLocation.merge({ selfUserBanned: banned })
   },
 
   socialLocationNotAuthorized: () => {
-    getMutableState(LocationState).merge({ currentLocationUpdateNeeded: true })
     getMutableState(LocationState).currentLocation.merge({ selfNotAuthorized: true })
   }
 })
 
 export const LocationService = {
-  getLocation: async (locationId: string) => {
+  getLocation: async (locationId: LocationID) => {
     try {
       LocationState.fetchingCurrentSocialLocation()
       const location = await API.instance.client.service(locationPath).get(locationId)
@@ -187,13 +170,12 @@ export const LocationService = {
       return null
     }
   },
-  banUserFromLocation: async (userId: UserID, locationId: string) => {
+  banUserFromLocation: async (userId: UserID, locationId: LocationID) => {
     try {
       await API.instance.client.service(locationBanPath).create({
         userId: userId,
         locationId: locationId
       })
-      LocationState.socialLocationBanCreated()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

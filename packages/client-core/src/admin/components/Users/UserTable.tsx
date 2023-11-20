@@ -32,9 +32,10 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { IdentityProviderType } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserID, UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
@@ -50,8 +51,8 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
   const { t } = useTranslation()
 
   const openConfirm = useHookstate(false)
-  const userName = useHookstate('')
-  const userId = useHookstate('')
+  const userName = useHookstate('' as UserName)
+  const userId = useHookstate('' as UserID)
 
   const openUserDrawer = useHookstate(false)
   const userAdmin = useHookstate<UserType | undefined>(undefined)
@@ -60,13 +61,15 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
 
   const adminUserQuery = useFind(userPath, {
     query: {
-      search,
       isGuest: skipGuests ? false : undefined,
       $sort: { name: 1 },
       $skip: 0,
       $limit: 20
     }
   })
+
+  useSearch(adminUserQuery, { search }, search)
+
   const removeUser = useMutation(userPath).remove
 
   const submitDeleteUser = async () => {
@@ -75,13 +78,13 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
   }
 
   const createData = (
-    id: string,
+    id: UserID,
     el: UserType,
-    name: string,
-    avatarId: string | JSX.Element,
+    name: UserName,
+    avatarId: AvatarID | JSX.Element,
     identityProviders: IdentityProviderType[],
     isGuest: string,
-    inviteCode: string | JSX.Element
+    inviteCode: InviteCode | JSX.Element
   ): UserData => {
     const discordIp = identityProviders.find((ip) => ip.type === 'discord')
     const googleIp = identityProviders.find((ip) => ip.type === 'google')

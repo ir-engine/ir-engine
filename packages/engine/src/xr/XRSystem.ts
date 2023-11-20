@@ -27,16 +27,8 @@ import { useEffect } from 'react'
 
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
+import { InputSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { XR8System } from './8thwall/XR8'
-import { VPSSystem } from './VPSSystem'
-import { XRCameraSystem } from './XRCameraSystem'
-import { XRCameraViewSystem } from './XRCameraViewSystem'
-import { XRDetectedPlanesSystem } from './XRDetectedPlanesSystem'
-import { XRHapticsSystem } from './XRHapticsSystem'
-import { XRLightProbeSystem } from './XRLightProbeSystem'
-import { XRPersistentAnchorSystem } from './XRPersistentAnchorSystem'
-import { XRScenePlacementShaderSystem } from './XRScenePlacementShaderSystem'
 import { xrSessionChanged } from './XRSessionFunctions'
 import { XRAction, XRState, useXRMovement } from './XRState'
 
@@ -86,17 +78,7 @@ const reactor = () => {
 
 export const XRSystem = defineSystem({
   uuid: 'ee.engine.XRSystem',
+  insert: { before: InputSystemGroup },
   execute,
-  reactor,
-  subSystems: [
-    XR8System,
-    VPSSystem,
-    XRCameraSystem,
-    XRCameraViewSystem,
-    XRDetectedPlanesSystem,
-    XRHapticsSystem,
-    XRLightProbeSystem,
-    XRPersistentAnchorSystem,
-    XRScenePlacementShaderSystem
-  ]
+  reactor
 })

@@ -83,7 +83,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   useEffect(() => {
     if (dragging.value || !mouseOver.value) return
     onChangeGraph(graphJson ?? graph)
-  }, [dragging, graphJson])
+  }, [graphJson]) // change in node position triggers reactor
 
   return (
     <ReactFlow

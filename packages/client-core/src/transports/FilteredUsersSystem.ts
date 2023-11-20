@@ -30,6 +30,7 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { AuthState } from '../user/services/AuthService'
@@ -98,5 +99,6 @@ const execute = () => {
 
 export const FilteredUsersSystem = defineSystem({
   uuid: 'ee.client.FilteredUsersSystem',
+  insert: { after: PresentationSystemGroup },
   execute
 })
