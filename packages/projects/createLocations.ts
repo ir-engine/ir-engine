@@ -70,7 +70,7 @@ export const createLocations = async (app: Application, projectName: string) => 
           name: locationName,
           slugifiedName: sceneName,
           maxUsersPerInstance: 30,
-          sceneId: `${projectName}/${sceneName}` as SceneID,
+          sceneId: `projects/${projectName}/${sceneName}.scene.json` as SceneID,
           locationSetting,
           isLobby: false,
           isFeatured: false
