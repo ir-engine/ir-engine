@@ -229,6 +229,10 @@
 
 .breadcrumb {
   color: var(--textColor);
+
+  [class*=MuiLink-root] {
+    cursor: pointer;
+  }
 }
 
 .pagination {
@@ -256,3 +260,4 @@
   margin: 0 auto;
   display: block;
 }
+
