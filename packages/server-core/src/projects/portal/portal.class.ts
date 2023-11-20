@@ -21,8 +21,7 @@ Ethereal Engine. All Rights Reserved.
 import { Application } from '../../../declarations'
 
 import { PortalQuery, PortalType } from '@etherealengine/engine/src/schemas/projects/portal.schema'
-import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
-import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneDataType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
 import { getSceneData } from '../scene/scene-helper'
@@ -63,9 +62,7 @@ export class PortalService implements ServiceInterface<PortalType | Paginated<Po
     if (params?.query?.paginate === false) {
       paginate = false
     }
-
-    params = { ...params, query: { metadataOnly: false } }
-    const scenes = (await this.app.service(sceneDataPath).find(params!)) as SceneDataType[]
+    const scenes = (await this.app.service(scenePath).find({ query: { metadataOnly: false } })) as SceneDataType[]
     const sceneResult = scenes.map((scene) => parseScenePortals(scene)).flat() as PortalType[]
     return paginate === false ? sceneResult : { data: sceneResult, total: sceneResult.length, limit: 0, skip: 0 }
   }
