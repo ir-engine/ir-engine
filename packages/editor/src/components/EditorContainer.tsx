@@ -387,17 +387,21 @@ const EditorContainer = () => {
       action: () => {
         const currentLayout = dockPanelRef?.current?.getLayout()
         if (!currentLayout) return
-        let panelId = panel.id!
-        while (dockPanelRef.current!.find(panelId)) {
-          if (/\d+$/.test(panelId)) {
-            panelId = panelId.replace(/\d+$/, (match) => {
-              return (parseInt(match) + 1).toString()
-            })
-          } else {
-            panelId += '1'
-          }
+        if (dockPanelRef.current!.find(panel.id!)) {
+          return
         }
-        panel.id = panelId
+        //todo: add support for multiple instances of a panel type
+        // let panelId = panel.id!
+        // while (dockPanelRef.current!.find(panelId)) {
+        //   if (/\d+$/.test(panelId)) {
+        //     panelId = panelId.replace(/\d+$/, (match) => {
+        //       return (parseInt(match) + 1).toString()
+        //     })
+        //   } else {
+        //     panelId += '1'
+        //   }
+        // }
+        // panel.id = panelId
         const firstPanel = currentLayout.dockbox.children[0] as PanelData
         firstPanel.tabs.push(panel)
         dockPanelRef?.current?.loadLayout(currentLayout)
