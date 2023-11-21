@@ -247,7 +247,7 @@ export class SceneService
 
   async update(id: NullableId, data: SceneCreateData, params?: Params) {
     try {
-      const { name, sceneData, thumbnailBuffer, storageProviderName, project } = data
+      const { name, sceneData, thumbnailBuffer, storageProviderName } = data
       let parsedSceneData = sceneData
       if (sceneData && typeof sceneData === 'string') parsedSceneData = JSON.parse(sceneData)
 
@@ -301,8 +301,10 @@ export class SceneService
         }
       }
 
+      const a = data.directory!.split('/')[1]
+
       // return scene id for update hooks
-      return { id: `${data.directory!.split['/'][1]}/${name}` }
+      return { id: `${data.directory!.split('/')[1]}/${name}` }
     } catch (err) {
       logger.error(err)
       throw err
