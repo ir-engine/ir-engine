@@ -349,10 +349,7 @@ export class CSM {
       _lightOrientationMatrix.lookAt(V_000, this.lightDirection, V_010)
       _lightOrientationMatrixInverse.copy(_lightOrientationMatrix).invert()
 
-      // Go from camera space to world space using camera.matrixWorld, then go to parent space using inverse of parent.matrixWorld
-      _cameraToLightParentMatrix.identity().invert().multiply(camera.matrix)
-
-      _cameraToLightMatrix.multiplyMatrices(_lightOrientationMatrixInverse, _cameraToLightParentMatrix)
+      _cameraToLightMatrix.multiplyMatrices(_lightOrientationMatrixInverse, camera.matrix)
       frustum.toSpace(_cameraToLightMatrix, _lightSpaceFrustum)
 
       const nearVerts = _lightSpaceFrustum.vertices.near
