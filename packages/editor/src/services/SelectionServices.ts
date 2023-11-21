@@ -32,7 +32,6 @@ import { defineState, getMutableState, useHookstate } from '@etherealengine/hype
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { useEffect } from 'react'
-import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { filterParentEntities } from '../functions/filterParentEntities'
 
 export const SelectionState = defineState({
@@ -53,7 +52,6 @@ const reactor = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
 
   useEffect(() => {
-    cancelGrabOrPlacement()
     const entities = [...selectedEntities.value]
     for (const entity of entities) {
       if (!entityExists(entity)) continue
