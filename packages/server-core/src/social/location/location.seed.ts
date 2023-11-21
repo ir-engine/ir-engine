@@ -41,7 +41,7 @@ export const locationSeedData = [
     name: 'Default',
     slugifiedName: 'default',
     maxUsersPerInstance: 30,
-    sceneId: '/projects/default-project/default.scene.json' as SceneID,
+    sceneId: 'projects/default-project/default.scene.json' as SceneID,
     isFeatured: false,
     isLobby: false
   },

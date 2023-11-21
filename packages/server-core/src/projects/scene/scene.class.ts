@@ -76,7 +76,7 @@ export class SceneService
     const fileResults = await storageProvider.listObjects(directory, false)
     return fileResults.Contents.map((dirent) => dirent.Key)
       .filter((name) => name.endsWith('.scene.json'))
-      .map((name) => name.slice(0, -'.scene.json'.length))
+      .map((name) => name.split('/').pop()!.replace('.scene.json', ''))
   }
 
   async find(params?: SceneParams) {
@@ -134,9 +134,9 @@ export class SceneService
       scenes.push(...sceneData)
     }
 
-    for (const [index, _] of scenes.entries()) {
-      scenes[index].thumbnailUrl += `?${Date.now()}`
-    }
+    // for (const [index, _] of scenes.entries()) {
+    //   scenes[index].thumbnailUrl += `?${Date.now()}`
+    // }
 
     return paginate === false ? scenes : { total: scenes.length, limit: 0, skip: 0, data: scenes }
   }

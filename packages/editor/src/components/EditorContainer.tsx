@@ -178,6 +178,13 @@ const SceneLoadingProgress = () => {
   )
 }
 
+const setSceneInState = async (newSceneName: string) => {
+  const { projectName, sceneName } = getState(EditorState)
+  if (sceneName === newSceneName) return
+  if (!projectName || !newSceneName) return
+  getMutableState(EditorState).sceneName.set(newSceneName)
+}
+
 const loadScene = async (sceneName: string) => {
   const { projectName } = getState(EditorState)
   try {
@@ -202,9 +209,8 @@ const onNewScene = async () => {
   try {
     const sceneData = await createNewScene(projectName)
     if (!sceneData) return
-    const { sceneName } = getState(EditorState)
-    if (sceneName === sceneData.name) return
-    getMutableState(EditorState).merge({ sceneName: sceneData.name })
+
+    setSceneInState(sceneData.name)
   } catch (error) {
     logger.error(error)
   }
@@ -268,7 +274,7 @@ const onSaveAs = async () => {
       if (result?.name && projectName) {
         await saveScene(projectName, result.name, file, abortController.signal)
         editorState.sceneModified.set(false)
-        RouterState.navigate(`/studio/${projectName}/${result.name}`)
+        editorState.sceneName.set(result.name)
       }
     }
     DialogState.setDialog(null)
@@ -402,7 +408,7 @@ const defaultLayout: LayoutData = {
                     <PanelTitle>Scenes</PanelTitle>
                   </PanelDragContainer>
                 ),
-                content: <ScenesPanel newScene={onNewScene} loadScene={loadScene} />
+                content: <ScenesPanel newScene={onNewScene} loadScene={setSceneInState} />
               },
               {
                 id: 'filesPanel',

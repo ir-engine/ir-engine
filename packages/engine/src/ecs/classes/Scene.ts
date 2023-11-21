@@ -157,7 +157,6 @@ export const SceneServices = {
       .service(scenePath)
       .get(null, { query: { project: projectName, name: sceneName } })
       .then((sceneData) => {
-        /**@todo replace projectName/sceneName with sceneID once #9119 */
         SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, sceneData)
       })
 

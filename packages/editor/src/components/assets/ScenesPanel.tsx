@@ -150,7 +150,7 @@ export default function ScenesPanel({ loadScene, newScene }) {
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
-    RouterState.navigate(`/studio/${editorState.projectName.value}/${newName}`)
+    editorState.sceneName.set(newName)
     setNewName('')
     fetchItems()
   }

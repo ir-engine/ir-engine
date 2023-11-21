@@ -41,12 +41,14 @@ const checkIfProjectExists = async (context: HookContext, project: string) => {
 }
 
 const getSceneKey = async (context: HookContext) => {
-  const { project, name } = context.params.query
-  if (project) {
-    checkIfProjectExists(context, project)
-  }
+  const { project, name, sceneKey } = context.params.query
+  if (!sceneKey) {
+    if (project) {
+      checkIfProjectExists(context, project)
+    }
 
-  context.params.query = { ...context.params.query, sceneKey: `projects/${project}/${name}.scene.json` }
+    context.params.query = { ...context.params.query, sceneKey: `projects/${project}/${name}.scene.json` }
+  }
 }
 
 const getDirectoryFromData = async (context: HookContext) => {
