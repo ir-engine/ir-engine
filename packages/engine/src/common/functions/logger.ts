@@ -50,7 +50,12 @@ schedule.scheduleJob('*/15 * * * * *', pushToEngine)
 
 // Early close/refresh send logs
 if (typeof window !== 'undefined') {
-  window.addEventListener('unload', pushToEngine)
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible') {
+      console.log('Tab is inactive, pushing logs')
+      pushToEngine()
+    }
+  })
 }
 
 // Function to cache a string
