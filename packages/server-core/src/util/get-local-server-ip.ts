@@ -35,7 +35,11 @@ export interface ServerAddress {
 export default async (isMediaInstance: boolean): Promise<ServerAddress> => {
   const ip = configFile.instanceserver.domain === 'localhost' ? await internalIp.v4() : configFile.instanceserver.domain
   return {
-    ipAddress: ip!,
-    port: isMediaInstance ? '3032' : '3031'
+    ipAddress: isMediaInstance ? configFile.instanceserver.mediaDomain : ip!,
+    port: process.env.VITE_LOCAL_NGINX
+      ? '443'
+      : isMediaInstance
+      ? configFile.instanceserver.mediaPort
+      : configFile.instanceserver.port
   }
 }

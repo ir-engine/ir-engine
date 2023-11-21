@@ -250,7 +250,8 @@ export const connectToNetwork = async (
     locationId,
     channelId,
     roomCode,
-    token
+    token,
+    server: 'instanceserver'
   } as {
     instanceID: InstanceID
     locationId?: LocationID
@@ -259,10 +260,14 @@ export const connectToNetwork = async (
     address?: string
     port?: string
     token: string
+    server: string
   }
 
   if (locationId) delete query.channelId
-  if (channelId) delete query.locationId
+  if (channelId) {
+    delete query.locationId
+    query.server = 'mediaserver'
+  }
   if (!roomCode) delete query.roomCode
 
   let primus: Primus
