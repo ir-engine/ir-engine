@@ -32,13 +32,11 @@ export const TransformPivot = {
   Origin: 'Origin' as const
 }
 export const TransformMode = {
-  Disabled: 'Disabled' as const,
-  Grab: 'Grab' as const,
-  Placement: 'Placement' as const,
-  Translate: 'Translate' as const,
-  Rotate: 'Rotate' as const,
-  Scale: 'Scale' as const
+  translate: 'translate' as const,
+  rotate: 'rotate' as const,
+  scale: 'scale' as const
 }
+
 export const TransformAxis = {
   X: 'X' as const,
   Y: 'Y' as const,
@@ -57,20 +55,24 @@ export const TransformAxisConstraints = {
   XZ: new Vector3(1, 0, 1),
   XYZ: new Vector3(1, 1, 1)
 }
-
+export const TransformAxisAction = {
+  Translate: 'Translate' as const,
+  Rotate: 'Rotate' as const,
+  Scale: 'Scale' as const
+}
 export const SnapMode = {
   Disabled: 'Disabled' as const,
   Grid: 'Grid' as const
 }
 
-export enum TransformSpace {
-  World,
-  Local
-  // LocalSelection // The local space of the last selected object
-  // TODO: Viewport, Cursor?
+export const TransformSpace = {
+  world: 'world' as const,
+  local: 'local' as const
 }
 
-export type TransformModeType = keyof typeof TransformMode
-export type TransformPivotType = keyof typeof TransformPivot
-export type TransformAxisType = keyof typeof TransformAxis
-export type SnapModeType = keyof typeof SnapMode
+export type TransformAxisActionType = (typeof TransformAxisAction)[keyof typeof TransformAxisAction]
+export type TransformModeType = (typeof TransformMode)[keyof typeof TransformMode]
+export type TransformSpaceType = (typeof TransformSpace)[keyof typeof TransformSpace]
+export type TransformPivotType = (typeof TransformPivot)[keyof typeof TransformPivot]
+export type TransformAxisType = (typeof TransformAxis)[keyof typeof TransformAxis]
+export type SnapModeType = (typeof SnapMode)[keyof typeof SnapMode]

@@ -23,25 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-
-const GIZMO_SIZE = 10
+import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 
 const gizmoQuery = defineQuery([TransformGizmoComponent])
 
 const execute = () => {
   for (const entity of gizmoQuery()) {
-    const gizmoTransform = getComponent(entity, TransformComponent)
-    const eyeDistance =
-      gizmoTransform.position.distanceTo(getComponent(Engine.instance.cameraEntity, CameraComponent).position) /
-      GIZMO_SIZE
-    gizmoTransform.scale.set(eyeDistance, eyeDistance, eyeDistance)
+    const gizmo = getComponent(entity, TransformGizmoComponent)
+    gizmo.updateMatrixWorld()
   }
 }
 
