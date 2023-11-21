@@ -87,7 +87,6 @@ const reactor = () => {
     getMutableState(EngineState).loadingProgress.set(progress)
 
     if (!sceneAssetPendingTagQuery.length && !getState(EngineState).sceneLoaded) {
-      for (const entity of sceneAssetPendingTagQuery) removeComponent(entity, SceneAssetPendingTagComponent)
       getMutableState(EngineState).merge({
         sceneLoading: false,
         sceneLoaded: true

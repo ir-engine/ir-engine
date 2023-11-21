@@ -79,8 +79,6 @@
       "rotateRight": "Rotate Right",
       "cancelPlacement": "Cancel Placement",
       "placeDuplicate": "Place Duplicate",
-      "cancelGrab": "Cancel Grab",
-      "grab": "Grab",
       "deselectAll": "Deselect All"
     },
     "state": {
@@ -104,7 +102,8 @@
       "description": "Transform Gizmo",
       "translate": "[T] Translate",
       "rotate": "[R] Rotate",
-      "scale": "[S] Scale"
+      "scale": "[Y] Scale",
+      "combined": "[U] Combined Transform"
     },
     "transformSpace": {
       "description": "Sets your transform control to be oriented to the object(selection) or world",
@@ -115,7 +114,7 @@
       "lbl-toggleTransformSpace": "[Z] Toggle Transform Space"
     },
     "transformPivot": {
-      "toggleTransformPivot" : "[X] Toggle Transform Pivot",
+      "toggleTransformPivot": "[X] Toggle Transform Pivot",
       "lbl-selection": "Selection",
       "info-selection": "The center pivot of the final asset you selected in the sequence.",
       "lbl-center": "Center",
@@ -150,15 +149,15 @@
       "users": "Users",
       "user": "User"
     },
-    "render-settings":{
+    "render-settings": {
       "lbl": "Render Settings",
       "info": "How you view materials in the Engine",
-      "lbl-usePostProcessing":"Use Post Processing",
-      "info-usePostProcessing":"Enables post processing",
-      "lbl-shadowMapResolution":"Shadow Map Resolution",
-      "info-shadowMapResolution":"Set shadowmap resolution",
-      "lbl-renderMode":"Render Mode",
-      "info-renderMode":"Choose render mode"
+      "lbl-usePostProcessing": "Use Post Processing",
+      "info-usePostProcessing": "Enables post processing",
+      "lbl-shadowMapResolution": "Shadow Map Resolution",
+      "info-shadowMapResolution": "Set shadowmap resolution",
+      "lbl-renderMode": "Render Mode",
+      "info-renderMode": "Choose render mode"
     },
     "grid": {
       "info-toggleGridVisibility": "Toggle Grid Visibility",
@@ -180,10 +179,6 @@
       "lbl": "Screenshot",
       "info": "Takes a screenshot of your scene at the current view."
     }
-  },
-  "materialProperties": {
-    "title": "Material",
-    "info": "Access and edit detailed information about materials in the scene."
   },
   "properties": {
     "title": "Properties",
@@ -247,7 +242,21 @@
       "name": "Mesh",
       "description": "A mesh is a collection of vertices, edges, and faces that describe the shape of a 3D object.",
       "geometryEditor": "Geometry Editor",
-      "materialEditor": "Material Editor"
+      "materialEditor": "Material Editor",
+      "material": {
+        "name": "Name",
+        "source": "Source",
+        "type": "Type:",
+        "path": "Path:",
+        "prototype": "Prototype",
+        "loading": "Loading...",
+        "addPlugin": "Add Plugin",
+        "plugin": "Plugin"
+      },
+      "materialProperties": {
+        "title": "Material",
+        "info": "Access and edit detailed information about materials in the scene."
+      }
     },
     "audio": {
       "name": "Positional Audio",
@@ -339,7 +348,7 @@
     "map": {
       "description": "3D geospatial map of e.g. a city."
     },
-    "shadow":{
+    "shadow": {
       "name": "Shadows",
       "description": "Shadow properties for the model",
       "lbl-castShadow": "Cast Shadow",
@@ -506,11 +515,11 @@
       "transparent": "Transparent",
       "world-space": "Use World Space",
       "burst": {
-        "time":"Burst Time",
-        "count":"Burst Count",
-        "cycle":"Burst Cycle",
-        "interval":"Burst Interval",
-        "probability":"Burst Probability"
+        "time": "Burst Time",
+        "count": "Burst Count",
+        "cycle": "Burst Cycle",
+        "interval": "Burst Interval",
+        "probability": "Burst Probability"
       }
     },
     "clouds": {
@@ -584,7 +593,7 @@
       "lbl-reload": "Restage",
       "lbl-options": "Options",
       "samplingMode": "Sampling Mode",
-      "sampling": { 
+      "sampling": {
         "properties": "Sampling Properties",
         "heightMap": "Height Map",
         "heightMapStrength": "Height Map Strength",
@@ -772,20 +781,20 @@
       "lbl-args": "Args",
       "error-url": "Error Loading Script From URL"
     },
-    "primitiveGeometry":{
+    "primitiveGeometry": {
       "name": "Primitive Geometry",
-      "description":"3D models of Basic Geometry shapes",
+      "description": "3D models of Basic Geometry shapes",
       "lbl-geometryType": "Geometry Type",
       "lbl-box": "Box",
-      "lbl-sphere":"Sphere",
-      "lbl-cylinder":"Cylinder",
-      "lbl-capsule":"Capsule",
-      "lbl-plane":"Plane",
-      "lbl-circle":"Circle",
-      "lbl-ring":"Ring",
-      "lbl-torus":"Torus",
-      "lbl-polyhedron":"Polyhedron",
-      "lbl-torusknot":"Torus Knot"
+      "lbl-sphere": "Sphere",
+      "lbl-cylinder": "Cylinder",
+      "lbl-capsule": "Capsule",
+      "lbl-plane": "Plane",
+      "lbl-circle": "Circle",
+      "lbl-ring": "Ring",
+      "lbl-torus": "Torus",
+      "lbl-polyhedron": "Polyhedron",
+      "lbl-torusknot": "Torus Knot"
     },
     "portal": {
       "lbl-portal": "Linked Portal",
@@ -881,9 +890,9 @@
         "spline-track": "Creates a spline track.",
         "spline": "Create and customize curves.",
         "envmap": "Add environment map to your scene",
-        "postprocessing":"Add postprocessing effects to your scene",
-        "primitive-geometry":"Add basic Geometry to the scene",
-        "link":"Add clickable Link to entity to route to different webpage",
+        "postprocessing": "Add postprocessing effects to your scene",
+        "primitive-geometry": "Add basic Geometry to the scene",
+        "link": "Add clickable Link to entity to route to different webpage",
         "dynamic-load": "Load entities dynamically"
       }
     },
