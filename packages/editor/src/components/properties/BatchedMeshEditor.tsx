@@ -31,7 +31,7 @@ import { BatchedMeshComponent } from '@etherealengine/engine/src/scene/component
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 /**
  *
@@ -40,12 +40,12 @@ import { EditorComponentType, updateProperty } from './Util'
  * @type {[component class]}
  */
 export const BatchedMeshEditor: EditorComponentType = (props) => {
-  const batchComponent = useComponent(props.entity, BatchedMeshComponent)
+  const batchComponent = useComponent(props.entity, BatchedMeshComponent).value as any
 
   return (
     <NodeEditor {...props} name={'batched'} description={'batched mesh'}>
       <InputGroup name="batched" label={'batched mesh'}>
-        <BooleanInput value={batchComponent.active.value} onChange={updateProperty(BatchedMeshComponent, 'active')} />
+        <BooleanInput value={batchComponent.active} onChange={commitProperty(BatchedMeshComponent, 'active')} />
       </InputGroup>
     </NodeEditor>
   )
