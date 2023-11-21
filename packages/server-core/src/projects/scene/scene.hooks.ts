@@ -59,23 +59,29 @@ const getDirectoryFromData = async (context: HookContext) => {
   if (context.method === 'create') {
     const data: SceneCreateData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-    for (const item of data) {
-      checkIfProjectExists(context, item.project!)
-      item.directory = `projects/${item.project}/`
-      item.localDirectory = `packages/projects/projects/${item.project}/`
+    if (!data[0].directory) {
+      for (const item of data) {
+        checkIfProjectExists(context, item.project!)
+        item.directory = `projects/${item.project}/`
+        item.localDirectory = `packages/projects/projects/${item.project}/`
+      }
+      context.data = data.length === 1 ? data[0] : data
     }
-    context.data = data.length === 1 ? data[0] : data
   } else {
-    checkIfProjectExists(context, context.project)
-    context.data.directory = `projects/${context.data.project}/`
-    context.localDirectory = `packages/projects/projects/${context.project}/`
+    if (!context.data.directory) {
+      checkIfProjectExists(context, context.project)
+      context.data.directory = `projects/${context.data.project}/`
+      context.data.localDirectory = `packages/projects/projects/${context.data.project}/`
+    }
   }
 }
 
 const getDirectoryFromQuery = async (context: HookContext) => {
-  checkIfProjectExists(context, context.params.query.project)
-  context.params.query.directory = `projects/${context.params.query.project}/`
-  context.params.query.localDirectory = `packages/projects/projects/${context.params.query.project}/`
+  if (!context.params.query.directory) {
+    checkIfProjectExists(context, context.params.query.project)
+    context.params.query.directory = `projects/${context.params.query.project}/`
+    context.params.query.localDirectory = `packages/projects/projects/${context.params.query.project}/`
+  }
 }
 
 export default createSkippableHooks(
