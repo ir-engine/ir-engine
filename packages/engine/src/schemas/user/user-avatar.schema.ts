@@ -24,61 +24,61 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { TypedString } from '@etherealengine/engine/src/common/types/TypeboxUtils'
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import type { Static } from '@feathersjs/typebox'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import { TypedString } from '../../common/types/TypeboxUtils'
-import { dataValidator, queryValidator } from '../validators'
 
-export const scopePath = 'scope'
+export const userAvatarPath = 'user-avatar'
 
-export const scopeMethods = ['create', 'find', 'remove'] as const
-
-export type ScopeID = OpaqueType<'ScopeID'> & string
+export const userAvatarMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
 
 // Main data model schema
-export const scopeSchema = Type.Object(
+export const userAvatarSchema = Type.Object(
   {
-    id: TypedString<ScopeID>({
+    id: Type.String({
       format: 'uuid'
     }),
-    type: Type.String(),
     userId: TypedString<UserID>({
+      format: 'uuid'
+    }),
+    avatarId: TypedString<AvatarID>({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'Scope', additionalProperties: false }
+  { $id: 'UserAvatar', additionalProperties: false }
 )
-export interface ScopeType extends Static<typeof scopeSchema> {}
+export interface UserAvatarType extends Static<typeof userAvatarSchema> {}
 
 // Schema for creating new entries
-export const scopeDataSchema = Type.Pick(scopeSchema, ['type', 'userId'], {
-  $id: 'ScopeData'
+export const userAvatarDataSchema = Type.Pick(userAvatarSchema, ['userId', 'avatarId'], {
+  $id: 'UserAvatarData'
 })
-export interface ScopeData extends Static<typeof scopeDataSchema> {}
+export interface UserAvatarData extends Static<typeof userAvatarDataSchema> {}
 
 // Schema for updating existing entries
-export const scopePatchSchema = Type.Partial(scopeSchema, {
-  $id: 'ScopePatch'
+export const userAvatarPatchSchema = Type.Partial(userAvatarSchema, {
+  $id: 'UserAvatarPatch'
 })
-export interface ScopePatch extends Static<typeof scopePatchSchema> {}
+export interface UserAvatarPatch extends Static<typeof userAvatarPatchSchema> {}
 
 // Schema for allowed query properties
-export const scopeQueryProperties = Type.Pick(scopeSchema, ['id', 'type', 'userId'])
-export const scopeQuerySchema = Type.Intersect(
+export const userAvatarQueryProperties = Type.Pick(userAvatarSchema, ['id', 'userId', 'avatarId'])
+export const userAvatarQuerySchema = Type.Intersect(
   [
-    querySyntax(scopeQueryProperties),
+    querySyntax(userAvatarQueryProperties),
     // Add additional query properties here
-    Type.Object({ paginate: Type.Optional(Type.Boolean()) }, { additionalProperties: false })
+    Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-export interface ScopeQuery extends Static<typeof scopeQuerySchema> {}
+export interface UserAvatarQuery extends Static<typeof userAvatarQuerySchema> {}
 
-export const scopeValidator = getValidator(scopeSchema, dataValidator)
-export const scopeDataValidator = getValidator(scopeDataSchema, dataValidator)
-export const scopePatchValidator = getValidator(scopePatchSchema, dataValidator)
-export const scopeQueryValidator = getValidator(scopeQuerySchema, queryValidator)
+export const userAvatarValidator = getValidator(userAvatarSchema, dataValidator)
+export const userAvatarDataValidator = getValidator(userAvatarDataSchema, dataValidator)
+export const userAvatarPatchValidator = getValidator(userAvatarPatchSchema, dataValidator)
+export const userAvatarQueryValidator = getValidator(userAvatarQuerySchema, queryValidator)

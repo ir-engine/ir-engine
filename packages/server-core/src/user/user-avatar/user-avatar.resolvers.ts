@@ -27,28 +27,27 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { RouteID, RouteQuery, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { UserAvatarQuery, UserAvatarType } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
-
-export const routeResolver = resolve<RouteType, HookContext>({
-  createdAt: virtual(async (route) => fromDateTimeSql(route.createdAt)),
-  updatedAt: virtual(async (route) => fromDateTimeSql(route.updatedAt))
+export const userAvatarResolver = resolve<UserAvatarType, HookContext>({
+  createdAt: virtual(async (userAvatar) => fromDateTimeSql(userAvatar.createdAt)),
+  updatedAt: virtual(async (userAvatar) => fromDateTimeSql(userAvatar.updatedAt))
 })
 
-export const routeExternalResolver = resolve<RouteType, HookContext>({})
+export const userAvatarExternalResolver = resolve<UserAvatarType, HookContext>({})
 
-export const routeDataResolver = resolve<RouteType, HookContext>({
+export const userAvatarDataResolver = resolve<UserAvatarType, HookContext>({
   id: async () => {
-    return v4() as RouteID
+    return v4()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })
 
-export const routePatchResolver = resolve<RouteType, HookContext>({
+export const userAvatarPatchResolver = resolve<UserAvatarType, HookContext>({
   updatedAt: getDateTimeSql
 })
 
-export const routeQueryResolver = resolve<RouteQuery, HookContext>({})
+export const userAvatarQueryResolver = resolve<UserAvatarQuery, HookContext>({})

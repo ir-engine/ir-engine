@@ -23,14 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import TransformGizmo from '../classes/TransformGizmo'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-export const TransformGizmoComponent = defineComponent({
-  name: 'TransformGizmo',
+import {
+  UserAvatarData,
+  UserAvatarPatch,
+  UserAvatarQuery,
+  UserAvatarType
+} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 
-  onInit(entity) {
-    const gizmo = new TransformGizmo()
-    return gizmo
-  }
-})
+export interface UserAvatarParams extends KnexAdapterParams<UserAvatarQuery> {}
+
+export class UserAvatarService<T = UserAvatarType, ServiceParams extends Params = UserAvatarParams> extends KnexService<
+  UserAvatarType,
+  UserAvatarData,
+  UserAvatarParams,
+  UserAvatarPatch
+> {}

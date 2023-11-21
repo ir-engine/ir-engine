@@ -50,6 +50,7 @@ export const userScopeSchema = Type.Object(
 
 export type UserID = OpaqueType<'UserID'> & string
 export type InviteCode = OpaqueType<'InviteCode'> & string
+export type UserName = OpaqueType<'UserName'> & string
 
 // Main data model schema
 export const userSchema = Type.Object(
@@ -57,7 +58,9 @@ export const userSchema = Type.Object(
     id: TypedString<UserID>({
       format: 'uuid'
     }),
-    name: Type.String(),
+    name: TypedString<UserName>({
+      format: 'uuid'
+    }),
     isGuest: Type.Boolean(),
     inviteCode: Type.Optional(
       TypedString<InviteCode>({
@@ -94,15 +97,14 @@ export const userPatchSchema = Type.Partial(userSchema, {
 })
 export interface UserPatch extends Static<typeof userPatchSchema> {}
 
-export interface UserPublicPatch extends Pick<UserType, 'name' | 'avatarId' | 'id'> {}
+export interface UserPublicPatch extends Pick<UserType, 'name' | 'id'> {}
 
 // Schema for allowed query properties
 export const userQueryProperties = Type.Pick(userSchema, [
   'id',
   'name',
   'isGuest',
-  'inviteCode',
-  'avatarId'
+  'inviteCode'
   // 'scopes'   Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
 ])
 export const userQuerySchema = Type.Intersect(
