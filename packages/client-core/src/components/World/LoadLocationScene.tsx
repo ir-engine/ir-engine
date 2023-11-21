@@ -77,8 +77,8 @@ export const useLoadLocation = (props: { locationName: string }) => {
   useEffect(() => {
     if (!locationState.currentLocation.location.sceneId.value) return
     const scenePath = locationState.currentLocation.location.sceneId.value.split('/')
-    const project = scenePath[1]
-    const scene = scenePath[2].replace('.scene.json', '')
+    const project = scenePath[scenePath.length - 2]
+    const scene = scenePath[scenePath.length - 1].replace('.scene.json', '')
     return SceneServices.setCurrentScene(project, scene)
   }, [locationState.currentLocation.location.sceneId])
 }

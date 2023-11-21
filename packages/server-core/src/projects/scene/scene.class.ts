@@ -47,6 +47,7 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { cleanString } from '../../util/cleanString'
+import { ProjectParams } from '../project/project.class'
 import { getSceneData } from './scene-helper'
 const NEW_SCENE_NAME = 'New-Scene'
 
@@ -84,15 +85,19 @@ export class SceneService
     delete params?.paginate
     delete params?.query?.paginate
 
+    let projectParams: ProjectParams = { paginate: false }
+
     const projectName = params?.query?.project?.toString()
+
+    if (projectName) {
+      projectParams = { ...projectParams, query: { name: projectName } }
+    }
 
     const storageProviderName = params?.query?.storageProviderName?.toString()
 
     const scenes: SceneDataType[] = []
 
-    const projects = (await this.app
-      .service(projectPath)
-      .find({ query: { name: projectName }, paginate: false })) as ProjectType[]
+    const projects = (await this.app.service(projectPath).find(projectParams)) as ProjectType[]
 
     for (const project of projects) {
       const sceneJsonPath = `projects/${project.name}/`
