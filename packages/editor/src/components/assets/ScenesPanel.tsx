@@ -27,7 +27,6 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CompressedTexture } from 'three'
 
-import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
@@ -112,7 +111,7 @@ export default function ScenesPanel({ loadScene, newScene }) {
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
         getMutableState(EngineState).sceneLoaded.set(false)
-        RouterState.navigate(`/studio/${editorState.projectName.value}`)
+        editorState.sceneName.set(null)
       }
 
       fetchItems()
@@ -150,7 +149,6 @@ export default function ScenesPanel({ loadScene, newScene }) {
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
-    editorState.sceneName.set(newName)
     setNewName('')
     fetchItems()
   }

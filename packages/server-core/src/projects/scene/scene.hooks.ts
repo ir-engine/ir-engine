@@ -69,7 +69,7 @@ const getDirectoryFromData = async (context: HookContext) => {
     }
   } else {
     if (!context.data.directory) {
-      checkIfProjectExists(context, context.project)
+      checkIfProjectExists(context, context.data.project)
       context.data.directory = `projects/${context.data.project}/`
       context.data.localDirectory = `packages/projects/projects/${context.data.project}/`
     }

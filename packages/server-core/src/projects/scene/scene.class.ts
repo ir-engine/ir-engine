@@ -210,7 +210,7 @@ export class SceneService
   }
 
   async patch(id: NullableId, data: ScenePatch, params?: Params) {
-    const { newSceneName, oldSceneName, project, storageProviderName } = data
+    const { newSceneName, oldSceneName, storageProviderName } = data
 
     const storageProvider = getStorageProvider(storageProviderName)
 
@@ -251,7 +251,7 @@ export class SceneService
       let parsedSceneData = sceneData
       if (sceneData && typeof sceneData === 'string') parsedSceneData = JSON.parse(sceneData)
 
-      logger.info('[scene.update]: ', project, data)
+      logger.info('[scene.update]: ', data)
 
       const storageProvider = getStorageProvider(storageProviderName)
 
@@ -302,7 +302,7 @@ export class SceneService
       }
 
       // return scene id for update hooks
-      return { id: `${project}/${name}` }
+      return { id: `${data.directory!.split['/'][1]}/${name}` }
     } catch (err) {
       logger.error(err)
       throw err
