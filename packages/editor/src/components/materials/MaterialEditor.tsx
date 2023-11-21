@@ -37,7 +37,7 @@ import {
   materialFromId
 } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { removeMaterialPlugin } from '@etherealengine/engine/src/renderer/materials/functions/MaterialPluginFunctions'
-import { State, getMutableState, none, useState } from '@etherealengine/hyperflux'
+import { State, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
 import { Box, Divider, Stack } from '@mui/material'
@@ -67,17 +67,18 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
 }
 
 export function MaterialEditor(props: { materialID: string }) {
+  const { t } = useTranslation()
   const { materialID } = props
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
+  const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const materialComponent = materialLibrary.materials[materialID]
   const prototypeComponent = materialLibrary.prototypes.value[materialComponent.prototype.value]
   const material = materialFromId(materialID).material
-  const loadingData = useState(false)
   const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
     label: prototype.prototypeId,
     value: prototype.prototypeId
   }))
-  const thumbnails = useState<Record<string, ThumbnailData>>({})
+  const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
+  const selectedPlugin = useHookstate('vegetation')
 
   const createThumbnail = async (field: string, texture: Texture) => {
     if (texture?.isTexture) {
@@ -114,7 +115,6 @@ export function MaterialEditor(props: { materialID: string }) {
         thumbnails[k].set(none)
       }
     })
-    loadingData.set(true)
     await Promise.all(
       Object.entries(material).map(async ([field, texture]: [string, Texture]) => {
         if (texture?.isTexture) {
@@ -123,7 +123,6 @@ export function MaterialEditor(props: { materialID: string }) {
         }
       })
     )
-    loadingData.set(false)
   }
 
   const clearThumbs = useCallback(async () => {
@@ -132,39 +131,32 @@ export function MaterialEditor(props: { materialID: string }) {
   }, [])
 
   useEffect(() => {
-    loadingData.set(true)
-    clearThumbs()
-      .then(createThumbnails)
-      .then(() => {
-        loadingData.set(false)
-      })
+    clearThumbs().then(createThumbnails).then(checkThumbs)
   }, [materialComponent.prototype, materialComponent.material.uuid])
 
-  useEffect(() => {
-    if (loadingData.value) return
-    checkThumbs()
-  }, [materialComponent.parameters, materialComponent.material])
-
-  const selectedPlugin = useState('vegetation')
-
   return (
-    <div>
-      <InputGroup name="Name" label="Name">
-        <StringInput value={materialComponent.material.name.value} onChange={materialComponent.material.name.set} />
+    <div style={{ position: 'relative' }}>
+      <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
+        <StringInput
+          value={materialComponent.material.name.value}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            materialComponent.material.name.set(event.target.value)
+          }
+        />
       </InputGroup>
-      <InputGroup name="Source" label="Source">
+      <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
         <div className={styles.contentContainer}>
           <Box className="Box" sx={{ padding: '8px', overflow: 'scroll' }}>
             <Stack className="Stack" spacing={2} direction="column" alignContent={'center'}>
               <Stack className="Stack" spacing={2} direction="row" alignContent={'flex-start'}>
                 <div>
-                  <label>Type:</label>
+                  <label>{t('editor:properties.mesh.material.type')}</label>
                 </div>
                 <div>{materialComponent.src.type.value}</div>
               </Stack>
               <Stack className="Stack" spacing={2} direction="row">
                 <div>
-                  <label>Path:</label>
+                  <label>{t('editor:properties.mesh.material.path')}</label>
                 </div>
                 <div>{materialComponent.src.value.path}</div>
               </Stack>
@@ -173,102 +165,92 @@ export function MaterialEditor(props: { materialID: string }) {
         </div>
       </InputGroup>
       <br />
-      {!loadingData.value && (
-        <InputGroup name="Prototype" label="Prototype">
-          <SelectInput
-            value={materialComponent.prototype.value}
-            options={prototypes}
-            onChange={(protoId) => {
-              const nuMat = changeMaterialPrototype(material, protoId)
-              materialComponent.set(materialFromId(nuMat!.uuid))
-              // prototypeComponent = prototypeFromId(materialComponent.prototype.value)
-            }}
-          />
-        </InputGroup>
-      )}
+      <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
+        <SelectInput
+          value={materialComponent.prototype.value}
+          options={prototypes}
+          onChange={(protoId) => {
+            const nuMat = changeMaterialPrototype(material, protoId)
+            materialComponent.set(materialFromId(nuMat!.uuid))
+            // prototypeComponent = prototypeFromId(materialComponent.prototype.value)
+          }}
+        />
+      </InputGroup>
       <Divider className={styles.divider} />
+      <ParameterInput
+        entity={material.uuid}
+        values={materialComponent.parameters.value}
+        onChange={(k) => async (val) => {
+          let prop
+          if (prototypeComponent.arguments[k].type === 'texture' && typeof val === 'string') {
+            if (val) {
+              prop = await AssetLoader.loadAsync(val)
+            } else {
+              prop = null
+            }
+          } else {
+            prop = val
+          }
+          EditorControlFunctions.modifyMaterial(
+            [materialID],
+            entryId(materialComponent.value, LibraryEntryType.MATERIAL),
+            [{ [k]: prop }]
+          )
+          materialComponent.parameters[k].set(prop)
+        }}
+        defaults={prototypeComponent.arguments}
+        thumbnails={toBlobs(thumbnails.value)}
+      />
       <br />
-      {loadingData.value && <div>Loading...</div>}
-      {!loadingData.value && (
-        <>
-          <ParameterInput
-            entity={material.uuid}
-            values={materialComponent.parameters.value}
-            onChange={(k) => async (val) => {
-              let prop
-              if (prototypeComponent.arguments[k].type === 'texture' && typeof val === 'string') {
-                if (val) {
-                  prop = await AssetLoader.loadAsync(val)
-                } else {
-                  prop = null
-                }
-              } else {
-                prop = val
-              }
-              EditorControlFunctions.modifyMaterial(
-                [materialID],
-                entryId(materialComponent.value, LibraryEntryType.MATERIAL),
-                [{ [k]: prop }]
-              )
-              materialComponent.parameters[k].set(prop)
-            }}
-            defaults={prototypeComponent.arguments}
-            thumbnails={toBlobs(thumbnails.value)}
-          />
-          <br />
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              border: '1px solid #fff',
-              borderRadius: '4px',
-              padding: '4px'
-            }}
-          >
-            <SelectInput
-              value={selectedPlugin.value}
-              options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
-              onChange={selectedPlugin.set}
-            />
-            <Button
-              onClick={() => {
-                materialComponent.plugins.set(materialComponent.plugins.value.concat(selectedPlugin.value))
-              }}
-            >
-              Add Plugin
-            </Button>
-          </div>
-          <PaginatedList
-            list={materialComponent.plugins}
-            element={(plugin: State<string>) => {
-              return (
-                <div className={styles.contentContainer}>
-                  <InputGroup name="Plugin" label="Plugin">
-                    <SelectInput
-                      value={plugin.value}
-                      options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
-                      onChange={plugin.set}
-                    />
-                  </InputGroup>
-                  <Button
-                    onClick={() => {
-                      removeMaterialPlugin(material, plugin.value)
-                      materialComponent.plugins.set(
-                        materialComponent.plugins.value.filter((val) => val !== plugin.value)
-                      )
-                    }}
-                    style={{ backgroundColor: '#f00' }}
-                  >
-                    x
-                  </Button>
-                </div>
-              )
-            }}
-          />
-        </>
-      )}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          border: '1px solid #fff',
+          borderRadius: '4px',
+          padding: '4px'
+        }}
+      >
+        <SelectInput
+          value={selectedPlugin.value}
+          options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
+          onChange={selectedPlugin.set}
+        />
+        <Button
+          onClick={() => {
+            materialComponent.plugins.set(materialComponent.plugins.value.concat(selectedPlugin.value))
+          }}
+        >
+          {t('editor:properties.mesh.material.addPlugin')}
+        </Button>
+      </div>
+      <PaginatedList
+        list={materialComponent.plugins}
+        element={(plugin: State<string>) => {
+          return (
+            <div className={styles.contentContainer}>
+              <InputGroup name="Plugin" label={t('editor:properties.mesh.material.plugin')}>
+                <SelectInput
+                  value={plugin.value}
+                  options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
+                  onChange={plugin.set}
+                />
+              </InputGroup>
+              <Button
+                onClick={() => {
+                  removeMaterialPlugin(material, plugin.value)
+                  materialComponent.plugins.set(materialComponent.plugins.value.filter((val) => val !== plugin.value))
+                }}
+                style={{ backgroundColor: '#f00' }}
+              >
+                x
+              </Button>
+            </div>
+          )
+        }}
+      />
     </div>
   )
 }
@@ -281,8 +263,8 @@ export const MaterialPropertyTitle = () => {
       <PanelDragContainer>
         <PanelIcon as={MaterialLibraryIcon} size={12} />
         <PanelTitle>
-          <InfoTooltip title={t('editor:materialProperties.info')}>
-            <span>{t('editor:materialProperties.title')}</span>
+          <InfoTooltip title={t('editor:properties.mesh.materialProperties.info')}>
+            <span>{t('editor:properties.mesh.materialProperties.title')}</span>
           </InfoTooltip>
         </PanelTitle>
       </PanelDragContainer>
