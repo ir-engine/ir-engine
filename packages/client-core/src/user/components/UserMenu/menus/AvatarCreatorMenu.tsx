@@ -127,7 +127,6 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
     // Get avatar GLB URL
     if (json.eventName === 'v2.avatar.exported') {
       const url = json.data.url
-      console.log('DEBUG url', url)
       const avatarIdRegexExec = AVATAR_ID_REGEX.exec(url)
       if (url && url.toString().toLowerCase().startsWith('http')) {
         setLoading(LoadingState.Downloading)
@@ -186,7 +185,6 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
     const modelName = !isAvaturn(avatarUrl)
       ? avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.glb'
       : avatarUrl.split('/').pop() + '.glb'
-    console.log(modelName)
 
     const blob = await getCanvasBlob(canvas)
 
