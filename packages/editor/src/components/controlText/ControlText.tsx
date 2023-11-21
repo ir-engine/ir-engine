@@ -27,7 +27,6 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorHelperState } from '../../services/EditorHelperState'
@@ -70,19 +69,8 @@ export function ControlText() {
       ' | [E] ' +
       t('editor:viewport.command.rotateRight')
   }
-
-  if (editorHelperState.transformMode.value === TransformMode.Placement) {
-    controlsText += ' | [ESC / G] ' + t('editor:viewport.command.cancelPlacement')
-  } else if (editorHelperState.transformMode.value === TransformMode.Grab) {
-    controlsText +=
-      ' | [Shift + Click] ' +
-      t('editor:viewport.command.placeDuplicate') +
-      ' | [ESC / G] ' +
-      t('editor:viewport.command.cancelGrab')
-  } else if (objectSelected) {
-    controlsText +=
-      '| [G] ' + t('editor:viewport.command.grab') + ' | [ESC] ' + t('editor:viewport.command.deselectAll')
+  if (objectSelected) {
+    controlsText += ' | [ESC] ' + t('editor:viewport.command.deselectAll')
   }
-
   return <div className={styles.controlsText}>{controlsText}</div>
 }

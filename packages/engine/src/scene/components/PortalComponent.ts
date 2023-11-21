@@ -38,33 +38,40 @@ import {
   Vector3
 } from 'three'
 
-import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   SerializedComponentType,
   defineComponent,
   getComponent,
+  hasComponent,
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { createEntity, entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { portalPath } from '../../schemas/projects/portal.schema'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { portalTriggerEnter } from '../functions/loaders/PortalFunctions'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { disposeMaterial } from '../systems/SceneObjectSystem'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { NameComponent } from './NameComponent'
+import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
+import { VisibleComponent } from './VisibleComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -96,7 +103,10 @@ export const portalColliderValues: SerializedComponentType<typeof ColliderCompon
 export const PortalState = defineState({
   name: 'PortalState',
   initial: {
-    activePortalEntity: UndefinedEntity
+    lastPortalTimeout: 0,
+    portalTimeoutDuration: 5000,
+    activePortalEntity: UndefinedEntity,
+    portalReady: false
   }
 })
 
@@ -138,6 +148,13 @@ export const PortalComponent = defineComponent({
           new Quaternion().setFromEuler(new Euler().setFromVector3(json.spawnRotation as any))
         )
     }
+
+    if (
+      !getState(EngineState).sceneLoaded &&
+      hasComponent(entity, SceneObjectComponent) &&
+      !hasComponent(entity, RigidBodyComponent)
+    )
+      setComponent(entity, SceneAssetPendingTagComponent)
   },
 
   toJSON: (entity, component) => {
@@ -173,7 +190,12 @@ export const PortalComponent = defineComponent({
     const portalComponent = useComponent(entity, PortalComponent)
 
     useEffect(() => {
-      setCallback(entity, 'teleport', portalTriggerEnter)
+      setCallback(entity, 'teleport', () => {
+        const now = Date.now()
+        const { lastPortalTimeout, portalTimeoutDuration, activePortalEntity } = getState(PortalState)
+        if (activePortalEntity || lastPortalTimeout + portalTimeoutDuration > now) return
+        getMutableState(PortalState).activePortalEntity.set(entity)
+      })
       setComponent(entity, ColliderComponent, JSON.parse(JSON.stringify(portalColliderValues)))
     }, [])
 
@@ -274,5 +296,13 @@ export const PortalComponent = defineComponent({
     }, [portalComponent.previewImageURL, portalComponent.mesh])
 
     return null
+  },
+
+  setPlayerInPortalEffect: (effectType: string) => {
+    const entity = createEntity()
+    setComponent(entity, EntityTreeComponent)
+    setComponent(entity, NameComponent, 'portal-' + effectType)
+    setComponent(entity, VisibleComponent)
+    setComponent(entity, PortalEffects.get(effectType))
   }
 })

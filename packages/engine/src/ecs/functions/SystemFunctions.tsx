@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /** Functions to provide system level functionalities. */
 
-import React, { Component, ErrorInfo, FC, memo, Suspense, useEffect, useMemo } from 'react'
+import React, { Component, ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
@@ -176,7 +176,7 @@ export function defineSystem(systemConfig: SystemArgs) {
 }
 
 export const useExecute = (execute: () => void, insert: InsertSystem) => {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handle = defineSystem({ uuid: MathUtils.generateUUID(), execute, insert })
     return () => {
       destroySystem(handle)
