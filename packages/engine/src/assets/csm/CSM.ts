@@ -30,20 +30,37 @@ import {
   MathUtils,
   Matrix4,
   Mesh,
-  Object3D,
-  PerspectiveCamera,
   ShaderChunk,
   Shader as ShaderType,
   Vector2,
   Vector3
 } from 'three'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
+import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import CSMHelper from './CSMHelper'
 import Frustum from './Frustum'
 import Shader from './Shader'
 
 const originalLightsFragmentBegin = ShaderChunk.lights_fragment_begin
 const originalLightsParsBegin = ShaderChunk.lights_pars_begin
+
+const _projScreenMatrix = new Matrix4()
+const _m1 = new Matrix4()
+
+const _lightOrientationMatrix = new Matrix4()
+const _lightOrientationMatrixInverse = new Matrix4()
+const _cameraToLightParentMatrix = new Matrix4()
 
 const _cameraToLightMatrix = new Matrix4()
 const _lightSpaceFrustum = new Frustum()
@@ -60,8 +77,6 @@ export const CSMModes = {
 }
 
 type CSMParams = {
-  camera: PerspectiveCamera
-  parent: Object3D
   light?: DirectionalLight
   cascades?: number
   maxFar?: number
@@ -77,13 +92,12 @@ type CSMParams = {
 }
 
 export class CSM {
-  camera: PerspectiveCamera
-  parent: Object3D
   cascades: number
   maxFar: number
   mode: (typeof CSMModes)[keyof typeof CSMModes]
   shadowMapSize: number
   shadowBias: number
+  shadowNormalBias: number
   lightDirection: Vector3
   lightIntensity: number
   lightNear: number
@@ -96,18 +110,19 @@ export class CSM {
   breaks: number[]
   sourceLight?: DirectionalLight
   lights: DirectionalLight[]
+  lightEntities: Entity[]
   lightSourcesCount: number
   shaders: Map<Material, ShaderType> = new Map()
   needsUpdate = false
+  helper: CSMHelper
 
   constructor(data: CSMParams) {
-    this.camera = data.camera
-    this.parent = data.parent
     this.cascades = data.cascades || 3
     this.maxFar = data.maxFar || 100
     this.mode = data.mode || CSMModes.PRACTICAL
     this.shadowMapSize = data.shadowMapSize || 2048
     this.shadowBias = -0.000003
+    this.shadowNormalBias = 0
     this.lightDirection = data.lightDirection || new Vector3(1, -1, 1).normalize()
     this.lightIntensity = data.lightIntensity || 1
     this.lightNear = data.lightNear || 0.01
@@ -120,10 +135,14 @@ export class CSM {
     this.breaks = []
 
     this.lights = []
+    this.lightEntities = []
 
     this.createLights(data.light)
     this.updateFrustums()
     this.injectInclude()
+
+    this.helper = new CSMHelper(this)
+    Engine.instance.scene.add(this.helper)
   }
 
   changeLights(light?: DirectionalLight): void {
@@ -151,20 +170,24 @@ export class CSM {
     })
   }
 
-  createLights(light?: DirectionalLight): void {
-    if (light) {
-      this.sourceLight = light
-      this.shadowBias = light.shadow.bias
+  createLights(sourceLight?: DirectionalLight): void {
+    if (sourceLight) {
+      this.sourceLight = sourceLight
+      this.shadowBias = sourceLight.shadow.bias
       for (let i = 0; i < this.cascades; i++) {
-        const lightClone = light.clone()
-        lightClone.castShadow = true
-        lightClone.visible = true
-        lightClone.matrixAutoUpdate = true
-        lightClone.matrixWorldAutoUpdate = true
-        this.parent.add(lightClone)
-        this.lights.push(lightClone)
-        lightClone.name = 'CSM_' + light.name
-        lightClone.target.name = 'CSM_' + light.target.name
+        const light = sourceLight.clone()
+        light.castShadow = true
+
+        const entity = createEntity()
+        addObjectToGroup(entity, light)
+        setComponent(entity, EntityTreeComponent, { parentEntity: null })
+        setComponent(entity, NameComponent, 'CSM light ' + i)
+        setComponent(entity, VisibleComponent)
+
+        this.lightEntities.push(entity)
+        this.lights.push(light)
+        light.name = 'CSM_' + sourceLight.name
+        light.target.name = 'CSM_' + sourceLight.target.name
       }
       return
     }
@@ -182,7 +205,13 @@ export class CSM {
       light.shadow.camera.far = this.lightFar
       light.shadow.bias = this.shadowBias
 
-      this.parent.add(light)
+      const entity = createEntity()
+      addObjectToGroup(entity, light)
+      setComponent(entity, NameComponent, 'CSM light ' + i)
+      setComponent(entity, EntityTreeComponent, { parentEntity: null })
+      setComponent(entity, VisibleComponent)
+
+      this.lightEntities.push(entity)
       this.lights.push(light)
       light.name = 'CSM_' + light.name
       light.target.name = 'CSM_' + light.target.name
@@ -190,7 +219,7 @@ export class CSM {
   }
 
   initCascades(): void {
-    const camera = this.camera
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     camera.updateProjectionMatrix()
     this.mainFrustum.setFromProjectionMatrix(camera.projectionMatrix, this.maxFar)
     this.mainFrustum.split(this.breaks, this.frustums)
@@ -220,7 +249,7 @@ export class CSM {
       let squaredBBWidth = point1.distanceTo(point2)
       if (this.fade) {
         // expand the shadow extents by the fade margin if fade is enabled.
-        const camera = this.camera
+        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
         const far = Math.max(camera.far, this.maxFar)
         const linearDepth = frustum.vertices.far[0].z / (far - camera.near)
         const margin = 0.25 * Math.pow(linearDepth, 2.0) * (far - camera.near)
@@ -232,14 +261,17 @@ export class CSM {
       shadowCam.right = squaredBBWidth / 2
       shadowCam.top = squaredBBWidth / 2
       shadowCam.bottom = -squaredBBWidth / 2
+      shadowCam.near = 0
+      shadowCam.far = squaredBBWidth + this.lightMargin
       shadowCam.updateProjectionMatrix()
 
       light.shadow.bias = this.shadowBias * squaredBBWidth
+      light.shadow.normalBias = this.shadowNormalBias * squaredBBWidth
     }
   }
 
   getBreaks(): void {
-    const camera = this.camera
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const far = Math.min(camera.far, this.maxFar)
     this.breaks.length = 0
 
@@ -290,6 +322,7 @@ export class CSM {
   }
 
   update(): void {
+    this.sourceLight?.getWorldDirection(this.lightDirection)
     if (this.needsUpdate) {
       this.updateFrustums()
       for (const light of this.lights) {
@@ -300,10 +333,11 @@ export class CSM {
       }
       this.needsUpdate = false
     }
-    const camera = this.camera
+    const camera = getComponent(Engine.instance.cameraEntity, TransformComponent)
     const frustums = this.frustums
     for (let i = 0; i < frustums.length; i++) {
       const light = this.lights[i]
+      const frustum = frustums[i]
       const shadowCam = light.shadow.camera
 
       const texelWidth = (shadowCam.right - shadowCam.left) / light.shadow.mapSize.x
@@ -311,12 +345,19 @@ export class CSM {
       shadowCam.far = this.lightFar
       shadowCam.near = this.lightNear
 
-      light.shadow.camera.updateMatrixWorld(true)
-      _cameraToLightMatrix.multiplyMatrices(light.shadow.camera.matrixWorldInverse, camera.matrixWorld)
-      frustums[i].toSpace(_cameraToLightMatrix, _lightSpaceFrustum)
+      // This matrix only represents sun orientation, origin is zero
+      _lightOrientationMatrix.lookAt(V_000, this.lightDirection, V_010)
+      _lightOrientationMatrixInverse.copy(_lightOrientationMatrix).invert()
+
+      // Go from camera space to world space using camera.matrixWorld, then go to parent space using inverse of parent.matrixWorld
+      _cameraToLightParentMatrix.identity().invert().multiply(camera.matrix)
+
+      _cameraToLightMatrix.multiplyMatrices(_lightOrientationMatrixInverse, _cameraToLightParentMatrix)
+      frustum.toSpace(_cameraToLightMatrix, _lightSpaceFrustum)
 
       const nearVerts = _lightSpaceFrustum.vertices.near
       const farVerts = _lightSpaceFrustum.vertices.far
+
       _bbox.makeEmpty()
       for (let j = 0; j < 4; j++) {
         _bbox.expandByPoint(nearVerts[j])
@@ -325,15 +366,23 @@ export class CSM {
 
       _bbox.getCenter(_center)
       _center.z = _bbox.max.z + this.lightMargin
+      // Round X and Y to avoid shadow shimmering when moving or rotating the camera
       _center.x = Math.floor(_center.x / texelWidth) * texelWidth
       _center.y = Math.floor(_center.y / texelHeight) * texelHeight
-      _center.applyMatrix4(light.shadow.camera.matrixWorld)
+      // Center is currently in light space, so we need to go back to light parent space
+      _center.applyMatrix4(_lightOrientationMatrix)
 
-      light.position.copy(_center)
+      getComponent(this.lightEntities[i], TransformComponent).position.copy(_center)
       light.target.position.copy(_center).add(this.lightDirection)
+
+      light.target.matrix.compose(light.target.position, light.target.quaternion, light.target.scale)
+      light.target.matrix.decompose(light.target.position, light.target.quaternion, light.target.scale)
+      light.target.matrixWorld.copy(light.target.matrix)
+
       light.target.updateMatrixWorld(true)
     }
-    this.parent.updateMatrixWorld(true)
+
+    this.helper.update()
   }
 
   injectInclude(): void {
@@ -365,11 +414,13 @@ export class CSM {
       id: 'CSM',
       compile: (shader: ShaderType) => {
         if (shaders.has(material)) return
-        const far = Math.min(this.camera.far, this.maxFar)
+
+        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+        const far = Math.min(camera.far, this.maxFar)
         this.getExtendedBreaks(breaksVec2)
 
         shader.uniforms.CSM_cascades = { value: breaksVec2 }
-        shader.uniforms.cameraNear = { value: this.camera.near }
+        shader.uniforms.cameraNear = { value: camera.near }
         shader.uniforms.shadowFar = { value: far }
 
         shaders.set(material, shader)
@@ -397,12 +448,15 @@ export class CSM {
   }
 
   updateUniforms(): void {
-    const far = Math.min(this.camera.far, this.maxFar)
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    const far = Math.min(camera.far, this.maxFar)
     this.shaders.forEach(function (shader: ShaderType, material: Material) {
+      const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+
       if (shader !== null) {
         const uniforms = shader.uniforms
         this.getExtendedBreaks(uniforms.CSM_cascades.value)
-        uniforms.cameraNear.value = this.camera.near
+        uniforms.cameraNear.value = camera.near
         uniforms.shadowFar.value = far
       }
 
@@ -444,7 +498,11 @@ export class CSM {
       cascade.target.removeFromParent()
       cascade.dispose()
     })
+    this.lightEntities.forEach((entity) => {
+      removeEntity(entity)
+    })
     this.lights = []
+    Engine.instance.scene.remove(this.helper)
   }
 
   dispose(): void {
