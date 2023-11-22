@@ -198,7 +198,7 @@ const onSaveAs = async () => {
       if (result?.name && projectName) {
         await saveScene(projectName, result.name, file, abortController.signal)
         editorState.sceneModified.set(false)
-        RouterState.navigate(`/studio/${projectName}/${result.name}`)
+        editorState.sceneName.set(result.name)
       }
     }
     DialogState.setDialog(null)
@@ -428,7 +428,7 @@ const EditorContainer = () => {
 
   useEffect(() => {
     if (sceneName.value) {
-      logger.info(`Loading scene ${sceneName.value} via given url`)
+      logger.info(`Loading scene ${sceneName.value}`)
       loadScene(sceneName.value)
     }
   }, [sceneName])
