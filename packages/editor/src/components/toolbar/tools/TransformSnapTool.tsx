@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -64,9 +63,7 @@ const TransformSnapTool = () => {
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
 
   const onChangeTranslationSnap = (snapValue: number) => {
-    InfiniteGridHelper.instance.setSize(snapValue)
     getMutableState(EditorHelperState).translationSnap.set(snapValue)
-
     if (editorHelperState.snapMode.value !== SnapMode.Grid) {
       getMutableState(EditorHelperState).snapMode.set(SnapMode.Grid)
     }

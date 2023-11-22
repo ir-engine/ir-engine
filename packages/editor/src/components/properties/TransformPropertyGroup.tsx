@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 import { Euler, Vector3 } from 'three'
 
 import {
-  defineQuery,
   getComponent,
   hasComponent,
   useComponent,
@@ -41,7 +40,6 @@ import {
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { TransformGizmoComponent } from '../../classes/TransformGizmoComponent'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
@@ -53,8 +51,6 @@ import Vector3Input from '../inputs/Vector3Input'
 import PropertyGroup from './PropertyGroup'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
-const gizmoQuery = defineQuery([TransformGizmoComponent])
-
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
  */
@@ -64,7 +60,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
   const transformComponent = useComponent(props.entity, TransformComponent)
   const localTransformComponent = useComponent(props.entity, LocalTransformComponent)
-  const useGlobalTransformComponent = useHookstate(true)
+  const useGlobalTransformComponent = useHookstate(false)
 
   const onRelease = () => {
     EditorControlFunctions.commitTransformSave([props.entity])

@@ -95,8 +95,13 @@ const Analytics = () => {
   return (
     <>
       <div className={styles.dashboardCardsContainer}>
-        {analyticsServiceQueries.map((query) => (
-          <AnalyticsService name={query.type} colors={query.colors!} analyticsQueryMap={analyticsQueryMap} />
+        {analyticsServiceQueries.map((query, index) => (
+          <AnalyticsService
+            key={query.type + index}
+            name={query.type}
+            colors={query.colors!}
+            analyticsQueryMap={analyticsQueryMap}
+          />
         ))}
       </div>
       <div className={styles.mt20px}>
