@@ -118,6 +118,8 @@ export const calculateGroundedFeet = (newLandmarks: NormalizedLandmark[]) => {
 }
 
 export const drawMocapDebug = () => {
+  if (!POSE_CONNECTIONS) return () => {}
+
   const debugMeshes = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
 
   const positionLineSegment = new LineSegments(new BufferGeometry(), new LineBasicMaterial({ vertexColors: true }))
