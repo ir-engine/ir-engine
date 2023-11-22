@@ -23,33 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { onInteract } from '../avatar/systems/AvatarInputSystem'
 import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent, getMutableComponent } from '../ecs/functions/ComponentFunctions'
+import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
 export type MotionCaptureActionPoses = 'sit' | 'stand' | 'none'
 export type MotionCaptureStates = 'sitting' | 'none'
 
-export const PoseState = defineState({
-  name: 'PoseState',
-  initial: () => {
-    return 'none' as MotionCaptureStates
-  }
-})
-
 const minSeatedAngle = 1.25, //radians
   poseHoldTime = 0.5 //seconds
 let poseHoldTimer = 0
 
-export const evaluatePose = (entity: Entity) => {
+export const evaluatePose = (entity: Entity): MotionCaptureActionPoses => {
   const rig = getComponent(entity, AvatarRigComponent).rig
   const deltaSeconds = getState(EngineState).deltaSeconds
-  const poseState = getMutableState(PoseState)
-  if (!MotionCaptureRigComponent.solvingLowerBody[entity]) return
+  const pose = getMutableComponent(entity, MotionCapturePoseComponent)
+  if (!MotionCaptureRigComponent.solvingLowerBody[entity]) return 'none'
 
   const getLegsSeatedChange = (toState: MotionCaptureStates): boolean => {
     let metTargetStateAngle =
@@ -57,11 +50,11 @@ export const evaluatePose = (entity: Entity) => {
       rig.leftUpperLeg.node.quaternion.angleTo(rig.spine.node.quaternion) < minSeatedAngle
     metTargetStateAngle = toState == 'sitting' ? !metTargetStateAngle : metTargetStateAngle
 
-    if (!metTargetStateAngle || poseState.value === toState) return false
+    if (!metTargetStateAngle || pose.value === toState) return false
 
     poseHoldTimer += deltaSeconds
     if (poseHoldTimer > poseHoldTime) {
-      poseState.set(toState)
+      pose.set(toState)
       poseHoldTimer = 0
       return true
     }
@@ -69,6 +62,7 @@ export const evaluatePose = (entity: Entity) => {
     return false
   }
 
-  if (getLegsSeatedChange('sitting')) onInteract('none', 'sit')
-  if (getLegsSeatedChange('none')) onInteract('none', 'stand')
+  if (getLegsSeatedChange('sitting')) return 'sit'
+  if (getLegsSeatedChange('none')) return 'stand'
+  return 'none'
 }

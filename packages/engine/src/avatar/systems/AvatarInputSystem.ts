@@ -51,7 +51,6 @@ import { StandardGamepadButton, XRStandardGamepadButton } from '../../input/stat
 import { InputState } from '../../input/state/InputState'
 import { ClientInputSystem } from '../../input/systems/ClientInputSystem'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
-import { MotionCaptureActionPoses } from '../../mocap/poseToInput'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -138,12 +137,11 @@ const onShiftLeft = () => {
   controller.isWalking.set(!controller.isWalking.value)
 }
 
-export const onInteract = (handedness: XRHandedness = 'none', pose: MotionCaptureActionPoses = 'none') => {
+export const onInteract = (handedness: XRHandedness = 'none') => {
   dispatchAction(
     EngineActions.interactedWithObject({
       targetEntity: getState(InteractState).available[0],
-      handedness,
-      pose
+      handedness
     })
   )
 }

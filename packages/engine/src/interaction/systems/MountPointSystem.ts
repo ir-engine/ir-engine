@@ -60,6 +60,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 
 import { AvatarMovementSystem } from '../../avatar/systems/AvatarMovementSystem'
+import { MotionCaptureInputActions } from '../../mocap/MotionCaptureInputActions'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
@@ -75,6 +76,7 @@ const mountPointInteractMessages = {
 }
 
 const mountPointActionQueue = defineActionQueue(EngineActions.interactedWithObject.matches)
+const mountPointByPoseQueue = defineActionQueue(MotionCaptureInputActions.assumedPose.matches)
 const mountPointQuery = defineQuery([MountPointComponent])
 const sittingIdleQuery = defineQuery([SittingComponent])
 

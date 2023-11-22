@@ -66,7 +66,6 @@ import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
-import { evaluatePose } from './poseToInput'
 import { solveMotionCapturePose } from './solveMotionCapturePose'
 
 export type MotionCaptureResults = {
@@ -141,7 +140,6 @@ const execute = () => {
     timeSeriesMocapLastSeen.set(peerID, Date.now())
     setComponent(entity, MotionCaptureRigComponent)
     solveMotionCapturePose(entity, data?.results.poseWorldLandmarks, data?.results.poseLandmarks)
-    evaluatePose(entity)
     mocapData.clear() // TODO: add a predictive filter and remove this
   }
 
