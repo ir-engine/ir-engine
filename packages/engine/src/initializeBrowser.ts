@@ -27,7 +27,6 @@ import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { WebLayerManager } from '@etherealengine/xrui'
 
-import { AudioState } from './audio/AudioState'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { Engine } from './ecs/classes/Engine'
 import { EngineState } from './ecs/classes/EngineState'
@@ -41,16 +40,6 @@ import { ObjectLayers } from './scene/constants/ObjectLayers'
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
-  const audioState = getMutableState(AudioState)
-
-  const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)()
-  audioContext.resume()
-  audioState.audioContext.set(audioContext)
-
-  const cameraGainNode = audioContext.createGain()
-  audioState.cameraGainNode.set(cameraGainNode)
-  cameraGainNode.connect(audioContext.destination)
-
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 
   camera.layers.disableAll()
@@ -63,7 +52,7 @@ export const initializeBrowser = () => {
 
   EngineRenderer.instance.initialize()
   const renderer = EngineRenderer.instance.renderer
-  if (!renderer) throw new Error('EngineRenderer.instance.renderer must exist before initializing XRUISystem')
+  if (!renderer) throw new Error('EngineRenderer.instance.renderer does not exist!')
 
   WebLayerManager.initialize(renderer)
   WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)

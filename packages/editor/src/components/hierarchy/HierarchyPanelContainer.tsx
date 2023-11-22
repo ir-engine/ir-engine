@@ -31,13 +31,12 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { getComponent, getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
@@ -58,7 +57,7 @@ import useUpload from '../assets/useUpload'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { ContextMenu } from '../layout/ContextMenu'
 import { updateProperties } from '../properties/Util'
-import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
+import { HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
 import { HierarchyTreeNode, HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from './HierarchyTreeNode'
 import styles from './styles.module.scss'
 
@@ -86,7 +85,7 @@ export default function HierarchyPanel() {
   const onUpload = useUpload(uploadOptions)
   const selectionState = useHookstate(getMutableState(SelectionState))
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
-  const [collapsedNodes, setCollapsedNodes] = useState<HeirarchyTreeCollapsedNodeType>({})
+  const expandedNodes = useHookstate(getMutableState(EditorState).expandedNodes)
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
   const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
@@ -106,10 +105,18 @@ export default function HierarchyPanel() {
   if (searchHierarchy.length > 0) {
     const condition = new RegExp(searchHierarchy.toLowerCase())
     nodes.forEach((node) => {
-      if (node.entity && condition.test(getComponent(node.entity as Entity, NameComponent)?.toLowerCase() ?? ''))
+      if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
         nodeSearch.push(node)
     })
   }
+
+  useEffect(() => {
+    if (!activeScene.value) return
+
+    const rootUUID = SceneState.getScene(activeScene.value)!.scene.root!
+
+    getMutableState(EditorState).expandedNodes.set({ [rootUUID]: true })
+  }, [activeScene])
 
   useEffect(() => {
     if (!activeScene.value) return
@@ -117,46 +124,51 @@ export default function HierarchyPanel() {
       Array.from(
         heirarchyTreeWalker(
           SceneState.getRootEntity(getState(SceneState).activeScene!),
-          selectionState.selectedEntities.value,
-          collapsedNodes
+          selectionState.selectedEntities.value
         )
       )
     )
-  }, [collapsedNodes, activeScene, selectionState.selectedEntities, entities])
+  }, [expandedNodes, activeScene, selectionState.selectedEntities, entities])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      setCollapsedNodes({ ...collapsedNodes, [node.entity]: false })
+      const uuid = getComponent(node.entity, UUIDComponent)
+      getMutableState(EditorState).expandedNodes[uuid].set(true)
     },
-    [collapsedNodes]
+    [expandedNodes]
   )
 
   const collapseNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      setCollapsedNodes({ ...collapsedNodes, [node.entity]: true })
+      const uuid = getComponent(node.entity, UUIDComponent)
+      getMutableState(EditorState).expandedNodes[uuid].set(none)
     },
-    [collapsedNodes]
+    [expandedNodes]
   )
 
   const expandChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
       handleClose()
-      traverseEntityNode(node.entity as Entity, (child) => (collapsedNodes[child] = false))
-      setCollapsedNodes({ ...collapsedNodes })
+      traverseEntityNode(node.entity, (child) => {
+        const uuid = getComponent(child, UUIDComponent)
+        getMutableState(EditorState).expandedNodes[uuid].set(true)
+      })
     },
-    [collapsedNodes]
+    [expandedNodes]
   )
 
   const collapseChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
       handleClose()
-      traverseEntityNode(node.entity as Entity, (child) => (collapsedNodes[child] = true))
-      setCollapsedNodes({ ...collapsedNodes })
+      traverseEntityNode(node.entity, (child) => {
+        const uuid = getComponent(child, UUIDComponent)
+        getMutableState(EditorState).expandedNodes[uuid].set(none)
+      })
     },
-    [collapsedNodes]
+    [expandedNodes]
   )
 
   /* Event handlers */
@@ -211,16 +223,17 @@ export default function HierarchyPanel() {
 
   const onToggle = useCallback(
     (_, node: HeirarchyTreeNodeType) => {
-      if (collapsedNodes[node.entity as Entity]) expandNode(node)
-      else collapseNode(node)
+      const uuid = getComponent(node.entity, UUIDComponent)
+      if (expandedNodes.value[uuid]) collapseNode(node)
+      else expandNode(node)
     },
-    [collapsedNodes, expandNode, collapseNode]
+    [expandedNodes, expandNode, collapseNode]
   )
 
   const onKeyDown = useCallback(
     (e: KeyboardEvent, node: HeirarchyTreeNodeType) => {
       const nodeIndex = nodes.indexOf(node)
-      const entityTree = getComponent(node.entity as Entity, EntityTreeComponent)
+      const entityTree = getComponent(node.entity, EntityTreeComponent)
       switch (e.key) {
         case 'ArrowDown': {
           e.preventDefault()
@@ -317,7 +330,7 @@ export default function HierarchyPanel() {
     handleClose()
 
     if (node.entity) {
-      const entity = node.entity as Entity
+      const entity = node.entity
       setRenamingNode({ entity, name: getComponent(entity, NameComponent) })
     } else {
       // todo
@@ -325,14 +338,14 @@ export default function HierarchyPanel() {
   }, [])
 
   const onChangeName = useCallback(
-    (node: HeirarchyTreeNodeType, name: string) => setRenamingNode({ entity: node.entity as Entity, name }),
+    (node: HeirarchyTreeNodeType, name: string) => setRenamingNode({ entity: node.entity, name }),
     []
   )
 
   const onRenameSubmit = useCallback((node: HeirarchyTreeNodeType, name: string) => {
     if (name) {
       updateProperties(NameComponent, name, [node.entity])
-      const groups = getOptionalComponent(node.entity as Entity, GroupComponent)
+      const groups = getOptionalComponent(node.entity, GroupComponent)
       if (groups) for (const obj of groups) if (obj) obj.name = name
     }
 

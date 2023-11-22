@@ -316,14 +316,14 @@ const reactor = () => {
 
     for (const entity of sceneQuery()) {
       if (!hasComponent(entity, TransformGizmoComponent)) continue
-      removeComponent(entity as Entity, TransformGizmoComponent)
+      removeComponent(entity, TransformGizmoComponent)
     }
     const lastSelection = selectedEntities[selectedEntities.length - 1].value
     if (!lastSelection) return
 
     if (typeof lastSelection === 'string') return // TODO : gizmo for 3d objects without Ids
 
-    setComponent(lastSelection as Entity, TransformGizmoComponent)
+    setComponent(lastSelection, TransformGizmoComponent)
   }, [selectionState.selectedParentEntities])
 
   useEffect(() => {
