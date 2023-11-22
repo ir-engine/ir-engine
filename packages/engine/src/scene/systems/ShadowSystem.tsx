@@ -100,15 +100,6 @@ const raycaster = new Raycaster()
 raycaster.firstHitOnly = true
 const raycasterPosition = new Vector3()
 
-const useCSMEffects = () => {
-  const rendererState = useHookstate(getMutableState(RendererState))
-  useEffect(() => {
-    if (!rendererState.csm.value) return
-    rendererState.csm.value.helper.paused = !rendererState.nodeHelperVisibility.value
-    rendererState.csm.value.helper.updateVisibility()
-  }, [rendererState.csm, rendererState.nodeHelperVisibility])
-}
-
 /** @deprecated @todo replace this whith EntityCSM when WebXR Light Estimation is entity driven */
 const SimpleCSM = (props: { light: DirectionalLight }) => {
   useEffect(() => {
@@ -118,9 +109,6 @@ const SimpleCSM = (props: { light: DirectionalLight }) => {
       getMutableState(RendererState).csm.set(null)
     }
   }, [])
-
-  useCSMEffects()
-
   return null
 }
 
@@ -165,8 +153,6 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
     directionalLightComponent?.cameraFar
   ])
 
-  useCSMEffects()
-
   return null
 }
 
@@ -198,8 +184,6 @@ const PlainCSMReactor = () => {
     }
   }, [shadowMapResolution])
 
-  useCSMEffects()
-
   return null
 }
 
@@ -210,8 +194,14 @@ function CSMReactor() {
   const isEstimatingLight = useHookstate(xrState.isEstimatingLight)
   const directionalLights = useQuery([VisibleComponent, DirectionalLightComponent])
 
-  const csmEnabled = useHookstate(getMutableState(RenderSettingsState))?.csm?.value
+  const rendererState = useHookstate(getMutableState(RendererState))
+  useEffect(() => {
+    if (!rendererState.csm.value) return
+    rendererState.csm.value.helper.paused = !rendererState.nodeHelperVisibility.value
+    rendererState.csm.value.helper.updateVisibility()
+  }, [rendererState.csm, rendererState.nodeHelperVisibility])
 
+  const csmEnabled = useHookstate(getMutableState(RenderSettingsState))?.csm?.value
   if (!csmEnabled) return null
 
   if (isEstimatingLight.value)
