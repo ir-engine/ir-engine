@@ -26,14 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { Application } from '../../declarations'
 
 export default async (app: Application, userId: UserID) => {
   const adminCount = await app.service(scopePath).find({
     query: {
       $select: ['id'],
-      type: 'admin:admin'
+      type: 'admin:admin' as ScopeType
     },
     paginate: false
   })

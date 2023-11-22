@@ -27,10 +27,12 @@ import React from 'react'
 
 import TuneIcon from '@mui/icons-material/Tune'
 
+import { TabData } from 'rc-dock'
 import { useTranslation } from 'react-i18next'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import { InfoTooltip } from '../layout/Tooltip'
 import styles from '../styles.module.scss'
+import PropertiesPanelContainer from './PropertiesPanelContainer'
 
 export const PropertiesPanelTitle = () => {
   const { t } = useTranslation()
@@ -47,4 +49,11 @@ export const PropertiesPanelTitle = () => {
       </PanelDragContainer>
     </div>
   )
+}
+
+export const PropertiesPanelTab: TabData = {
+  id: 'propertiesPanel',
+  closable: true,
+  title: <PropertiesPanelTitle />,
+  content: <PropertiesPanelContainer />
 }

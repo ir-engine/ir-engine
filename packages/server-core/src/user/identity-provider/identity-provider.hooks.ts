@@ -39,7 +39,7 @@ import appConfig from '../../appconfig'
 import { isDev } from '@etherealengine/common/src/config'
 import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { random } from 'lodash'
@@ -136,7 +136,7 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
 
   const adminScopes = await context.app.service(scopePath).find({
     query: {
-      type: 'admin:admin'
+      type: 'admin:admin' as ScopeType
     }
   })
 

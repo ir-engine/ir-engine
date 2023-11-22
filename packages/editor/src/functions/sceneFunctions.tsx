@@ -36,7 +36,8 @@ import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
 import { SceneDataType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { EditorState } from '../services/EditorServices'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
@@ -141,6 +142,27 @@ export const saveScene = async (
   } catch (error) {
     logger.error(error, 'Error in saving project')
     throw error
+  }
+}
+
+export const setSceneInState = async (newSceneName: string) => {
+  const { projectName, sceneName } = getState(EditorState)
+  if (sceneName === newSceneName) return
+  if (!projectName || !newSceneName) return
+  getMutableState(EditorState).sceneName.set(newSceneName)
+}
+
+export const onNewScene = async () => {
+  const { projectName } = getState(EditorState)
+  if (!projectName) return
+
+  try {
+    const sceneData = await createNewScene(projectName)
+    if (!sceneData) return
+
+    setSceneInState(sceneData.name)
+  } catch (error) {
+    logger.error(error)
   }
 }
 
