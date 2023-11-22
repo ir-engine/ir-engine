@@ -59,27 +59,44 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(TextComponent, 'text')}
         />
       </InputGroup>
-      <NumericInputGroup
-        name="FontSize"
-        label="Font.size" // {t('editor:properties.text.fontSize')}  /* @todo: Translation id */
-        min={0}
-        smallStep={1}
-        mediumStep={2}
-        largeStep={4}
-        value={text.fontSize.value}
-        onChange={updateProperty(TextComponent, 'fontSize')}
-        onRelease={commitProperty(TextComponent, 'fontSize')}
-        unit="px"
-      />
       <InputGroup
-        name="FontColor"
-        label="Font.color" // {t('editor:properties.text.fontColor')}  /* @todo: Translation id */
+        name="FontGroup"
+        label="Font" // {t('editor:properties.text.fontGroup')}  /* @todo: Translation id */
       >
-        <ColorInput
-          value={text.fontColor.value}
-          onChange={updateProperty(TextComponent, 'fontColor')}
-          onRelease={commitProperty(TextComponent, 'fontColor')}
-        />
+        <div>
+          <InputGroup
+            name="FontFamily"
+            label="family" // {t('editor:properties.text.fontGroup')}  /* @todo: Translation id */
+          >
+            <ControlledStringInput
+              value={text.font.value!}
+              onChange={updateProperty(TextComponent, 'font')}
+              onRelease={commitProperty(TextComponent, 'font')}
+            />
+          </InputGroup>
+          <NumericInputGroup
+            name="FontSize"
+            label="size" // {t('editor:properties.text.fontSize')}  /* @todo: Translation id */
+            min={0}
+            smallStep={0.01}
+            mediumStep={0.1}
+            largeStep={0.5}
+            value={text.fontSize.value}
+            onChange={updateProperty(TextComponent, 'fontSize')}
+            onRelease={commitProperty(TextComponent, 'fontSize')}
+            unit="em"
+          />
+          <InputGroup
+            name="FontColor"
+            label="color" // {t('editor:properties.text.fontColor')}  /* @todo: Translation id */
+          >
+            <ColorInput
+              value={text.fontColor.value}
+              onChange={updateProperty(TextComponent, 'fontColor')}
+              onRelease={commitProperty(TextComponent, 'fontColor')}
+            />
+          </InputGroup>
+        </div>
       </InputGroup>
     </NodeEditor>
   )
