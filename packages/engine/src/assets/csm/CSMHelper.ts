@@ -39,6 +39,9 @@ import {
   PlaneGeometry
 } from 'three'
 
+import { Engine } from '../../ecs/classes/Engine'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CSM } from './CSM'
 
 class CSMHelper extends Group {
@@ -50,12 +53,11 @@ class CSMHelper extends Group {
   private cascadeLines: Box3Helper[] = []
   private cascadePlanes: Mesh[] = []
   private shadowLines: Group[] = []
-  paused = false
+  paused = true
 
   public constructor(csm: CSM) {
     super()
     this.csm = csm
-    globalThis.csmHelper = this
 
     const indices = new Uint16Array([0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7])
     const positions = new Float32Array(24)
@@ -69,9 +71,9 @@ class CSMHelper extends Group {
   }
 
   public updateVisibility() {
-    const displayFrustum = this.displayFrustum
-    const displayPlanes = this.displayPlanes
-    const displayShadowBounds = this.displayShadowBounds
+    const displayFrustum = this.displayFrustum && !this.paused
+    const displayPlanes = this.displayPlanes && !this.paused
+    const displayShadowBounds = this.displayShadowBounds && !this.paused
 
     const frustumLines = this.frustumLines
     const cascadeLines = this.cascadeLines
@@ -94,7 +96,7 @@ class CSMHelper extends Group {
     if (this.paused) return
 
     const csm = this.csm
-    const camera = csm.camera
+    const camera = getComponent(Engine.instance.cameraEntity, TransformComponent)
     const cascades = csm.cascades
     const mainFrustum = csm.mainFrustum
     const frustums = csm.frustums
@@ -109,7 +111,7 @@ class CSMHelper extends Group {
     const shadowLines = this.shadowLines
 
     this.position.copy(camera.position)
-    this.quaternion.copy(camera.quaternion)
+    this.quaternion.copy(camera.rotation)
     this.scale.copy(camera.scale)
     this.updateMatrixWorld(true)
 
@@ -179,6 +181,10 @@ class CSMHelper extends Group {
     frustumLinePositions.setXYZ(6, nearVerts[2].x, nearVerts[2].y, nearVerts[2].z)
     frustumLinePositions.setXYZ(7, nearVerts[1].x, nearVerts[1].y, nearVerts[1].z)
     frustumLinePositions.needsUpdate = true
+
+    this.updateMatrixWorld(true)
+
+    this.updateVisibility()
   }
 }
 

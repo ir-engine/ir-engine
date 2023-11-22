@@ -23,45 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { BatchedParticleRenderer } from 'three.quarks'
+import { getState } from '@etherealengine/hyperflux'
 
-import { defineActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
-
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { ParticleState } from '../components/ParticleSystemComponent'
 import { SceneObjectSystem } from './SceneObjectSystem'
 
-const batchRenderer = new BatchedParticleRenderer()
-
-export function getBatchRenderer() {
-  return batchRenderer
-}
-
-const sceneLoadListener = defineActionQueue(EngineActions.sceneLoaded.matches)
-
 const execute = () => {
-  for (const action of sceneLoadListener()) {
-    batchRenderer!.parent === null && Engine.instance.scene.add(batchRenderer!)
-  }
+  const batchRenderer = getState(ParticleState).batchRenderer
   const deltaSeconds = getState(EngineState).deltaSeconds
-  batchRenderer && batchRenderer.update(deltaSeconds)
-}
-
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeActionQueue(sceneLoadListener)
-      batchRenderer!.parent !== null && Engine.instance.scene.remove(batchRenderer!)
-    }
-  }, [])
-  return null
+  batchRenderer.update(deltaSeconds)
 }
 
 export const ParticleSystem = defineSystem({
   uuid: 'ee.engine.ParticleSystem',
   insert: { with: SceneObjectSystem },
-  execute,
-  reactor
+  execute
 })

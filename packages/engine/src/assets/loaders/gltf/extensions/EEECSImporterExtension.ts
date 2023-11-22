@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { ComponentJSONIDMap, componentJsonDefaults } from '../../../../ecs/functions/ComponentFunctions'
+import { ComponentJsonType } from '../../../../schemas/projects/scene.schema'
 import { GLTFJson } from '../../../constants/GLTF'
 import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
@@ -51,14 +51,14 @@ export default class EEECSImporterExtension extends ImporterExtension implements
 
       // CURRENT ECS EXTENSION FORMAT //
       const ecsExtensions: Record<string, any> = nodeDef.extensions ?? {}
-      const componentJson: ComponentJson[] = []
+      const componentJson: ComponentJsonType[] = []
       for (const extensionName of Object.keys(ecsExtensions)) {
         const jsonID = /^EE_(.*)$/.exec(extensionName)?.[1]
         if (!jsonID) continue
         const component = ComponentJSONIDMap.get(jsonID)
         if (!component) continue
         const compData = ecsExtensions[extensionName]
-        const parsedComponent: ComponentJson = {
+        const parsedComponent: ComponentJsonType = {
           name: jsonID,
           props: {
             ...componentJsonDefaults(component),

@@ -36,22 +36,13 @@ import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/co
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import {
-  addComponent,
-  getComponent,
-  removeComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { Network, NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import {
-  PortalComponent,
-  PortalEffects,
-  PortalState
-} from '@etherealengine/engine/src/scene/components/PortalComponent'
+import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
@@ -187,10 +178,7 @@ export const usePortalTeleport = () => {
   const portalState = useHookstate(getMutableState(PortalState))
 
   useEffect(() => {
-    if (!portalState.activePortalEntity.value) return
-
     const activePortalEntity = portalState.activePortalEntity.value
-
     if (!activePortalEntity) return
 
     const activePortal = getComponent(activePortalEntity, PortalComponent)
@@ -199,7 +187,8 @@ export const usePortalTeleport = () => {
     if (currentLocation === activePortal.location || UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]) {
       teleportAvatar(
         Engine.instance.localClientEntity!,
-        activePortal.remoteSpawnPosition
+        activePortal.remoteSpawnPosition,
+        true
         // activePortal.remoteSpawnRotation
       )
       portalState.activePortalEntity.set(UndefinedEntity)
@@ -211,23 +200,32 @@ export const usePortalTeleport = () => {
       return
     }
 
+    if (activePortal.effectType !== 'None') {
+      PortalComponent.setPlayerInPortalEffect(activePortal.effectType)
+    } else {
+      getMutableState(PortalState).portalReady.set(true)
+      getMutableState(AppLoadingState).merge({
+        state: AppLoadingStates.START_STATE,
+        loaded: false
+      })
+      // teleport player to where the portal spawn position is
+      teleportAvatar(Engine.instance.localClientEntity, activePortal.remoteSpawnPosition)
+    }
+  }, [portalState.activePortalEntity])
+
+  useEffect(() => {
+    if (!portalState.activePortalEntity.value || !portalState.portalReady.value) return
+
+    const activePortalEntity = portalState.activePortalEntity.value
+    const activePortal = getComponent(activePortalEntity, PortalComponent)
+
     RouterState.navigate('/location/' + activePortal.location)
     LocationService.getLocationByName(activePortal.location)
 
     // shut down connection with existing world instance server
     // leaving a world instance server will check if we are in a location media instance and shut that down too
     leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
-
-    setAvatarToLocationTeleportingState()
-    if (activePortal.effectType !== 'None') {
-      addComponent(Engine.instance.localClientEntity!, PortalEffects.get(activePortal.effectType), true)
-    } else {
-      getMutableState(AppLoadingState).merge({
-        state: AppLoadingStates.START_STATE,
-        loaded: false
-      })
-    }
-  }, [portalState.activePortalEntity])
+  }, [portalState.portalReady])
 }
 
 type Props = {

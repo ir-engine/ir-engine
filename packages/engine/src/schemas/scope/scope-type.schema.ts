@@ -26,7 +26,9 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
+import { ScopeType } from './scope.schema'
 
 export const scopeTypePath = 'scope-type'
 
@@ -35,7 +37,9 @@ export const scopeTypeMethods = ['find', 'get'] as const
 // Main data model schema
 export const scopeTypeSchema = Type.Object(
   {
-    type: Type.String(),
+    type: TypedString<ScopeType>({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },

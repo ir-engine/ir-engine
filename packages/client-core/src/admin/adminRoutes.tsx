@@ -40,7 +40,7 @@ import '@etherealengine/engine/src/EngineModule'
 const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
 const AdminRoutes = () => {
-  const location = useLocation()
+  const _location = useLocation()
   const admin = useHookstate(getMutableState(AuthState)).user
 
   const allowedRoutes = useHookstate(getMutableState(AllowedAdminRoutesState))
@@ -70,7 +70,7 @@ const AdminRoutes = () => {
 
   return (
     <Dashboard>
-      <Suspense fallback={<LoadingCircle message={`Loading ${location.pathname.split('/')[2]}...`} />}>
+      <Suspense fallback={<LoadingCircle message={`Loading ${_location.pathname.split('/')[2]}...`} />}>
         <Routes>
           <Route path="/*" element={<$allowed />} />
           {<Route path="/" element={<Analytics />} />}

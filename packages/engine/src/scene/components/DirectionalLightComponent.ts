@@ -45,7 +45,6 @@ export const DirectionalLightComponent = defineComponent({
     const light = new DirectionalLight()
     light.target.position.set(0, 0, 1)
     light.target.name = 'light-target'
-    light.add(light.target)
     light.shadow.camera.near = 0.01
     light.shadow.camera.updateProjectionMatrix()
     return {
@@ -97,11 +96,6 @@ export const DirectionalLightComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    if (component.light.value) removeObjectFromGroup(entity, component.light.value)
-    if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useHookstate(getMutableState(RendererState))
@@ -110,6 +104,9 @@ export const DirectionalLightComponent = defineComponent({
 
     useEffect(() => {
       addObjectToGroup(entity, light.light.value)
+      return () => {
+        removeObjectFromGroup(entity, light.light.value)
+      }
     }, [])
 
     useEffect(() => {
@@ -121,8 +118,8 @@ export const DirectionalLightComponent = defineComponent({
     }, [light.intensity])
 
     useEffect(() => {
-      light.light.value.castShadow = light.castShadow.value
-    }, [light.castShadow])
+      light.light.value.castShadow = light.castShadow.value && renderState.csm.value?.sourceLight !== light.light.value
+    }, [light.castShadow, renderState.csm])
 
     useEffect(() => {
       light.light.value.shadow.camera.far = light.cameraFar.value
@@ -148,22 +145,22 @@ export const DirectionalLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (debugEnabled.value && !light.helper.value) {
-        const helper = new EditorDirectionalLightHelper(light.light.value)
-        helper.name = `directional-light-helper-${entity}`
+      if (!debugEnabled.value || light.helper.value) return
 
-        // const cameraHelper = new CameraHelper(light.shadow.camera)
-        // cameraHelper.visible = false
-        // light.userData.cameraHelper = cameraHelper
+      const helper = new EditorDirectionalLightHelper(light.light.value)
+      helper.name = `directional-light-helper-${entity}`
 
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
+      // const cameraHelper = new CameraHelper(light.shadow.camera)
+      // cameraHelper.visible = false
+      // light.userData.cameraHelper = cameraHelper
 
-        addObjectToGroup(entity, helper)
-        light.helper.set(helper)
-      }
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
 
-      if (!debugEnabled.value && light.helper.value) {
-        removeObjectFromGroup(entity, light.helper.value)
+      addObjectToGroup(entity, helper)
+      light.helper.set(helper)
+
+      return () => {
+        removeObjectFromGroup(entity, helper)
         light.helper.set(none)
       }
     }, [debugEnabled])
