@@ -27,6 +27,12 @@ import React from 'react'
 import hierarchyStyles from '../hierarchy/styles.module.scss'
 import BehaveFlow from './BehaveFlow'
 
+import GraphIcon from '@mui/icons-material/AutoGraph'
+
+import { TabData } from 'rc-dock'
+import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
+import styles from '../styles.module.scss'
+
 export const GraphPanel = () => {
   return (
     <>
@@ -38,4 +44,23 @@ export const GraphPanel = () => {
     </>
   )
 }
+
+export const GraphPanelTitle = () => {
+  return (
+    <div className={styles.dockableTab}>
+      <PanelDragContainer>
+        <PanelIcon as={GraphIcon} size={12} />
+        <PanelTitle>Graph</PanelTitle>
+      </PanelDragContainer>
+    </div>
+  )
+}
+
+export const GraphPanelTab: TabData = {
+  id: 'graphPanel',
+  closable: true,
+  title: <GraphPanelTitle />,
+  content: <GraphPanel />
+}
+
 export default GraphPanel
