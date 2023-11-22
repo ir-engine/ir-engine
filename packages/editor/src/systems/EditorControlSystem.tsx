@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { Intersection, Layers, Object3D, Raycaster, Vector2, Vector3 } from 'three'
+import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -41,16 +41,15 @@ import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/En
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { InfiniteGridComponent } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -143,11 +142,13 @@ const onKeyZ = (control: boolean, shift: boolean) => {
 }
 
 const onEqual = () => {
-  InfiniteGridHelper.instance.incrementGridHeight()
+  const rendererState = useHookstate(getMutableState(RendererState))
+  rendererState.gridHeight.set(rendererState.gridHeight.value + 1)
 }
 
 const onMinus = () => {
-  InfiniteGridHelper.instance.decrementGridHeight()
+  const rendererState = useHookstate(getMutableState(RendererState))
+  rendererState.gridHeight.set(rendererState.gridHeight.value - 1)
 }
 
 const onDelete = () => {
@@ -212,43 +213,6 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
   for (let i = 0; i < object.children.length; i++) {
     findIntersectObjects(object.children[i], excludeObjects, excludeLayers)
   }
-}
-
-const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount = 0): void => {
-  raycaster.setFromCamera(coords, getComponent(Engine.instance.cameraEntity, CameraComponent))
-  raycasterResults.length = 0
-  raycastIgnoreLayers.set(1)
-  const scene = Engine.instance.scene
-
-  const excludeObjects = [] as Object3D[]
-  const selectionState = getState(SelectionState)
-  for (const e of selectionState.selectedParentEntities) {
-    const group = getComponent(e, GroupComponent)
-    if (group) excludeObjects.push(...group)
-  }
-
-  findIntersectObjects(Engine.instance.scene, excludeObjects, raycastIgnoreLayers)
-  findIntersectObjects(InfiniteGridHelper.instance)
-
-  raycasterResults.sort((a, b) => a.distance - b.distance)
-  if (raycasterResults[0] && raycasterResults[0].distance < 100) target.copy(raycasterResults[0].point)
-  else raycaster.ray.at(10, target)
-
-  if (snapAmount) {
-    target.set(
-      Math.round(target.x / snapAmount) * snapAmount,
-      Math.round(target.y / snapAmount) * snapAmount,
-      Math.round(target.z / snapAmount) * snapAmount
-    )
-  }
-}
-
-const compareArrays = (a: any[], b: any[]) => {
-  if (a.length !== b.length) return false
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false
-  }
-  return true
 }
 
 const doZoom = (zoom) => {
@@ -331,8 +295,10 @@ const SceneObjectEntityReactor = (props: { entity: Entity }) => {
 const reactor = () => {
   const sceneObjectEntities = useQuery([SceneObjectComponent])
   const selectionState = useHookstate(getMutableState(SelectionState))
-  const sceneState = useHookstate(getMutableState(SceneState))
   const sceneQuery = defineQuery([SceneObjectComponent])
+  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+  const rendererState = useHookstate(getMutableState(RendererState))
+
   useEffect(() => {
     // todo figure out how to do these with our input system
     window.addEventListener('copy', copy)
@@ -358,11 +324,13 @@ const reactor = () => {
     if (typeof lastSelection === 'string') return // TODO : gizmo for 3d objects without Ids
 
     setComponent(lastSelection as Entity, TransformGizmoComponent)
-
-    // handle gizmo attachment
   }, [selectionState.selectedParentEntities])
 
-  // there is no deterministic ordering for react useeffect better to club them togther
+  useEffect(() => {
+    const infiniteGridHelperEntity = rendererState.infiniteGridHelperEntity.value
+    if (!infiniteGridHelperEntity) return
+    setComponent(infiniteGridHelperEntity, InfiniteGridComponent, { size: editorHelperState.translationSnap.value })
+  }, [editorHelperState.translationSnap, rendererState.infiniteGridHelperEntity])
 
   return (
     <>
