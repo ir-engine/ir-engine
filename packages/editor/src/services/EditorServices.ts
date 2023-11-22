@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { defineState } from '@etherealengine/hyperflux'
+import { LayoutData } from 'rc-dock'
 
 export const EditorState = defineState({
   name: 'EditorState',
@@ -33,6 +34,7 @@ export const EditorState = defineState({
     sceneName: null as string | null,
     sceneModified: false,
     expandedNodes: {} as Record<EntityUUID, true>,
-    lockPropertiesPanel: '' as EntityUUID
+    lockPropertiesPanel: '' as EntityUUID,
+    panelLayout: {} as LayoutData
   })
 })
