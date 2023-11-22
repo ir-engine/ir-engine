@@ -398,28 +398,11 @@ export function solveMotionCapturePose(
     VRMHumanBoneName.LeftLowerArm,
     VRMHumanBoneName.LeftHand
   )
-
-  // if (!planeHelper1.parent) {
-  //   Engine.instance.scene.add(planeHelper1)
-  //   Engine.instance.scene.add(planeHelper2)
-  // }
 }
 
 const threshhold = 0.6
 
 const vec3 = new Vector3()
-
-// const planeHelper1 = new Mesh(
-//   new PlaneGeometry(1, 1),
-//   new MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.2, side: DoubleSide })
-// )
-// planeHelper1.add(new AxesHelper())
-
-// const planeHelper2 = new Mesh(
-//   new PlaneGeometry(1, 1),
-//   new MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.2, side: DoubleSide })
-// )
-// planeHelper2.add(new AxesHelper())
 
 /**
  * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
@@ -669,10 +652,6 @@ export const solveHand = (
   rotationMatrix.makeBasis(directionVector, orthogonalVector, thirdVector)
 
   const limbExtentQuaternion = new Quaternion().setFromRotationMatrix(rotationMatrix)
-
-  // planeHelper2.position.copy(startPoint)
-  // planeHelper2.quaternion.copy(limbExtentQuaternion)
-  // planeHelper2.updateMatrixWorld()
 
   // convert to local space
   const extentQuaternionLocal = new Quaternion()
