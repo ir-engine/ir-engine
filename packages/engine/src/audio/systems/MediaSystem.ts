@@ -141,9 +141,8 @@ const reactor = () => {
   if (!isClient) return null
 
   useEffect(() => {
-    const audioContext = getState(AudioState).audioContext
-
     const enableAudioContext = () => {
+      const audioContext = getState(AudioState).audioContext
       if (audioContext.state === 'suspended') audioContext.resume()
     }
 
