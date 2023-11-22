@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import appRootPath from 'app-root-path'
 import knex from 'knex'
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeTypeInterface, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
@@ -81,11 +81,11 @@ cli.main(async () => {
         (admin) =>
           new Promise(async (resolve) => {
             const existingAdminScope = await knexClient
-              .from<ScopeType>(scopePath)
+              .from<ScopeTypeInterface>(scopePath)
               .where({ userId: admin.id, type: 'admin:admin' })
               .first()
             if (!existingAdminScope) {
-              await knexClient.from<ScopeType>(scopePath).insert({
+              await knexClient.from<ScopeTypeInterface>(scopePath).insert({
                 id: v4(),
                 userId: admin.id,
                 type: 'admin:admin',

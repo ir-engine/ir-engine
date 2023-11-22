@@ -441,7 +441,7 @@ const scaleObject = (
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    updateComponent(entity as Entity, componentType, { scale: transformComponent.scale })
+    updateComponent(entity, componentType, { scale: transformComponent.scale })
   }
 }
 

@@ -94,9 +94,9 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
         border: isDragging ? '2px solid lightgrey' : 'none'
       }}
     >
-      <CoreNodeEditor entity={entity} key={entity} />
+      <CoreNodeEditor entity={entity} key={uuid.value} />
       {components.map((c, i) => (
-        <EntityComponentEditor key={`${entity}-${c.name}`} multiEdit={multiEdit} entity={entity} component={c} />
+        <EntityComponentEditor key={`${uuid.value}-${c.name}`} multiEdit={multiEdit} entity={entity} component={c} />
       ))}
     </div>
   )

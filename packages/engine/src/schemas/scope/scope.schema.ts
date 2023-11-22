@@ -34,6 +34,7 @@ import { dataValidator, queryValidator } from '../validators'
 export const scopePath = 'scope'
 
 export const scopeMethods = ['create', 'find', 'remove'] as const
+export type ScopeType = OpaqueType<'ScopeType'> & string
 
 export type ScopeID = OpaqueType<'ScopeID'> & string
 
@@ -43,7 +44,9 @@ export const scopeSchema = Type.Object(
     id: TypedString<ScopeID>({
       format: 'uuid'
     }),
-    type: Type.String(),
+    type: TypedString<ScopeType>({
+      format: 'uuid'
+    }),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
@@ -52,7 +55,7 @@ export const scopeSchema = Type.Object(
   },
   { $id: 'Scope', additionalProperties: false }
 )
-export interface ScopeType extends Static<typeof scopeSchema> {}
+export interface ScopeTypeInterface extends Static<typeof scopeSchema> {}
 
 // Schema for creating new entries
 export const scopeDataSchema = Type.Pick(scopeSchema, ['type', 'userId'], {
