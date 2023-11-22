@@ -28,16 +28,17 @@ import nock from 'nock'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
 import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
-import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
+import { MatchTicketType, matchTicketPath } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -67,7 +68,7 @@ describe.skip('matchmaking match-instance service', () => {
     audioEnabled: false,
     screenSharingEnabled: false,
     faceStreamingEnabled: false,
-    locationId: '',
+    locationId: '' as LocationID,
     createdAt: '',
     updatedAt: ''
   } as LocationSettingType
@@ -120,10 +121,10 @@ describe.skip('matchmaking match-instance service', () => {
     connections.forEach((connection) => {
       for (let i = 0; i < ticketsNumber; i++) {
         const userPromise = app.service(userPath).create({
-          name: 'Test #' + Math.random(),
+          name: ('Test #' + Math.random()) as UserName,
           isGuest: true,
-          avatarId: '',
-          inviteCode: '',
+          avatarId: '' as AvatarID,
+          inviteCode: '' as InviteCode,
           scopes: []
         })
         usersPromises.push(userPromise)

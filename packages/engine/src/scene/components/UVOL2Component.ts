@@ -30,11 +30,15 @@ import {
   CompressedTexture,
   Group,
   InterleavedBufferAttribute,
+  Matrix3,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  ShaderLib,
   ShaderMaterial,
   SphereGeometry,
+  UniformsLib,
+  UniformsUtils,
   Vector2
 } from 'three'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
@@ -46,7 +50,8 @@ import {
   getMutableComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -63,7 +68,7 @@ import {
   UVOL_TYPE,
   UniformSolveTarget
 } from '../constants/UVOLTypes'
-import getFirstMesh from '../util/getFirstMesh'
+import getFirstMesh from '../util/meshUtils'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
@@ -266,10 +271,19 @@ const createKey = (target: string, index: number) => {
   return target + index.toString().padStart(KEY_PADDING, '0')
 }
 
+type KeyframeAttribute = {
+  position: InterleavedBufferAttribute
+  normal?: InterleavedBufferAttribute
+}
+type KeyframePositionName = 'keyframeA' | 'keyframeB'
+type KeyframeNormalName = 'keyframeANormal' | 'keyframeBNormal'
+type KeyframeName = KeyframePositionName | KeyframeNormalName
+
 function UVOL2Reactor() {
   const entity = useEntityContext()
   const volumetric = useComponent(entity, VolumetricComponent)
   const component = useComponent(entity, UVOL2Component)
+  const shadow = useOptionalComponent(entity, ShadowComponent)
 
   // These are accessed very frequently, Better not to fetch from state everytime
   const manifest = useRef(component.data.value)
@@ -281,7 +295,7 @@ function UVOL2Reactor() {
   const audioContext = getState(AudioState).audioContext
   const audio = mediaElement.element
 
-  const geometryBuffer = useMemo(() => new Map<string, Mesh | BufferGeometry | InterleavedBufferAttribute>(), [])
+  const geometryBuffer = useMemo(() => new Map<string, Mesh | BufferGeometry | KeyframeAttribute>(), [])
   const textureBuffer = useMemo(() => new Map<string, CompressedTexture>(), [])
   const maxBufferHealth = 10 // seconds
   const minBufferToPlay = 2 // seconds
@@ -291,24 +305,74 @@ function UVOL2Reactor() {
 
   const material = useMemo(() => {
     if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
-      return new ShaderMaterial({
-        vertexShader: uniformSolveVertexShader,
-        fragmentShader: uniformSolveFragmentShader,
-        uniforms: {
-          repeat: {
-            value: new Vector2(1, 1)
-          },
-          offset: {
-            value: new Vector2(0, 0)
-          },
-          mixRatio: {
-            value: 0
-          },
-          map: {
-            value: null
-          }
+      const firstTarget = Object.keys(component.data.value.geometry.targets)[0]
+      const hasNormals = !manifest.current.geometry.targets[firstTarget].settings.excludeNormals
+      const shaderType = hasNormals ? 'physical' : 'basic'
+
+      let vertexShader = ShaderLib[shaderType].vertexShader.replace(
+        '#include <clipping_planes_pars_vertex>',
+        `#include <clipping_planes_pars_vertex>
+attribute vec3 keyframeA;
+attribute vec3 keyframeB;
+attribute vec3 keyframeANormal;
+attribute vec3 keyframeBNormal;
+uniform float mixRatio;
+uniform vec2 repeat;
+uniform vec2 offset;
+out vec2 custom_vUv;`
+      )
+      vertexShader = vertexShader.replace(
+        '#include <begin_vertex>',
+        `
+vec3 transformed = vec3(position);
+transformed.x += mix(keyframeA.x, keyframeB.x, mixRatio); 
+transformed.y += mix(keyframeA.y, keyframeB.y, mixRatio);
+transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
+
+#ifdef USE_ALPHAHASH
+
+  vPosition = vec3( transformed );
+
+#endif`
+      )
+      vertexShader = vertexShader.replace(
+        '#include <beginnormal_vertex>',
+        `
+      vec3 objectNormal = vec3( normal );
+      objectNormal.x += mix(keyframeANormal.x, keyframeBNormal.x, mixRatio);
+      objectNormal.y += mix(keyframeANormal.y, keyframeBNormal.y, mixRatio);
+      objectNormal.z += mix(keyframeANormal.z, keyframeBNormal.z, mixRatio);
+
+      #ifdef USE_TANGENT
+
+        vec3 objectTangent = vec3( tangent.xyz );
+
+      #endif`
+      )
+      const fragmentShader = ShaderLib[shaderType].fragmentShader
+      const uniforms = {
+        mixRatio: {
+          value: 0
+        },
+        map: {
+          value: null
+        },
+        mapTransform: {
+          value: new Matrix3()
         }
+      }
+      const allUniforms = UniformsUtils.merge([ShaderLib.physical.uniforms, UniformsLib.lights, uniforms])
+      const _material = new ShaderMaterial({
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        uniforms: allUniforms,
+        defines: {
+          USE_MAP: '',
+          MAP_UV: 'uv'
+        },
+        lights: true
       })
+      return _material
     }
     return new MeshBasicMaterial({ color: 0xffffff })
   }, [])
@@ -339,15 +403,6 @@ function UVOL2Reactor() {
 
     manifest.current = calculatePriority(component.data.get({ noproxy: true }))
     component.data.set(manifest.current)
-    const shadow = getMutableComponent(entity, ShadowComponent)
-    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
-      // TODO: Cast shadows properly with uniform solve
-      shadow.cast.set(false)
-      shadow.receive.set(false)
-    } else {
-      shadow.cast.set(true)
-      shadow.receive.set(true)
-    }
 
     geometryTargets.current = Object.keys(manifest.current.geometry.targets)
     geometryTargets.current.sort((a, b) => {
@@ -397,7 +452,20 @@ function UVOL2Reactor() {
     }
   }, [])
 
+  useEffect(() => {
+    if (!shadow) return
+    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
+      // TODO: Cast shadows properly with uniform solve
+      shadow.cast.set(false)
+      shadow.receive.set(false)
+    } else {
+      shadow.cast.set(true)
+      shadow.receive.set(true)
+    }
+  }, [shadow])
+
   const fetchNonUniformSolveGeometry = (startFrame: number, endFrame: number, target: string) => {
+    // TODO: Needs thorough testing
     const targetData = manifest.current.geometry.targets[target]
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
@@ -458,13 +526,20 @@ function UVOL2Reactor() {
         }
         const i = j + startSegment
         const positionMorphAttributes = model.geometry.morphAttributes.position as InterleavedBufferAttribute[]
+        const normalMorphAttributes = model.geometry.morphAttributes.normal as InterleavedBufferAttribute[]
         const segmentDuration = positionMorphAttributes.length / targetData.frameRate
         const segmentOffset = i * targetData.segmentFrameCount
 
         positionMorphAttributes.forEach((attr, index) => {
           const key = createKey(target, segmentOffset + index)
           attr.name = key
-          geometryBuffer.set(key, attr)
+          if (normalMorphAttributes) {
+            const normalAttr = normalMorphAttributes[index]
+            normalAttr.name = key
+            geometryBuffer.set(key, { position: attr, normal: normalAttr })
+          } else {
+            geometryBuffer.set(key, { position: attr })
+          }
         })
 
         model.geometry.morphAttributes = {}
@@ -656,7 +731,7 @@ function UVOL2Reactor() {
       let headerTemplate: RegExp | undefined = /\/\/\sHEADER_REPLACE_START([\s\S]*?)\/\/\sHEADER_REPLACE_END/
       let mainTemplate: RegExp | undefined = /\/\/\sMAIN_REPLACE_START([\s\S]*?)\/\/\sMAIN_REPLACE_END/
 
-      if (manifest.current.type !== UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
+      if (manifest.current.type !== UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE || 1 == 1) {
         headerTemplate = undefined
         mainTemplate = undefined
       }
@@ -722,7 +797,7 @@ function UVOL2Reactor() {
     return integer ? Math.round(frame) : frame
   }
 
-  const getAttribute = (name: 'keyframeA' | 'keyframeB', currentTime: number) => {
+  const getAttribute = (name: KeyframeName, currentTime: number) => {
     const currentGeometryTarget = component.geometryTarget.value
     let index = getFrame(currentTime, manifest.current.geometry.targets[currentGeometryTarget].frameRate, false)
     if (name === 'keyframeA') {
@@ -745,16 +820,21 @@ function UVOL2Reactor() {
         }
 
         if (geometryBuffer.has(createKey(_target, _index))) {
-          const attribute = geometryBuffer.get(createKey(_target, _index))! as InterleavedBufferAttribute
-          return attribute
+          return geometryBuffer.get(createKey(_target, _index)) as KeyframeAttribute
         }
       }
     } else {
-      const attribute = geometryBuffer.get(key)! as InterleavedBufferAttribute
-      return attribute
+      return geometryBuffer.get(key) as KeyframeAttribute
     }
 
     return false
+  }
+
+  const setPositionAndNormal = (name: KeyframePositionName, attr: KeyframeAttribute) => {
+    setAttribute(name, attr.position)
+    if (attr.normal) {
+      setAttribute((name + 'Normal') as KeyframeNormalName, attr.normal)
+    }
   }
 
   /**
@@ -762,12 +842,12 @@ function UVOL2Reactor() {
    * And disposes the old attribute. Since that's not supported by three.js natively,
    * we transfer the old attibute to a new geometry and dispose it.
    */
-  const setAttribute = (name: string, attribute: InterleavedBufferAttribute) => {
+  const setAttribute = (name: KeyframeName, attribute: InterleavedBufferAttribute) => {
     if (mesh.geometry.attributes[name] === attribute) {
       return
     }
 
-    if (name === 'keyframeB') {
+    if (name === 'keyframeB' || name === 'keyframeBNormal') {
       /**
        * Disposing should be done only on keyframeA
        * Because, keyframeA will use the previous buffer of keyframeB in the next frame.
@@ -879,8 +959,8 @@ function UVOL2Reactor() {
           mesh.material.uniforms.map.value.needsUpdate = true
           texture.repeat.copy(repeat)
           texture.offset.copy(offset)
-          mesh.material.uniforms.repeat.value = repeat
-          mesh.material.uniforms.offset.value = offset
+          texture.updateMatrix()
+          mesh.material.uniforms.mapTransform.value.copy(texture.matrix)
           const oldTexture = textureBuffer.get(oldTextureKey)
           if (oldTexture) {
             oldTexture.dispose()
@@ -888,12 +968,13 @@ function UVOL2Reactor() {
           textureBuffer.delete(oldTextureKey)
         }
       } else {
-        const oldTextureKey = mesh.material.map?.name ?? ''
-        if (mesh.material.map !== texture) {
+        const material = mesh.material as MeshBasicMaterial
+        const oldTextureKey = material.map?.name ?? ''
+        if (material.map !== texture) {
           texture.repeat.copy(repeat)
           texture.offset.copy(offset)
-          mesh.material.map = texture
-          mesh.material.map.needsUpdate = true
+          material.map = texture
+          material.map.needsUpdate = true
           const oldTexture = textureBuffer.get(oldTextureKey)
           if (oldTexture) {
             oldTexture.dispose()
@@ -911,27 +992,27 @@ function UVOL2Reactor() {
     if (!keyframeA && !keyframeB) {
       return
     } else if (!keyframeA && keyframeB) {
-      setAttribute('keyframeB', keyframeB)
+      setPositionAndNormal('keyframeB', keyframeB)
       ;(mesh.material as ShaderMaterial).uniforms.mixRatio.value = 1
       return
     } else if (keyframeA && !keyframeB) {
-      setAttribute('keyframeA', keyframeA)
+      setPositionAndNormal('keyframeA', keyframeA)
       ;(mesh.material as ShaderMaterial).uniforms.mixRatio.value = 0
       return
     } else if (keyframeA && keyframeB) {
-      const keyframeAIndex = parseInt(keyframeA.name.slice(-KEY_PADDING))
-      const keyframeATarget = keyframeA.name.slice(0, -KEY_PADDING)
+      const keyframeAIndex = parseInt(keyframeA.position.name.slice(-KEY_PADDING))
+      const keyframeATarget = keyframeA.position.name.slice(0, -KEY_PADDING)
       const keyframeATime = keyframeAIndex / manifest.current.geometry.targets[keyframeATarget].frameRate
 
-      const keyframeBIndex = parseInt(keyframeB.name.slice(-KEY_PADDING))
-      const keyframeBTarget = keyframeB.name.slice(0, -KEY_PADDING)
+      const keyframeBIndex = parseInt(keyframeB.position.name.slice(-KEY_PADDING))
+      const keyframeBTarget = keyframeB.position.name.slice(0, -KEY_PADDING)
       const keyframeBTime = keyframeBIndex / manifest.current.geometry.targets[keyframeBTarget].frameRate
 
       const d1 = Math.abs(currentTime - keyframeATime)
       const d2 = Math.abs(currentTime - keyframeBTime)
       const mixRatio = d1 + d2 > 0 ? d1 / (d1 + d2) : 0.5
-      setAttribute('keyframeA', keyframeA)
-      setAttribute('keyframeB', keyframeB)
+      setPositionAndNormal('keyframeA', keyframeA)
+      setPositionAndNormal('keyframeB', keyframeB)
       ;(mesh.material as ShaderMaterial).uniforms.mixRatio.value = mixRatio
     }
   }

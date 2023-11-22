@@ -73,6 +73,7 @@ import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
+import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -175,7 +176,7 @@ const execute = () => {
     if (!rig?.hips?.node) continue
 
     const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
-    if (rigidbodyComponent) {
+    if (rigidbodyComponent && rigidbodyComponent.body.isEnabled()) {
       // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
       avatarAnimationComponent.locomotion.x = 0
       avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
@@ -232,8 +233,10 @@ const execute = () => {
       const headTransform = getComponent(head, TransformComponent)
       const headTarget = getMutableComponent(head, AvatarIKTargetComponent)
 
-      applyInputSourcePoseToIKTargets()
-      setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
+      if (entity == Engine.instance.localClientEntity) {
+        applyInputSourcePoseToIKTargets(head, rightHand, leftHand, rightFoot, leftFoot)
+        setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
+      }
 
       //special case for the head if we're in xr mode
       if (getOptionalComponent(entity, XRRigComponent)) {
@@ -403,6 +406,7 @@ const reactor = () => {
 
 export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
+  insert: { after: AnimationSystem },
   execute,
   reactor
 })

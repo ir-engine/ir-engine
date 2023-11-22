@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { UserID, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserID, UserName, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import {
@@ -45,11 +45,22 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { UserAvatarType, userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 import { UserSettingType, userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
+  avatarId: virtual(async (user, context) => {
+    const userAvatars = (await context.app.service(userAvatarPath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as UserAvatarType[]
+
+    return userAvatars.length > 0 ? userAvatars[0].avatarId : undefined
+  }),
   identityProviders: virtual(async (user, context) => {
     return (await context.app.service(identityProviderPath).find({
       query: {
@@ -147,10 +158,10 @@ export const userDataResolver = resolve<UserType, HookContext>({
     return id || (v4() as UserID)
   },
   name: async (name) => {
-    return name || 'Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)
+    return name || (('Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)) as UserName)
   },
   inviteCode: async (inviteCode, _, context) => {
-    return inviteCode || (await getFreeInviteCode(context.app))
+    return inviteCode || ((await getFreeInviteCode(context.app)) as InviteCode)
   },
   avatarId: async (avatarId) => {
     return avatarId || undefined

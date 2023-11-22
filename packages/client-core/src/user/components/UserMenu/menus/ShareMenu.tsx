@@ -44,6 +44,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -85,7 +86,7 @@ export const useShareMenuHooks = ({ refLink }) => {
     const isPhone = PHONE_REGEX.test(token)
     const location = new URL(window.location as any)
     const params = new URLSearchParams(location.search)
-    let inviteCode = ''
+    let inviteCode = '' as InviteCode
 
     const sendData = {
       inviteType: 'instance',
@@ -96,7 +97,7 @@ export const useShareMenuHooks = ({ refLink }) => {
     } as InviteData
 
     if (token.length === 8) {
-      inviteCode = token
+      inviteCode = token as InviteCode
     }
 
     if (isSpectatorMode) {
@@ -141,9 +142,8 @@ export const useShareMenuHooks = ({ refLink }) => {
   }
 
   useEffect(() => {
-    if (engineState.shareLink.value !== '') setShareLink(engineState.shareLink.value)
-    else setShareLink(isSpectatorMode ? getSpectateModeUrl() : getInviteLink())
-  }, [engineState.shareLink.value, isSpectatorMode])
+    setShareLink(isSpectatorMode ? getSpectateModeUrl() : getInviteLink())
+  }, [isSpectatorMode])
 
   return {
     copyLinkToClipboard,
@@ -184,11 +184,7 @@ const ShareMenu = (): JSX.Element => {
   }
 
   return (
-    <Menu
-      open
-      title={engineState.shareTitle.value ? engineState.shareTitle.value : t('user:usermenu.share.title')}
-      onClose={() => PopupMenuServices.showPopupMenu()}
-    >
+    <Menu open title={t('user:usermenu.share.title')} onClose={() => PopupMenuServices.showPopupMenu()}>
       <Box className={styles.menuContent}>
         <Box className={styles.shareQuest}>
           <Button
@@ -210,13 +206,11 @@ const ShareMenu = (): JSX.Element => {
           <QRCodeSVG height={176} width={200} value={shareLink} />
         </div>
 
-        {!engineState.shareTitle.value && (
-          <InputCheck
-            label={t('user:usermenu.share.lbl-spectator-mode')}
-            checked={isSpectatorMode}
-            onChange={toggleSpectatorMode}
-          />
-        )}
+        <InputCheck
+          label={t('user:usermenu.share.lbl-spectator-mode')}
+          checked={isSpectatorMode}
+          onChange={toggleSpectatorMode}
+        />
 
         <InputText
           endIcon={<Icon type="ContentCopy" />}

@@ -31,6 +31,7 @@ import { useEffect } from 'react'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, hasComponent, removeQuery, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BehaveGraphComponent } from '../components/BehaveGraphComponent'
 
@@ -79,7 +80,7 @@ const reactor = () => {
 
     const graphQuery = defineQuery([BehaveGraphComponent])
 
-    for (const entity of graphQuery()) {
+    for (const entity of graphQuery.enter()) {
       setComponent(entity, BehaveGraphComponent, { run: true })
     }
 
@@ -94,6 +95,7 @@ const reactor = () => {
 
 export const BehaveGraphSystem = defineSystem({
   uuid: 'ee.engine.BehaveGraphSystem',
+  insert: { with: InputSystemGroup },
   execute,
   reactor
 })

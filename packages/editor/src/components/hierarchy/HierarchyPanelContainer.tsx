@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { memo, useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import Hotkeys from 'react-hot-keys'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeList, areEqual } from 'react-window'
+import { FixedSizeList } from 'react-window'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -43,6 +43,7 @@ import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
@@ -95,11 +96,11 @@ export default function HierarchyPanel() {
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
 
-  const MemoTreeNode = memo(
+  const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
       <HierarchyTreeNode {...props} key={props.data.nodes[props.index].entity} onContextMenu={onContextMenu} />
     ),
-    areEqual
+    [nodes]
   )
 
   if (searchHierarchy.length > 0) {
@@ -386,16 +387,17 @@ export default function HierarchyPanel() {
       return true
     }
   })
-
+  let validNodes = nodeSearch?.length > 0 ? nodeSearch : nodes
+  validNodes = validNodes.filter((node) => entityExists(node.entity))
   const HierarchyList = ({ height, width }) => (
     <FixedSizeList
       height={height}
       width={width}
       itemSize={32}
-      itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
+      itemCount={validNodes.length}
       itemData={{
         renamingNode,
-        nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
+        nodes: validNodes,
         onKeyDown,
         onChangeName,
         onRenameSubmit,
