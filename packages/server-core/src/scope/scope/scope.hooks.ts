@@ -28,7 +28,7 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   ScopeData,
-  ScopeType,
+  ScopeTypeInterface,
   scopeDataValidator,
   scopePath,
   scopeQueryValidator
@@ -56,7 +56,7 @@ const checkExistingScopes = async (context: HookContext<ScopeService>) => {
   const oldScopes = (await context.app.service(scopePath).find({
     query: { userId: data[0].userId },
     paginate: false
-  })) as any as ScopeType[]
+  })) as any as ScopeTypeInterface[]
 
   const existingData: ScopeData[] = []
   const createData: ScopeData[] = []
@@ -85,7 +85,7 @@ const checkExistingScopes = async (context: HookContext<ScopeService>) => {
  */
 const addExistingScopes = async (context: HookContext<ScopeService>) => {
   if (context.existingData?.length > 0) {
-    let result = (Array.isArray(context.result) ? context.result : [context.result]) as ScopeType[]
+    let result = (Array.isArray(context.result) ? context.result : [context.result]) as ScopeTypeInterface[]
     result = [...result, ...context.existingData]
     context.result = result
   }
