@@ -29,20 +29,22 @@ import { MeshBVHVisualizer } from 'three-mesh-bvh'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RendererState } from '../../renderer/RendererState'
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
 import { createInfiniteGridHelper } from '../../scene/classes/InfiniteGridHelper'
-import { GroupQueryReactor, GroupReactorProps } from '../../scene/components/GroupComponent'
+import {
+  GroupComponent,
+  GroupQueryReactor,
+  GroupReactorProps,
+  addObjectToGroup
+} from '../../scene/components/GroupComponent'
+import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-
-const lineMaterial = new LineBasicMaterial({ vertexColors: true })
-const _lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
-_lineSegments.frustumCulled = false
 
 const visualizers = [] as MeshBVHVisualizer[]
 
@@ -84,16 +86,16 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
 }
 
 const execute = () => {
-  const enabled = getState(RendererState).physicsDebug
+  const physicsDebugEntity = getState(RendererState).physicsDebugEntity
 
-  _lineSegments.visible = enabled
-
-  const physicsWorld = getState(PhysicsState).physicsWorld
-
-  if (enabled && physicsWorld) {
-    const debugRenderBuffer = physicsWorld.debugRender()
-    _lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
-    _lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
+  if (physicsDebugEntity) {
+    const lineSegments = getComponent(physicsDebugEntity, GroupComponent)[0] as any as LineSegments
+    const physicsWorld = getState(PhysicsState).physicsWorld
+    if (physicsWorld) {
+      const debugRenderBuffer = physicsWorld.debugRender()
+      lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
+      lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
+    }
   }
 
   for (const visualizer of visualizers) {
@@ -103,13 +105,23 @@ const execute = () => {
 
 const reactor = () => {
   const engineRendererSettings = useHookstate(getMutableState(RendererState))
+
   useEffect(() => {
-    setObjectLayers(_lineSegments, ObjectLayers.PhysicsHelper)
-    Engine.instance.scene.add(_lineSegments)
+    const lineMaterial = new LineBasicMaterial({ vertexColors: true })
+    const lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
+    lineSegments.frustumCulled = false
+    setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
+
+    const lineSegmentsEntity = createEntity()
+    setVisibleComponent(lineSegmentsEntity, true)
+    addObjectToGroup(lineSegmentsEntity, lineSegments)
+    engineRendererSettings.physicsDebugEntity.set(lineSegmentsEntity)
+
     return () => {
-      _lineSegments.removeFromParent()
+      removeEntity(lineSegmentsEntity)
+      engineRendererSettings.physicsDebugEntity.set(null)
     }
-  }, [])
+  }, [engineRendererSettings.physicsDebug])
 
   useEffect(() => {
     if (!engineRendererSettings.gridVisibility.value) return
