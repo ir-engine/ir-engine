@@ -116,52 +116,27 @@ const execute = () => {
     removeComponent(entity, SittingComponent)
   }
 
-  for (const entity of mountPointQuery.enter()) {
-    const mountPoint = getComponent(entity, MountPointComponent)
-    setComponent(entity, BoundingBoxComponent, {
-      box: new Box3().setFromCenterAndSize(
-        getComponent(entity, TransformComponent).position,
-        new Vector3(0.1, 0.1, 0.1)
-      )
-    })
-    if (isClient) {
-      addInteractableUI(entity, createInteractUI(entity, mountPointInteractMessages[mountPoint.type]))
-    }
-  }
-
-  for (const action of mountPointActionQueue()) {
-    if (action.$from !== Engine.instance.userID) continue
-    if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
-    const avatarEntity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
+  const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
     const avatarUUID = getComponent(avatarEntity, UUIDComponent)
-    const mountPoint = getComponent(action.targetEntity, MountPointComponent)
-    const mountPointUUID = getComponent(action.targetEntity, UUIDComponent)
+    const mountPoint = getComponent(mountEntity, MountPointComponent)
+    const mountPointUUID = getComponent(mountEntity, UUIDComponent)
 
-    //unmount if we get an interaction event and are already seated
-    if (
-      avatarUUID === getState(MountPointState)[mountPointUUID] &&
-      (action.pose === 'stand' || action.pose === 'none')
-    ) {
-      unmountEntity(avatarEntity)
-      continue
-    }
-
-    if (mountPoint.type !== MountPoint.seat || getState(MountPointState)[mountPointUUID]) continue
-    if (hasComponent(avatarEntity, SittingComponent)) continue
+    if (mountPoint.type !== MountPoint.seat || getState(MountPointState)[mountPointUUID]) return
+    if (hasComponent(avatarEntity, SittingComponent)) return
 
     /**todo add logic for different mount types */
     const avatar = getComponent(avatarEntity, AvatarComponent)
-    const mountTransform = getComponent(action.targetEntity!, TransformComponent)
+    const mountTransform = getComponent(mountEntity!, TransformComponent)
     const rigidBody = getComponent(avatarEntity, RigidBodyComponent)
     rigidBody.targetKinematicPosition.copy(mountTransform.position).y -= avatar.avatarHalfHeight * 0.5
     setComponent(avatarEntity, TransformComponent, { rotation: mountTransform.rotation })
     updateLocalAvatarPosition(avatarEntity)
 
     setComponent(avatarEntity, SittingComponent, {
-      mountPointEntity: action.targetEntity!
+      mountPointEntity: mountEntity!
     })
 
-    AvatarControllerComponent.captureMovement(avatarEntity, action.targetEntity)
+    AvatarControllerComponent.captureMovement(avatarEntity, mountEntity)
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
         filePath: defaultAnimationPath + animationStates.seated + '.fbx',
@@ -175,9 +150,41 @@ const execute = () => {
       MountPointActions.mountInteraction({
         mounted: true,
         mountedEntity: getComponent(avatarEntity, UUIDComponent),
-        targetMount: getComponent(action.targetEntity, UUIDComponent)
+        targetMount: getComponent(mountEntity, UUIDComponent)
       })
     )
+  }
+
+  for (const entity of mountPointQuery.enter()) {
+    const mountPoint = getComponent(entity, MountPointComponent)
+    setComponent(entity, BoundingBoxComponent, {
+      box: new Box3().setFromCenterAndSize(
+        getComponent(entity, TransformComponent).position,
+        new Vector3(0.1, 0.1, 0.1)
+      )
+    })
+    if (isClient) {
+      addInteractableUI(entity, createInteractUI(entity, mountPointInteractMessages[mountPoint.type]))
+    }
+  }
+
+  for (const action of mountPointByPoseQueue()) {
+    //unmount if we get an interaction event and are already seated
+    // if (
+    //   avatarUUID === getState(MountPointState)[mountPointUUID] &&
+    //   (action.pose === 'stand' || action.pose === 'none')
+    // ) {
+    //   unmountEntity(avatarEntity)
+    //   continue
+    // }
+  }
+
+  for (const action of mountPointActionQueue()) {
+    if (action.$from !== Engine.instance.userID) continue
+    if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
+    const avatarEntity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
+
+    mountEntity(avatarEntity, action.targetEntity!)
   }
 
   for (const entity of sittingIdleQuery()) {
