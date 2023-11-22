@@ -101,7 +101,9 @@ export const sceneCreateDataSchema = Type.Object(
     sceneData: Type.Optional(Type.Ref(sceneJsonSchema)),
     thumbnailBuffer: Type.Optional(Type.Any()),
     storageProviderName: Type.Optional(Type.String()),
-    project: Type.Optional(Type.String())
+    project: Type.Optional(Type.String()),
+    directory: Type.Optional(Type.String()),
+    localDirectory: Type.Optional(Type.String())
   },
   { $id: 'SceneCreateData', additionalProperties: false }
 )
@@ -134,7 +136,9 @@ export const scenePatchSchema = Type.Object(
     newSceneName: Type.Optional(Type.String()),
     oldSceneName: Type.Optional(Type.String()),
     storageProviderName: Type.Optional(Type.String()),
-    project: Type.Optional(Type.String())
+    project: Type.Optional(Type.String()),
+    directory: Type.Optional(Type.String()),
+    localDirectory: Type.Optional(Type.String())
   },
   {
     $id: 'ScenePatch'
@@ -153,7 +157,11 @@ export const sceneQuerySchema = Type.Intersect(
       {
         storageProviderName: Type.Optional(Type.String()),
         metadataOnly: Type.Optional(Type.Boolean()),
-        paginate: Type.Optional(Type.Boolean())
+        internal: Type.Optional(Type.Boolean()),
+        paginate: Type.Optional(Type.Boolean()),
+        sceneKey: Type.Optional(Type.String()),
+        directory: Type.Optional(Type.String()),
+        localDirectory: Type.Optional(Type.String())
       },
       { additionalProperties: false }
     )

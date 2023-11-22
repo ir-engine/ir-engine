@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
@@ -39,9 +37,10 @@ import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
-import { deleteScene, getScenes, onNewScene, reRouteToLoadScene, renameScene } from '../../functions/sceneFunctions'
+import { deleteScene, getScenes, onNewScene, renameScene, setSceneInState } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { DialogState } from '../dialogs/DialogState'
 import ErrorDialog from '../dialogs/ErrorDialog'
@@ -60,13 +59,13 @@ const editorState = getMutableState(EditorState)
  */
 export default function ScenesPanel({ loadScene, newScene }) {
   const { t } = useTranslation()
-  const [scenes, setScenes] = useState<SceneData[]>([])
+  const [scenes, setScenes] = useState<SceneDataType[]>([])
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
   const [isDeleteOpen, setDeleteOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
-  const [activeScene, setActiveScene] = useState<SceneData | null>(null)
+  const [activeScene, setActiveScene] = useState<SceneDataType | null>(null)
   const editorState = useHookstate(getMutableState(EditorState))
   const [scenesLoading, setScenesLoading] = useState(true)
 
@@ -116,7 +115,7 @@ export default function ScenesPanel({ loadScene, newScene }) {
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
         getMutableState(EngineState).sceneLoaded.set(false)
-        RouterState.navigate(`/studio/${editorState.projectName.value}`)
+        editorState.sceneName.set(null)
       }
 
       fetchItems()
@@ -154,7 +153,6 @@ export default function ScenesPanel({ loadScene, newScene }) {
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
-    RouterState.navigate(`/studio/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()
   }
@@ -265,5 +263,5 @@ export const ScenePanelTab: TabData = {
       <PanelTitle>Scenes</PanelTitle>
     </PanelDragContainer>
   ),
-  content: <ScenesPanel newScene={onNewScene} loadScene={reRouteToLoadScene} />
+  content: <ScenesPanel newScene={onNewScene} loadScene={setSceneInState} />
 }
