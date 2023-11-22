@@ -29,6 +29,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
+import { ScopeType } from '../scope/scope.schema'
 import { locationAdminSchema } from '../social/location-admin.schema'
 import { locationBanSchema } from '../social/location-ban.schema'
 import { userSettingSchema } from '../user/user-setting.schema'
@@ -43,7 +44,9 @@ export const userMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
 
 export const userScopeSchema = Type.Object(
   {
-    type: Type.String()
+    type: TypedString<ScopeType>({
+      format: 'uuid'
+    })
   },
   { $id: 'UserScope', additionalProperties: false }
 )
