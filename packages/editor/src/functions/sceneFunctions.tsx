@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 
 import { API } from '@etherealengine/client-core/src/API'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
@@ -39,6 +40,7 @@ import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
 import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getState } from '@etherealengine/hyperflux'
+import { EditorState } from '../services/EditorServices'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
@@ -143,6 +145,27 @@ export const saveScene = async (
   } catch (error) {
     logger.error(error, 'Error in saving project')
     throw error
+  }
+}
+
+export const reRouteToLoadScene = async (newSceneName: string) => {
+  const { projectName, sceneName } = getState(EditorState)
+  if (sceneName === newSceneName) return
+  if (!projectName || !newSceneName) return
+  RouterState.navigate(`/studio/${projectName}/${newSceneName}`)
+}
+
+export const onNewScene = async () => {
+  const { projectName } = getState(EditorState)
+  if (!projectName) return
+
+  try {
+    const sceneData = await createNewScene(projectName)
+    if (!sceneData) return
+
+    reRouteToLoadScene(sceneData.name)
+  } catch (error) {
+    logger.error(error)
   }
 }
 
