@@ -65,7 +65,8 @@ export const SceneState = defineState({
     >,
     /** @todo replace activeScene with proper multi-scene support */
     activeScene: null as null | SceneID,
-    background: null as null | Color | Texture
+    background: null as null | Color | Texture,
+    environment: null as null | Texture
   }),
 
   getCurrentScene: () => {

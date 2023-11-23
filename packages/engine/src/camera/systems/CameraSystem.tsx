@@ -59,7 +59,7 @@ import {
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraComponent } from '../components/CameraComponent'
-import { FollowCameraComponent, coneDebugHelpers, debugRays } from '../components/FollowCameraComponent'
+import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
@@ -157,18 +157,6 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
     if (hits[0] && hits[0].distance < maxDistance) {
       maxDistance = hits[0].distance
-    }
-
-    if (debugRays) {
-      const helper = coneDebugHelpers[i]
-      helper.setDirection(rayDir)
-      helper.position.copy(target)
-
-      if (hits[0]) {
-        helper.setColor('red')
-      } else {
-        helper.setColor('green')
-      }
     }
   })
 
