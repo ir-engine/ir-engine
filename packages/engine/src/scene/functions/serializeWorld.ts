@@ -23,16 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-
 import { Entity } from '../../ecs/classes/Entity'
 import { getAllComponents, getOptionalComponent, serializeComponent } from '../../ecs/functions/ComponentFunctions'
+import { ComponentJsonType } from '../../schemas/projects/scene.schema'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 
 export const serializeEntity = (entity: Entity) => {
   const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
 
-  const jsonComponents = [] as ComponentJson[]
+  const jsonComponents = [] as ComponentJsonType[]
   const components = getAllComponents(entity)
 
   for (const component of components) {

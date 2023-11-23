@@ -112,7 +112,7 @@ const LocationTable = ({ className, search }: Props) => {
       el,
       id,
       name: <a href={`/location/${transformLink(name)}`}>{name}</a>,
-      sceneId: <a href={`/studio/${sceneId}`}>{sceneId}</a>,
+      sceneId: <a href={`/studio/${sceneId.split('/')[0]}`}>{sceneId}</a>,
       maxUsersPerInstance,
       scene,
       locationType,

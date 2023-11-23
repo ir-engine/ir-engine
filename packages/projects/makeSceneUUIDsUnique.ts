@@ -29,7 +29,7 @@ import path from 'path'
 import { v4 } from 'uuid'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { SceneJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 
 for (const project of fs.readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects/'))) {
   const files = fs.readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects/', project))
@@ -38,7 +38,7 @@ for (const project of fs.readdirSync(path.resolve(appRootPath.path, 'packages/pr
     const uuidMapping = {} as { [uuid: string]: string }
     const sceneJson = JSON.parse(
       fs.readFileSync(path.resolve(appRootPath.path, 'packages/projects/projects/', project, scene)).toString()
-    ) as SceneJson
+    ) as SceneJsonType
     for (const uuid of Object.keys(sceneJson.entities)) {
       uuidMapping[uuid] = v4()
     }

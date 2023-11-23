@@ -198,7 +198,7 @@ const onSaveAs = async () => {
       if (result?.name && projectName) {
         await saveScene(projectName, result.name, file, abortController.signal)
         editorState.sceneModified.set(false)
-        RouterState.navigate(`/studio/${projectName}/${result.name}`)
+        editorState.sceneName.set(result.name)
       }
     }
     DialogState.setDialog(null)
@@ -409,6 +409,13 @@ const EditorContainer = () => {
     }
   })
 
+  useEffect(() => {
+    const sceneInParams = new URL(window.location.href).searchParams.get('scene')
+    if (sceneInParams) {
+      editorState.sceneName.set(sceneInParams)
+    }
+  }, [])
+
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
 
   useEffect(() => {
@@ -428,8 +435,18 @@ const EditorContainer = () => {
 
   useEffect(() => {
     if (sceneName.value) {
-      logger.info(`Loading scene ${sceneName.value} via given url`)
+      logger.info(`Loading scene ${sceneName.value}`)
       loadScene(sceneName.value)
+
+      const parsed = new URL(window.location.href)
+      const query = parsed.searchParams
+
+      query.set('scene', sceneName.value)
+
+      parsed.search = query.toString()
+      if (typeof history.pushState !== 'undefined') {
+        window.history.replaceState({}, '', parsed.toString())
+      }
     }
   }, [sceneName])
 
