@@ -65,6 +65,66 @@ type TextMesh = Mesh & {
   color: TroikaColor /** aka fontColor */
   sync: () => void /** Async Render the text using the current properties. troika accepts a callback function, but that feature is not mapped */
 
+  //____ WIP ____
+  textIndent: number /** Indentation for the first character of a line; see CSS `text-indent`. */
+
+  //____ Simple Properties
+  // Defines a cylindrical radius along which the text's plane will be curved. Positive numbers put
+  // the cylinder's centerline (oriented vertically) that distance in front of the text, for a concave
+  // curvature, while negative numbers put it behind the text for a convex curvature. The centerline
+  // will be aligned with the text's local origin; you can use `anchorX` to offset it.
+  // Since each glyph is by default rendered with a simple quad, each glyph remains a flat plane
+  // internally. You can use `glyphGeometryDetail` to add more vertices for curvature inside glyphs.
+  curveRadius: number
+  // Sets a uniform adjustment to spacing between letters after kerning is applied.
+  // Positive numbers increase spacing and negative numbers decrease it.
+  letterSpacing: number
+  // The maximum width of the text block, above which text may start wrapping according to the
+  // `whiteSpace` and `overflowWrap` properties.
+  maxWidth: number
+  // The color of the text outline, if `outlineWidth`/`outlineBlur`/`outlineOffsetX/Y` are set.
+  // Defaults to black.
+  outlineColor: TroikaColor // WARNING: This API is experimental and may change.
+  // The width of an outline/halo to be drawn around each text glyph using the `outlineColor` and `outlineOpacity`.
+  // Can be specified as either an absolute number in local units, or as a percentage string e.g.
+  // `"12%"` which is treated as a percentage of the `fontSize`. Defaults to `0`, which means
+  // no outline will be drawn unless an `outlineOffsetX/Y` or `outlineBlur` is set.
+  outlineWidth: number | string // WARNING: This API is experimental and may change.
+  // The color of the text stroke, if `strokeWidth` is greater than zero. Defaults to gray.
+  strokeColor: TroikaColor // WARNING: This API is experimental and may change.
+  // The opacity of the stroke, if `strokeWidth` is greater than zero. Defaults to `1`.
+  strokeOpacity: number // WARNING: This API is experimental and may change.
+  // The opacity of the glyph's fill from 0 to 1. This behaves like the material's `opacity` but allows
+  // giving the fill a different opacity than the `strokeOpacity`. A fillOpacity of `0` makes the
+  // interior of the glyph invisible, leaving just the `strokeWidth`. Defaults to `1`.
+  fillOpacity: number // WARNING: This API is experimental and may change.
+  // This is a shortcut for setting the material's `polygonOffset` and related properties,
+  // which can be useful in preventing z-fighting when this text is laid on top of another
+  // plane in the scene. Positive numbers are further from the camera, negatives closer.
+  depthOffset: number
+  // If specified, defines a `[minX, minY, maxX, maxY]` of a rectangle outside of which all
+  // pixels will be discarded. This can be used for example to clip overflowing text when
+  // `whiteSpace='nowrap'`.
+  clipRect: Array<number>
+
+  //____ SDF & Geometry ____
+  // Controls number of vertical/horizontal segments that make up each glyph's rectangular
+  // plane. Defaults to 1. This can be increased to provide more geometrical detail for custom
+  // vertex shader effects, for example.
+  glyphGeometryDetail: number
+  // The size of each glyph's SDF (signed distance field) used for rendering. This must be a
+  // power-of-two number. Defaults to 64 which is generally a good balance of size and quality
+  // for most fonts. Larger sizes can improve the quality of glyph rendering by increasing
+  // the sharpness of corners and preventing loss of very thin lines, at the expense of
+  // increased memory footprint and longer SDF generation time.
+  sdfGlyphSize: number | null
+  // When `true`, the SDF generation process will be GPU-accelerated with WebGL when possible,
+  // making it much faster especially for complex glyphs, and falling back to a JavaScript version
+  // executed in web workers when support isn't available. It should automatically detect support,
+  // but it's still somewhat experimental, so you can set it to `false` to force it to use the JS
+  // version if you encounter issues with it.
+  gpuAccelerateSDF: boolean
+
   //_____________________________________________________________
   // TODO                                                      //
   //  Remove the unused properties. Only temp for easier dev  //
@@ -74,33 +134,18 @@ type TextMesh = Mesh & {
   // text block width e.g. `'25%'`, or one of the allowed keyword strings
   anchorX: number | string | 'left' | 'center' | 'right'
   anchorY: number | string | 'top' | 'top-baseline' | 'top-cap' | 'top-ex' | 'middle' | 'bottom-baseline' | 'bottom'
-  // Defines a cylindrical radius along which the text's plane will be curved. Positive numbers put
-  // the cylinder's centerline (oriented vertically) that distance in front of the text, for a concave
-  // curvature, while negative numbers put it behind the text for a convex curvature. The centerline
-  // will be aligned with the text's local origin; you can use `anchorX` to offset it.
-  // Since each glyph is by default rendered with a simple quad, each glyph remains a flat plane
-  // internally. You can use `glyphGeometryDetail` to add more vertices for curvature inside glyphs.
-  curveRadius: number
   // Sets the base direction for the text. The default value of "auto" will choose a direction based
   // on the text's content according to the bidi spec. A value of "ltr" or "rtl" will force the direction.
   direction: 'auto' | 'ltr' | 'rtl'
-  // Sets a uniform adjustment to spacing between letters after kerning is applied.
-  // Positive numbers increase spacing and negative numbers decrease it.
-  letterSpacing: number
   // Sets the height of each line of text, as a multiple of the `fontSize`. Defaults to 'normal'
   // which chooses a reasonable height based on the chosen font's ascender/descender metrics.
   lineHeight: number | 'normal'
-  // The maximum width of the text block, above which text may start wrapping according to the
-  // `whiteSpace` and `overflowWrap` properties.
-  maxWidth: number
   // Defines how text wraps if the `whiteSpace` property is `normal`. Can be either `'normal'`
   // to break at whitespace characters, or `'break-word'` to allow breaking within words.
   // Defaults to `'normal'`.
   overflowWrap: 'normal' | 'break-word'
   // The horizontal alignment of each line of text within the overall text bounding box.
   textAlign: 'left' | 'center' | 'right' | 'justify'
-  // Indentation for the first character of a line; see CSS `text-indent`.
-  textIndent: number
   // Defines whether text should wrap when a line reaches the `maxWidth`.
   // Can be `'normal'` (the default), to allow wrapping according to the `overflowWrap` property,
   // or `'nowrap'` to prevent wrapping.
@@ -121,14 +166,6 @@ type TextMesh = Mesh & {
   // range. The color value can be a numeric hex color value, a `THREE.Color` object, or
   // any of the strings accepted by `THREE.Color`.
   colorRanges: object | null // WARNING: This API is experimental and may change.
-  // The width of an outline/halo to be drawn around each text glyph using the `outlineColor` and `outlineOpacity`.
-  // Can be specified as either an absolute number in local units, or as a percentage string e.g.
-  // `"12%"` which is treated as a percentage of the `fontSize`. Defaults to `0`, which means
-  // no outline will be drawn unless an `outlineOffsetX/Y` or `outlineBlur` is set.
-  outlineWidth: number | string // WARNING: This API is experimental and may change.
-  // The color of the text outline, if `outlineWidth`/`outlineBlur`/`outlineOffsetX/Y` are set.
-  // Defaults to black.
-  outlineColor: TroikaColor // WARNING: This API is experimental and may change.
   // The opacity of the outline, if `outlineWidth`/`outlineBlur`/`outlineOffsetX/Y` are set.
   // Defaults to `1`.
   outlineOpacity: number // WARNING: This API is experimental and may change.
@@ -146,22 +183,6 @@ type TextMesh = Mesh & {
   // Can be specified as either an absolute number in local units, or as a percentage string e.g. `"12%"`
   // which is treated as a percentage of the `fontSize`. Defaults to `0`.
   strokeWidth: number | string // WARNING: This API is experimental and may change.
-  // The color of the text stroke, if `strokeWidth` is greater than zero. Defaults to gray.
-  strokeColor: TroikaColor // WARNING: This API is experimental and may change.
-  // The opacity of the stroke, if `strokeWidth` is greater than zero. Defaults to `1`.
-  strokeOpacity: number // WARNING: This API is experimental and may change.
-  // The opacity of the glyph's fill from 0 to 1. This behaves like the material's `opacity` but allows
-  // giving the fill a different opacity than the `strokeOpacity`. A fillOpacity of `0` makes the
-  // interior of the glyph invisible, leaving just the `strokeWidth`. Defaults to `1`.
-  fillOpacity: number // WARNING: This API is experimental and may change.
-  // This is a shortcut for setting the material's `polygonOffset` and related properties,
-  // which can be useful in preventing z-fighting when this text is laid on top of another
-  // plane in the scene. Positive numbers are further from the camera, negatives closer.
-  depthOffset: number
-  // If specified, defines a `[minX, minY, maxX, maxY]` of a rectangle outside of which all
-  // pixels will be discarded. This can be used for example to clip overflowing text when
-  // `whiteSpace='nowrap'`.
-  clipRect: Array<number>
   // Defines the axis plane on which the text should be laid out when the mesh has no extra
   // rotation transform. It is specified as a string with two axes: the horizontal axis with
   // positive pointing right, and the vertical axis with positive pointing up. By default this
@@ -169,22 +190,6 @@ type TextMesh = Mesh & {
   // and facing positive z. A value of '+x-z' would place it on the xz plane with the text's
   // top toward negative z and facing positive y.
   orientation: string
-  // Controls number of vertical/horizontal segments that make up each glyph's rectangular
-  // plane. Defaults to 1. This can be increased to provide more geometrical detail for custom
-  // vertex shader effects, for example.
-  glyphGeometryDetail: number
-  // The size of each glyph's SDF (signed distance field) used for rendering. This must be a
-  // power-of-two number. Defaults to 64 which is generally a good balance of size and quality
-  // for most fonts. Larger sizes can improve the quality of glyph rendering by increasing
-  // the sharpness of corners and preventing loss of very thin lines, at the expense of
-  // increased memory footprint and longer SDF generation time.
-  sdfGlyphSize: number | null
-  // When `true`, the SDF generation process will be GPU-accelerated with WebGL when possible,
-  // making it much faster especially for complex glyphs, and falling back to a JavaScript version
-  // executed in web workers when support isn't available. It should automatically detect support,
-  // but it's still somewhat experimental, so you can set it to `false` to force it to use the JS
-  // version if you encounter issues with it.
-  gpuAccelerateSDF: boolean
 
   //____ Unlikely ____
   fontWeight: number | 'normal' | 'bold' // The weight of the font. Currently only used for fallback Noto fonts.
