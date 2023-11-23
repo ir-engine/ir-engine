@@ -174,6 +174,26 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           />
         </div>
       </InputGroup>
+      <InputGroup
+        name="StrokeGroup"
+        label="Stroke" // {t('editor:properties.text.StrokeGroup')}  /* @todo: Translation id */
+      >
+        <div>
+          <NumericInputGroup
+            name="StrokeOpacity"
+            label="opacity" // {t('editor:properties.text.strokeOpacity)}  /* @todo: Translation id */
+            min={0}
+            max={100}
+            smallStep={1}
+            mediumStep={2}
+            largeStep={10}
+            value={text.strokeOpacity.value}
+            onChange={updateProperty(TextComponent, 'strokeOpacity')}
+            onRelease={commitProperty(TextComponent, 'strokeOpacity')}
+            unit="%"
+          />
+        </div>
+      </InputGroup>
     </NodeEditor>
   )
 }
