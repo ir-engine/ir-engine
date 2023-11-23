@@ -161,6 +161,19 @@ export const TextNodeEditor: EditorComponentType = (props) => {
       >
         <div>
           <NumericInputGroup
+            name="OutlineOpacity"
+            label="opacity" // {t('editor:properties.text.outlineOpacity')}  /* @todo: Translation id */
+            min={0}
+            max={100}
+            smallStep={1}
+            mediumStep={2}
+            largeStep={5}
+            value={text.outlineOpacity.value}
+            onChange={updateProperty(TextComponent, 'outlineOpacity')}
+            onRelease={commitProperty(TextComponent, 'outlineOpacity')}
+            unit="%"
+          />
+          <NumericInputGroup
             name="OutlineWidth"
             label="width" // {t('editor:properties.text.outlineWidth')}  /* @todo: Translation id */
             min={0}

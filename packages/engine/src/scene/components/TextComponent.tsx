@@ -67,6 +67,7 @@ type TextMesh = Mesh & {
   // Font properties
   font: string | null /** Defaults to Noto Sans when null */
   fontSize: number
+  outlineOpacity: number // @note: Troika marks this as an Experimental API
   outlineWidth: number | string // @note: Troika marks this as an Experimental API
   strokeOpacity: number // @note: Troika marks this as an Experimental API
   //____ Presentation properties ____
@@ -154,9 +155,6 @@ type TextMesh = Mesh & {
   // range. The color value can be a numeric hex color value, a `THREE.Color` object, or
   // any of the strings accepted by `THREE.Color`.
   colorRanges: object | null // WARNING: This API is experimental and may change.
-  // The opacity of the outline, if `outlineWidth`/`outlineBlur`/`outlineOffsetX/Y` are set.
-  // Defaults to `1`.
-  outlineOpacity: number // WARNING: This API is experimental and may change.
   // A blur radius applied to the outer edge of the text's outline. If the `outlineWidth` is
   // zero, the blur will be applied at the glyph edge, like CSS's `text-shadow` blur radius.
   // Can be specified as either an absolute number in local units, or as a percentage string e.g.
@@ -214,6 +212,7 @@ export const TextComponent = defineComponent({
       fontSize: 0.2,
       fontColor: new Color(0x9966ff),
       // Font Outline Properties
+      outlineOpacity: 0, // range[0..100], sent to troika as [0..1] :number
       outlineWidth: 0, // range[0..100+], sent to troika as [0..100]% :string
       // Font Stroke Properties
       strokeOpacity: 0, // range[0..100], sent to troika as [0..1] :number
@@ -235,6 +234,7 @@ export const TextComponent = defineComponent({
     else if (matches.nill.test(json.font)) component.font.set(null)
     if (matches.number.test(json.fontSize)) component.fontSize.set(json.fontSize)
     if (matches.object.test(json.fontColor) && json.fontColor.isColor) component.fontColor.set(json.fontColor)
+    if (matches.number.test(json.outlineOpacity)) component.outlineOpacity.set(json.outlineOpacity)
     if (matches.number.test(json.outlineWidth)) component.outlineWidth.set(json.outlineWidth)
     if (matches.number.test(json.strokeOpacity)) component.strokeOpacity.set(json.strokeOpacity)
   },
@@ -251,6 +251,7 @@ export const TextComponent = defineComponent({
       font: component.font.value,
       fontSize: component.fontSize.value,
       fontColor: component.fontColor.value,
+      outlineOpacity: component.outlineOpacity.value,
       outlineWidth: component.outlineWidth.value,
       strokeOpacity: component.strokeOpacity.value
     }
@@ -275,6 +276,7 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.font = text.font.value
       text.troikaMesh.value.fontSize = text.fontSize.value
       text.troikaMesh.value.color = text.fontColor.value.getHex()
+      text.troikaMesh.value.outlineOpacity = text.outlineOpacity.value / 100
       text.troikaMesh.value.outlineWidth = `${text.outlineWidth.value}%`
       text.troikaMesh.value.strokeOpacity = text.strokeOpacity.value / 100
       // Order troika to syncrhonize the mesh
@@ -288,6 +290,7 @@ export const TextComponent = defineComponent({
       text.textIndent,
       text.fontSize,
       text.fontColor,
+      text.outlineOpacity,
       text.outlineWidth,
       text.strokeOpacity
     ])
