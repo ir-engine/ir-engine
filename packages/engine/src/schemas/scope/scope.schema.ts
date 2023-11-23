@@ -44,9 +44,7 @@ export const scopeSchema = Type.Object(
     id: TypedString<ScopeID>({
       format: 'uuid'
     }),
-    type: TypedString<ScopeType>({
-      format: 'uuid'
-    }),
+    type: TypedString<ScopeType>(),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
