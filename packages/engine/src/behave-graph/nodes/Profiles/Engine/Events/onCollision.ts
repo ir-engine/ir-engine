@@ -34,7 +34,6 @@ import {
 } from '../../../../../ecs/functions/ComponentFunctions'
 import { SystemUUID, defineSystem } from '../../../../../ecs/functions/SystemFunctions'
 import { CollisionComponent } from '../../../../../physics/components/CollisionComponent'
-import { PhysicsSystem } from '../../../../../physics/systems/PhysicsSystem'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { TransformSystem } from '../../../../../transform/TransformModule'
 
@@ -101,8 +100,6 @@ export const OnCollision = makeEventNodeDefinition({
         }
       }
     })
-
-    startSystem(systemUUID, { after: PhysicsSystem })
 
     const state: State = {
       query,
