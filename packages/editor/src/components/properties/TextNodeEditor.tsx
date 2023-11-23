@@ -76,6 +76,18 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(TextComponent, 'textIndent')}
             unit="px"
           />
+          <NumericInputGroup
+            name="LettersSpacing"
+            label="spacing" // {t('editor:properties.text.letterSpacing')}  /* @todo: Translation id */
+            min={-0.5}
+            smallStep={0.01}
+            mediumStep={0.1}
+            largeStep={0.2}
+            value={text.letterSpacing.value}
+            onChange={updateProperty(TextComponent, 'letterSpacing')}
+            onRelease={commitProperty(TextComponent, 'letterSpacing')}
+            unit="px"
+          />
         </div>
       </InputGroup>
 
