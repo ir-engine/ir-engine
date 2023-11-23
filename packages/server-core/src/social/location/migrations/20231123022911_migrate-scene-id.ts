@@ -23,30 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import type { Static } from '@feathersjs/typebox'
-import { getValidator, Type } from '@feathersjs/typebox'
-import { TypedString } from '../../common/types/TypeboxUtils'
-import { RoomCode } from '../social/location.schema'
-import { dataValidator } from '../validators'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import type { Knex } from 'knex'
 
-export const instanceProvisionPath = 'instance-provision'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export const instanceProvisionMethods = ['find', 'create'] as const
+  const sceneIdColumnExists = await trx.schema.hasColumn(locationPath, 'sceneId')
 
-// Main data model schema
-export const instanceProvisionSchema = Type.Object(
-  {
-    id: Type.String({
-      format: 'uuid'
-    }),
-    ipAddress: Type.String(),
-    port: Type.String(),
-    roomCode: TypedString<RoomCode>(),
-    podName: Type.Optional(Type.String())
-  },
-  { $id: 'InstanceProvision', additionalProperties: false }
-)
-export interface InstanceProvisionType extends Static<typeof instanceProvisionSchema> {}
+  if (sceneIdColumnExists === true) {
+    await trx
+      .from(locationPath)
+      .update({ sceneId: trx.raw(`CONCAT("projects/", ??, ".scene.json")`, ['sceneId']) })
+      .where('sceneId', 'not like', '%projects/%')
+  }
 
-export const instanceProvisionValidator = getValidator(instanceProvisionSchema, dataValidator)
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}
