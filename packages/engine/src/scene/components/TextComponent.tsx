@@ -30,6 +30,7 @@ import { defineComponent, useComponent } from '@etherealengine/engine/src/ecs/fu
 import { useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 
 import { Color, Mesh, Vector2 } from 'three'
+import { MathUtils } from 'three/src/math/MathUtils'
 import { Text as TroikaText } from 'troika-three-text'
 import { matches } from '../../common/functions/MatchesUtils'
 import { addObjectToGroup } from './GroupComponent'
@@ -66,6 +67,7 @@ type TextMesh = Mesh & {
   maxWidth: number /** Value above which text starts wrapping */
   anchorX: number | string | 'left' | 'center' | 'right'
   anchorY: number | string | 'top' | 'top-baseline' | 'top-cap' | 'top-ex' | 'middle' | 'bottom-baseline' | 'bottom'
+  curveRadius: number
   // Font properties
   font: string | null /** Defaults to Noto Sans when null */
   fontSize: number
@@ -84,13 +86,6 @@ type TextMesh = Mesh & {
   sync: () => void /** Async Render the text using the current properties. troika accepts a callback function, but that feature is not mapped */
 
   //____ Simple Properties
-  // Defines a cylindrical radius along which the text's plane will be curved. Positive numbers put
-  // the cylinder's centerline (oriented vertically) that distance in front of the text, for a concave
-  // curvature, while negative numbers put it behind the text for a convex curvature. The centerline
-  // will be aligned with the text's local origin; you can use `anchorX` to offset it.
-  // Since each glyph is by default rendered with a simple quad, each glyph remains a flat plane
-  // internally. You can use `glyphGeometryDetail` to add more vertices for curvature inside glyphs.
-  curveRadius: number
   // The color of the text outline, if `outlineWidth`/`outlineBlur`/`outlineOffsetX/Y` are set.
   // Defaults to black.
   outlineColor: TroikaColor // WARNING: This API is experimental and may change.
@@ -194,6 +189,7 @@ export const TextComponent = defineComponent({
         /* X */ 0, // range[0..100+], sent to troika as [0..100]% :string
         /* Y */ 0 // range[0..100+], sent to troika as [0..100]% :string
       ),
+      textCurveRadius: 0,
       letterSpacing: 0,
 
       // Font Properties
@@ -226,6 +222,7 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.textWidth)) component.textWidth.set(json.textWidth)
     if (matches.number.test(json.textIndent)) component.textIndent.set(json.textIndent)
     if (matches.object.test(json.textAnchor) && json.textAnchor.isVector2) component.textAnchor.set(json.textAnchor)
+    if (matches.number.test(json.textCurveRadius)) component.textCurveRadius.set(json.textCurveRadius)
     if (matches.number.test(json.letterSpacing)) component.letterSpacing.set(json.letterSpacing)
     // Font Properties
     if (matches.string.test(json.font)) component.font.set(json.font)
@@ -250,6 +247,7 @@ export const TextComponent = defineComponent({
       textWidth: component.textWidth.value,
       textIndent: component.textIndent.value,
       textAnchor: component.textAnchor.value,
+      textCurveRadius: component.textCurveRadius.value,
       letterSpacing: component.letterSpacing.value,
       // Font Properties
       font: component.font.value,
@@ -281,6 +279,7 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.textIndent = text.textIndent.value
       text.troikaMesh.value.anchorX = `${text.textAnchor.x.value}%`
       text.troikaMesh.value.anchorY = `${text.textAnchor.y.value}%`
+      text.troikaMesh.value.curveRadius = MathUtils.degToRad(text.textCurveRadius.value)
       text.troikaMesh.value.letterSpacing = text.letterSpacing.value
       // Update the font properties
       text.troikaMesh.value.font = text.font.value
@@ -301,6 +300,7 @@ export const TextComponent = defineComponent({
       text.textOpacity,
       text.textIndent,
       text.textAnchor,
+      text.textCurveRadius,
       text.textWidth,
       text.letterSpacing,
       text.textIndent,

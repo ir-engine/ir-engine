@@ -114,6 +114,17 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
           <NumericInputGroup
+            name="TextCurveRadius"
+            label="curveRadius" // {t('editor:properties.text.textCurveRadius')}  /* @todo: Translation id */
+            smallStep={1}
+            mediumStep={5}
+            largeStep={15}
+            value={text.textCurveRadius.value}
+            onChange={updateProperty(TextComponent, 'textCurveRadius')}
+            onRelease={commitProperty(TextComponent, 'textCurveRadius')}
+            unit="deg"
+          />
+          <NumericInputGroup
             name="LettersSpacing"
             label="spacing" // {t('editor:properties.text.letterSpacing')}  /* @todo: Translation id */
             min={-0.5}
