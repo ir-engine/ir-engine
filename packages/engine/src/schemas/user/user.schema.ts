@@ -44,9 +44,7 @@ export const userMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
 
 export const userScopeSchema = Type.Object(
   {
-    type: TypedString<ScopeType>({
-      format: 'uuid'
-    })
+    type: TypedString<ScopeType>()
   },
   { $id: 'UserScope', additionalProperties: false }
 )
@@ -61,15 +59,9 @@ export const userSchema = Type.Object(
     id: TypedString<UserID>({
       format: 'uuid'
     }),
-    name: TypedString<UserName>({
-      format: 'uuid'
-    }),
+    name: TypedString<UserName>(),
     isGuest: Type.Boolean(),
-    inviteCode: Type.Optional(
-      TypedString<InviteCode>({
-        format: 'uuid'
-      })
-    ),
+    inviteCode: Type.Optional(TypedString<InviteCode>()),
     avatarId: TypedString<AvatarID>({
       format: 'uuid'
     }),
