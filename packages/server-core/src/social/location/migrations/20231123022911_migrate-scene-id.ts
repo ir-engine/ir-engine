@@ -24,22 +24,31 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { Application } from '../declarations'
-import multiLogger from './ServerLogger'
+import type { Knex } from 'knex'
 
-const logger = multiLogger.child({ component: 'server-core:seeder' })
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export async function migrateLocations(app: Application) {
-  logger.info('Updating scene id in locations')
+  const locationIdColumnExists = await trx.schema.hasColumn(locationPath, 'sceneId')
 
-  const knexClient = app.get('knexClient')
-  const locations = await knexClient(locationPath).select('*')
-
-  for (const location of locations) {
-    const existingSceneID = location.sceneId
-    if (existingSceneID.includes('projects/') === false) {
-      const newSceneID = `projects/${existingSceneID}.scene.json`
-      await knexClient(locationPath).where({ sceneId: existingSceneID }).update({ sceneId: newSceneID })
-    }
+  if (locationIdColumnExists === true) {
+    await trx
+      .from(locationPath)
+      .update({ sceneId: trx.raw(`CONCAT("projects/", ??, ".scene.json")`, ['sceneId']) })
+      .where('sceneId', 'not like', '%projects/%')
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}
