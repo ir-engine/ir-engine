@@ -48,12 +48,14 @@ initializeBrowser()
 API.createAPI()
 pipeLogs(Engine.instance.api)
 
-export default function ({ children }) {
+export default function ({ children, tailwind = false }) {
   const ref = createRef()
   const { t } = useTranslation()
-  return (
+  return !tailwind ? (
     <FullscreenContainer ref={ref}>
       <Suspense fallback={<LoadingCircle message={t('common:loader.loadingClient')} />}>{children}</Suspense>
     </FullscreenContainer>
+  ) : (
+    children
   )
 }

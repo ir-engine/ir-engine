@@ -23,15 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
-import { SceneDataType, SceneJsonType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneJsonType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
-import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
@@ -69,43 +66,6 @@ describe('scene.test', () => {
     await destroyEngine()
   })
 
-  describe('"scene-data" service', () => {
-    it('should get the scene data', async () => {
-      const { data } = await app.service(sceneDataPath).get(null, { query: { projectName, metadataOnly: false } })
-      assert.deepStrictEqual(parsedSceneData, data.find((scene) => scene.name === sceneName)!.scene)
-    })
-
-    it('should find the scene data', async () => {
-      const { data } = (await app
-        .service(sceneDataPath)
-        .find({ query: { projectName, metadataOnly: false } })) as Paginated<SceneDataType>
-      assert.deepStrictEqual(parsedSceneData, data.find((entry) => entry.name === sceneName)!.scene)
-      assert(data.length > 0)
-      data.forEach((scene) => {
-        assert(typeof scene.name === 'string')
-        assert(typeof scene.project === 'string')
-        assert(typeof scene.thumbnailUrl === 'string')
-        assert(typeof scene.scene === 'object')
-      })
-    })
-
-    it('should get all scenes for a project scenes with metadata only', async function () {
-      const { data } = (await app.service(sceneDataPath).find({
-        query: {
-          projectName,
-          metadataOnly: true
-        }
-      })) as Paginated<SceneDataType>
-      assert(data.length > 0)
-      data.forEach((scene) => {
-        assert(typeof scene.name === 'string')
-        assert(typeof scene.project === 'string')
-        assert(typeof scene.thumbnailUrl === 'string')
-        assert(typeof scene.scene === 'undefined')
-      })
-    })
-  })
-
   describe('"scene" service', () => {
     it('should get scene data', async () => {
       const data = await app
@@ -129,7 +89,7 @@ describe('scene.test', () => {
     })
 
     it('should save or update an existing scene', async () => {
-      const newSceneData = structuredClone(defaultSceneSeed) as unknown as SceneJson
+      const newSceneData = structuredClone(defaultSceneSeed) as unknown as SceneJsonType
       const updatedVersion = Math.floor(Math.random() * 100)
       newSceneData.version = updatedVersion
       const newParsedSceneData = parseStorageProviderURLs(structuredClone(newSceneData))

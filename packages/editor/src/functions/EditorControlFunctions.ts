@@ -60,10 +60,10 @@ import {
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { ComponentJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import {
   computeLocalTransformMatrix,
   computeTransformMatrix
@@ -206,7 +206,7 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
 }
 
 const createObjectFromSceneElement = (
-  componentJson: ComponentJson[] = [],
+  componentJson: ComponentJsonType[] = [],
   parentEntity?: Entity,
   beforeEntity?: Entity,
   updateSelection = true
@@ -441,7 +441,7 @@ const scaleObject = (
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    updateComponent(entity as Entity, componentType, { scale: transformComponent.scale })
+    updateComponent(entity, componentType, { scale: transformComponent.scale })
   }
 }
 
