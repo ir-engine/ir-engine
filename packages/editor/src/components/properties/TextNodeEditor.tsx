@@ -65,6 +65,19 @@ export const TextNodeEditor: EditorComponentType = (props) => {
       >
         <div>
           <NumericInputGroup
+            name="TextOpacity"
+            label="opacity" // {t('editor:properties.text.textOpacity')}  /* @todo: Translation id */
+            min={0}
+            max={100}
+            smallStep={1}
+            mediumStep={5}
+            largeStep={10}
+            value={text.textOpacity.value}
+            onChange={updateProperty(TextComponent, 'textOpacity')}
+            onRelease={commitProperty(TextComponent, 'textOpacity')}
+            unit="%"
+          />
+          <NumericInputGroup
             name="TextWidth"
             label="width" // {t('editor:properties.text.textWidth')}  /* @todo: Translation id */
             min={0}

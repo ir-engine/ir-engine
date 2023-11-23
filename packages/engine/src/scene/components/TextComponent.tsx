@@ -60,6 +60,7 @@ type TextMesh = Mesh & {
   //____ Text layout properties ____
   text: string
   // Text properties
+  fillOpacity: number // @note: Troika marks this as an Experimental API
   textIndent: number /** Indentation for the first character of a line; see CSS `text-indent`. */
   letterSpacing: number /** Spacing between letters after kerning is applied. */
   maxWidth: number /** Value above which text starts wrapping */
@@ -86,10 +87,6 @@ type TextMesh = Mesh & {
   strokeColor: TroikaColor // WARNING: This API is experimental and may change.
   // The opacity of the stroke, if `strokeWidth` is greater than zero. Defaults to `1`.
   strokeOpacity: number // WARNING: This API is experimental and may change.
-  // The opacity of the glyph's fill from 0 to 1. This behaves like the material's `opacity` but allows
-  // giving the fill a different opacity than the `strokeOpacity`. A fillOpacity of `0` makes the
-  // interior of the glyph invisible, leaving just the `strokeWidth`. Defaults to `1`.
-  fillOpacity: number // WARNING: This API is experimental and may change.
   // This is a shortcut for setting the material's `polygonOffset` and related properties,
   // which can be useful in preventing z-fighting when this text is laid on top of another
   // plane in the scene. Positive numbers are further from the camera, negatives closer.
@@ -209,6 +206,7 @@ export const TextComponent = defineComponent({
     return {
       // Text contents to render
       text: 'Some Text',
+      textOpacity: 100, // range[0..100], sent to troika as [0..1] :number
       textWidth: Infinity,
       textIndent: 0,
       letterSpacing: 0,
@@ -227,6 +225,7 @@ export const TextComponent = defineComponent({
     if (!json) return
     // Text contents to render
     if (matches.string.test(json.text)) component.text.set(json.text)
+    if (matches.number.test(json.textOpacity)) component.textOpacity.set(json.textOpacity)
     if (matches.number.test(json.textWidth)) component.textWidth.set(json.textWidth)
     if (matches.number.test(json.textIndent)) component.textIndent.set(json.textIndent)
     if (matches.number.test(json.letterSpacing)) component.letterSpacing.set(json.letterSpacing)
@@ -242,6 +241,7 @@ export const TextComponent = defineComponent({
     return {
       // Text contents to render
       text: component.text.value,
+      textOpacity: component.textOpacity.value,
       textWidth: component.textWidth.value,
       textIndent: component.textIndent.value,
       letterSpacing: component.letterSpacing.value,
@@ -264,6 +264,7 @@ export const TextComponent = defineComponent({
     useEffect(() => {
       // Update the Text content to render
       text.troikaMesh.value.text = text.text.value
+      text.troikaMesh.value.fillOpacity = text.textOpacity.value / 100
       text.troikaMesh.value.maxWidth = text.textWidth.value
       text.troikaMesh.value.textIndent = text.textIndent.value
       text.troikaMesh.value.letterSpacing = text.letterSpacing.value
@@ -276,6 +277,7 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.sync()
     }, [
       text.text,
+      text.textOpacity,
       text.textIndent,
       text.textWidth,
       text.letterSpacing,
