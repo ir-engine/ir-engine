@@ -217,6 +217,7 @@ export const TextComponent = defineComponent({
     return {
       // Text contents to render
       text: 'Some Text',
+      textIndent: 0,
       // Font Properties
       font: FontDefault, // font: string|null
       fontSize: 0.2,
@@ -230,6 +231,7 @@ export const TextComponent = defineComponent({
     if (!json) return
     // Text contents to render
     if (matches.string.test(json.text)) component.text.set(json.text)
+    if (matches.number.test(json.textIndent)) component.textIndent.set(json.textIndent)
     // Font Properties
     if (matches.string.test(json.font)) component.font.set(json.font)
     else if (matches.nill.test(json.font)) component.font.set(null)
@@ -241,6 +243,7 @@ export const TextComponent = defineComponent({
     return {
       // Text contents to render
       text: component.text.value,
+      textIndent: component.textIndent.value,
       // Font Properties
       font: component.font.value,
       fontSize: component.fontSize.value,
@@ -259,12 +262,14 @@ export const TextComponent = defineComponent({
     useEffect(() => {
       // Update the Text content to render
       text.troikaMesh.value.text = text.text.value
+      text.troikaMesh.value.textIndent = text.textIndent.value
       // Update the font properties
       text.troikaMesh.value.font = text.font.value
       text.troikaMesh.value.fontSize = text.fontSize.value
       text.troikaMesh.value.color = text.fontColor.value.getHex()
+      // Order troika to syncrhonize the mesh
       text.troikaMesh.value.sync()
-    }, [text.text, text.fontSize, text.fontColor])
+    }, [text.text, text.textIndent, text.fontSize, text.fontColor])
 
     /* Reactive system
     useExecute(() => {}, { with: InputSystemGroup })

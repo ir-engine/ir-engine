@@ -52,13 +52,33 @@ export const TextNodeEditor: EditorComponentType = (props) => {
 
   return (
     <NodeEditor {...props} name="Text Component" description="A Text component">
-      <InputGroup name="Text" label="Text">
+      <InputGroup name="TextContents" label="Contents">
         <ControlledStringInput
           value={text.text.value}
           onChange={updateProperty(TextComponent, 'text')}
           onRelease={commitProperty(TextComponent, 'text')}
         />
       </InputGroup>
+      <InputGroup
+        name="TextGroup"
+        label="Text" // {t('editor:properties.text.textGroup')}  /* @todo: Translation id */
+      >
+        <div>
+          <NumericInputGroup
+            name="TextIndent"
+            label="indent" // {t('editor:properties.text.textIndent')}  /* @todo: Translation id */
+            min={0}
+            smallStep={0.1}
+            mediumStep={0.5}
+            largeStep={1}
+            value={text.textIndent.value}
+            onChange={updateProperty(TextComponent, 'textIndent')}
+            onRelease={commitProperty(TextComponent, 'textIndent')}
+            unit="px"
+          />
+        </div>
+      </InputGroup>
+
       <InputGroup
         name="FontGroup"
         label="Font" // {t('editor:properties.text.fontGroup')}  /* @todo: Translation id */
