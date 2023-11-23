@@ -31,6 +31,7 @@ import { projectPath } from '@etherealengine/engine/src/schemas/projects/project
 import { Application } from '../declarations'
 import multiLogger from './ServerLogger'
 import config from './appconfig'
+import { migrateLocations } from './migrate-locations'
 import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project-helper'
 import { knexSeeds } from './seeder-config'
 
@@ -57,5 +58,9 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
     await app.service(projectPath)._seedProject('default-project')
     await uploadLocalProjectToProvider(app, 'default-project')
     if (!config.kubernetes.enabled && !config.testEnabled) await app.service(projectPath)._fetchDevLocalProjects()
+  }
+
+  if (prepareDb) {
+    await migrateLocations(app)
   }
 }
