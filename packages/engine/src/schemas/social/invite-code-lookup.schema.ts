@@ -41,9 +41,7 @@ export const inviteCodeLookupSchema = Type.Object(
     id: TypedString<UserID>({
       format: 'uuid'
     }),
-    inviteCode: TypedString<InviteCode>({
-      format: 'uuid'
-    }),
+    inviteCode: TypedString<InviteCode>(),
     instanceAttendance: Type.Array(Type.Ref(instanceAttendanceSchema))
   },
   { $id: 'InviteCodeLookup', additionalProperties: false }

@@ -42,7 +42,7 @@ export const instanceProvisionSchema = Type.Object(
     }),
     ipAddress: Type.String(),
     port: Type.String(),
-    roomCode: TypedString<RoomCode>({ format: 'uuid' }),
+    roomCode: TypedString<RoomCode>(),
     podName: Type.Optional(Type.String())
   },
   { $id: 'InstanceProvision', additionalProperties: false }

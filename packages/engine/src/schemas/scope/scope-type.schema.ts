@@ -37,9 +37,7 @@ export const scopeTypeMethods = ['find', 'get'] as const
 // Main data model schema
 export const scopeTypeSchema = Type.Object(
   {
-    type: TypedString<ScopeType>({
-      format: 'uuid'
-    }),
+    type: TypedString<ScopeType>(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
