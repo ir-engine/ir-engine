@@ -62,14 +62,13 @@ type TextMesh = Mesh & {
   // Text properties
   textIndent: number /** Indentation for the first character of a line; see CSS `text-indent`. */
   letterSpacing: number /** Spacing between letters after kerning is applied. */
+  maxWidth: number /** Value above which text starts wrapping */
   // Font properties
   font: string | null /** Defaults to Noto Sans when null */
   fontSize: number
   //____ Presentation properties ____
   color: TroikaColor /** aka fontColor */
   sync: () => void /** Async Render the text using the current properties. troika accepts a callback function, but that feature is not mapped */
-
-  //____ WIP ____
 
   //____ Simple Properties
   // Defines a cylindrical radius along which the text's plane will be curved. Positive numbers put
@@ -79,9 +78,6 @@ type TextMesh = Mesh & {
   // Since each glyph is by default rendered with a simple quad, each glyph remains a flat plane
   // internally. You can use `glyphGeometryDetail` to add more vertices for curvature inside glyphs.
   curveRadius: number
-  // The maximum width of the text block, above which text may start wrapping according to the
-  // `whiteSpace` and `overflowWrap` properties.
-  maxWidth: number
   // The color of the text outline, if `outlineWidth`/`outlineBlur`/`outlineOffsetX/Y` are set.
   // Defaults to black.
   outlineColor: TroikaColor // WARNING: This API is experimental and may change.
@@ -217,6 +213,7 @@ export const TextComponent = defineComponent({
     return {
       // Text contents to render
       text: 'Some Text',
+      textWidth: Infinity,
       textIndent: 0,
       letterSpacing: 0,
       // Font Properties
@@ -232,6 +229,7 @@ export const TextComponent = defineComponent({
     if (!json) return
     // Text contents to render
     if (matches.string.test(json.text)) component.text.set(json.text)
+    if (matches.number.test(json.textWidth)) component.textWidth.set(json.textWidth)
     if (matches.number.test(json.textIndent)) component.textIndent.set(json.textIndent)
     if (matches.number.test(json.letterSpacing)) component.letterSpacing.set(json.letterSpacing)
     // Font Properties
@@ -245,6 +243,7 @@ export const TextComponent = defineComponent({
     return {
       // Text contents to render
       text: component.text.value,
+      textWidth: component.textWidth.value,
       textIndent: component.textIndent.value,
       letterSpacing: component.letterSpacing.value,
       // Font Properties
@@ -265,6 +264,7 @@ export const TextComponent = defineComponent({
     useEffect(() => {
       // Update the Text content to render
       text.troikaMesh.value.text = text.text.value
+      text.troikaMesh.value.maxWidth = text.textWidth.value
       text.troikaMesh.value.textIndent = text.textIndent.value
       text.troikaMesh.value.letterSpacing = text.letterSpacing.value
       // Update the font properties
@@ -273,7 +273,7 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.color = text.fontColor.value.getHex()
       // Order troika to syncrhonize the mesh
       text.troikaMesh.value.sync()
-    }, [text.text, text.textIndent, text.letterSpacing, text.textIndent, text.fontSize, text.fontColor])
+    }, [text.text, text.textIndent, text.textWidth, text.letterSpacing, text.textIndent, text.fontSize, text.fontColor])
 
     /* Reactive system
     useExecute(() => {}, { with: InputSystemGroup })

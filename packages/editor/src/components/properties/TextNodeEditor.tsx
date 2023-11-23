@@ -65,6 +65,18 @@ export const TextNodeEditor: EditorComponentType = (props) => {
       >
         <div>
           <NumericInputGroup
+            name="TextWidth"
+            label="width" // {t('editor:properties.text.textWidth')}  /* @todo: Translation id */
+            min={0}
+            smallStep={0.01}
+            mediumStep={0.1}
+            largeStep={0.5}
+            value={text.textWidth.value}
+            onChange={updateProperty(TextComponent, 'textWidth')}
+            onRelease={commitProperty(TextComponent, 'textWidth')}
+            unit="px"
+          />
+          <NumericInputGroup
             name="TextIndent"
             label="indent" // {t('editor:properties.text.textIndent')}  /* @todo: Translation id */
             min={0}
