@@ -114,6 +114,17 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
           <NumericInputGroup
+            name="TextDepthOffset"
+            label="depthOffset" // {t('editor:properties.text.textDepthOffset')}  /* @todo: Translation id */
+            smallStep={0.01}
+            mediumStep={0.1}
+            largeStep={0.25}
+            value={text.textDepthOffset.value}
+            onChange={updateProperty(TextComponent, 'textDepthOffset')}
+            onRelease={commitProperty(TextComponent, 'textDepthOffset')}
+            unit="px"
+          />
+          <NumericInputGroup
             name="TextCurveRadius"
             label="curveRadius" // {t('editor:properties.text.textCurveRadius')}  /* @todo: Translation id */
             smallStep={1}

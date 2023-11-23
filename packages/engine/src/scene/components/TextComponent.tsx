@@ -67,6 +67,7 @@ type TextMesh = Mesh & {
   maxWidth: number /** Value above which text starts wrapping */
   anchorX: number | string | 'left' | 'center' | 'right'
   anchorY: number | string | 'top' | 'top-baseline' | 'top-cap' | 'top-ex' | 'middle' | 'bottom-baseline' | 'bottom'
+  depthOffset: number
   curveRadius: number
   // Font properties
   font: string | null /** Defaults to Noto Sans when null */
@@ -91,10 +92,6 @@ type TextMesh = Mesh & {
   outlineColor: TroikaColor // WARNING: This API is experimental and may change.
   // The color of the text stroke, if `strokeWidth` is greater than zero. Defaults to gray.
   strokeColor: TroikaColor // WARNING: This API is experimental and may change.
-  // This is a shortcut for setting the material's `polygonOffset` and related properties,
-  // which can be useful in preventing z-fighting when this text is laid on top of another
-  // plane in the scene. Positive numbers are further from the camera, negatives closer.
-  depthOffset: number
   // If specified, defines a `[minX, minY, maxX, maxY]` of a rectangle outside of which all
   // pixels will be discarded. This can be used for example to clip overflowing text when
   // `whiteSpace='nowrap'`.
@@ -189,6 +186,7 @@ export const TextComponent = defineComponent({
         /* X */ 0, // range[0..100+], sent to troika as [0..100]% :string
         /* Y */ 0 // range[0..100+], sent to troika as [0..100]% :string
       ),
+      textDepthOffset: 0, // For Z-fighting adjustments. Similar to anchor.Z
       textCurveRadius: 0,
       letterSpacing: 0,
 
@@ -222,6 +220,7 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.textWidth)) component.textWidth.set(json.textWidth)
     if (matches.number.test(json.textIndent)) component.textIndent.set(json.textIndent)
     if (matches.object.test(json.textAnchor) && json.textAnchor.isVector2) component.textAnchor.set(json.textAnchor)
+    if (matches.number.test(json.textDepthOffset)) component.textDepthOffset.set(json.textDepthOffset)
     if (matches.number.test(json.textCurveRadius)) component.textCurveRadius.set(json.textCurveRadius)
     if (matches.number.test(json.letterSpacing)) component.letterSpacing.set(json.letterSpacing)
     // Font Properties
@@ -247,6 +246,7 @@ export const TextComponent = defineComponent({
       textWidth: component.textWidth.value,
       textIndent: component.textIndent.value,
       textAnchor: component.textAnchor.value,
+      textDepthOffset: component.textDepthOffset.value,
       textCurveRadius: component.textCurveRadius.value,
       letterSpacing: component.letterSpacing.value,
       // Font Properties
@@ -279,6 +279,7 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.textIndent = text.textIndent.value
       text.troikaMesh.value.anchorX = `${text.textAnchor.x.value}%`
       text.troikaMesh.value.anchorY = `${text.textAnchor.y.value}%`
+      text.troikaMesh.value.depthOffset = text.textDepthOffset.value
       text.troikaMesh.value.curveRadius = MathUtils.degToRad(text.textCurveRadius.value)
       text.troikaMesh.value.letterSpacing = text.letterSpacing.value
       // Update the font properties
@@ -301,6 +302,7 @@ export const TextComponent = defineComponent({
       text.textIndent,
       text.textAnchor,
       text.textCurveRadius,
+      text.textDepthOffset,
       text.textWidth,
       text.letterSpacing,
       text.textIndent,
