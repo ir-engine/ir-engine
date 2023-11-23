@@ -64,6 +64,8 @@ type TextMesh = Mesh & {
   textIndent: number /** Indentation for the first character of a line; see CSS `text-indent`. */
   letterSpacing: number /** Spacing between letters after kerning is applied. */
   maxWidth: number /** Value above which text starts wrapping */
+  anchorX: number | string | 'left' | 'center' | 'right'
+  anchorY: number | string | 'top' | 'top-baseline' | 'top-cap' | 'top-ex' | 'middle' | 'bottom-baseline' | 'bottom'
   // Font properties
   font: string | null /** Defaults to Noto Sans when null */
   fontSize: number
@@ -119,11 +121,6 @@ type TextMesh = Mesh & {
   // TODO                                                      //
   //  Remove the unused properties. Only temp for easier dev  //
   //_________________________________________________________//
-  // Defines the position in the text block that should line up with the local origin.
-  // Can be specified as a numeric x position in local units, a string percentage of the total
-  // text block width e.g. `'25%'`, or one of the allowed keyword strings
-  anchorX: number | string | 'left' | 'center' | 'right'
-  anchorY: number | string | 'top' | 'top-baseline' | 'top-cap' | 'top-ex' | 'middle' | 'bottom-baseline' | 'bottom'
   // Sets the base direction for the text. The default value of "auto" will choose a direction based
   // on the text's content according to the bidi spec. A value of "ltr" or "rtl" will force the direction.
   direction: 'auto' | 'ltr' | 'rtl'
@@ -193,7 +190,12 @@ export const TextComponent = defineComponent({
       textOpacity: 100, // range[0..100], sent to troika as [0..1] :number
       textWidth: Infinity,
       textIndent: 0,
+      textAnchor: new Vector2(
+        /* X */ 0, // range[0..100+], sent to troika as [0..100]% :string
+        /* Y */ 0 // range[0..100+], sent to troika as [0..100]% :string
+      ),
       letterSpacing: 0,
+
       // Font Properties
       font: FontDefault, // font: string|null
       fontSize: 0.2,
@@ -223,6 +225,7 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.textOpacity)) component.textOpacity.set(json.textOpacity)
     if (matches.number.test(json.textWidth)) component.textWidth.set(json.textWidth)
     if (matches.number.test(json.textIndent)) component.textIndent.set(json.textIndent)
+    if (matches.object.test(json.textAnchor) && json.textAnchor.isVector2) component.textAnchor.set(json.textAnchor)
     if (matches.number.test(json.letterSpacing)) component.letterSpacing.set(json.letterSpacing)
     // Font Properties
     if (matches.string.test(json.font)) component.font.set(json.font)
@@ -246,6 +249,7 @@ export const TextComponent = defineComponent({
       textOpacity: component.textOpacity.value,
       textWidth: component.textWidth.value,
       textIndent: component.textIndent.value,
+      textAnchor: component.textAnchor.value,
       letterSpacing: component.letterSpacing.value,
       // Font Properties
       font: component.font.value,
@@ -275,6 +279,8 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.fillOpacity = text.textOpacity.value / 100
       text.troikaMesh.value.maxWidth = text.textWidth.value
       text.troikaMesh.value.textIndent = text.textIndent.value
+      text.troikaMesh.value.anchorX = `${text.textAnchor.x.value}%`
+      text.troikaMesh.value.anchorY = `${text.textAnchor.y.value}%`
       text.troikaMesh.value.letterSpacing = text.letterSpacing.value
       // Update the font properties
       text.troikaMesh.value.font = text.font.value
@@ -294,6 +300,7 @@ export const TextComponent = defineComponent({
       text.text,
       text.textOpacity,
       text.textIndent,
+      text.textAnchor,
       text.textWidth,
       text.letterSpacing,
       text.textIndent,

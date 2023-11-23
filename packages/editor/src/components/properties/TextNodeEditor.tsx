@@ -103,6 +103,16 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(TextComponent, 'textIndent')}
             unit="px"
           />
+          <InputGroup
+            name="TextAnchor"
+            label="anchor" // {t('editor:properties.text.textAnchor')} /* @todo: Translation id */
+          >
+            <Vector2Input
+              value={text.textAnchor.value}
+              onChange={updateProperty(TextComponent, 'textAnchor')}
+              onRelease={commitProperty(TextComponent, 'textAnchor')}
+            />
+          </InputGroup>
           <NumericInputGroup
             name="LettersSpacing"
             label="spacing" // {t('editor:properties.text.letterSpacing')}  /* @todo: Translation id */
