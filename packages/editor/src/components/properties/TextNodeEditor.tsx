@@ -40,6 +40,7 @@ import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { ControlledStringInput } from '../inputs/StringInput'
+import Vector2Input from '../inputs/Vector2Input'
 
 /**
  * TextNodeEditor component used to provide the editor view to customize link properties.
@@ -197,6 +198,16 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(TextComponent, 'outlineBlur')}
             unit="%"
           />
+          <InputGroup
+            name="OutlineOffset"
+            label="offset" // {t('editor:properties.text.outlineOffset')} /* @todo: Translation id */
+          >
+            <Vector2Input
+              value={text.outlineOffset.value}
+              onChange={updateProperty(TextComponent, 'outlineOffset')}
+              onRelease={commitProperty(TextComponent, 'outlineOffset')}
+            />
+          </InputGroup>
         </div>
       </InputGroup>
       <InputGroup

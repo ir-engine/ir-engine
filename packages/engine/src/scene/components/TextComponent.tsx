@@ -29,7 +29,7 @@ import { isClient } from '@etherealengine/engine/src/common/functions/getEnviron
 import { defineComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 
-import { Color, Mesh } from 'three'
+import { Color, Mesh, Vector2 } from 'three'
 import { Text as TroikaText } from 'troika-three-text'
 import { matches } from '../../common/functions/MatchesUtils'
 import { addObjectToGroup } from './GroupComponent'
@@ -70,6 +70,8 @@ type TextMesh = Mesh & {
   outlineOpacity: number // @note: Troika marks this as an Experimental API
   outlineWidth: number | string // @note: Troika marks this as an Experimental API
   outlineBlur: number | string // @note: Troika marks this as an Experimental API
+  outlineOffsetX: number | string // @note: Troika marks this as an Experimental API
+  outlineOffsetY: number | string // @note: Troika marks this as an Experimental API
   strokeOpacity: number // @note: Troika marks this as an Experimental API
   strokeWidth: number | string // @note: Troika marks this as an Experimental API
 
@@ -158,11 +160,6 @@ type TextMesh = Mesh & {
   // range. The color value can be a numeric hex color value, a `THREE.Color` object, or
   // any of the strings accepted by `THREE.Color`.
   colorRanges: object | null // WARNING: This API is experimental and may change.
-  // An offset for the text outline.
-  // Can be specified as either an absolute number in local units, or as a percentage string e.g. `"12%"`
-  // which is treated as a percentage of the `fontSize`. Defaults to `0`.
-  outlineOffsetX: number | string // WARNING: This API is experimental and may change.
-  outlineOffsetY: number | string // WARNING: This API is experimental and may change.
   // Defines the axis plane on which the text should be laid out when the mesh has no extra
   // rotation transform. It is specified as a string with two axes: the horizontal axis with
   // positive pointing right, and the vertical axis with positive pointing up. By default this
@@ -209,6 +206,10 @@ export const TextComponent = defineComponent({
       outlineOpacity: 0, // range[0..100], sent to troika as [0..1] :number
       outlineWidth: 0, // range[0..100+], sent to troika as [0..100]% :string
       outlineBlur: 0, // range[0..100+], sent to troika as [0..100]% :string
+      outlineOffset: new Vector2(
+        /* X */ 0, // range[0..100+], sent to troika as [0..100]% :string
+        /* Y */ 0 // range[0..100+], sent to troika as [0..100]% :string
+      ),
       // Font Stroke Properties
       strokeOpacity: 0, // range[0..100], sent to troika as [0..1] :number
       strokeWidth: 0, // range[0..100+], sent to troika as [0..100]% :string
@@ -233,6 +234,8 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.outlineOpacity)) component.outlineOpacity.set(json.outlineOpacity)
     if (matches.number.test(json.outlineWidth)) component.outlineWidth.set(json.outlineWidth)
     if (matches.number.test(json.outlineBlur)) component.outlineBlur.set(json.outlineBlur)
+    if (matches.object.test(json.outlineOffset) && json.outlineOffset.isVector2)
+      component.outlineOffset.set(json.outlineOffset)
     if (matches.number.test(json.strokeOpacity)) component.strokeOpacity.set(json.strokeOpacity)
     if (matches.number.test(json.strokeWidth)) component.strokeWidth.set(json.strokeWidth)
   },
@@ -252,6 +255,7 @@ export const TextComponent = defineComponent({
       outlineOpacity: component.outlineOpacity.value,
       outlineWidth: component.outlineWidth.value,
       outlineBlur: component.outlineBlur.value,
+      outlineOffset: component.outlineOffset.value,
       strokeOpacity: component.strokeOpacity.value,
       strokeWidth: component.strokeWidth.value
     }
@@ -279,6 +283,8 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.outlineOpacity = text.outlineOpacity.value / 100
       text.troikaMesh.value.outlineWidth = `${text.outlineWidth.value}%`
       text.troikaMesh.value.outlineBlur = `${text.outlineBlur.value}%`
+      text.troikaMesh.value.outlineOffsetX = `${text.outlineOffset.x.value}%`
+      text.troikaMesh.value.outlineOffsetY = `${text.outlineOffset.y.value}%`
       text.troikaMesh.value.strokeOpacity = text.strokeOpacity.value / 100
       text.troikaMesh.value.strokeWidth = `${text.strokeWidth.value}%`
       // Order troika to synchronize the mesh
@@ -295,6 +301,7 @@ export const TextComponent = defineComponent({
       text.outlineOpacity,
       text.outlineWidth,
       text.outlineBlur,
+      text.outlineOffset,
       text.strokeOpacity,
       text.strokeWidth
     ])
