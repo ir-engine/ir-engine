@@ -154,6 +154,7 @@ export const HyperspaceTagComponent = defineComponent({
           getMutableState(PortalState).activePortalEntity.set(UndefinedEntity)
           getMutableState(PortalState).portalReady.set(false)
           camera.layers.disable(ObjectLayers.Portal)
+          return
         }
 
         getComponent(hyperspaceEffectEntity, TransformComponent).position.copy(cameraTransform.position)

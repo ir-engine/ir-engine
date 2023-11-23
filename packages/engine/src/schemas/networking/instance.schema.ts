@@ -44,7 +44,7 @@ export const instanceSchema = Type.Object(
     id: TypedString<InstanceID>({
       format: 'uuid'
     }),
-    roomCode: TypedString<RoomCode>({ format: 'uuid' }),
+    roomCode: TypedString<RoomCode>(),
     ipAddress: Type.Optional(Type.String()),
     channelId: Type.Optional(
       TypedString<ChannelID>({
