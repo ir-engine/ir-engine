@@ -48,19 +48,14 @@ import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import CSMHelper from './CSMHelper'
 import Frustum from './Frustum'
 import Shader from './Shader'
 
 const originalLightsFragmentBegin = ShaderChunk.lights_fragment_begin
 const originalLightsParsBegin = ShaderChunk.lights_pars_begin
 
-const _projScreenMatrix = new Matrix4()
-const _m1 = new Matrix4()
-
 const _lightOrientationMatrix = new Matrix4()
 const _lightOrientationMatrixInverse = new Matrix4()
-const _cameraToLightParentMatrix = new Matrix4()
 
 const _cameraToLightMatrix = new Matrix4()
 const _lightSpaceFrustum = new Frustum()
@@ -114,7 +109,6 @@ export class CSM {
   lightSourcesCount: number
   shaders: Map<Material, ShaderType> = new Map()
   needsUpdate = false
-  helper: CSMHelper
 
   constructor(data: CSMParams) {
     this.cascades = data.cascades || 3
@@ -140,9 +134,6 @@ export class CSM {
     this.createLights(data.light)
     this.updateFrustums()
     this.injectInclude()
-
-    this.helper = new CSMHelper(this)
-    Engine.instance.scene.add(this.helper)
   }
 
   changeLights(light?: DirectionalLight): void {
@@ -378,8 +369,6 @@ export class CSM {
 
       light.target.updateMatrixWorld(true)
     }
-
-    this.helper.update()
   }
 
   injectInclude(): void {
@@ -499,7 +488,6 @@ export class CSM {
       removeEntity(entity)
     })
     this.lights = []
-    Engine.instance.scene.remove(this.helper)
   }
 
   dispose(): void {

@@ -43,6 +43,7 @@ import { defineState, getMutableState, getState, hookstate, useHookstate } from 
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
+import { CSMHelper } from '../../assets/csm/CSMHelper'
 import { V_001 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
@@ -183,9 +184,13 @@ function CSMReactor() {
 
   const rendererState = useHookstate(getMutableState(RendererState))
   useEffect(() => {
-    if (!rendererState.csm.value) return
-    rendererState.csm.value.helper.paused = !rendererState.nodeHelperVisibility.value
-    rendererState.csm.value.helper.updateVisibility()
+    if (!rendererState.csm.value || !rendererState.nodeHelperVisibility.value) return
+    const helper = new CSMHelper()
+    rendererState.csmHelper.set(helper)
+    return () => {
+      helper.remove()
+      rendererState.csmHelper.set(null)
+    }
   }, [rendererState.csm, rendererState.nodeHelperVisibility])
 
   const csmEnabled = useHookstate(getMutableState(RenderSettingsState))?.csm?.value
@@ -322,9 +327,11 @@ const execute = () => {
     return
   }
 
-  const csm = getState(RendererState).csm
-  if (!csm) return
-  csm.update()
+  const { csm, csmHelper } = getState(RendererState)
+  if (csm) {
+    csm.update()
+    if (csmHelper) csmHelper.update(csm)
+  }
 }
 
 const reactor = () => {
