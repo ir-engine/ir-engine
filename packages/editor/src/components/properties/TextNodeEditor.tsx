@@ -185,6 +185,18 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(TextComponent, 'outlineWidth')}
             unit="%"
           />
+          <NumericInputGroup
+            name="OutlineBlur"
+            label="blur" // {t('editor:properties.text.outlineBlur')}  /* @todo: Translation id */
+            min={0}
+            smallStep={1}
+            mediumStep={2}
+            largeStep={5}
+            value={text.outlineBlur.value}
+            onChange={updateProperty(TextComponent, 'outlineBlur')}
+            onRelease={commitProperty(TextComponent, 'outlineBlur')}
+            unit="%"
+          />
         </div>
       </InputGroup>
       <InputGroup
