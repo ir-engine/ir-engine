@@ -47,6 +47,7 @@ import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/class
 import {
   MediaStreamAppData,
   MediaTagType,
+  NetworkConnectionParams,
   NetworkState,
   addNetwork,
   removeNetwork,
@@ -236,29 +237,21 @@ export const connectToNetwork = async (
   instanceID: InstanceID,
   ipAddress: string,
   port: string,
-  locationId?: LocationID | null,
-  channelId?: ChannelID | null,
-  roomCode?: RoomCode | null
+  locationId?: LocationID,
+  channelId?: ChannelID,
+  roomCode?: RoomCode
 ) => {
   logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, locationId, channelId, roomCode })
 
   const authState = getState(AuthState)
   const token = authState.authUser.accessToken
 
-  const query = {
+  const query: NetworkConnectionParams = {
     instanceID,
     locationId,
     channelId,
     roomCode,
     token
-  } as {
-    instanceID: InstanceID
-    locationId?: LocationID
-    channelId?: ChannelID
-    roomCode?: RoomCode
-    address?: string
-    port?: string
-    token: string
   }
 
   if (locationId) delete query.channelId
@@ -275,8 +268,6 @@ export const connectToNetwork = async (
       const queryString = new URLSearchParams(query).toString()
       primus = new Primus(`https://${ipAddress as string}:${port.toString()}?${queryString}`)
     } else {
-      query.address = ipAddress
-      query.port = port.toString()
       const queryString = new URLSearchParams(query).toString()
       primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`)
     }
