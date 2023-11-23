@@ -34,9 +34,9 @@ export async function up(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const locationIdColumnExists = await trx.schema.hasColumn(locationPath, 'sceneId')
+  const sceneIdColumnExists = await trx.schema.hasColumn(locationPath, 'sceneId')
 
-  if (locationIdColumnExists === true) {
+  if (sceneIdColumnExists === true) {
     await trx
       .from(locationPath)
       .update({ sceneId: trx.raw(`CONCAT("projects/", ??, ".scene.json")`, ['sceneId']) })
