@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 
 import {
   BufferAttribute,
@@ -40,7 +40,6 @@ import {
   Vector3
 } from 'three'
 
-import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
@@ -53,14 +52,20 @@ import {
   POSE_CONNECTIONS,
   POSE_LANDMARKS,
   POSE_LANDMARKS_LEFT,
+  POSE_LANDMARKS_NEUTRAL,
   POSE_LANDMARKS_RIGHT
 } from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { V_010, V_100 } from '../common/constants/MathConstants'
 import { EngineState } from '../ecs/classes/EngineState'
+import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { RendererState } from '../renderer/RendererState'
+import { GroupComponent, addObjectToGroup } from '../scene/components/GroupComponent'
+import { NameComponent } from '../scene/components/NameComponent'
+import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
 const grey = new Color(0.5, 0.5, 0.5)
@@ -117,10 +122,20 @@ export const calculateGroundedFeet = (newLandmarks: NormalizedLandmark[]) => {
   return feetGrounded
 }
 
-export const drawMocapDebug = () => {
+const LandmarkNames = Object.fromEntries(
+  Object.entries({
+    ...POSE_LANDMARKS,
+    ...POSE_LANDMARKS_LEFT,
+    ...POSE_LANDMARKS_RIGHT,
+    ...POSE_LANDMARKS_NEUTRAL
+  }).map(([key, value]) => [value, key])
+)
+
+export const drawMocapDebug = (label: string) => {
   if (!POSE_CONNECTIONS) return () => {}
 
-  const debugMeshes = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
+  const debugEntities = {} as Record<string, Entity>
+  let lineSegmentEntity: Entity | null = null
 
   const positionLineSegment = new LineSegments(new BufferGeometry(), new LineBasicMaterial({ vertexColors: true }))
   positionLineSegment.material.linewidth = 4
@@ -129,18 +144,36 @@ export const drawMocapDebug = () => {
   const colAttr = new BufferAttribute(new Float32Array(POSE_CONNECTIONS.length * 2 * 4).fill(1), 4)
   positionLineSegment.geometry.setAttribute('color', colAttr)
 
-  return (landmarks: NormalizedLandmarkList) => {
+  return (landmarks?: NormalizedLandmarkList, debugEnabled?: boolean) => {
+    if (!debugEnabled) {
+      for (const [key, entity] of Object.entries(debugEntities)) {
+        delete debugEntities[key]
+        removeEntity(entity)
+      }
+      if (lineSegmentEntity) {
+        removeEntity(lineSegmentEntity)
+        lineSegmentEntity = null
+      }
+      return
+    }
+
+    if (!landmarks) return
+
     const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
     for (const [key, value] of Object.entries(landmarks)) {
       const confidence = value.visibility ?? 0
       const color = new Color().set(1 - confidence, confidence, 0)
-      if (!debugMeshes[key]) {
+      if (!debugEntities[key]) {
         const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial({ color }))
         setObjectLayers(mesh, ObjectLayers.AvatarHelper)
-        debugMeshes[key] = mesh
-        Engine.instance.scene.add(mesh)
+        const entity = createEntity()
+        debugEntities[key] = entity
+        addObjectToGroup(entity, mesh)
+        setVisibleComponent(entity, true)
+        setComponent(entity, NameComponent, `Mocap Debug ${label} ${LandmarkNames[key]}`)
       }
-      const mesh = debugMeshes[key]
+      const entity = debugEntities[key]
+      const mesh = getComponent(entity, GroupComponent)[0] as any as Mesh<BufferGeometry, MeshBasicMaterial>
       mesh.material.color.set(color)
       if (key === `${POSE_LANDMARKS_RIGHT.RIGHT_WRIST}`) mesh.material.color.set(0xff0000)
       if (key === `${POSE_LANDMARKS_RIGHT.RIGHT_PINKY}`) mesh.material.color.set(0x00ff00)
@@ -149,24 +182,31 @@ export const drawMocapDebug = () => {
       //debug to show the acurracy of the foot grounded  estimation
       if (key === `${POSE_LANDMARKS_LEFT.LEFT_ANKLE}`) {
         mesh.material.color.setHex(feetGrounded[1] ? 0x00ff00 : 0xff0000)
-        mesh.geometry = new SphereGeometry(0.05)
       }
       if (key === `${POSE_LANDMARKS_RIGHT.RIGHT_ANKLE}`) {
         mesh.material.color.setHex(feetGrounded[0] ? 0x00ff00 : 0xff0000)
-        mesh.geometry = new SphereGeometry(0.05)
       }
-      mesh.matrixWorld.setPosition(value.x, lowestWorldY - value.y, value.z)
+      getComponent(entity, TransformComponent).matrix.setPosition(value.x, lowestWorldY - value.y, value.z)
     }
 
-    if (!positionLineSegment.parent) {
-      Engine.instance.scene.add(positionLineSegment)
+    if (!lineSegmentEntity) {
+      lineSegmentEntity = createEntity()
+      addObjectToGroup(lineSegmentEntity, positionLineSegment)
+      setVisibleComponent(lineSegmentEntity, true)
+      setComponent(lineSegmentEntity, NameComponent, 'Mocap Debug Line Segment ' + label)
       setObjectLayers(positionLineSegment, ObjectLayers.AvatarHelper)
     }
 
     for (let i = 0; i < POSE_CONNECTIONS.length * 2; i += 2) {
       const [first, second] = POSE_CONNECTIONS[i / 2]
-      const firstPoint = debugMeshes[first]
-      const secondPoint = debugMeshes[second]
+      const firstPoint = getComponent(debugEntities[first], GroupComponent)[0] as any as Mesh<
+        BufferGeometry,
+        MeshBasicMaterial
+      >
+      const secondPoint = getComponent(debugEntities[second], GroupComponent)[0] as any as Mesh<
+        BufferGeometry,
+        MeshBasicMaterial
+      >
 
       posAttr.setXYZ(
         i,
@@ -193,9 +233,9 @@ export const drawMocapDebug = () => {
   }
 }
 
-const drawDebug = drawMocapDebug()
-const drawDebugScreen = drawMocapDebug()
-const drawDebugFinal = drawMocapDebug()
+const drawDebug = drawMocapDebug('Raw')
+const drawDebugScreen = drawMocapDebug('Screen')
+const drawDebugFinal = drawMocapDebug('Final')
 
 export const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], threshold = 0.5) => {
   const hipsVisibility =
@@ -240,11 +280,10 @@ export function solveMotionCapturePose(
 
   prevLandmarks = landmarks
 
-  if (avatarDebug) {
-    drawDebug(newLandmarks)
-    newScreenlandmarks && drawDebugScreen(newScreenlandmarks)
-    drawDebugFinal(landmarks)
-  }
+  drawDebug(newLandmarks, avatarDebug)
+  drawDebugScreen(newScreenlandmarks, !!newScreenlandmarks && avatarDebug)
+  drawDebugFinal(landmarks, avatarDebug)
+
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
   const estimatingLowerBody = shouldEstimateLowerBody(landmarks)
   solveSpine(entity, lowestWorldY, landmarks)
@@ -359,28 +398,11 @@ export function solveMotionCapturePose(
     VRMHumanBoneName.LeftLowerArm,
     VRMHumanBoneName.LeftHand
   )
-
-  // if (!planeHelper1.parent) {
-  //   Engine.instance.scene.add(planeHelper1)
-  //   Engine.instance.scene.add(planeHelper2)
-  // }
 }
 
 const threshhold = 0.6
 
 const vec3 = new Vector3()
-
-// const planeHelper1 = new Mesh(
-//   new PlaneGeometry(1, 1),
-//   new MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.2, side: DoubleSide })
-// )
-// planeHelper1.add(new AxesHelper())
-
-// const planeHelper2 = new Mesh(
-//   new PlaneGeometry(1, 1),
-//   new MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.2, side: DoubleSide })
-// )
-// planeHelper2.add(new AxesHelper())
 
 /**
  * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
@@ -630,10 +652,6 @@ export const solveHand = (
   rotationMatrix.makeBasis(directionVector, orthogonalVector, thirdVector)
 
   const limbExtentQuaternion = new Quaternion().setFromRotationMatrix(rotationMatrix)
-
-  // planeHelper2.position.copy(startPoint)
-  // planeHelper2.quaternion.copy(limbExtentQuaternion)
-  // planeHelper2.updateMatrixWorld()
 
   // convert to local space
   const extentQuaternionLocal = new Quaternion()

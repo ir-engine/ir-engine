@@ -113,7 +113,6 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
 
   const model = await AssetLoader.loadAsync(avatarURL, undefined, undefined, override)
-  console.log(avatarURL, model)
   return parseAvatarModelAsset(model)
 }
 
@@ -122,7 +121,6 @@ export const loadAvatarForUser = async (
   avatarURL: string,
   loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 ) => {
-  console.log(avatarURL)
   if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
     throw new Error('Avatar model already loading')
 
