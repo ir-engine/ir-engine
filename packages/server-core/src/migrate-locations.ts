@@ -33,7 +33,7 @@ export async function migrateLocations(app: Application) {
   logger.info('Updating scene id in locations')
 
   const knexClient = app.get('knexClient')
-  const locations = await knexClient(locationPath).count({ count: '*' })
+  const locations = await knexClient(locationPath).select('*')
 
   for (const location of locations) {
     const existingSceneID = location.sceneId
