@@ -52,7 +52,7 @@ import {
 import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { TransformSpace, TransformSpaceType } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
@@ -60,16 +60,15 @@ import {
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { ComponentJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import {
   computeLocalTransformMatrix,
   computeTransformMatrix
 } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { SelectionState } from '../services/SelectionServices'
-import { cancelGrabOrPlacement } from './cancelGrabOrPlacement'
 import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
 import { getSpaceMatrix } from './getSpaceMatrix'
@@ -78,7 +77,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
   const sceneComponentID = component.jsonID
   if (!sceneComponentID) return
 
-  cancelGrabOrPlacement()
+  //cancelGrabOrPlacement()
 
   const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
 
@@ -104,7 +103,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
 }
 
 const modifyName = (entities: Entity[], name: string) => {
-  cancelGrabOrPlacement()
+  //cancelGrabOrPlacement()
 
   const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
 
@@ -126,7 +125,7 @@ const modifyProperty = <C extends Component<any, any>>(
   component: C,
   properties: Partial<SerializedComponentType<C>>
 ) => {
-  cancelGrabOrPlacement()
+  //cancelGrabOrPlacement()
 
   const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
 
@@ -207,13 +206,13 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
 }
 
 const createObjectFromSceneElement = (
-  componentJson: ComponentJson[] = [],
+  componentJson: ComponentJsonType[] = [],
   parentEntity?: Entity,
   beforeEntity?: Entity,
   updateSelection = true
 ) => {
   parentEntity = parentEntity ?? SceneState.getRootEntity(getState(SceneState).activeScene!)
-  cancelGrabOrPlacement()
+  //cancelGrabOrPlacement()
 
   let childIndex = 0
   if (typeof beforeEntity === 'number') {
@@ -256,7 +255,7 @@ const createObjectFromSceneElement = (
  * @todo copying an object should be rooted to which object is currently selected
  */
 const duplicateObject = (entities: Entity[]) => {
-  cancelGrabOrPlacement()
+  //cancelGrabOrPlacement()
 
   const parents = [] as Entity[]
 
@@ -317,7 +316,7 @@ const tempVector = new Vector3()
 const positionObject = (
   nodes: Entity[],
   positions: Vector3[],
-  space: TransformSpace = TransformSpace.Local,
+  space: TransformSpaceType = 'local',
   addToPosition?: boolean
 ) => {
   for (let i = 0; i < nodes.length; i++) {
@@ -328,7 +327,7 @@ const positionObject = (
     const localTransform = getOptionalComponent(node, LocalTransformComponent) ?? transform
     const targetComponent = hasComponent(node, LocalTransformComponent) ? LocalTransformComponent : TransformComponent
 
-    if (space === TransformSpace.Local) {
+    if (space === TransformSpace.local) {
       if (addToPosition) localTransform.position.add(pos)
       else localTransform.position.copy(pos)
     } else {
@@ -342,7 +341,7 @@ const positionObject = (
         tempVector.add(pos)
       }
 
-      const _spaceMatrix = space === TransformSpace.World ? parentTransform.matrix : getSpaceMatrix()
+      const _spaceMatrix = space === TransformSpace.world ? parentTransform.matrix : getSpaceMatrix()
       tempMatrix.copy(_spaceMatrix).invert()
       tempVector.applyMatrix4(tempMatrix)
 
@@ -355,7 +354,7 @@ const positionObject = (
 const T_QUAT_1 = new Quaternion()
 const T_QUAT_2 = new Quaternion()
 
-const rotateObject = (nodes: Entity[], rotations: Euler[], space: TransformSpace = TransformSpace.Local) => {
+const rotateObject = (nodes: Entity[], rotations: Euler[], space: TransformSpaceType = TransformSpace.local) => {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
 
@@ -365,7 +364,7 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space: TransformSpace
 
     T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
-    if (space === TransformSpace.Local) {
+    if (space === TransformSpace.local) {
       localTransform.rotation.copy(T_QUAT_1)
     } else {
       const entityTreeComponent = getComponent(node, EntityTreeComponent)
@@ -373,7 +372,7 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space: TransformSpace
         ? getComponent(entityTreeComponent.parentEntity, TransformComponent)
         : transform
 
-      const _spaceMatrix = space === TransformSpace.World ? parentTransform.matrix : getSpaceMatrix()
+      const _spaceMatrix = space === TransformSpace.world ? parentTransform.matrix : getSpaceMatrix()
 
       const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
       const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
@@ -414,10 +413,10 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
 const scaleObject = (
   entities: Entity[],
   scales: Vector3[],
-  space: TransformSpace = TransformSpace.Local,
+  space: TransformSpaceType = 'local',
   overrideScale = false
 ) => {
-  if (space === TransformSpace.World) {
+  if (space === TransformSpace.world) {
     logger.warn('Scaling an object in world space with a non-uniform scale is not supported')
     return
   }
@@ -442,13 +441,13 @@ const scaleObject = (
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    updateComponent(entity as Entity, componentType, { scale: transformComponent.scale })
+    updateComponent(entity, componentType, { scale: transformComponent.scale })
   }
 }
 
 const reparentObject = (entities: Entity[], before?: Entity | null, parent?: Entity | null, updateSelection = true) => {
   parent = parent ?? SceneState.getRootEntity(getState(SceneState).activeScene!)
-  cancelGrabOrPlacement()
+  //cancelGrabOrPlacement()
 
   const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
 
@@ -497,7 +496,7 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent?: Ent
 
 /** @todo - grouping currently doesnt take into account parentEntity or beforeEntity */
 const groupObjects = (entities: Entity[]) => {
-  cancelGrabOrPlacement()
+  //cancelGrabOrPlacement()
 
   const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
 
@@ -555,7 +554,7 @@ const groupObjects = (entities: Entity[]) => {
 }
 
 const removeObject = (entities: Entity[]) => {
-  cancelGrabOrPlacement()
+  //cancelGrabOrPlacement()
 
   /** we have to manually set this here or it will cause react errors when entities are removed */
   getMutableState(SelectionState).selectedEntities.set([])

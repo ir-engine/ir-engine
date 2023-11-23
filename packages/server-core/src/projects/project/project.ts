@@ -32,7 +32,7 @@ import {
   projectPermissionPath
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { ProjectType, projectMethods, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeType, ScopeTypeInterface, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { ProjectService } from './project.class'
@@ -78,10 +78,10 @@ export default (app: Application): void => {
 
       const projectReadScopes = (await app.service(scopePath).find({
         query: {
-          type: 'projects:read'
+          type: 'projects:read' as ScopeType
         },
         paginate: false
-      })) as ScopeType[]
+      })) as ScopeTypeInterface[]
 
       targetIds = targetIds.concat(projectReadScopes.map((admin) => admin.userId!))
       targetIds = _.uniq(targetIds)

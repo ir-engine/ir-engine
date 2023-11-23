@@ -29,6 +29,7 @@ import { v1 } from 'uuid'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
@@ -144,14 +145,14 @@ describe('user.test', () => {
   it('should not be able to patch user scopes without being admin', async () => {
     const userWriteUser = await app.service(userPath).create({
       name: `Test UserWrite #${Math.random()}` as UserName,
-      scopes: [{ type: 'user:write' }],
+      scopes: [{ type: 'user:write' as ScopeType }],
       avatarId: avatar.id
     })
     const userWriteUserApiKey = await app.service(userApiKeyPath).create({ userId: userWriteUser.id })
 
     const userWithScopes = await app.service(userPath).create({
       name: `Test UserWithScopes #${Math.random()}` as UserName,
-      scopes: [{ type: 'editor:write' }],
+      scopes: [{ type: 'editor:write' as ScopeType }],
       avatarId: avatar.id
     })
 
@@ -161,7 +162,7 @@ describe('user.test', () => {
       userWithScopes.id,
       {
         name: newName,
-        scopes: [{ type: 'admin:admin' }]
+        scopes: [{ type: 'admin:admin' as ScopeType }]
       },
       {
         provider: 'rest',
@@ -178,12 +179,12 @@ describe('user.test', () => {
   it('should not be able to remove admin users without being admin', async () => {
     const adminUser = await app.service(userPath).create({
       name: `Test Admin #${Math.random()}` as UserName,
-      scopes: [{ type: 'admin:admin' }],
+      scopes: [{ type: 'admin:admin' as ScopeType }],
       avatarId: avatar.id
     })
     const userWriteUser = await app.service(userPath).create({
       name: `Test UserWrite #${Math.random()}` as UserName,
-      scopes: [{ type: 'admin:admin' }],
+      scopes: [{ type: 'admin:admin' as ScopeType }],
       avatarId: avatar.id
     })
 

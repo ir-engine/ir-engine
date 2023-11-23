@@ -34,12 +34,26 @@ import {
   NormalBlending,
   Plane,
   PlaneGeometry,
-  ShaderMaterial,
-  Vector3
+  ShaderMaterial
 } from 'three'
 
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { Entity } from '../../ecs/classes/Entity'
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
+import { NameComponent } from '../components/NameComponent'
+import { setVisibleComponent } from '../components/VisibleComponent'
 import LogarithmicDepthBufferMaterialChunk from '../functions/LogarithmicDepthBufferMaterialChunk'
 
 /**
@@ -57,8 +71,8 @@ void main() {
 
   vec3 pos = position.xzy * uDistance;
   pos.xz += cameraPosition.xz;
-  // this is necessary to avoid z fighting
-  pos.y -= 0.025; // Rahul: noticed -0.025 is ideal to prevent default z fighting 
+  // avoid z fighting
+  pos.y += 0.01;
 
   worldPosition = pos;
 
@@ -120,13 +134,8 @@ void main() {
 }
 `
 
-const GRID_INCREAMENT = 1.5
-
-export default class InfiniteGridHelper extends Mesh {
-  static instance: InfiniteGridHelper
+export class InfiniteGridHelper extends Mesh<PlaneGeometry, ShaderMaterial> {
   plane: Plane
-  intersectionPointWorld: Vector3
-  intersection: any
 
   constructor(size1 = 1, size2 = 10, color = new Color('white'), distance = 8000) {
     const geometry = new PlaneGeometry(2, 2, 1, 1)
@@ -156,6 +165,32 @@ export default class InfiniteGridHelper extends Mesh {
 
     super(geometry, material)
 
+    this.name = 'InfiniteGridHelper'
+    setObjectLayers(this, ObjectLayers.Gizmos)
+    this.frustumCulled = false
+    this.plane = new Plane(this.up)
+  }
+
+  setSize(size) {
+    this.material.uniforms.uSize1.value = size
+    this.material.uniforms.uSize2.value = size * 10
+  }
+
+  setDistance(distance) {
+    this.material.uniforms.uDistance.value = distance
+  }
+
+  setGridColor(color) {
+    this.material.uniforms.uColor.value = color
+  }
+
+  setGridHeight(value) {
+    this.position.y = value
+    this.updateMatrixWorld(true)
+  }
+
+  static createLines(distance: number) {
+    const lines = [] as LineSegments[]
     const lineColors = ['red', 'green', 'blue']
     for (let i = 0; i < lineColors.length; i++) {
       const lineGeometry = new BufferGeometry()
@@ -169,54 +204,119 @@ export default class InfiniteGridHelper extends Mesh {
         color: lineColors[i],
         transparent: true,
         opacity: 0.3,
+        linewidth: 2,
         blending: NormalBlending,
         depthTest: true,
         depthWrite: true
       })
-      //super(lineGeometry, lineMaterial)
       const line = new LineSegments(lineGeometry, lineMaterial)
-      super.add(line)
+      lines.push(line)
+      setObjectLayers(line, ObjectLayers.Gizmos)
     }
+    return lines
+  }
+}
 
-    this.name = 'InfiniteGridHelper'
-    setObjectLayers(this, ObjectLayers.Gizmos)
-    this.frustumCulled = false
-    this.plane = new Plane(this.up)
-    this.intersectionPointWorld = new Vector3()
-    this.intersection = {
-      distance: 0,
-      point: this.intersectionPointWorld,
-      object: this
+export const InfiniteGridComponent = defineComponent({
+  name: 'Infinite Grid',
+  onInit(entity) {
+    return {
+      size: 1,
+      color: new Color('white'),
+      distance: 8000,
+      // internal
+      helper: new InfiniteGridHelper(),
+      lineEntities: [] as Entity[]
     }
-  }
+  },
 
-  setSize(size) {
-    ;(this.material as any).uniforms.uSize1.value = size
-    ;(this.material as any).uniforms.uSize2.value = size * 10
-  }
+  onSet(
+    entity,
+    component,
+    json: Partial<{
+      size: number
+      color: string | Color
+      distance: number
+    }>
+  ) {
+    if (!json) return
 
-  raycast(raycaster, intersects) {
-    const point = new Vector3()
-    const intersection = raycaster.ray.intersectPlane(this.plane, point)
-    if (intersection === null) return null
-    this.intersectionPointWorld.copy(point)
-    this.intersectionPointWorld.applyMatrix4(this.matrixWorld)
-    const distance = raycaster.ray.origin.distanceTo(this.intersectionPointWorld)
-    if (distance < raycaster.near || distance > raycaster.far) return null
-    this.intersection.distance = distance
-    intersects.push(this.intersection)
-  }
+    if (typeof json.size === 'number') component.size.set(json.size)
+    if (typeof json.color === 'string') component.color.set(new Color(json.color))
+    if (json.color instanceof Color) component.color.set(json.color)
+    if (typeof json.distance === 'number') component.distance.set(json.distance)
+  },
 
-  incrementGridHeight() {
-    this.setGridHeight(this.position.y + GRID_INCREAMENT)
-  }
+  reactor: () => {
+    const entity = useEntityContext()
+    const component = useHookstate(getMutableComponent(entity, InfiniteGridComponent))
+    const engineRendererSettings = useHookstate(getMutableState(RendererState))
 
-  decrementGridHeight() {
-    this.setGridHeight(this.position.y - GRID_INCREAMENT)
-  }
+    useEffect(() => {
+      const helper = getComponent(entity, InfiniteGridComponent).helper
+      addObjectToGroup(entity, helper)
 
-  setGridHeight(value) {
-    this.position.y = value
-    this.updateMatrixWorld(true)
+      const distance = component.distance.value
+
+      const lineEntities = [] as Entity[]
+
+      const lines = InfiniteGridHelper.createLines(distance)
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        const lineEntity = createEntity()
+        addObjectToGroup(lineEntity, line)
+        setComponent(lineEntity, NameComponent, 'Infinite Grid Helper Line ' + i)
+        setVisibleComponent(lineEntity, true)
+        setComponent(lineEntity, EntityTreeComponent, { parentEntity: entity })
+        lineEntities.push(lineEntity)
+      }
+
+      component.lineEntities.set(lineEntities)
+
+      return () => {
+        removeObjectFromGroup(entity, helper)
+        for (const lineEntity of lineEntities) removeEntity(lineEntity)
+      }
+    }, [])
+
+    useEffect(() => {
+      const component = getComponent(entity, InfiniteGridComponent)
+      component.helper.setGridHeight(engineRendererSettings.gridHeight.value)
+    }, [engineRendererSettings.gridHeight])
+
+    useEffect(() => {
+      const component = getComponent(entity, InfiniteGridComponent)
+      component.helper.setGridColor(component.color)
+    }, [component.color])
+
+    useEffect(() => {
+      const component = getComponent(entity, InfiniteGridComponent)
+      component.helper.setSize(component.size)
+    }, [component.size])
+
+    useEffect(() => {
+      const component = getComponent(entity, InfiniteGridComponent)
+      component.helper.setDistance(component.distance)
+      for (let i = 0; i < component.lineEntities.length; i++) {
+        const lineEntity = component.lineEntities[i]
+        const line = getComponent(lineEntity, GroupComponent)[0] as any as LineSegments
+        const floatArray = [0, 0, 0, 0, 0, 0]
+        floatArray[i] = -component.distance
+        floatArray[i + 3] = component.distance
+        const linePositions = new Float32Array(floatArray)
+        line.geometry.setAttribute('position', new BufferAttribute(linePositions, 3))
+      }
+    }, [component.distance, component.lineEntities])
+
+    return null
   }
+})
+
+export const createInfiniteGridHelper = () => {
+  const entity = createEntity()
+  setComponent(entity, EntityTreeComponent)
+  setComponent(entity, InfiniteGridComponent)
+  setComponent(entity, NameComponent, 'Infinite Grid Helper')
+  setVisibleComponent(entity, true)
+  return entity
 }

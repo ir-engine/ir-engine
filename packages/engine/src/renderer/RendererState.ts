@@ -27,6 +27,7 @@ import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflu
 
 import { CSM } from '../assets/csm/CSM'
 import { isMobile } from '../common/functions/isMobile'
+import { Entity } from '../ecs/classes/Entity'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 
 export const RendererState = defineState({
@@ -45,7 +46,9 @@ export const RendererState = defineState({
     gridVisibility: false,
     gridHeight: 0,
     forceBasicMaterials: false,
-    shadowMapResolution: isMobile ? 256 : 2048
+    shadowMapResolution: isMobile ? 256 : 2048,
+    infiniteGridHelperEntity: null as Entity | null,
+    physicsDebugEntity: null as Entity | null
   }),
   onCreate: (store, state) => {
     syncStateWithLocalStorage(RendererState, [

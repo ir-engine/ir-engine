@@ -35,7 +35,7 @@ module.exports = {
     themes: ['default', 'dark', 'vaporwave'],
     // daisyUI config (optional)
     styled: true,
-    base: true,
+    base: false,
     utils: true,
     logs: false,
     rtl: false,
