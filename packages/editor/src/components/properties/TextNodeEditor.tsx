@@ -36,6 +36,7 @@ import {
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
+import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
@@ -241,6 +242,12 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             unit="%"
           />
         </div>
+      </InputGroup>
+      <InputGroup
+        name="GPUAccelerated"
+        label="GPU Accelerated" // {t('editor:properties.textbox.gpuAccelerated')}  /* @todo: Translation id */
+      >
+        <BooleanInput value={text.gpuAccelerated.value} onChange={text.gpuAccelerated.set} />
       </InputGroup>
     </NodeEditor>
   )

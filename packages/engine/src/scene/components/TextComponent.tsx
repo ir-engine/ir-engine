@@ -74,9 +74,11 @@ type TextMesh = Mesh & {
   outlineOffsetY: number | string // @note: Troika marks this as an Experimental API
   strokeOpacity: number // @note: Troika marks this as an Experimental API
   strokeWidth: number | string // @note: Troika marks this as an Experimental API
-
   //____ Presentation properties ____
   color: TroikaColor /** aka fontColor */
+  //____ SDF Properties ____
+  gpuAccelerateSDF: boolean // Allows force-disabling GPU acceleration of SDF. Uses the JS fallback when true
+  //____ Callbacks ____
   sync: () => void /** Async Render the text using the current properties. troika accepts a callback function, but that feature is not mapped */
 
   //____ Simple Properties
@@ -112,12 +114,6 @@ type TextMesh = Mesh & {
   // the sharpness of corners and preventing loss of very thin lines, at the expense of
   // increased memory footprint and longer SDF generation time.
   sdfGlyphSize: number | null
-  // When `true`, the SDF generation process will be GPU-accelerated with WebGL when possible,
-  // making it much faster especially for complex glyphs, and falling back to a JavaScript version
-  // executed in web workers when support isn't available. It should automatically detect support,
-  // but it's still somewhat experimental, so you can set it to `false` to force it to use the JS
-  // version if you encounter issues with it.
-  gpuAccelerateSDF: boolean
 
   //_____________________________________________________________
   // TODO                                                      //
@@ -213,6 +209,8 @@ export const TextComponent = defineComponent({
       // Font Stroke Properties
       strokeOpacity: 0, // range[0..100], sent to troika as [0..1] :number
       strokeWidth: 0, // range[0..100+], sent to troika as [0..100]% :string
+      // SDF Configuration
+      gpuAccelerated: true,
       // Internal State
       troikaMesh: new TroikaText() as TextMesh
     }
@@ -238,6 +236,7 @@ export const TextComponent = defineComponent({
       component.outlineOffset.set(json.outlineOffset)
     if (matches.number.test(json.strokeOpacity)) component.strokeOpacity.set(json.strokeOpacity)
     if (matches.number.test(json.strokeWidth)) component.strokeWidth.set(json.strokeWidth)
+    if (matches.boolean.test(json.gpuAccelerated)) component.gpuAccelerated.set(json.gpuAccelerated)
   },
 
   toJSON: (entity, component) => {
@@ -257,7 +256,8 @@ export const TextComponent = defineComponent({
       outlineBlur: component.outlineBlur.value,
       outlineOffset: component.outlineOffset.value,
       strokeOpacity: component.strokeOpacity.value,
-      strokeWidth: component.strokeWidth.value
+      strokeWidth: component.strokeWidth.value,
+      gpuAccelerated: component.gpuAccelerated.value
     }
   },
 
@@ -287,6 +287,7 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.outlineOffsetY = `${text.outlineOffset.y.value}%`
       text.troikaMesh.value.strokeOpacity = text.strokeOpacity.value / 100
       text.troikaMesh.value.strokeWidth = `${text.strokeWidth.value}%`
+      text.troikaMesh.value.gpuAccelerateSDF = text.gpuAccelerated.value
       // Order troika to synchronize the mesh
       text.troikaMesh.value.sync()
     }, [
@@ -303,7 +304,8 @@ export const TextComponent = defineComponent({
       text.outlineBlur,
       text.outlineOffset,
       text.strokeOpacity,
-      text.strokeWidth
+      text.strokeWidth,
+      text.gpuAccelerated
     ])
 
     /* Reactive system
