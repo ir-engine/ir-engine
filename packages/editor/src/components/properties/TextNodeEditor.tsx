@@ -142,6 +142,25 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           </InputGroup>
         </div>
       </InputGroup>
+      <InputGroup
+        name="OutlineGroup"
+        label="Outline" // {t('editor:properties.text.outlineGroup')}  /* @todo: Translation id */
+      >
+        <div>
+          <NumericInputGroup
+            name="OutlineWidth"
+            label="width" // {t('editor:properties.text.outlineWidth')}  /* @todo: Translation id */
+            min={0}
+            smallStep={0.5}
+            mediumStep={1}
+            largeStep={2}
+            value={text.outlineWidth.value}
+            onChange={updateProperty(TextComponent, 'outlineWidth')}
+            onRelease={commitProperty(TextComponent, 'outlineWidth')}
+            unit="%"
+          />
+        </div>
+      </InputGroup>
     </NodeEditor>
   )
 }
