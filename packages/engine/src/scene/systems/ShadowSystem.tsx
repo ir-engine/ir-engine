@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import {
   Box3,
-  DirectionalLight,
   DoubleSide,
   Material,
   Mesh,
@@ -99,18 +98,6 @@ const shadowRotation = new Quaternion()
 const raycaster = new Raycaster()
 raycaster.firstHitOnly = true
 const raycasterPosition = new Vector3()
-
-/** @deprecated @todo replace this whith EntityCSM when WebXR Light Estimation is entity driven */
-const SimpleCSM = (props: { light: DirectionalLight }) => {
-  useEffect(() => {
-    getMutableState(RendererState).csm.set(new CSM({ light: props.light }))
-    return () => {
-      getState(RendererState).csm?.dispose()
-      getMutableState(RendererState).csm.set(null)
-    }
-  }, [])
-  return null
-}
 
 const EntityCSMReactor = (props: { entity: Entity }) => {
   const activeLightEntity = props.entity
@@ -190,8 +177,8 @@ const PlainCSMReactor = () => {
 const directionalLightQuery = defineQuery([VisibleComponent, DirectionalLightComponent])
 
 function CSMReactor() {
-  const xrState = getMutableState(XRLightProbeState)
-  const isEstimatingLight = useHookstate(xrState.isEstimatingLight)
+  const xrLightProbeState = getMutableState(XRLightProbeState)
+  const xrLightProbeEntity = useHookstate(xrLightProbeState.directionalLightEntity)
   const directionalLights = useQuery([VisibleComponent, DirectionalLightComponent])
 
   const rendererState = useHookstate(getMutableState(RendererState))
@@ -204,18 +191,17 @@ function CSMReactor() {
   const csmEnabled = useHookstate(getMutableState(RenderSettingsState))?.csm?.value
   if (!csmEnabled) return null
 
-  if (isEstimatingLight.value)
-    return <SimpleCSM light={xrState.directionalLight.value} key={xrState.directionalLight.value!.uuid} />
-
   let activeLightEntity = null as Entity | null
 
+  if (xrLightProbeEntity.value) activeLightEntity = xrLightProbeEntity.value
   /** @todo support multiple lights #8277 */
   /** @todo useQuery returns no results for the mount render, so use a query directly here (query will still rerender) #9015 */
   // for (const entity of directionalLights) {
-  for (const entity of directionalLightQuery()) {
-    if (getComponent(entity, DirectionalLightComponent).useInCSM) activeLightEntity = entity
-    break
-  }
+  else
+    for (const entity of directionalLightQuery()) {
+      if (getComponent(entity, DirectionalLightComponent).useInCSM) activeLightEntity = entity
+      break
+    }
 
   /** @todo directional light useInCSM does not reactivly update between these when switching in studio */
   if (!activeLightEntity) return <PlainCSMReactor />
