@@ -205,6 +205,18 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(TextComponent, 'strokeOpacity')}
             unit="%"
           />
+          <NumericInputGroup
+            name="StrokeWidth"
+            label="width" // {t('editor:properties.text.strokeWidth')}  /* @todo: Translation id */
+            min={0}
+            smallStep={0.5}
+            mediumStep={1}
+            largeStep={2}
+            value={text.strokeWidth.value}
+            onChange={updateProperty(TextComponent, 'strokeWidth')}
+            onRelease={commitProperty(TextComponent, 'strokeWidth')}
+            unit="%"
+          />
         </div>
       </InputGroup>
     </NodeEditor>

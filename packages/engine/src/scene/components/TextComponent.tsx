@@ -70,6 +70,8 @@ type TextMesh = Mesh & {
   outlineOpacity: number // @note: Troika marks this as an Experimental API
   outlineWidth: number | string // @note: Troika marks this as an Experimental API
   strokeOpacity: number // @note: Troika marks this as an Experimental API
+  strokeWidth: number | string // @note: Troika marks this as an Experimental API
+
   //____ Presentation properties ____
   color: TroikaColor /** aka fontColor */
   sync: () => void /** Async Render the text using the current properties. troika accepts a callback function, but that feature is not mapped */
@@ -165,10 +167,6 @@ type TextMesh = Mesh & {
   // which is treated as a percentage of the `fontSize`. Defaults to `0`.
   outlineOffsetX: number | string // WARNING: This API is experimental and may change.
   outlineOffsetY: number | string // WARNING: This API is experimental and may change.
-  // The width of an inner stroke drawn inside each text glyph using the `strokeColor` and `strokeOpacity`.
-  // Can be specified as either an absolute number in local units, or as a percentage string e.g. `"12%"`
-  // which is treated as a percentage of the `fontSize`. Defaults to `0`.
-  strokeWidth: number | string // WARNING: This API is experimental and may change.
   // Defines the axis plane on which the text should be laid out when the mesh has no extra
   // rotation transform. It is specified as a string with two axes: the horizontal axis with
   // positive pointing right, and the vertical axis with positive pointing up. By default this
@@ -216,6 +214,7 @@ export const TextComponent = defineComponent({
       outlineWidth: 0, // range[0..100+], sent to troika as [0..100]% :string
       // Font Stroke Properties
       strokeOpacity: 0, // range[0..100], sent to troika as [0..1] :number
+      strokeWidth: 0, // range[0..100+], sent to troika as [0..100]% :string
       // Internal State
       troikaMesh: new TroikaText() as TextMesh
     }
@@ -237,6 +236,7 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.outlineOpacity)) component.outlineOpacity.set(json.outlineOpacity)
     if (matches.number.test(json.outlineWidth)) component.outlineWidth.set(json.outlineWidth)
     if (matches.number.test(json.strokeOpacity)) component.strokeOpacity.set(json.strokeOpacity)
+    if (matches.number.test(json.strokeWidth)) component.strokeWidth.set(json.strokeWidth)
   },
 
   toJSON: (entity, component) => {
@@ -253,7 +253,8 @@ export const TextComponent = defineComponent({
       fontColor: component.fontColor.value,
       outlineOpacity: component.outlineOpacity.value,
       outlineWidth: component.outlineWidth.value,
-      strokeOpacity: component.strokeOpacity.value
+      strokeOpacity: component.strokeOpacity.value,
+      strokeWidth: component.strokeWidth.value
     }
   },
 
@@ -279,6 +280,7 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.outlineOpacity = text.outlineOpacity.value / 100
       text.troikaMesh.value.outlineWidth = `${text.outlineWidth.value}%`
       text.troikaMesh.value.strokeOpacity = text.strokeOpacity.value / 100
+      text.troikaMesh.value.strokeWidth = `${text.strokeWidth.value}%`
       // Order troika to syncrhonize the mesh
       text.troikaMesh.value.sync()
     }, [
@@ -292,7 +294,8 @@ export const TextComponent = defineComponent({
       text.fontColor,
       text.outlineOpacity,
       text.outlineWidth,
-      text.strokeOpacity
+      text.strokeOpacity,
+      text.strokeWidth
     ])
 
     /* Reactive system
