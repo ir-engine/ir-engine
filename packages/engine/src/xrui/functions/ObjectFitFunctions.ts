@@ -27,9 +27,7 @@ import { Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
 import type { WebContainer3D } from '@etherealengine/xrui'
 
-import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -114,30 +112,6 @@ export const ObjectFitFunctions = {
     transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
     transform.matrixInverse.copy(transform.matrix).invert()
     TransformComponent.dirtyTransforms[entity] = false
-  },
-
-  attachObjectToHand: (container: WebContainer3D, scale: number) => {
-    const { localClientEntity } = Engine.instance
-    const avatarAnimationComponent = getComponent(localClientEntity, AvatarRigComponent)
-    if (avatarAnimationComponent && avatarAnimationComponent.rig.leftHand.node) {
-      // todo: figure out how to scale this properly
-      // container.scale.x = container.scale.y = 0.5 * scale
-      // todo: use handedness option to settings
-      if (container.parent !== Engine.instance.scene) {
-        container.removeFromParent()
-        Engine.instance.scene.add(container)
-      }
-
-      _pos.copy(avatarAnimationComponent.rig.leftHand.node.position)
-      _pos.x -= 0.1
-      _pos.y -= 0.1
-      container.position.copy(avatarAnimationComponent.rig.leftHand.node.localToWorld(_pos))
-      container.quaternion
-        .set(0, 0, 0, 1)
-        .multiply(Object3DUtils.getWorldQuaternion(avatarAnimationComponent.rig.leftHand.node, _quat))
-        .multiply(_handRotation)
-      container.updateMatrixWorld(true)
-    }
   },
 
   lookAtCameraFromPosition: (container: WebContainer3D, position: Vector3) => {

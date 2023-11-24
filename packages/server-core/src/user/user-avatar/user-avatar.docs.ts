@@ -23,21 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getState } from '@etherealengine/hyperflux'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { EditorHelperState } from '../services/EditorHelperState'
-import { SelectionState } from '../services/SelectionServices'
-import { EditorControlFunctions } from './EditorControlFunctions'
-import { setTransformMode } from './transformFunctions'
+import {
+  userAvatarDataSchema,
+  userAvatarPatchSchema,
+  userAvatarQuerySchema,
+  userAvatarSchema
+} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 
-export const cancelGrabOrPlacement = () => {
-  const editorHelperState = getState(EditorHelperState)
-  if (editorHelperState.transformMode === TransformMode.Grab) {
-    setTransformMode(editorHelperState.transformModeOnCancel)
-    // if (EditorHistory.grabCheckPoint) revertHistory(EditorHistory.grabCheckPoint)
-  } else if (editorHelperState.transformMode === TransformMode.Placement) {
-    setTransformMode(editorHelperState.transformModeOnCancel)
-    EditorControlFunctions.removeObject(getState(SelectionState).selectedEntities)
+export default createSwaggerServiceOptions({
+  schemas: {
+    userAvatarDataSchema,
+    userAvatarPatchSchema,
+    userAvatarQuerySchema,
+    userAvatarSchema
+  },
+  docs: {
+    description: 'User avatar service description',
+    securities: ['all']
   }
-}
+})

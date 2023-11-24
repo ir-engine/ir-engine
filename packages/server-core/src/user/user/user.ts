@@ -82,8 +82,7 @@ export default (app: Application): void => {
       const userID = data.id
       const dataToSend = {
         id: data.id,
-        name: data.name,
-        avatarId: data.avatarId
+        name: data.name
       } as UserPublicPatch
 
       const instances = (await app.service(instanceAttendancePath).find({

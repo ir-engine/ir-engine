@@ -87,10 +87,7 @@ function load() {
 }
 
 function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
-  const world = new World(gravity)
-  /** @todo create a better api for raycast debugger*/
-  ;(world as any).raycastDebugs = []
-  return world
+  return new World(gravity)
 }
 
 function createCollisionEventQueue() {
@@ -473,8 +470,6 @@ function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (col
       entity: (body.userData as any)['entity']
     })
   }
-
-  ;(world as any).raycastDebugs.push({ raycastQuery, hits })
 
   return hits
 }

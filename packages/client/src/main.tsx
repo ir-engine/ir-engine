@@ -49,8 +49,8 @@ const App = () => {
         <Routes>
           {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
           <Route
-            key={'admin'}
-            path={'/admin/*'}
+            key="admin"
+            path="/admin/*"
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
                 <Engine>
@@ -60,8 +60,8 @@ const App = () => {
             }
           />
           <Route
-            key={'location'}
-            path={'/location/*'}
+            key="location"
+            path="/location/*"
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
                 <Engine>
@@ -71,8 +71,8 @@ const App = () => {
             }
           />
           <Route
-            key={'studio'}
-            path={'/studio/*'}
+            key="studio"
+            path="/studio/*"
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
                 <Engine>
@@ -82,8 +82,8 @@ const App = () => {
             }
           />
           <Route
-            key={'offline'}
-            path={'/offline/*'}
+            key="offline"
+            path="/offline/*"
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
                 <Engine>
@@ -94,11 +94,13 @@ const App = () => {
           />
           {/* This will become redundant and we can embed the TailwindPage directly */}
           <Route
-            key={'default'}
-            path={'/*'}
+            key="default"
+            path="/*"
             element={
               <Suspense>
-                <TailwindPage />
+                <Engine tailwind>
+                  <TailwindPage />
+                </Engine>
               </Suspense>
             }
           />

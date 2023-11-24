@@ -23,26 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { API } from '@etherealengine/client-core/src/API'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { initializeBrowser } from '@etherealengine/engine/src/initializeBrowser'
-import { createEngine } from '@etherealengine/engine/src/initializeEngine'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import type { Knex } from 'knex'
 
-import { pipeLogs } from '@etherealengine/engine/src/common/functions/logger'
-import { initializei18n } from './util'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-createEngine()
-getMutableState(EngineState).publicPath.set(
-  // @ts-ignore
-  import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'
-)
-initializei18n()
-initializeBrowser()
-API.createAPI()
-pipeLogs(Engine.instance.api)
+  const sceneIdColumnExists = await trx.schema.hasColumn(locationPath, 'sceneId')
 
-export default function ({ children }) {
-  return children
+  if (sceneIdColumnExists === true) {
+    await trx
+      .from(locationPath)
+      .update({ sceneId: trx.raw(`CONCAT("projects/", ??, ".scene.json")`, ['sceneId']) })
+      .where('sceneId', 'not like', '%projects/%')
+  }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}

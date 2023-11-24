@@ -35,7 +35,7 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { IdentityProviderType } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { InviteCode, UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserID, UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
@@ -51,8 +51,8 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
   const { t } = useTranslation()
 
   const openConfirm = useHookstate(false)
-  const userName = useHookstate('')
-  const userId = useHookstate('')
+  const userName = useHookstate('' as UserName)
+  const userId = useHookstate('' as UserID)
 
   const openUserDrawer = useHookstate(false)
   const userAdmin = useHookstate<UserType | undefined>(undefined)
@@ -80,7 +80,7 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
   const createData = (
     id: UserID,
     el: UserType,
-    name: string,
+    name: UserName,
     avatarId: AvatarID | JSX.Element,
     identityProviders: IdentityProviderType[],
     isGuest: string,

@@ -38,6 +38,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { emailSettingPath } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import styles from '../../styles/settings.module.scss'
 
 const Email = () => {
@@ -140,7 +141,7 @@ const Email = () => {
           <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.auth')}</Typography>
 
           <InputText
-            name="user"
+            name={'user' as UserName}
             label={t('admin:components.setting.userName')}
             value={auth?.value?.user || ''}
             onChange={(e) => handleUpdateAuth(e, 'user')}

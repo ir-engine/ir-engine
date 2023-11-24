@@ -38,7 +38,7 @@ import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schem
 import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { InviteCode, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -121,7 +121,7 @@ describe.skip('matchmaking match-instance service', () => {
     connections.forEach((connection) => {
       for (let i = 0; i < ticketsNumber; i++) {
         const userPromise = app.service(userPath).create({
-          name: 'Test #' + Math.random(),
+          name: ('Test #' + Math.random()) as UserName,
           isGuest: true,
           avatarId: '' as AvatarID,
           inviteCode: '' as InviteCode,

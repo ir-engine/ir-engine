@@ -355,6 +355,15 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
               {t('user:usermenu.profile.useReadyPlayerMe')}
             </Button>
 
+            <Button
+              fullWidth
+              type="gradientRounded"
+              sx={{ mt: 1 }}
+              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Avaturn)}
+            >
+              {t('user:usermenu.profile.useAvaturn')}
+            </Button>
+
             <InputText
               name="name"
               label={t('user:avatar.name')}
