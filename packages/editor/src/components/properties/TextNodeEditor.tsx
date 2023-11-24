@@ -36,6 +36,7 @@ import {
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
+import { useHookstate } from '@hookstate/core'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
@@ -52,6 +53,7 @@ import Vector2Input from '../inputs/Vector2Input'
 export const TextNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const text = useComponent(props.entity, TextComponent)
+  const advancedActive = useHookstate(false)
   const SelectOptions = {
     TextDirection: [
       { label: 'Auto', value: 'auto' },
@@ -107,19 +109,19 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             value={text.textWidth.value}
             onChange={updateProperty(TextComponent, 'textWidth')}
             onRelease={commitProperty(TextComponent, 'textWidth')}
-            unit="px"
+            unit="em"
           />
           <NumericInputGroup
             name="TextIndent"
             label="indent" // {t('editor:properties.text.textIndent')}  /* @todo: Translation id */
             min={0}
-            smallStep={0.1}
-            mediumStep={0.5}
-            largeStep={1}
+            smallStep={0.01}
+            mediumStep={0.1}
+            largeStep={0.5}
             value={text.textIndent.value}
             onChange={updateProperty(TextComponent, 'textIndent')}
             onRelease={commitProperty(TextComponent, 'textIndent')}
-            unit="px"
+            unit="em"
           />
           <InputGroup
             name="TextAlign"
@@ -202,7 +204,6 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           </InputGroup>
         </div>
       </InputGroup>
-
       <InputGroup
         name="FontGroup"
         label="Font" // {t('editor:properties.text.fontGroup')}  /* @todo: Translation id */
@@ -349,11 +350,81 @@ export const TextNodeEditor: EditorComponentType = (props) => {
         </div>
       </InputGroup>
       <InputGroup
-        name="GPUAccelerated"
-        label="GPU Accelerated" // {t('editor:properties.textbox.gpuAccelerated')}  /* @todo: Translation id */
+        name="AdvancedActive"
+        label="Show Advanced" // {t('editor:properties.textbox.advancedActive')}  /* @todo: Translation id */
       >
-        <BooleanInput value={text.gpuAccelerated.value} onChange={text.gpuAccelerated.set} />
+        <BooleanInput value={advancedActive.value} onChange={advancedActive.set} />
       </InputGroup>
+      {advancedActive.value ? (
+        /*Show Advanced Options only when Active*/
+        <InputGroup
+          name="AdvancedGroup"
+          label="Advanced" // {t('editor:properties.textbox.advancedGroup')}  /* @todo: Translation id */
+        >
+          <div>
+            <InputGroup
+              name="ClippingActive"
+              label="clip.active" // {t('editor:properties.textbox.clippingActive')}  /* @todo: Translation id */
+            >
+              <BooleanInput value={text.clipActive.value} onChange={text.clipActive.set} />
+            </InputGroup>
+            <InputGroup
+              disabled={!text.clipActive.value}
+              name="ClippingMin"
+              label="clip.min" // {t('editor:properties.text.clippingMin')} /* @todo: Translation id */
+            >
+              <Vector2Input
+                value={text.clipRectMin.value}
+                onChange={updateProperty(TextComponent, 'clipRectMin')}
+                onRelease={commitProperty(TextComponent, 'clipRectMin')}
+              />
+            </InputGroup>
+            <InputGroup
+              disabled={!text.clipActive.value}
+              name="ClippingMax"
+              label="clip.max" // {t('editor:properties.text.clippingMax')} /* @todo: Translation id */
+            >
+              <Vector2Input
+                value={text.clipRectMax.value}
+                onChange={updateProperty(TextComponent, 'clipRectMax')}
+                onRelease={commitProperty(TextComponent, 'clipRectMax')}
+              />
+            </InputGroup>
+            <NumericInputGroup
+              name="GlyphResolution"
+              label="glyph.resolution" // {t('editor:properties.text.glyphResolution')}  /* @todo: Translation id */
+              min={1}
+              smallStep={1}
+              mediumStep={1}
+              largeStep={2}
+              value={text.glyphResolution.value}
+              onChange={updateProperty(TextComponent, 'glyphResolution')}
+              onRelease={commitProperty(TextComponent, 'glyphResolution')}
+              unit="2^N"
+            />
+            <NumericInputGroup
+              name="GlyphDetail"
+              label="glyph.detail" // {t('editor:properties.text.glyphDetail')}  /* @todo: Translation id */
+              min={1}
+              smallStep={1}
+              mediumStep={1}
+              largeStep={1}
+              value={text.glyphDetail.value}
+              onChange={updateProperty(TextComponent, 'glyphDetail')}
+              onRelease={commitProperty(TextComponent, 'glyphDetail')}
+              unit="subdiv"
+            />
+            <InputGroup
+              name="GPUAccelerated"
+              label="GPU Accelerated" // {t('editor:properties.textbox.gpuAccelerated')}  /* @todo: Translation id */
+            >
+              <BooleanInput value={text.gpuAccelerated.value} onChange={text.gpuAccelerated.set} />
+            </InputGroup>
+          </div>
+        </InputGroup>
+      ) : (
+        <>{/*advanced.inactive*/}</>
+      )}
     </NodeEditor>
   )
 }

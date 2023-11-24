@@ -118,37 +118,23 @@ type TextMesh = Mesh & {
   strokeOpacity: number // @note: Troika marks this as an Experimental API
   strokeWidth: number | string // @note: Troika marks this as an Experimental API
   strokeColor: TroikaColor // @note: Troika marks this as an Experimental API
-  //____ SDF Properties ____
+  //____ Advanced Properties ____
+  clipRect: Array<number> // Clipping Rectangle expressed as `[minX, minY, maxX, maxY]`
   gpuAccelerateSDF: boolean // Allows force-disabling GPU acceleration of SDF. Uses the JS fallback when true
+  glyphGeometryDetail: number // Number of vertical/horizontal segments that make up each glyph's rectangular plane. Defaults to 1.
+  sdfGlyphSize: number | null // Size of each glyph's SDF. Must be a power-of-two.
+
   //____ Callbacks ____
   sync: () => void /** Async Render the text using the current properties. troika accepts a callback function, but that feature is not mapped */
 
-  //_____________________________________________________________
-  // TODO                                                      //
+  //______________________________________________________________
+  // TODO                                                       //
+  //  Decide which of these properties should be mapped or not //
   //  Remove the unused properties. Only temp for easier dev  //
   //_________________________________________________________//
-  //____ Simple Properties
-  // If specified, defines a `[minX, minY, maxX, maxY]` of a rectangle outside of which all pixels will be discarded.
-  // This can be used for example to clip overflowing text when `whiteSpace='nowrap'`.
-  clipRect: Array<number>
-  //____ SDF & Geometry ____
-  // Controls number of vertical/horizontal segments that make up each glyph's rectangular
-  // plane. Defaults to 1. This can be increased to provide more geometrical detail for custom
-  // vertex shader effects, for example.
-  glyphGeometryDetail: number
-  // The size of each glyph's SDF (signed distance field) used for rendering. This must be a
-  // power-of-two number. Defaults to 64 which is generally a good balance of size and quality
-  // for most fonts. Larger sizes can improve the quality of glyph rendering by increasing
-  // the sharpness of corners and preventing loss of very thin lines, at the expense of
-  // increased memory footprint and longer SDF generation time.
-  sdfGlyphSize: number | null
-
-  //____ Others ____
   // Sets the height of each line of text, as a multiple of the `fontSize`. Defaults to 'normal'
   // which chooses a reasonable height based on the chosen font's ascender/descender metrics.
   lineHeight: number | 'normal'
-
-  // === Presentation properties: === //
   // Defines a _base_ material to be used when rendering the text. This material will be
   // automatically replaced with a material derived from it, that adds shader code to
   // decrease the alpha for each fragment (pixel) outside the text glyphs, with antialiasing.
@@ -188,14 +174,23 @@ const FontDefault = null! as string | null
 /** @todo Remove. Only temp for testing */
 const FontOrbitronURL = 'https://fonts.gstatic.com/s/orbitron/v9/yMJRMIlzdpvBhQQL_Qq7dys.woff'
 
+/**
+ * @description Lore Ipsum filler text
+ */
+const LoreIpsum =
+  "Cat ipsum dolor sit amet, munch, munch, chomp, chomp go crazy with excitement when plates are clanked together signalling the arrival of cat food lounge in doorway. Rub face on everything i like to spend my days sleeping and eating fishes that my human fished for me we live on a luxurious yacht, sailing proudly under the sun, i like to walk on the deck, watching the horizon, dreaming of a good bowl of milk yet ooooh feather moving feather! for rub my belly hiss. I see a bird i stare at it i meow at it i do a wiggle come here birdy kick up litter but ignore the squirrels, you'll never catch them anyway meow in empty rooms i like big cats and i can not lie. At four in the morning wake up owner meeeeeeooww scratch at legs and beg for food then cry and yowl until they wake up at two pm jump on window and sleep while observing the bootyful cat next door that u really like but who already has a boyfriend end up making babies with her and let her move in scream at teh bath so leave hair on owner's clothes. If human is on laptop sit on the keyboard haha you hold me hooman i scratch, cough furball into food bowl then scratch owner for a new one make muffins, so kick up litter let me in let me out let me in let me out let me in let me out who broke this door anyway . See owner, run in terror cats are cute show belly and steal mom's crouton while she is in the bathroom so skid on floor, crash into wall ."
+
+/**
+ * @description A Text Component, used to manage the state of the NodeEditor view that customizes spatial text properties.
+ */
 export const TextComponent = defineComponent({
   name: 'TextComponent',
-  jsonID: 'Text_troika',
+  jsonID: 'Text_Spatial',
 
   onInit: (entity) => {
     return {
       // Text contents to render
-      text: 'Some Text',
+      text: LoreIpsum,
       textOpacity: 100, // range[0..100], sent to troika as [0..1] :number
       textWidth: Infinity,
       textIndent: 0,
@@ -228,8 +223,15 @@ export const TextComponent = defineComponent({
       strokeOpacity: 0, // range[0..100], sent to troika as [0..1] :number
       strokeWidth: 0, // range[0..100+], sent to troika as [0..100]% :string
       strokeColor: new Color(0x444444),
-      // SDF Configuration
+
+      // Advanced Configuration
+      clipActive: false, // sends []: Array<number> to Text.clipRect when true
+      clipRectMin: new Vector2(1024, 1024), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
+      clipRectMax: new Vector2(1024, 1024), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
       gpuAccelerated: true,
+      glyphResolution: 6, // Maps to troika.Text.sdfGlyphSize. Sent to troika as 2^N :number
+      glyphDetail: 1, // Maps to troika.Text.glyphGeometryDetail
+
       // Internal State
       troikaMesh: new TroikaText() as TextMesh
     }
@@ -265,8 +267,13 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.strokeOpacity)) component.strokeOpacity.set(json.strokeOpacity)
     if (matches.number.test(json.strokeWidth)) component.strokeWidth.set(json.strokeWidth)
     if (matches.object.test(json.strokeColor) && json.strokeColor.isColor) component.strokeColor.set(json.strokeColor)
-    // SDF configuration
+    // Advanced configuration
     if (matches.boolean.test(json.gpuAccelerated)) component.gpuAccelerated.set(json.gpuAccelerated)
+    if (matches.boolean.test(json.clipActive)) component.clipActive.set(json.clipActive)
+    if (matches.object.test(json.clipRectMin) && json.clipRectMin.isVector2) component.clipRectMin.set(json.clipRectMin)
+    if (matches.object.test(json.clipRectMax) && json.clipRectMax.isVector2) component.clipRectMax.set(json.clipRectMax)
+    if (matches.number.test(json.glyphResolution)) component.glyphResolution.set(json.glyphResolution)
+    if (matches.number.test(json.glyphDetail)) component.glyphDetail.set(json.glyphDetail)
   },
 
   toJSON: (entity, component) => {
@@ -296,8 +303,13 @@ export const TextComponent = defineComponent({
       strokeOpacity: component.strokeOpacity.value,
       strokeWidth: component.strokeWidth.value,
       strokeColor: component.strokeColor.value,
-      // SDF configuration
-      gpuAccelerated: component.gpuAccelerated.value
+      // Advanced configuration
+      clipActive: component.clipActive.value,
+      clipRectMin: component.clipRectMin.value,
+      clipRectMax: component.clipRectMax.value,
+      gpuAccelerated: component.gpuAccelerated.value,
+      glyphResolution: component.glyphResolution.value,
+      glyphDetail: component.glyphDetail.value
     }
   },
 
@@ -337,8 +349,19 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.strokeOpacity = text.strokeOpacity.value / 100
       text.troikaMesh.value.strokeWidth = `${text.strokeWidth.value}%`
       text.troikaMesh.value.strokeColor = text.strokeColor.value.getHex()
-      // SDF configuration
-      text.troikaMesh.value.gpuAccelerateSDF = text.gpuAccelerated.value
+      // Update the Advanced configuration propertiess
+      ;(text.troikaMesh.value.clipRect = text.clipActive.value
+        ? [
+            // Send as [minX, minY, maxX, maxY] :Array<number>
+            text.clipRectMin.x.value,
+            text.clipRectMin.y.value,
+            text.clipRectMax.x.value,
+            text.clipRectMax.x.value
+          ]
+        : []),
+        (text.troikaMesh.value.gpuAccelerateSDF = text.gpuAccelerated.value)
+      text.troikaMesh.value.sdfGlyphSize = Math.pow(2, text.glyphResolution.value)
+      text.troikaMesh.value.glyphGeometryDetail = text.glyphDetail.value
       // Order troika to synchronize the mesh
       text.troikaMesh.value.sync()
     }, [
@@ -364,7 +387,12 @@ export const TextComponent = defineComponent({
       text.strokeOpacity,
       text.strokeWidth,
       text.strokeColor,
-      text.gpuAccelerated
+      text.clipActive,
+      text.clipRectMin,
+      text.clipRectMax,
+      text.gpuAccelerated,
+      text.glyphResolution,
+      text.glyphDetail
     ])
 
     return null
