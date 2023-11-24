@@ -40,17 +40,25 @@ import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
 import { ControlledStringInput } from '../inputs/StringInput'
 import Vector2Input from '../inputs/Vector2Input'
 
 /**
- * TextNodeEditor component used to provide the editor view to customize link properties.
+ * TextNodeEditor component used to provide the editor a view to customize text properties.
  *
  * @type {Class component}
  */
 export const TextNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const text = useComponent(props.entity, TextComponent)
+  const SelectOptions = {
+    TextDirection: [
+      { label: 'Auto', value: 'auto' },
+      { label: 'Left to Right', value: 'ltr' },
+      { label: 'Right to Left', value: 'rtl' }
+    ]
+  }
 
   return (
     <NodeEditor {...props} name="Text Component" description="A Text component">
@@ -147,6 +155,17 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(TextComponent, 'letterSpacing')}
             unit="px"
           />
+          <InputGroup
+            name="TextDirection"
+            label="direction" // {t('editor:properties.text.textDirection')} /* @todo: Translation id */
+          >
+            <SelectInput
+              options={SelectOptions.TextDirection}
+              value={text.textDirection.value}
+              onChange={updateProperty(TextComponent, 'textDirection')}
+              //onChange={(val :TroikaTextDirection) => text.textDirection.set(val)}
+            />
+          </InputGroup>
         </div>
       </InputGroup>
 

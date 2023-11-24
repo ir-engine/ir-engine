@@ -37,9 +37,16 @@ import { addObjectToGroup } from './GroupComponent'
 
 /**
  * @description
- * troika.Color type, as declared by `troika-three-text` in its Text.color `@member` declaration
+ * troika.Color type, as declared by `troika-three-text` in its Text.color `@member` property.
  */
 type TroikaColor = string | number | THREE.Color
+
+/**
+ * @description
+ * troika.Text direction type, as declared by `troika-three-text` in its Text.direction `@member` property.
+ * `auto` means choosing direction based on the contents.
+ */
+export type TroikaTextDirection = 'auto' | 'ltr' | 'rtl'
 
 /**
  * @description
@@ -69,6 +76,7 @@ type TextMesh = Mesh & {
   anchorY: number | string | 'top' | 'top-baseline' | 'top-cap' | 'top-ex' | 'middle' | 'bottom-baseline' | 'bottom'
   depthOffset: number
   curveRadius: number
+  direction: TroikaTextDirection
   // Font properties
   font: string | null /** Defaults to Noto Sans when null */
   fontSize: number
@@ -113,9 +121,6 @@ type TextMesh = Mesh & {
   // TODO                                                      //
   //  Remove the unused properties. Only temp for easier dev  //
   //_________________________________________________________//
-  // Sets the base direction for the text. The default value of "auto" will choose a direction based
-  // on the text's content according to the bidi spec. A value of "ltr" or "rtl" will force the direction.
-  direction: 'auto' | 'ltr' | 'rtl'
   // Sets the height of each line of text, as a multiple of the `fontSize`. Defaults to 'normal'
   // which chooses a reasonable height based on the chosen font's ascender/descender metrics.
   lineHeight: number | 'normal'
@@ -189,6 +194,7 @@ export const TextComponent = defineComponent({
       textDepthOffset: 0, // For Z-fighting adjustments. Similar to anchor.Z
       textCurveRadius: 0,
       letterSpacing: 0,
+      textDirection: 'auto' as TroikaTextDirection,
 
       // Font Properties
       font: FontDefault, // font: string|null
@@ -214,7 +220,7 @@ export const TextComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    // Text contents to render
+    // Text contents/properties
     if (matches.string.test(json.text)) component.text.set(json.text)
     if (matches.number.test(json.textOpacity)) component.textOpacity.set(json.textOpacity)
     if (matches.number.test(json.textWidth)) component.textWidth.set(json.textWidth)
@@ -223,6 +229,7 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.textDepthOffset)) component.textDepthOffset.set(json.textDepthOffset)
     if (matches.number.test(json.textCurveRadius)) component.textCurveRadius.set(json.textCurveRadius)
     if (matches.number.test(json.letterSpacing)) component.letterSpacing.set(json.letterSpacing)
+    if (matches.string.test(json.textDirection)) component.textDirection.set(json.textDirection)
     // Font Properties
     if (matches.string.test(json.font)) component.font.set(json.font)
     else if (matches.nill.test(json.font)) component.font.set(null)
@@ -235,12 +242,13 @@ export const TextComponent = defineComponent({
       component.outlineOffset.set(json.outlineOffset)
     if (matches.number.test(json.strokeOpacity)) component.strokeOpacity.set(json.strokeOpacity)
     if (matches.number.test(json.strokeWidth)) component.strokeWidth.set(json.strokeWidth)
+    // SDF configuration
     if (matches.boolean.test(json.gpuAccelerated)) component.gpuAccelerated.set(json.gpuAccelerated)
   },
 
   toJSON: (entity, component) => {
     return {
-      // Text contents to render
+      // Text contents/properties
       text: component.text.value,
       textOpacity: component.textOpacity.value,
       textWidth: component.textWidth.value,
@@ -249,6 +257,7 @@ export const TextComponent = defineComponent({
       textDepthOffset: component.textDepthOffset.value,
       textCurveRadius: component.textCurveRadius.value,
       letterSpacing: component.letterSpacing.value,
+      textDirection: component.textDirection.value,
       // Font Properties
       font: component.font.value,
       fontSize: component.fontSize.value,
@@ -259,6 +268,7 @@ export const TextComponent = defineComponent({
       outlineOffset: component.outlineOffset.value,
       strokeOpacity: component.strokeOpacity.value,
       strokeWidth: component.strokeWidth.value,
+      // SDF configuration
       gpuAccelerated: component.gpuAccelerated.value
     }
   },
@@ -272,7 +282,7 @@ export const TextComponent = defineComponent({
     addObjectToGroup(entity, text.troikaMesh.value)
 
     useEffect(() => {
-      // Update the Text content to render
+      // Update the Text content/properties
       text.troikaMesh.value.text = text.text.value
       text.troikaMesh.value.fillOpacity = text.textOpacity.value / 100
       text.troikaMesh.value.maxWidth = text.textWidth.value
@@ -282,6 +292,7 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.depthOffset = text.textDepthOffset.value
       text.troikaMesh.value.curveRadius = MathUtils.degToRad(text.textCurveRadius.value)
       text.troikaMesh.value.letterSpacing = text.letterSpacing.value
+      text.troikaMesh.value.direction = text.textDirection.value
       // Update the font properties
       text.troikaMesh.value.font = text.font.value
       text.troikaMesh.value.fontSize = text.fontSize.value
@@ -293,6 +304,7 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.outlineOffsetY = `${text.outlineOffset.y.value}%`
       text.troikaMesh.value.strokeOpacity = text.strokeOpacity.value / 100
       text.troikaMesh.value.strokeWidth = `${text.strokeWidth.value}%`
+      // SDF configuration
       text.troikaMesh.value.gpuAccelerateSDF = text.gpuAccelerated.value
       // Order troika to synchronize the mesh
       text.troikaMesh.value.sync()
@@ -305,7 +317,7 @@ export const TextComponent = defineComponent({
       text.textDepthOffset,
       text.textWidth,
       text.letterSpacing,
-      text.textIndent,
+      text.textDirection,
       text.fontSize,
       text.fontColor,
       text.outlineOpacity,
@@ -316,10 +328,6 @@ export const TextComponent = defineComponent({
       text.strokeWidth,
       text.gpuAccelerated
     ])
-
-    /* Reactive system
-    useExecute(() => {}, { with: InputSystemGroup })
-    */
 
     return null
   }
