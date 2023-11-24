@@ -30,7 +30,6 @@ import {
   BufferGeometry,
   Color,
   DoubleSide,
-  Group,
   InterleavedBufferAttribute,
   LineBasicMaterial,
   LineSegments,
@@ -46,7 +45,7 @@ import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
+import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
@@ -60,6 +59,7 @@ export class CSMHelper {
   private cascadeLines: Entity[] = []
   private cascadePlanes: Entity[] = []
   private shadowLines: Entity[] = []
+  paused = false
 
   public constructor() {
     const indices = new Uint16Array([0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7])
@@ -68,6 +68,7 @@ export class CSMHelper {
     frustumGeometry.setIndex(new BufferAttribute(indices, 1))
     frustumGeometry.setAttribute('position', new BufferAttribute(positions, 3, false))
     const frustumLines = new LineSegments(frustumGeometry, new LineBasicMaterial())
+    frustumLines.frustumCulled = false
 
     const frustumLinesEntity = createEntity()
     addObjectToGroup(frustumLinesEntity, frustumLines)
@@ -84,6 +85,9 @@ export class CSMHelper {
     const displayShadowBounds = this.displayShadowBounds
 
     setVisibleComponent(this.frustumLinesEntity, displayFrustum)
+    setComponent(this.frustumLinesEntity, EntityTreeComponent, {
+      parentEntity: !this.paused ? Engine.instance.cameraEntity : null
+    })
 
     const cascadeLines = this.cascadeLines
     const cascadePlanes = this.cascadePlanes
@@ -93,14 +97,22 @@ export class CSMHelper {
       const cascadeLine = cascadeLines[i]
       const cascadePlane = cascadePlanes[i]
       const shadowLineGroup = shadowLines[i]
-      setComponent(cascadeLine, VisibleComponent, displayFrustum)
-      setComponent(cascadePlane, VisibleComponent, displayFrustum && displayPlanes)
-      setComponent(shadowLineGroup, VisibleComponent, displayShadowBounds)
+      setComponent(cascadeLine, EntityTreeComponent, {
+        parentEntity: !this.paused ? Engine.instance.cameraEntity : null
+      })
+      setComponent(cascadePlane, EntityTreeComponent, {
+        parentEntity: !this.paused ? Engine.instance.cameraEntity : null
+      })
+      setVisibleComponent(cascadeLine, displayFrustum)
+      setVisibleComponent(cascadePlane, displayFrustum && displayPlanes)
+      setVisibleComponent(shadowLineGroup, displayShadowBounds)
     }
   }
 
   public update(csm: CSM) {
     this.updateVisibility()
+
+    if (this.paused) return
 
     const cascades = csm.cascades
     const mainFrustum = csm.mainFrustum
@@ -126,6 +138,7 @@ export class CSMHelper {
 
     while (cascadeLines.length < cascades) {
       const cascadeLine = new Box3Helper(new Box3(), new Color(0xffffff))
+      cascadeLine.frustumCulled = false
       const cascadeLinesEntity = createEntity()
       addObjectToGroup(cascadeLinesEntity, cascadeLine)
       setComponent(cascadeLinesEntity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
@@ -135,6 +148,7 @@ export class CSMHelper {
 
       const planeMat = new MeshBasicMaterial({ transparent: true, opacity: 0.1, depthWrite: false, side: DoubleSide })
       const cascadePlane = new Mesh(new PlaneGeometry(), planeMat)
+      cascadePlane.frustumCulled = false
       const cascadePlanesEntity = createEntity()
       addObjectToGroup(cascadePlanesEntity, cascadePlane)
       setComponent(cascadePlanesEntity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
@@ -142,14 +156,13 @@ export class CSMHelper {
       setObjectLayers(cascadePlane, ObjectLayers.NodeHelper)
       cascadePlanes.push(cascadePlanesEntity)
 
-      const shadowLineGroup = new Group()
       const shadowLine = new Box3Helper(new Box3(), new Color(0xffff00))
-      shadowLineGroup.add(shadowLine)
+      shadowLine.frustumCulled = false
       const shadowLinesEntity = createEntity()
-      addObjectToGroup(shadowLinesEntity, shadowLineGroup)
+      addObjectToGroup(shadowLinesEntity, shadowLine)
       setComponent(shadowLinesEntity, EntityTreeComponent, { parentEntity: null })
       setComponent(shadowLinesEntity, NameComponent, 'CSM shadow line ' + cascadeLines.length)
-      setObjectLayers(shadowLineGroup, ObjectLayers.NodeHelper)
+      setObjectLayers(shadowLine, ObjectLayers.NodeHelper)
       shadowLines.push(shadowLinesEntity)
     }
 
@@ -160,26 +173,30 @@ export class CSMHelper {
       const farVerts = frustum.vertices.far
 
       const cascadeLine = getComponent(cascadeLines[i], GroupComponent)[0] as any as Box3Helper
+      const cascadeLineTransform = getComponent(cascadeLines[i], LocalTransformComponent)
       const cascadePlane = getComponent(cascadePlanes[i], LocalTransformComponent)
-      const shadowLineGroup = getComponent(shadowLines[i], GroupComponent)[0] as any as Group
-      const shadowLineTransform = getComponent(shadowLines[i], TransformComponent)
-      const shadowLine = shadowLineGroup.children[0] as Box3Helper
+      const shadowLine = getComponent(shadowLines[i], GroupComponent)[0] as any as Box3Helper
+      const shadowTransform = getComponent(shadowLines[i], TransformComponent)
 
       cascadeLine.box.min.copy(farVerts[2])
       cascadeLine.box.max.copy(farVerts[0])
       cascadeLine.box.max.z += 1e-4
+      cascadeLine.box.getCenter(cascadeLineTransform.position)
+      cascadeLine.box.getSize(cascadeLineTransform.scale)
+      cascadeLineTransform.scale.multiplyScalar(0.5)
 
       cascadePlane.position.addVectors(farVerts[0], farVerts[2])
       cascadePlane.position.multiplyScalar(0.5)
       cascadePlane.scale.subVectors(farVerts[0], farVerts[2])
       cascadePlane.scale.z = 1e-4
 
-      shadowLineTransform.position.copy(shadowCam.position)
-      shadowLineTransform.rotation.copy(shadowCam.quaternion)
-      shadowLineTransform.scale.copy(shadowCam.scale)
-
       shadowLine.box.min.set(shadowCam.bottom, shadowCam.left, -shadowCam.far)
       shadowLine.box.max.set(shadowCam.top, shadowCam.right, -shadowCam.near)
+      shadowLine.box.applyMatrix4(shadowCam.matrixWorld)
+      shadowLine.box.getCenter(shadowTransform.position)
+      shadowLine.box.getSize(shadowTransform.scale)
+      shadowTransform.scale.multiplyScalar(0.5)
+      shadowTransform.rotation.copy(shadowCam.quaternion)
     }
 
     const nearVerts = mainFrustum.vertices.near
