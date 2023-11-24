@@ -62,6 +62,7 @@ import { ShadowComponent } from './components/ShadowComponent'
 import { SkyboxComponent } from './components/SkyboxComponent'
 import { SpawnPointComponent } from './components/SpawnPointComponent'
 import { SplineComponent } from './components/SplineComponent'
+import { SplineTrackComponent } from './components/SplineTrackComponent'
 import { SpotLightComponent } from './components/SpotLightComponent'
 import { SystemComponent } from './components/SystemComponent'
 import { VariantComponent } from './components/VariantComponent'
@@ -116,6 +117,7 @@ export const SceneComponents = [
   SkyboxComponent,
   SpawnPointComponent,
   SplineComponent,
+  SplineTrackComponent,
   SystemComponent,
   SpotLightComponent,
   SystemComponent,

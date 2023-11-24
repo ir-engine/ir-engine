@@ -29,9 +29,15 @@ import { getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Euler, Quaternion, Vector3 } from 'three'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineComponent, getOptionalComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { SplineComponent } from './SplineComponent'
 import { UUIDComponent } from './UUIDComponent'
@@ -91,8 +97,7 @@ export const SplineTrackComponent = defineComponent({
         if (!splineComponent) return
 
         // get local transform for this entity
-        const transform =
-          getOptionalComponent(entity, LocalTransformComponent) ?? getOptionalComponent(entity, TransformComponent)
+        const transform = getOptionalComponent(entity, TransformComponent)
         if (!transform) return
 
         const elements = splineComponent.elements
@@ -116,6 +121,8 @@ export const SplineTrackComponent = defineComponent({
 
         // prevent a possible loop around hiccup; if no loop then do not permit modulo 0
         if (!component.loop.value && index > nextIndex) return
+
+        const splineTransform = getComponent(splineTargetEntity, TransformComponent)
 
         // translation
         splineComponent.curve.getPointAt(alpha - index, _point1Vector)
@@ -143,8 +150,25 @@ export const SplineTrackComponent = defineComponent({
             transform.rotation.copy(q1).fastSlerp(q2, alpha - index)
           }
         }
+
+        /** @todo optimize this */
+        transform.matrix.compose(transform.position, transform.rotation, transform.scale)
+        // apply spline transform
+        transform.matrix.premultiply(splineTransform.matrix)
+        transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+
+        // update local transform for target
+        const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+        if (!parentEntity) return
+        console.log({ parentEntity })
+        const parentTransform = getComponent(parentEntity, TransformComponent)
+        const localTransformComponent = getComponent(entity, LocalTransformComponent)
+        localTransformComponent.matrix
+          .copy(transform.matrix)
+          .premultiply(parentTransform.matrixInverse)
+          .decompose(localTransformComponent.position, localTransformComponent.rotation, localTransformComponent.scale)
       },
-      { with: PresentationSystemGroup }
+      { with: AnimationSystemGroup }
     )
 
     useEffect(() => {
