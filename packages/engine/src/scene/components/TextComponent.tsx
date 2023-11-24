@@ -57,6 +57,24 @@ export type TroikaTextAlignment = 'left' | 'center' | 'right' | 'justify'
 
 /**
  * @description
+ * troika.Text wrap, as declared by `troika-three-text` in its Text.whiteSpace `@member` property.
+ * Defines whether text should wrap when a line reaches `maxWidth`.
+ * @option `'normal'`: Allow wrapping according to the `overflowWrap` property. Honors newline characters to manually break lines, making it behave more like `'pre-wrap'` does in CSS.
+ * @option `'nowrap'`: Does not allow text to wrap.
+ */
+export type TroikaTextWrap = 'normal' | 'nowrap'
+
+/**
+ * @description
+ * troika.Text wrapping kind, as declared by `troika-three-text` in its Text.overflowWrap `@member` property.
+ * Defines how text wraps if TroikaTextWrap is set to `normal` _(aka TextComponent.textWrap: true)_.
+ * @option `'normal'`: Break at whitespace characters
+ * @option `'break-word'`: Break within words
+ */
+export type TroikaTextWrapKind = 'normal' | 'break-word'
+
+/**
+ * @description
  * Javascript-to-Typescript compatiblity type for the `troika-three-text` Text mesh class.
  *
  * @example
@@ -78,6 +96,9 @@ type TextMesh = Mesh & {
   fillOpacity: number // @note: Troika marks this as an Experimental API
   textIndent: number /** Indentation for the first character of a line; see CSS `text-indent`. */
   textAlign: TroikaTextAlignment
+  overflowWrap: TroikaTextWrapKind
+  whiteSpace: TroikaTextWrap
+
   letterSpacing: number /** Spacing between letters after kerning is applied. */
   maxWidth: number /** Value above which text starts wrapping */
   anchorX: number | string | 'left' | 'center' | 'right'
@@ -102,6 +123,10 @@ type TextMesh = Mesh & {
   //____ Callbacks ____
   sync: () => void /** Async Render the text using the current properties. troika accepts a callback function, but that feature is not mapped */
 
+  //_____________________________________________________________
+  // TODO                                                      //
+  //  Remove the unused properties. Only temp for easier dev  //
+  //_________________________________________________________//
   //____ Simple Properties
   // The color of the text outline, if `outlineWidth`/`outlineBlur`/`outlineOffsetX/Y` are set.
   // Defaults to black.
@@ -112,7 +137,6 @@ type TextMesh = Mesh & {
   // pixels will be discarded. This can be used for example to clip overflowing text when
   // `whiteSpace='nowrap'`.
   clipRect: Array<number>
-
   //____ SDF & Geometry ____
   // Controls number of vertical/horizontal segments that make up each glyph's rectangular
   // plane. Defaults to 1. This can be increased to provide more geometrical detail for custom
@@ -125,22 +149,10 @@ type TextMesh = Mesh & {
   // increased memory footprint and longer SDF generation time.
   sdfGlyphSize: number | null
 
-  //_____________________________________________________________
-  // TODO                                                      //
-  //  Remove the unused properties. Only temp for easier dev  //
-  //_________________________________________________________//
+  //____ Others ____
   // Sets the height of each line of text, as a multiple of the `fontSize`. Defaults to 'normal'
   // which chooses a reasonable height based on the chosen font's ascender/descender metrics.
   lineHeight: number | 'normal'
-  // Defines how text wraps if the `whiteSpace` property is `normal`. Can be either `'normal'`
-  // to break at whitespace characters, or `'break-word'` to allow breaking within words.
-  // Defaults to `'normal'`.
-  overflowWrap: 'normal' | 'break-word'
-  // Defines whether text should wrap when a line reaches the `maxWidth`.
-  // Can be `'normal'` (the default), to allow wrapping according to the `overflowWrap` property,
-  // or `'nowrap'` to prevent wrapping.
-  // Note that `'normal'` here honors newline characters to manually break lines, making it behave more like `'pre-wrap'` does in CSS.
-  whiteSpace: 'normal' | 'nowrap'
 
   // === Presentation properties: === //
   // Defines a _base_ material to be used when rendering the text. This material will be
@@ -194,6 +206,8 @@ export const TextComponent = defineComponent({
       textWidth: Infinity,
       textIndent: 0,
       textAlign: 'justify' as TroikaTextAlignment,
+      textWrap: true, // Maps to: troika.Text.whiteSpace as TroikaTextWrap
+      textWrapKind: 'normal' as TroikaTextWrapKind, // Maps to troika.Text.overflowWrap
       textAnchor: new Vector2(
         /* X */ 0, // range[0..100+], sent to troika as [0..100]% :string
         /* Y */ 0 // range[0..100+], sent to troika as [0..100]% :string
@@ -233,6 +247,8 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.textWidth)) component.textWidth.set(json.textWidth)
     if (matches.number.test(json.textIndent)) component.textIndent.set(json.textIndent)
     if (matches.string.test(json.textAlign)) component.textAlign.set(json.textAlign)
+    if (matches.boolean.test(json.textWrap)) component.textWrap.set(json.textWrap)
+    if (matches.string.test(json.textWrapKind)) component.textWrapKind.set(json.textWrapKind)
     if (matches.object.test(json.textAnchor) && json.textAnchor.isVector2) component.textAnchor.set(json.textAnchor)
     if (matches.number.test(json.textDepthOffset)) component.textDepthOffset.set(json.textDepthOffset)
     if (matches.number.test(json.textCurveRadius)) component.textCurveRadius.set(json.textCurveRadius)
@@ -262,6 +278,8 @@ export const TextComponent = defineComponent({
       textWidth: component.textWidth.value,
       textIndent: component.textIndent.value,
       textAlign: component.textAlign.value,
+      textWrap: component.textWrap.value,
+      textWrapKind: component.textWrapKind.value,
       textAnchor: component.textAnchor.value,
       textDepthOffset: component.textDepthOffset.value,
       textCurveRadius: component.textCurveRadius.value,
@@ -297,6 +315,8 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.maxWidth = text.textWidth.value
       text.troikaMesh.value.textIndent = text.textIndent.value
       text.troikaMesh.value.textAlign = text.textAlign.value
+      text.troikaMesh.value.overflowWrap = text.textWrapKind.value
+      text.troikaMesh.value.whiteSpace = text.textWrap.value ? 'normal' : 'nowrap'
       text.troikaMesh.value.anchorX = `${text.textAnchor.x.value}%`
       text.troikaMesh.value.anchorY = `${text.textAnchor.y.value}%`
       text.troikaMesh.value.depthOffset = text.textDepthOffset.value
@@ -323,6 +343,8 @@ export const TextComponent = defineComponent({
       text.textOpacity,
       text.textIndent,
       text.textAlign,
+      text.textWrap,
+      text.textWrapKind,
       text.textAnchor,
       text.textCurveRadius,
       text.textDepthOffset,

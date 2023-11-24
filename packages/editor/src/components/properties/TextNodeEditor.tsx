@@ -63,6 +63,10 @@ export const TextNodeEditor: EditorComponentType = (props) => {
       { label: 'Center', value: 'center' },
       { label: 'Left', value: 'left' },
       { label: 'Right', value: 'right' }
+    ],
+    TextWrapping: [
+      { label: 'Whitespace', value: 'normal' },
+      { label: 'Break Word', value: 'break-word' }
     ]
   }
 
@@ -126,6 +130,18 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               value={text.textAlign.value}
               onChange={updateProperty(TextComponent, 'textAlign')}
               //onChange={(val :TroikaTextDirection) => text.textDirection.set(val)}
+            />
+          </InputGroup>
+          <InputGroup
+            name="TextWrap"
+            label="wrap" // {t('editor:properties.text.textWrap')} /* @todo: Translation id */
+          >
+            <BooleanInput value={text.textWrap.value} onChange={text.textWrap.set} />
+            <SelectInput
+              disabled={!text.textWrap.value} // Enabled when text.textWrap is true
+              options={SelectOptions.TextWrapping}
+              value={text.textWrapKind.value}
+              onChange={updateProperty(TextComponent, 'textWrapKind')}
             />
           </InputGroup>
 
