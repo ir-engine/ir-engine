@@ -247,6 +247,16 @@ export const TextNodeEditor: EditorComponentType = (props) => {
         label="Outline" // {t('editor:properties.text.outlineGroup')}  /* @todo: Translation id */
       >
         <div>
+          <InputGroup
+            name="OutlineColor"
+            label="color" // {t('editor:properties.text.outlineColor')}  /* @todo: Translation id */
+          >
+            <ColorInput
+              value={text.outlineColor.value}
+              onChange={updateProperty(TextComponent, 'outlineColor')}
+              onRelease={commitProperty(TextComponent, 'outlineColor')}
+            />
+          </InputGroup>
           <NumericInputGroup
             name="OutlineOpacity"
             label="opacity" // {t('editor:properties.text.outlineOpacity')}  /* @todo: Translation id */
@@ -298,9 +308,19 @@ export const TextNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup
         name="StrokeGroup"
-        label="Stroke" // {t('editor:properties.text.StrokeGroup')}  /* @todo: Translation id */
+        label="Stroke" // {t('editor:properties.text.strokeGroup')}  /* @todo: Translation id */
       >
         <div>
+          <InputGroup
+            name="StrokeColor"
+            label="color" // {t('editor:properties.text.strokeColor')}  /* @todo: Translation id */
+          >
+            <ColorInput
+              value={text.strokeColor.value}
+              onChange={updateProperty(TextComponent, 'strokeColor')}
+              onRelease={commitProperty(TextComponent, 'strokeColor')}
+            />
+          </InputGroup>
           <NumericInputGroup
             name="StrokeOpacity"
             label="opacity" // {t('editor:properties.text.strokeOpacity)}  /* @todo: Translation id */

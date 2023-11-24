@@ -98,7 +98,6 @@ type TextMesh = Mesh & {
   textAlign: TroikaTextAlignment
   overflowWrap: TroikaTextWrapKind
   whiteSpace: TroikaTextWrap
-
   letterSpacing: number /** Spacing between letters after kerning is applied. */
   maxWidth: number /** Value above which text starts wrapping */
   anchorX: number | string | 'left' | 'center' | 'right'
@@ -109,15 +108,16 @@ type TextMesh = Mesh & {
   // Font properties
   font: string | null /** Defaults to Noto Sans when null */
   fontSize: number
+  color: TroikaColor /** aka fontColor */
   outlineOpacity: number // @note: Troika marks this as an Experimental API
   outlineWidth: number | string // @note: Troika marks this as an Experimental API
   outlineBlur: number | string // @note: Troika marks this as an Experimental API
   outlineOffsetX: number | string // @note: Troika marks this as an Experimental API
   outlineOffsetY: number | string // @note: Troika marks this as an Experimental API
+  outlineColor: TroikaColor // @note: Troika marks this as an Experimental API
   strokeOpacity: number // @note: Troika marks this as an Experimental API
   strokeWidth: number | string // @note: Troika marks this as an Experimental API
-  //____ Presentation properties ____
-  color: TroikaColor /** aka fontColor */
+  strokeColor: TroikaColor // @note: Troika marks this as an Experimental API
   //____ SDF Properties ____
   gpuAccelerateSDF: boolean // Allows force-disabling GPU acceleration of SDF. Uses the JS fallback when true
   //____ Callbacks ____
@@ -128,14 +128,8 @@ type TextMesh = Mesh & {
   //  Remove the unused properties. Only temp for easier dev  //
   //_________________________________________________________//
   //____ Simple Properties
-  // The color of the text outline, if `outlineWidth`/`outlineBlur`/`outlineOffsetX/Y` are set.
-  // Defaults to black.
-  outlineColor: TroikaColor // WARNING: This API is experimental and may change.
-  // The color of the text stroke, if `strokeWidth` is greater than zero. Defaults to gray.
-  strokeColor: TroikaColor // WARNING: This API is experimental and may change.
-  // If specified, defines a `[minX, minY, maxX, maxY]` of a rectangle outside of which all
-  // pixels will be discarded. This can be used for example to clip overflowing text when
-  // `whiteSpace='nowrap'`.
+  // If specified, defines a `[minX, minY, maxX, maxY]` of a rectangle outside of which all pixels will be discarded.
+  // This can be used for example to clip overflowing text when `whiteSpace='nowrap'`.
   clipRect: Array<number>
   //____ SDF & Geometry ____
   // Controls number of vertical/horizontal segments that make up each glyph's rectangular
@@ -229,9 +223,11 @@ export const TextComponent = defineComponent({
         /* X */ 0, // range[0..100+], sent to troika as [0..100]% :string
         /* Y */ 0 // range[0..100+], sent to troika as [0..100]% :string
       ),
+      outlineColor: new Color(0x000000),
       // Font Stroke Properties
       strokeOpacity: 0, // range[0..100], sent to troika as [0..1] :number
       strokeWidth: 0, // range[0..100+], sent to troika as [0..100]% :string
+      strokeColor: new Color(0x444444),
       // SDF Configuration
       gpuAccelerated: true,
       // Internal State
@@ -264,8 +260,11 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.outlineBlur)) component.outlineBlur.set(json.outlineBlur)
     if (matches.object.test(json.outlineOffset) && json.outlineOffset.isVector2)
       component.outlineOffset.set(json.outlineOffset)
+    if (matches.object.test(json.outlineColor) && json.outlineColor.isColor)
+      component.outlineColor.set(json.outlineColor)
     if (matches.number.test(json.strokeOpacity)) component.strokeOpacity.set(json.strokeOpacity)
     if (matches.number.test(json.strokeWidth)) component.strokeWidth.set(json.strokeWidth)
+    if (matches.object.test(json.strokeColor) && json.strokeColor.isColor) component.strokeColor.set(json.strokeColor)
     // SDF configuration
     if (matches.boolean.test(json.gpuAccelerated)) component.gpuAccelerated.set(json.gpuAccelerated)
   },
@@ -293,8 +292,10 @@ export const TextComponent = defineComponent({
       outlineWidth: component.outlineWidth.value,
       outlineBlur: component.outlineBlur.value,
       outlineOffset: component.outlineOffset.value,
+      outlineColor: component.outlineColor.value,
       strokeOpacity: component.strokeOpacity.value,
       strokeWidth: component.strokeWidth.value,
+      strokeColor: component.strokeColor.value,
       // SDF configuration
       gpuAccelerated: component.gpuAccelerated.value
     }
@@ -332,8 +333,10 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.outlineBlur = `${text.outlineBlur.value}%`
       text.troikaMesh.value.outlineOffsetX = `${text.outlineOffset.x.value}%`
       text.troikaMesh.value.outlineOffsetY = `${text.outlineOffset.y.value}%`
+      text.troikaMesh.value.outlineColor = text.outlineColor.value.getHex()
       text.troikaMesh.value.strokeOpacity = text.strokeOpacity.value / 100
       text.troikaMesh.value.strokeWidth = `${text.strokeWidth.value}%`
+      text.troikaMesh.value.strokeColor = text.strokeColor.value.getHex()
       // SDF configuration
       text.troikaMesh.value.gpuAccelerateSDF = text.gpuAccelerated.value
       // Order troika to synchronize the mesh
@@ -357,8 +360,10 @@ export const TextComponent = defineComponent({
       text.outlineWidth,
       text.outlineBlur,
       text.outlineOffset,
+      text.outlineColor,
       text.strokeOpacity,
       text.strokeWidth,
+      text.strokeColor,
       text.gpuAccelerated
     ])
 
