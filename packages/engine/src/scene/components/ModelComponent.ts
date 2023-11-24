@@ -121,8 +121,6 @@ export const ModelComponent = defineComponent({
       if (component.src.value) {
         clearMaterials(component.value)
       }
-      removeObjectFromGroup(entity, component.scene.value)
-      component.scene.set(null)
     }
   },
 
@@ -233,6 +231,7 @@ function ModelReactor() {
     })
     return () => {
       getMutableState(SceneState).scenes[uuid].set(none)
+      removeObjectFromGroup(entity, scene)
     }
   }, [modelComponent.scene])
 
