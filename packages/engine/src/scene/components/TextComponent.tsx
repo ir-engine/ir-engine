@@ -188,7 +188,7 @@ type TextMesh = Mesh & {
  *  @description
  *  Noto Sans is the default font for text rendering.
  *  @abstract
- *  troika.Text.font accepts a nullable string, and defaults to Noto Sans when null is passed
+ *  troika.Text.font accepts a nullable string URI (URL or path), and defaults to Noto Sans when null is passed
  */
 const FontDefault = null! as string | null
 /** @todo Remove. Only temp for testing */
