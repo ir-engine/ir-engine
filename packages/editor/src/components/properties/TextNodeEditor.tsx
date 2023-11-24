@@ -57,6 +57,12 @@ export const TextNodeEditor: EditorComponentType = (props) => {
       { label: 'Auto', value: 'auto' },
       { label: 'Left to Right', value: 'ltr' },
       { label: 'Right to Left', value: 'rtl' }
+    ],
+    TextAlignment: [
+      { label: 'Justify', value: 'justify' },
+      { label: 'Center', value: 'center' },
+      { label: 'Left', value: 'left' },
+      { label: 'Right', value: 'right' }
     ]
   }
 
@@ -111,6 +117,18 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(TextComponent, 'textIndent')}
             unit="px"
           />
+          <InputGroup
+            name="TextAlign"
+            label="align" // {t('editor:properties.text.textAlign')} /* @todo: Translation id */
+          >
+            <SelectInput
+              options={SelectOptions.TextAlignment}
+              value={text.textAlign.value}
+              onChange={updateProperty(TextComponent, 'textAlign')}
+              //onChange={(val :TroikaTextDirection) => text.textDirection.set(val)}
+            />
+          </InputGroup>
+
           <InputGroup
             name="TextAnchor"
             label="anchor" // {t('editor:properties.text.textAnchor')} /* @todo: Translation id */

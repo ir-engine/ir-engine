@@ -44,9 +44,16 @@ type TroikaColor = string | number | THREE.Color
 /**
  * @description
  * troika.Text direction type, as declared by `troika-three-text` in its Text.direction `@member` property.
- * `auto` means choosing direction based on the contents.
+ * `auto` means choosing direction based on the text contents.
  */
 export type TroikaTextDirection = 'auto' | 'ltr' | 'rtl'
+
+/**
+ * @description
+ * troika.Text alignment type, as declared by `troika-three-text` in its Text.textAlign `@member` property.
+ * Defines the horizontal alignment of each line within the overall bounding box.
+ */
+export type TroikaTextAlignment = 'left' | 'center' | 'right' | 'justify'
 
 /**
  * @description
@@ -70,6 +77,7 @@ type TextMesh = Mesh & {
   // Text properties
   fillOpacity: number // @note: Troika marks this as an Experimental API
   textIndent: number /** Indentation for the first character of a line; see CSS `text-indent`. */
+  textAlign: TroikaTextAlignment
   letterSpacing: number /** Spacing between letters after kerning is applied. */
   maxWidth: number /** Value above which text starts wrapping */
   anchorX: number | string | 'left' | 'center' | 'right'
@@ -128,8 +136,6 @@ type TextMesh = Mesh & {
   // to break at whitespace characters, or `'break-word'` to allow breaking within words.
   // Defaults to `'normal'`.
   overflowWrap: 'normal' | 'break-word'
-  // The horizontal alignment of each line of text within the overall text bounding box.
-  textAlign: 'left' | 'center' | 'right' | 'justify'
   // Defines whether text should wrap when a line reaches the `maxWidth`.
   // Can be `'normal'` (the default), to allow wrapping according to the `overflowWrap` property,
   // or `'nowrap'` to prevent wrapping.
@@ -187,6 +193,7 @@ export const TextComponent = defineComponent({
       textOpacity: 100, // range[0..100], sent to troika as [0..1] :number
       textWidth: Infinity,
       textIndent: 0,
+      textAlign: 'justify' as TroikaTextAlignment,
       textAnchor: new Vector2(
         /* X */ 0, // range[0..100+], sent to troika as [0..100]% :string
         /* Y */ 0 // range[0..100+], sent to troika as [0..100]% :string
@@ -225,6 +232,7 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.textOpacity)) component.textOpacity.set(json.textOpacity)
     if (matches.number.test(json.textWidth)) component.textWidth.set(json.textWidth)
     if (matches.number.test(json.textIndent)) component.textIndent.set(json.textIndent)
+    if (matches.string.test(json.textAlign)) component.textAlign.set(json.textAlign)
     if (matches.object.test(json.textAnchor) && json.textAnchor.isVector2) component.textAnchor.set(json.textAnchor)
     if (matches.number.test(json.textDepthOffset)) component.textDepthOffset.set(json.textDepthOffset)
     if (matches.number.test(json.textCurveRadius)) component.textCurveRadius.set(json.textCurveRadius)
@@ -253,6 +261,7 @@ export const TextComponent = defineComponent({
       textOpacity: component.textOpacity.value,
       textWidth: component.textWidth.value,
       textIndent: component.textIndent.value,
+      textAlign: component.textAlign.value,
       textAnchor: component.textAnchor.value,
       textDepthOffset: component.textDepthOffset.value,
       textCurveRadius: component.textCurveRadius.value,
@@ -287,6 +296,7 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.fillOpacity = text.textOpacity.value / 100
       text.troikaMesh.value.maxWidth = text.textWidth.value
       text.troikaMesh.value.textIndent = text.textIndent.value
+      text.troikaMesh.value.textAlign = text.textAlign.value
       text.troikaMesh.value.anchorX = `${text.textAnchor.x.value}%`
       text.troikaMesh.value.anchorY = `${text.textAnchor.y.value}%`
       text.troikaMesh.value.depthOffset = text.textDepthOffset.value
@@ -312,6 +322,7 @@ export const TextComponent = defineComponent({
       text.text,
       text.textOpacity,
       text.textIndent,
+      text.textAlign,
       text.textAnchor,
       text.textCurveRadius,
       text.textDepthOffset,
