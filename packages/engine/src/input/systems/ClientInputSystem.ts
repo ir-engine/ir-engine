@@ -269,8 +269,7 @@ export const addClientInputListeners = () => {
     dispatchAction(
       EngineActions.interactedWithObject({
         targetEntity: getState(InteractState).available[0],
-        handedness: 'none',
-        pose: 'none'
+        handedness: 'none'
       })
     )
   }

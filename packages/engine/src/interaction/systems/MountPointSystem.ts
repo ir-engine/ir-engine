@@ -25,14 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Box3, Quaternion, Vector3 } from 'three'
 
-import {
-  defineActionQueue,
-  dispatchAction,
-  getMutableState,
-  getState,
-  receiveActions,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, receiveActions, useHookstate } from '@etherealengine/hyperflux'
 
 import { useEffect } from 'react'
 import { animationStates, defaultAnimationPath } from '../../avatar/animation/Util'
@@ -42,31 +35,32 @@ import { teleportAvatar, updateLocalAvatarPosition } from '../../avatar/function
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 
-import { AvatarMovementSystem } from '../../avatar/systems/AvatarMovementSystem'
-import { MotionCaptureInputActions } from '../../mocap/MotionCaptureInputActions'
+import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
 import { createInteractUI } from '../functions/interactUI'
-import { InteractiveUI, addInteractableUI } from './InteractiveSystem'
+import { InteractState, InteractiveUI, addInteractableUI } from './InteractiveSystem'
 
 /**
  * @todo refactor this into i18n and configurable
@@ -75,8 +69,6 @@ const mountPointInteractMessages = {
   [MountPoint.seat]: 'Press E to Sit'
 }
 
-const mountPointActionQueue = defineActionQueue(EngineActions.interactedWithObject.matches)
-const mountPointByPoseQueue = defineActionQueue(MotionCaptureInputActions.assumedPose.matches)
 const mountPointQuery = defineQuery([MountPointComponent])
 const sittingIdleQuery = defineQuery([SittingComponent])
 
@@ -118,13 +110,13 @@ const execute = () => {
 
   const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
     const avatarUUID = getComponent(avatarEntity, UUIDComponent)
-    const mountPoint = getComponent(mountEntity, MountPointComponent)
+    const mountPoint = getOptionalComponent(mountEntity, MountPointComponent)
+    if (!mountPoint || mountPoint.type !== MountPoint.seat) return
     const mountPointUUID = getComponent(mountEntity, UUIDComponent)
 
-    if (mountPoint.type !== MountPoint.seat || getState(MountPointState)[mountPointUUID]) return
-    if (hasComponent(avatarEntity, SittingComponent)) return
+    //check if we're already sitting or if the seat is occupied
+    if (getState(MountPointState)[mountPointUUID] || hasComponent(avatarEntity, SittingComponent)) return
 
-    /**todo add logic for different mount types */
     const avatar = getComponent(avatarEntity, AvatarComponent)
     const mountTransform = getComponent(mountEntity!, TransformComponent)
     const rigidBody = getComponent(avatarEntity, RigidBodyComponent)
@@ -168,24 +160,11 @@ const execute = () => {
     }
   }
 
-  for (const action of mountPointByPoseQueue()) {
-    //unmount if we get an interaction event and are already seated
-    // if (
-    //   avatarUUID === getState(MountPointState)[mountPointUUID] &&
-    //   (action.pose === 'stand' || action.pose === 'none')
-    // ) {
-    //   unmountEntity(avatarEntity)
-    //   continue
-    // }
-  }
-
-  for (const action of mountPointActionQueue()) {
-    if (action.$from !== Engine.instance.userID) continue
-    if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
-    const avatarEntity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
-
-    mountEntity(avatarEntity, action.targetEntity!)
-  }
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+  if (inputSource && inputSource.buttons.KeyE?.down)
+    mountEntity(Engine.instance.localClientEntity, getState(InteractState).available[0])
+  const mocapInputSource = getComponent(Engine.instance.localClientEntity, MotionCapturePoseComponent)
 
   for (const entity of sittingIdleQuery()) {
     const controller = getComponent(entity, AvatarControllerComponent)
@@ -202,8 +181,6 @@ const execute = () => {
     avatarTransform.rotation.copy(mountTransform.rotation).multiply(hipsQaut.invert())
   }
 }
-
-const _angle = new Vector3()
 
 const reactor = () => {
   const mountedEntities = useHookstate(getMutableState(MountPointState))
@@ -222,7 +199,7 @@ const reactor = () => {
 
 export const MountPointSystem = defineSystem({
   uuid: 'ee.engine.MountPointSystem',
-  insert: { before: AvatarMovementSystem },
+  insert: { before: InputSystemGroup },
   execute,
   reactor
 })

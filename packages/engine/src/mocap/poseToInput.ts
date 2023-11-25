@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
+import { getState, none } from '@etherealengine/hyperflux'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
@@ -31,30 +31,34 @@ import { getComponent, getMutableComponent } from '../ecs/functions/ComponentFun
 import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
-export type MotionCaptureActionPoses = 'sit' | 'stand' | 'none'
-export type MotionCaptureStates = 'sitting' | 'none'
+export type MotionCapturePoses = 'sitting' | 'standing'
+/**todo: this can be filled out with hold/end data for the pose */
+export type MotionCapturePoseState = { begun: boolean }
 
 const minSeatedAngle = 1.25, //radians
   poseHoldTime = 0.5 //seconds
 let poseHoldTimer = 0
 
-export const evaluatePose = (entity: Entity): MotionCaptureActionPoses => {
+export const evaluatePose = (entity: Entity) => {
   const rig = getComponent(entity, AvatarRigComponent).rig
   const deltaSeconds = getState(EngineState).deltaSeconds
   const pose = getMutableComponent(entity, MotionCapturePoseComponent)
   if (!MotionCaptureRigComponent.solvingLowerBody[entity]) return 'none'
 
-  const getLegsSeatedChange = (toState: MotionCaptureStates): boolean => {
+  /**Detect if our legs pose has changed by their angle */
+  const getLegsSeatedChange = (toPose: MotionCapturePoses): boolean => {
     let metTargetStateAngle =
       rig.rightUpperLeg.node.quaternion.angleTo(rig.spine.node.quaternion) < minSeatedAngle &&
       rig.leftUpperLeg.node.quaternion.angleTo(rig.spine.node.quaternion) < minSeatedAngle
-    metTargetStateAngle = toState == 'sitting' ? !metTargetStateAngle : metTargetStateAngle
+    metTargetStateAngle = toPose == 'sitting' ? !metTargetStateAngle : metTargetStateAngle
 
-    if (!metTargetStateAngle || pose.value === toState) return false
+    if (!metTargetStateAngle || pose[toPose].value) return false
 
     poseHoldTimer += deltaSeconds
     if (poseHoldTimer > poseHoldTime) {
-      pose.set(toState)
+      console.log(toPose)
+      //remove old pose
+      pose[toPose === 'standing' ? 'sitting' : 'standing'].set(none)
       poseHoldTimer = 0
       return true
     }
@@ -62,7 +66,11 @@ export const evaluatePose = (entity: Entity): MotionCaptureActionPoses => {
     return false
   }
 
-  if (getLegsSeatedChange('sitting')) return 'sit'
-  if (getLegsSeatedChange('none')) return 'stand'
-  return 'none'
+  /**if we find a change in pose, set a new pose
+   * otherwise, set the begun property to false */
+  if (getLegsSeatedChange('sitting')) pose['sitting'].set({ begun: true })
+  else if (pose.value['sitting'] && pose.value['sitting'].begun) pose['sitting'].begun.set(false)
+
+  if (getLegsSeatedChange('standing')) pose['standing'].set({ begun: true })
+  else if (pose.value['standing'] && pose.value['standing'].begun) pose['standing'].begun.set(false)
 }

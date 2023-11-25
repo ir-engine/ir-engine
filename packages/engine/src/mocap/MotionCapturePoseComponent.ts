@@ -23,14 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import matches from 'ts-matches'
 import { defineComponent } from '../ecs/functions/ComponentFunctions'
-import { MotionCaptureStates } from './poseToInput'
+import { MotionCapturePoseState, MotionCapturePoses } from './poseToInput'
 
 export const MotionCapturePoseComponent = defineComponent({
   name: 'MotionCapturePoseComponent',
-  onInit: () => 'none' as MotionCaptureStates,
-  onSet: (entity, component, pose: MotionCaptureStates) => {
-    if (matches.string.test(pose)) component.set(pose)
+  onInit: () => {
+    return {} as Record<MotionCapturePoses, MotionCapturePoseState>
   }
 })

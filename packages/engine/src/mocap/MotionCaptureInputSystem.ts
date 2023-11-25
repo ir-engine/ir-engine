@@ -23,29 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { dispatchAction } from '@etherealengine/hyperflux'
 import { Engine } from '../ecs/classes/Engine'
-import { defineQuery } from '../ecs/functions/ComponentFunctions'
+import { hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { InputSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { MotionCaptureInputActions } from './MotionCaptureInputActions'
+import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { evaluatePose } from './poseToInput'
 
-const motionCaptureQuery = defineQuery([MotionCaptureRigComponent])
 export const execute = () => {
-  for (const entity of motionCaptureQuery()) {
-    const poseChange = evaluatePose(entity)
-    if (poseChange != 'none') {
-      // local input events
-      if (entity == Engine.instance.localClientEntity)
-        dispatchAction(MotionCaptureInputActions.assumedPose({ pose: poseChange }))
-    }
-  }
+  const entity = Engine.instance.localClientEntity
+  if (!hasComponent(entity, MotionCaptureRigComponent)) return
+  if (!hasComponent(entity, MotionCapturePoseComponent)) setComponent(entity, MotionCapturePoseComponent)
+  evaluatePose(Engine.instance.localClientEntity)
 }
 
 export const MotionCaptureInputSystem = defineSystem({
   uuid: 'ee.engine.MotionCaptureInputSystem',
-  insert: { with: InputSystemGroup },
+  insert: { before: InputSystemGroup },
   execute
 })
