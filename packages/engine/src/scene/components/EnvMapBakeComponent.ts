@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 import {
-  BoxGeometry,
-  BoxHelper,
   Mesh,
   MeshLambertMaterial,
   MeshPhysicalMaterial,
@@ -43,8 +41,8 @@ import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
-import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent, traverseEntityNode } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import {
@@ -57,7 +55,9 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
-import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { GroupComponent, addObjectToGroup } from './GroupComponent'
+import { NameComponent } from './NameComponent'
+import { setVisibleComponent } from './VisibleComponent'
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',
@@ -73,9 +73,7 @@ export const EnvMapBakeComponent = defineComponent({
       refreshMode: EnvMapBakeRefreshTypes.OnAwake,
       envMapOrigin: '',
       boxProjection: true,
-      helper: null as Object3D | null,
-      helperBall: null as Mesh<SphereGeometry, MeshPhysicalMaterial> | null,
-      helperBox: null as BoxHelper | null
+      helperEntity: null as Entity | null
     }
   },
 
@@ -104,37 +102,28 @@ export const EnvMapBakeComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const bake = useComponent(entity, EnvMapBakeComponent)
 
     useEffect(() => {
-      if (debugEnabled.value && !bake.helper.value) {
-        const helper = new Object3D()
-        helper.name = `envmap-bake-helper-${entity}`
+      if (!debugEnabled.value) return
 
-        const centerBall = new Mesh(new SphereGeometry(0.75), new MeshPhysicalMaterial({ roughness: 0, metalness: 1 }))
-        helper.add(centerBall)
+      const helper = new Mesh(new SphereGeometry(0.75), new MeshPhysicalMaterial({ roughness: 0, metalness: 1 }))
+      helper.name = `envmap-bake-helper-${entity}`
 
-        const gizmo = new BoxHelper(new Mesh(new BoxGeometry()), 0xff0000)
-        helper.add(gizmo)
+      const helperEntity = createEntity()
+      addObjectToGroup(helperEntity, helper)
+      setComponent(helperEntity, NameComponent, helper.name)
+      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+      setVisibleComponent(helperEntity, true)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      bake.helperEntity.set(helperEntity)
 
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(entity, helper)
-
-        bake.helper.set(helper)
-        bake.helperBall.set(centerBall)
-        bake.helperBox.set(gizmo)
-      }
-
-      if (!debugEnabled.value && bake.helper.value) {
-        removeObjectFromGroup(entity, bake.helper.value)
-        bake.helper.set(none)
+      return () => {
+        removeEntity(helperEntity)
+        bake.helperEntity.set(none)
       }
     }, [debugEnabled])
 
