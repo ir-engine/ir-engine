@@ -49,18 +49,20 @@ type TroikaColor = string | number | THREE.Color
 export type TroikaTextDirection = 'auto' | 'ltr' | 'rtl'
 
 /**
+ * @summary
+ * Defines the horizontal alignment of each line within the overall bounding box.
  * @description
  * troika.Text alignment type, as declared by `troika-three-text` in its Text.textAlign `@member` property.
- * Defines the horizontal alignment of each line within the overall bounding box.
  */
 export type TroikaTextAlignment = 'left' | 'center' | 'right' | 'justify'
 
 /**
+ * @summary
+ * Defines whether text should wrap when a line reaches `maxWidth`.
+ * @enum `'normal'`: Allow wrapping according to the `overflowWrap` property. Honors newline characters to manually break lines, making it behave more like `'pre-wrap'` does in CSS.
+ * @enum `'nowrap'`: Does not allow text to wrap.
  * @description
  * troika.Text wrap, as declared by `troika-three-text` in its Text.whiteSpace `@member` property.
- * Defines whether text should wrap when a line reaches `maxWidth`.
- * @option `'normal'`: Allow wrapping according to the `overflowWrap` property. Honors newline characters to manually break lines, making it behave more like `'pre-wrap'` does in CSS.
- * @option `'nowrap'`: Does not allow text to wrap.
  */
 export type TroikaTextWrap = 'normal' | 'nowrap'
 
@@ -68,13 +70,13 @@ export type TroikaTextWrap = 'normal' | 'nowrap'
  * @description
  * troika.Text wrapping kind, as declared by `troika-three-text` in its Text.overflowWrap `@member` property.
  * Defines how text wraps if TroikaTextWrap is set to `normal` _(aka TextComponent.textWrap: true)_.
- * @option `'normal'`: Break at whitespace characters
- * @option `'break-word'`: Break within words
+ * @enum `'normal'`: Break at whitespace characters
+ * @enum `'break-word'`: Break within words
  */
 export type TroikaTextWrapKind = 'normal' | 'break-word'
 
 /**
- * @description
+ * @summary
  * Javascript-to-Typescript compatiblity type for the `troika-three-text` Text mesh class.
  *
  * @example
@@ -84,7 +86,7 @@ export type TroikaTextWrapKind = 'normal' | 'break-word'
  * @note
  * Go to the `troika-three-text`.Text class implementation for documentation about each of the fields.
  *
- * @abstract
+ * @description
  * Respects the shape of the original troika.Text class,
  * by intersecting the three.Mesh class with an explicit list of properties originally contained in the Text class.
  * Only the properties used by this implementation are explicitly declared in this type.
@@ -165,9 +167,9 @@ type TextMesh = Mesh & {
 }
 
 /**
- *  @description
+ *  @summary
  *  Noto Sans is the default font for text rendering.
- *  @abstract
+ *  @description
  *  troika.Text.font accepts a nullable string URI (URL or path), and defaults to Noto Sans when null is passed
  */
 const FontDefault = null! as string | null
