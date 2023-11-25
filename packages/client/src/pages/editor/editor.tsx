@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@hookstate/core'
 import { t } from 'i18next'
 import React, { Suspense, useEffect, useState } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useNavigate, useParams } from 'react-router-dom'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
@@ -37,6 +37,15 @@ import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/Ed
 import { ProjectPage } from '@etherealengine/editor/src/pages/ProjectPage'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+const RedirectStudio = () => {
+  const { projectName, sceneName } = useParams()
+  const navigate = useNavigate()
+  useEffect(() => {
+    navigate('/studio/' + projectName + '?scene=' + sceneName)
+  })
+  return <></>
+}
+
 const EditorRouter = () => {
   const ready = useStudioEditor()
 
@@ -46,6 +55,7 @@ const EditorRouter = () => {
     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingEditor')} />}>
       <PopupMenuInline />
       <Routes>
+        <Route path=":projectName/:sceneName" element={<RedirectStudio />} />
         <Route path=":projectName" element={<EditorPage />} />
         <Route path="*" element={<ProjectPage />} />
       </Routes>

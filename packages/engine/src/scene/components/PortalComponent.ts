@@ -26,9 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { useEffect } from 'react'
 import {
+  ArrowHelper,
   BackSide,
-  ConeGeometry,
-  CylinderGeometry,
   Euler,
   Mesh,
   MeshBasicMaterial,
@@ -41,11 +40,12 @@ import {
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { V_100 } from '../../common/constants/MathConstants'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { UndefinedEntity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   SerializedComponentType,
@@ -55,15 +55,15 @@ import {
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { portalPath } from '../../schemas/projects/portal.schema'
+import { LocalTransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
-import { disposeMaterial } from '../systems/SceneObjectSystem'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -71,7 +71,7 @@ import { NameComponent } from './NameComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
-import { VisibleComponent } from './VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from './VisibleComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -127,7 +127,7 @@ export const PortalComponent = defineComponent({
       remoteSpawnPosition: new Vector3(),
       remoteSpawnRotation: new Quaternion(),
       mesh: null as Mesh<SphereGeometry, MeshBasicMaterial> | null,
-      helper: null as Mesh<CylinderGeometry, MeshBasicMaterial> | null
+      helperEntity: null as Entity | null
     }
   },
 
@@ -179,11 +179,6 @@ export const PortalComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    if (component.mesh.value) removeObjectFromGroup(entity, component.mesh.value)
-    if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
@@ -200,51 +195,41 @@ export const PortalComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      if (debugEnabled.value && !portalComponent.helper.value) {
-        const helper = new Mesh(
-          new CylinderGeometry(0.25, 0.25, 0.1, 6, 1, false, (30 * Math.PI) / 180),
-          new MeshBasicMaterial({ color: 0x2b59c3 })
-        )
-        helper.name = `portal-helper-${entity}`
+      if (!debugEnabled.value) return
+      const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 1, 0x000000)
+      helper.name = `portal-helper-${entity}`
 
-        const spawnDirection = new Mesh(
-          new ConeGeometry(0.05, 0.5, 4, 1, false, Math.PI / 4),
-          new MeshBasicMaterial({ color: 0xd36582 })
-        )
-        spawnDirection.position.set(0, 0, 1.25)
-        spawnDirection.rotateX(Math.PI / 2)
-        helper.add(spawnDirection)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      const helperEntity = createEntity()
 
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(entity, helper)
+      addObjectToGroup(helperEntity, helper)
+      setComponent(helperEntity, NameComponent, helper.name)
+      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+      setVisibleComponent(helperEntity, true)
+      getComponent(helperEntity, LocalTransformComponent).rotation.copy(
+        new Quaternion().setFromAxisAngle(V_100, Math.PI / 2)
+      )
 
-        portalComponent.helper.set(helper)
-      }
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      portalComponent.helperEntity.set(helperEntity)
 
-      if (!debugEnabled.value && portalComponent.helper.value) {
-        removeObjectFromGroup(entity, portalComponent.helper.value)
-        portalComponent.helper.set(none)
+      return () => {
+        removeEntity(helperEntity)
+        portalComponent.helperEntity.set(none)
       }
     }, [debugEnabled])
 
     useEffect(() => {
-      if (portalComponent.mesh.value && portalComponent.previewType.value === PortalPreviewTypeSimple) {
-        removeObjectFromGroup(entity, portalComponent.mesh.value)
-        portalComponent.mesh.set(null)
-      }
+      if (portalComponent.previewType.value !== PortalPreviewTypeSpherical) return
 
-      if (!portalComponent.mesh.value && portalComponent.previewType.value === PortalPreviewTypeSpherical) {
-        const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: BackSide }))
-        portalComponent.mesh.set(portalMesh)
-        addObjectToGroup(entity, portalMesh)
-        return () => {
-          if (Array.isArray(portalMesh.material)) {
-            disposeMaterial(portalMesh.material)
-          } else if (portalMesh.material) {
-            disposeMaterial(portalMesh.material)
-          }
-          if (portalMesh.geometry) portalMesh.geometry.dispose()
-        }
+      const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: BackSide }))
+      portalMesh.geometry.translate(0, 1.5, 0)
+      portalComponent.mesh.set(portalMesh)
+      addObjectToGroup(entity, portalMesh)
+
+      return () => {
+        removeObjectFromGroup(entity, portalMesh)
+        portalComponent.mesh.set(null)
       }
     }, [portalComponent.previewType])
 
