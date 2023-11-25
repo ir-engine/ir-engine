@@ -111,7 +111,7 @@ export const SplineTrackComponent = defineComponent({
           component.alpha.set(0)
         }
         component.alpha.set(
-          (alpha) => alpha + (deltaSeconds * component.velocity.value) / splineComponent.curve.getLength()
+          (alpha) => alpha + (deltaSeconds * component.velocity.value) / splineComponent.curve.getLength() // todo cache length to avoid recalculating every frame
         )
 
         // move along spline
