@@ -30,14 +30,14 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
@@ -115,6 +115,17 @@ export const DirectionalLightComponent = defineComponent({
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
+      const helperEntity = light.helperEntity.value!
+      if (helperEntity) {
+        const helper = getComponent(helperEntity, GroupComponent)[0] as any as EditorDirectionalLightHelper
+        if (light.color.value) {
+          helper.lightPlane.material.color.set(light.color.value)
+          helper.targetLine.material.color.set(light.color.value)
+        } else {
+          helper.lightPlane.material.color.copy(helper.directionalLight!.color)
+          helper.targetLine.material.color.copy(helper.directionalLight!.color)
+        }
+      }
     }, [light.color])
 
     useEffect(() => {

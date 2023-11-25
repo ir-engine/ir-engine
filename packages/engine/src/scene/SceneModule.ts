@@ -72,7 +72,6 @@ import { VolumetricComponent } from './components/VolumetricComponent'
 import { WaterComponent } from './components/WaterComponent'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { FogSystem } from './systems/FogSystem'
-import { LightSystem } from './systems/LightSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
@@ -134,7 +133,6 @@ export const SceneComponents = [
 export {
   EnvironmentSystem,
   FogSystem,
-  LightSystem,
   MaterialLibrarySystem,
   MountPointSystem,
   NoiseOffsetSystem,
