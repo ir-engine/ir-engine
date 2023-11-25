@@ -49,7 +49,7 @@ describe('ComponentFunctions', async () => {
     return destroyEngine()
   })
 
-  describe('createMappedComponent', () => {
+  describe('defineComponent', () => {
     it('should create tag component', () => {
       const TagComponent = defineComponent({ name: 'TagComponent', onInit: () => true })
 

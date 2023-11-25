@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material, Shader, WebGLRenderer } from 'three'
 
-import { createMappedComponent } from '../../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../../ecs/functions/ComponentFunctions'
 import { MaterialSource } from './MaterialSource'
 
 export type MaterialPrototypeComponentType<T extends Material = Material> = {
@@ -44,14 +44,19 @@ export type MaterialPrototypeComponentType<T extends Material = Material> = {
   onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
 }
 
-export const MaterialPrototypeComponent =
-  createMappedComponent<MaterialPrototypeComponentType>('MaterialPrototypeComponent')
-
-export const RENDER_COMPONENT_MATERIAL_PROTOTYPE = 'material-prototype'
-export const RENDER_COMPONENT_MATERIAL_PROTOTYPE_DEFAULT_VALUES = {
-  uuid: '',
-  name: '',
-  vertexShader: '',
-  fragmentShader: '',
-  arguments: {}
-}
+export const MaterialPrototypeComponent = defineComponent({
+  name: 'MaterialPrototypeComponent',
+  jsonID: 'material-prototype',
+  onInit(entity) {
+    return {
+      prototypeId: '',
+      baseMaterial: null!,
+      arguments: {},
+      src: null!
+    } as MaterialPrototypeComponentType
+  },
+  onSet: (entity, component, json) => {
+    if (json) component.set(json as any)
+  },
+  toJSON: (entity, component) => component.value as MaterialPrototypeComponentType
+})

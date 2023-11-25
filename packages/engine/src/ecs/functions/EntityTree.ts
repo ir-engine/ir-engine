@@ -34,7 +34,7 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
-  getOptionalComponentState,
+  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -90,7 +90,7 @@ export const EntityTreeComponent = defineComponent({
       setComponent(entity, UUIDComponent, json.uuid)
 
     if (component.parentEntity.value) {
-      const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
+      const parent = getOptionalMutableComponent(component.parentEntity.value, EntityTreeComponent)
 
       if (parent) {
         const prevChildIndex = parent?.children.value.indexOf(entity)

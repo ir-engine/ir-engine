@@ -30,11 +30,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { setComponent } from '../../../ecs/functions/ComponentFunctions'
-import {
-  MaterialPrototypeComponent,
-  MaterialPrototypeComponentType,
-  RENDER_COMPONENT_MATERIAL_PROTOTYPE_DEFAULT_VALUES
-} from '../components/MaterialPrototypeComponent'
+import { MaterialPrototypeComponent, MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
 
 export const deserializeMaterialPrototype: ComponentDeserializeFunction = (
   entity: Entity,
@@ -45,7 +41,7 @@ export const deserializeMaterialPrototype: ComponentDeserializeFunction = (
 }
 
 function parseMaterialPrototypeProperties(data): MaterialPrototypeComponentType {
-  return { ...RENDER_COMPONENT_MATERIAL_PROTOTYPE_DEFAULT_VALUES, ...data }
+  return { ...data }
 }
 
 export const updateMaterialPrototype: ComponentUpdateFunction = (entity: Entity) => {}
