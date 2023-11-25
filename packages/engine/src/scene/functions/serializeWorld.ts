@@ -48,3 +48,5 @@ export const serializeEntity = (entity: Entity) => {
   }
   return jsonComponents
 }
+
+globalThis.serializeEntity = serializeEntity
