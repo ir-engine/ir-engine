@@ -170,9 +170,9 @@ const execute = () => {
   */
   const mocapInputSource = getOptionalComponent(Engine.instance.localClientEntity, MotionCapturePoseComponent)
   if (mocapInputSource) {
-    if (mocapInputSource.sitting.begun)
+    if (mocapInputSource.sitting?.begun)
       mountEntity(Engine.instance.localClientEntity, getState(InteractState).available[0])
-    if (mocapInputSource.standing.begun) unmountEntity(Engine.instance.localClientEntity)
+    if (mocapInputSource.standing?.begun) unmountEntity(Engine.instance.localClientEntity)
   }
 
   for (const entity of sittingIdleQuery()) {
