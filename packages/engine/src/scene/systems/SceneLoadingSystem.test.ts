@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { destroyEngine } from '../../ecs/classes/Engine'
 import { createEngine } from '../../initializeEngine'
+import { SceneDataType, SceneJsonType } from '../../schemas/projects/scene.schema'
 
 const sceneJSON_1 = {
   scene: {
@@ -39,8 +39,8 @@ const sceneJSON_1 = {
     },
     root: 'root' as EntityUUID,
     version: 0
-  } as SceneJson
-} as SceneData
+  } as SceneJsonType
+} as SceneDataType
 
 const sceneJSON_2 = {
   scene: {
@@ -57,8 +57,8 @@ const sceneJSON_2 = {
     },
     root: 'root' as EntityUUID,
     version: 0
-  } as SceneJson
-} as SceneData
+  } as SceneJsonType
+} as SceneDataType
 
 describe('SceneLoadingSystem', () => {
   beforeEach(() => {

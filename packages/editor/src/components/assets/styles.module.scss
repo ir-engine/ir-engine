@@ -230,7 +230,7 @@
 .breadcrumb {
   color: var(--textColor);
 
-  [class*=MuiLink-root] {
+  [class*="MuiLink-root"] {
     cursor: pointer;
   }
 }

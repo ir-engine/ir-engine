@@ -41,21 +41,23 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { PoseSchema } from '../../transform/components/TransformComponent'
+import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import { PoseSchema, TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -106,7 +108,7 @@ export const AvatarRigComponent = defineComponent({
       /** the target */
       targetBones: null! as Record<VRMHumanBoneName, Bone>,
 
-      helper: null as SkeletonHelper | null,
+      helperEntity: null as Entity | null,
       /** The length of the torso in a t-pose, from the hip joint to the head joint */
       torsoLength: 0,
       /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
@@ -147,12 +149,6 @@ export const AvatarRigComponent = defineComponent({
     if (matches.string.test(json.ikOverride)) component.ikOverride.set(json.ikOverride)
   },
 
-  onRemove: (entity, component) => {
-    if (component.helper.value) {
-      removeObjectFromGroup(entity, component.helper.value)
-    }
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
@@ -161,26 +157,34 @@ export const AvatarRigComponent = defineComponent({
     const visible = useOptionalComponent(entity, VisibleComponent)
 
     useEffect(() => {
-      if (
-        visible?.value &&
-        debugEnabled.value &&
-        !rigComponent.helper.value &&
-        !pending?.value &&
-        rigComponent.value.rig?.hips?.node
-      ) {
-        const helper = new SkeletonHelper(rigComponent.value.targetBones.hips.parent!)
-        helper.frustumCulled = false
-        helper.name = `target-rig-helper-${entity}`
-        setObjectLayers(helper, ObjectLayers.AvatarHelper)
-        Engine.instance.scene.add(helper)
-        rigComponent.helper.set(helper)
-      }
+      if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.rig?.hips?.node) return
 
-      if ((!visible?.value || !debugEnabled.value || pending?.value) && rigComponent.helper.value) {
-        rigComponent.helper.value.removeFromParent()
-        rigComponent.helper.set(none)
+      const helper = new SkeletonHelper(rigComponent.value.vrm.scene)
+      helper.frustumCulled = false
+      helper.name = `target-rig-helper-${entity}`
+      setObjectLayers(helper, ObjectLayers.AvatarHelper)
+
+      const helperEntity = createEntity()
+      setVisibleComponent(helperEntity, true)
+      addObjectToGroup(helperEntity, helper)
+      rigComponent.helperEntity.set(helperEntity)
+      setComponent(helperEntity, NameComponent, helper.name)
+
+      setComputedTransformComponent(helperEntity, entity, () => {
+        const helperTransform = getComponent(helperEntity, TransformComponent)
+        const avatarTransform = getComponent(entity, TransformComponent)
+        helperTransform.position.copy(avatarTransform.position)
+        helperTransform.rotation.copy(avatarTransform.rotation)
+
+        // this updates the bone helper lines
+        helper.updateMatrixWorld(true)
+      })
+
+      return () => {
+        removeEntity(helperEntity)
+        rigComponent.helperEntity.set(none)
       }
-    }, [visible, debugEnabled, pending])
+    }, [visible, debugEnabled, pending, rigComponent.rig])
 
     useEffect(() => {
       if (!rigComponent.value || !rigComponent.value.vrm) return
