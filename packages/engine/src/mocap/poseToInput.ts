@@ -69,8 +69,8 @@ export const evaluatePose = (entity: Entity) => {
   /**if we find a change in pose, set a new pose
    * otherwise, set the begun property to false */
   if (getLegsSeatedChange('sitting')) pose['sitting'].set({ begun: true })
-  else if (pose.value['sitting'] && pose.value['sitting'].begun) pose['sitting'].begun.set(false)
+  else if (pose.sitting.value && pose.sitting.begun.value) pose.sitting.begun.set(false)
 
   if (getLegsSeatedChange('standing')) pose['standing'].set({ begun: true })
-  else if (pose.value['standing'] && pose.value['standing'].begun) pose['standing'].begun.set(false)
+  else if (pose.standing.value && pose.standing.begun.value) pose.standing.begun.set(false)
 }

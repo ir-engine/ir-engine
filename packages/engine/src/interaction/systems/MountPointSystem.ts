@@ -161,10 +161,19 @@ const execute = () => {
   }
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+  const inputSource = getOptionalComponent(nonCapturedInputSource, InputSourceComponent)
   if (inputSource && inputSource.buttons.KeyE?.down)
     mountEntity(Engine.instance.localClientEntity, getState(InteractState).available[0])
-  const mocapInputSource = getComponent(Engine.instance.localClientEntity, MotionCapturePoseComponent)
+
+  /*Consider mocap inputs in the event we want to snap a real world seated person
+    to a mount point, to maintain physical continuity
+  */
+  const mocapInputSource = getOptionalComponent(Engine.instance.localClientEntity, MotionCapturePoseComponent)
+  if (mocapInputSource) {
+    if (mocapInputSource.sitting.begun)
+      mountEntity(Engine.instance.localClientEntity, getState(InteractState).available[0])
+    if (mocapInputSource.standing.begun) unmountEntity(Engine.instance.localClientEntity)
+  }
 
   for (const entity of sittingIdleQuery()) {
     const controller = getComponent(entity, AvatarControllerComponent)
@@ -172,6 +181,7 @@ const execute = () => {
     if (!hasComponent(entity, MotionCaptureRigComponent)) continue
     const mountTransform = getComponent(getComponent(entity, SittingComponent).mountPointEntity, TransformComponent)
     const avatarTransform = getComponent(entity, TransformComponent)
+    //Force mocapped avatar to always face the mount point's rotation
     const hipsQaut = new Quaternion(
       MotionCaptureRigComponent.rig.hips.x[entity],
       MotionCaptureRigComponent.rig.hips.y[entity],
