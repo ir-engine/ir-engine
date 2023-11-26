@@ -107,6 +107,8 @@ const reactor = () => {
   const engineRendererSettings = useHookstate(getMutableState(RendererState))
 
   useEffect(() => {
+    if (!engineRendererSettings.physicsDebug.value) return
+
     const lineMaterial = new LineBasicMaterial({ vertexColors: true })
     const lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
     lineSegments.frustumCulled = false

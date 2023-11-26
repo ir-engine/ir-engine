@@ -48,7 +48,7 @@ function computeTangents(geometry) {
  * @param  {Boolean} useGroups
  * @return {BufferGeometry}
  */
-function mergeBufferGeometries(geometries, useGroups = false) {
+function mergeBufferGeometries(geometries: Array<BufferGeometry>, useGroups = false) {
   const isIndexed = geometries[0].index !== null
 
   const attributesUsed = new Set(Object.keys(geometries[0].attributes))

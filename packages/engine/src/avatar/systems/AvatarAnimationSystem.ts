@@ -350,17 +350,6 @@ const execute = () => {
     }
     rigComponent.vrm.update(deltaTime)
   }
-
-  /** Run debug */
-  if (avatarDebug) {
-    for (const entity of priorityQueue.priorityEntities) {
-      const rigComponent = getComponent(entity, AvatarRigComponent)
-      if (rigComponent?.helper) {
-        rigComponent.rig.hips.node.updateWorldMatrix(true, true)
-        rigComponent.helper?.updateMatrixWorld(true)
-      }
-    }
-  }
 }
 
 const reactor = () => {
