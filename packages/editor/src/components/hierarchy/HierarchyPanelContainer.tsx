@@ -113,7 +113,7 @@ export default function HierarchyPanel() {
   useEffect(() => {
     if (!activeScene.value) return
 
-    const rootUUID = SceneState.getScene(activeScene.value)!.scene.root!
+    const rootUUID = SceneState.getScene(activeScene.value)!.root!
 
     getMutableState(EditorState).expandedNodes.set({ [rootUUID]: true })
   }, [activeScene])

@@ -102,6 +102,13 @@ export const SceneState = defineState({
     return scene.snapshots[scene.index].data
   },
 
+  getSceneMetadata: (sceneID: SceneID) => {
+    const { scenes } = getState(SceneState)
+    const scene = scenes[sceneID]
+    if (!scene) return null
+    return scene.metadata
+  },
+
   getMutableScene: (sceneID: SceneID) => {
     const { scenes } = getMutableState(SceneState)
     const scene = scenes[sceneID]
