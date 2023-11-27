@@ -37,6 +37,7 @@ import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
@@ -95,6 +96,7 @@ export default function ScenesPanel({ loadScene, newScene }) {
 
   const onClickExisting = async (e, scene) => {
     e.preventDefault()
+    SceneState.unloadActiveScene()
     loadScene(scene.name)
     fetchItems()
   }
