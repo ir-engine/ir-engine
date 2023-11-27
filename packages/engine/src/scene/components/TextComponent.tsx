@@ -144,12 +144,6 @@ type TextMesh = Mesh & {
   // of the other mesh materials to gain other features like lighting, texture maps, etc.
   // Also see the `color` shortcut property.
   material: THREE.Material
-  // This allows more fine-grained control of colors for individual or ranges of characters,
-  // taking precedence over the material's `color`. Its format is an Object whose keys each
-  // define a starting character index for a range, and whose values are the color for each
-  // range. The color value can be a numeric hex color value, a `THREE.Color` object, or
-  // any of the strings accepted by `THREE.Color`.
-  colorRanges: object | null // WARNING: This API is experimental and may change.
   // Defines the axis plane on which the text should be laid out when the mesh has no extra
   // rotation transform. It is specified as a string with two axes: the horizontal axis with
   // positive pointing right, and the vertical axis with positive pointing up. By default this
@@ -158,11 +152,13 @@ type TextMesh = Mesh & {
   // top toward negative z and facing positive y.
   orientation: string
 
+  //____ Maybes ____
+  lang: string | null // The language code of this text; can be used for explicitly selecting certain CJK fonts.
+  unicodeFontsURL: string | null // defaults to CDN
+
   //____ Unlikely ____
   fontWeight: number | 'normal' | 'bold' // The weight of the font. Currently only used for fallback Noto fonts.
   fontStyle: 'normal' | 'italic' // The style of the font. Currently only used for fallback Noto fonts.
-  lang: string | null // The language code of this text; can be used for explicitly selecting certain CJK fonts.
-  unicodeFontsURL: string | null // defaults to CDN
   debugSDF: boolean
 }
 
