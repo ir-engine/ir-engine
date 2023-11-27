@@ -38,14 +38,21 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { EntityJson, SceneJson, SceneMetadata } from '@etherealengine/common/src/interfaces/SceneInterface'
+
 import { useEffect } from 'react'
 import { Validator, matches } from '../../common/functions/MatchesUtils'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { serializeEntity } from '../../scene/functions/serializeWorld'
-import { SceneDataType, SceneID, SceneJsonType, scenePath } from '../../schemas/projects/scene.schema'
+import {
+  EntityJsonType,
+  SceneDataType,
+  SceneID,
+  SceneJsonType,
+  SceneMetadataType,
+  scenePath
+} from '../../schemas/projects/scene.schema'
 import { getComponent, getOptionalComponent } from '../functions/ComponentFunctions'
 import { PresentationSystemGroup } from '../functions/EngineFunctions'
 import { EntityTreeComponent } from '../functions/EntityTree'
@@ -65,14 +72,15 @@ export const SceneState = defineState({
     scenes: {} as Record<
       SceneID,
       {
-        metadata: SceneMetadata
+        metadata: SceneMetadataType
         snapshots: Array<SceneSnapshotInterface>
         index: number
       }
     >,
     /** @todo replace activeScene with proper multi-scene support */
     activeScene: null as null | SceneID,
-    background: null as null | Color | Texture
+    background: null as null | Color | Texture,
+    environment: null as null | Texture
   }),
 
   getCurrentScene: () => {
@@ -108,8 +116,8 @@ export const SceneState = defineState({
   },
 
   loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
-    const metadata: SceneMetadata = sceneData
-    const data: SceneJson = sceneData.scene
+    const metadata: SceneMetadataType = sceneData
+    const data: SceneJsonType = sceneData.scene
     getMutableState(SceneState).scenes[sceneID].set({
       metadata,
       snapshots: [{ data, selectedEntities: [] }],
@@ -155,12 +163,12 @@ export const SceneState = defineState({
   snapshotFromECS: (sceneID: SceneID) => {
     const entities = SourceComponent.entitiesBySource[sceneID]
     if (!entities || entities.length === 0) throw new Error('no entities')
-    const serializedEntities: [EntityUUID, EntityJson][] = entities.map((entity) => {
+    const serializedEntities: [EntityUUID, EntityJsonType][] = entities.map((entity) => {
       const components = serializeEntity(entity)
       const name = getComponent(entity, NameComponent)
       const uuid = getComponent(entity, UUIDComponent)
       const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
-      const entityJson: EntityJson = {
+      const entityJson: EntityJsonType = {
         name,
         components
       }
@@ -174,8 +182,8 @@ export const SceneState = defineState({
       rootEntity = getComponent(rootEntity, EntityTreeComponent).parentEntity!
     }
     const root = getComponent(rootEntity, UUIDComponent)
-    const data: SceneJson = {
-      entities: {} as Record<EntityUUID, EntityJson>,
+    const data: SceneJsonType = {
+      entities: {} as Record<EntityUUID, EntityJsonType>,
       root,
       version: 0
     }
@@ -206,7 +214,6 @@ export const SceneServices = {
       .service(scenePath)
       .get(null, { query: { project: projectName, name: sceneName } })
       .then((sceneData) => {
-        /**@todo replace projectName/sceneName with sceneID once #9119 */
         SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, sceneData)
       })
 
@@ -241,7 +248,7 @@ export class SceneSnapshotAction {
   static appendSnapshot = defineAction({
     type: 'ee.scene.snapshot.APPEND_SNAPSHOT' as const,
     sceneID: matches.string as Validator<unknown, SceneID>,
-    json: matches.object as Validator<unknown, SceneJson>
+    json: matches.object as Validator<unknown, SceneJsonType>
     // $topic: EditorTopic,
     // $cache: true
   })
@@ -250,7 +257,7 @@ export class SceneSnapshotAction {
     type: 'ee.scene.snapshot.CREATE_SNAPSHOT' as const,
     sceneID: matches.string as Validator<unknown, SceneID>,
     selectedEntities: matches.array as Validator<unknown, Array<EntityUUID>>,
-    data: matches.object as Validator<unknown, SceneJson>
+    data: matches.object as Validator<unknown, SceneJsonType>
   })
 }
 

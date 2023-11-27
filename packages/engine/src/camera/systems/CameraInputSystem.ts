@@ -206,14 +206,15 @@ const execute = () => {
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
   const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
-  const keys = inputSource.buttons
 
-  if (keys.KeyV?.down) onKeyV()
-  if (keys.KeyF?.down) onKeyF()
-  if (keys.KeyC?.down) onKeyC()
+  const keys = inputSource?.buttons
+
+  if (keys?.KeyV?.down) onKeyV()
+  if (keys?.KeyF?.down) onKeyF()
+  if (keys?.KeyC?.down) onKeyC()
 
   const pointerState = getState(InputState).pointerState
-  const mouseMoved = pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed
+  const mouseMoved = pointerState.movement.lengthSq() > 0 && keys?.PrimaryClick?.pressed
 
   for (const entity of avatarControllerEntities) {
     const avatarController = getComponent(entity, AvatarControllerComponent)
@@ -234,7 +235,7 @@ const execute = () => {
       target.phi += z * 2
     }
 
-    const keyDelta = (keys.ArrowLeft ? 1 : 0) + (keys.ArrowRight ? -1 : 0)
+    const keyDelta = (keys?.ArrowLeft ? 1 : 0) + (keys?.ArrowRight ? -1 : 0)
     target.theta += 100 * deltaSeconds * keyDelta
     setTargetCameraRotation(cameraEntity, target.phi, target.theta)
 
@@ -246,7 +247,7 @@ const execute = () => {
         0.1
       )
     }
-    if (keys.PrimaryClick?.pressed) {
+    if (keys?.PrimaryClick?.pressed) {
       if (accumulator > INPUT_CAPTURE_DELAY) {
         InputSourceComponent.captureButtons(cameraEntity)
         capturedInputSource = inputSourceEntity

@@ -23,27 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { sceneDataMethods, sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
-import { Application } from '../../../declarations'
-import { SceneDataService } from './scene-data.class'
-import sceneDataDocs from './scene-data.docs'
-import hooks from './scene-data.hooks'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import type { Knex } from 'knex'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    [sceneDataPath]: SceneDataService
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const sceneIdColumnExists = await trx.schema.hasColumn(locationPath, 'sceneId')
+
+  if (sceneIdColumnExists === true) {
+    await trx
+      .from(locationPath)
+      .update({ sceneId: trx.raw(`CONCAT("projects/", ??, ".scene.json")`, ['sceneId']) })
+      .where('sceneId', 'not like', '%projects/%')
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
-export default (app: Application): void => {
-  app.use(sceneDataPath, new SceneDataService(app), {
-    // A list of all methods this service exposes externally
-    methods: sceneDataMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: sceneDataDocs
-  })
-
-  const service = app.service(sceneDataPath)
-  service.hooks(hooks)
-}
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}

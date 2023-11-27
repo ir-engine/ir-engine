@@ -369,7 +369,8 @@ const load = (
   args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {}
+  onError = (event: ErrorEvent | Error) => {},
+  assetTypeOverride: AssetType = null!
 ) => {
   if (!_url) {
     onError(new Error('URL is empty'))
@@ -377,7 +378,7 @@ const load = (
   }
   const url = getAbsolutePath(_url)
 
-  const assetType = AssetLoader.getAssetType(url)
+  const assetType = assetTypeOverride ? assetTypeOverride : AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
 
   const callback = assetLoadCallback(url, args, assetType, onLoad)
@@ -389,9 +390,14 @@ const load = (
   }
 }
 
-const loadAsync = async (url: string, args: LoadingArgs = {}, onProgress = (request: ProgressEvent) => {}) => {
+const loadAsync = async (
+  url: string,
+  args: LoadingArgs = {},
+  onProgress = (request: ProgressEvent) => {},
+  assetTypeOverride: AssetType = null!
+) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, args, resolve, onProgress, reject)
+    load(url, args, resolve, onProgress, reject, assetTypeOverride)
   })
 }
 

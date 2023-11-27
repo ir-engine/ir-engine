@@ -119,7 +119,11 @@ const reactor = () => {
 /** @todo - this needs to be rework according to #9105 # */
 const NetworkedSceneObjectReactor = () => {
   const entity = useEntityContext()
+  const loaded = useHookstate(false)
+  const worldNetwork = useHookstate(NetworkState.worldNetworkState)
+
   useEffect(() => {
+    if (loaded.value) return
     if (NetworkState.worldNetwork?.isHosting) {
       if (!entityExists(entity)) return
       if (hasComponent(entity, GLTFLoadedComponent)) return
@@ -133,8 +137,10 @@ const NetworkedSceneObjectReactor = () => {
           rotation: transform.rotation.clone()
         })
       )
+      loaded.set(true)
     }
-  }, [])
+  }, [worldNetwork])
+
   return null
 }
 
