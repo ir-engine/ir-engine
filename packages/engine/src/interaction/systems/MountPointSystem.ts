@@ -31,7 +31,7 @@ import { useEffect } from 'react'
 import { animationStates, defaultAnimationPath } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { teleportAvatar, updateLocalAvatarPosition } from '../../avatar/functions/moveAvatar'
+import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
@@ -71,7 +71,7 @@ const mountPointInteractMessages = {
 
 const mountPointQuery = defineQuery([MountPointComponent])
 const sittingIdleQuery = defineQuery([SittingComponent])
-
+const _vec = new Vector3()
 const execute = () => {
   receiveActions(MountPointState)
 
@@ -174,10 +174,9 @@ const execute = () => {
     if (controller.gamepadLocalInput.lengthSq() > 0.01) unmountEntity(entity)
     const mountTransform = getComponent(getComponent(entity, SittingComponent).mountPointEntity, TransformComponent)
     const avatar = getComponent(entity, AvatarComponent)
-    const rigidBody = getComponent(entity, RigidBodyComponent)
-    rigidBody.targetKinematicPosition.copy(mountTransform.position).y -= avatar.avatarHalfHeight * 0.5
     setComponent(entity, TransformComponent, { rotation: mountTransform.rotation })
-    updateLocalAvatarPosition(entity)
+    _vec.copy(mountTransform.position).y -= avatar.avatarHalfHeight * 0.5
+    teleportAvatar(entity, _vec)
 
     //if (!hasComponent(entity, MotionCaptureRigComponent)) continue
 
