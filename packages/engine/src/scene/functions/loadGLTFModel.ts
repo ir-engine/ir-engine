@@ -39,6 +39,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ComponentJsonType, EntityJsonType } from '../../schemas/projects/scene.schema'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -259,6 +260,7 @@ export const parseGLTFModel = (entity: Entity) => {
       Object.defineProperties(obj, {
         parent: {
           get() {
+            if (EngineRenderer.instance.rendering) return null
             if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
               return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0]
             }
@@ -270,6 +272,7 @@ export const parseGLTFModel = (entity: Entity) => {
         },
         children: {
           get() {
+            if (EngineRenderer.instance.rendering) return []
             return hasComponent(objEntity, EntityTreeComponent)
               ? getComponent(objEntity, EntityTreeComponent)
                   .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length ?? 0 > 0)
