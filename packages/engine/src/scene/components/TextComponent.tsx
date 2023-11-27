@@ -29,8 +29,7 @@ import { isClient } from '@etherealengine/engine/src/common/functions/getEnviron
 import { defineComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 
-import { Color, Mesh, Vector2 } from 'three'
-import { MathUtils } from 'three/src/math/MathUtils'
+import { Color, MathUtils, Mesh, Vector2 } from 'three'
 import { Text as TroikaText } from 'troika-three-text'
 import { matches } from '../../common/functions/MatchesUtils'
 import { addObjectToGroup } from './GroupComponent'
