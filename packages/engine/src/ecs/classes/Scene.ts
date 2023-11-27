@@ -168,8 +168,7 @@ export const SceneState = defineState({
   },
 
   snapshotFromECS: (sceneID: SceneID) => {
-    const entities = SourceComponent.entitiesBySource[sceneID]
-    if (!entities || entities.length === 0) throw new Error('no entities')
+    const entities = SourceComponent.entitiesBySource[sceneID] ?? []
     const serializedEntities: [EntityUUID, EntityJsonType][] = entities.map((entity) => {
       const components = serializeEntity(entity)
       const name = getComponent(entity, NameComponent)
@@ -186,13 +185,18 @@ export const SceneState = defineState({
     })
     let rootEntity = entities[0]
     while (getComponent(rootEntity, SourceComponent) === sceneID) {
-      rootEntity = getComponent(rootEntity, EntityTreeComponent).parentEntity!
+      const entityTree = getComponent(rootEntity, EntityTreeComponent)
+      if (entityTree.parentEntity === null) break
+      rootEntity = entityTree.parentEntity
     }
     const root = getComponent(rootEntity, UUIDComponent)
     const data: SceneJsonType = {
       entities: {} as Record<EntityUUID, EntityJsonType>,
       root,
       version: 0
+    }
+    for (const [uuid, entityJson] of serializedEntities) {
+      data.entities[uuid] = entityJson
     }
     const snapshot: SceneSnapshotInterface = {
       data,

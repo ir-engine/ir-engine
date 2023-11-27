@@ -54,7 +54,16 @@ export const SourceComponent = defineComponent({
     const nuEntities = SourceComponent.entitiesBySource[src] ?? []
     SourceComponent.entitiesBySourceState[src].set([...nuEntities, entity])
   },
+  onRemove: (entity, component) => {
+    const src = component.value
 
+    const entities = SourceComponent.entitiesBySource[src].filter((currentEntity) => currentEntity !== entity)
+    if (entities.length === 0) {
+      SourceComponent.entitiesBySourceState[src].set(none)
+    } else {
+      SourceComponent.entitiesBySourceState[src].set(entities)
+    }
+  },
   entitiesBySourceState: createState(entitiesBySource),
   entitiesBySource: entitiesBySource as Readonly<typeof entitiesBySource>
 })

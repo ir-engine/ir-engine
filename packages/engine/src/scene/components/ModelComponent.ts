@@ -200,10 +200,16 @@ function ModelReactor() {
                   removeEntity(nonDependentChildren[i])
                 }
                 for (const sceneID of [...alteredSources.values()]) {
+                  const json = SceneState.snapshotFromECS(sceneID).data
+                  const scene = getState(SceneState).scenes[sceneID]
+                  const selectedEntities = scene.snapshots[scene.index].selectedEntities.filter(
+                    (entity) => !!UUIDComponent.entitiesByUUID[entity]
+                  )
                   dispatchAction(
-                    SceneSnapshotAction.appendSnapshot({
+                    SceneSnapshotAction.createSnapshot({
                       sceneID,
-                      json: SceneState.snapshotFromECS(sceneID).data
+                      data: json,
+                      selectedEntities
                     })
                   )
                 }

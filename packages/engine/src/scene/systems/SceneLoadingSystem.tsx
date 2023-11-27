@@ -234,6 +234,7 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     setComponent(entity, NameComponent, entityState.name.value)
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, UUIDComponent, props.entityUUID)
+    setComponent(entity, SourceComponent, props.sceneID)
     setComponent(entity, SceneTagComponent, true)
     setComponent(entity, TransformComponent)
     setComponent(entity, SceneObjectComponent)
