@@ -52,7 +52,6 @@ import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, GroupQueryReactor, Object3DWithEntity } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import iterateObject3D from '../util/iterateObject3D'
@@ -137,7 +136,6 @@ export function setupObject(obj: Object3DWithEntity, forceBasicMaterials = false
 
 const groupQuery = defineQuery([GroupComponent])
 const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
-const spawnPointQuery = defineQuery([SpawnPointComponent])
 
 function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
   const { entity, obj } = props
@@ -213,8 +211,6 @@ const execute = () => {
 
     for (const obj of group) obj.visible = visible
   }
-
-  for (const entity of spawnPointQuery()) getComponent(entity, SpawnPointComponent).helperBox?.update()
 }
 
 const reactor = () => {

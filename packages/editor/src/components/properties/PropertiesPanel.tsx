@@ -23,27 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { sceneDataMethods, sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
-import { Application } from '../../../declarations'
-import { SceneDataService } from './scene-data.class'
-import sceneDataDocs from './scene-data.docs'
-import hooks from './scene-data.hooks'
+import React from 'react'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    [sceneDataPath]: SceneDataService
-  }
+import TuneIcon from '@mui/icons-material/Tune'
+
+import { TabData } from 'rc-dock'
+import { useTranslation } from 'react-i18next'
+import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
+import { InfoTooltip } from '../layout/Tooltip'
+import styles from '../styles.module.scss'
+import PropertiesPanelContainer from './PropertiesPanelContainer'
+
+export const PropertiesPanelTitle = () => {
+  const { t } = useTranslation()
+
+  return (
+    <div className={styles.dockableTab}>
+      <PanelDragContainer>
+        <PanelIcon as={TuneIcon} size={12} />
+        <PanelTitle>
+          <InfoTooltip title={t('editor:properties.info')}>
+            <span>{t('editor:properties.title')}</span>
+          </InfoTooltip>
+        </PanelTitle>
+      </PanelDragContainer>
+    </div>
+  )
 }
 
-export default (app: Application): void => {
-  app.use(sceneDataPath, new SceneDataService(app), {
-    // A list of all methods this service exposes externally
-    methods: sceneDataMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: sceneDataDocs
-  })
-
-  const service = app.service(sceneDataPath)
-  service.hooks(hooks)
+export const PropertiesPanelTab: TabData = {
+  id: 'propertiesPanel',
+  closable: true,
+  title: <PropertiesPanelTitle />,
+  content: <PropertiesPanelContainer />
 }

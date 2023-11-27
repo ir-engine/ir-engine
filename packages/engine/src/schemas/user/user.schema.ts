@@ -29,6 +29,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
+import { ScopeType } from '../scope/scope.schema'
 import { locationAdminSchema } from '../social/location-admin.schema'
 import { locationBanSchema } from '../social/location-ban.schema'
 import { userSettingSchema } from '../user/user-setting.schema'
@@ -43,7 +44,7 @@ export const userMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
 
 export const userScopeSchema = Type.Object(
   {
-    type: Type.String()
+    type: TypedString<ScopeType>()
   },
   { $id: 'UserScope', additionalProperties: false }
 )
@@ -58,15 +59,9 @@ export const userSchema = Type.Object(
     id: TypedString<UserID>({
       format: 'uuid'
     }),
-    name: TypedString<UserName>({
-      format: 'uuid'
-    }),
+    name: TypedString<UserName>(),
     isGuest: Type.Boolean(),
-    inviteCode: Type.Optional(
-      TypedString<InviteCode>({
-        format: 'uuid'
-      })
-    ),
+    inviteCode: Type.Optional(TypedString<InviteCode>()),
     avatarId: TypedString<AvatarID>({
       format: 'uuid'
     }),
@@ -97,15 +92,14 @@ export const userPatchSchema = Type.Partial(userSchema, {
 })
 export interface UserPatch extends Static<typeof userPatchSchema> {}
 
-export interface UserPublicPatch extends Pick<UserType, 'name' | 'avatarId' | 'id'> {}
+export interface UserPublicPatch extends Pick<UserType, 'name' | 'id'> {}
 
 // Schema for allowed query properties
 export const userQueryProperties = Type.Pick(userSchema, [
   'id',
   'name',
   'isGuest',
-  'inviteCode',
-  'avatarId'
+  'inviteCode'
   // 'scopes'   Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
 ])
 export const userQuerySchema = Type.Intersect(

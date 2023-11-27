@@ -23,21 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getState } from '@etherealengine/hyperflux'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import type { Knex } from 'knex'
 
-import { EditorHelperState } from '../services/EditorHelperState'
-import { SelectionState } from '../services/SelectionServices'
-import { EditorControlFunctions } from './EditorControlFunctions'
-import { setTransformMode } from './transformFunctions'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export const cancelGrabOrPlacement = () => {
-  const editorHelperState = getState(EditorHelperState)
-  if (editorHelperState.transformMode === TransformMode.Grab) {
-    setTransformMode(editorHelperState.transformModeOnCancel)
-    // if (EditorHistory.grabCheckPoint) revertHistory(EditorHistory.grabCheckPoint)
-  } else if (editorHelperState.transformMode === TransformMode.Placement) {
-    setTransformMode(editorHelperState.transformModeOnCancel)
-    EditorControlFunctions.removeObject(getState(SelectionState).selectedEntities)
+  const sceneIdColumnExists = await trx.schema.hasColumn(locationPath, 'sceneId')
+
+  if (sceneIdColumnExists === true) {
+    await trx
+      .from(locationPath)
+      .update({ sceneId: trx.raw(`CONCAT("projects/", ??, ".scene.json")`, ['sceneId']) })
+      .where('sceneId', 'not like', '%projects/%')
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}

@@ -23,25 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
-import { SelectTagComponent } from '../components/SelectTagComponent'
-import { SceneObjectSystem } from './SceneObjectSystem'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-const directionalLightSelectQuery = defineQuery([TransformComponent, DirectionalLightComponent, SelectTagComponent])
+import {
+  userAvatarDataSchema,
+  userAvatarPatchSchema,
+  userAvatarQuerySchema,
+  userAvatarSchema
+} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 
-const execute = () => {
-  for (const entity of directionalLightSelectQuery()) {
-    const helper = getComponent(entity, DirectionalLightComponent)?.helper
-    if (helper) helper.update()
-    // light.cameraHelper.update()
+export default createSwaggerServiceOptions({
+  schemas: {
+    userAvatarDataSchema,
+    userAvatarPatchSchema,
+    userAvatarQuerySchema,
+    userAvatarSchema
+  },
+  docs: {
+    description: 'User avatar service description',
+    securities: ['all']
   }
-}
-
-export const LightSystem = defineSystem({
-  uuid: 'ee.engine.LightSystem',
-  insert: { with: SceneObjectSystem },
-  execute
 })

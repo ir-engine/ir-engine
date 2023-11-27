@@ -31,12 +31,15 @@ import { Texture } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
 import { XRState } from '../../xr/XRState'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const reactor = () => {
   const background = useHookstate(getMutableState(SceneState).background)
+  const environment = useHookstate(getMutableState(SceneState).environment)
   const sessionMode = useHookstate(getMutableState(XRState).sessionMode)
+  const lightProbeEnvironment = useHookstate(getMutableState(XRLightProbeState).environment)
 
   /** @todo when we have asset loader hooks we can change this */
   useEffect(() => {
@@ -51,6 +54,10 @@ const reactor = () => {
   useEffect(() => {
     Engine.instance.scene.background = sessionMode.value === 'immersive-ar' ? null : background.value
   }, [background, sessionMode])
+
+  useEffect(() => {
+    Engine.instance.scene.environment = lightProbeEnvironment.value ?? environment.value
+  }, [environment, lightProbeEnvironment])
 
   return null
 }

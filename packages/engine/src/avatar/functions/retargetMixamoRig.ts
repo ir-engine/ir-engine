@@ -66,7 +66,7 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object
   if (userData?.flipped) {
     hips.quaternion.copy(hipsOffset)
   }
-  if (userData?.needsMixamoPrefix) {
+  if (userData?.useAPose) {
     rightArm.quaternion.copy(rightArmOffset)
     leftArm.quaternion.copy(leftArmOffset)
   }

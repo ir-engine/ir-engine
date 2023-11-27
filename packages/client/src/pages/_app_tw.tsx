@@ -38,13 +38,10 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
-import EngineTW from '../engine_tw'
 import PublicRouter, { CenteredLoadingCircle } from '../route/public_tw'
 import { ThemeContextProvider } from '../themes/themeContext'
 
-import 'daisyui/dist/full.css'
 import { useTranslation } from 'react-i18next'
-import 'tailwindcss/tailwind.css'
 import '../themes/base.css'
 import '../themes/components.css'
 import '../themes/utilities.css'
@@ -101,19 +98,17 @@ const TailwindPage = () => {
   }, [notistackRef.current])
 
   return (
-    <EngineTW>
-      <ThemeContextProvider>
-        <SnackbarProvider
-          ref={notistackRef as any}
-          maxSnack={7}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          action={defaultAction}
-        >
-          <AppPage />
-          <Debug />
-        </SnackbarProvider>
-      </ThemeContextProvider>
-    </EngineTW>
+    <ThemeContextProvider>
+      <SnackbarProvider
+        ref={notistackRef as any}
+        maxSnack={7}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        action={defaultAction}
+      >
+        <AppPage />
+        <Debug />
+      </SnackbarProvider>
+    </ThemeContextProvider>
   )
 }
 

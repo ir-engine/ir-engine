@@ -23,28 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import AccountTreeIcon from '@mui/icons-material/AccountTree'
+import {
+  UserAvatarData,
+  UserAvatarPatch,
+  UserAvatarQuery,
+  UserAvatarType
+} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 
-import { useTranslation } from 'react-i18next'
-import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
-import { InfoTooltip } from '../layout/Tooltip'
-import styles from '../styles.module.scss'
+export interface UserAvatarParams extends KnexAdapterParams<UserAvatarQuery> {}
 
-export const HierarchyPanelTitle = () => {
-  const { t } = useTranslation()
-
-  return (
-    <div className={styles.dockableTab}>
-      <PanelDragContainer>
-        <PanelIcon as={AccountTreeIcon} size={12} />
-        <PanelTitle>
-          <InfoTooltip title={t('editor:hierarchy.info')}>
-            <span>{t('editor:hierarchy.lbl')}</span>
-          </InfoTooltip>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
-  )
-}
+export class UserAvatarService<T = UserAvatarType, ServiceParams extends Params = UserAvatarParams> extends KnexService<
+  UserAvatarType,
+  UserAvatarData,
+  UserAvatarParams,
+  UserAvatarPatch
+> {}

@@ -41,30 +41,15 @@ import { addDataChannelHandler, removeDataChannelHandler } from '../networking/s
 
 import { getState } from '@etherealengine/hyperflux'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
-import {
-  BufferAttribute,
-  BufferGeometry,
-  LineBasicMaterial,
-  LineSegments,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  Quaternion,
-  SphereGeometry,
-  Vector3
-} from 'three'
+import { Quaternion } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AnimationSystem } from '../avatar/systems/AnimationSystem'
 import { V_010 } from '../common/constants/MathConstants'
 import { lerp } from '../common/functions/MathLerpFunctions'
 import { isClient } from '../common/functions/getEnvironment'
-import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkState } from '../networking/NetworkState'
-import { RendererState } from '../renderer/RendererState'
-import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { solveMotionCapturePose } from './solveMotionCapturePose'
 
@@ -209,58 +194,12 @@ const execute = () => {
         )
       else worldHipsParent.position.setY(0)
 
-    const avatarDebug = getState(RendererState).avatarDebug
-    helperGroup.visible = avatarDebug
-    if (avatarDebug) {
-      const rawBones = rigComponent.localRig
-      for (const [key, value] of Object.entries(rawBones)) {
-        if (!boneHelpers[key]) {
-          const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial())
-          setObjectLayers(mesh, ObjectLayers.AvatarHelper)
-          // mesh.add(new AxesHelper(0.1))
-          if (key === 'hips') mesh.material.color.setHex(0xff0000)
-          if (key === 'spine') mesh.material.color.setHex(0x00ff00)
-          if (key === 'chest') mesh.material.color.setHex(0x4488ff)
-          if (key === 'upperChest') mesh.material.color.setHex(0x0000ff)
-          boneHelpers[key] = mesh
-          helperGroup.add(mesh)
-          if (!helperGroup.parent) Engine.instance.scene.add(helperGroup)
-          setObjectLayers(positionLineSegment, ObjectLayers.AvatarHelper)
-        }
-        const mesh = boneHelpers[key]
-        value.node.getWorldPosition(mesh.position)
-        value.node.getWorldQuaternion(mesh.quaternion)
-        mesh.updateMatrixWorld(true)
-      }
-
-      const bones = Object.values(rigComponent.localRig).filter(
-        (bone) => bone.node.parent && !bone.node.name.toLowerCase().includes('hips')
-      )
-
-      const posAttr = new BufferAttribute(new Float32Array(bones.length * 2 * 3).fill(0), 3)
-
-      let i = 0
-      for (const bone of bones) {
-        const pos = bone.node.getWorldPosition(new Vector3())
-        posAttr.setXYZ(i, pos.x, pos.y, pos.z)
-        const prevPos = bone.node.parent!.getWorldPosition(new Vector3())
-        posAttr.setXYZ(i + 1, prevPos.x, prevPos.y, prevPos.z)
-        i += 2
-      }
-
-      positionLineSegment.geometry.setAttribute('position', posAttr)
-    }
     // rotate hips 180 degrees
     hipBone.quaternion.premultiply(rotate180YQuaternion)
   }
 }
 
 const rotate180YQuaternion = new Quaternion().setFromAxisAngle(V_010, Math.PI)
-const boneHelpers = {} as Record<string, Object3D>
-const helperGroup = new Object3D()
-const positionLineSegment = new LineSegments(new BufferGeometry(), new LineBasicMaterial({ vertexColors: true }))
-positionLineSegment.material.linewidth = 4
-helperGroup.add(positionLineSegment)
 
 const reactor = () => {
   useEffect(() => {

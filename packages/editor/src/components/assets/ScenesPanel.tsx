@@ -23,46 +23,49 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { CompressedTexture } from 'three'
-
-import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Inventory2Icon from '@mui/icons-material/Inventory2'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { CompressedTexture } from 'three'
 
 import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
+import { TabData } from 'rc-dock'
+import { deleteScene, getScenes, onNewScene, renameScene, setSceneInState } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { DialogState } from '../dialogs/DialogState'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { Button } from '../inputs/Button'
+import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import { InfoTooltip } from '../layout/Tooltip'
 import { DeleteDialog } from '../projects/DeleteDialog'
 import styles from './styles.module.scss'
 
 const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
 
+const editorState = getMutableState(EditorState)
+
 /**
  * Displays the scenes that exist in the current project.
  */
 export default function ScenesPanel({ loadScene, newScene }) {
   const { t } = useTranslation()
-  const [scenes, setScenes] = useState<SceneData[]>([])
+  const [scenes, setScenes] = useState<SceneDataType[]>([])
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
   const [isDeleteOpen, setDeleteOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
-  const [activeScene, setActiveScene] = useState<SceneData | null>(null)
+  const [activeScene, setActiveScene] = useState<SceneDataType | null>(null)
   const editorState = useHookstate(getMutableState(EditorState))
   const [scenesLoading, setScenesLoading] = useState(true)
 
@@ -112,7 +115,7 @@ export default function ScenesPanel({ loadScene, newScene }) {
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
         getMutableState(EngineState).sceneLoaded.set(false)
-        RouterState.navigate(`/studio/${editorState.projectName.value}`)
+        editorState.sceneName.set(null)
       }
 
       fetchItems()
@@ -150,7 +153,6 @@ export default function ScenesPanel({ loadScene, newScene }) {
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
-    RouterState.navigate(`/studio/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()
   }
@@ -250,4 +252,16 @@ export default function ScenesPanel({ loadScene, newScene }) {
       />
     </>
   )
+}
+
+export const ScenePanelTab: TabData = {
+  id: 'scenePanel',
+  closable: true,
+  title: (
+    <PanelDragContainer>
+      <PanelIcon as={Inventory2Icon} size={12} />
+      <PanelTitle>Scenes</PanelTitle>
+    </PanelDragContainer>
+  ),
+  content: <ScenesPanel newScene={onNewScene} loadScene={setSceneInState} />
 }

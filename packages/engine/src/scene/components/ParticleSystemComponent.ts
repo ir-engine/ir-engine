@@ -35,20 +35,41 @@ import {
   Vector2,
   Vector3
 } from 'three'
-import { Behavior, BehaviorFromJSON, ParticleSystem, ParticleSystemJSONParameters, RenderMode } from 'three.quarks'
+import {
+  BatchedParticleRenderer,
+  Behavior,
+  BehaviorFromJSON,
+  ParticleSystem,
+  ParticleSystemJSONParameters,
+  RenderMode
+} from 'three.quarks'
 import matches from 'ts-matches'
 
-import { NO_PROXY, none } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getBatchRenderer } from '../systems/ParticleSystemSystem'
 import getFirstMesh from '../util/meshUtils'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { VisibleComponent } from './VisibleComponent'
+
+export const ParticleState = defineState({
+  name: 'ParticleState',
+  initial: () => {
+    const batchRenderer = new BatchedParticleRenderer()
+    const batchRendererEntity = createEntity()
+    addObjectToGroup(batchRendererEntity, batchRenderer)
+    setComponent(batchRendererEntity, VisibleComponent)
+    return {
+      batchRenderer,
+      batchRendererEntity
+    }
+  }
+})
 
 /*
 SHAPE TYPES
@@ -777,7 +798,7 @@ export const ParticleSystemComponent = defineComponent({
     const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const component = componentState.value
-    const batchRenderer = getBatchRenderer()!
+    const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
 
     useEffect(() => {
       if (component.system) {
@@ -790,7 +811,7 @@ export const ParticleSystemComponent = defineComponent({
 
       function initParticleSystem(systemParameters: ParticleSystemJSONParameters, metadata: ParticleSystemMetadata) {
         const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata, {})
-        batchRenderer.addSystem(nuSystem)
+        batchRenderer.value.addSystem(nuSystem)
         componentState.behaviors.set(
           component.behaviorParameters.map((behaviorJSON) => {
             const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)

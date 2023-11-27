@@ -42,6 +42,7 @@ import { FogSettingsComponent } from './components/FogSettingsComponent'
 import { GroundPlaneComponent } from './components/GroundPlaneComponent'
 import { GroupComponent } from './components/GroupComponent'
 import { HemisphereLightComponent } from './components/HemisphereLightComponent'
+import { HyperspaceTagComponent } from './components/HyperspaceTagComponent'
 import { ImageComponent } from './components/ImageComponent'
 import { InteriorComponent } from './components/InteriorComponent'
 import { LinkComponent } from './components/LinkComponent'
@@ -61,6 +62,7 @@ import { ShadowComponent } from './components/ShadowComponent'
 import { SkyboxComponent } from './components/SkyboxComponent'
 import { SpawnPointComponent } from './components/SpawnPointComponent'
 import { SplineComponent } from './components/SplineComponent'
+import { SplineTrackComponent } from './components/SplineTrackComponent'
 import { SpotLightComponent } from './components/SpotLightComponent'
 import { SystemComponent } from './components/SystemComponent'
 import { VariantComponent } from './components/VariantComponent'
@@ -70,8 +72,6 @@ import { VolumetricComponent } from './components/VolumetricComponent'
 import { WaterComponent } from './components/WaterComponent'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { FogSystem } from './systems/FogSystem'
-import { HyperspacePortalSystem } from './systems/HyperspacePortalSystem'
-import { LightSystem } from './systems/LightSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
@@ -96,6 +96,7 @@ export const SceneComponents = [
   GroundPlaneComponent,
   GroupComponent,
   HemisphereLightComponent,
+  HyperspaceTagComponent,
   ImageComponent,
   InteriorComponent,
   MediaComponent,
@@ -115,6 +116,7 @@ export const SceneComponents = [
   SkyboxComponent,
   SpawnPointComponent,
   SplineComponent,
+  SplineTrackComponent,
   SystemComponent,
   SpotLightComponent,
   SystemComponent,
@@ -131,8 +133,6 @@ export const SceneComponents = [
 export {
   EnvironmentSystem,
   FogSystem,
-  HyperspacePortalSystem,
-  LightSystem,
   MaterialLibrarySystem,
   MountPointSystem,
   NoiseOffsetSystem,

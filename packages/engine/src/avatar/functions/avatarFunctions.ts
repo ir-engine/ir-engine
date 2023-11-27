@@ -62,6 +62,7 @@ import { XRState } from '../../xr/XRState'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
+import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
@@ -85,12 +86,18 @@ export const locomotionPack = 'locomotion'
 export const parseAvatarModelAsset = (model: any) => {
   const scene = model.scene ?? model // FBX files does not have 'scene' property
   if (!scene) return
-
-  const vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as any
+  const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as any
 
   if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
 
   return vrm as VRM
+}
+
+export const isAvaturn = (url: string) => {
+  const fileExtensionRegex = /\.[0-9a-z]+$/i
+  const avaturnUrl = config.client.avaturnAPI
+  if (avaturnUrl && !fileExtensionRegex.test(url)) return url.startsWith(avaturnUrl)
+  else return false
 }
 
 export const loadAvatarModelAsset = async (avatarURL: string) => {
@@ -100,7 +107,12 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   //   )
   //   sourceRig = parseAvatarModelAsset(sourceVRM)!.humanoid.normalizedHumanBones
   // }
-  const model = await AssetLoader.loadAsync(avatarURL)
+
+  //check if the url to the file has a file extension, if not, assume it's a glb
+
+  const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
+
+  const model = await AssetLoader.loadAsync(avatarURL, undefined, undefined, override)
   return parseAvatarModelAsset(model)
 }
 

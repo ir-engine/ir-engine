@@ -33,7 +33,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkConnectionParams, NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
@@ -49,7 +49,7 @@ import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projec
 import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { LocationID, RoomCode, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -74,13 +74,7 @@ const logger = multiLogger.child({ component: 'instanceserver:channels' })
 interface PrimusConnectionType {
   provider: string
   headers: any
-  socketQuery?: {
-    sceneId: SceneID
-    locationId?: LocationID
-    instanceID?: InstanceID
-    channelId?: ChannelID
-    roomCode?: RoomCode
-    token: string
+  socketQuery?: NetworkConnectionParams & {
     EIO: string
     transport: string
     t: string
@@ -232,7 +226,7 @@ const initializeInstance = async (
  * @param sceneId
  */
 
-const loadEngine = async (app: Application, sceneId: SceneID) => {
+const loadEngine = async (app: Application, sceneId?: SceneID) => {
   const instanceServerState = getState(InstanceServerState)
 
   const hostId = instanceServerState.instance.id as UserID & InstanceID
@@ -261,16 +255,15 @@ const loadEngine = async (app: Application, sceneId: SceneID) => {
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
-    const [projectName, sceneName] = sceneId.split('/')
+    if (!sceneId) throw new Error('No sceneId provided')
 
-    const sceneResultPromise = app
-      .service(scenePath)
-      .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
-
-    await loadEngineInjection(projects)
+    const sceneName = sceneId.split('/').at(-1)!.replace('.scene.json', '')
+    const projectName = sceneId.split('/').at(-2)!
 
     const sceneUpdatedListener = async () => {
-      const sceneData = await sceneResultPromise
+      const sceneData = await app
+        .service(scenePath)
+        .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
       SceneState.loadScene(sceneId, sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 
@@ -290,6 +283,8 @@ const loadEngine = async (app: Application, sceneId: SceneID) => {
     app.service(scenePath).on('updated', sceneUpdatedListener)
     app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
+
+    await loadEngineInjection(projects)
 
     logger.info('Scene loaded!')
   }
@@ -378,7 +373,7 @@ const createOrUpdateInstance = async (
   status: InstanceserverStatus,
   locationId: LocationID,
   channelId: ChannelID,
-  sceneId: SceneID,
+  sceneId?: SceneID,
   userId?: UserID
 ) => {
   const instanceServerState = getState(InstanceServerState)
@@ -567,11 +562,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
     roomCode = undefined!
   }
 
-  logger.info(
-    `user ${userId} joining ${locationId ?? channelId} with sceneId ${
-      connection.socketQuery.sceneId
-    } and room code ${roomCode}`
-  )
+  logger.info(`user ${userId} joining ${locationId ?? channelId} and room code ${roomCode}`)
 
   const instanceServerState = getState(InstanceServerState)
   const serverState = getState(ServerState)
@@ -626,10 +617,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
       return logger.warn('got a connection to the wrong room code', instanceServerState.instance.roomCode, roomCode)
   }
 
-  let sceneId = '' as SceneID
-  if (locationId) {
-    sceneId = (await app.service(locationPath).get(locationId)).sceneId
-  }
+  const sceneID = locationId ? (await app.service(locationPath).get(locationId)).sceneId : undefined
 
   /**
    * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance
@@ -637,7 +625,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   const isResult = await serverState.agonesSDK.getGameServer()
   const status = isResult.status as InstanceserverStatus
 
-  await createOrUpdateInstance(app, status, locationId, channelId, sceneId, userId)
+  await createOrUpdateInstance(app, status, locationId, channelId, sceneID, userId)
 
   if (instanceServerState.instance) {
     connection.instanceId = instanceServerState.instance.id
