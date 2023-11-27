@@ -234,19 +234,6 @@ const execute = () => {
     }
   }
 
-  /** @todo until we have something more sophisticated, allow interaction input even when interactables are captured */
-  for (const inputSourceEntity of inputSourceQuery()) {
-    const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
-
-    const buttons = inputSource.buttons
-
-    const standardGamepad =
-      inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === ''
-
-    if (standardGamepad && buttons[StandardGamepadButton.ButtonY]?.down) {
-      //onInteract()
-    }
-  }
   let inputEntities: Entity[] = nonCapturedInputSourceEntities
   if (inputEntities.length === 0) {
     inputEntities = inputSourceQuery().filter((entity) => {
@@ -261,12 +248,8 @@ const execute = () => {
 
     const standardGamepad =
       inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === ''
-    const xrStandardGamepad = inputSource.source.gamepad?.mapping === 'xr-standard'
 
     if (buttons.ShiftLeft?.down) onShiftLeft()
-    if (xrStandardGamepad) {
-      //if (buttons[XRStandardGamepadButton.Trigger]?.down) onInteract(inputSource.source.handedness)
-    }
 
     const gamepadJump = standardGamepad && buttons[StandardGamepadButton.ButtonA]?.down
 

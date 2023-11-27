@@ -54,6 +54,7 @@ import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 
 import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -162,7 +163,7 @@ const execute = () => {
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   const inputSource = getOptionalComponent(nonCapturedInputSource, InputSourceComponent)
-  if (inputSource && inputSource.buttons.KeyE?.down)
+  if (inputSource && (inputSource.buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down))
     mountEntity(Engine.instance.localClientEntity, getState(InteractState).available[0])
 
   /*Consider mocap inputs in the event we want to snap a real world seated person
