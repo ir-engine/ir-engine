@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { Intersection, Layers, MathUtils, Object3D, Raycaster } from 'three'
+import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -46,12 +46,10 @@ import { SceneObjectComponent } from '@etherealengine/engine/src/scene/component
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -75,13 +73,9 @@ const isMacOS = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
 let lastZoom = 0
 let selectedEntities: Entity[]
 let dragging = false
-const gizmoQuery = defineQuery([TransformGizmoComponent])
 
 const onKeyQ = () => {
-  const nodes = getState(SelectionState).selectedEntities
-  const gizmo = gizmoQuery()
-  let gizmoEntity
-  if (gizmo.length > 0) gizmoEntity = gizmo[gizmo.length - 1]
+  /*const nodes = getState(SelectionState).selectedEntities
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
@@ -89,14 +83,11 @@ const onKeyQ = () => {
     V_010,
     editorHelperState.rotationSnap * MathUtils.DEG2RAD,
     gizmoTransform.position
-  )
+  )*/
 }
 
 const onKeyE = () => {
-  const nodes = getState(SelectionState).selectedEntities
-  const gizmo = gizmoQuery()
-  let gizmoEntity
-  if (gizmo.length > 0) gizmoEntity = gizmo[gizmo.length - 1]
+  /*const nodes = getState(SelectionState).selectedEntities
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
@@ -104,7 +95,7 @@ const onKeyE = () => {
     V_010,
     -editorHelperState.rotationSnap * MathUtils.DEG2RAD,
     gizmoTransform.position
-  )
+  )*/
 }
 const onEscape = () => {
   EditorControlFunctions.replaceSelection([])
@@ -261,13 +252,10 @@ const execute = () => {
   if (buttons.Delete?.down) onDelete()
 
   if (selectionState.selectedEntities) {
-    for (const entity of gizmoQuery()) {
-      // no gizmos exist it wont run
-      dragging = getComponent(entity, TransformGizmoComponent).dragging
-      if (dragging) break
-    }
+    const lastSelection = selectionState.selectedEntities[selectionState.selectedEntities.length - 1]
+    if (hasComponent(lastSelection.value as Entity, TransformGizmoComponent))
+      dragging = getComponent(lastSelection.value as Entity, TransformGizmoComponent).dragging
   }
-
   const selecting = buttons.PrimaryClick?.pressed && !dragging
   const zoom = pointerState.scroll.y
   const panning = buttons.AuxiliaryClick?.pressed
@@ -306,6 +294,8 @@ const SceneObjectEntityReactor = (props: { entity: Entity }) => {
 
 const reactor = () => {
   const sceneObjectEntities = useQuery([SceneObjectComponent])
+  const selectionState = useHookstate(getMutableState(SelectionState))
+  const sceneQuery = defineQuery([SceneObjectComponent])
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const rendererState = useHookstate(getMutableState(RendererState))
 
@@ -319,6 +309,22 @@ const reactor = () => {
       window.removeEventListener('paste', paste)
     }
   }, [])
+
+  useEffect(() => {
+    const selectedEntities = selectionState.selectedEntities
+    if (!selectedEntities.value) return
+
+    for (const entity of sceneQuery()) {
+      if (!hasComponent(entity, TransformGizmoComponent)) continue
+      removeComponent(entity, TransformGizmoComponent)
+    }
+    const lastSelection = selectedEntities[selectedEntities.length - 1].value
+    if (!lastSelection) return
+
+    if (typeof lastSelection === 'string') return // TODO : gizmo for 3d objects without Ids
+
+    setComponent(lastSelection, TransformGizmoComponent)
+  }, [selectionState.selectedParentEntities])
 
   useEffect(() => {
     const infiniteGridHelperEntity = rendererState.infiniteGridHelperEntity.value
