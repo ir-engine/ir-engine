@@ -60,7 +60,8 @@ function decomposeScene(entity: Entity) {
 export default async function exportModelGLTF(
   entity: Entity,
   options = {
-    path: '',
+    projectName: '',
+    relativePath: '',
     binary: true,
     includeCustomExtensions: true,
     embedImages: true
@@ -69,7 +70,7 @@ export default async function exportModelGLTF(
   //composeScene(entity)
   const scene = getComponent(entity, ModelComponent).scene!
   const exporter = createGLTFExporter()
-  const modelName = options.path.split('/').at(-1)!.split('.').at(0)!
+  const modelName = options.relativePath.split('/').at(-1)!.split('.').at(0)!
   const resourceURI = `model-resources/${modelName}`
   const gltf: ArrayBuffer = await new Promise((resolve) => {
     exporter.parse(
@@ -85,7 +86,7 @@ export default async function exportModelGLTF(
       {
         ...options,
         animations: scene.animations ?? [],
-        flipY: scene.userData.src.endsWith('.usdz'),
+        flipY: !!scene.userData.src?.endsWith('.usdz'),
         resourceURI
       }
     )
