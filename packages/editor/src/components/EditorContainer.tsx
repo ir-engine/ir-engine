@@ -195,13 +195,14 @@ const onSaveAs = async () => {
           />
         )
       })
+      DialogState.setDialog(null)
       if (result?.name && projectName) {
         await saveScene(projectName, result.name, file, abortController.signal)
+        SceneState.unloadActiveScene()
         editorState.sceneModified.set(false)
         editorState.sceneName.set(result.name)
       }
     }
-    DialogState.setDialog(null)
   } catch (error) {
     logger.error(error)
     DialogState.setDialog(
@@ -461,6 +462,8 @@ const EditorContainer = () => {
       onEditorError(errorState.value)
     }
   }, [errorState])
+
+  // useLoadScene({projectName:editorState.projectName.value!, sceneName: sceneName.value!});
 
   return (
     <>
