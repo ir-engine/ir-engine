@@ -46,31 +46,35 @@ import { ControlledStringInput } from '../inputs/StringInput'
 import Vector2Input from '../inputs/Vector2Input'
 
 /**
- * TextNodeEditor component used to provide the editor a view to customize text properties.
- *
+ * @description SelectInput option groups for the TextNodeEditor UI tsx code.
+ * @local Stored `@local` scope of the file, so it only exists once and its not GC'ed when the component is used.
+ */
+const SelectOptions = {
+  TextDirection: [
+    { label: 'Auto', value: 'auto' },
+    { label: 'Left to Right', value: 'ltr' },
+    { label: 'Right to Left', value: 'rtl' }
+  ],
+  TextAlignment: [
+    { label: 'Justify', value: 'justify' },
+    { label: 'Center', value: 'center' },
+    { label: 'Left', value: 'left' },
+    { label: 'Right', value: 'right' }
+  ],
+  TextWrapping: [
+    { label: 'Whitespace', value: 'normal' },
+    { label: 'Break Word', value: 'break-word' }
+  ]
+}
+
+/**
+ * @description TextNodeEditor component used to provide the editor a view to customize text properties.
  * @type {Class component}
  */
 export const TextNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const text = useComponent(props.entity, TextComponent)
   const advancedActive = useHookstate(false)
-  const SelectOptions = {
-    TextDirection: [
-      { label: 'Auto', value: 'auto' },
-      { label: 'Left to Right', value: 'ltr' },
-      { label: 'Right to Left', value: 'rtl' }
-    ],
-    TextAlignment: [
-      { label: 'Justify', value: 'justify' },
-      { label: 'Center', value: 'center' },
-      { label: 'Left', value: 'left' },
-      { label: 'Right', value: 'right' }
-    ],
-    TextWrapping: [
-      { label: 'Whitespace', value: 'normal' },
-      { label: 'Break Word', value: 'break-word' }
-    ]
-  }
 
   return (
     <NodeEditor {...props} name="Text Component" description="A Text component">
