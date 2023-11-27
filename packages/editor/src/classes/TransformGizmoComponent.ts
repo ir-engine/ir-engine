@@ -40,7 +40,12 @@ import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { SnapMode, TransformPivot, TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import {
+  SnapMode,
+  TransformMode,
+  TransformPivot,
+  TransformSpace
+} from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import {
   LocalTransformComponent,
@@ -48,10 +53,11 @@ import {
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { Euler, Object3D } from 'three'
+import { Box3, Euler, Object3D, Vector3 } from 'three'
 import { degToRad } from 'three/src/math/MathUtils'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { EditorHelperState } from '../services/EditorHelperState'
+import { SelectionState } from '../services/SelectionServices'
 
 export const TransformGizmoComponent = defineComponent({
   name: 'TransformGizmo',
@@ -71,42 +77,80 @@ export const TransformGizmoComponent = defineComponent({
     const entity = useEntityContext()
     const gizmoComponent = useComponent(entity, TransformGizmoComponent)
     const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+
     const transformComponent = useComponent(entity, TransformComponent)
+    const selectionState = useHookstate(getMutableState(SelectionState))
+    const gizmoDummy = new Object3D()
+    gizmoDummy.name = 'gizmoProxy'
+    const gizmoEntity = createEntity()
+
+    const box = new Box3()
 
     useEffect(() => {
       // create dummy object to attach gizmo to, we can only attach to three js objects
       gizmoComponent.value.addEventListener('mouseUp', (event) => {
-        EditorControlFunctions.positionObject([entity], [transformComponent.value.position])
-        EditorControlFunctions.rotateObject(
-          [entity],
-          [new Euler().setFromQuaternion(transformComponent.value.rotation)]
-        )
-        EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], TransformSpace.local, true)
-        EditorControlFunctions.commitTransformSave([entity])
+        if (selectionState.selectedEntities.value.length <= 1) {
+          switch (gizmoComponent.value.mode) {
+            case TransformMode.translate:
+              EditorControlFunctions.positionObject([entity], [transformComponent.value.position])
+              break
+            case TransformMode.rotate:
+              EditorControlFunctions.rotateObject(
+                [entity],
+                [new Euler().setFromQuaternion(transformComponent.value.rotation)]
+              )
+              break
+            case TransformMode.scale:
+              EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], TransformSpace.local, true)
+              break
+          }
+
+          EditorControlFunctions.commitTransformSave([entity])
+        } else {
+          const entities = selectionState.selectedEntities.value
+          const translationVector = transformComponent.value.position.sub(gizmoComponent.value.worldPositionStart)
+
+          switch (gizmoComponent.value.mode) {
+            case TransformMode.translate:
+              EditorControlFunctions.positionObject(entities, [translationVector], gizmoComponent.value.space, true)
+              break
+            case TransformMode.rotate:
+              EditorControlFunctions.rotateAround(
+                entities,
+                gizmoComponent.value.rotationAxis,
+                gizmoComponent.value.rotationAngle,
+                transformComponent.value.position // pivot position
+              )
+              break
+            case TransformMode.scale:
+              EditorControlFunctions.scaleObject(entities, [transformComponent.value.scale], TransformSpace.local, true)
+              break
+          }
+
+          EditorControlFunctions.commitTransformSave(entities)
+        }
       })
 
-      const dummy = new Object3D()
-      dummy.name = 'gizmoProxy'
       // create dummy Entity for gizmo helper
-      const dummyEntity = createEntity()
-      setComponent(dummyEntity, NameComponent, 'gizmoEntity')
-      setComponent(dummyEntity, VisibleComponent)
+      setComponent(gizmoEntity, NameComponent, 'gizmoEntity')
+      setComponent(gizmoEntity, VisibleComponent)
 
       // set layers
       const raycaster = gizmoComponent.value.getRaycaster()
       raycaster.layers.set(ObjectLayers.TransformGizmo)
-      setObjectLayers(dummy, ObjectLayers.TransformGizmo)
+      setObjectLayers(gizmoDummy, ObjectLayers.TransformGizmo)
+
       setObjectLayers(gizmoComponent.value, ObjectLayers.TransformGizmo)
 
       // add dummy to entity and gizmo to dummy entity and attach
-      addObjectToGroup(entity, dummy)
-      gizmoComponent.value.attach(dummy)
-      addObjectToGroup(dummyEntity, gizmoComponent.value)
-      removeComponent(dummyEntity, LocalTransformComponent)
+      addObjectToGroup(entity, gizmoDummy)
+      gizmoComponent.value.attach(gizmoDummy)
+      addObjectToGroup(gizmoEntity, gizmoComponent.value)
+      removeComponent(gizmoEntity, LocalTransformComponent)
 
       return () => {
-        removeObjectFromGroup(entity, dummy)
-        removeEntity(dummyEntity)
+        removeObjectFromGroup(entity, gizmoDummy)
+        removeEntity(gizmoEntity)
       }
     }, [])
 
@@ -121,17 +165,39 @@ export const TransformGizmoComponent = defineComponent({
     }, [editorHelperState.transformMode])
 
     useEffect(() => {
-      //TODO: implement gizmo attachment for multiple entities selected
+      let newPosition = getComponent(entity, TransformComponent).position
+      const selectedParentEntities = selectionState.selectedEntities.value
+      const selectedTransform = getComponent(
+        selectedParentEntities[selectedParentEntities.length - 1],
+        TransformComponent
+      )
+
       switch (editorHelperState.transformPivot.value) {
+        case TransformPivot.Origin:
+          newPosition = new Vector3(0, 0, 0)
+          break
         case TransformPivot.Selection:
+          newPosition = selectedTransform.position
           break
         case TransformPivot.Center:
-          break
         case TransformPivot.Bottom:
-          break
-        case TransformPivot.Origin:
+          box.makeEmpty()
+
+          for (let i = 0; i < selectedParentEntities.length; i++) {
+            const parentEnt = selectedParentEntities[i]
+            const isUuid = typeof parentEnt === 'string'
+            if (isUuid) {
+              box.expandByObject(Engine.instance.scene.getObjectByProperty('uuid', parentEnt)!)
+            } else {
+              box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
+            }
+          }
+          box.getCenter(newPosition)
+
+          if (editorHelperState.transformPivot.value === TransformPivot.Bottom) newPosition.y = box.min.y
           break
       }
+      setComponent(entity, TransformComponent, { position: newPosition })
     }, [editorHelperState.transformPivot])
 
     useEffect(() => {
