@@ -29,7 +29,7 @@ import { isClient } from '@etherealengine/engine/src/common/functions/getEnviron
 import { defineComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 
-import { Color, MathUtils, Mesh, Vector2 } from 'three'
+import { Color, Material, MathUtils, Mesh, Vector2 } from 'three'
 import { Text as TroikaText } from 'troika-three-text'
 import { matches } from '../../common/functions/MatchesUtils'
 import { addObjectToGroup } from './GroupComponent'
@@ -38,7 +38,7 @@ import { addObjectToGroup } from './GroupComponent'
  * @description
  * troika.Color type, as declared by `troika-three-text` in its Text.color `@member` property.
  */
-type TroikaColor = string | number | THREE.Color
+type TroikaColor = string | number | Color
 
 /**
  * @description
@@ -142,7 +142,7 @@ type TextMesh = Mesh & {
   // By default it will derive from a simple white MeshBasicMaterial, but you can use any
   // of the other mesh materials to gain other features like lighting, texture maps, etc.
   // Also see the `color` shortcut property.
-  material: THREE.Material
+  material: Material
   // Defines the axis plane on which the text should be laid out when the mesh has no extra
   // rotation transform. It is specified as a string with two axes: the horizontal axis with
   // positive pointing right, and the vertical axis with positive pointing up. By default this
