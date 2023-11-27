@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Box3, Quaternion, Vector3 } from 'three'
+import { Box3, Vector3 } from 'three'
 
 import { dispatchAction, getMutableState, getState, receiveActions, useHookstate } from '@etherealengine/hyperflux'
 
@@ -56,7 +56,6 @@ import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
-import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
@@ -118,13 +117,6 @@ const execute = () => {
     //check if we're already sitting or if the seat is occupied
     if (getState(MountPointState)[mountPointUUID] || hasComponent(avatarEntity, SittingComponent)) return
 
-    const avatar = getComponent(avatarEntity, AvatarComponent)
-    const mountTransform = getComponent(mountEntity!, TransformComponent)
-    const rigidBody = getComponent(avatarEntity, RigidBodyComponent)
-    rigidBody.targetKinematicPosition.copy(mountTransform.position).y -= avatar.avatarHalfHeight * 0.5
-    setComponent(avatarEntity, TransformComponent, { rotation: mountTransform.rotation })
-    updateLocalAvatarPosition(avatarEntity)
-
     setComponent(avatarEntity, SittingComponent, {
       mountPointEntity: mountEntity!
     })
@@ -177,19 +169,26 @@ const execute = () => {
   }
 
   for (const entity of sittingIdleQuery()) {
+    window
     const controller = getComponent(entity, AvatarControllerComponent)
     if (controller.gamepadLocalInput.lengthSq() > 0.01) unmountEntity(entity)
-    if (!hasComponent(entity, MotionCaptureRigComponent)) continue
     const mountTransform = getComponent(getComponent(entity, SittingComponent).mountPointEntity, TransformComponent)
-    const avatarTransform = getComponent(entity, TransformComponent)
+    const avatar = getComponent(entity, AvatarComponent)
+    const rigidBody = getComponent(entity, RigidBodyComponent)
+    rigidBody.targetKinematicPosition.copy(mountTransform.position).y -= avatar.avatarHalfHeight * 0.5
+    setComponent(entity, TransformComponent, { rotation: mountTransform.rotation })
+    updateLocalAvatarPosition(entity)
+
+    //if (!hasComponent(entity, MotionCaptureRigComponent)) continue
+
     //Force mocapped avatar to always face the mount point's rotation
-    const hipsQaut = new Quaternion(
-      MotionCaptureRigComponent.rig.hips.x[entity],
-      MotionCaptureRigComponent.rig.hips.y[entity],
-      MotionCaptureRigComponent.rig.hips.z[entity],
-      MotionCaptureRigComponent.rig.hips.w[entity]
-    )
-    avatarTransform.rotation.copy(mountTransform.rotation).multiply(hipsQaut.invert())
+    //const hipsQaut = new Quaternion(
+    //  MotionCaptureRigComponent.rig.hips.x[entity],
+    //  MotionCaptureRigComponent.rig.hips.y[entity],
+    //  MotionCaptureRigComponent.rig.hips.z[entity],
+    //  MotionCaptureRigComponent.rig.hips.w[entity]
+    //)
+    //avatarTransform.rotation.copy(mountTransform.rotation).multiply(hipsQaut.invert())
   }
 }
 
