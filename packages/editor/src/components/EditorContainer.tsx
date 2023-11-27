@@ -184,11 +184,12 @@ const onSaveAs = async () => {
   try {
     if (sceneName || editorState.sceneModified.value) {
       const blob = await takeScreenshot(512, 320, 'ktx2')
+      const thumbnailBlob = await takeScreenshot(256, 160, 'jpeg')
       const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
       const result: { name: string } | void = await new Promise((resolve) => {
         DialogState.setDialog(
           <SaveNewSceneDialog
-            thumbnailUrl={URL.createObjectURL(blob!)}
+            thumbnailUrl={URL.createObjectURL(thumbnailBlob!)}
             initialName={Engine.instance.scene.name}
             onConfirm={resolve}
             onCancel={resolve}
