@@ -150,9 +150,12 @@ export const updateNetworkID = (network: Network, newID: InstanceID) => {
 }
 
 export type NetworkConnectionParams = {
+  token: string
   locationId?: LocationID
   instanceID?: InstanceID
   channelId?: ChannelID
   roomCode?: RoomCode
-  token: string
+  /** Address and port are used by ingress to route traffic */
+  address?: string
+  port?: string
 }
