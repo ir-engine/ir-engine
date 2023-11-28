@@ -29,9 +29,11 @@ import matches, { Validator } from 'ts-matches'
 
 import { NO_PROXY, defineAction, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import config from '@etherealengine/common/src/config'
+import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { AssetLoader } from '../../../classes/AssetLoader'
-import { getProjectName, getRelativeURI, modelResourcesPath } from '../../../functions/pathResolver'
+import { modelResourcesPath } from '../../../functions/pathResolver'
 import { UploadRequestState } from '../../../state/UploadRequestState'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -76,8 +78,10 @@ export default class BufferHandlerExtension extends ExporterExtension implements
   beforeParse(input: Object3D | Object3D[]) {
     const writer = this.writer
     if (writer.options.embedImages) return
-    this.projectName = getProjectName(writer.options.path!)
-    this.modelName = getRelativeURI(writer.options.path!)
+    // this.projectName = getProjectName(writer.options.path!)
+    // this.modelName = getRelativeURI(writer.options.path!)
+    this.projectName = writer.options.projectName ?? ''
+    this.modelName = writer.options.relativePath ?? ''
     this.resourceURI = writer.options.resourceURI ?? null
     const inputs = Array.isArray(input) ? input : [input]
     inputs.forEach((input) =>
@@ -163,7 +167,10 @@ export default class BufferHandlerExtension extends ExporterExtension implements
 
     if (!options?.binary) {
       const images = writer.json.images || []
-      const basePath = LoaderUtils.extractUrlBase(writer.options.path!)
+      // const basePath = LoaderUtils.extractUrlBase(writer.options.path!)
+      const basePath = LoaderUtils.extractUrlBase(
+        pathJoin(config.client.fileServer, 'projects', writer.options.projectName!, writer.options.relativePath!)
+      )
       //make uris relative to model src
       for (const image of images) {
         image.uri = image.uri.replace(basePath, '')

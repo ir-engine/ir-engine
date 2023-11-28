@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Material, Shader, WebGLRenderer } from 'three'
 
 import { createMappedComponent } from '../../../ecs/functions/ComponentFunctions'
-import { MaterialSource } from './MaterialSource'
+import { MaterialSource, SourceType } from './MaterialSource'
 
 export type MaterialPrototypeComponentType<T extends Material = Material> = {
   prototypeId: string
@@ -42,6 +42,16 @@ export type MaterialPrototypeComponentType<T extends Material = Material> = {
   }
   src: MaterialSource
   onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
+}
+
+export const materialPrototypeUnavailableComponent: MaterialPrototypeComponentType = {
+  prototypeId: 'UNAVAILABLE',
+  baseMaterial: Material,
+  arguments: {},
+  src: {
+    type: SourceType.BUILT_IN,
+    path: 'UNAVAILABLE'
+  }
 }
 
 export const MaterialPrototypeComponent =
