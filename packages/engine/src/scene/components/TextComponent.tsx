@@ -29,7 +29,7 @@ import { isClient } from '@etherealengine/engine/src/common/functions/getEnviron
 import { defineComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 
-import { Color, Material, MathUtils, Mesh, Vector2 } from 'three'
+import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
 import { Text as TroikaText } from 'troika-three-text'
 import { matches } from '../../common/functions/MatchesUtils'
 import { addObjectToGroup } from './GroupComponent'
@@ -161,6 +161,16 @@ type TextMesh = Mesh & {
 }
 
 /**
+ * @description Ordinal selector for interpreting which THREE.Material to select for font rendering.
+ * @enum Basic Maps to THREE.MeshBasicMaterial
+ * @enum Standard Maps to THREE.MeshStandardMaterial
+ */
+export enum FontMaterialKind {
+  Basic,
+  Standard
+}
+
+/**
  *  @summary
  *  Noto Sans is the default font for text rendering.
  *  @description
@@ -207,6 +217,7 @@ export const TextComponent = defineComponent({
       font: FontDefault, // font: string|null
       fontSize: 0.2,
       fontColor: new Color(0xffffff),
+      fontMaterial: 0 as FontMaterialKind, // Default to whatever value is marked at id=0 in FontMaterialKind
       // Font Outline Properties
       outlineOpacity: 0, // range[0..100], sent to troika as [0..1] :number
       outlineWidth: 0, // range[0..100+], sent to troika as [0..100]% :string
@@ -224,7 +235,7 @@ export const TextComponent = defineComponent({
       // Advanced Configuration
       textOrientation: '+x+y',
       clipActive: false, // sends []: Array<number> to Text.clipRect when true
-      clipRectMin: new Vector2(1024, 1024), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
+      clipRectMin: new Vector2(-1024, -1024), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
       clipRectMax: new Vector2(1024, 1024), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
       gpuAccelerated: true,
       glyphResolution: 6, // Maps to troika.Text.sdfGlyphSize. Sent to troika as 2^N :number
@@ -257,6 +268,8 @@ export const TextComponent = defineComponent({
     else if (matches.nill.test(json.font)) component.font.set(null)
     if (matches.number.test(json.fontSize)) component.fontSize.set(json.fontSize)
     if (matches.object.test(json.fontColor) && json.fontColor.isColor) component.fontColor.set(json.fontColor)
+    if (matches.number.test(json.fontMaterial) && json.fontMaterial in FontMaterialKind)
+      component.fontMaterial.set(json.fontMaterial)
     if (matches.number.test(json.outlineOpacity)) component.outlineOpacity.set(json.outlineOpacity)
     if (matches.number.test(json.outlineWidth)) component.outlineWidth.set(json.outlineWidth)
     if (matches.number.test(json.outlineBlur)) component.outlineBlur.set(json.outlineBlur)
@@ -297,6 +310,7 @@ export const TextComponent = defineComponent({
       font: component.font.value,
       fontSize: component.fontSize.value,
       fontColor: component.fontColor.value,
+      fontMaterial: component.fontMaterial.value,
       outlineOpacity: component.outlineOpacity.value,
       outlineWidth: component.outlineWidth.value,
       outlineBlur: component.outlineBlur.value,
@@ -344,6 +358,14 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.font = text.font.value
       text.troikaMesh.value.fontSize = text.fontSize.value
       text.troikaMesh.value.color = text.fontColor.value.getHex()
+      switch (text.fontMaterial.value) {
+        case FontMaterialKind.Basic:
+          text.troikaMesh.value.material = new MeshBasicMaterial()
+          break
+        case FontMaterialKind.Standard:
+          text.troikaMesh.value.material = new MeshStandardMaterial()
+          break
+      }
       text.troikaMesh.value.outlineOpacity = text.outlineOpacity.value / 100
       text.troikaMesh.value.outlineWidth = `${text.outlineWidth.value}%`
       text.troikaMesh.value.outlineBlur = `${text.outlineBlur.value}%`
@@ -385,6 +407,7 @@ export const TextComponent = defineComponent({
       text.textDirection,
       text.fontSize,
       text.fontColor,
+      text.fontMaterial,
       text.outlineOpacity,
       text.outlineWidth,
       text.outlineBlur,

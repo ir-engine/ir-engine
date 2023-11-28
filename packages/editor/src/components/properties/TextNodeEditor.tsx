@@ -35,7 +35,11 @@ import {
 } from '@etherealengine/editor/src/components/properties//Util'
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { TextComponent, TroikaTextLineHeight } from '@etherealengine/engine/src/scene/components/TextComponent'
+import {
+  FontMaterialKind,
+  TextComponent,
+  TroikaTextLineHeight
+} from '@etherealengine/engine/src/scene/components/TextComponent'
 import { useHookstate } from '@hookstate/core'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
@@ -64,6 +68,10 @@ const SelectOptions = {
   TextWrapping: [
     { label: 'Whitespace', value: 'normal' },
     { label: 'Break Word', value: 'break-word' }
+  ],
+  FontMaterial: [
+    { label: 'Basic', value: FontMaterialKind.Basic },
+    { label: 'Standard', value: FontMaterialKind.Standard }
   ]
 }
 
@@ -77,6 +85,9 @@ const LineHeightNumericDefault = 1.2 as TroikaTextLineHeight
  * @description Object holding all of the UI's `info` descriptions.
  */
 const HoverInfo = {
+  FontFamily: `
+URL of a custom font to be used. Font files can be in .ttf, .otf, or .woff (not .woff2) formats. Defaults to Noto Sans when empty.
+`,
   AdvancedGroup: `
 Toggle Advanced options. Only modify these if you know what you are doing.
 `,
@@ -85,8 +96,27 @@ Defines the axis plane on which the text should be laid out when the mesh has no
 It is specified as a string with two axes:
   1. the horizontal axis with positive pointing right,
   2. the vertical axis with positive pointing up.
-By default this is '+x+y', meaning the text sits on the xy plane with the text's top toward positive y and facing positive z.
+Defaults to '+x+y', meaning the text sits on the xy plane with the text's top toward positive y and facing positive z.
 A value of '+x-z' would place it on the xz plane with the text's top toward negative z and facing positive y.
+`,
+  Clipping: `
+Limit the range of pixels to draw to the given clip Rectangle.
+Directly tied to the axis selection @textOrientation.
+Useful for when text wrapping is disabled, but text should still be contained within a certain range.
+`,
+  GlyphResolution: `
+Level of quality at which font glyphs are rasterized.
+Compare values 2 and 3 to understand how this value behaves.
+A value of 4 is already acceptable quality depending on context. A value of 6 is great quality, very difficult to distinguish from 7.
+Anything above 9-10 could literally halt your computer while the text is being rendered.
+`,
+  GlyphDetail: `
+Number of subdivisions of the plane Mesh where the text is being rendered. Useful for material effects.
+`,
+  GPUAccelerated: `
+Forces the text rendering to happen on the CPU when disabled.
+Text rendering performance is significantly slower when disabled.
+Only useful for hardware that has no GPU acceleration support.
 `
 }
 
@@ -168,7 +198,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               options={SelectOptions.TextAlignment}
               value={text.textAlign.value}
               onChange={updateProperty(TextComponent, 'textAlign')}
-              //onChange={(val :TroikaTextDirection) => text.textDirection.set(val)}
+              onRelease={commitProperty(TextComponent, 'textAlign')}
             />
           </InputGroup>
           <InputGroup
@@ -181,6 +211,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               options={SelectOptions.TextWrapping}
               value={text.textWrapKind.value}
               onChange={updateProperty(TextComponent, 'textWrapKind')}
+              onRelease={commitProperty(TextComponent, 'textWrapKind')}
             />
           </InputGroup>
           <InputGroup
@@ -254,11 +285,12 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               options={SelectOptions.TextDirection}
               value={text.textDirection.value}
               onChange={updateProperty(TextComponent, 'textDirection')}
-              //onChange={(val :TroikaTextDirection) => text.textDirection.set(val)}
+              onRelease={commitProperty(TextComponent, 'textDirection')}
             />
           </InputGroup>
         </div>
       </InputGroup>
+      <br></br>
       <InputGroup
         name="FontGroup"
         label="Font" // {t('editor:properties.text.fontGroup')}  /* @todo: Translation id */
@@ -267,6 +299,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           <InputGroup
             name="FontFamily"
             label="family" // {t('editor:properties.text.fontGroup')}  /* @todo: Translation id */
+            info={HoverInfo.FontFamily}
           >
             <ControlledStringInput
               value={text.font.value!}
@@ -296,8 +329,20 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               onRelease={commitProperty(TextComponent, 'fontColor')}
             />
           </InputGroup>
+          <InputGroup
+            name="FontMaterial"
+            label="material" // {t('editor:properties.text.fontColor')}  /* @todo: Translation id */
+          >
+            <SelectInput
+              options={SelectOptions.FontMaterial}
+              value={text.fontMaterial.value}
+              onChange={updateProperty(TextComponent, 'fontMaterial')}
+              onRelease={commitProperty(TextComponent, 'fontMaterial')}
+            />
+          </InputGroup>
         </div>
       </InputGroup>
+      <br></br>
       <InputGroup
         name="OutlineGroup"
         label="Outline" // {t('editor:properties.text.outlineGroup')}  /* @todo: Translation id */
@@ -362,6 +407,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           </InputGroup>
         </div>
       </InputGroup>
+      <br></br>
       <InputGroup
         name="StrokeGroup"
         label="Stroke" // {t('editor:properties.text.strokeGroup')}  /* @todo: Translation id */
@@ -404,6 +450,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           />
         </div>
       </InputGroup>
+      <br></br>
       <InputGroup
         name="AdvancedActive"
         label="Show Advanced" // {t('editor:properties.textbox.advancedActive')}  /* @todo: Translation id */
@@ -418,7 +465,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           label="Advanced" // {t('editor:properties.textbox.advancedGroup')}  /* @todo: Translation id */
         >
           <div>
-            <InputGroup name="TextOrientation" label="Orientation" info={HoverInfo.TextOrientation}>
+            <InputGroup name="TextOrientation" label="textOrientation" info={HoverInfo.TextOrientation}>
               <ControlledStringInput
                 value={text.textOrientation.value}
                 onChange={updateProperty(TextComponent, 'textOrientation')}
@@ -428,6 +475,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             <InputGroup
               name="ClippingActive"
               label="clip.active" // {t('editor:properties.textbox.clippingActive')}  /* @todo: Translation id */
+              info={HoverInfo.Clipping}
             >
               <BooleanInput value={text.clipActive.value} onChange={text.clipActive.set} />
             </InputGroup>
@@ -456,6 +504,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             <NumericInputGroup
               name="GlyphResolution"
               label="glyph.resolution" // {t('editor:properties.text.glyphResolution')}  /* @todo: Translation id */
+              info={HoverInfo.GlyphResolution}
               min={1}
               smallStep={1}
               mediumStep={1}
@@ -468,6 +517,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             <NumericInputGroup
               name="GlyphDetail"
               label="glyph.detail" // {t('editor:properties.text.glyphDetail')}  /* @todo: Translation id */
+              info={HoverInfo.GlyphDetail}
               min={1}
               smallStep={1}
               mediumStep={1}
@@ -480,6 +530,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             <InputGroup
               name="GPUAccelerated"
               label="GPU Accelerated" // {t('editor:properties.textbox.gpuAccelerated')}  /* @todo: Translation id */
+              info={HoverInfo.GPUAccelerated}
             >
               <BooleanInput value={text.gpuAccelerated.value} onChange={text.gpuAccelerated.set} />
             </InputGroup>
