@@ -36,9 +36,8 @@ import { ProjectService, ProjectState } from '@etherealengine/client-core/src/co
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import Component from './index'
@@ -55,7 +54,6 @@ import 'tailwindcss/tailwind.css'
 const initializeEngineForRecorder = async () => {
   // const projects = API.instance.client.service(projectsPath).find()
   // await loadEngineInjection(await projects)
-  dispatchAction(EngineActions.sceneLoaded({}))
 }
 
 const argTypes = {}

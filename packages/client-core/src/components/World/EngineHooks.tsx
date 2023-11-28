@@ -50,6 +50,7 @@ import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetwo
 import { FollowCameraComponent } from '@etherealengine/engine/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/engine/src/camera/components/TargetCameraRotationComponent'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
@@ -68,12 +69,13 @@ export const initClient = async () => {
 }
 
 export const useLocationSpawnAvatar = (spectate = false) => {
-  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+  const activeScene = useHookstate(getMutableState(SceneState).activeScene).value!
+  const sceneLoaded = SceneState.useSceneLoaded(activeScene)
   const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
     if (spectate) {
-      if (!sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
+      if (!sceneLoaded || !authState.user.value || !authState.user.avatar.value) return
       dispatchAction(EngineActions.spectateUser({}))
       return
     }
@@ -82,7 +84,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
 
     if (
       Engine.instance.localClientEntity ||
-      !sceneLoaded.value ||
+      !sceneLoaded ||
       !authState.user.value ||
       !authState.user.avatar.value ||
       spectateParam
@@ -229,8 +231,8 @@ type Props = {
 }
 
 export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
-  const engineState = useHookstate(getMutableState(EngineState))
-  const appState = useHookstate(getMutableState(AppLoadingState).state)
+  // const engineState = useHookstate(getMutableState(EngineState))
+  // const appState = useHookstate(getMutableState(AppLoadingState).state)
 
   useEffect(() => {
     initClient()
@@ -240,16 +242,16 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   usePortalTeleport()
   useLinkTeleport()
 
-  useEffect(() => {
-    if (engineState.sceneLoaded.value && appState.value !== AppLoadingStates.SUCCESS) {
-      getMutableState(AppLoadingState).merge({
-        state: AppLoadingStates.SUCCESS,
-        loaded: true
-      })
-      /** used by the PWA service worker */
-      window.dispatchEvent(new Event('load'))
-    }
-  }, [engineState.sceneLoaded, engineState.loadingProgress])
+  // useEffect(() => {
+  //   if (engineState.sceneLoaded.value && appState.value !== AppLoadingStates.SUCCESS) {
+  //     getMutableState(AppLoadingState).merge({
+  //       state: AppLoadingStates.SUCCESS,
+  //       loaded: true
+  //     })
+  //     /** used by the PWA service worker */
+  //     window.dispatchEvent(new Event('load'))
+  //   }
+  // }, [engineState.sceneLoaded, engineState.loadingProgress])
 }
 
 export const useOnlineNetwork = () => {
@@ -265,33 +267,30 @@ export const useOnlineNetwork = () => {
 }
 
 export const useOfflineNetwork = () => {
-  const engineState = useHookstate(getMutableState(EngineState))
   const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
-    if (engineState.sceneLoaded.value) {
-      const userId = Engine.instance.userID
-      const peerID = Engine.instance.peerID
-      const userIndex = 1
-      const peerIndex = 1
+    const userId = Engine.instance.userID
+    const peerID = Engine.instance.peerID
+    const userIndex = 1
+    const peerIndex = 1
 
-      const networkState = getMutableState(NetworkState)
-      networkState.hostIds.world.set(userId as any as InstanceID)
-      addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
-      addOutgoingTopicIfNecessary(NetworkTopics.world)
+    const networkState = getMutableState(NetworkState)
+    networkState.hostIds.world.set(userId as any as InstanceID)
+    addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
+    addOutgoingTopicIfNecessary(NetworkTopics.world)
 
-      NetworkState.worldNetwork.authenticated = true
-      NetworkState.worldNetwork.connected = true
-      NetworkState.worldNetwork.ready = true
+    NetworkState.worldNetwork.authenticated = true
+    NetworkState.worldNetwork.connected = true
+    NetworkState.worldNetwork.ready = true
 
-      NetworkPeerFunctions.createPeer(
-        NetworkState.worldNetwork as Network,
-        peerID,
-        peerIndex,
-        userId,
-        userIndex,
-        authState.user.name.value
-      )
-    }
-  }, [engineState.sceneLoaded])
+    NetworkPeerFunctions.createPeer(
+      NetworkState.worldNetwork as Network,
+      peerID,
+      peerIndex,
+      userId,
+      userIndex,
+      authState.user.name.value
+    )
+  }, [])
 }

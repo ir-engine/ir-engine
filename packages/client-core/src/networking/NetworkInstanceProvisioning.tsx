@@ -37,7 +37,6 @@ import {
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -56,7 +55,6 @@ import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
 export const WorldInstanceProvisioning = () => {
   const locationState = useHookstate(getMutableState(LocationState))
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
-  const engineState = useHookstate(getMutableState(EngineState))
 
   const worldNetwork = NetworkState.worldNetwork
   const worldNetworkState = useWorldNetwork()
@@ -69,7 +67,7 @@ export const WorldInstanceProvisioning = () => {
 
   // Once we have the location, provision the instance server
   useEffect(() => {
-    if (!engineState.sceneLoaded.value || locationInstances.keys.length) return
+    if (!locationInstances.keys.length) return
 
     const currentLocation = locationState.currentLocation.location
     const hasJoined = !!worldNetwork
@@ -106,7 +104,7 @@ export const WorldInstanceProvisioning = () => {
         )
       }
     }
-  }, [engineState.sceneLoaded, locationState.currentLocation.location, locationInstances.keys])
+  }, [locationState.currentLocation.location, locationInstances.keys])
 
   // Populate the URL with the room code and instance id
   useEffect(() => {

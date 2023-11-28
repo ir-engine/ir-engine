@@ -46,14 +46,13 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import config from '@etherealengine/common/src/config'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
-import { defineComponent, removeComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { StaticResourceType } from '../../schemas/media/static-resource.schema'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 
 export const PLANE_GEO = new PlaneGeometry(1, 1, 1, 1)
 export const SPHERE_GEO = new SphereGeometry(1, 64, 32)
@@ -164,7 +163,7 @@ export function ImageReactor() {
         return addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
       }
 
-      setComponent(entity, SceneAssetPendingTagComponent)
+      // setComponent(entity, SceneAssetPendingTagComponent)
       AssetLoader.loadAsync(image.source.value)
         .then((_texture) => {
           texture.set(_texture)
@@ -173,7 +172,7 @@ export function ImageReactor() {
           addError(entity, ImageComponent, `LOADING_ERROR`, e.message)
         })
         .finally(() => {
-          removeComponent(entity, SceneAssetPendingTagComponent)
+          // removeComponent(entity, SceneAssetPendingTagComponent)
         })
 
       return () => {

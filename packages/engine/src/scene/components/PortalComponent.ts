@@ -44,20 +44,17 @@ import { V_100 } from '../../common/constants/MathConstants'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   SerializedComponentType,
   defineComponent,
   getComponent,
-  hasComponent,
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { portalPath } from '../../schemas/projects/portal.schema'
@@ -68,8 +65,6 @@ import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VisibleComponent, setVisibleComponent } from './VisibleComponent'
 
@@ -148,13 +143,6 @@ export const PortalComponent = defineComponent({
           new Quaternion().setFromEuler(new Euler().setFromVector3(json.spawnRotation as any))
         )
     }
-
-    if (
-      !getState(EngineState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
-      !hasComponent(entity, RigidBodyComponent)
-    )
-      setComponent(entity, SceneAssetPendingTagComponent)
   },
 
   toJSON: (entity, component) => {

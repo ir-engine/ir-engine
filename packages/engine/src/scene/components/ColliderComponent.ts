@@ -30,13 +30,11 @@ import { Quaternion, Vector3 } from 'three'
 import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 
 import matches from 'ts-matches'
-import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -52,8 +50,6 @@ import { LocalTransformComponent, TransformComponent } from '../../transform/com
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { GroupComponent } from './GroupComponent'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'Collider Component',
@@ -130,12 +126,6 @@ export const ColliderComponent = defineComponent({
       }
     }
 
-    if (
-      !getState(EngineState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
-      !hasComponent(entity, RigidBodyComponent)
-    )
-      setComponent(entity, SceneAssetPendingTagComponent)
     setComponent(entity, InputComponent)
   },
 
@@ -164,8 +154,6 @@ export const ColliderComponent = defineComponent({
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
     useEffect(() => {
-      removeComponent(entity, SceneAssetPendingTagComponent)
-
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
       const physicsWorld = getState(PhysicsState).physicsWorld
 

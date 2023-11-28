@@ -44,19 +44,26 @@ import {
   TextureLoader
 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { useEffect } from 'react'
 import { isClient } from '../../common/functions/getEnvironment'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
+import { Component, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
+import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
+import { getObjectComponent } from '../loaders/gltf/ComponentData'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { TGALoader } from '../loaders/tga/TGALoader'
@@ -401,6 +408,34 @@ const loadAsync = async (
   })
 }
 
+const useLoadAsset = <T>(entity: Entity, component: Component<any>, src: string, params: LoadingArgs = {}) => {
+  const asset = useHookstate<null | T>(null)
+
+  useEffect(() => {
+    const sceneID = getObjectComponent(entity, SceneObjectComponent)
+    const uuid = getComponent(entity, UUIDComponent)
+    AssetLoader.load(
+      src,
+      params,
+      (loadedAsset) => {
+        asset.set(loadedAsset)
+        if (sceneID) SceneState.clearEntityLoadState(sceneID, uuid, src)
+        removeError(entity, component, 'LOADING_ERROR')
+      },
+      (onprogress) => {
+        if (sceneID) SceneState.setEntityLoadState(sceneID, uuid, src, onprogress.loaded, onprogress.total)
+      },
+      (err) => {
+        console.error(err)
+        if (sceneID) SceneState.clearEntityLoadState(sceneID, uuid, src)
+        addError(entity, component, 'LOADING_ERROR', err.message)
+      }
+    )
+  }, [src])
+
+  return asset
+}
+
 export const AssetLoader = {
   loaders: new Map<number, any>(),
   processModelAsset,
@@ -411,6 +446,7 @@ export const AssetLoader = {
   isSupported,
   getLoader,
   assetLoadCallback,
+  useLoadAsset,
   load,
   loadAsync
 }

@@ -43,8 +43,6 @@ export const EngineState = defineState({
 
     physicsSubsteps: 1,
 
-    sceneLoading: false,
-    sceneLoaded: false,
     loadingProgress: 0,
     spectating: false,
     avatarLoadingEffect: true,
@@ -61,11 +59,6 @@ export const EngineState = defineState({
 })
 
 export class EngineActions {
-  /** @deprecated */
-  static sceneLoaded = defineAction({
-    type: 'ee.engine.Engine.SCENE_LOADED' as const
-  })
-
   static spectateUser = defineAction({
     type: 'ee.engine.Engine.SPECTATE_USER' as const,
     user: matches.string.optional()

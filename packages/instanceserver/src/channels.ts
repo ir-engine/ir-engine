@@ -31,7 +31,6 @@ import { decode } from 'jsonwebtoken'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { NetworkConnectionParams, NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
@@ -267,14 +266,14 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
       SceneState.loadScene(sceneId, sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 
-      await new Promise<void>((resolve) => {
-        const interval = setInterval(() => {
-          if (getState(EngineState).sceneLoaded) {
-            clearInterval(interval)
-            resolve()
-          }
-        }, 100)
-      })
+      // await new Promise<void>((resolve) => {
+      //   const interval = setInterval(() => {
+      //     if (getState(EngineState).sceneLoaded) {
+      //       clearInterval(interval)
+      //       resolve()
+      //     }
+      //   }, 100)
+      // })
     }
     const userUpdatedListener = async (user) => {
       const worldState = getMutableState(WorldState)

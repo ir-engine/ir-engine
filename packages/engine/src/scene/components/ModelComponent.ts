@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Scene, SkinnedMesh } from 'three'
 
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, none } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { VRM } from '@pixiv/three-vrm'
@@ -34,11 +34,9 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
-  ComponentType,
   defineComponent,
   getComponent,
   hasComponent,
@@ -47,32 +45,29 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { addError, removeError } from '../functions/ErrorFunctions'
+import { addError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VariantComponent } from './VariantComponent'
 
 export type SceneWithEntity = Scene & { entity: Entity }
 
-function clearMaterials(model: ComponentType<typeof ModelComponent>) {
-  if (!model.scene) return
+function clearMaterials(src: string) {
   try {
-    removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src ?? '' })
+    removeMaterialSource({ type: SourceType.MODEL, path: src ?? '' })
   } catch (e) {
     if (e?.name === 'MaterialNotFound') {
-      console.warn('could not find material in source ' + model.scene.userData.src)
+      console.warn('could not find material in source ' + src)
     } else {
       throw e
     }
@@ -108,20 +103,6 @@ export const ModelComponent = defineComponent({
     if (typeof json.src === 'string') component.src.set(json.src)
     if (typeof json.generateBVH === 'boolean') component.generateBVH.set(json.generateBVH)
     if (typeof json.avoidCameraOcclusion === 'boolean') component.avoidCameraOcclusion.set(json.avoidCameraOcclusion)
-
-    /**
-     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
-     */
-    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent) && !component.scene.value)
-      setComponent(entity, SceneAssetPendingTagComponent)
-  },
-
-  onRemove: (entity, component) => {
-    if (component.scene.value) {
-      if (component.src.value) {
-        clearMaterials(component.value)
-      }
-    }
   },
 
   errors: ['LOADING_ERROR', 'INVALID_URL'],
@@ -133,71 +114,39 @@ function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
   const variantComponent = useOptionalComponent(entity, VariantComponent)
+  const uuid = useComponent(entity, UUIDComponent)
   const model = modelComponent.value
   const source = model.src
+
+  const assetState = AssetLoader.useLoadAsset<GLTF>(entity, ModelComponent, modelComponent.src.value, {
+    ignoreDisposeGeometry: model.generateBVH,
+    uuid: uuid.value
+  })
+
+  useEffect(() => {
+    if (!assetState?.value) return
+
+    const asset = assetState.get(NO_PROXY)!
+    const fileExtension = model.src.split('.').pop()?.toLowerCase()
+    asset.scene.animations = asset.animations
+    asset.scene.userData.src = model.src
+    asset.scene.userData.type === 'glb' && delete asset.scene.userData.type
+    modelComponent.asset.set(asset)
+    if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
+    modelComponent.scene.set(asset.scene as any)
+  }, [assetState])
 
   // update src
   useEffect(() => {
     if (source === model.scene?.userData?.src) return
     if (variantComponent && !variantComponent.calculated) return
-    try {
-      if (model.scene) {
-        clearMaterials(model)
-      }
-      if (!model.src) return
-      const uuid = getComponent(entity, UUIDComponent)
-      const fileExtension = model.src.split('.').pop()?.toLowerCase()
-      switch (fileExtension) {
-        case 'glb':
-        case 'gltf':
-        case 'fbx':
-        case 'vrm':
-        case 'usdz':
-          AssetLoader.load(
-            model.src,
-            {
-              ignoreDisposeGeometry: model.generateBVH,
-              uuid
-            },
-            (loadedAsset) => {
-              loadedAsset.scene.animations = loadedAsset.animations
-              if (!entityExists(entity)) return
-              removeError(entity, ModelComponent, 'LOADING_ERROR')
-              loadedAsset.scene.userData.src = model.src
-              loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
-              modelComponent.asset.set(loadedAsset)
-              if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
-              modelComponent.scene.set(loadedAsset.scene)
-            },
-            (onprogress) => {
-              if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
-              SceneAssetPendingTagComponent.loadingProgress.merge({
-                [entity]: {
-                  loadedAmount: onprogress.loaded,
-                  totalAmount: onprogress.total
-                }
-              })
-            },
-            (err) => {
-              console.error(err)
-              removeComponent(entity, SceneAssetPendingTagComponent)
-            }
-          )
-          break
-        default:
-          throw new Error(`Model type '${fileExtension}' not supported`)
-      }
-    } catch (err) {
-      console.error(err)
-      addError(entity, ModelComponent, 'LOADING_ERROR', err.message)
-    }
   }, [modelComponent.src, variantComponent?.calculated])
 
   // update scene
   useEffect(() => {
     const scene = getComponent(entity, ModelComponent).scene
-
     if (!scene) return
+
     addObjectToGroup(entity, scene)
 
     if (EngineRenderer.instance)
@@ -206,10 +155,6 @@ function ModelReactor() {
         .catch(() => {
           addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
         })
-        .finally(() => {
-          removeComponent(entity, SceneAssetPendingTagComponent)
-        })
-    else removeComponent(entity, SceneAssetPendingTagComponent)
 
     setComponent(entity, BoundingBoxComponent)
 
@@ -227,9 +172,13 @@ function ModelReactor() {
           selectedEntities: []
         }
       ],
-      index: 0
+      index: 0,
+      entitiesToLoad: {}
     })
+
+    const src = model.src
     return () => {
+      clearMaterials(src)
       getMutableState(SceneState).scenes[uuid].set(none)
       removeObjectFromGroup(entity, scene)
     }

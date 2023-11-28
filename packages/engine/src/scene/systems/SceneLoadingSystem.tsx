@@ -50,8 +50,7 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useOptionalComponent,
-  useQuery
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -63,7 +62,6 @@ import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '../../sch
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
-import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
@@ -72,24 +70,6 @@ import { VisibleComponent } from '../components/VisibleComponent'
 
 const reactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
-  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
-
-  useEffect(() => {
-    const values = Object.values(assetLoadingState.value)
-    const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
-    const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
-    const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
-
-    getMutableState(EngineState).loadingProgress.set(progress)
-
-    if (!sceneAssetPendingTagQuery.length && !getState(EngineState).sceneLoaded) {
-      getMutableState(EngineState).merge({
-        sceneLoaded: true
-      })
-      SceneAssetPendingTagComponent.loadingProgress.set({})
-    }
-  }, [sceneAssetPendingTagQuery.length, assetLoadingState])
 
   return (
     <>
@@ -140,11 +120,28 @@ const NetworkedSceneObjectReactor = () => {
 
 const SceneReactor = (props: { sceneID: SceneID }) => {
   const currentSceneSnapshotState = SceneState.useScene(props.sceneID)
+  const sceneState = useHookstate(getMutableState(SceneState).scenes[props.sceneID])
   const entities = currentSceneSnapshotState.scene.entities
   const rootUUID = currentSceneSnapshotState.scene.root.value
 
   const ready = useHookstate(false)
   const systemsLoaded = useHookstate([] as SystemImportType[])
+
+  useEffect(() => {
+    const values = Object.entries(sceneState.entitiesToLoad.value)
+    const total = values.reduce(
+      (acc, [uuid, curr]) => acc + Object.values(curr.resources).reduce((acc, curr) => acc + curr.totalAmount, 0),
+      0
+    )
+    const loaded = values.reduce(
+      (acc, [uuid, curr]) => acc + Object.values(curr.resources).reduce((acc, curr) => acc + curr.loadedAmount, 0),
+      0
+    )
+    const progress = !values.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
+    console.log({ progress, loaded, total })
+
+    getMutableState(EngineState).loadingProgress.set(progress)
+  }, [sceneState.entitiesToLoad])
 
   useEffect(() => {
     const isActiveScene = getState(SceneState).activeScene === props.sceneID
@@ -160,13 +157,6 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
       getState(SceneState).scenes[props.sceneID].snapshots[getState(SceneState).scenes[props.sceneID].index].data
 
     getSystemsFromSceneData(project, scene).then((systems) => {
-      // wait to set scene loading state until systems are loaded
-      if (isActiveScene)
-        getMutableState(EngineState).merge({
-          sceneLoading: true,
-          sceneLoaded: false
-        })
-
       if (systems.length) {
         systemsLoaded.set(systems)
       } else {
