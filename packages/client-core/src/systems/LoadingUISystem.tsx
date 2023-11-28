@@ -154,7 +154,8 @@ function LoadingReactor() {
 
   /** Scene data changes */
   useEffect(() => {
-    const sceneData = SceneState.getCurrentScene()
+    const currentSceneID = getState(SceneState).activeScene!
+    const sceneData = SceneState.getSceneMetadata(currentSceneID)
     if (!sceneData) return
     const envmapURL = sceneData.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
     const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>

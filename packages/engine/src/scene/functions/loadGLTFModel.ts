@@ -260,7 +260,7 @@ export const parseGLTFModel = (entity: Entity) => {
       Object.defineProperties(obj, {
         parent: {
           get() {
-            if (EngineRenderer.instance.rendering) return null
+            if (EngineRenderer.instance?.rendering) return null
             if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
               return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0]
             }
@@ -272,7 +272,7 @@ export const parseGLTFModel = (entity: Entity) => {
         },
         children: {
           get() {
-            if (EngineRenderer.instance.rendering) return []
+            if (EngineRenderer.instance?.rendering) return []
             return hasComponent(objEntity, EntityTreeComponent)
               ? getComponent(objEntity, EntityTreeComponent)
                   .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length ?? 0 > 0)
