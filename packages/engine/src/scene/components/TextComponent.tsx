@@ -75,6 +75,13 @@ export type TroikaTextWrap = 'normal' | 'nowrap'
 export type TroikaTextWrapKind = 'normal' | 'break-word'
 
 /**
+ * @description
+ * troika.Text line height format, as declared by `troika-three-text`in its Text.lineHeight `@member` property.
+ * @enum `'normal'`: Chooses a reasonable height based on the chosen font's ascender/descender metrics.
+ */
+export type TroikaTextLineHeight = number | 'normal'
+
+/**
  * @summary
  * Javascript-to-Typescript compatiblity type for the `troika-three-text` Text mesh class.
  *
@@ -100,6 +107,7 @@ type TextMesh = Mesh & {
   overflowWrap: TroikaTextWrapKind
   whiteSpace: TroikaTextWrap
   letterSpacing: number /** Spacing between letters after kerning is applied. */
+  lineHeight: TroikaTextLineHeight /** Height of each line of text as a multiple of `fontSize`. */
   maxWidth: number /** Value above which text starts wrapping */
   anchorX: number | string | 'left' | 'center' | 'right'
   anchorY: number | string | 'top' | 'top-baseline' | 'top-cap' | 'top-ex' | 'middle' | 'bottom-baseline' | 'bottom'
@@ -133,9 +141,6 @@ type TextMesh = Mesh & {
   //  Decide which of these properties should be mapped or not //
   //  Remove the unused properties. Only temp for easier dev  //
   //_________________________________________________________//
-  // Sets the height of each line of text, as a multiple of the `fontSize`. Defaults to 'normal'
-  // which chooses a reasonable height based on the chosen font's ascender/descender metrics.
-  lineHeight: number | 'normal'
   // Defines a _base_ material to be used when rendering the text. This material will be
   // automatically replaced with a material derived from it, that adds shader code to
   // decrease the alpha for each fragment (pixel) outside the text glyphs, with antialiasing.
@@ -201,12 +206,13 @@ export const TextComponent = defineComponent({
       textDepthOffset: 0, // For Z-fighting adjustments. Similar to anchor.Z
       textCurveRadius: 0,
       letterSpacing: 0,
+      lineHeight: 'normal' as TroikaTextLineHeight,
       textDirection: 'auto' as TroikaTextDirection,
 
       // Font Properties
       font: FontDefault, // font: string|null
       fontSize: 0.2,
-      fontColor: new Color(0x9966ff),
+      fontColor: new Color(0xffffff),
       // Font Outline Properties
       outlineOpacity: 0, // range[0..100], sent to troika as [0..1] :number
       outlineWidth: 0, // range[0..100+], sent to troika as [0..100]% :string
@@ -248,6 +254,8 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.textDepthOffset)) component.textDepthOffset.set(json.textDepthOffset)
     if (matches.number.test(json.textCurveRadius)) component.textCurveRadius.set(json.textCurveRadius)
     if (matches.number.test(json.letterSpacing)) component.letterSpacing.set(json.letterSpacing)
+    if (matches.number.test(json.lineHeight) || (matches.string.test(json.lineHeight) && json.lineHeight === 'normal'))
+      component.lineHeight.set(json.lineHeight)
     if (matches.string.test(json.textDirection)) component.textDirection.set(json.textDirection)
     // Font Properties
     if (matches.string.test(json.font)) component.font.set(json.font)
@@ -286,6 +294,7 @@ export const TextComponent = defineComponent({
       textAnchor: component.textAnchor.value,
       textDepthOffset: component.textDepthOffset.value,
       textCurveRadius: component.textCurveRadius.value,
+      lineHeight: component.lineHeight.value,
       letterSpacing: component.letterSpacing.value,
       textDirection: component.textDirection.value,
       // Font Properties
@@ -332,6 +341,7 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.depthOffset = text.textDepthOffset.value
       text.troikaMesh.value.curveRadius = MathUtils.degToRad(text.textCurveRadius.value)
       text.troikaMesh.value.letterSpacing = text.letterSpacing.value
+      text.troikaMesh.value.lineHeight = text.lineHeight.value
       text.troikaMesh.value.direction = text.textDirection.value
       // Update the font properties
       text.troikaMesh.value.font = text.font.value
@@ -372,6 +382,7 @@ export const TextComponent = defineComponent({
       text.textCurveRadius,
       text.textDepthOffset,
       text.textWidth,
+      text.lineHeight,
       text.letterSpacing,
       text.textDirection,
       text.fontSize,

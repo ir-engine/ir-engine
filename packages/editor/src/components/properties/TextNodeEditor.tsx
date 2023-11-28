@@ -35,7 +35,7 @@ import {
 } from '@etherealengine/editor/src/components/properties//Util'
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
+import { TextComponent, TroikaTextLineHeight } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { useHookstate } from '@hookstate/core'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
@@ -66,6 +66,11 @@ const SelectOptions = {
     { label: 'Break Word', value: 'break-word' }
   ]
 }
+/**
+ * @description Default fallback value for when when text.lineheight is not set to 'normal'
+ * @default 1.2
+ */
+const LineHeightNumericDefault = 1.2 as TroikaTextLineHeight
 
 /**
  * @description TextNodeEditor component used to provide the editor a view to customize text properties.
@@ -74,7 +79,17 @@ const SelectOptions = {
 export const TextNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const text = useComponent(props.entity, TextComponent)
-  const advancedActive = useHookstate(false)
+  const advancedActive = useHookstate(false) // State tracking whether the Advanced Options Section is active or not
+
+  // LineHeight state management
+  const lineHeightIsNormal = useHookstate(true) // true when `text.lineHeight` is set to its union 'normal'
+  const lineHeight_setNormal = (checkboxValue: boolean) => {
+    // Used as a BooleanInput callback for setting the value of lineheight.
+    // Sets the value to either its 'normal' type-union option, or to a default lineHeight value when the checkbox is off.
+    lineHeightIsNormal.set(checkboxValue)
+    if (checkboxValue) text.lineHeight.set('normal' as TroikaTextLineHeight)
+    else text.lineHeight.set(LineHeightNumericDefault)
+  }
 
   return (
     <NodeEditor {...props} name="Text Component" description="A Text component">
@@ -150,7 +165,6 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               onChange={updateProperty(TextComponent, 'textWrapKind')}
             />
           </InputGroup>
-
           <InputGroup
             name="TextAnchor"
             label="anchor" // {t('editor:properties.text.textAnchor')} /* @todo: Translation id */
@@ -184,8 +198,8 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             unit="deg"
           />
           <NumericInputGroup
-            name="LettersSpacing"
-            label="spacing" // {t('editor:properties.text.letterSpacing')}  /* @todo: Translation id */
+            name="LetterSpacing"
+            label="letterSpacing" // {t('editor:properties.text.letterSpacing')}  /* @todo: Translation id */
             min={-0.5}
             smallStep={0.01}
             mediumStep={0.1}
@@ -195,6 +209,25 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(TextComponent, 'letterSpacing')}
             unit="px"
           />
+          <InputGroup
+            name="LineHeightGroup"
+            label="lineHeight" // {t('editor:properties.text.textWrap')} /* @todo: Translation id */
+          >
+            <BooleanInput value={lineHeightIsNormal.value} onChange={lineHeight_setNormal} />
+            <NumericInputGroup
+              disabled={lineHeightIsNormal.value} // Disable numeric input when lineHeight is set to 'normal'
+              name="LineHeight"
+              label="height" // {t('editor:properties.text.lineHeight')}  /* @todo: Translation id */
+              min={0}
+              smallStep={0.01}
+              mediumStep={0.1}
+              largeStep={0.2}
+              value={text.lineHeight.value}
+              onChange={updateProperty(TextComponent, 'lineHeight')}
+              onRelease={commitProperty(TextComponent, 'lineHeight')}
+              unit="em"
+            />
+          </InputGroup>
           <InputGroup
             name="TextDirection"
             label="direction" // {t('editor:properties.text.textDirection')} /* @todo: Translation id */
