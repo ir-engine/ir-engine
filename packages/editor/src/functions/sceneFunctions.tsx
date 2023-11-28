@@ -118,7 +118,7 @@ export const saveScene = async (
 ) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
-  const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].snapshots.at(-1)?.data.scene
+  const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].snapshots.at(-1)?.data
 
   try {
     if (!sceneData) throw new Error(i18n.t('editor:errors.sceneDataNotFound'))
