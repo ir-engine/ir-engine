@@ -85,7 +85,6 @@ export const TransformGizmoComponent = defineComponent({
     const gizmoEntity = createEntity()
 
     const box = new Box3()
-    let cachedParents = {}
 
     useEffect(() => {
       // create dummy object to attach gizmo to, we can only attach to three js objects
