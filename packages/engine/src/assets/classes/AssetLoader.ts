@@ -413,6 +413,7 @@ const useLoadAsset = <T>(src: string, params: LoadingArgs = {}, entity?: Entity,
   useEffect(() => {
     const sceneID = entity && getOptionalComponent(entity, SceneObjectComponent)
     const uuid = entity && getComponent(entity, UUIDComponent)
+    if (sceneID && uuid) SceneState.setEntityLoadState(sceneID, uuid, src, 0, 0)
     AssetLoader.load(
       src,
       params,
