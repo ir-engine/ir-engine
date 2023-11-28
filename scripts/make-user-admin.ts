@@ -27,7 +27,7 @@ import appRootPath from 'app-root-path'
 import knex from 'knex'
 import { v4 } from 'uuid'
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { ScopeTypeInterface, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeID, ScopeTypeInterface, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
@@ -78,7 +78,7 @@ cli.main(async () => {
             .first()
           if (existingScope == null) {
             await knexClient.from<ScopeTypeInterface>(scopePath).insert({
-              id: v4(),
+              id: v4() as ScopeID,
               userId: options.id,
               type,
               createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
