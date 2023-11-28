@@ -40,7 +40,7 @@ export const MotionCaptureRigComponent = defineComponent({
     hipPosition: Vector3Schema,
     hipRotation: QuaternionSchema,
     footOffset: 'f64',
-    solvingLowerBody: 'ui8'
+    lowerBodySolveFactor: 'f64'
   },
 
   reactor: function () {
@@ -52,7 +52,7 @@ export const MotionCaptureRigComponent = defineComponent({
         //proxifyVector3(AvatarRigComponent.rig[boneName].position, entity)
         //proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity)
       }
-      MotionCaptureRigComponent.solvingLowerBody[entity] = 1
+      MotionCaptureRigComponent.lowerBodySolveFactor[entity] = 1
     }, [])
 
     return null

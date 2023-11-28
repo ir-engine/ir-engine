@@ -264,11 +264,12 @@ export function solveMotionCapturePose(
 
   if (!prevLandmarks) prevLandmarks = newLandmarks.map((landmark) => ({ ...landmark }))
 
+  const deltaSeconds = getState(EngineState).deltaSeconds
+
   const landmarks = newLandmarks.map((landmark, index) => {
     // if (!landmark.visibility || landmark.visibility < 0.3) return prevLandmarks[index]
     const prevLandmark = prevLandmarks[index]
     const visibility = ((landmark.visibility ?? 0) + (prevLandmark.visibility ?? 0)) / 2
-    const deltaSeconds = getState(EngineState).deltaSeconds
     const alpha = smootheLerpAlpha(5 + 20 * visibility, deltaSeconds)
     return {
       visibility,
@@ -354,11 +355,12 @@ export function solveMotionCapturePose(
     //)
 
     //check state, if we are still not set to track lower body, update that
-    if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
-      MotionCaptureRigComponent.solvingLowerBody[entity] = 1
+    if (MotionCaptureRigComponent.lowerBodySolveFactor[entity] > 0) {
+      MotionCaptureRigComponent.lowerBodySolveFactor[entity] += deltaSeconds
+      console.log(MotionCaptureRigComponent.lowerBodySolveFactor[entity])
     }
   } else {
-    if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
+    if (MotionCaptureRigComponent.lowerBodySolveFactor[entity] <= 0) {
       //quick dirty reset of legs
       resetLimb(entity, VRMHumanBoneName.LeftUpperLeg, VRMHumanBoneName.LeftLowerLeg)
       resetLimb(entity, VRMHumanBoneName.RightUpperLeg, VRMHumanBoneName.RightLowerLeg)
@@ -366,8 +368,11 @@ export function solveMotionCapturePose(
       resetBone(entity, VRMHumanBoneName.RightFoot)
       resetBone(entity, VRMHumanBoneName.LeftHand)
       resetBone(entity, VRMHumanBoneName.RightHand)
-      MotionCaptureRigComponent.solvingLowerBody[entity] = 0
+      console.log('resetting')
     }
+    if (MotionCaptureRigComponent.lowerBodySolveFactor[entity] < 1)
+      MotionCaptureRigComponent.lowerBodySolveFactor[entity] -= deltaSeconds
+    console.log(MotionCaptureRigComponent.lowerBodySolveFactor[entity])
   }
 
   solveHead(
@@ -412,7 +417,7 @@ const spineRotation = new Quaternion(),
   shoulderRotation = new Quaternion(),
   hipCenter = new Vector3()
 export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLandmarkList) => {
-  const trackingLowerBody = MotionCaptureRigComponent.solvingLowerBody[entity]
+  const trackingLowerBody = MotionCaptureRigComponent.lowerBodySolveFactor[entity]
   const rig = getComponent(entity, AvatarRigComponent)
 
   const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP]

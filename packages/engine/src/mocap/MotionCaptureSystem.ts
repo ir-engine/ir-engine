@@ -127,7 +127,6 @@ const execute = () => {
     solveMotionCapturePose(entity, data?.results.poseWorldLandmarks, data?.results.poseLandmarks)
     mocapData.clear() // TODO: add a predictive filter and remove this
   }
-
   for (const entity of motionCaptureQuery()) {
     const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
     if (!peers) {
@@ -139,7 +138,7 @@ const execute = () => {
     for (const boneName of VRMHumanBoneList) {
       const localbone = rigComponent.localRig[boneName]?.node
       if (!localbone) continue
-      if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
+      if (!MotionCaptureRigComponent.lowerBodySolveFactor[entity]) {
         if (
           boneName == VRMHumanBoneName.LeftUpperLeg ||
           boneName == VRMHumanBoneName.RightUpperLeg ||
@@ -166,13 +165,13 @@ const execute = () => {
       )
 
       if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
-      if (MotionCaptureRigComponent.solvingLowerBody[entity])
+      if (MotionCaptureRigComponent.lowerBodySolveFactor[entity])
         localbone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
       localbone.scale.set(1, 1, 1)
     }
 
     const hipBone = rigComponent.localRig.hips.node
-    if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
+    if (MotionCaptureRigComponent.lowerBodySolveFactor[entity]) {
       hipBone.position.set(
         MotionCaptureRigComponent.hipPosition.x[entity],
         MotionCaptureRigComponent.hipPosition.y[entity],
@@ -183,7 +182,7 @@ const execute = () => {
 
     const worldHipsParent = rigComponent.rig.hips.node.parent
     if (worldHipsParent)
-      if (MotionCaptureRigComponent.solvingLowerBody[entity])
+      if (MotionCaptureRigComponent.lowerBodySolveFactor[entity])
         worldHipsParent.position.setY(
           lerp(
             worldHipsParent.position.y,
