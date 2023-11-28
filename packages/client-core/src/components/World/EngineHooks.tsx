@@ -32,7 +32,6 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
-import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -161,11 +160,6 @@ export const useLinkTeleport = () => {
     // shut down connection with existing world instance server
     // leaving a world instance server will check if we are in a location media instance and shut that down too
     leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
-
-    getMutableState(AppLoadingState).merge({
-      state: AppLoadingStates.START_STATE,
-      loaded: false
-    })
     getMutableState(LinkState).location.set(undefined)
   }, [linkState.location])
 }
@@ -202,10 +196,6 @@ export const usePortalTeleport = () => {
       PortalComponent.setPlayerInPortalEffect(activePortal.effectType)
     } else {
       getMutableState(PortalState).portalReady.set(true)
-      getMutableState(AppLoadingState).merge({
-        state: AppLoadingStates.START_STATE,
-        loaded: false
-      })
       // teleport player to where the portal spawn position is
       teleportAvatar(Engine.instance.localClientEntity, activePortal.remoteSpawnPosition)
     }
@@ -232,7 +222,6 @@ type Props = {
 
 export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   // const engineState = useHookstate(getMutableState(EngineState))
-  // const appState = useHookstate(getMutableState(AppLoadingState).state)
 
   useEffect(() => {
     initClient()
@@ -243,11 +232,7 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   useLinkTeleport()
 
   // useEffect(() => {
-  //   if (engineState.sceneLoaded.value && appState.value !== AppLoadingStates.SUCCESS) {
-  //     getMutableState(AppLoadingState).merge({
-  //       state: AppLoadingStates.SUCCESS,
-  //       loaded: true
-  //     })
+  //   if (engineState.sceneLoaded.value) {
   //     /** used by the PWA service worker */
   //     window.dispatchEvent(new Event('load'))
   //   }

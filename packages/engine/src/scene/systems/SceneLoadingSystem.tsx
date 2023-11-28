@@ -33,13 +33,13 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  none,
   useHookstate
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import { Not } from 'bitecs'
 import React from 'react'
-import { AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -129,6 +129,8 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const systemsLoaded = useHookstate([] as SystemImportType[])
 
   useEffect(() => {
+    if (!ready.value) return
+
     const values = Object.entries(sceneState.entitiesToLoad.value)
     const total = values.reduce(
       (acc, [uuid, curr]) => acc + Object.values(curr.resources).reduce((acc, curr) => acc + curr.totalAmount, 0),
@@ -139,20 +141,13 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
       0
     )
     const progress = !values.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
-    console.log({ progress, loaded, total })
+    console.log('entities to load', { progress, loaded, total }, values.length)
 
-    getMutableState(EngineState).loadingProgress.set(progress)
-  }, [sceneState.entitiesToLoad])
+    sceneState.loadingProgress.set(progress)
+  }, [sceneState.entitiesToLoad, ready])
 
   useEffect(() => {
     const isActiveScene = getState(SceneState).activeScene === props.sceneID
-
-    if (isActiveScene && getState(AppLoadingState).state !== AppLoadingStates.SUCCESS) {
-      getMutableState(AppLoadingState).merge({
-        state: AppLoadingStates.SCENE_LOADING,
-        loaded: false
-      })
-    }
     const scene = getState(SceneState).scenes[props.sceneID]
     const index = scene.index
     const data = scene.snapshots[index].data
@@ -286,10 +281,12 @@ const EntityChildLoadReactor = (props: {
     if (!parentLoaded) return
 
     // if parent is dynamically loaded, wait for it to be loaded
-    if (!getState(EngineState).isEditor && dynamicParentState?.value && !dynamicParentState.loaded.value) return
+    if (!getState(EngineState).isEditor && dynamicParentState?.value && !dynamicParentState.loaded.value) {
+      getMutableState(SceneState).scenes[props.sceneID].entitiesToLoad[props.entityUUID].set(none)
+      return
+    }
 
     const entity = UUIDComponent.entitiesByUUID[props.entityUUID] ?? createEntity()
-
     const parentEntity = parentEntityState.value
     setComponent(entity, SceneObjectComponent, props.sceneID)
     setComponent(entity, EntityTreeComponent, {
@@ -298,8 +295,9 @@ const EntityChildLoadReactor = (props: {
       childIndex: entityJSONState.index.value
     })
     setComponent(entity, SourceComponent, props.sceneID)
+
     return () => {
-      entityExists(entity) && removeEntity(entity)
+      removeEntity(entity)
     }
   }, [dynamicParentState?.loaded, parentLoaded])
 

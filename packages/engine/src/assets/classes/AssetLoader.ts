@@ -52,7 +52,7 @@ import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
-import { Component, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Component, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
@@ -63,7 +63,6 @@ import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
-import { getObjectComponent } from '../loaders/gltf/ComponentData'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { TGALoader } from '../loaders/tga/TGALoader'
@@ -408,27 +407,27 @@ const loadAsync = async (
   })
 }
 
-const useLoadAsset = <T>(entity: Entity, component: Component<any>, src: string, params: LoadingArgs = {}) => {
+const useLoadAsset = <T>(src: string, params: LoadingArgs = {}, entity?: Entity, component?: Component<any>) => {
   const asset = useHookstate<null | T>(null)
 
   useEffect(() => {
-    const sceneID = getObjectComponent(entity, SceneObjectComponent)
-    const uuid = getComponent(entity, UUIDComponent)
+    const sceneID = entity && getOptionalComponent(entity, SceneObjectComponent)
+    const uuid = entity && getComponent(entity, UUIDComponent)
     AssetLoader.load(
       src,
       params,
       (loadedAsset) => {
         asset.set(loadedAsset)
-        if (sceneID) SceneState.clearEntityLoadState(sceneID, uuid, src)
-        removeError(entity, component, 'LOADING_ERROR')
+        if (sceneID && uuid) SceneState.clearEntityLoadState(sceneID, uuid, src)
+        if (entity && component) removeError(entity, component, 'LOADING_ERROR')
       },
       (onprogress) => {
-        if (sceneID) SceneState.setEntityLoadState(sceneID, uuid, src, onprogress.loaded, onprogress.total)
+        if (sceneID && uuid) SceneState.setEntityLoadState(sceneID, uuid, src, onprogress.loaded, onprogress.total)
       },
       (err) => {
         console.error(err)
-        if (sceneID) SceneState.clearEntityLoadState(sceneID, uuid, src)
-        addError(entity, component, 'LOADING_ERROR', err.message)
+        if (sceneID && uuid) SceneState.clearEntityLoadState(sceneID, uuid, src)
+        if (entity && component) addError(entity, component, 'LOADING_ERROR', err.message)
       }
     )
   }, [src])

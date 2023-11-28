@@ -38,14 +38,13 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import Dialog from '@mui/material/Dialog'
 
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { t } from 'i18next'
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
-import { getScene, onNewScene, saveScene } from '../functions/sceneFunctions'
+import { onNewScene, saveScene } from '../functions/sceneFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
@@ -121,23 +120,6 @@ const SceneLoadingProgress = () => {
       </div>
     </div>
   )
-}
-
-const loadScene = async (sceneName: string) => {
-  const { projectName } = getState(EditorState)
-  try {
-    if (!projectName) {
-      return
-    }
-    const project = await getScene(projectName, sceneName, false)
-
-    if (!project.scene) {
-      return
-    }
-    SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, project)
-  } catch (error) {
-    logger.error(error)
-  }
 }
 
 /**
@@ -434,20 +416,21 @@ const EditorContainer = () => {
   }, [editorState.sceneModified])
 
   useEffect(() => {
-    if (sceneName.value) {
-      logger.info(`Loading scene ${sceneName.value}`)
-      loadScene(sceneName.value)
+    if (!sceneName.value) return
 
-      const parsed = new URL(window.location.href)
-      const query = parsed.searchParams
+    logger.info(`Loading scene ${sceneName.value}`)
 
-      query.set('scene', sceneName.value)
+    const parsed = new URL(window.location.href)
+    const query = parsed.searchParams
 
-      parsed.search = query.toString()
-      if (typeof history.pushState !== 'undefined') {
-        window.history.replaceState({}, '', parsed.toString())
-      }
+    query.set('scene', sceneName.value)
+
+    parsed.search = query.toString()
+    if (typeof history.pushState !== 'undefined') {
+      window.history.replaceState({}, '', parsed.toString())
     }
+
+    return SceneServices.setCurrentScene(projectName.value, sceneName.value)
   }, [sceneName])
 
   useEffect(() => {

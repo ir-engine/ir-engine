@@ -40,17 +40,6 @@ const checkIfProjectExists = async (context: HookContext, project: string) => {
   if (projectResult.data.length === 0) throw new Error(`No project named ${project} exists`)
 }
 
-const getSceneKey = async (context: HookContext) => {
-  const { project, name, sceneKey } = context.params.query
-  if (!sceneKey) {
-    if (project) {
-      checkIfProjectExists(context, project)
-    }
-
-    context.params.query = { ...context.params.query, sceneKey: `projects/${project}/${name}.scene.json` }
-  }
-}
-
 const getDirectoryFromData = async (context: HookContext) => {
   if (!context.data) {
     throw new BadRequest(`${context.path} service data is empty`)
@@ -89,7 +78,7 @@ export default createSkippableHooks(
     before: {
       all: [],
       find: [],
-      get: [getSceneKey],
+      get: [],
       create: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         getDirectoryFromData

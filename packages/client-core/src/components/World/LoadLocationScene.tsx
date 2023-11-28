@@ -27,7 +27,6 @@ import { t } from 'i18next'
 import { useEffect } from 'react'
 
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { SceneServices } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -48,10 +47,6 @@ export const useLoadLocation = (props: { locationName: string }) => {
 
   useEffect(() => {
     if (locationState.invalidLocation.value) {
-      getMutableState(AppLoadingState).merge({
-        state: AppLoadingStates.FAIL,
-        loaded: false
-      })
       WarningUIService.openWarning({
         title: t('common:instanceServer.invalidLocation'),
         body: `${t('common:instanceServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
@@ -76,16 +71,14 @@ export const useLoadLocation = (props: { locationName: string }) => {
    */
   useEffect(() => {
     if (!locationState.currentLocation.location.sceneId.value) return
-    const scenePath = locationState.currentLocation.location.sceneId.value.split('/')
-    const project = scenePath[scenePath.length - 2]
-    const scene = scenePath[scenePath.length - 1].replace('.scene.json', '')
-    return SceneServices.setCurrentScene(project, scene)
+    const scenePath = locationState.currentLocation.location.sceneId.value
+    return SceneServices.setCurrentScene(scenePath)
   }, [locationState.currentLocation.location.sceneId])
 }
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
   useEffect(() => {
-    LocationState.setLocationName(`${props.projectName}/${props.sceneName}`)
+    LocationState.setLocationName(`projects/${props.projectName}/${props.sceneName}.scene.json`)
     loadSceneJsonOffline(props.projectName, props.sceneName)
   }, [])
 }

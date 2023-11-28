@@ -23,16 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
 import React from 'react'
 import { useParams } from 'react-router-dom'
 
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
 import { useLoadLocation, useLoadScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { AppLoadingState } from '@etherealengine/engine/src/common/AppLoadingService'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import './LocationModule'
 
@@ -44,7 +40,6 @@ type Props = {
 
 const LocationPage = ({ offline }: Props) => {
   const params = useParams()
-  const appState = useHookstate(getMutableState(AppLoadingState).state)
 
   if (offline) {
     useOfflineNetwork()
@@ -64,7 +59,6 @@ const LocationPage = ({ offline }: Props) => {
 
   return (
     <>
-      {appState.value === 'START_STATE' && <LoadingCircle message={t('common:loader.loadingEngine')} />}
       <LocationIcons />
     </>
   )

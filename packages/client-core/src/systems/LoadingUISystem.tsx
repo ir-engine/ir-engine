@@ -29,7 +29,6 @@ import { BackSide, Color, CompressedTexture, Mesh, MeshBasicMaterial, SphereGeom
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
-import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -58,6 +57,8 @@ import type { WebLayer3D } from '@etherealengine/xrui'
 
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
@@ -125,37 +126,29 @@ const setColors = (image: HTMLImageElement) => {
   }
 }
 
-function LoadingReactor() {
-  const loadingState = useHookstate(getMutableState(AppLoadingState))
-  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress)
-  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+function LoadingReactor(props: { activeScene: SceneID }) {
+  const loadingProgress = useHookstate(getMutableState(SceneState).scenes[props.activeScene].loadingProgress)
+  const sceneLoaded = loadingProgress.value === 100
   const userReady = useHookstate(getMutableState(EngineState).userReady)
   const state = useHookstate(getMutableState(LoadingUISystemState))
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const meshEntity = state.meshEntity.value
 
   /** Handle loading state changes */
   useEffect(() => {
     const transition = getState(LoadingUISystemState).transition
-    if (loadingState.state.value === AppLoadingStates.SCENE_LOADING && transition.state === 'OUT')
+    if (transition.state === 'OUT' && !sceneLoaded && !userReady.value) {
+      console.log('TRANSITIONING IN')
       return transition.setState('IN')
-
-    if (loadingState.state.value === AppLoadingStates.FAIL && transition.state === 'IN')
+    }
+    if (transition.state === 'IN' && userReady.value && sceneLoaded) {
+      console.log('TRANSITIONING OUT')
       return transition.setState('OUT')
-
-    if (
-      loadingState.state.value === AppLoadingStates.SUCCESS &&
-      transition.state === 'IN' &&
-      userReady.value &&
-      sceneLoaded.value
-    )
-      return transition.setState('OUT')
-  }, [loadingState.state, userReady, sceneLoaded])
+    }
+  }, [userReady, sceneLoaded])
 
   /** Scene data changes */
   useEffect(() => {
-    const currentSceneID = getState(SceneState).activeScene!
-    const sceneData = SceneState.getSceneMetadata(currentSceneID)
+    const sceneData = SceneState.getSceneMetadata(props.activeScene)
     if (!sceneData) return
     const envmapURL = sceneData.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
     const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
@@ -193,7 +186,7 @@ function LoadingReactor() {
         }
       )
     }
-  }, [activeScene])
+  }, [])
 
   useEffect(() => {
     const xrui = getComponent(state.ui.entity.value, XRUIComponent)
@@ -271,7 +264,6 @@ const execute = () => {
     mat.opacity = opacity
     mat.visible = ready
     layer.visible = ready
-    // mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress * 0.01)
     mat.color.copy(mainThemeColor)
   })
   setVisibleComponent(ui.entity, ready)
@@ -283,6 +275,8 @@ const reactor = () => {
   const clientSettings = useHookstate(
     getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
   )
+  const activeScene = useHookstate(getMutableState(SceneState).activeScene).value
+  const activePortalEntity = useHookstate(getMutableState(PortalState).activePortalEntity).value
 
   useEffect(() => {
     const theme = getAppTheme()
@@ -302,11 +296,7 @@ const reactor = () => {
     // }
   }, [])
 
-  return (
-    <>
-      <LoadingReactor />
-    </>
-  )
+  return <>{activeScene && !activePortalEntity && <LoadingReactor key={activeScene} activeScene={activeScene} />}</>
 }
 
 export const LoadingUISystem = defineSystem({

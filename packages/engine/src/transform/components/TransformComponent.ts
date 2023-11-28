@@ -199,12 +199,12 @@ export const LocalTransformComponent = defineComponent({
 
     // ensure TransformComponent is updated immediately, raising warnings if it does not have a parent
     const entityTree = getOptionalComponent(entity, EntityTreeComponent)
-    if (!entityTree) return console.warn('Entity does not have EntityTreeComponent', entity)
+    if (!entityTree) return //console.warn('Entity does not have EntityTreeComponent', entity)
 
     const parentTransform = entityTree?.parentEntity
       ? getOptionalComponent(entityTree.parentEntity, TransformComponent)
       : undefined
-    if (!parentTransform) return console.warn('Entity does not have parent TransformComponent', entity)
+    if (!parentTransform) return //console.warn('Entity does not have parent TransformComponent', entity)
 
     const transform = getComponent(entity, TransformComponent)
     transform.matrix.multiplyMatrices(parentTransform.matrix, component.matrix.value)

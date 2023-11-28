@@ -43,7 +43,6 @@ export const EngineState = defineState({
 
     physicsSubsteps: 1,
 
-    loadingProgress: 0,
     spectating: false,
     avatarLoadingEffect: true,
     /**

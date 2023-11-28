@@ -75,6 +75,7 @@ export const SceneState = defineState({
         metadata: SceneMetadataType
         snapshots: Array<SceneSnapshotInterface>
         index: number
+        loadingProgress: number
         entitiesToLoad: Record<
           EntityUUID,
           {
@@ -144,10 +145,10 @@ export const SceneState = defineState({
     getMutableState(SceneState).scenes[sceneID].set({
       metadata,
       snapshots: [{ data, selectedEntities: [] }],
-      entitiesToLoad: {},
-      index: 0
+      index: 0,
+      loadingProgress: 0,
+      entitiesToLoad: {}
     })
-    getMutableState(SceneState).activeScene.set(sceneID)
   },
 
   unloadScene: (sceneID: SceneID) => {
@@ -161,7 +162,7 @@ export const SceneState = defineState({
     const state = useHookstate(getMutableState(SceneState).scenes[sceneID])
     if (!state?.value) return false
 
-    return !state.entitiesToLoad.value || !state.entitiesToLoad.keys.length
+    return state.loadingProgress.value === 100
   },
 
   getRootEntity: (sceneID?: SceneID) => {
@@ -177,16 +178,11 @@ export const SceneState = defineState({
     const scene = getState(SceneState).scenes[sceneID]
     const data = scene.snapshots[0].data
     getMutableState(SceneState).scenes[sceneID].set({
-      snapshots: [{ data, selectedEntities: [] }],
       metadata: scene.metadata,
+      snapshots: [{ data, selectedEntities: [] }],
       index: 0,
+      loadingProgress: 0,
       entitiesToLoad: {}
-      // Object.fromEntries(
-      //   Object.entries(data.scene.entities).map(([uuid, entity]) => [
-      //     uuid as EntityUUID,
-      //     { resources: {}, loadedAmount: 0, totalAmount: 0 }
-      //   ])
-      // )
     })
     SceneState.applyCurrentSnapshot(sceneID)
   },
@@ -198,13 +194,17 @@ export const SceneState = defineState({
     loadedAmount: number,
     totalAmount: number
   ) => {
-    getMutableState(SceneState).scenes[sceneID].entitiesToLoad[entityUUID].resources.merge({
+    const entitiesToLoad = getMutableState(SceneState).scenes[sceneID].entitiesToLoad
+    if (!entitiesToLoad.value[entityUUID]) entitiesToLoad[entityUUID].set({ resources: {} })
+    entitiesToLoad[entityUUID].resources.merge({
       [resource]: { loadedAmount, totalAmount }
     })
   },
 
   clearEntityLoadState: (sceneID: SceneID, entityUUID: EntityUUID, resource: string) => {
-    getMutableState(SceneState).scenes[sceneID].entitiesToLoad[entityUUID].resources[resource].set(none)
+    const entity = getMutableState(SceneState).scenes[sceneID].entitiesToLoad[entityUUID]
+    entity.resources[resource].set(none)
+    if (!Object.keys(entity.resources).length) entity.set(none)
   },
 
   cloneCurrentSnapshot: (sceneID: SceneID) => {
@@ -268,16 +268,18 @@ export const SceneState = defineState({
 })
 
 export const SceneServices = {
-  setCurrentScene: (projectName: string, sceneName: string) => {
+  setCurrentScene: (sceneID: SceneID) => {
+    console.log('setCurrentScene', sceneID)
     Engine.instance.api
       .service(scenePath)
-      .get(null, { query: { project: projectName, name: sceneName } })
+      .get(null, { query: { sceneKey: sceneID } })
       .then((sceneData) => {
-        SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, sceneData)
+        SceneState.loadScene(sceneID, sceneData)
+        getMutableState(SceneState).activeScene.set(sceneID)
       })
 
     return () => {
-      SceneState.unloadScene(`${projectName}/${sceneName}` as SceneID)
+      SceneState.unloadScene(sceneID)
     }
   }
 }

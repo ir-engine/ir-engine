@@ -42,8 +42,7 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
@@ -58,7 +57,6 @@ import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { Object3DWithEntity, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { UUIDComponent } from './UUIDComponent'
-import { VariantComponent } from './VariantComponent'
 
 export type SceneWithEntity = Scene & { entity: Entity }
 
@@ -113,19 +111,24 @@ export const ModelComponent = defineComponent({
 function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const variantComponent = useOptionalComponent(entity, VariantComponent)
   const uuid = useComponent(entity, UUIDComponent)
-  const model = modelComponent.value
-  const source = model.src
 
-  const assetState = AssetLoader.useLoadAsset<GLTF>(entity, ModelComponent, modelComponent.src.value, {
-    ignoreDisposeGeometry: model.generateBVH,
-    uuid: uuid.value
-  })
+  const assetState = AssetLoader.useLoadAsset<GLTF>(
+    modelComponent.src.value,
+    {
+      ignoreDisposeGeometry: modelComponent.generateBVH.value,
+      uuid: uuid.value
+    },
+    entity,
+    ModelComponent
+  )
+
+  console.log({ src: modelComponent.src.value, assetState })
 
   useEffect(() => {
     if (!assetState?.value) return
 
+    const model = modelComponent.value
     if (!model.src) {
       const dudScene = new Scene() as SceneWithEntity & Object3DWithEntity
       dudScene.entity = entity
@@ -142,43 +145,11 @@ function ModelReactor() {
     const fileExtension = model.src.split('.').pop()?.toLowerCase()
     asset.scene.animations = asset.animations
     asset.scene.userData.src = model.src
+    asset.scene.userData.sceneID = getModelSceneID(entity)
     asset.scene.userData.type === 'glb' && delete asset.scene.userData.type
     modelComponent.asset.set(asset)
     if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
     modelComponent.scene.set(asset.scene as any)
-    // if (model.scene) {
-    //   removeObjectFromGroup(entity, model.scene)
-    //   const oldSceneID = model.scene.userData.sceneID as SceneID
-    //   const alteredSources: Set<SceneID> = new Set()
-    //   const nonDependentChildren = iterateEntityNode(
-    //     entity,
-    //     (entity) => {
-    //       alteredSources.add(getComponent(entity, SourceComponent))
-    //       return entity
-    //     },
-    //     (childEntity) => {
-    //       if (childEntity === entity) return false
-    //       return getComponent(childEntity, SourceComponent) !== oldSceneID
-    //     }
-    //   )
-    //   for (let i = nonDependentChildren.length - 1; i >= 0; i--) {
-    //     removeEntity(nonDependentChildren[i])
-    //   }
-    //   for (const sceneID of [...alteredSources.values()]) {
-    //     const json = SceneState.snapshotFromECS(sceneID).data
-    //     const scene = getState(SceneState).scenes[sceneID]
-    //     const selectedEntities = scene.snapshots[scene.index].selectedEntities.filter(
-    //       (entity) => !!UUIDComponent.entitiesByUUID[entity]
-    //     )
-    //     dispatchAction(
-    //       SceneSnapshotAction.createSnapshot({
-    //         sceneID,
-    //         data: json,
-    //         selectedEntities
-    //       })
-    //     )
-    //   }
-    // }
   }, [assetState])
 
   // update scene
@@ -199,27 +170,17 @@ function ModelReactor() {
 
     const loadedJsonHierarchy = parseGLTFModel(entity)
     const uuid = getModelSceneID(entity)
-    getMutableState(SceneState).scenes[uuid].set({
-      metadata: {
-        name: '',
-        project: '',
-        thumbnailUrl: ''
+    SceneState.loadScene(uuid, {
+      scene: {
+        entities: loadedJsonHierarchy,
+        root: '' as EntityUUID,
+        version: 0
       },
-      snapshots: [
-        {
-          data: {
-            entities: loadedJsonHierarchy,
-            root: '' as EntityUUID,
-            version: 0
-          },
-          selectedEntities: []
-        }
-      ],
-      index: 0,
-      entitiesToLoad: {}
+      name: '',
+      project: '',
+      thumbnailUrl: ''
     })
-
-    const src = model.src
+    const src = modelComponent.src.value
     return () => {
       clearMaterials(src)
       getMutableState(SceneState).scenes[uuid].set(none)
@@ -255,7 +216,7 @@ function ModelReactor() {
     return () => {
       active = false
     }
-  }, [modelComponent.scene, model.generateBVH])
+  }, [modelComponent.scene, modelComponent.generateBVH])
 
   useEffect(() => {
     if (!modelComponent.scene.value) return

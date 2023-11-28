@@ -31,6 +31,7 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
 
@@ -54,7 +55,11 @@ const LoadingDetailView = () => {
   const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
 
-  const sceneLoaded = engineState.sceneLoaded.value
+  const activeScene = useHookstate(getMutableState(SceneState).activeScene).value!
+  const scenesState = useHookstate(getMutableState(SceneState).scenes)
+  const loadingProgress = scenesState.value[activeScene] ? scenesState[activeScene].loadingProgress.value : 0
+  const sceneLoaded = loadingProgress === 100
+
   const loadingDetails = sceneLoaded ? t('common:loader.loadingComplete') : t('common:loader.loadingObjects')
 
   return (
@@ -69,7 +74,7 @@ const LoadingDetailView = () => {
             {t('common:loader.loading')}
           </div>
           <div id="progress-text" xr-layer="true" xr-pixel-ratio="2" xr-prerasterized="0-9">
-            {`${engineState.loadingProgress.value}%`}
+            {`${loadingProgress}%`}
           </div>
           <div id="progress-container" xr-layer="true" xr-scalable="true">
             <ProgressBar
