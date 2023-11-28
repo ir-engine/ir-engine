@@ -169,7 +169,6 @@ const execute = () => {
   }
 
   for (const entity of sittingIdleQuery()) {
-    window
     const controller = getComponent(entity, AvatarControllerComponent)
     if (controller.gamepadLocalInput.lengthSq() > 0.01) unmountEntity(entity)
     const mountTransform = getComponent(getComponent(entity, SittingComponent).mountPointEntity, TransformComponent)
