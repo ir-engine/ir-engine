@@ -23,69 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { GroupComponent } from '../../scene/components/GroupComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { LocalTransformComponent } from '../../transform/components/TransformComponent'
 import createGLTFExporter from './createGLTFExporter'
-
-function composeScene(entity: Entity) {
-  iterateEntityNode(entity, (child) => {
-    if (child === entity) return
-    const entityTree = getComponent(child, EntityTreeComponent)
-    const parent = entityTree.parentEntity
-    if (!parent) {
-      console.error('invalid model state: missing parent entity')
-      return
-    }
-    const parentObject = getComponent(parent, GroupComponent)[0]
-    const object = getComponent(child, GroupComponent)[0]
-    const localTransform = getComponent(child, LocalTransformComponent)
-    parentObject.add(object)
-    object.matrix.copy(localTransform.matrix)
-  })
-}
-
-function decomposeScene(entity: Entity) {
-  iterateEntityNode(entity, (child) => {
-    if (child === entity) return
-    const object = getComponent(child, GroupComponent)[0]
-    Engine.instance.scene.add(object)
-  })
-}
 
 export default async function exportModelGLTF(
   entity: Entity,
   options = {
-    path: '',
+    projectName: '',
+    relativePath: '',
     binary: true,
     includeCustomExtensions: true,
     embedImages: true
   }
 ) {
-  //composeScene(entity)
   const scene = getComponent(entity, ModelComponent).scene!
   const exporter = createGLTFExporter()
-  const modelName = options.path.split('/').at(-1)!.split('.').at(0)!
+  const modelName = options.relativePath.split('/').at(-1)!.split('.').at(0)!
   const resourceURI = `model-resources/${modelName}`
   const gltf: ArrayBuffer = await new Promise((resolve) => {
     exporter.parse(
       scene,
       (gltf: ArrayBuffer) => {
-        //decomposeScene(entity)
         resolve(gltf)
       },
       (error) => {
-        //decomposeScene(entity)
         throw error
       },
       {
         ...options,
         animations: scene.animations ?? [],
-        flipY: scene.userData.src.endsWith('.usdz'),
+        flipY: !!scene.userData.src?.endsWith('.usdz'),
         resourceURI
       }
     )

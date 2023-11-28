@@ -45,7 +45,8 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -53,7 +54,9 @@ import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
 import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup } from './GroupComponent'
+import { NameComponent } from './NameComponent'
+import { setVisibleComponent } from './VisibleComponent'
 
 const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
 
@@ -142,7 +145,7 @@ export const MediaComponent = defineComponent({
       waiting: false,
       track: 0,
       trackDurations: [] as number[],
-      helper: null as Mesh<PlaneGeometry, MeshBasicMaterial> | null
+      helperEntity: null as Entity | null
       /**
        * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
        * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
@@ -478,20 +481,25 @@ export function MediaReactor() {
   const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
 
   useEffect(() => {
-    if (debugEnabled.value && !media.helper.value) {
-      const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
-      helper.name = `audio-helper-${entity}`
-      AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((AUDIO_HELPER_TEXTURE) => {
-        helper.material.map = AUDIO_HELPER_TEXTURE
-      })
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-      addObjectToGroup(entity, helper)
-      media.helper.set(helper)
-    }
+    if (!debugEnabled.value) return
 
-    if (!debugEnabled.value && media.helper.value) {
-      removeObjectFromGroup(entity, media.helper.value)
-      media.helper.set(none)
+    const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
+    helper.name = `audio-helper-${entity}`
+    AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((AUDIO_HELPER_TEXTURE) => {
+      helper.material.map = AUDIO_HELPER_TEXTURE
+    })
+
+    const helperEntity = createEntity()
+    addObjectToGroup(helperEntity, helper)
+    setComponent(helperEntity, NameComponent, helper.name)
+    setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+    setVisibleComponent(helperEntity, true)
+    setObjectLayers(helper, ObjectLayers.NodeHelper)
+    media.helperEntity.set(helperEntity)
+
+    return () => {
+      removeEntity(helperEntity)
+      media.helperEntity.set(none)
     }
   }, [debugEnabled])
 

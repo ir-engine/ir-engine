@@ -42,8 +42,8 @@ import { AuthState } from '../../user/services/AuthService'
 export type InstanceState = {
   ipAddress: string
   port: string
-  locationId: LocationID | null
-  sceneId: SceneID | null
+  locationId?: LocationID
+  sceneId?: SceneID
   roomCode: RoomCode
 }
 

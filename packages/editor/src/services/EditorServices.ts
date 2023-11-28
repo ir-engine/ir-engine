@@ -24,7 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineState } from '@etherealengine/hyperflux'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { LayoutData } from 'rc-dock'
+
+interface IExpandedNodes {
+  [scene: SceneID]: {
+    [entity: Entity]: true
+  }
+}
 
 export const EditorState = defineState({
   name: 'EditorState',
@@ -32,6 +41,11 @@ export const EditorState = defineState({
     projectName: null as string | null,
     sceneName: null as string | null,
     sceneModified: false,
-    lockPropertiesPanel: '' as EntityUUID
-  })
+    expandedNodes: {} as IExpandedNodes,
+    lockPropertiesPanel: '' as EntityUUID,
+    panelLayout: {} as LayoutData
+  }),
+  onCreate: () => {
+    syncStateWithLocalStorage(EditorState, ['expandedNodes'])
+  }
 })

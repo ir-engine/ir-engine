@@ -41,7 +41,7 @@ export const locationSeedData = [
     name: 'Default',
     slugifiedName: 'default',
     maxUsersPerInstance: 30,
-    sceneId: 'default-project/default' as SceneID,
+    sceneId: 'projects/default-project/default.scene.json' as SceneID,
     isFeatured: false,
     isLobby: false
   },
@@ -50,7 +50,7 @@ export const locationSeedData = [
     name: 'Sky Station',
     slugifiedName: 'sky-station',
     maxUsersPerInstance: 30,
-    sceneId: 'default-project/sky-station' as SceneID,
+    sceneId: 'projects/default-project/sky-station.scene.json' as SceneID,
     isFeatured: false,
     isLobby: false
   },
@@ -59,7 +59,7 @@ export const locationSeedData = [
     name: 'Apartment',
     slugifiedName: 'apartment',
     maxUsersPerInstance: 30,
-    sceneId: 'default-project/apartment' as SceneID,
+    sceneId: 'projects/default-project/apartment.scene.json' as SceneID,
     isFeatured: false,
     isLobby: false
   }

@@ -29,6 +29,7 @@ import { defineAction, defineState, getMutableState, getState, none } from '@eth
 import { Validator, matches } from '../common/functions/MatchesUtils'
 import { InstanceID } from '../schemas/networking/instance.schema'
 import { ChannelID } from '../schemas/social/channel.schema'
+import { LocationID, RoomCode } from '../schemas/social/location.schema'
 import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
 
@@ -146,4 +147,15 @@ export const updateNetworkID = (network: Network, newID: InstanceID) => {
   state.networks[newID].set(network)
   state.networks[newID].hostId.set(newID as any)
   state.networks[newID].id.set(newID)
+}
+
+export type NetworkConnectionParams = {
+  token: string
+  locationId?: LocationID
+  instanceID?: InstanceID
+  channelId?: ChannelID
+  roomCode?: RoomCode
+  /** Address and port are used by ingress to route traffic */
+  address?: string
+  port?: string
 }

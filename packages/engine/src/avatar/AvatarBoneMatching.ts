@@ -661,6 +661,16 @@ export const recursiveHipsLookup = (model: Object3D) => {
   }
 }
 
+const _dir = new Vector3()
+export function getAPose(rightHand: Vector3, _rightUpperArmPos: Vector3): boolean {
+  //get direction of right arm
+  _dir.subVectors(rightHand, _rightUpperArmPos).normalize()
+  const angle = _dir.angleTo(new Vector3(0, 1, 0))
+  return angle > 2
+}
+
+const _rightHandPos = new Vector3(),
+  _rightUpperArmPos = new Vector3()
 export default function avatarBoneMatching(model: Object3D): VRM {
   const bones = {} as VRMHumanBones
   //use hips name as a standard to determine what to do with the mixamo prefix
@@ -705,8 +715,10 @@ export default function avatarBoneMatching(model: Object3D): VRM {
     meta: { name: model.children[0].name } as VRM1Meta
   } as VRMParameters)
 
+  humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
+  humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
   //quick dirty tag to disable flipping on mixamo rigs
-  ;(vrm as any).userData = { flipped: false, needsMixamoPrefix: needsMixamoPrefix } as any
+  ;(vrm as any).userData = { flipped: false, useAPose: getAPose(_rightHandPos, _rightUpperArmPos) } as any
   return vrm
 }
 

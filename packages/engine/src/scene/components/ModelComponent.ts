@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Scene, SkinnedMesh } from 'three'
 
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { VRM } from '@pixiv/three-vrm'
@@ -36,7 +36,7 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
+import { SceneSnapshotAction, SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentType,
   defineComponent,
@@ -47,20 +47,22 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
+import { SceneID } from '../../schemas/projects/scene.schema'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { Object3DWithEntity, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
+import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VariantComponent } from './VariantComponent'
 
@@ -121,8 +123,6 @@ export const ModelComponent = defineComponent({
       if (component.src.value) {
         clearMaterials(component.value)
       }
-      removeObjectFromGroup(entity, component.scene.value)
-      component.scene.set(null)
     }
   },
 
@@ -146,7 +146,18 @@ function ModelReactor() {
       if (model.scene) {
         clearMaterials(model)
       }
-      if (!model.src) return
+      if (!model.src) {
+        const dudScene = new Scene() as SceneWithEntity & Object3DWithEntity
+        dudScene.entity = entity
+        Object.assign(dudScene, {
+          isProxified: true
+        })
+        if (model.scene) {
+          removeObjectFromGroup(entity, model.scene)
+        }
+        modelComponent.scene.set(dudScene)
+        return
+      }
       const uuid = getComponent(entity, UUIDComponent)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
       switch (fileExtension) {
@@ -166,9 +177,44 @@ function ModelReactor() {
               if (!entityExists(entity)) return
               removeError(entity, ModelComponent, 'LOADING_ERROR')
               loadedAsset.scene.userData.src = model.src
+              loadedAsset.scene.userData.sceneID = getModelSceneID(entity)
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
               modelComponent.asset.set(loadedAsset)
               if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
+              if (model.scene) {
+                removeObjectFromGroup(entity, model.scene)
+                const oldSceneID = model.scene.userData.sceneID as SceneID
+                const alteredSources: Set<SceneID> = new Set()
+                const nonDependentChildren = iterateEntityNode(
+                  entity,
+                  (entity) => {
+                    alteredSources.add(getComponent(entity, SourceComponent))
+                    return entity
+                  },
+                  (childEntity) => {
+                    if (childEntity === entity) return false
+                    return getComponent(childEntity, SourceComponent) !== oldSceneID
+                  }
+                )
+                for (let i = nonDependentChildren.length - 1; i >= 0; i--) {
+                  removeEntity(nonDependentChildren[i])
+                }
+                for (const sceneID of [...alteredSources.values()]) {
+                  const json = SceneState.snapshotFromECS(sceneID).data
+                  const scene = getState(SceneState).scenes[sceneID]
+                  const selectedEntities = scene.snapshots[scene.index].selectedEntities.filter(
+                    (entity) => !!UUIDComponent.entitiesByUUID[entity]
+                  )
+                  dispatchAction(
+                    SceneSnapshotAction.createSnapshot({
+                      sceneID,
+                      data: json,
+                      selectedEntities
+                    })
+                  )
+                }
+              }
+
               modelComponent.scene.set(loadedAsset.scene)
             },
             (onprogress) => {
@@ -218,13 +264,17 @@ function ModelReactor() {
     const loadedJsonHierarchy = parseGLTFModel(entity)
     const uuid = getModelSceneID(entity)
     getMutableState(SceneState).scenes[uuid].set({
+      metadata: {
+        name: '',
+        project: '',
+        thumbnailUrl: ''
+      },
       snapshots: [
         {
           data: {
-            scene: { entities: loadedJsonHierarchy, root: '' as EntityUUID, version: 0 },
-            name: '',
-            project: '',
-            thumbnailUrl: ''
+            entities: loadedJsonHierarchy,
+            root: '' as EntityUUID,
+            version: 0
           },
           selectedEntities: []
         }
@@ -233,6 +283,7 @@ function ModelReactor() {
     })
     return () => {
       getMutableState(SceneState).scenes[uuid].set(none)
+      removeObjectFromGroup(entity, scene)
     }
   }, [modelComponent.scene])
 

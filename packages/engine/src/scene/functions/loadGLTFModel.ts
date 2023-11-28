@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { AnimationMixer, InstancedMesh, Mesh, Object3D } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-
-import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -41,6 +39,8 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { ComponentJsonType, EntityJsonType } from '../../schemas/projects/scene.schema'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent, Object3DWithEntity, addObjectToGroup } from '../components/GroupComponent'
@@ -62,7 +62,7 @@ declare module 'three/src/core/Object3D' {
   }
 }
 
-export const parseECSData = (entity: Entity, data: [string, any][]): ComponentJson[] => {
+export const parseECSData = (entity: Entity, data: [string, any][]): ComponentJsonType[] => {
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
 
@@ -85,7 +85,7 @@ export const parseECSData = (entity: Entity, data: [string, any][]): ComponentJs
     }
   }
 
-  const result: ComponentJson[] = []
+  const result: ComponentJsonType[] = []
   for (const [key, value] of Object.entries(components)) {
     const component = ComponentMap.get(key)
     if (typeof component === 'undefined') {
@@ -109,14 +109,14 @@ export const parseECSData = (entity: Entity, data: [string, any][]): ComponentJs
   return result
 }
 
-export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): ComponentJson[] => {
+export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): ComponentJsonType[] => {
   return parseECSData(entity, Object.entries(obj3d.userData))
 }
 
 export const parseObjectComponentsFromGLTF = (
   entity: Entity,
   object3d?: Object3D
-): { entities: Entity[]; entityJson: Record<EntityUUID, EntityJson> } => {
+): { entities: Entity[]; entityJson: Record<EntityUUID, EntityJsonType> } => {
   const scene = object3d ?? getComponent(entity, ModelComponent).scene
   const meshesToProcess: Mesh[] = []
 
@@ -129,7 +129,7 @@ export const parseObjectComponentsFromGLTF = (
   })
 
   const entities: Entity[] = []
-  const entityJson: Record<EntityUUID, EntityJson> = {}
+  const entityJson: Record<EntityUUID, EntityJsonType> = {}
 
   for (const mesh of meshesToProcess) {
     const e = createEntity()
@@ -139,7 +139,7 @@ export const parseObjectComponentsFromGLTF = (
     const uuid = mesh.uuid as EntityUUID
     setComponent(e, UUIDComponent, uuid)
     const parentUuid = getComponent(entity, UUIDComponent)
-    const eJson: EntityJson = {
+    const eJson: EntityJsonType = {
       name,
       components: [],
       parent: parentUuid
@@ -209,7 +209,7 @@ export const parseGLTFModel = (entity: Entity) => {
       const uuid = obj.uuid as EntityUUID
       const name = obj.userData['xrengine.entity'] ?? obj.name
 
-      const eJson: EntityJson = {
+      const eJson: EntityJsonType = {
         name,
         components: [],
         parent: getComponent(parentEntity, UUIDComponent)
@@ -260,6 +260,7 @@ export const parseGLTFModel = (entity: Entity) => {
       Object.defineProperties(obj, {
         parent: {
           get() {
+            if (EngineRenderer.instance.rendering) return null
             if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
               return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0]
             }
@@ -271,6 +272,7 @@ export const parseGLTFModel = (entity: Entity) => {
         },
         children: {
           get() {
+            if (EngineRenderer.instance.rendering) return []
             return hasComponent(objEntity, EntityTreeComponent)
               ? getComponent(objEntity, EntityTreeComponent)
                   .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length ?? 0 > 0)

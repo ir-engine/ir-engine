@@ -52,7 +52,6 @@ export const channelSchema = Type.Object(
         format: 'uuid'
       })
     ),
-    updateNeeded: Type.Boolean(),
     channelUsers: Type.Array(Type.Ref(channelUserSchema)),
     messages: Type.Array(Type.Ref(messageSchema)),
     createdAt: Type.String({ format: 'date-time' }),
@@ -92,7 +91,7 @@ export const channelPatchSchema = Type.Partial(channelSchema, {
 export interface ChannelPatch extends Static<typeof channelPatchSchema> {}
 
 // Schema for allowed query properties
-export const channelQueryProperties = Type.Pick(channelSchema, ['id', 'name', 'instanceId', 'updateNeeded'])
+export const channelQueryProperties = Type.Pick(channelSchema, ['id', 'name', 'instanceId'])
 export const channelQuerySchema = Type.Intersect(
   [
     querySyntax(channelQueryProperties, {
