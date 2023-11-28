@@ -162,10 +162,10 @@ export async function previewScreenshot(
 export async function takeScreenshot(
   width: number,
   height: number,
-  format = 'ktx2' as 'png' | 'ktx2' | 'jpeg',
+  format = 'jpeg' as 'jpeg' | 'png',
   scenePreviewCamera?: PerspectiveCamera,
   hideHelpers = true
-): Promise<Blob | null> {
+): Promise<[Blob | null, Blob | null]> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
     for (const entity of query()) {
@@ -235,19 +235,17 @@ export async function takeScreenshot(
 
   const canvas = getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height)
 
-  let blob: Blob | null = null
-
-  if (format === 'ktx2') {
-    const imageData = canvas.getContext('2d')!.getImageData(0, 0, width, height)
-    const ktx2texture = (await ktx2Encoder.encode(imageData, {
-      ...getState(ScreenshotSettings).ktx2,
-      yFlip: true
-    })) as ArrayBuffer
-
-    blob = new Blob([ktx2texture])
-  } else {
-    blob = await getCanvasBlob(canvas, format === 'jpeg' ? 'image/jpeg' : 'image/png', format === 'jpeg' ? 0.9 : 1)
-  }
+  const imageData = canvas.getContext('2d')!.getImageData(0, 0, width, height)
+  const ktx2texture = (await ktx2Encoder.encode(imageData, {
+    ...getState(ScreenshotSettings).ktx2,
+    yFlip: true
+  })) as ArrayBuffer
+  const ktx2Blob = new Blob([ktx2texture])
+  const imageBlob = await getCanvasBlob(
+    canvas,
+    format === 'jpeg' ? 'image/jpeg' : 'image/png',
+    format === 'jpeg' ? 0.9 : 1
+  )
 
   // restore
   EngineRenderer.instance.effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
@@ -258,13 +256,13 @@ export async function takeScreenshot(
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
 
-  return blob
+  return [ktx2Blob, imageBlob]
 }
 
 /** @todo make size, compression & format configurable */
 export const downloadScreenshot = () => {
   takeScreenshot(1920 * 4, 1080 * 4, 'png', getComponent(Engine.instance.cameraEntity, CameraComponent), false).then(
-    (blob) => {
+    ([_, blob]) => {
       if (!blob) return
 
       const blobUrl = URL.createObjectURL(blob)
