@@ -506,6 +506,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               label="glyph.resolution" // {t('editor:properties.text.glyphResolution')}  /* @todo: Translation id */
               info={HoverInfo.GlyphResolution}
               min={1}
+              max={8}
               smallStep={1}
               mediumStep={1}
               largeStep={2}
