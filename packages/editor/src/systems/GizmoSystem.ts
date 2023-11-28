@@ -23,10 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { useHookstate, useState } from '@hookstate/core'
+import { useEffect } from 'react'
+import { Object3D } from 'three'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
+import { SelectionState } from '../services/SelectionServices'
 
 const gizmoQuery = defineQuery([TransformGizmoComponent])
 
@@ -37,8 +56,58 @@ const execute = () => {
   }
 }
 
+const reactor = () => {
+  const selectionState = useHookstate(getMutableState(SelectionState))
+  const sceneQuery = defineQuery([SceneObjectComponent])
+  const pivotEntity = useState(UndefinedEntity)
+
+  useEffect(() => {
+    const selectedEntities = selectionState.selectedEntities
+    if (!selectedEntities.value) return
+    const pivotEntityName = 'pivotEntity'
+    for (const entity of sceneQuery()) {
+      if (!hasComponent(entity, TransformGizmoComponent)) continue
+      removeComponent(entity, TransformGizmoComponent)
+    }
+
+    if (selectedEntities.length > 1 && pivotEntity.value === UndefinedEntity) {
+      const pivotProxy = new Object3D()
+      pivotEntity.set(createEntity())
+      setComponent(pivotEntity.value, NameComponent, pivotEntityName)
+      setComponent(pivotEntity.value, VisibleComponent)
+      setComponent(pivotEntity.value, EntityTreeComponent, {
+        parentEntity: SceneState.getRootEntity(getState(SceneState).activeScene!)
+      })
+      addObjectToGroup(pivotEntity.value, pivotProxy)
+      setComponent(pivotEntity.value, TransformGizmoComponent)
+    } else {
+      const lastSelection = selectedEntities[selectedEntities.length - 1].value
+      if (!lastSelection) return
+      setComponent(lastSelection, TransformGizmoComponent)
+      if (pivotEntity.value !== UndefinedEntity) {
+        removeEntity(pivotEntity.value)
+
+        pivotEntity.set(UndefinedEntity)
+      }
+    }
+  }, [selectionState.selectedEntities])
+
+  useEffect(() => {
+    if (selectionState.selectedEntities.length <= 1) return
+
+    /*for (const entity of gizmoQuery()) {
+          removeComponent(entity,TransformGizmoComponent)
+        }*/
+
+    return () => {}
+  }, [selectionState.selectedEntities])
+
+  return null
+}
+
 export const GizmoSystem = defineSystem({
   uuid: 'ee.editor.GizmoSystem',
   insert: { before: PresentationSystemGroup },
-  execute
+  execute,
+  reactor
 })
