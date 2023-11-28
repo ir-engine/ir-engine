@@ -128,6 +128,7 @@ type TextMesh = Mesh & {
   strokeWidth: number | string // @note: Troika marks this as an Experimental API
   strokeColor: TroikaColor // @note: Troika marks this as an Experimental API
   //____ Advanced Properties ____
+  orientation: string /** Axis plane on which the text is laid out. @default '+x+y' */
   clipRect: Array<number> // Clipping Rectangle expressed as `[minX, minY, maxX, maxY]`
   gpuAccelerateSDF: boolean // Allows force-disabling GPU acceleration of SDF. Uses the JS fallback when true
   glyphGeometryDetail: number // Number of vertical/horizontal segments that make up each glyph's rectangular plane. Defaults to 1.
@@ -148,13 +149,6 @@ type TextMesh = Mesh & {
   // of the other mesh materials to gain other features like lighting, texture maps, etc.
   // Also see the `color` shortcut property.
   material: Material
-  // Defines the axis plane on which the text should be laid out when the mesh has no extra
-  // rotation transform. It is specified as a string with two axes: the horizontal axis with
-  // positive pointing right, and the vertical axis with positive pointing up. By default this
-  // is '+x+y', meaning the text sits on the xy plane with the text's top toward positive y
-  // and facing positive z. A value of '+x-z' would place it on the xz plane with the text's
-  // top toward negative z and facing positive y.
-  orientation: string
 
   //____ Maybes ____
   lang: string | null // The language code of this text; can be used for explicitly selecting certain CJK fonts.
@@ -228,6 +222,7 @@ export const TextComponent = defineComponent({
       strokeColor: new Color(0x444444),
 
       // Advanced Configuration
+      textOrientation: '+x+y',
       clipActive: false, // sends []: Array<number> to Text.clipRect when true
       clipRectMin: new Vector2(1024, 1024), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
       clipRectMax: new Vector2(1024, 1024), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
@@ -273,6 +268,7 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.strokeWidth)) component.strokeWidth.set(json.strokeWidth)
     if (matches.object.test(json.strokeColor) && json.strokeColor.isColor) component.strokeColor.set(json.strokeColor)
     // Advanced configuration
+    if (matches.string.test(json.textOrientation)) component.textOrientation.set(json.textOrientation)
     if (matches.boolean.test(json.gpuAccelerated)) component.gpuAccelerated.set(json.gpuAccelerated)
     if (matches.boolean.test(json.clipActive)) component.clipActive.set(json.clipActive)
     if (matches.object.test(json.clipRectMin) && json.clipRectMin.isVector2) component.clipRectMin.set(json.clipRectMin)
@@ -310,6 +306,7 @@ export const TextComponent = defineComponent({
       strokeWidth: component.strokeWidth.value,
       strokeColor: component.strokeColor.value,
       // Advanced configuration
+      textOrientation: component.textOrientation.value,
       clipActive: component.clipActive.value,
       clipRectMin: component.clipRectMin.value,
       clipRectMax: component.clipRectMax.value,
@@ -357,6 +354,7 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.strokeWidth = `${text.strokeWidth.value}%`
       text.troikaMesh.value.strokeColor = text.strokeColor.value.getHex()
       // Update the Advanced configuration propertiess
+      text.troikaMesh.value.orientation = text.textOrientation.value
       ;(text.troikaMesh.value.clipRect = text.clipActive.value
         ? [
             // Send as [minX, minY, maxX, maxY] :Array<number>
@@ -395,6 +393,7 @@ export const TextComponent = defineComponent({
       text.strokeOpacity,
       text.strokeWidth,
       text.strokeColor,
+      text.textOrientation,
       text.clipActive,
       text.clipRectMin,
       text.clipRectMax,

@@ -66,11 +66,29 @@ const SelectOptions = {
     { label: 'Break Word', value: 'break-word' }
   ]
 }
+
 /**
  * @description Default fallback value for when when text.lineheight is not set to 'normal'
  * @default 1.2
  */
 const LineHeightNumericDefault = 1.2 as TroikaTextLineHeight
+
+/**
+ * @description Object holding all of the UI's `info` descriptions.
+ */
+const HoverInfo = {
+  AdvancedGroup: `
+Toggle Advanced options. Only modify these if you know what you are doing.
+`,
+  TextOrientation: `
+Defines the axis plane on which the text should be laid out when the mesh has no extra rotation transform.
+It is specified as a string with two axes:
+  1. the horizontal axis with positive pointing right,
+  2. the vertical axis with positive pointing up.
+By default this is '+x+y', meaning the text sits on the xy plane with the text's top toward positive y and facing positive z.
+A value of '+x-z' would place it on the xz plane with the text's top toward negative z and facing positive y.
+`
+}
 
 /**
  * @description TextNodeEditor component used to provide the editor a view to customize text properties.
@@ -389,6 +407,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
       <InputGroup
         name="AdvancedActive"
         label="Show Advanced" // {t('editor:properties.textbox.advancedActive')}  /* @todo: Translation id */
+        info={HoverInfo.AdvancedGroup}
       >
         <BooleanInput value={advancedActive.value} onChange={advancedActive.set} />
       </InputGroup>
@@ -399,6 +418,13 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           label="Advanced" // {t('editor:properties.textbox.advancedGroup')}  /* @todo: Translation id */
         >
           <div>
+            <InputGroup name="TextOrientation" label="Orientation" info={HoverInfo.TextOrientation}>
+              <ControlledStringInput
+                value={text.textOrientation.value}
+                onChange={updateProperty(TextComponent, 'textOrientation')}
+                onRelease={commitProperty(TextComponent, 'textOrientation')}
+              />
+            </InputGroup>
             <InputGroup
               name="ClippingActive"
               label="clip.active" // {t('editor:properties.textbox.clippingActive')}  /* @todo: Translation id */
