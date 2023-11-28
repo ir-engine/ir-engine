@@ -36,7 +36,7 @@ import { getComponent, getOptionalComponent } from '@etherealengine/engine/src/e
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
@@ -113,9 +113,12 @@ export default function HierarchyPanel() {
   useEffect(() => {
     if (!activeScene.value) return
 
-    const rootUUID = SceneState.getScene(activeScene.value)!.scene.root!
+    const rootUUID = SceneState.getScene(activeScene.value)!.root!
+    const rootEntity = UUIDComponent.entitiesByUUID[rootUUID]
 
-    getMutableState(EditorState).expandedNodes.set({ [rootUUID]: true })
+    if (!expandedNodes.value[activeScene.value] && rootEntity) {
+      expandedNodes.set({ [activeScene.value]: { [rootEntity]: true } })
+    }
   }, [activeScene])
 
   useEffect(() => {
@@ -123,6 +126,7 @@ export default function HierarchyPanel() {
     setNodes(
       Array.from(
         heirarchyTreeWalker(
+          activeScene.value,
           SceneState.getRootEntity(getState(SceneState).activeScene!),
           selectionState.selectedEntities.value
         )
@@ -135,26 +139,29 @@ export default function HierarchyPanel() {
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const uuid = getComponent(node.entity, UUIDComponent)
-      getMutableState(EditorState).expandedNodes[uuid].set(true)
+      const scene = activeScene.get(NO_PROXY)
+      if (!scene) return
+      expandedNodes[scene][node.entity].set(true)
     },
-    [expandedNodes]
+    [expandedNodes, activeScene]
   )
 
   const collapseNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const uuid = getComponent(node.entity, UUIDComponent)
-      getMutableState(EditorState).expandedNodes[uuid].set(none)
+      const scene = activeScene.get(NO_PROXY)
+      if (!scene) return
+      expandedNodes[scene][node.entity].set(none)
     },
-    [expandedNodes]
+    [expandedNodes, activeScene]
   )
 
   const expandChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
+      const scene = activeScene.get(NO_PROXY)
+      if (!scene) return
       handleClose()
       traverseEntityNode(node.entity, (child) => {
-        const uuid = getComponent(child, UUIDComponent)
-        getMutableState(EditorState).expandedNodes[uuid].set(true)
+        expandedNodes[scene][child].set(true)
       })
     },
     [expandedNodes]
@@ -162,10 +169,11 @@ export default function HierarchyPanel() {
 
   const collapseChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
+      const scene = activeScene.get(NO_PROXY)
+      if (!scene) return
       handleClose()
       traverseEntityNode(node.entity, (child) => {
-        const uuid = getComponent(child, UUIDComponent)
-        getMutableState(EditorState).expandedNodes[uuid].set(none)
+        expandedNodes[scene][child].set(none)
       })
     },
     [expandedNodes]
@@ -223,11 +231,11 @@ export default function HierarchyPanel() {
 
   const onToggle = useCallback(
     (_, node: HeirarchyTreeNodeType) => {
-      const uuid = getComponent(node.entity, UUIDComponent)
-      if (expandedNodes.value[uuid]) collapseNode(node)
+      if (!activeScene.value) return
+      if (expandedNodes.value[activeScene.value][node.entity]) collapseNode(node)
       else expandNode(node)
     },
-    [expandedNodes, expandNode, collapseNode]
+    [activeScene, expandedNodes, expandNode, collapseNode]
   )
 
   const onKeyDown = useCallback(

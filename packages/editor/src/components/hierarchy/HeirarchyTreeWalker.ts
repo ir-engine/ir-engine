@@ -27,7 +27,7 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { EditorState } from '../../services/EditorServices'
 
@@ -49,7 +49,11 @@ export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
  *
  * @param  {entityNode}    expandedNodes
  */
-export function* heirarchyTreeWalker(treeNode: Entity, selectedEntities: Entity[]): Generator<HeirarchyTreeNodeType> {
+export function* heirarchyTreeWalker(
+  activeScene: SceneID,
+  treeNode: Entity,
+  selectedEntities: Entity[]
+): Generator<HeirarchyTreeNodeType> {
   if (!treeNode) return
 
   const stack = [] as HeirarchyTreeNodeType[]
@@ -62,9 +66,8 @@ export function* heirarchyTreeWalker(treeNode: Entity, selectedEntities: Entity[
     if (!entityExists(entityNode)) continue
 
     const expandedNodes = getState(EditorState).expandedNodes
-    const entityUUID = getComponent(entityNode, UUIDComponent)
 
-    const isCollapsed = !expandedNodes[entityUUID]
+    const isCollapsed = !expandedNodes[activeScene]?.[entityNode]
 
     const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)
 

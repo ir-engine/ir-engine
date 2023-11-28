@@ -32,6 +32,7 @@ import { defineState, getMutableState, useHookstate } from '@etherealengine/hype
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { useEffect } from 'react'
+import { MaterialSelectionState } from '../components/materials/MaterialLibraryState'
 import { filterParentEntities } from '../functions/filterParentEntities'
 
 export const SelectionState = defineState({
@@ -41,6 +42,7 @@ export const SelectionState = defineState({
     selectedParentEntities: [] as Entity[]
   },
   updateSelection: (selectedEntities: Entity[]) => {
+    getMutableState(MaterialSelectionState).selectedMaterial.set(null)
     getMutableState(SelectionState).merge({
       selectedEntities: selectedEntities,
       selectedParentEntities: filterParentEntities(selectedEntities)

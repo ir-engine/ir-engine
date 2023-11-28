@@ -430,7 +430,8 @@
         "label": "Level of Detail",
         "serialize": "Serialize",
         "generate": "Generate LODs"
-      }
+      },
+      "lbl-export": "Export Settings"
     },
     "materialAssignment": {
       "lbl-materialID": "Material",
