@@ -55,7 +55,7 @@ import { FrustumCullCameraComponent } from '../../transform/components/DistanceC
 import { addError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { Object3DWithEntity, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VariantComponent } from './VariantComponent'
@@ -126,6 +126,18 @@ function ModelReactor() {
   useEffect(() => {
     if (!assetState?.value) return
 
+    if (!model.src) {
+      const dudScene = new Scene() as SceneWithEntity & Object3DWithEntity
+      dudScene.entity = entity
+      Object.assign(dudScene, {
+        isProxified: true
+      })
+      if (model.scene) {
+        removeObjectFromGroup(entity, model.scene)
+      }
+      modelComponent.scene.set(dudScene)
+      return
+    }
     const asset = assetState.get(NO_PROXY)!
     const fileExtension = model.src.split('.').pop()?.toLowerCase()
     asset.scene.animations = asset.animations
@@ -134,6 +146,39 @@ function ModelReactor() {
     modelComponent.asset.set(asset)
     if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
     modelComponent.scene.set(asset.scene as any)
+    // if (model.scene) {
+    //   removeObjectFromGroup(entity, model.scene)
+    //   const oldSceneID = model.scene.userData.sceneID as SceneID
+    //   const alteredSources: Set<SceneID> = new Set()
+    //   const nonDependentChildren = iterateEntityNode(
+    //     entity,
+    //     (entity) => {
+    //       alteredSources.add(getComponent(entity, SourceComponent))
+    //       return entity
+    //     },
+    //     (childEntity) => {
+    //       if (childEntity === entity) return false
+    //       return getComponent(childEntity, SourceComponent) !== oldSceneID
+    //     }
+    //   )
+    //   for (let i = nonDependentChildren.length - 1; i >= 0; i--) {
+    //     removeEntity(nonDependentChildren[i])
+    //   }
+    //   for (const sceneID of [...alteredSources.values()]) {
+    //     const json = SceneState.snapshotFromECS(sceneID).data
+    //     const scene = getState(SceneState).scenes[sceneID]
+    //     const selectedEntities = scene.snapshots[scene.index].selectedEntities.filter(
+    //       (entity) => !!UUIDComponent.entitiesByUUID[entity]
+    //     )
+    //     dispatchAction(
+    //       SceneSnapshotAction.createSnapshot({
+    //         sceneID,
+    //         data: json,
+    //         selectedEntities
+    //       })
+    //     )
+    //   }
+    // }
   }, [assetState])
 
   // update scene
@@ -155,13 +200,17 @@ function ModelReactor() {
     const loadedJsonHierarchy = parseGLTFModel(entity)
     const uuid = getModelSceneID(entity)
     getMutableState(SceneState).scenes[uuid].set({
+      metadata: {
+        name: '',
+        project: '',
+        thumbnailUrl: ''
+      },
       snapshots: [
         {
           data: {
-            scene: { entities: loadedJsonHierarchy, root: '' as EntityUUID, version: 0 },
-            name: '',
-            project: '',
-            thumbnailUrl: ''
+            entities: loadedJsonHierarchy,
+            root: '' as EntityUUID,
+            version: 0
           },
           selectedEntities: []
         }

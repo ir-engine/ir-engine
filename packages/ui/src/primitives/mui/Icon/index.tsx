@@ -66,6 +66,7 @@ import {
   Delete,
   Difference,
   DirectionsRun,
+  Dns,
   Download,
   Edit,
   Email,
@@ -197,6 +198,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <CrisisAlert {...props} />
     case 'Delete':
       return <Delete {...props} />
+    case 'Dns':
+      return <Dns {...props} />
     case 'Search':
       return <Search {...props} />
     case 'FilterList':
