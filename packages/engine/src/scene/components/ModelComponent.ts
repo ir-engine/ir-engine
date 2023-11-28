@@ -136,12 +136,6 @@ function ModelReactor() {
     modelComponent.scene.set(asset.scene as any)
   }, [assetState])
 
-  // update src
-  useEffect(() => {
-    if (source === model.scene?.userData?.src) return
-    if (variantComponent && !variantComponent.calculated) return
-  }, [modelComponent.src, variantComponent?.calculated])
-
   // update scene
   useEffect(() => {
     const scene = getComponent(entity, ModelComponent).scene
