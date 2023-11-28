@@ -232,8 +232,8 @@ export const SceneState = defineState({
     })
     let rootEntity = entities[0]
     while (getComponent(rootEntity, SourceComponent) === sceneID) {
-      const entityTree = getComponent(rootEntity, EntityTreeComponent)
-      if (entityTree.parentEntity === null) break
+      const entityTree = getOptionalComponent(rootEntity, EntityTreeComponent)
+      if (!entityTree || entityTree.parentEntity === null) break
       rootEntity = entityTree.parentEntity
     }
     const root = getComponent(rootEntity, UUIDComponent)
@@ -355,6 +355,8 @@ const execute = () => {
 
   for (const action of modifyQueue()) {
     if (!isEditing) return
+    const scenes = getMutableState(SceneState).scenes
+    if (!scenes[action.sceneID]) return
     const state = getMutableState(SceneState).scenes[action.sceneID]
     const { data, selectedEntities } = action
     state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), { data, selectedEntities }])
