@@ -58,6 +58,7 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { QueryReactor, defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -71,6 +72,8 @@ import { VisibleComponent } from '../components/VisibleComponent'
 
 const reactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
+  const physicsWorld = useHookstate(getMutableState(PhysicsState).physicsWorld)
+  if (!physicsWorld.value) return null
 
   return (
     <>
