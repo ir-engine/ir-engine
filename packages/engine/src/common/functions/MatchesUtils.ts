@@ -31,6 +31,7 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 
 export * from 'ts-matches'
@@ -43,7 +44,8 @@ export {
   matchesVector3,
   matchesQuaternion,
   matchesActionFromUser,
-  matchesWithDefault
+  matchesWithDefault,
+  matchesQueueID
 }
 
 const matchesVec3Shape = matches.shape({
@@ -74,6 +76,10 @@ const matchesPeerID = matches.string as Validator<unknown, PeerID>
 const matchesNetworkId = matches.number as Validator<unknown, NetworkId>
 const matchesEntity = matches.number as Validator<unknown, Entity>
 const matchesEntityUUID = matches.string as Validator<unknown, EntityUUID>
+
+const matchesEntityContext = matches.guard((v): v is EntityUUID => {
+  return v === Engine.instance.store.actions.activeQueue?.id
+})
 
 const matchesActionFromUser = (userId: UserID) => {
   return matches.shape({ $from: matches.literal(userId) })

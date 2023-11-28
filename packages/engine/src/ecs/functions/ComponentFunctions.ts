@@ -35,12 +35,14 @@ import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { HookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import { Action, ReactorRoot, defineActionQueue, startReactor } from '@etherealengine/hyperflux'
 import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
 import { Entity, UndefinedEntity } from '../classes/Entity'
 import { EntityContext } from './EntityFunctions'
+import { defineSystem } from './SystemFunctions'
+import { InputSystemGroup } from './EngineFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
@@ -64,7 +66,8 @@ export interface ComponentPartial<
   Schema extends bitECS.ISchema = Record<string, any>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
-  ErrorTypes = never
+  ErrorTypes = never,
+  Receptors = Record<string, HookableFunction<(action: Action) => void>>
 > {
   name: string
   jsonID?: string
@@ -75,6 +78,7 @@ export interface ComponentPartial<
   onRemove?: (entity: Entity, component: State<ComponentType>) => void | Promise<void>
   reactor?: React.FC
   errors?: ErrorTypes[]
+  receptors?: Receptors
 }
 export interface Component<
   ComponentType = any,
@@ -126,6 +130,7 @@ export const defineComponent = <
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
   Component.errors = []
+  Component.receptors = {}
   Object.assign(Component, def)
   if (Component.reactor && (!Component.reactor.name || Component.reactor.name === 'reactor'))
     Object.defineProperty(Component.reactor, 'name', { value: `${Component.name}Reactor` })
@@ -262,6 +267,30 @@ export const setComponent = <C extends Component>(
       }) as ReactorRoot
       root['entity'] = entity
       Component.reactorMap.set(entity, root)
+    }
+
+    if (Component.receptors) {
+      const queue = defineActionQueue(Object.values(Component.receptors).map((r) => r.matchesAction))
+
+      defineSystem({
+        uuid: `${Component.name}.actionReceptor`,
+        insert: { before: InputSystemGroup },
+        execute: () => {
+          // queue may need to be reset when actions are recieved out of order
+          // or when state needs to be rolled back
+          if (queue.needsReset) {
+            // reset the state to the initial value when the queue is reset
+            setComponent(entity, Component, componentJsonDefaults(Component))
+            queue.reset()
+          }
+          // apply each action to each matching receptor, in order
+          for (const action of queue()) {
+            for (const receptor of Object.values(Component.receptors!)) {
+              receptor.matchesAction.test(action) && receptor(action)
+            }
+          }
+        }
+      })
     }
   }
   startTransition(() => {

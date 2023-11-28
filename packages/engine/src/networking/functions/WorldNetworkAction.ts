@@ -46,13 +46,20 @@ export class WorldNetworkAction {
 
   static spawnObject = defineAction({
     type: 'ee.engine.world.SPAWN_OBJECT',
-    entityUUID: matchesEntityUUID,
+    entityUUID: matchesEntityContext,
     networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
     position: matchesVector3.optional(),
     rotation: matchesQuaternion.optional(),
     $cache: true,
     $topic: NetworkTopics.world
   })
+
+  static spawnObjectAll = defineAction(
+    WorldNetworkAction.spawnObject.extend({
+      type: 'ee.engine.world.SPAWN_OBJECT_ALL',
+      entityUUID: matchesEntityUUID
+    })
+  )
 
   static spawnCamera = defineAction(
     WorldNetworkAction.spawnObject.extend({

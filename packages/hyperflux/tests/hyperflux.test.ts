@@ -38,8 +38,8 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  initializeState,
   receiveActions,
-  registerState,
   removeActionQueue
 } from '..'
 
@@ -396,7 +396,7 @@ describe('Hyperflux Unit Tests', () => {
       getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
-    registerState(HospitalityState)
+    initializeState(HospitalityState)
     assert(store.stateMap['test.hospitality.0'])
   })
 
@@ -416,7 +416,7 @@ describe('Hyperflux Unit Tests', () => {
       getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
-    registerState(HospitalityState)
+    initializeState(HospitalityState)
     const hospitality = getMutableState(HospitalityState).value
     assert.equal(hospitality.create, true)
   })
@@ -434,7 +434,7 @@ describe('Hyperflux Unit Tests', () => {
       getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
-    registerState(HospitalityState)
+    initializeState(HospitalityState)
     assert(store.stateMap['test.hospitality.2'])
     const hospitality = getMutableState(HospitalityState).value
     assert.equal(hospitality.greetingCount, 0)
@@ -454,7 +454,7 @@ describe('Hyperflux Unit Tests', () => {
       getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
-    registerState(HospitalityState)
+    initializeState(HospitalityState)
     assert(store.stateMap['test.hospitality.3'])
 
     const hospitality = getMutableState(HospitalityState)

@@ -28,8 +28,15 @@ import { merge } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { ActionQueueHandle, addOutgoingTopicIfNecessary, ResolvedActionType, Topic } from './ActionFunctions'
+import {
+  ActionQueueHandle,
+  ActionQueueInstance,
+  addOutgoingTopicIfNecessary,
+  ResolvedActionType,
+  Topic
+} from './ActionFunctions'
 import { ReactorRoot } from './ReactorFunctions'
+import { initializeState, StateDefinitions } from './StateFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
@@ -73,10 +80,10 @@ export interface HyperStore {
   valueMap: { [type: string]: any }
 
   actions: {
-    queues: Map<
-      string,
-      Map<ActionQueueHandle, { actions: Required<ResolvedActionType>[] | null; lastActionTime: number }>
-    >
+    /** All queues that have been created */
+    queues: Map<ActionQueueHandle, ActionQueueInstance>
+    /** The queue that is currently receiving and processing actions */
+    activeQueue: ActionQueueInstance | null
     /** Cached actions */
     cached: Array<Required<ResolvedActionType>>
     /** Incoming actions */
@@ -129,13 +136,13 @@ export function createHyperStore(options: {
     actions: {
       queueDefinitions: new Map(),
       queues: new Map(),
+      activeQueue: null,
       cached: [],
       incoming: [],
       history: [],
       knownUUIDs: new Set(),
       outgoing: {}
     },
-    receptors: [],
     activeReactors: new Set(),
     toJSON: () => {
       const state = Object.entries(store.stateMap).reduce((obj, [name, state]) => {
@@ -149,5 +156,8 @@ export function createHyperStore(options: {
   } as HyperStore
   HyperFlux.store = store
   addOutgoingTopicIfNecessary(store.defaultTopic)
+  for (const StateDefinition of StateDefinitions.values()) {
+    initializeState(StateDefinition)
+  }
   return store
 }

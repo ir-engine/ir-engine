@@ -32,8 +32,10 @@ import { deepEqual } from '@etherealengine/engine/src/common/functions/deepEqual
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ReactorRoot } from './ReactorFunctions'
 import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })
@@ -47,7 +49,7 @@ export type Action = {
   type: string | string[]
 } & ActionOptions
 
-export type ActionRecipients = PeerID | PeerID[] | 'all' | 'others'
+export type ActionRecipients = EntityUUID | PeerID | PeerID[] | 'all' | 'others'
 
 export type ActionCacheOptions =
   | boolean
@@ -223,6 +225,14 @@ export type PartialActionType<Shape extends ActionShape<any>> = Omit<
  */
 export const ActionDefinitions = {} as Record<string, any>
 
+export type ActionReceptor<A extends ActionShape<Action>> = ((action: A) => void) & {
+  matchesAction: Validator<A, any>
+}
+
+export function isActionReceptor<A extends ActionShape<Action>>(f: any): f is ActionReceptor<A> {
+  return 'matchesAction' in f
+}
+
 function defineAction<Shape extends Omit<ActionShape<Action>, keyof ActionOptions>>(shape: Shape & ActionOptions) {
   type ResolvedAction = ResolvedActionType<Shape>
   type PartialAction = PartialActionType<Shape>
@@ -298,8 +308,8 @@ function defineAction<Shape extends Omit<ActionShape<Action>, keyof ActionOption
   }
   actionCreator.receive = (actionReceptor: (action: ResolvedAction) => void) => {
     const hookableReceptor = createHookableFunction(actionReceptor)
-    hookableReceptor['receivesAction'] = matchesShape
-    return hookableReceptor as typeof hookableReceptor & { receivesAction: typeof matchesShape }
+    hookableReceptor['matchesAction'] = matchesShape
+    return hookableReceptor as typeof hookableReceptor & ActionReceptor<Shape>
   }
 
   ActionDefinitions[actionCreator.type as string] = actionCreator
@@ -399,21 +409,17 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
 }
 
 const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>) => {
-  for (const [shapeHash, queueHandles] of HyperFlux.store.actions.queues) {
-    const queueHandle = queueHandles.keys().next().value as ActionQueueHandle
-    if (queueHandle?.test(action)) {
-      for (const [queueHandle, queue] of queueHandles) {
-        // if the queue can handle being reset, and the action is out of order, reset the queue
-        if (queueHandle.onReset && queue.lastActionTime > action.$time) {
-          // reset the queue, forcing it to be rebuilt the next time it's getter is called
-          queue.actions = null
-          continue
-        }
-        queue.actions?.push(action)
-        queue.lastActionTime = action.$time
+  for (const [queueHandle, queue] of HyperFlux.store.actions.queues) {
+    HyperFlux.store.actions.activeQueue = queue
+    if (queueHandle.test(action)) {
+      // if the action is out of order, mark the queue as needing resync
+      if (queue.actions.length > 0 && queue.actions.at(-1)!.$time > action.$time) {
+        queue.needsResync = true
       }
+      queue.actions.push(action)
     }
   }
+  HyperFlux.store.actions.activeQueue = null
 }
 
 const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
@@ -469,13 +475,16 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
  * Process incoming actions
  */
 const applyIncomingActions = () => {
-  const { incoming } = HyperFlux.store.actions
+  const { incoming, queues } = HyperFlux.store.actions
   const now = HyperFlux.store.getDispatchTime()
   for (const action of [...incoming]) {
     if (action.$time > now) {
       continue
     }
     _applyIncomingAction(action)
+  }
+  for (const queue of queues.values()) {
+    queue.id
   }
 }
 
@@ -493,48 +502,64 @@ const clearOutgoingActions = (topic: string) => {
   queue.length = 0
 }
 
-function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(
-  shape: V[] | V,
-  options: { onReset?: () => void } = {}
-) {
-  const shapes = Array.isArray(shape) ? shape : [shape]
+function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(validator: V[] | V) {
+  const shapes = Array.isArray(validator) ? validator : [validator]
   const shapeHash = shapes.map(Parser.parserAsString).join('|')
 
-  const actionQueueGetter = (): V['_TYPE'][] => {
-    if (!HyperFlux.store.actions.queues.has(shapeHash)) HyperFlux.store.actions.queues.set(shapeHash, new Map())
+  const getOrCreateInstance = () => {
+    const queueMap = HyperFlux.store.actions.queues
+    const reactorRoot = HyperFlux.store.getCurrentReactorRoot()
+    let queueInstance = queueMap.get(actionQueueGetter)!
 
-    const queueMap = HyperFlux.store.actions.queues.get(shapeHash)!
-
-    if (!queueMap.has(actionQueueGetter)) {
-      queueMap.set(actionQueueGetter, {
-        actions: null,
-        lastActionTime: 0
-      })
-      HyperFlux.store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
+    if (!queueInstance) {
+      queueInstance = {
+        actions: [],
+        nextIndex: 0,
+        needsResync: false,
+        reactorRoot
+      }
+      queueMap.set(actionQueueGetter, queueInstance)
+      reactorRoot?.cleanupFunctions.add(() => {
         removeActionQueue(actionQueueGetter)
       })
+    } else if (queueInstance.reactorRoot !== reactorRoot) {
+      throw new Error('Action queue is being used by multiple reactors')
     }
 
-    const queueInstance = queueMap.get(actionQueueGetter)!
-    if (queueInstance.actions === null) {
-      // make sure actions are sorted by time, earliest first
-      HyperFlux.store.actions.history.sort((a, b) => a.$time - b.$time)
-      queueInstance.actions = HyperFlux.store.actions.history.filter(actionQueueGetter.test)
-      queueInstance.lastActionTime = queueInstance.actions.at(-1)?.$time ?? 0
-      actionQueueGetter.onReset?.() // TODO: pass in a snapshot?
-    }
-
-    const result = [...queueInstance.actions]
-    queueInstance.actions.length = 0
-    return result as V['_TYPE'][]
+    return queueInstance
   }
 
-  actionQueueGetter.onReset = options.onReset
+  const actionQueueGetter = (): V['_TYPE'][] => {
+    const queueInstance = getOrCreateInstance()
+    const result = queueInstance.actions.slice(queueInstance.nextIndex) as V['_TYPE'][]
+    queueInstance.nextIndex = queueInstance.actions.length
+    return result
+  }
+
   actionQueueGetter.test = (a: Action) => {
     return shapes.some((s) => s.test(a))
   }
 
   actionQueueGetter.shapeHash = shapeHash
+
+  actionQueueGetter.instance = null! as ActionQueueInstance
+  Object.defineProperty(actionQueueGetter, 'instance', {
+    get: () => getOrCreateInstance()
+  })
+
+  actionQueueGetter.needsReset = false
+  Object.defineProperty(actionQueueGetter, 'instance', {
+    get: () => getOrCreateInstance().needsResync
+  })
+
+  actionQueueGetter.reset = () => {
+    // make sure actions are sorted by time, earliest first
+    const queue = getOrCreateInstance()
+    HyperFlux.store.actions.activeQueue = queue
+    queue.actions = HyperFlux.store.actions.history.filter(actionQueueGetter.test).sort((a, b) => a.$time - b.$time)
+    queue.nextIndex = 0
+    HyperFlux.store.actions.activeQueue = null
+  }
 
   return actionQueueGetter
 }
@@ -545,11 +570,15 @@ function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(
 const createActionQueue = defineActionQueue
 
 export type ActionQueueHandle = ReturnType<typeof defineActionQueue>
+export type ActionQueueInstance = {
+  actions: Required<ResolvedActionType>[]
+  nextIndex: number
+  needsResync: boolean
+  reactorRoot: ReactorRoot | undefined
+}
 
 const removeActionQueue = (queueHandle: ActionQueueHandle) => {
-  const queueMap = HyperFlux.store.actions.queues.get(queueHandle.shapeHash)
-  if (queueMap) queueMap.delete(queueHandle)
-  if (!queueMap?.size) HyperFlux.store.actions.queues.delete(queueHandle.shapeHash)
+  HyperFlux.store.actions.queues.delete(queueHandle)
 }
 
 export {

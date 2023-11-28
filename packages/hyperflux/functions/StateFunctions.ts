@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createState, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
+import { createState, SetInitialStateAction, State, StateMethods, useHookstate } from '@hookstate/core'
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
@@ -31,8 +31,9 @@ import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
 import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
-import { Validator } from 'ts-matches'
-import { Action, ActionQueueHandle, ActionShape, defineActionQueue, removeActionQueue } from './ActionFunctions'
+import { InputSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { ActionQueueHandle, ActionReceptor, defineActionQueue } from './ActionFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
 export * from '@hookstate/core'
@@ -41,28 +42,31 @@ const logger = multiLogger.child({ component: 'hyperflux:State' })
 
 export const NO_PROXY = { noproxy: true }
 
-export type StateActionReceptor<S, A extends ActionShape<Action>> = ((action: any) => void) & {
-  matchesAction: Validator<A, any>
-}
+export type ReceptorMap = Record<string, ActionReceptor<any>>
 
-export type StateDefinition<S> = {
+export type StateDefinition<S, Receptors extends ReceptorMap> = {
   name: string
   initial: SetInitialStateAction<S>
-  receptors?: StateActionReceptor<S, any>[]
+  receptors?: Receptors
   receptorActionQueue?: ActionQueueHandle
-  onCreate?: (store: HyperStore, state: State<S>) => void
+  onCreate?: (store: HyperStore, state: StateMethods<S>) => void
 }
 
-const StateDefinitions = new Set<string>()
+export const StateDefinitions = new Map<string, StateDefinition<any, ReceptorMap>>()
 
-export function defineState<S, StateExtras = unknown>(definition: StateDefinition<S> & StateExtras) {
+export function defineState<S, R extends ReceptorMap, StateExtras = unknown>(
+  definition: StateDefinition<S, R> & StateExtras
+) {
   if (StateDefinitions.has(definition.name)) throw new Error(`State ${definition.name} already defined`)
-  StateDefinitions.add(definition.name)
-  return definition as StateDefinition<S> & { _TYPE: S } & StateExtras
+  StateDefinitions.set(definition.name, definition)
+  if (HyperFlux.store) initializeState(definition)
+  return definition as StateDefinition<S, R> & { _TYPE: S } & StateExtras
 }
 
-export function registerState<S>(StateDefinition: StateDefinition<S>) {
-  logger.info(`registerState ${StateDefinition.name}`)
+export function initializeState<S, R extends ReceptorMap>(StateDefinition: StateDefinition<S, R>) {
+  if (HyperFlux.store.stateMap[StateDefinition.name]) return
+
+  logger.info(`initializeState ${StateDefinition.name}`)
 
   const setInitial = () => {
     const initial =
@@ -91,58 +95,49 @@ export function registerState<S>(StateDefinition: StateDefinition<S>) {
   if (StateDefinition.onCreate) StateDefinition.onCreate(HyperFlux.store, getMutableState(StateDefinition))
 
   if (StateDefinition.receptors) {
-    StateDefinition.receptorActionQueue = defineActionQueue(
-      StateDefinition.receptors.map((r) => r[0] as any),
-      {
-        onReset: () => {
+    const queue = defineActionQueue(Object.values(StateDefinition.receptors).map((r) => r.matchesAction))
+
+    defineSystem({
+      uuid: `${StateDefinition.name}.actionReceptor`,
+      insert: { before: InputSystemGroup },
+      execute: () => {
+        // queue may need to be reset when actions are recieved out of order
+        // or when state needs to be rolled back
+        if (queue.needsReset) {
+          // reset the state to the initial value when the queue is reset
           setInitial()
+          queue.reset()
+        }
+        // apply each action to each matching receptor, in order
+        for (const action of queue()) {
+          for (const receptor of Object.values(StateDefinition.receptors!)) {
+            receptor.matchesAction.test(action) && receptor(action)
+          }
         }
       }
-    )
-    HyperFlux.store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
-      removeActionQueue(StateDefinition.receptorActionQueue!)
     })
   }
 }
 
-export function isReceptor<S>(f: any): f is StateActionReceptor<S, any> {
-  return 'matchesAction' in f
-}
-
-export function receiveActions<S>(StateDefinition: StateDefinition<S>) {
-  if (!StateDefinition.receptors) throw new Error(`State ${StateDefinition.name} has no receptors.`)
-  const store = HyperFlux.store
-  if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition)
-  const actions = StateDefinition.receptorActionQueue?.() // TODO: should probably put the receptor query in the store, not the state definition
-  if (!actions) return
-  // const state = store.stateMap[StateDefinition.name] as State<S>
-  for (const a of actions) {
-    // TODO: implement state snapshots, rewind / replay when receiving actions out of order, etc.
-    for (const key of Object.keys(StateDefinition)) {
-      const possibleReceptor = StateDefinition[key]
-      if (!isReceptor(possibleReceptor)) continue
-      possibleReceptor.matchesAction(a) && possibleReceptor(a)
-    }
-  }
-}
-
-export function getMutableState<S>(StateDefinition: StateDefinition<S>) {
-  if (!HyperFlux.store.stateMap[StateDefinition.name]) registerState(StateDefinition)
+export function getMutableState<S, R extends ReceptorMap>(StateDefinition: StateDefinition<S, R>) {
+  if (!HyperFlux.store.stateMap[StateDefinition.name]) initializeState(StateDefinition)
   return HyperFlux.store.stateMap[StateDefinition.name] as State<S>
 }
 
-export function getState<S>(StateDefinition: StateDefinition<S>) {
-  if (!HyperFlux.store.stateMap[StateDefinition.name]) registerState(StateDefinition)
+export function getState<S, R extends ReceptorMap>(StateDefinition: StateDefinition<S, R>) {
+  if (!HyperFlux.store.stateMap[StateDefinition.name]) initializeState(StateDefinition)
   return HyperFlux.store.valueMap[StateDefinition.name] as DeepReadonly<S>
 }
 
-export function useMutableState<S, P extends string>(StateDefinition: StateDefinition<S>): State<S>
-export function useMutableState<S, P extends string>(
-  StateDefinition: StateDefinition<S>,
+export function useMutableState<S, R extends ReceptorMap, P extends string>(
+  StateDefinition: StateDefinition<S, R>
+): State<S>
+export function useMutableState<S, R extends ReceptorMap, P extends string>(
+  StateDefinition: StateDefinition<S, R>,
   path: Function.AutoPath<State<S>, P>
 ): _Object.Path<State<S>, String.Split<P, '.'>>
-export function useMutableState<S, P extends string>(
-  StateDefinition: StateDefinition<S>,
+export function useMutableState<S, R extends ReceptorMap, P extends string>(
+  StateDefinition: StateDefinition<S, R>,
   path?: Function.AutoPath<State<S>, P>
 ): _Object.Path<State<S>, String.Split<P, '.'>> {
   const rootState = getMutableState(StateDefinition)
@@ -163,7 +158,10 @@ const stateNamespaceKey = 'ee.hyperflux'
  * or fallback to a default value, but we can't do that without knowing what the acceptable values are, which means
  * we need to pass in a schema or validator function to this function (we should use ts-pattern for this).
  */
-export const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineState<any>>, keys: string[]) => {
+export const syncStateWithLocalStorage = (
+  stateDefinition: ReturnType<typeof defineState<any, any>>,
+  keys: string[]
+) => {
   if (!isClient) return
   const state = getMutableState(stateDefinition)
 
