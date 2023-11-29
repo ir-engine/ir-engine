@@ -45,7 +45,6 @@ import {
   InstanceType,
   instancePath
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
@@ -247,11 +246,9 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
     'server-' + hostId
   )
 
-  const projects = await app.service(projectsPath).find()
-
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    await loadEngineInjection(projects)
+    await loadEngineInjection()
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
