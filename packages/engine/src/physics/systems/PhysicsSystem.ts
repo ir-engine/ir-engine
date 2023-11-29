@@ -32,7 +32,7 @@ import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
@@ -203,6 +203,13 @@ const execute = () => {
     RigidBodyComponent.angularVelocity.x[entity] = angvel.x
     RigidBodyComponent.angularVelocity.y[entity] = angvel.y
     RigidBodyComponent.angularVelocity.z[entity] = angvel.z
+  }
+
+  for (const collisionEntity of collisionQuery()) {
+    const collisionComponent = getComponent(collisionEntity, CollisionComponent)
+    if (!collisionComponent.size) {
+      removeComponent(collisionEntity, CollisionComponent)
+    }
   }
 }
 
