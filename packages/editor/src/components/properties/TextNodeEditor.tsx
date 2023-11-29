@@ -205,7 +205,11 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             name="TextWrap"
             label="wrap" // {t('editor:properties.text.textWrap')} /* @todo: Translation id */
           >
-            <BooleanInput value={text.textWrap.value} onChange={text.textWrap.set} />
+            <BooleanInput
+              value={text.textWrap.value}
+              onChange={text.textWrap.set}
+              onRelease={commitProperty(TextComponent, 'textWrap')}
+            />
             <SelectInput
               disabled={!text.textWrap.value} // Enabled when text.textWrap is true
               options={SelectOptions.TextWrapping}
@@ -533,7 +537,11 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               label="GPU Accelerated" // {t('editor:properties.textbox.gpuAccelerated')}  /* @todo: Translation id */
               info={HoverInfo.GPUAccelerated}
             >
-              <BooleanInput value={text.gpuAccelerated.value} onChange={text.gpuAccelerated.set} />
+              <BooleanInput
+                value={text.gpuAccelerated.value}
+                onChange={text.gpuAccelerated.set}
+                onRelease={commitProperty(TextComponent, 'gpuAccelerated')}
+              />
             </InputGroup>
           </div>
         </InputGroup>
