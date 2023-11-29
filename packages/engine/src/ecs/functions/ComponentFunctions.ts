@@ -75,6 +75,10 @@ type OnInitValidateNotState<T> = T extends State<any, object | unknown> ? 'onIni
 type SomeStringLiteral = 'a' | 'b' | 'c' // just a dummy string literal union
 type StringLiteral<T> = string extends T ? SomeStringLiteral : string
 
+/**
+ * @description
+ * Data required to create a Component with {@link defineComponent}.
+ */
 export interface ComponentPartial<
   ComponentType = any,
   Schema extends bitECS.ISchema = Record<string, any>,
@@ -82,16 +86,58 @@ export interface ComponentPartial<
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = never
 > {
+  /** @description Human readable label for the component. Displayed in the editor and debugging tools. */
   name: string
+  /** @description Internal ID used to reference this component in JSON data. */
   jsonID?: string
+  /** @description A Component's Schema is the shape of its runtime data. */
   schema?: Schema
+  /**
+   * @description
+   * Called once when the component is added to an entity (ie: initialized).
+   * @param this `@internal` The component partial itself.
+   * @param entity The {@link Entity} to which this Component is being assigned.
+   * @returns The schema (aka shape) of the component's runtime data.
+   */
   onInit?: (this: SoAComponentType<Schema>, entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
+  /**
+   * @description
+   * Serializer function called when the component is saved to a snapshot or scene file.
+   * Its logic must convert the component's runtime data into a JSON object.
+   * @param entity The {@link Entity} to which this Component is assigned.
+   * @param component The Component's global data (aka {@link State}).
+   */
   toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
+  /**
+   * @description
+   * Called when the component's data is updated via the setComponent function.
+   * This is where deserialization logic should happen.
+   * @param entity The {@link Entity} to which this Component is assigned.
+   * @param component The Component's global data (aka {@link State}).
+   * @param json The JSON object that contains this component's serialized data.
+   */
   onSet?: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
+  /** @todo Explain ComponentPartial.onRemove(...) */
   onRemove?: (entity: Entity, component: State<ComponentType>) => void | Promise<void>
+  /**
+   * @summary Any async reactive logic of the component is defined in this function.
+   * @description
+   * Any side-effects that depend on the component's data should be defined here.
+   * @todo Explain what reactive is in this context
+   */
   reactor?: React.FC
+  /**
+   * @todo Explain ComponentPartial.errors[]
+   * @why ASdf 09123 ijpdsofijapoi
+   */
   errors?: ErrorTypes[]
 }
+
+/**
+ * @description
+ * ECS Component type used by the engine.
+ * Go to {@link ComponentPartial} to find the data required to initialize a Component with {@link defineComponent}.
+ */
 export interface Component<
   ComponentType = any,
   Schema extends bitECS.ISchema = Record<string, any>,
