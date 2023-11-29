@@ -62,8 +62,9 @@ import { dispatchAction, getMutableState, getState } from '@etherealengine/hyper
 
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { ComponentJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { ComponentJsonType, SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import {
   computeLocalTransformMatrix,
   computeTransformMatrix
@@ -646,15 +647,23 @@ const addToSelection = (entities: Entity[]) => {
 }
 
 const commitTransformSave = (entities: Entity[]) => {
-  const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
-  for (let i = 0; i < entities.length; i++) {
-    const entity = entities[i]
-    LocalTransformComponent.stateMap[entity]!.set(LocalTransformComponent.valueMap[entity])
-    const entityData = newSnapshot.data.entities[getComponent(entity, UUIDComponent)]
-    const component = entityData.components.find((c) => c.name === LocalTransformComponent.jsonID)!
-    component.props = serializeComponent(entity, LocalTransformComponent)
+  const scenes: Record<SceneID, Entity[]> = {}
+  for (const entity of entities) {
+    const source = getComponent(entity, SourceComponent)
+    scenes[source] ??= []
+    scenes[source].push(entity)
   }
-  dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
+  for (const sceneID of Object.keys(scenes) as SceneID[]) {
+    const newSnapshot = SceneState.cloneCurrentSnapshot(sceneID)
+    const sceneEntities = scenes[sceneID]
+    for (const sceneEntity of sceneEntities) {
+      LocalTransformComponent.stateMap[sceneEntity]!.set(LocalTransformComponent.valueMap[sceneEntity])
+      const entityData = newSnapshot.data.entities[getComponent(sceneEntity, UUIDComponent)]
+      const component = entityData.components.find((c) => c.name === LocalTransformComponent.jsonID)!
+      component.props = serializeComponent(sceneEntity, LocalTransformComponent)
+    }
+    dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
+  }
 }
 
 export const EditorControlFunctions = {
