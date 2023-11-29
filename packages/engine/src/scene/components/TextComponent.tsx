@@ -66,15 +66,18 @@ export type TroikaTextAlignment = 'left' | 'center' | 'right' | 'justify'
 export type TroikaTextWrap = 'normal' | 'nowrap'
 
 /**
+ * @summary
+ * Defines how text wraps if TroikaTextWrap is set to `normal` _(aka TextComponent.textWrap: true)_.
  * @description
  * troika.Text wrapping kind, as declared by `troika-three-text` in its Text.overflowWrap `@member` property.
- * Defines how text wraps if TroikaTextWrap is set to `normal` _(aka TextComponent.textWrap: true)_.
  * @enum `'normal'`: Break at whitespace characters
  * @enum `'break-word'`: Break within words
  */
 export type TroikaTextWrapKind = 'normal' | 'break-word'
 
 /**
+ * @summary
+ * Defines the format accepted for declaring the `lineHeight` property of troika.Text.
  * @description
  * troika.Text line height format, as declared by `troika-three-text`in its Text.lineHeight `@member` property.
  * @enum `'normal'`: Chooses a reasonable height based on the chosen font's ascender/descender metrics.
@@ -118,6 +121,7 @@ type TextMesh = Mesh & {
   font: string | null /** Defaults to Noto Sans when null */
   fontSize: number
   color: TroikaColor /** aka fontColor */
+  material: Material
   outlineOpacity: number // @note: Troika marks this as an Experimental API
   outlineWidth: number | string // @note: Troika marks this as an Experimental API
   outlineBlur: number | string // @note: Troika marks this as an Experimental API
@@ -142,18 +146,9 @@ type TextMesh = Mesh & {
   //  Decide which of these properties should be mapped or not //
   //  Remove the unused properties. Only temp for easier dev  //
   //_________________________________________________________//
-  // Defines a _base_ material to be used when rendering the text. This material will be
-  // automatically replaced with a material derived from it, that adds shader code to
-  // decrease the alpha for each fragment (pixel) outside the text glyphs, with antialiasing.
-  // By default it will derive from a simple white MeshBasicMaterial, but you can use any
-  // of the other mesh materials to gain other features like lighting, texture maps, etc.
-  // Also see the `color` shortcut property.
-  material: Material
-
   //____ Maybes ____
   lang: string | null // The language code of this text; can be used for explicitly selecting certain CJK fonts.
   unicodeFontsURL: string | null // defaults to CDN
-
   //____ Unlikely ____
   fontWeight: number | 'normal' | 'bold' // The weight of the font. Currently only used for fallback Noto fonts.
   fontStyle: 'normal' | 'italic' // The style of the font. Currently only used for fallback Noto fonts.
