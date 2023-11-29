@@ -28,8 +28,8 @@ import matches from 'ts-matches'
 import { matchesVector3 } from '../../common/functions/MatchesUtils'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const SittingComponent = defineComponent({
-  name: 'SittingComponent',
+export const TransformInterpolationComponent = defineComponent({
+  name: 'TransformInterpolationComponent',
 
   onInit(entity) {
     return { fromPoint: new Vector3(), toPoint: new Vector3(), time: 0, currentTime: 0 }
