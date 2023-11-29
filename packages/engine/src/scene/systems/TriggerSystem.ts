@@ -35,7 +35,7 @@ import { UUIDComponent } from '../components/UUIDComponent'
 
 export const triggerEnter = (entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
-  if (!triggerComponent || !Array.isArray(triggerComponent.triggers)) return
+  if (!Array.isArray(triggerComponent.triggers)) return
   for (const trigger of triggerComponent.triggers) {
     if (trigger.target && !UUIDComponent.entitiesByUUID[trigger.target]) return
 
@@ -50,7 +50,7 @@ export const triggerEnter = (entity: Entity, triggerEntity: Entity, hit: Collide
 
 export const triggerExit = (entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
-  if (!triggerComponent || !Array.isArray(triggerComponent.triggers)) return
+  if (!Array.isArray(triggerComponent.triggers)) return
   for (const trigger of triggerComponent.triggers) {
     if (!trigger?.onExit) return
     if (trigger.target && !UUIDComponent.entitiesByUUID[trigger.target]) return
