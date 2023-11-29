@@ -72,7 +72,9 @@ then
     --build-arg VITE_INSTANCESERVER_PORT=$VITE_INSTANCESERVER_PORT \
     --build-arg VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD \
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
-    --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG .
+    --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
+    --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
+    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
 elif [ "$DOCKERFILE" == "client-serve-static" ]
 then
   docker buildx build \
@@ -111,7 +113,9 @@ then
     --build-arg VITE_INSTANCESERVER_PORT=$VITE_INSTANCESERVER_PORT \
     --build-arg VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD \
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
-    --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG .
+    --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
+    --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
+    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
 else
   docker buildx build \
     --builder etherealengine-$PACKAGE \
@@ -152,7 +156,9 @@ else
     --build-arg VITE_INSTANCESERVER_PORT=$VITE_INSTANCESERVER_PORT \
     --build-arg VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD \
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
-    --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG .
+    --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
+    --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
+    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
 fi
 
 if [ $PRIVATE_ECR == "true" ]
