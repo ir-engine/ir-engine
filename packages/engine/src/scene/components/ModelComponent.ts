@@ -123,7 +123,7 @@ function ModelReactor() {
     ModelComponent
   )
 
-  console.log({ src: modelComponent.src.value, assetState })
+  console.log('gltf-model', Date.now(), { src: modelComponent.src.value, assetState: assetState?.value })
 
   useEffect(() => {
     if (!assetState?.value) return

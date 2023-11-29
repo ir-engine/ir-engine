@@ -33,7 +33,6 @@ import {
   dispatchAction,
   getMutableState,
   getState,
-  none,
   useHookstate
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
@@ -43,11 +42,10 @@ import React from 'react'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
+import { EntityDependenciesState, SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
   getComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useOptionalComponent
@@ -80,6 +78,7 @@ const reactor = () => {
           TransformComponent,
           UUIDComponent,
           SceneObjectComponent,
+          Not(GLTFLoadedComponent),
           Not(SceneTagComponent)
         ]}
         ChildEntityReactor={NetworkedSceneObjectReactor}
@@ -101,7 +100,6 @@ const NetworkedSceneObjectReactor = () => {
     if (loaded.value) return
     if (NetworkState.worldNetwork?.isHosting) {
       if (!entityExists(entity)) return
-      if (hasComponent(entity, GLTFLoadedComponent)) return
       const uuid = getComponent(entity, UUIDComponent)
       const transform = getComponent(entity, TransformComponent)
       dispatchAction(
@@ -128,10 +126,15 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const ready = useHookstate(false)
   const systemsLoaded = useHookstate([] as SystemImportType[])
 
-  useEffect(() => {
-    if (!ready.value) return
+  const entitiesDeep = useHookstate(SceneObjectComponent.entitiesBySceneState[props.sceneID])
 
-    const values = Object.entries(sceneState.entitiesToLoad.value)
+  useEffect(() => {
+    if (!entitiesDeep?.value) return
+
+    const entitiesToLoad = entitiesDeep.value
+      .map((entity) => getState(EntityDependenciesState)[getComponent(entity, UUIDComponent)])
+      .filter((entity) => entity)
+    const values = Object.entries(entitiesToLoad)
     const total = values.reduce(
       (acc, [uuid, curr]) => acc + Object.values(curr.resources).reduce((acc, curr) => acc + curr.totalAmount, 0),
       0
@@ -144,7 +147,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     console.log('entities to load', { progress, loaded, total }, values.length)
 
     sceneState.loadingProgress.set(progress)
-  }, [sceneState.entitiesToLoad, ready])
+  }, [entitiesDeep])
 
   useEffect(() => {
     const isActiveScene = getState(SceneState).activeScene === props.sceneID
@@ -164,16 +167,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     if (!isActiveScene) return
 
     const sceneUpdatedListener = async () => {
-      const [projectName, sceneName] = props.sceneID.split('/')
-      const sceneData = await Engine.instance.api
-        .service(scenePath)
-        .get(null, { query: { project: projectName, name: sceneName } })
+      const sceneData = await Engine.instance.api.service(scenePath).get(null, { query: { sceneKey: props.sceneID } })
       SceneState.loadScene(props.sceneID, sceneData)
     }
-    // for testing
-    // window.addEventListener('keydown', (ev) => {
-    //   if (ev.code === 'KeyN') sceneUpdatedListener()
-    // })
 
     Engine.instance.api.service(scenePath).on('updated', sceneUpdatedListener)
 
@@ -232,11 +228,7 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
       {selfEntityState.value &&
         entityState.components.map((compState) => (
           <ErrorBoundary key={compState.name.value}>
-            <ComponentLoadReactor
-              componentID={compState.value.name}
-              entityUUID={props.entityUUID}
-              componentJSONState={compState}
-            />
+            <ComponentLoadReactor entityUUID={props.entityUUID} componentJSONState={compState} />
           </ErrorBoundary>
         ))}
     </>
@@ -276,13 +268,14 @@ const EntityChildLoadReactor = (props: {
   const parentLoaded = !!useOptionalComponent(props.parentEntity, SceneObjectComponent)
   const dynamicParentState = useOptionalComponent(props.parentEntity, SceneDynamicLoadTagComponent)
 
+  const loadState = useHookstate(getMutableState(EntityDependenciesState)[props.entityUUID])
+
   useEffect(() => {
     // ensure parent has been deserialized before checking if dynamically loaded
     if (!parentLoaded) return
 
     // if parent is dynamically loaded, wait for it to be loaded
     if (!getState(EngineState).isEditor && dynamicParentState?.value && !dynamicParentState.loaded.value) {
-      getMutableState(SceneState).scenes[props.sceneID].entitiesToLoad[props.entityUUID].set(none)
       return
     }
 
@@ -322,25 +315,44 @@ const EntityChildLoadReactor = (props: {
   return (
     <>
       {selfEntityState.value &&
-        entityJSONState.components.map((compState) => (
-          <ErrorBoundary key={compState.value.name + ' - ' + selfEntityState.value}>
-            <ComponentLoadReactor
-              componentID={compState.value.name}
-              entityUUID={props.entityUUID}
-              componentJSONState={compState}
-            />
-          </ErrorBoundary>
-        ))}
+        entityJSONState.components
+          .filter((compState) => ComponentJSONIDMap.get(compState.value.name))
+          .map((compState) => (
+            <ErrorBoundary key={compState.value.name + ' - ' + selfEntityState.value}>
+              <ComponentLoadReactor entityUUID={props.entityUUID} componentJSONState={compState} />
+            </ErrorBoundary>
+          ))}
     </>
   )
 }
 
-const ComponentLoadReactor = (props: {
-  componentID: string
-  entityUUID: EntityUUID
-  componentJSONState: State<ComponentJsonType>
-}) => {
+// const useLoadComponent = (props: { entityUUID: EntityUUID; componentJSONState: State<ComponentJsonType> }) => {
+//   const entity = UUIDComponent.entitiesByUUID[props.entityUUID]
+//   const component = props.componentJSONState.get(NO_PROXY)
+//   const Component = ComponentJSONIDMap.get(component.name)!
+//   const componentExists = useOptionalComponent(entity, Component)
+
+//   const ready = useHookstate(false)
+
+//   useEffect(() => {
+//     if (!componentExists || ready.value) return
+
+//     if (Component.reactor) {
+//       Component.reactorMap.get(entity)?.promise.then(() => {
+//         ready.set(true)
+//       })
+//     } else {
+//       ready.set(true)
+//     }
+//   }, [componentExists])
+
+//   return ready.value
+// }
+
+const ComponentLoadReactor = (props: { entityUUID: EntityUUID; componentJSONState: State<ComponentJsonType> }) => {
   const componentState = props.componentJSONState
+
+  // const ready = useLoadComponent(props)
 
   useEffect(() => {
     if (!componentState?.value) return

@@ -219,7 +219,7 @@ export const getComponent = <ComponentType>(
  * @param Component
  * @param args
  *
- * @returns the component
+ * @returns {void}
  */
 export const setComponent = <C extends Component>(
   entity: Entity,

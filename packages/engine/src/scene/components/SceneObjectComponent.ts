@@ -23,8 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hookstate, none } from '@etherealengine/hyperflux'
+import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { SceneID } from '../../schemas/projects/scene.schema'
+
+const entitiesByScene = {} as Record<string, Entity[]>
 
 /** Used to identity an entity that has been loaded as part of a scene */
 export const SceneObjectComponent = defineComponent({
@@ -34,10 +38,24 @@ export const SceneObjectComponent = defineComponent({
     return '' as SceneID
   },
 
-  onSet(entity, component, sceneID: SceneID) {
-    if (!sceneID) return
-
+  onSet: (entity, component, sceneID?: SceneID) => {
+    if (typeof sceneID !== 'string') throw new Error('SceneObjectComponent expects a non-empty string')
     component.set(sceneID)
     SceneObjectComponent.valueMap[entity] = sceneID
-  }
+    const exists = SceneObjectComponent.entitiesByScene[sceneID]
+    const entitiesBySceneState = SceneObjectComponent.entitiesBySceneState
+    if (exists) entitiesBySceneState.merge({ [sceneID]: [...exists, entity] })
+    else entitiesBySceneState.merge({ [sceneID]: [entity] })
+  },
+
+  onRemove: (entity, component) => {
+    const name = component.value
+    const entities = SceneObjectComponent.entitiesBySceneState[name]
+    const isSingleton = entities.length === 1
+    isSingleton && entities.set(none)
+    !isSingleton && entities.set(entities.value.filter((e) => e !== entity))
+  },
+
+  entitiesBySceneState: hookstate(entitiesByScene),
+  entitiesByScene: entitiesByScene as Readonly<typeof entitiesByScene>
 })

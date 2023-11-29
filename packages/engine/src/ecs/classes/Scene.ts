@@ -66,6 +66,36 @@ export interface SceneSnapshotInterface {
   selectedEntities: Array<EntityUUID>
 }
 
+export const EntityDependenciesState = defineState({
+  name: 'EntityDependenciesState',
+  initial: {} as Record<
+    EntityUUID,
+    {
+      resources: Record<
+        string,
+        {
+          loadedAmount: number
+          totalAmount: number
+        }
+      >
+    }
+  >,
+
+  setEntityLoadState: (entityUUID: EntityUUID, resource: string, loadedAmount: number, totalAmount: number) => {
+    const entitiesToLoad = getMutableState(EntityDependenciesState)
+    if (!entitiesToLoad.value[entityUUID]) entitiesToLoad[entityUUID].set({ resources: {} })
+    entitiesToLoad[entityUUID].resources.merge({
+      [resource]: { loadedAmount, totalAmount }
+    })
+  },
+
+  clearEntityLoadState: (entityUUID: EntityUUID, resource: string) => {
+    const entity = getMutableState(EntityDependenciesState)[entityUUID]
+    entity.resources[resource].set(none)
+    if (!Object.keys(entity.resources).length) entity.set(none)
+  }
+})
+
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
@@ -76,18 +106,6 @@ export const SceneState = defineState({
         snapshots: Array<SceneSnapshotInterface>
         index: number
         loadingProgress: number
-        entitiesToLoad: Record<
-          EntityUUID,
-          {
-            resources: Record<
-              string,
-              {
-                loadedAmount: number
-                totalAmount: number
-              }
-            >
-          }
-        >
       }
     >,
     /** @todo replace activeScene with proper multi-scene support */
@@ -146,8 +164,7 @@ export const SceneState = defineState({
       metadata,
       snapshots: [{ data, selectedEntities: [] }],
       index: 0,
-      loadingProgress: 0,
-      entitiesToLoad: {}
+      loadingProgress: 0
     })
   },
 
@@ -181,30 +198,9 @@ export const SceneState = defineState({
       metadata: scene.metadata,
       snapshots: [{ data, selectedEntities: [] }],
       index: 0,
-      loadingProgress: 0,
-      entitiesToLoad: {}
+      loadingProgress: 0
     })
     SceneState.applyCurrentSnapshot(sceneID)
-  },
-
-  setEntityLoadState: (
-    sceneID: SceneID,
-    entityUUID: EntityUUID,
-    resource: string,
-    loadedAmount: number,
-    totalAmount: number
-  ) => {
-    const entitiesToLoad = getMutableState(SceneState).scenes[sceneID].entitiesToLoad
-    if (!entitiesToLoad.value[entityUUID]) entitiesToLoad[entityUUID].set({ resources: {} })
-    entitiesToLoad[entityUUID].resources.merge({
-      [resource]: { loadedAmount, totalAmount }
-    })
-  },
-
-  clearEntityLoadState: (sceneID: SceneID, entityUUID: EntityUUID, resource: string) => {
-    const entity = getMutableState(SceneState).scenes[sceneID].entitiesToLoad[entityUUID]
-    entity.resources[resource].set(none)
-    if (!Object.keys(entity.resources).length) entity.set(none)
   },
 
   cloneCurrentSnapshot: (sceneID: SceneID) => {
