@@ -282,7 +282,7 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
     app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
 
-    await loadEngineInjection(projects)
+    await loadEngineInjection()
 
     logger.info('Scene loaded!')
   }
