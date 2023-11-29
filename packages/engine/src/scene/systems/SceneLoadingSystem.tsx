@@ -70,7 +70,6 @@ import { VisibleComponent } from '../components/VisibleComponent'
 
 const reactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
-
   const physicsWorld = useHookstate(getMutableState(PhysicsState).physicsWorld)
   if (!physicsWorld.value) return null
 

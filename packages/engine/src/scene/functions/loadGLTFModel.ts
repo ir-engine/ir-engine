@@ -106,7 +106,6 @@ export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
 
   return result
 }
-
 export const createObjectEntityFromGLTF = (obj3d: Object3D): ComponentJsonType[] => {
   return parseECSData(Object.entries(obj3d.userData))
 }
@@ -125,7 +124,6 @@ export const parseObjectComponentsFromGLTF = (
       meshesToProcess.push(mesh)
     }
   })
-
   const entities: Entity[] = []
   const entityJson: Record<EntityUUID, EntityJsonType> = {}
 
