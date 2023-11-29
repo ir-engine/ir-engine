@@ -32,8 +32,8 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { AttachmentPointComponent } from '../components/AttachmentPointComponent'
-
 const execute = () => {
   const attachmentPointQuery = defineQuery([AttachmentPointComponent])
 
@@ -51,7 +51,7 @@ const execute = () => {
   let closestRotation: Quaternion | null = null
   let node: Entity | null = null
 
-  const threshold = 5
+  const threshold = 1
   //loop to caculate the distance
   for (const selectedAttachmentPoint of selectedAttachmentPoints) {
     //find the select attacment point in select ararry
@@ -63,7 +63,15 @@ const execute = () => {
     const selectTransform = getComponent(selectedAttachmentPoint, TransformComponent)
     for (const entity of attachmentPointQuery()) {
       if (selectedAttachmentPoints.includes(entity)) continue
-      //if ((getComponent(entity, EntityTreeComponent).children).length!=0)continue
+
+      if (selectedAttachmentPoints.length == 1) {
+        const childPoints = getComponent(
+          getComponent(selectedAttachmentPoints as unknown as Entity, EntityTreeComponent).parentEntity as Entity,
+          EntityTreeComponent
+        ).children
+        if (childPoints.includes(entity)) continue
+      }
+      if (getComponent(entity, EntityTreeComponent).children.length != 0) continue
 
       //if selected attachment point
       const transform = getComponent(entity, TransformComponent)
@@ -102,5 +110,6 @@ const execute = () => {
 
 export const AttachmentPointSystem = defineSystem({
   uuid: 'ee.engine.AttachmentPointSystem',
+  insert: { after: TransformSystem },
   execute
 })
