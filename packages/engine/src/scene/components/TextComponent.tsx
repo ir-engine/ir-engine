@@ -137,22 +137,8 @@ type TextMesh = Mesh & {
   gpuAccelerateSDF: boolean // Allows force-disabling GPU acceleration of SDF. Uses the JS fallback when true
   glyphGeometryDetail: number // Number of vertical/horizontal segments that make up each glyph's rectangular plane. Defaults to 1.
   sdfGlyphSize: number | null // Size of each glyph's SDF. Must be a power-of-two.
-
   //____ Callbacks ____
   sync: () => void /** Async Render the text using the current properties. troika accepts a callback function, but that feature is not mapped */
-
-  //______________________________________________________________
-  // TODO                                                       //
-  //  Decide which of these properties should be mapped or not //
-  //  Remove the unused properties. Only temp for easier dev  //
-  //_________________________________________________________//
-  //____ Maybes ____
-  lang: string | null // The language code of this text; can be used for explicitly selecting certain CJK fonts.
-  unicodeFontsURL: string | null // defaults to CDN
-  //____ Unlikely ____
-  fontWeight: number | 'normal' | 'bold' // The weight of the font. Currently only used for fallback Noto fonts.
-  fontStyle: 'normal' | 'italic' // The style of the font. Currently only used for fallback Noto fonts.
-  debugSDF: boolean
 }
 
 /**
