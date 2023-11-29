@@ -56,7 +56,6 @@ export const evaluatePose = (entity: Entity) => {
 
     poseHoldTimer += deltaSeconds
     if (poseHoldTimer > poseHoldTime) {
-      console.log(toPose)
       //remove old pose
       pose[toPose === 'standing' ? 'sitting' : 'standing'].set(none)
       poseHoldTimer = 0
