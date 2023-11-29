@@ -33,9 +33,9 @@ import {
   removeQuery
 } from '../../../../../ecs/functions/ComponentFunctions'
 import { SystemUUID, defineSystem } from '../../../../../ecs/functions/SystemFunctions'
+import { PhysicsSystem } from '../../../../../physics/PhysicsModule'
 import { CollisionComponent } from '../../../../../physics/components/CollisionComponent'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
-import { TransformSystem } from '../../../../../transform/TransformModule'
 
 let systemCounter = 0
 
@@ -82,7 +82,7 @@ export const OnCollision = makeEventNodeDefinition({
 
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onCollision-' + systemCounter++,
-      insert: { before: TransformSystem },
+      insert: { after: PhysicsSystem },
       execute: () => {
         const results = query()
         for (const entity of results) {
