@@ -23,6 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+/**
+ * @fileoverview
+ * @doc_todo
+ */
+
 import { Subscribable, subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
 // tslint:disable:ordered-imports
@@ -42,10 +47,21 @@ import { Engine } from '../classes/Engine'
 import { Entity, UndefinedEntity } from '../classes/Entity'
 import { EntityContext } from './EntityFunctions'
 
+/**
+ * @description
+ * Shorthand for the logger that will be used throughout this file.
+ * Contains a multiLogger.child, that uses a component ID referencing the purpose of this file.
+ */
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
-export const INITIAL_COMPONENT_SIZE = config.client.appEnv === 'test' ? 100000 : 5000 // TODO set to 0 after next bitECS update
-bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
+/**
+ * @description Initial Max amount of Components that buffers will contain.
+ * @enum 100_000 for 'test' client environment
+ * @enum 5_000 otherwise
+ */
+export const INITIAL_COMPONENT_SIZE =
+  config.client.appEnv === 'test' ? 100000 : 5000 /** @todo set to 0 after next bitECS update */
+bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE) // Send the INITIAL_COMPONENT_SIZE value to bitECS as its DefaultSize
 
 export const ComponentMap = new Map<string, Component<any, any, any>>()
 export const ComponentJSONIDMap = new Map<string, Component<any, any, any>>() // <jsonID, Component>
