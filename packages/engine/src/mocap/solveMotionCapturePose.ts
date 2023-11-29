@@ -72,6 +72,8 @@ const grey = new Color(0.5, 0.5, 0.5)
 
 let prevLandmarks: NormalizedLandmarkList
 
+const transitionMultiplier = 10
+
 const rightFootHistory = [] as number[]
 const leftFootHistory = [] as number[]
 const feetIndices = { rightFoot: 0, leftFoot: 1 }
@@ -354,25 +356,19 @@ export function solveMotionCapturePose(
     //  VRMHumanBoneName.LeftFoot
     //)
 
-    //check state, if we are still not set to track lower body, update that
-    if (MotionCaptureRigComponent.lowerBodySolveFactor[entity] > 0) {
-      MotionCaptureRigComponent.lowerBodySolveFactor[entity] += deltaSeconds
-      console.log(MotionCaptureRigComponent.lowerBodySolveFactor[entity])
+    if (MotionCaptureRigComponent.lowerBodySolveFactor[entity] < 1) {
+      MotionCaptureRigComponent.lowerBodySolveFactor[entity] = Math.min(
+        MotionCaptureRigComponent.lowerBodySolveFactor[entity] + deltaSeconds * transitionMultiplier,
+        1
+      )
     }
   } else {
-    if (MotionCaptureRigComponent.lowerBodySolveFactor[entity] <= 0) {
-      //quick dirty reset of legs
-      resetLimb(entity, VRMHumanBoneName.LeftUpperLeg, VRMHumanBoneName.LeftLowerLeg)
-      resetLimb(entity, VRMHumanBoneName.RightUpperLeg, VRMHumanBoneName.RightLowerLeg)
-      resetBone(entity, VRMHumanBoneName.LeftFoot)
-      resetBone(entity, VRMHumanBoneName.RightFoot)
-      resetBone(entity, VRMHumanBoneName.LeftHand)
-      resetBone(entity, VRMHumanBoneName.RightHand)
-      console.log('resetting')
-    }
-    if (MotionCaptureRigComponent.lowerBodySolveFactor[entity] < 1)
-      MotionCaptureRigComponent.lowerBodySolveFactor[entity] -= deltaSeconds
-    console.log(MotionCaptureRigComponent.lowerBodySolveFactor[entity])
+    //if we are not estimating the lower body
+    MotionCaptureRigComponent.lowerBodySolveFactor[entity] > 0
+    MotionCaptureRigComponent.lowerBodySolveFactor[entity] = Math.max(
+      MotionCaptureRigComponent.lowerBodySolveFactor[entity] - deltaSeconds * transitionMultiplier,
+      0
+    )
   }
 
   solveHead(

@@ -138,16 +138,24 @@ const execute = () => {
     for (const boneName of VRMHumanBoneList) {
       const localbone = rigComponent.localRig[boneName]?.node
       if (!localbone) continue
-      if (!MotionCaptureRigComponent.lowerBodySolveFactor[entity]) {
-        if (
-          boneName == VRMHumanBoneName.LeftUpperLeg ||
-          boneName == VRMHumanBoneName.RightUpperLeg ||
-          boneName == VRMHumanBoneName.LeftLowerLeg ||
-          boneName == VRMHumanBoneName.RightLowerLeg ||
-          boneName == VRMHumanBoneName.LeftFoot ||
-          boneName == VRMHumanBoneName.RightFoot
+      if (
+        boneName == VRMHumanBoneName.LeftUpperLeg ||
+        boneName == VRMHumanBoneName.RightUpperLeg ||
+        boneName == VRMHumanBoneName.LeftLowerLeg ||
+        boneName == VRMHumanBoneName.RightLowerLeg ||
+        boneName == VRMHumanBoneName.LeftFoot ||
+        boneName == VRMHumanBoneName.RightFoot
+      ) {
+        localbone.quaternion.slerp(
+          new Quaternion(
+            MotionCaptureRigComponent.rig[boneName].x[entity],
+            MotionCaptureRigComponent.rig[boneName].y[entity],
+            MotionCaptureRigComponent.rig[boneName].z[entity],
+            MotionCaptureRigComponent.rig[boneName].w[entity]
+          ),
+          MotionCaptureRigComponent.lowerBodySolveFactor[entity]
         )
-          continue
+        continue
       }
       if (
         MotionCaptureRigComponent.rig[boneName].x[entity] === 0 &&
@@ -163,10 +171,6 @@ const execute = () => {
         MotionCaptureRigComponent.rig[boneName].z[entity],
         MotionCaptureRigComponent.rig[boneName].w[entity]
       )
-
-      if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
-      if (MotionCaptureRigComponent.lowerBodySolveFactor[entity])
-        localbone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
       localbone.scale.set(1, 1, 1)
     }
 
