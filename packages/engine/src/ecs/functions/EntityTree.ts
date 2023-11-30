@@ -62,8 +62,7 @@ export const EntityTreeComponent = defineComponent({
       // api
       parentEntity: null as Entity | null,
       // internal
-      children: [] as Entity[],
-      rootEntity: null as Entity | null
+      children: [] as Entity[]
     }
   },
 
@@ -122,10 +121,6 @@ export const EntityTreeComponent = defineComponent({
     } else {
       EntityTreeComponent.roots[entity].set(none)
     }
-
-    const rootEntity = isRoot ? entity : getComponent(component.parentEntity.value, EntityTreeComponent).rootEntity
-
-    component.rootEntity.set(rootEntity)
   },
 
   onRemove: (entity, component) => {
