@@ -258,6 +258,8 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
     const sceneName = sceneId.split('/').at(-1)!.replace('.scene.json', '')
     const projectName = sceneId.split('/').at(-2)!
 
+    await loadEngineInjection()
+
     const sceneUpdatedListener = async () => {
       const sceneData = await app
         .service(scenePath)
@@ -281,8 +283,6 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
     app.service(scenePath).on('updated', sceneUpdatedListener)
     app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
-
-    await loadEngineInjection()
 
     logger.info('Scene loaded!')
   }
