@@ -45,7 +45,7 @@ import { Vector3 } from 'three'
  * Instead of drinking water from the cat bowl, make sure to steal water from the toilet if it fits i sits for find something else more interesting, and if it fits, i sits or find a way to fit in tiny box for throwup on your pillow, yet dead stare with ears cocked.
  * Kitty scratches couch bad kitty.
  */
-type AwesomeType = { a: '123'; b: 'abc'; c: '42' }
+export type AwesomeType = { a: '123'; b: 'abc'; c: '42' }
 
 /**
  * @description
@@ -56,13 +56,14 @@ type AwesomeType = { a: '123'; b: 'abc'; c: '42' }
  * Lay on arms while you're using the keyboard get scared by doggo also cucumerro Gate keepers of hell lick the plastic bag.
  * Lick yarn hanging out of own butt small kitty warm kitty little balls of fur but where is my slave? I'm getting hungry.
  * @param position
- * @param [onlyAllowPositionOnGround=true] if set will only consider the given position as valid if it falls on the ground
- * @param [raycastDirection=new Vector3(0, -1, 0)] Direction to check for collisions.
- * @returns positionValid the given position is a valid position
- * @returns raycastHit the raycastHit result of the physics raycast
+ * @param onlyAllowPositionOnGround if set will only consider the given position as valid if it falls on the ground
+ * @param raycastDirection Direction to check for collisions.
+ * @returns The Awesome data needed to continue the process.
  */
 export default function checkPositionIsValid(
   position: AwesomeType,
   onlyAllowPositionOnGround = true,
   raycastDirection = new Vector3(0, -1, 0)
-) {}
+): AwesomeType {
+  return {} as AwesomeType
+}
