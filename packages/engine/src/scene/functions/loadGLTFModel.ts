@@ -193,26 +193,8 @@ export const parseGLTFModel = (entity: Entity) => {
       parentEntity,
       uuid
     })
-    const findColliderData = (obj: Object3D) => {
-      if (Object.keys(obj.userData).find((key) => key.startsWith('xrengine.collider'))) {
-        return true
-      } else if (obj.parent) {
-        return Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
-      }
-      return false
-    }
-    //if we're not using visible component, set visible by default
-    if (
-      !obj.userData['useVisible'] &&
-      //if this object has a collider component attached to it, set visible to false
-      !findColliderData(obj)
-    ) {
-      eJson.components.push({
-        name: VisibleComponent.jsonID,
-        props: true
-      })
-    }
 
+    setComponent(objEntity, NameComponent, name)
     eJson.components.push({
       name: LocalTransformComponent.jsonID,
       props: {
@@ -221,29 +203,8 @@ export const parseGLTFModel = (entity: Entity) => {
         scale: obj.scale.clone()
       }
     })
-
-    setComponent(objEntity, NameComponent, name)
     addObjectToGroup(objEntity, obj)
     setComponent(objEntity, GLTFLoadedComponent, ['entity'])
-    // check if this object is part of a collider group
-    const inColliderGroup =
-      obj.parent?.userData && Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
-    if (!inColliderGroup) {
-      const mesh = obj as Mesh
-      mesh.isMesh && setComponent(objEntity, MeshComponent, mesh)
-
-      //check if mesh is instanced. If so, add InstancingComponent
-      const instancedMesh = obj as InstancedMesh
-      instancedMesh.isInstancedMesh &&
-        setComponent(objEntity, InstancingComponent, {
-          instanceMatrix: instancedMesh.instanceMatrix
-        })
-
-      if (obj.userData['componentJson']) {
-        eJson.components.push(...obj.userData['componentJson'])
-      }
-    }
-    entityJson[uuid] = eJson
     /** Proxy children with EntityTreeComponent if it exists */
     Object.defineProperties(obj, {
       parent: {
@@ -286,6 +247,46 @@ export const parseGLTFModel = (entity: Entity) => {
         }
       }
     })
+
+    const findColliderData = (obj: Object3D) => {
+      if (Object.keys(obj.userData).find((key) => key.startsWith('xrengine.collider'))) {
+        return true
+      } else if (obj.parent) {
+        return Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
+      }
+      return false
+    }
+    //if we're not using visible component, set visible by default
+    if (
+      !obj.userData['useVisible'] &&
+      //if this object has a collider component attached to it, set visible to false
+      !findColliderData(obj)
+    ) {
+      eJson.components.push({
+        name: VisibleComponent.jsonID,
+        props: true
+      })
+    }
+
+    // check if this object is part of a collider group
+    const inColliderGroup =
+      obj.parent?.userData && Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
+    if (!inColliderGroup) {
+      const mesh = obj as Mesh
+      mesh.isMesh && setComponent(objEntity, MeshComponent, mesh)
+
+      //check if mesh is instanced. If so, add InstancingComponent
+      const instancedMesh = obj as InstancedMesh
+      instancedMesh.isInstancedMesh &&
+        setComponent(objEntity, InstancingComponent, {
+          instanceMatrix: instancedMesh.instanceMatrix
+        })
+
+      if (obj.userData['componentJson']) {
+        eJson.components.push(...obj.userData['componentJson'])
+      }
+    }
+    entityJson[uuid] = eJson
   })
 
   enableObjectLayer(scene, ObjectLayers.Scene, true)
