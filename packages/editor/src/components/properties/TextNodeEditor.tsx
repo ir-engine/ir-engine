@@ -87,6 +87,7 @@ const LineHeightNumericDefault = 1.2 as TroikaTextLineHeight
 const HoverInfo = {
   FontFamily: `
 URL of a custom font to be used. Font files can be in .ttf, .otf, or .woff (not .woff2) formats. Defaults to Noto Sans when empty.
+Example:   https://fonts.gstatic.com/s/orbitron/v9/yMJRMIlzdpvBhQQL_Qq7dys.woff
 `,
   AdvancedGroup: `
 Toggle Advanced options. Only modify these if you know what you are doing.
@@ -457,7 +458,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
       <br></br>
       <InputGroup
         name="AdvancedActive"
-        label="Show Advanced" // {t('editor:properties.textbox.advancedActive')}  /* @todo: Translation id */
+        label="Show Advanced" // {t('editor:properties.text.advancedActive')}  /* @todo: Translation id */
         info={HoverInfo.AdvancedGroup}
       >
         <BooleanInput value={advancedActive.value} onChange={advancedActive.set} />
@@ -466,7 +467,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
         /*Show Advanced Options only when Active*/
         <InputGroup
           name="AdvancedGroup"
-          label="Advanced" // {t('editor:properties.textbox.advancedGroup')}  /* @todo: Translation id */
+          label="Advanced" // {t('editor:properties.text.advancedGroup')}  /* @todo: Translation id */
         >
           <div>
             <InputGroup name="TextOrientation" label="textOrientation" info={HoverInfo.TextOrientation}>
@@ -478,7 +479,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             </InputGroup>
             <InputGroup
               name="ClippingActive"
-              label="clip.active" // {t('editor:properties.textbox.clippingActive')}  /* @todo: Translation id */
+              label="clip.active" // {t('editor:properties.text.clippingActive')}  /* @todo: Translation id */
               info={HoverInfo.Clipping}
             >
               <BooleanInput value={text.clipActive.value} onChange={text.clipActive.set} />
@@ -534,7 +535,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             />
             <InputGroup
               name="GPUAccelerated"
-              label="GPU Accelerated" // {t('editor:properties.textbox.gpuAccelerated')}  /* @todo: Translation id */
+              label="GPU Accelerated" // {t('editor:properties.text.gpuAccelerated')}  /* @todo: Translation id */
               info={HoverInfo.GPUAccelerated}
             >
               <BooleanInput

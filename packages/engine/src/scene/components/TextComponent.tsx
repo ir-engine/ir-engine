@@ -139,6 +139,7 @@ type TextMesh = Mesh & {
   sdfGlyphSize: number | null // Size of each glyph's SDF. Must be a power-of-two.
   //____ Callbacks ____
   sync: () => void /** Async Render the text using the current properties. troika accepts a callback function, but that feature is not mapped */
+  dispose: () => void /** Async function to release the Text Mesh from the GPU. It doesn't release the Material. */
 }
 
 /**
@@ -158,13 +159,11 @@ export enum FontMaterialKind {
  *  troika.Text.font accepts a nullable string URI (URL or path), and defaults to Noto Sans when null is passed
  */
 const FontDefault = null! as string | null
-/** @todo Remove. Only temp for testing */
-const FontOrbitronURL = 'https://fonts.gstatic.com/s/orbitron/v9/yMJRMIlzdpvBhQQL_Qq7dys.woff'
 
 /**
- * @description Lore Ipsum filler text
+ * @description Lorem Ipsum filler text
  */
-const LoreIpsum =
+const LoremIpsum =
   "Cat ipsum dolor sit amet, munch, munch, chomp, chomp go crazy with excitement when plates are clanked together signalling the arrival of cat food lounge in doorway. Rub face on everything i like to spend my days sleeping and eating fishes that my human fished for me we live on a luxurious yacht, sailing proudly under the sun, i like to walk on the deck, watching the horizon, dreaming of a good bowl of milk yet ooooh feather moving feather! for rub my belly hiss. I see a bird i stare at it i meow at it i do a wiggle come here birdy kick up litter but ignore the squirrels, you'll never catch them anyway meow in empty rooms i like big cats and i can not lie. At four in the morning wake up owner meeeeeeooww scratch at legs and beg for food then cry and yowl until they wake up at two pm jump on window and sleep while observing the bootyful cat next door that u really like but who already has a boyfriend end up making babies with her and let her move in scream at teh bath so leave hair on owner's clothes. If human is on laptop sit on the keyboard haha you hold me hooman i scratch, cough furball into food bowl then scratch owner for a new one make muffins, so kick up litter let me in let me out let me in let me out let me in let me out who broke this door anyway . See owner, run in terror cats are cute show belly and steal mom's crouton while she is in the bathroom so skid on floor, crash into wall ."
 
 /**
@@ -177,7 +176,7 @@ export const TextComponent = defineComponent({
   onInit: (entity) => {
     return {
       // Text contents to render
-      text: LoreIpsum,
+      text: LoremIpsum,
       textOpacity: 100, // range[0..100], sent to troika as [0..1] :number
       textWidth: Infinity,
       textIndent: 0,
@@ -372,6 +371,9 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.glyphGeometryDetail = text.glyphDetail.value
       // Order troika to synchronize the mesh
       text.troikaMesh.value.sync()
+      return () => {
+        text.troikaMesh.value.dispose()
+      }
     }, [
       text.text,
       text.textOpacity,
