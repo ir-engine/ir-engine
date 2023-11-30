@@ -222,7 +222,7 @@ export const TextComponent = defineComponent({
       glyphDetail: 1, // Maps to troika.Text.glyphGeometryDetail
 
       // Internal State
-      troikaMesh: null as TextMesh
+      troikaMesh: null as TextMesh | null
     }
   },
 
