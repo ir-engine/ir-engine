@@ -46,9 +46,10 @@ import { System, SystemDefinitions, SystemUUID } from '@etherealengine/engine/sr
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import ActionsPanel from './ActionsPanel'
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
@@ -126,15 +127,14 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
 
   const renderEntityTreeRoots = () => {
     return {
-      ...Object.keys(EntityTreeComponent.roots.value).reduce(
-        (r, child, i) =>
-          Object.assign(r, {
-            [`${i} - ${
-              getComponent(child as any as Entity, NameComponent) ?? getComponent(child as any as Entity, UUIDComponent)
-            }`]: renderEntityTree(child as any as Entity)
-          }),
-        {}
-      )
+      ...Object.values(getState(SceneState).scenes).map((scene, i) => {
+        const root = scene.snapshots[scene.index].data.root
+        const entity = UUIDComponent.entitiesByUUID[root]
+        return {
+          [`${i} - ${getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent)}`]:
+            renderEntityTree(entity)
+        }
+      })
     }
   }
 

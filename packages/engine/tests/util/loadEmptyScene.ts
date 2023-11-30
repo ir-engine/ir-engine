@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { SceneState } from '../../src/ecs/classes/Scene'
 import { setComponent } from '../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../src/ecs/functions/EntityFunctions'
@@ -52,6 +53,7 @@ export const loadEmptyScene = () => {
       root: 'root' as EntityUUID
     }
   })
+  getMutableState(SceneState).activeScene.set('test' as SceneID)
   const entity = createEntity()
   setComponent(entity, NameComponent, 'Root')
   setComponent(entity, VisibleComponent, true)

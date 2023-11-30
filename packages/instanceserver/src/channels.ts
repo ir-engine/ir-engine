@@ -255,14 +255,10 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
 
     if (!sceneId) throw new Error('No sceneId provided')
 
-    const sceneName = sceneId.split('/').at(-1)!.replace('.scene.json', '')
-    const projectName = sceneId.split('/').at(-2)!
-
     const sceneUpdatedListener = async () => {
-      const sceneData = await app
-        .service(scenePath)
-        .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
+      const sceneData = await app.service(scenePath).get(null, { query: { sceneKey: sceneId, metadataOnly: false } })
       SceneState.loadScene(sceneId, sceneData)
+      getMutableState(SceneState).activeScene.set(sceneId)
       /** @todo - quick hack to wait until scene has loaded */
 
       await new Promise<void>((resolve) => {
