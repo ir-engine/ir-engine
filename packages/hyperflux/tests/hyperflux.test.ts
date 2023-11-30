@@ -39,7 +39,6 @@ import {
   getMutableState,
   getState,
   initializeState,
-  receiveActions,
   removeActionQueue
 } from '..'
 
@@ -652,14 +651,12 @@ describe('Hyperflux Unit Tests', () => {
     dispatchAction(goodbye({ $time: 100 }))
     dispatchAction(greet({ $time: 100 }))
     applyIncomingActions()
-    receiveActions(HospitalityState)
 
     assert.equal(hospitality.greetingCount.value, 1)
     assert.equal(hospitality.firstGreeting.value, 'hi')
 
     dispatchAction(goodbye({ $time: 50 }))
     applyIncomingActions()
-    receiveActions(HospitalityState)
 
     assert.equal(hospitality.greetingCount.value, 0)
     assert.equal(hospitality.firstGreeting.value, 'bye')

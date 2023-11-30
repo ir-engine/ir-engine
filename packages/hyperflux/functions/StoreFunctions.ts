@@ -28,6 +28,7 @@ import { merge } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   ActionQueueHandle,
   ActionQueueInstance,
@@ -78,6 +79,11 @@ export interface HyperStore {
    * Underlying non-reactive states
    */
   valueMap: { [type: string]: any }
+
+  /**
+   * The entity context used to match action receptor functions
+   */
+  receptorEntityContext: Entity
 
   actions: {
     /** All queues that have been created */
@@ -133,6 +139,7 @@ export function createHyperStore(options: {
     peerID: uuidv4() as PeerID,
     stateMap: {},
     valueMap: {},
+    receptorEntityContext: UndefinedEntity,
     actions: {
       queueDefinitions: new Map(),
       queues: new Map(),

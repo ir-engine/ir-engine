@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /** Functions to provide system level functionalities. */
 
-import React, { Component, ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
+import { FC, useEffect } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
@@ -35,9 +35,6 @@ import { MathUtils } from 'three'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
-import { Entity } from '../classes/Entity'
-import { QueryComponents, useQuery } from './ComponentFunctions'
-import { EntityContext } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
@@ -176,7 +173,7 @@ export function defineSystem(systemConfig: SystemArgs) {
 }
 
 export const useExecute = (execute: () => void, insert: InsertSystem) => {
-  useLayoutEffect(() => {
+  useEffect(() => {
     const handle = defineSystem({ uuid: MathUtils.generateUUID(), execute, insert })
     return () => {
       destroySystem(handle)
@@ -230,90 +227,3 @@ export const destroySystem = (systemUUID: SystemUUID) => {
 
   SystemDefinitions.delete(systemUUID)
 }
-
-const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor: FC }) => {
-  return (
-    <>
-      <QueryReactorErrorBoundary>
-        <Suspense fallback={null}>
-          <EntityContext.Provider value={props.entity}>
-            <props.ChildEntityReactor />
-          </EntityContext.Provider>
-        </Suspense>
-      </QueryReactorErrorBoundary>
-    </>
-  )
-})
-
-export const QueryReactor = memo((props: { Components: QueryComponents; ChildEntityReactor: FC }) => {
-  const entities = useQuery(props.Components)
-  const MemoChildEntityReactor = useMemo(() => memo(props.ChildEntityReactor), [props.ChildEntityReactor])
-  return (
-    <>
-      {entities.map((entity) => (
-        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} />
-      ))}
-    </>
-  )
-})
-
-/**
- * @deprecated use QueryReactor directly
- */
-export const createQueryReactor = (Components: QueryComponents, ChildEntityReactor: FC) => {
-  return () => <QueryReactor Components={Components} ChildEntityReactor={ChildEntityReactor} />
-}
-
-interface ErrorState {
-  error: Error | null
-}
-
-class QueryReactorErrorBoundary extends Component<any, ErrorState> {
-  public state: ErrorState = {
-    error: null
-  }
-
-  public static getDerivedStateFromError(error: Error): ErrorState {
-    // Update state so the next render will show the fallback UI.
-    return { error }
-  }
-
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo)
-  }
-
-  public render() {
-    return this.state.error ? null : this.props.children
-  }
-}
-
-/** System template
-
-const MySystemState = defineState({
-  name: 'MySystemState',
-  initial: () => {
-    return {
-    }
-  }
-})
-
-const execute = () => {
-  
-}
-
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-
-    }
-  }, [])
-  return null
-}
-
-export const MySystem = defineSystem({
-  uuid: 'ee.engine.MySystem',
-  execute,
-  reactor
-})
-
-*/

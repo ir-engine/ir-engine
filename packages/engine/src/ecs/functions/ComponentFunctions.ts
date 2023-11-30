@@ -34,13 +34,19 @@ import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { HookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { Action, ReactorRoot, defineActionQueue, startReactor } from '@etherealengine/hyperflux'
-import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { ReactorRoot, defineActionQueue, startReactor } from '@etherealengine/hyperflux'
+import {
+  hookstate,
+  NO_PROXY,
+  none,
+  ReceptorMap,
+  State,
+  useHookstate
+} from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
 import { Entity, UndefinedEntity } from '../classes/Entity'
-import { EntityContext } from './EntityFunctions'
+import { EntityContext, useEntityContext } from './EntityFunctions'
 import { defineSystem } from './SystemFunctions'
 import { InputSystemGroup } from './EngineFunctions'
 
@@ -67,7 +73,7 @@ export interface ComponentPartial<
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = never,
-  Receptors = Record<string, HookableFunction<(action: Action) => void>>
+  Receptors = ReceptorMap
 > {
   name: string
   jsonID?: string
@@ -85,7 +91,8 @@ export interface Component<
   Schema extends bitECS.ISchema = Record<string, any>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
-  ErrorTypes = string
+  ErrorTypes = string,
+  Receptors = ReceptorMap
 > {
   isComponent: true
   name: string
@@ -97,6 +104,7 @@ export interface Component<
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: HookableFunction<React.FC>
   reactorMap: Map<Entity, ReactorRoot>
+  receptors?: Receptors
   existenceMap: Readonly<Record<Entity, boolean>>
   existenceMapState: State<Record<Entity, boolean>>
   existenceMapPromiseResolver: Record<Entity, { promise: Promise<void>; resolve: () => void }>
@@ -132,8 +140,7 @@ export const defineComponent = <
   Component.errors = []
   Component.receptors = {}
   Object.assign(Component, def)
-  if (Component.reactor && (!Component.reactor.name || Component.reactor.name === 'reactor'))
-    Object.defineProperty(Component.reactor, 'name', { value: `${Component.name}Reactor` })
+  if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
   Component.reactorMap = new Map()
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
@@ -149,7 +156,22 @@ export const defineComponent = <
   }
   ComponentMap.set(Component.name, Component)
 
-  return Component as typeof Component & { _TYPE: ComponentType }
+  const ExternalComponentReactor = (props: SetJSON) => {
+    const entity = useEntityContext()
+
+    useLayoutEffect(() => {
+      setComponent(entity, Component, props)
+      return () => {
+        removeComponent(entity, Component)
+      }
+    }, [props])
+
+    return null
+  }
+  Object.setPrototypeOf(ExternalComponentReactor, Component)
+  Object.defineProperty(ExternalComponentReactor, 'name', { value: `${Component.name}Reactor` })
+
+  return ExternalComponentReactor as typeof Component & { _TYPE: ComponentType } & typeof ExternalComponentReactor
 }
 
 /**
@@ -237,6 +259,9 @@ export const setComponent = <C extends Component>(
   if (!bitECS.entityExists(Engine.instance, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
+  if (args && Component.receptors) {
+    throw new Error('[setComponent]: args are not supported when a component state is driven by action receptors')
+  }
   if (!hasComponent(entity, Component)) {
     const value = Component.onInit(entity)
     Component.existenceMapState[entity].set(true)
@@ -273,9 +298,10 @@ export const setComponent = <C extends Component>(
       const queue = defineActionQueue(Object.values(Component.receptors).map((r) => r.matchesAction))
 
       defineSystem({
-        uuid: `${Component.name}.actionReceptor`,
+        uuid: `${entity}.${Component.name}.actionReceptor`,
         insert: { before: InputSystemGroup },
         execute: () => {
+          Engine.instance.store.receptorEntityContext = entity
           // queue may need to be reset when actions are recieved out of order
           // or when state needs to be rolled back
           if (queue.needsReset) {
@@ -289,6 +315,7 @@ export const setComponent = <C extends Component>(
               receptor.matchesAction.test(action) && receptor(action)
             }
           }
+          Engine.instance.store.receptorEntityContext = UndefinedEntity
         }
       })
     }
@@ -409,22 +436,6 @@ export const getAllComponentData = (entity: Entity): { [name: string]: Component
   return Object.fromEntries(getAllComponents(entity).map((C) => [C.name, getComponent(entity, C)]))
 }
 
-export const getComponentCountOfType = <C extends Component>(component: C): number => {
-  const query = defineQuery([component])
-  const length = query().length
-  bitECS.removeQuery(Engine.instance, query._query)
-  return length
-}
-
-export const getAllComponentsOfType = <C extends Component<any>>(component: C): ComponentType<C>[] => {
-  const query = defineQuery([component])
-  const entities = query()
-  bitECS.removeQuery(Engine.instance, query._query)
-  return entities.map((e) => {
-    return getComponent(e, component)!
-  })
-}
-
 export const removeAllComponents = (entity: Entity) => {
   const promises = [] as Promise<void>[]
   try {
@@ -440,82 +451,6 @@ export const removeAllComponents = (entity: Entity) => {
 export const serializeComponent = <C extends Component<any, any, any>>(entity: Entity, Component: C) => {
   const component = getMutableComponent(entity, Component)
   return JSON.parse(JSON.stringify(Component.toJSON(entity, component))) as ReturnType<C['toJSON']>
-}
-
-export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier)[]) {
-  const query = bitECS.defineQuery(components) as bitECS.Query
-  const enterQuery = bitECS.enterQuery(query)
-  const exitQuery = bitECS.exitQuery(query)
-
-  const _remove = () => bitECS.removeQuery(Engine.instance, wrappedQuery._query)
-  const _removeEnter = () => bitECS.removeQuery(Engine.instance, wrappedQuery._enterQuery)
-  const _removeExit = () => bitECS.removeQuery(Engine.instance, wrappedQuery._exitQuery)
-
-  const wrappedQuery = () => {
-    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_remove)
-    return query(Engine.instance) as Entity[]
-  }
-  wrappedQuery.enter = () => {
-    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_removeEnter)
-    return enterQuery(Engine.instance) as Entity[]
-  }
-  wrappedQuery.exit = () => {
-    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_removeExit)
-    return exitQuery(Engine.instance) as Entity[]
-  }
-
-  wrappedQuery._query = query
-  wrappedQuery._enterQuery = enterQuery
-  wrappedQuery._exitQuery = exitQuery
-  return wrappedQuery
-}
-
-export function removeQuery(query: ReturnType<typeof defineQuery>) {
-  bitECS.removeQuery(Engine.instance, query._query)
-  bitECS.removeQuery(Engine.instance, query._enterQuery)
-  bitECS.removeQuery(Engine.instance, query._exitQuery)
-}
-
-export type QueryComponents = (Component<any> | bitECS.QueryModifier | bitECS.Component)[]
-
-/**
- * Use a query in a reactive context (a React component)
- */
-export function useQuery(components: QueryComponents) {
-  const result = useHookstate([] as Entity[])
-  const forceUpdate = useForceUpdate()
-
-  // Use an immediate (layout) effect to ensure that `queryResult`
-  // is deleted from the `reactiveQueryStates` map immediately when the current
-  // component is unmounted, before any other code attempts to set it
-  // (component state can't be modified after a component is unmounted)
-  useLayoutEffect(() => {
-    const query = defineQuery(components)
-    result.set(query())
-    const queryState = { query, result, components }
-    Engine.instance.reactiveQueryStates.add(queryState)
-    return () => {
-      removeQuery(query)
-      Engine.instance.reactiveQueryStates.delete(queryState)
-    }
-  }, [])
-
-  // create an effect that forces an update when any components in the query change
-  useEffect(() => {
-    const entities = [...result.value]
-    const root = startReactor(function useQueryReactor() {
-      for (const entity of entities) {
-        components.forEach((C) => ('isComponent' in C ? useOptionalComponent(entity, C as any)?.value : undefined))
-      }
-      forceUpdate()
-      return null
-    })
-    return () => {
-      root.stop()
-    }
-  }, [result])
-
-  return result.value
 }
 
 // use seems to be unavailable in the server environment
@@ -573,8 +508,6 @@ export function useOptionalComponent<C extends Component<any>>(entity: Entity, C
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return hasComponent ? component : undefined
 }
-
-export type Query = ReturnType<typeof defineQuery>
 
 globalThis.EE_getComponent = getComponent
 globalThis.EE_getAllComponents = getAllComponents

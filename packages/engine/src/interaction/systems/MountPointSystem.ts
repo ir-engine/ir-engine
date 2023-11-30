@@ -25,14 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Box3, Vector3 } from 'three'
 
-import {
-  defineActionQueue,
-  dispatchAction,
-  getMutableState,
-  getState,
-  receiveActions,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { useEffect } from 'react'
 import { animationStates, defaultAnimationPath } from '../../avatar/animation/Util'
@@ -77,8 +70,6 @@ const mountPointQuery = defineQuery([MountPointComponent])
 const sittingIdleQuery = defineQuery([SittingComponent])
 
 const execute = () => {
-  receiveActions(MountPointState)
-
   if (getState(EngineState).isEditor) return
 
   for (const entity of mountPointQuery.enter()) {

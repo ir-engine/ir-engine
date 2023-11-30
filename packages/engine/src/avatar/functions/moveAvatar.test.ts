@@ -28,13 +28,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import {
-  applyIncomingActions,
-  dispatchAction,
-  getMutableState,
-  getState,
-  receiveActions
-} from '@etherealengine/hyperflux'
+import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
@@ -42,7 +36,6 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -79,7 +72,6 @@ describe('moveAvatar function tests', () => {
     )
 
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
@@ -113,7 +105,6 @@ describe('moveAvatar function tests', () => {
     )
 
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
@@ -149,7 +140,6 @@ describe('moveAvatar function tests', () => {
     )
 
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
@@ -182,7 +172,6 @@ describe('moveAvatar function tests', () => {
     )
 
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)

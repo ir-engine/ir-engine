@@ -45,7 +45,7 @@ export {
   matchesQuaternion,
   matchesActionFromUser,
   matchesWithDefault,
-  matchesQueueID
+  matchesEntityContext
 }
 
 const matchesVec3Shape = matches.shape({
@@ -78,7 +78,7 @@ const matchesEntity = matches.number as Validator<unknown, Entity>
 const matchesEntityUUID = matches.string as Validator<unknown, EntityUUID>
 
 const matchesEntityContext = matches.guard((v): v is EntityUUID => {
-  return v === Engine.instance.store.actions.activeQueue?.id
+  return v === Engine.instance.store.receptorEntityContext
 })
 
 const matchesActionFromUser = (userId: UserID) => {

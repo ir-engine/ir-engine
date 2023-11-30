@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createState, SetInitialStateAction, State, StateMethods, useHookstate } from '@hookstate/core'
+import { createState, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
@@ -49,7 +49,7 @@ export type StateDefinition<S, Receptors extends ReceptorMap> = {
   initial: SetInitialStateAction<S>
   receptors?: Receptors
   receptorActionQueue?: ActionQueueHandle
-  onCreate?: (store: HyperStore, state: StateMethods<S>) => void
+  onCreate?: (store: HyperStore, state: State<S>) => void
 }
 
 export const StateDefinitions = new Map<string, StateDefinition<any, ReceptorMap>>()

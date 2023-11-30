@@ -36,7 +36,6 @@ import {
   getMutableState,
   getState,
   none,
-  receiveActions,
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
@@ -149,7 +148,6 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
 
 export const EntityNetworkStateSystem = defineSystem({
   uuid: 'ee.networking.EntityNetworkStateSystem',
-  execute: () => receiveActions(EntityNetworkState),
   reactor: () => {
     const state = useMutableState(EntityNetworkState)
     return (
