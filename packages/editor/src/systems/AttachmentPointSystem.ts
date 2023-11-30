@@ -23,26 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hasComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  setComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { AttachmentPointComponent } from '@etherealengine/engine/src/scene/components/AttachmentPointComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformSystem, computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
-import { SelectionState } from '../../../../../packages/editor/src/services/SelectionServices'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { TransformSystem, computeTransformMatrix } from '../../transform/systems/TransformSystem'
-import { AttachmentPointComponent } from '../components/AttachmentPointComponent'
+import { EditorHelperState } from '../services/EditorHelperState'
+import { SelectionState } from '../services/SelectionServices'
 let lastExecutionTime = 0
 const interval = 100
 const execute = () => {
+  //only execute if attachment point snap is enabled
+  const helperState = getState(EditorHelperState)
+  if (!helperState.attachmentPointSnap) return
+
+  //execute according to interval
   const now = Date.now()
   if (now - lastExecutionTime < interval) return
   lastExecutionTime = now
   const attachmentPointQuery = defineQuery([AttachmentPointComponent])
 
-  //cauculate select entity
+  //calculate select entity
   const selectionState = getMutableState(SelectionState) //access the list of currently selected entities
   const selectedAttachmentPoints = selectionState.selectedEntities.value.flatMap((entity: Entity) => {
     return iterateEntityNode(

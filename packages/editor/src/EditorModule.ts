@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { RenderInfoSystem } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
 import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
+import { AttachmentPointSystem } from './systems/AttachmentPointSystem'
 import { EditorCameraSystem } from './systems/EditorCameraSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'
 import { EditorFlyControlSystem } from './systems/EditorFlyControlSystem'
@@ -33,6 +34,7 @@ import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
 import { UploadRequestSystem } from './systems/UploadRequestSystem'
 
 export {
+  AttachmentPointSystem,
   EditorInstanceNetworkingSystem,
   EditorControlSystem,
   EditorFlyControlSystem,

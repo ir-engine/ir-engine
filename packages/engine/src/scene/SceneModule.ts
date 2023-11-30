@@ -70,7 +70,6 @@ import { VideoComponent } from './components/VideoComponent'
 import { VisibleComponent } from './components/VisibleComponent'
 import { VolumetricComponent } from './components/VolumetricComponent'
 import { WaterComponent } from './components/WaterComponent'
-import { AttachmentPointSystem } from './systems/AttachmentPointSystem'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { FogSystem } from './systems/FogSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
@@ -132,7 +131,6 @@ export const SceneComponents = [
 ]
 
 export {
-  AttachmentPointSystem,
   EnvironmentSystem,
   FogSystem,
   MaterialLibrarySystem,

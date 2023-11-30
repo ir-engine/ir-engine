@@ -140,7 +140,7 @@ export const TransformGizmoComponent = defineComponent({
     }, [editorHelperState.transformSpace])
 
     useEffect(() => {
-      switch (editorHelperState.snapMode.value) {
+      switch (editorHelperState.gridSnap.value) {
         case SnapMode.Disabled: // continous update
           gizmoComponent.value.setTranslationSnap(null)
           gizmoComponent.value.setRotationSnap(null)
@@ -152,7 +152,7 @@ export const TransformGizmoComponent = defineComponent({
           gizmoComponent.value.setScaleSnap(editorHelperState.scaleSnap.value)
           break
       }
-    }, [editorHelperState.snapMode])
+    }, [editorHelperState.gridSnap])
 
     useEffect(() => {
       gizmoComponent.value.setTranslationSnap(editorHelperState.translationSnap.value)

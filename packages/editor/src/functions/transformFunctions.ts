@@ -40,7 +40,7 @@ export const setTransformMode = (mode: TransformModeType): void => {
 }
 
 export const toggleSnapMode = (): void => {
-  getMutableState(EditorHelperState).snapMode.set((value) =>
+  getMutableState(EditorHelperState).gridSnap.set((value) =>
     value === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled
   )
 }

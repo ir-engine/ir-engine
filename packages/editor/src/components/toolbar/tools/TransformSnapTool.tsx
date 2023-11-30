@@ -64,16 +64,20 @@ const TransformSnapTool = () => {
 
   const onChangeTranslationSnap = (snapValue: number) => {
     getMutableState(EditorHelperState).translationSnap.set(snapValue)
-    if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-      getMutableState(EditorHelperState).snapMode.set(SnapMode.Grid)
+    if (editorHelperState.gridSnap.value !== SnapMode.Grid) {
+      getMutableState(EditorHelperState).gridSnap.set(SnapMode.Grid)
     }
   }
 
   const onChangeRotationSnap = (snapValue: number) => {
     getMutableState(EditorHelperState).rotationSnap.set(snapValue)
-    if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-      getMutableState(EditorHelperState).snapMode.set(SnapMode.Grid)
+    if (editorHelperState.gridSnap.value !== SnapMode.Grid) {
+      getMutableState(EditorHelperState).gridSnap.set(SnapMode.Grid)
     }
+  }
+
+  const toggleAttachmentPointSnap = () => {
+    editorHelperState.attachmentPointSnap.set(!editorHelperState.attachmentPointSnap.value)
   }
 
   // const onChangeScaleSnap = (snapValue: number) => {
@@ -87,9 +91,17 @@ const TransformSnapTool = () => {
     <div className={styles.toolbarInputGroup} id="transform-snap">
       <InfoTooltip title={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
         <button
+          onClick={toggleAttachmentPointSnap}
+          className={styles.toolButton + ' ' + (editorHelperState.attachmentPointSnap.value ? styles.selected : '')}
+        >
+          <AttractionsIcon fontSize="small" />
+        </button>
+      </InfoTooltip>
+      <InfoTooltip title={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
+        <button
           onClick={toggleSnapMode}
           className={
-            styles.toolButton + ' ' + (editorHelperState.snapMode.value === SnapMode.Grid ? styles.selected : '')
+            styles.toolButton + ' ' + (editorHelperState.gridSnap.value === SnapMode.Grid ? styles.selected : '')
           }
         >
           <AttractionsIcon fontSize="small" />
