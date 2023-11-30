@@ -32,9 +32,14 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { TransformSystem } from '../../transform/systems/TransformSystem'
+import { TransformSystem, computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { AttachmentPointComponent } from '../components/AttachmentPointComponent'
+let lastExecutionTime = 0
+const interval = 100
 const execute = () => {
+  const now = Date.now()
+  if (now - lastExecutionTime < interval) return
+  lastExecutionTime = now
   const attachmentPointQuery = defineQuery([AttachmentPointComponent])
 
   //cauculate select entity
@@ -47,8 +52,8 @@ const execute = () => {
     )
   })
   let shortestDistance = Infinity
-  let closestPosition: Vector3 | null = null
-  let closestRotation: Quaternion | null = null
+  let dstPosition: Vector3 | null = null
+  let dstRotation: Quaternion | null = null
   let node: Entity | null = null
 
   const threshold = 1
@@ -79,30 +84,42 @@ const execute = () => {
       //store the attachment point transform and selected attachment point
       if (distance < shortestDistance) {
         shortestDistance = distance
-        closestPosition = transform.position
-        closestRotation = transform.rotation
+        dstPosition = transform.position
+        dstRotation = transform.rotation
         node = selectedAttachmentPoint
       }
     }
   }
   //snap two object according two closest attachment points
   // if (shortestDistance < threshold && closestPosition && closestRotation && node && shortestDistance!=0) {
-  if (shortestDistance < threshold && closestPosition && closestRotation && node && shortestDistance != 0) {
+  if (shortestDistance < threshold && dstPosition && dstRotation && node && shortestDistance != 0) {
     const selectParententityFinal = getComponent(node, EntityTreeComponent).parentEntity
-    const selectedTransformFinal = getComponent(node, TransformComponent)
+    const srcPointTransform = getComponent(node, TransformComponent)
     if (selectParententityFinal) {
-      const selectTransform = getComponent(selectParententityFinal, TransformComponent)
+      const parentTransform = getComponent(selectParententityFinal, TransformComponent)
+      const q1 = srcPointTransform.rotation.clone()
+      const q2 = dstRotation.clone()
+
+      // Compute the alignment quaternion
+      const alignment = q2.clone().multiply(q1.clone().conjugate())
+
+      // Apply this combined rotation to the parent's rotation
+      const initialRotation = alignment.multiply(parentTransform.rotation.clone())
+
       const localYAxis = new Vector3(0, 1, 0)
-      const q = new Quaternion()
-      //apply rotation to selected object
-      localYAxis.applyQuaternion(closestRotation)
-      q.setFromAxisAngle(localYAxis, Math.PI)
+      localYAxis.applyQuaternion(initialRotation)
+      const flipAround = new Quaternion().setFromAxisAngle(localYAxis, Math.PI)
+
+      // Apply the flip to the parent's rotation
+      const rotation = flipAround.multiply(initialRotation)
 
       setComponent(selectParententityFinal, TransformComponent, {
-        rotation: q.clone().multiply(closestRotation)
+        rotation
       })
+      computeTransformMatrix(node)
+      const position = parentTransform.position.clone().add(dstPosition.clone().sub(srcPointTransform.position))
       setComponent(selectParententityFinal, TransformComponent, {
-        position: selectTransform.position.add(closestPosition.clone().sub(selectedTransformFinal.position))
+        position
       })
     }
   }
