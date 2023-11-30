@@ -110,7 +110,7 @@ export interface ComponentPartial<
   toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
   /**
    * @description
-   * Called when the component's data is updated via the setComponent function.
+   * Called when the component's data is updated via the {@link setComponent} function.
    * This is where deserialization logic should happen.
    * @param entity The {@link Entity} to which this Component is assigned.
    * @param component The Component's global data (aka {@link State}).
@@ -128,7 +128,6 @@ export interface ComponentPartial<
   reactor?: React.FC
   /**
    * @todo Explain ComponentPartial.errors[]
-   * @why ASdf 09123 ijpdsofijapoi
    */
   errors?: ErrorTypes[]
 }
