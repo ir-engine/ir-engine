@@ -34,6 +34,7 @@ import {
 } from '@behave-graph/core'
 import { GetSceneProperty, SetSceneProperty } from '@behave-graph/scene'
 import { OnButtonState } from './Events/onButtonState'
+import { OnCollision } from './Events/onCollision'
 import { OnQuery } from './Events/onQuery'
 import * as ComponentNodes from './Values/ComponentNodes'
 import * as CustomNodes from './Values/CustomNodes'
@@ -75,6 +76,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
 
     // events
     OnButtonState, // click included
+    OnCollision,
     OnQuery,
     // async
     //switchScene.Description,
