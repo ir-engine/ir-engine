@@ -149,14 +149,11 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(TextComponent, 'text')}
         />
       </InputGroup>
-      <InputGroup
-        name="TextGroup"
-        label="Text" // {t('editor:properties.text.textGroup')}  /* @todo: Translation id */
-      >
+      <InputGroup name="TextGroup" label={t('editor:properties.text.textGroup')}>
         <div>
           <NumericInputGroup
             name="TextOpacity"
-            label="opacity" // {t('editor:properties.text.textOpacity')}  /* @todo: Translation id */
+            label={t('editor:properties.text.textOpacity')}
             min={0}
             max={100}
             smallStep={1}
@@ -169,7 +166,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           />
           <NumericInputGroup
             name="TextWidth"
-            label="width" // {t('editor:properties.text.textWidth')}  /* @todo: Translation id */
+            label={t('editor:properties.text.textWidth')}
             min={0}
             smallStep={0.01}
             mediumStep={0.1}
@@ -181,7 +178,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           />
           <NumericInputGroup
             name="TextIndent"
-            label="indent" // {t('editor:properties.text.textIndent')}  /* @todo: Translation id */
+            label={t('editor:properties.text.textIndent')}
             min={0}
             smallStep={0.01}
             mediumStep={0.1}
@@ -191,10 +188,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(TextComponent, 'textIndent')}
             unit="em"
           />
-          <InputGroup
-            name="TextAlign"
-            label="align" // {t('editor:properties.text.textAlign')} /* @todo: Translation id */
-          >
+          <InputGroup name="TextAlign" label={t('editor:properties.text.textAlign')}>
             <SelectInput
               options={SelectOptions.TextAlignment}
               value={text.textAlign.value}
@@ -202,10 +196,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               onRelease={commitProperty(TextComponent, 'textAlign')}
             />
           </InputGroup>
-          <InputGroup
-            name="TextWrap"
-            label="wrap" // {t('editor:properties.text.textWrap')} /* @todo: Translation id */
-          >
+          <InputGroup name="TextWrap" label={t('editor:properties.text.textWrap')}>
             <BooleanInput
               value={text.textWrap.value}
               onChange={text.textWrap.set}
@@ -219,10 +210,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               onRelease={commitProperty(TextComponent, 'textWrapKind')}
             />
           </InputGroup>
-          <InputGroup
-            name="TextAnchor"
-            label="anchor" // {t('editor:properties.text.textAnchor')} /* @todo: Translation id */
-          >
+          <InputGroup name="TextAnchor" label={t('editor:properties.text.textAnchor')}>
             <Vector2Input
               value={text.textAnchor.value}
               onChange={updateProperty(TextComponent, 'textAnchor')}
@@ -231,7 +219,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           </InputGroup>
           <NumericInputGroup
             name="TextDepthOffset"
-            label="depthOffset" // {t('editor:properties.text.textDepthOffset')}  /* @todo: Translation id */
+            label={t('editor:properties.text.textDepthOffset')}
             smallStep={0.01}
             mediumStep={0.1}
             largeStep={0.25}
@@ -242,7 +230,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           />
           <NumericInputGroup
             name="TextCurveRadius"
-            label="curveRadius" // {t('editor:properties.text.textCurveRadius')}  /* @todo: Translation id */
+            label={t('editor:properties.text.textCurveRadius')}
             smallStep={1}
             mediumStep={5}
             largeStep={15}
@@ -253,7 +241,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           />
           <NumericInputGroup
             name="LetterSpacing"
-            label="letterSpacing" // {t('editor:properties.text.letterSpacing')}  /* @todo: Translation id */
+            label={t('editor:properties.text.letterSpacing')}
             min={-0.5}
             smallStep={0.01}
             mediumStep={0.1}
@@ -263,15 +251,12 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(TextComponent, 'letterSpacing')}
             unit="px"
           />
-          <InputGroup
-            name="LineHeightGroup"
-            label="lineHeight" // {t('editor:properties.text.textWrap')} /* @todo: Translation id */
-          >
+          <InputGroup name="LineHeightGroup" label={t('editor:properties.text.textWrap')}>
             <BooleanInput value={lineHeightIsNormal.value} onChange={lineHeight_setNormal} />
             <NumericInputGroup
               disabled={lineHeightIsNormal.value} // Disable numeric input when lineHeight is set to 'normal'
               name="LineHeight"
-              label="height" // {t('editor:properties.text.lineHeight')}  /* @todo: Translation id */
+              label={t('editor:properties.text.lineHeight')}
               min={0}
               smallStep={0.01}
               mediumStep={0.1}
@@ -282,10 +267,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               unit="em"
             />
           </InputGroup>
-          <InputGroup
-            name="TextDirection"
-            label="direction" // {t('editor:properties.text.textDirection')} /* @todo: Translation id */
-          >
+          <InputGroup name="TextDirection" label={t('editor:properties.text.textDirection')}>
             <SelectInput
               options={SelectOptions.TextDirection}
               value={text.textDirection.value}
@@ -296,16 +278,9 @@ export const TextNodeEditor: EditorComponentType = (props) => {
         </div>
       </InputGroup>
       <br></br>
-      <InputGroup
-        name="FontGroup"
-        label="Font" // {t('editor:properties.text.fontGroup')}  /* @todo: Translation id */
-      >
+      <InputGroup name="FontGroup" label={t('editor:properties.text.fontGroup')}>
         <div>
-          <InputGroup
-            name="FontFamily"
-            label="family" // {t('editor:properties.text.fontGroup')}  /* @todo: Translation id */
-            info={HoverInfo.FontFamily}
-          >
+          <InputGroup name="FontFamily" label={t('editor:properties.text.fontFamily')} info={HoverInfo.FontFamily}>
             <ControlledStringInput
               value={text.font.value!}
               onChange={updateProperty(TextComponent, 'font')}
@@ -314,7 +289,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           </InputGroup>
           <NumericInputGroup
             name="FontSize"
-            label="size" // {t('editor:properties.text.fontSize')}  /* @todo: Translation id */
+            label={t('editor:properties.text.fontSize')}
             min={0}
             smallStep={0.01}
             mediumStep={0.1}
@@ -324,20 +299,14 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(TextComponent, 'fontSize')}
             unit="em"
           />
-          <InputGroup
-            name="FontColor"
-            label="color" // {t('editor:properties.text.fontColor')}  /* @todo: Translation id */
-          >
+          <InputGroup name="FontColor" label={t('editor:properties.text.fontColor')}>
             <ColorInput
               value={text.fontColor.value}
               onChange={updateProperty(TextComponent, 'fontColor')}
               onRelease={commitProperty(TextComponent, 'fontColor')}
             />
           </InputGroup>
-          <InputGroup
-            name="FontMaterial"
-            label="material" // {t('editor:properties.text.fontColor')}  /* @todo: Translation id */
-          >
+          <InputGroup name="FontMaterial" label={t('editor:properties.text.fontMaterial')}>
             <SelectInput
               options={SelectOptions.FontMaterial}
               value={text.fontMaterial.value}
@@ -348,15 +317,9 @@ export const TextNodeEditor: EditorComponentType = (props) => {
         </div>
       </InputGroup>
       <br></br>
-      <InputGroup
-        name="OutlineGroup"
-        label="Outline" // {t('editor:properties.text.outlineGroup')}  /* @todo: Translation id */
-      >
+      <InputGroup name="OutlineGroup" label={t('editor:properties.text.outlineGroup')}>
         <div>
-          <InputGroup
-            name="OutlineColor"
-            label="color" // {t('editor:properties.text.outlineColor')}  /* @todo: Translation id */
-          >
+          <InputGroup name="OutlineColor" label={t('editor:properties.text.outlineColor')}>
             <ColorInput
               value={text.outlineColor.value}
               onChange={updateProperty(TextComponent, 'outlineColor')}
@@ -365,7 +328,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           </InputGroup>
           <NumericInputGroup
             name="OutlineOpacity"
-            label="opacity" // {t('editor:properties.text.outlineOpacity')}  /* @todo: Translation id */
+            label={t('editor:properties.text.outlineOpacity')}
             min={0}
             max={100}
             smallStep={1}
@@ -378,7 +341,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           />
           <NumericInputGroup
             name="OutlineWidth"
-            label="width" // {t('editor:properties.text.outlineWidth')}  /* @todo: Translation id */
+            label={t('editor:properties.text.outlineWidth')}
             min={0}
             smallStep={0.5}
             mediumStep={1}
@@ -390,7 +353,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           />
           <NumericInputGroup
             name="OutlineBlur"
-            label="blur" // {t('editor:properties.text.outlineBlur')}  /* @todo: Translation id */
+            label={t('editor:properties.text.outlineBlur')}
             min={0}
             smallStep={1}
             mediumStep={2}
@@ -400,10 +363,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(TextComponent, 'outlineBlur')}
             unit="%"
           />
-          <InputGroup
-            name="OutlineOffset"
-            label="offset" // {t('editor:properties.text.outlineOffset')} /* @todo: Translation id */
-          >
+          <InputGroup name="OutlineOffset" label={t('editor:properties.text.outlineOffset')}>
             <Vector2Input
               value={text.outlineOffset.value}
               onChange={updateProperty(TextComponent, 'outlineOffset')}
@@ -413,15 +373,9 @@ export const TextNodeEditor: EditorComponentType = (props) => {
         </div>
       </InputGroup>
       <br></br>
-      <InputGroup
-        name="StrokeGroup"
-        label="Stroke" // {t('editor:properties.text.strokeGroup')}  /* @todo: Translation id */
-      >
+      <InputGroup name="StrokeGroup" label={t('editor:properties.text.strokeGroup')}>
         <div>
-          <InputGroup
-            name="StrokeColor"
-            label="color" // {t('editor:properties.text.strokeColor')}  /* @todo: Translation id */
-          >
+          <InputGroup name="StrokeColor" label={t('editor:properties.text.strokeColor')}>
             <ColorInput
               value={text.strokeColor.value}
               onChange={updateProperty(TextComponent, 'strokeColor')}
@@ -430,7 +384,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           </InputGroup>
           <NumericInputGroup
             name="StrokeOpacity"
-            label="opacity" // {t('editor:properties.text.strokeOpacity)}  /* @todo: Translation id */
+            label={t('editor:properties.text.strokeOpacity')}
             min={0}
             max={100}
             smallStep={1}
@@ -443,7 +397,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           />
           <NumericInputGroup
             name="StrokeWidth"
-            label="width" // {t('editor:properties.text.strokeWidth')}  /* @todo: Translation id */
+            label={t('editor:properties.text.strokeWidth')}
             min={0}
             smallStep={0.5}
             mediumStep={1}
@@ -458,17 +412,14 @@ export const TextNodeEditor: EditorComponentType = (props) => {
       <br></br>
       <InputGroup
         name="AdvancedActive"
-        label="Show Advanced" // {t('editor:properties.text.advancedActive')}  /* @todo: Translation id */
+        label={t('editor:properties.text.advancedActive')}
         info={HoverInfo.AdvancedGroup}
       >
         <BooleanInput value={advancedActive.value} onChange={advancedActive.set} />
       </InputGroup>
       {advancedActive.value ? (
         /*Show Advanced Options only when Active*/
-        <InputGroup
-          name="AdvancedGroup"
-          label="Advanced" // {t('editor:properties.text.advancedGroup')}  /* @todo: Translation id */
-        >
+        <InputGroup name="AdvancedGroup" label={t('editor:properties.text.advancedGroup')}>
           <div>
             <InputGroup name="TextOrientation" label="textOrientation" info={HoverInfo.TextOrientation}>
               <ControlledStringInput
@@ -479,7 +430,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             </InputGroup>
             <InputGroup
               name="ClippingActive"
-              label="clip.active" // {t('editor:properties.text.clippingActive')}  /* @todo: Translation id */
+              label={t('editor:properties.text.clippingActive')}
               info={HoverInfo.Clipping}
             >
               <BooleanInput value={text.clipActive.value} onChange={text.clipActive.set} />
@@ -487,7 +438,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             <InputGroup
               disabled={!text.clipActive.value}
               name="ClippingMin"
-              label="clip.min" // {t('editor:properties.text.clippingMin')} /* @todo: Translation id */
+              label={t('editor:properties.text.clippingMin')}
             >
               <Vector2Input
                 value={text.clipRectMin.value}
@@ -498,7 +449,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             <InputGroup
               disabled={!text.clipActive.value}
               name="ClippingMax"
-              label="clip.max" // {t('editor:properties.text.clippingMax')} /* @todo: Translation id */
+              label={t('editor:properties.text.clippingMax')}
             >
               <Vector2Input
                 value={text.clipRectMax.value}
@@ -508,7 +459,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             </InputGroup>
             <NumericInputGroup
               name="GlyphResolution"
-              label="glyph.resolution" // {t('editor:properties.text.glyphResolution')}  /* @todo: Translation id */
+              label={t('editor:properties.text.glyphResolution')}
               info={HoverInfo.GlyphResolution}
               min={1}
               max={8}
@@ -522,7 +473,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             />
             <NumericInputGroup
               name="GlyphDetail"
-              label="glyph.detail" // {t('editor:properties.text.glyphDetail')}  /* @todo: Translation id */
+              label={t('editor:properties.text.glyphDetail')}
               info={HoverInfo.GlyphDetail}
               min={1}
               smallStep={1}
@@ -535,7 +486,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             />
             <InputGroup
               name="GPUAccelerated"
-              label="GPU Accelerated" // {t('editor:properties.text.gpuAccelerated')}  /* @todo: Translation id */
+              label={t('editor:properties.text.gpuAccelerated')}
               info={HoverInfo.GPUAccelerated}
             >
               <BooleanInput
