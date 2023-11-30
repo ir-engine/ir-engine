@@ -64,9 +64,14 @@ export const useLoadLocation = (props: { locationName: string }) => {
 
   useEffect(() => {
     if (locationState.currentLocation.selfNotAuthorized.value) {
+      getMutableState(AppLoadingState).merge({
+        state: AppLoadingStates.FAIL,
+        loaded: false
+      })
       WarningUIService.openWarning({
         title: t('common:instanceServer.notAuthorizedAtLocationTitle'),
-        body: t('common:instanceServer.notAuthorizedAtLocation')
+        body: t('common:instanceServer.notAuthorizedAtLocation'),
+        action: () => RouterState.navigate('/')
       })
     }
   }, [locationState.currentLocation.selfNotAuthorized])
