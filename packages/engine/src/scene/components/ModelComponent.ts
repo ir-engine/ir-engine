@@ -208,6 +208,7 @@ function ModelReactor() {
         root: '' as EntityUUID,
         version: 0
       },
+      scenePath: uuid,
       name: '',
       project: '',
       thumbnailUrl: ''

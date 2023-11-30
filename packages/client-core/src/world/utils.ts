@@ -40,6 +40,7 @@ export const loadSceneJsonOffline = async (projectName, sceneName) => {
   SceneState.loadScene(sceneID, {
     scene: parseStorageProviderURLs(sceneData),
     name: sceneName,
+    scenePath: sceneID,
     thumbnailUrl: `${fileServer}/projects/${projectName}/${sceneName}.thumbnail.${hasKTX2 ? 'ktx2' : 'jpeg'}`,
     project: projectName
   })

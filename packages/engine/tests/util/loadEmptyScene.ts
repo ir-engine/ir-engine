@@ -42,6 +42,7 @@ export const loadEmptyScene = () => {
     name: '',
     thumbnailUrl: '',
     project: '',
+    scenePath: 'test' as SceneID,
     scene: {
       entities: {
         ['root' as EntityUUID]: {
