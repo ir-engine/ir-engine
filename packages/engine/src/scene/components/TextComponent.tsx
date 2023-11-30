@@ -222,7 +222,7 @@ export const TextComponent = defineComponent({
       glyphDetail: 1, // Maps to troika.Text.glyphGeometryDetail
 
       // Internal State
-      troikaMesh: new TroikaText() as TextMesh
+      troikaMesh: null as TextMesh
     }
   },
 
@@ -314,9 +314,15 @@ export const TextComponent = defineComponent({
     if (!isClient) return null
     const entity = useEntityContext()
     const text = useComponent(entity, TextComponent)
+    
 
-    // Add the text mesh to the scene
-    addObjectToGroup(entity, text.troikaMesh.value)
+    useEffect(() => {
+      text.troikaMesh.set(new TroikaText())
+      addObjectToGroup(entity, text.troikaMesh.value)
+      return () => {
+        text.troikaMesh.value.dispose()
+      }
+    }, [])
 
     useEffect(() => {
       // Update the Text content/properties
@@ -371,9 +377,6 @@ export const TextComponent = defineComponent({
       text.troikaMesh.value.glyphGeometryDetail = text.glyphDetail.value
       // Order troika to synchronize the mesh
       text.troikaMesh.value.sync()
-      return () => {
-        text.troikaMesh.value.dispose()
-      }
     }, [
       text.text,
       text.textOpacity,
