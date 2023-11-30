@@ -46,7 +46,6 @@ import Component from './index'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import 'daisyui/dist/full.css'
 import 'tailwindcss/tailwind.css'
 
@@ -83,19 +82,11 @@ const decorators = [
         ProjectService.fetchProjects()
         if (!fetchedProjectComponents) {
           setFetchedProjectComponents(true)
-          // @ts-ignore
-          Engine.instance.api
-            // @ts-ignore
-            .service(projectsPath)
-            // @ts-ignore
-            .find()
-            .then((projects) => {
-              loadEngineInjection(projects).then((result) => {
-                LocationState.setLocationName(locationName)
-                initializeEngineForRecorder()
-                setProjectComponents(result)
-              })
-            })
+          loadEngineInjection().then((result) => {
+            LocationState.setLocationName(locationName)
+            initializeEngineForRecorder()
+            setProjectComponents(result)
+          })
         }
       }
     }, [selfUser, projectState.updateNeeded.value])

@@ -27,14 +27,12 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import '@etherealengine/engine/src/EngineModule'
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import '../EditorModule'
 import EditorContainer from '../components/EditorContainer'
 import { EditorState } from '../services/EditorServices'
@@ -43,16 +41,10 @@ export const useStudioEditor = () => {
   const [engineReady, setEngineReady] = useState(false)
 
   useEffect(() => {
-    if (engineReady) return
     getMutableState(EngineState).isEditor.set(true)
     getMutableState(EngineState).isEditing.set(true)
-    const projects = Engine.instance.api.service(projectsPath).find()
-
-    if (engineReady) return
-    projects.then((proj) => {
-      loadEngineInjection(proj).then(() => {
-        setEngineReady(true)
-      })
+    loadEngineInjection().then(() => {
+      setEngineReady(true)
     })
   }, [])
 
