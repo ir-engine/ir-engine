@@ -127,14 +127,17 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
 
   const renderEntityTreeRoots = () => {
     return {
-      ...Object.values(getState(SceneState).scenes).map((scene, i) => {
-        const root = scene.snapshots[scene.index].data.root
-        const entity = UUIDComponent.entitiesByUUID[root]
-        return {
-          [`${i} - ${getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent)}`]:
-            renderEntityTree(entity)
-        }
-      })
+      ...Object.values(getState(SceneState).scenes)
+        .map((scene, i) => {
+          const root = scene.snapshots[scene.index].data.root
+          const entity = UUIDComponent.entitiesByUUID[root]
+          if (!entity || !entityExists(entity)) return null
+          return {
+            [`${i} - ${getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent)}`]:
+              renderEntityTree(entity)
+          }
+        })
+        .filter((exists) => !!exists)
     }
   }
 
