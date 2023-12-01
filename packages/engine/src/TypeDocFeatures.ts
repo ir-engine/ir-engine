@@ -24,6 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /**
+ * @todo Remove this file before PR. Just a reference.
+ *
  * @fileoverview
  * Overview of the {@link typedoc https://typedoc.org/guides/doccomments/} features used by EE.
  *
@@ -49,21 +51,12 @@ export type AwesomeType = { a: '123'; b: 'abc'; c: '42' }
 
 /**
  * @description
- * Checks if given position is a valid position to move avatar too.
- *
- * Mark territory purr like a car engine oh yes, there is my human slave woman she does best pats ever that all i like about her hiss meow.
- * Give me attention or face the wrath of my claws meow so fight own tail.
- * Lay on arms while you're using the keyboard get scared by doggo also cucumerro Gate keepers of hell lick the plastic bag.
- * Lick yarn hanging out of own butt small kitty warm kitty little balls of fur but where is my slave? I'm getting hungry.
- * @param position
- * @param onlyAllowPositionOnGround if set will only consider the given position as valid if it falls on the ground
- * @param raycastDirection Direction to check for collisions.
- * @returns The Awesome data needed to continue the process.
+ * Description of a function.
+ * @param one Description of the first argument. synonym: @arg
+ * @param two Description of the second argument. Default values of arguments are implied.
+ * @param three Description of the third argument. Object default values will render as TheType(...)
+ * @returns Description of the returned data. Doesn't need a type, only its description.
  */
-export default function checkPositionIsValid(
-  position: AwesomeType,
-  onlyAllowPositionOnGround = true,
-  raycastDirection = new Vector3(0, -1, 0)
-): AwesomeType {
+export default function defaultFunction(one: AwesomeType, two = true, three = new Vector3(0, -1, 0)): AwesomeType {
   return {} as AwesomeType
 }
