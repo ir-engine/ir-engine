@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -113,14 +113,6 @@ export const EntityTreeComponent = defineComponent({
         }
       }
     }
-
-    // If parent is the world origin, then the parent entity is a tree root
-    const isRoot = component.parentEntity.value === null
-    if (isRoot) {
-      EntityTreeComponent.roots[entity].set(true)
-    } else {
-      EntityTreeComponent.roots[entity].set(none)
-    }
   },
 
   onRemove: (entity, component) => {
@@ -133,34 +125,30 @@ export const EntityTreeComponent = defineComponent({
         const children = parent.children.get(NO_PROXY)
         parent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
       }
-    } else {
-      EntityTreeComponent.roots[entity].set(none)
     }
-  },
-
-  roots: hookstate({} as Record<Entity, true>)
+  }
 })
 
 /**
  * Recursively destroys all the children entities of the passed entity
  */
-export function destroyEntityTree(rootEntity: Entity): void {
-  const children = getComponent(rootEntity, EntityTreeComponent).children.slice()
+export function destroyEntityTree(entity: Entity): void {
+  const children = getComponent(entity, EntityTreeComponent).children.slice()
   for (const child of children) {
     destroyEntityTree(child)
   }
-  removeEntity(rootEntity)
+  removeEntity(entity)
 }
 
 /**
  * Recursively removes all the children from the entity tree
  */
-export function removeFromEntityTree(rootEntity: Entity): void {
-  const children = getComponent(rootEntity, EntityTreeComponent).children.slice()
+export function removeFromEntityTree(entity: Entity): void {
+  const children = getComponent(entity, EntityTreeComponent).children.slice()
   for (const child of children) {
     removeFromEntityTree(child)
   }
-  removeComponent(rootEntity, EntityTreeComponent)
+  removeComponent(entity, EntityTreeComponent)
 }
 
 /**

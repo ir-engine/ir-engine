@@ -31,7 +31,6 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { EditorState } from '../../services/EditorServices'
 import { EditorActiveInstanceState } from './EditorActiveInstanceService'
 
@@ -39,14 +38,13 @@ let accumulator = 0
 
 const execute = () => {
   const editorState = getState(EditorState)
-  if (!editorState.projectName || !editorState.sceneName) return
+  if (!editorState.sceneID) return
 
   accumulator += getState(EngineState).deltaSeconds
 
   if (accumulator > 5) {
     accumulator = 0
-    const sceneId = `${editorState.projectName}/${editorState.sceneName}` as SceneID
-    EditorActiveInstanceState.getActiveInstances(sceneId)
+    EditorActiveInstanceState.getActiveInstances(editorState.sceneID)
   }
 }
 

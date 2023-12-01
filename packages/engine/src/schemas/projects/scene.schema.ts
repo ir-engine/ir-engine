@@ -87,7 +87,8 @@ export interface SceneMetadataType extends Static<typeof sceneMetadataSchema> {}
 export const sceneDataSchema = Type.Object(
   {
     ...sceneMetadataSchema.properties,
-    scene: Type.Ref(sceneJsonSchema)
+    scene: Type.Ref(sceneJsonSchema),
+    scenePath: TypedString<SceneID>()
   },
   { $id: 'SceneData', additionalProperties: false }
 )
@@ -113,7 +114,8 @@ export interface SceneCreateData extends Static<typeof sceneCreateDataSchema> {}
 export const sceneMetadataCreateSchema = Type.Object(
   {
     name: Type.String(),
-    project: Type.String()
+    project: Type.String(),
+    scenePath: TypedString<SceneID>()
   },
   {
     $id: 'SceneMetadataCreate'
@@ -159,7 +161,7 @@ export const sceneQuerySchema = Type.Intersect(
         metadataOnly: Type.Optional(Type.Boolean()),
         internal: Type.Optional(Type.Boolean()),
         paginate: Type.Optional(Type.Boolean()),
-        sceneKey: Type.Optional(Type.String()),
+        sceneKey: Type.Optional(TypedString<SceneID>()),
         directory: Type.Optional(Type.String()),
         localDirectory: Type.Optional(Type.String())
       },
