@@ -23,6 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+/**
+ * @fileoverview
+ * Defines the types and logic required for using and creating Spatial Text {@link Component}s.
+ */
+
 import { useEffect } from 'react'
 
 import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
@@ -42,51 +47,49 @@ type TroikaColor = string | number | Color
 
 /**
  * @description
- * troika.Text direction type, as declared by `troika-three-text` in its Text.direction `@member` property.
- * `auto` means choosing direction based on the text contents.
+ * - `auto`: Chooses text direction based on the text contents.
+ * - `ltr`: Text will have a left-to-right direction.
+ * - `rtl`: Text will have a right-to-left direction.
+ * @notes troika.Text direction type, as declared by `troika-three-text` in its Text.direction `@member` property.
  */
 export type TroikaTextDirection = 'auto' | 'ltr' | 'rtl'
 
 /**
- * @summary
- * Defines the horizontal alignment of each line within the overall bounding box.
  * @description
- * troika.Text alignment type, as declared by `troika-three-text` in its Text.textAlign `@member` property.
+ * Defines the horizontal alignment of each line within the overall bounding box.
+ * @notes troika.Text alignment type, as declared by `troika-three-text` in its Text.textAlign `@member` property.
  */
 export type TroikaTextAlignment = 'left' | 'center' | 'right' | 'justify'
 
 /**
- * @summary
- * Defines whether text should wrap when a line reaches `maxWidth`.
- * @enum `'normal'`: Allow wrapping according to the `overflowWrap` property. Honors newline characters to manually break lines, making it behave more like `'pre-wrap'` does in CSS.
- * @enum `'nowrap'`: Does not allow text to wrap.
  * @description
- * troika.Text wrap, as declared by `troika-three-text` in its Text.whiteSpace `@member` property.
+ * Defines whether text should wrap when a line reaches `maxWidth`.
+ * - `'normal'`: Allow wrapping according to the `overflowWrap` property. Honors newline characters to manually break lines, making it behave more like `'pre-wrap'` does in CSS.
+ * - `'nowrap'`: Does not allow text to wrap.
+ * @notes troika.Text wrap, as declared by `troika-three-text` in its Text.whiteSpace `@member` property.
  */
 export type TroikaTextWrap = 'normal' | 'nowrap'
 
 /**
- * @summary
- * Defines how text wraps if TroikaTextWrap is set to `normal` _(aka TextComponent.textWrap: true)_.
  * @description
- * troika.Text wrapping kind, as declared by `troika-three-text` in its Text.overflowWrap `@member` property.
- * @enum `'normal'`: Break at whitespace characters
- * @enum `'break-word'`: Break within words
+ * Defines how text wraps if TroikaTextWrap is set to `normal` _(aka TextComponent.textWrap: true)_.
+ * - `'normal'`: Break at whitespace characters
+ * - `'break-word'`: Break within words
+ * @notes troika.Text wrapping kind, as declared by `troika-three-text` in its Text.overflowWrap `@member` property.
  */
 export type TroikaTextWrapKind = 'normal' | 'break-word'
 
 /**
- * @summary
- * Defines the format accepted for declaring the `lineHeight` property of troika.Text.
  * @description
- * troika.Text line height format, as declared by `troika-three-text`in its Text.lineHeight `@member` property.
- * @enum `'normal'`: Chooses a reasonable height based on the chosen font's ascender/descender metrics.
+ * Defines the format accepted for declaring the `lineHeight` property of troika.Text.
+ * - `'normal'`: Chooses a reasonable height based on the chosen font's ascender/descender metrics.
+ * @notes troika.Text line height format, as declared by `troika-three-text`in its Text.lineHeight `@member` property.
  */
 export type TroikaTextLineHeight = number | 'normal'
 
 /**
  * @summary
- * Javascript-to-Typescript compatiblity type for the `troika-three-text` Text mesh class.
+ * Javascript-to-Typescript compatiblity type for the `troika-three-text` {@link Text} mesh class.
  *
  * @example
  * import { Text as TroikaText } from 'troika-three-text'
@@ -96,8 +99,8 @@ export type TroikaTextLineHeight = number | 'normal'
  * Go to the `troika-three-text`.Text class implementation for documentation about each of the fields.
  *
  * @description
- * Respects the shape of the original troika.Text class,
- * by intersecting the three.Mesh class with an explicit list of properties originally contained in the Text class.
+ * Respects the shape of the original troika.{@link Text} class,
+ * by intersecting the three.{@link Mesh} class with an explicit list of properties originally contained in the Text class.
  * Only the properties used by this implementation are explicitly declared in this type.
  */
 type TextMesh = Mesh & {
@@ -143,9 +146,10 @@ type TextMesh = Mesh & {
 }
 
 /**
- * @description Ordinal selector for interpreting which THREE.Material to select for font rendering.
- * @enum Basic Maps to THREE.MeshBasicMaterial
- * @enum Standard Maps to THREE.MeshStandardMaterial
+ * @description
+ * Ordinal selector for interpreting which THREE.Material to select for font rendering.
+ * - `Basic`: Maps to THREE.MeshBasicMaterial
+ * - `Standard`: Maps to THREE.MeshStandardMaterial
  */
 export enum FontMaterialKind {
   Basic,
@@ -153,10 +157,9 @@ export enum FontMaterialKind {
 }
 
 /**
- *  @summary
- *  Noto Sans is the default font for text rendering.
  *  @description
- *  troika.Text.font accepts a nullable string URI (URL or path), and defaults to Noto Sans when null is passed
+ *  Noto Sans is the default font for text rendering.
+ *  @notes troika.Text.font accepts a nullable string URI (URL or path), and defaults to Noto Sans when null is passed
  */
 const FontDefault = null! as string | null
 

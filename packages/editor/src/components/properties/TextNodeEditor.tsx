@@ -23,6 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+/**
+ * @fileoverview
+ * Defines the {@link NodeEditor} UI for managing {@link TextComponent}s in the Studio.
+ */
+
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -51,7 +56,7 @@ import Vector2Input from '../inputs/Vector2Input'
 
 /**
  * @description SelectInput option groups for the TextNodeEditor UI tsx code.
- * @local Stored `@local` scope of the file, so it only exists once and its not GC'ed when the component is used.
+ * @private Stored `@local` scope of the file, so it only exists once and its not GC'ed when the component is used.
  */
 const SelectOptions = {
   TextDirection: [
