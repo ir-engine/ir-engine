@@ -55,7 +55,7 @@ import { FrustumCullCameraComponent } from '../../transform/components/DistanceC
 import { addError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import { Object3DWithEntity, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { Object3DWithEntity } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
@@ -185,8 +185,6 @@ function ModelReactor() {
     const scene = getComponent(entity, ModelComponent).scene
     if (!scene) return
 
-    addObjectToGroup(entity, scene)
-
     if (EngineRenderer.instance)
       EngineRenderer.instance.renderer
         .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
@@ -217,7 +215,6 @@ function ModelReactor() {
     return () => {
       clearMaterials(src)
       getMutableState(SceneState).scenes[uuid].set(none)
-      removeObjectFromGroup(entity, scene)
     }
   }, [modelComponent.scene])
 

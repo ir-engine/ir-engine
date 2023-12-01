@@ -155,23 +155,23 @@ export const parseGLTFModel = (entity: Entity) => {
   // current ECS parsing schema
   iterateObject3D(scene, (obj) => {
     // proxify children property of scene root
-    if (obj === scene) {
-      Object.defineProperties(obj, {
-        children: {
-          get() {
-            return hasComponent(entity, EntityTreeComponent)
-              ? getComponent(entity, EntityTreeComponent)
-                  .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length ?? 0 > 0)
-                  .flatMap((child) => getComponent(child, GroupComponent))
-              : []
-          },
-          set(value) {
-            throw new Error('Cannot set children of proxified object')
-          }
-        }
-      })
-      return
-    }
+    // if (obj === scene) {
+    //   Object.defineProperties(obj, {
+    //     children: {
+    //       get() {
+    //         return hasComponent(entity, EntityTreeComponent)
+    //           ? getComponent(entity, EntityTreeComponent)
+    //               .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length ?? 0 > 0)
+    //               .flatMap((child) => getComponent(child, GroupComponent))
+    //           : []
+    //       },
+    //       set(value) {
+    //         throw new Error('Cannot set children of proxified object')
+    //       }
+    //     }
+    //   })
+    //   return
+    // }
 
     // create entity outside of scene loading reactor since we need to access it before the reactor is guaranteed to have executed
     let objEntity = (obj as Object3DWithEntity).entity
@@ -179,7 +179,7 @@ export const parseGLTFModel = (entity: Entity) => {
       objEntity = (obj as Object3DWithEntity).entity ?? createEntity()
       spawnedEntities.push(objEntity)
     }
-    const parentEntity = (obj.parent as Object3DWithEntity).entity
+    const parentEntity = obj.parent ? (obj.parent as Object3DWithEntity).entity : entity
     const uuid = obj.uuid as EntityUUID
     const name = obj.userData['xrengine.entity'] ?? obj.name
 
