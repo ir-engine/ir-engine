@@ -317,7 +317,7 @@ const EntityChildLoadReactor = (props: {
     })
     setComponent(entity, SourceComponent, props.sceneID)
     return () => {
-      entityExists(entity) && removeEntity(entity)
+      removeEntity(entity)
     }
   }, [dynamicParentState?.loaded, parentLoaded])
 
