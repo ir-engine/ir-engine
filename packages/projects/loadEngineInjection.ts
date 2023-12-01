@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { loadConfigForProject } from './loadConfigForProject'
 
-export const loadEngineInjection = async (projects: string[]) => {
-  for (const project of projects) {
-    if (!globalThis[project]) globalThis[project] = {}
-  }
+export const loadEngineInjection = async () => {
+  const projects = await Engine.instance.api.service(projectsPath).find()
   return Promise.all(
     projects
       .map(async (project) => {
