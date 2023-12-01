@@ -246,9 +246,10 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
     'server-' + hostId
   )
 
+  await loadEngineInjection()
+
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    await loadEngineInjection()
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
@@ -277,8 +278,6 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
     app.service(scenePath).on('updated', sceneUpdatedListener)
     app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
-
-    await loadEngineInjection()
 
     logger.info('Scene loaded!')
   }
