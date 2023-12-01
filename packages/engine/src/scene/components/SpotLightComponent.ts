@@ -24,18 +24,32 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, ConeGeometry, DoubleSide, Mesh, MeshBasicMaterial, Object3D, SpotLight, TorusGeometry } from 'three'
+import {
+  BufferGeometry,
+  Color,
+  ConeGeometry,
+  DoubleSide,
+  Mesh,
+  MeshBasicMaterial,
+  SpotLight,
+  TorusGeometry
+} from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { NameComponent } from './NameComponent'
+import { setVisibleComponent } from './VisibleComponent'
 
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
@@ -57,9 +71,7 @@ export const SpotLightComponent = defineComponent({
       shadowBias: 0.00001,
       shadowRadius: 1,
       light,
-      helper: null as Object3D | null,
-      helperCone: null as Mesh<ConeGeometry, MeshBasicMaterial> | null,
-      helperRing: null as Mesh<TorusGeometry, MeshBasicMaterial> | null
+      helperEntity: null as Entity | null
     }
   },
 
@@ -92,11 +104,6 @@ export const SpotLightComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    if (component.light.value) removeObjectFromGroup(entity, component.light.value)
-    if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useHookstate(getMutableState(RendererState))
@@ -106,12 +113,18 @@ export const SpotLightComponent = defineComponent({
     useEffect(() => {
       if (isMobileXRHeadset) return
       addObjectToGroup(entity, light.light.value)
+      return () => {
+        removeObjectFromGroup(entity, light.light.value)
+      }
     }, [])
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
-      if (light.helperCone.value) light.helperCone.value.material.color = light.color.value
-      if (light.helperRing.value) light.helperRing.value.material.color = light.color.value
+      const helperEntity = light.helperEntity.value
+      if (helperEntity) {
+        const helper = getComponent(helperEntity, GroupComponent)[0] as any as Mesh<BufferGeometry, MeshBasicMaterial>
+        helper.material.color.set(light.color.value)
+      }
     }, [light.color])
 
     useEffect(() => {
@@ -160,31 +173,32 @@ export const SpotLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (debugEnabled.value && !light.helper.value) {
-        const helper = new Object3D()
-        helper.name = `spotlight-helper-${entity}`
+      if (!debugEnabled.value) return
+      const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)
+      ringGeom.rotateX(Math.PI / 2)
+      const coneGeom = new ConeGeometry(0.25, 0.5, 8, 1, true)
+      coneGeom.translate(0, -0.25, 0)
 
-        const ring = new Mesh(new TorusGeometry(0.1, 0.025, 8, 12), new MeshBasicMaterial({ fog: false }))
-        const cone = new Mesh(
-          new ConeGeometry(0.25, 0.5, 8, 1, true),
-          new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
-        )
-        helper.add(ring, cone)
+      const geom = mergeBufferGeometries([ringGeom, coneGeom])!
+      const helper = new Mesh(
+        geom,
+        new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
+      )
+      helper.name = `spotlight-helper-${entity}`
 
-        ring.rotateX(Math.PI / 2)
-        cone.position.setY(-0.25)
+      const helperEntity = createEntity()
+      addObjectToGroup(helperEntity, helper)
+      setComponent(helperEntity, NameComponent, helper.name)
+      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+      setVisibleComponent(helperEntity, true)
 
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
 
-        addObjectToGroup(entity, helper)
-        light.helper.set(helper)
-        light.helperRing.set(ring)
-        light.helperCone.set(cone)
-      }
+      light.helperEntity.set(helperEntity)
 
-      if (!debugEnabled.value && light.helper.value) {
-        removeObjectFromGroup(entity, light.helper.value)
-        light.helper.set(none)
+      return () => {
+        removeEntity(helperEntity)
+        light.helperEntity.set(none)
       }
     }, [debugEnabled])
 

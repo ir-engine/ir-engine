@@ -51,10 +51,12 @@ import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../t
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, GroupQueryReactor, Object3DWithEntity } from '../components/GroupComponent'
+import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { SpawnPointComponent } from '../components/SpawnPointComponent'
+import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
+import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import iterateObject3D from '../util/iterateObject3D'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
@@ -137,7 +139,6 @@ export function setupObject(obj: Object3DWithEntity, forceBasicMaterials = false
 
 const groupQuery = defineQuery([GroupComponent])
 const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
-const spawnPointQuery = defineQuery([SpawnPointComponent])
 
 function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
   const { entity, obj } = props
@@ -148,6 +149,9 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
   const csm = useHookstate(renderState.csm)
 
   useEffect(() => {
+    const source = hasComponent(entity, ModelComponent)
+      ? getModelSceneID(entity)
+      : getComponent(entity, SourceComponent)
     return () => {
       const layers = Object.values(Engine.instance.objectLayerList)
       for (const layer of layers) {
@@ -156,7 +160,11 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
       if (obj.isProxified) {
         disposeObject3D(obj)
       } else {
-        iterateObject3D(obj, disposeObject3D)
+        iterateObject3D(
+          obj,
+          disposeObject3D,
+          (obj: Object3DWithEntity) => getComponent(obj.entity, SourceComponent) === source
+        )
       }
     }
   }, [])
@@ -213,8 +221,6 @@ const execute = () => {
 
     for (const obj of group) obj.visible = visible
   }
-
-  for (const entity of spawnPointQuery()) getComponent(entity, SpawnPointComponent).helperBox?.update()
 }
 
 const reactor = () => {

@@ -268,6 +268,8 @@ export const connectToNetwork = async (
       const queryString = new URLSearchParams(query).toString()
       primus = new Primus(`https://${ipAddress as string}:${port.toString()}?${queryString}`)
     } else {
+      query.address = ipAddress
+      query.port = port.toString()
       const queryString = new URLSearchParams(query).toString()
       primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`)
     }
