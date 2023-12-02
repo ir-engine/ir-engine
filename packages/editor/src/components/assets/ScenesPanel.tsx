@@ -52,12 +52,10 @@ import styles from './styles.module.scss'
 
 const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
 
-const editorState = getMutableState(EditorState)
-
 /**
  * Displays the scenes that exist in the current project.
  */
-export default function ScenesPanel({ loadScene, newScene }) {
+export default function ScenesPanel() {
   const { t } = useTranslation()
   const [scenes, setScenes] = useState<SceneDataType[]>([])
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
@@ -89,13 +87,13 @@ export default function ScenesPanel({ loadScene, newScene }) {
   }, [editorState.sceneName])
 
   const onCreateScene = async () => {
-    await newScene()
+    await onNewScene()
     fetchItems()
   }
 
-  const onClickExisting = async (e, scene) => {
+  const onClickExisting = async (e, scene: SceneDataType) => {
     e.preventDefault()
-    loadScene(scene.name)
+    setSceneInState(scene.scenePath)
     fetchItems()
   }
 
@@ -263,5 +261,5 @@ export const ScenePanelTab: TabData = {
       <PanelTitle>Scenes</PanelTitle>
     </PanelDragContainer>
   ),
-  content: <ScenesPanel newScene={onNewScene} loadScene={setSceneInState} />
+  content: <ScenesPanel />
 }
