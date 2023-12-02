@@ -313,7 +313,9 @@ function createRigidBodyForGroup(
     obj.traverse((mesh: Mesh) => {
       if (
         (!overrideShapeType && (!mesh.userData || mesh.userData.type === 'glb')) ||
-        (!mesh.isMesh && !mesh.userData.type)
+        (!mesh.isMesh &&
+          !mesh.userData.type &&
+          !Object.keys(mesh.userData).some((key) => key.startsWith('xrengine.collider')))
       )
         return
 
