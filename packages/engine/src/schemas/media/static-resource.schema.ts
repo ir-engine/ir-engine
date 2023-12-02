@@ -91,7 +91,7 @@ export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'driver',
   'attribution',
   'licensing',
-  // 'tags',
+  'tags',
   'url'
   // 'stats'
 ])
@@ -102,6 +102,9 @@ export const staticResourceQuerySchema = Type.Intersect(
         $like: Type.String()
       },
       mimeType: {
+        $like: Type.String()
+      },
+      tags: {
         $like: Type.String()
       }
     }),

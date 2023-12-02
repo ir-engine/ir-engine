@@ -42,7 +42,10 @@ import fs from 'fs'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
@@ -68,6 +71,7 @@ import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
@@ -1649,18 +1653,60 @@ export const uploadLocalProjectToProvider = async (
   const files = getFilesRecursive(projectRootPath)
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
+  const resourceKey = (key, hash) => `${key}#${hash}`
+  const currentProjectResources = await app
+    .service(staticResourcePath)
+    .find({
+      query: {
+        project: projectName
+      }
+    })
+    .then((res) => {
+      const set = new Set<string>()
+      for (const item of res.data) {
+        set.add(resourceKey(item.key, item.hash))
+      }
+      return set
+    })
   for (const file of filtered) {
     try {
       const fileResult = fs.readFileSync(file)
       const filePathRelative = processFileName(file.slice(projectRootPath.length))
+      const contentType = getContentType(file)
+      const key = `projects/${projectName}${filePathRelative}`
+      const url = getCachedURL(key, getCacheDomain(storageProvider))
       await storageProvider.putObject(
         {
           Body: fileResult,
-          ContentType: getContentType(file),
-          Key: `projects/${projectName}${filePathRelative}`
+          ContentType: contentType,
+          Key: key
         },
         { isDirectory: false }
       )
+      const staticResourceClasses = [
+        AssetClass.Audio,
+        AssetClass.Image,
+        AssetClass.Model,
+        AssetClass.Video,
+        AssetClass.Volumetric
+      ]
+      const thisFileClass = AssetLoader.getAssetClass(file)
+      if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
+        const hash = createStaticResourceHash(fileResult, { mimeType: contentType, assetURL: key })
+        if (currentProjectResources.has(resourceKey(key, hash))) {
+          logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
+        } else {
+          await app.service(staticResourcePath).create({
+            key: `projects/${projectName}${filePathRelative}`,
+            project: projectName,
+            hash,
+            url,
+            mimeType: contentType,
+            tags: [thisFileClass]
+          })
+          logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
+        }
+      }
       results.push(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
     } catch (e) {
       logger.error(e)
