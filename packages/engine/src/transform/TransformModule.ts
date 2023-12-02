@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ReferenceSpaceTransformSystem } from './systems/ReferenceSpaceTransformSystem'
+import { TransformInterpolationSystem } from './systems/TransformInterpolationSystem'
 import { TransformSystem } from './systems/TransformSystem'
 
-export { ReferenceSpaceTransformSystem, TransformSystem }
+export { ReferenceSpaceTransformSystem, TransformSystem, TransformInterpolationSystem }
