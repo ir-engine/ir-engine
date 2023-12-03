@@ -58,6 +58,8 @@ import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRRigComponent } from '../../xr/XRRigComponent'
@@ -106,8 +108,8 @@ const tipAxisRestriction = new Euler(0, 0, 0)
 
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
-  const { physicsDebug } = getMutableState(RendererState)
-  if (!physicsDebug.value) {
+  const { avatarDebug } = getMutableState(RendererState)
+  if (!avatarDebug.value) {
     //remove visualizers
     for (let i = 0; i < visualizers.length; i++) {
       removeEntity(visualizers[i].value)
@@ -119,8 +121,10 @@ const setVisualizers = () => {
     const e = createEntity()
     setComponent(e, VisibleComponent, true)
     setComponent(e, NameComponent, 'Avatar Debug Visualizer')
-    addObjectToGroup(e, new Mesh(new SphereGeometry(0.05)))
+    const mesh = new Mesh(new SphereGeometry(0.05))
+    addObjectToGroup(e, mesh)
     setComponent(e, TransformComponent)
+    setObjectLayers(mesh, ObjectLayers.AvatarHelper)
     visualizers[i].set(e)
   }
 }
@@ -348,9 +352,43 @@ const execute = () => {
         )
       }
     }
-    rigComponent.vrm.update(deltaTime)
+    // rigComponent.vrm.update(deltaTime)
+
+    const humanoid = (rigComponent.vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRif
+    for (const boneName of VRMHumanBoneList) {
+      const boneNode = humanoid.original.getBoneNode(boneName)
+
+      if (boneNode != null) {
+        const rigBoneNode = humanoid.getBoneNode(boneName)!
+        const parentWorldRotation = humanoid._parentWorldRotations[boneName]!
+        const invParentWorldRotation = _quatA.copy(parentWorldRotation).invert()
+        const boneRotation = humanoid._boneRotations[boneName]!
+
+        boneNode.quaternion
+          .copy(rigBoneNode.quaternion)
+          .multiply(parentWorldRotation)
+          .premultiply(invParentWorldRotation)
+          .multiply(boneRotation)
+
+        // Move the mass center of the VRM
+        if (boneName === 'hips') {
+          const boneWorldPosition = rigBoneNode.getWorldPosition(_boneWorldPos)
+          if (!boneNode.parent) {
+            console.warn('boneNode.parent is null', boneNode)
+          } else {
+            boneNode.parent.updateWorldMatrix(true, false)
+            const parentWorldMatrix = boneNode.parent.matrixWorld
+            const localPosition = boneWorldPosition.applyMatrix4(parentWorldMatrix.invert())
+            boneNode.position.copy(localPosition)
+          }
+        }
+      }
+    }
   }
 }
+
+const _quatA = new Quaternion()
+const _boneWorldPos = new Vector3()
 
 const reactor = () => {
   const xrState = getMutableState(XRState)

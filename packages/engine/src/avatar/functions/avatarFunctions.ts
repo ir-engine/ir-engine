@@ -30,7 +30,9 @@ import {
   AnimationMixer,
   Bone,
   Box3,
+  BufferGeometry,
   Group,
+  Mesh,
   Object3D,
   ShaderMaterial,
   Skeleton,
@@ -53,7 +55,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import iterateObject3D from '../../scene/util/iterateObject3D'
@@ -62,9 +64,13 @@ import { XRState } from '../../xr/XRState'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
+import { SceneState } from '../../ecs/classes/Scene'
+import { generateEntityJsonFromObject } from '../../scene/functions/loadGLTFModel'
+import { EntityJsonType, SceneID } from '../../schemas/projects/scene.schema'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -144,7 +150,7 @@ export const loadAvatarForUser = async (
 
   if (isClient && loadingEffect) {
     const avatar = getComponent(entity, AvatarComponent)
-    const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(entity, avatar?.model)
+    const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(entity, avatar.model!)
     const effectEntity = createEntity()
     setComponent(effectEntity, AvatarEffectComponent, {
       sourceEntity: entity,
@@ -158,29 +164,59 @@ export const loadAvatarForUser = async (
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
 }
 
+// for testing
+const explodeAvatars = true
+
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   const avatar = getComponent(entity, AvatarComponent)
-  if (avatar && avatar.model) removeObjectFromGroup(entity, avatar.model)
 
   rigAvatarModel(entity)(model)
-  addObjectToGroup(entity, model.scene)
-  iterateObject3D(model.scene, (obj) => {
-    obj && (obj.frustumCulled = false)
-  })
+  if (!explodeAvatars) addObjectToGroup(entity, model.scene)
 
   computeTransformMatrix(entity)
+
+  const entityJson = {} as Record<EntityUUID, EntityJsonType>
+
+  iterateObject3D(model.scene, (obj) => {
+    if (!obj) return
+    obj.frustumCulled = false
+    if (explodeAvatars) {
+      const uuid = obj.uuid as EntityUUID
+      const eJson = generateEntityJsonFromObject(entity, obj)
+      entityJson[uuid] = eJson
+    }
+  })
+
+  if (explodeAvatars) {
+    // todo, make this the asset src + userId
+    const sceneID = (entity + '-avatar') as SceneID
+
+    SceneState.loadScene(sceneID, {
+      scene: {
+        entities: entityJson,
+        root: model.scene.uuid as EntityUUID,
+        version: 0
+      },
+      scenePath: sceneID,
+      name: '',
+      project: '',
+      thumbnailUrl: ''
+    })
+  }
+
   setupAvatarHeight(entity, model.scene)
   createIKAnimator(entity)
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
   avatar.model = model.scene
+
+  globalThis.MY_AVATAR = model.scene
 }
 
 export const createIKAnimator = async (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const animations = await getAnimations()
   const manager = getState(AnimationState)
-  const avatar = getComponent(entity, AvatarComponent)
 
   for (let i = 0; i < animations!.length; i++) {
     animations[i] = retargetMixamoAnimation(
@@ -240,21 +276,23 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   return model
 }
 
-export const setupAvatarMaterials = (entity, root) => {
+export const setupAvatarMaterials = (entity: Entity, root: Object3D) => {
   const materialList: Array<MaterialMap> = []
   const dissolveMatList: Array<ShaderMaterial> = []
   setObjectLayers(root, ObjectLayers.Avatar)
 
   root.traverse((object) => {
-    if (object.isBone) object.visible = false
-    if (object.material && object.material.clone) {
-      const material = object.material
+    const bone = object as Bone
+    if (bone.isBone) object.visible = false
+    const mesh = object as Mesh<BufferGeometry, ShaderMaterial>
+    if (mesh.material) {
+      const material = mesh.material
       materialList.push({
         id: object.uuid,
         material: material
       })
-      object.material = AvatarDissolveComponent.createDissolveMaterial(object)
-      dissolveMatList.push(object.material)
+      mesh.material = AvatarDissolveComponent.createDissolveMaterial(mesh as any)
+      dissolveMatList.push(mesh.material)
     }
   })
 

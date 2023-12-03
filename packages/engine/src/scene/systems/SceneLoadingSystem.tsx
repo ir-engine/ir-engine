@@ -156,10 +156,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 
   const ready = useHookstate(false)
   const systemsLoaded = useHookstate([] as SystemImportType[])
+  const isActiveScene = useHookstate(getMutableState(SceneState).activeScene).value === props.sceneID
 
   useEffect(() => {
-    const isActiveScene = getState(SceneState).activeScene === props.sceneID
-
     if (isActiveScene && getState(AppLoadingState).state !== AppLoadingStates.SUCCESS) {
       getMutableState(AppLoadingState).merge({
         state: AppLoadingStates.SCENE_LOADING,
@@ -219,7 +218,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     <>
       {ready.value &&
         Object.keys(entities.value).map((entityUUID: EntityUUID) =>
-          entityUUID === rootUUID ? (
+          entityUUID === rootUUID && isActiveScene ? (
             <EntitySceneRootLoadReactor key={entityUUID} sceneID={props.sceneID} entityUUID={entityUUID} />
           ) : (
             <EntityLoadReactor key={entityUUID} sceneID={props.sceneID} entityUUID={entityUUID} />
