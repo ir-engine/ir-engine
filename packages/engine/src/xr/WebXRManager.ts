@@ -41,7 +41,7 @@ import {
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { Engine } from '../ecs/classes/Engine'
+import { Engine } from '../ecs/classes/Engine.1'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XRState } from './XRState'

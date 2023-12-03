@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 
 import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '../../camera/components/CameraComponent'

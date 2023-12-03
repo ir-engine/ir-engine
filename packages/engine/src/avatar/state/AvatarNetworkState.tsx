@@ -32,7 +32,6 @@ import {
   dispatchAction,
   getMutableState,
   none,
-  receiveActions,
   useHookstate,
   useState
 } from '@etherealengine/hyperflux'
@@ -62,17 +61,17 @@ export const AvatarState = defineState({
     }
   >,
 
-  receptors: [
-    AvatarNetworkAction.spawn.receive((action) => {
+  receptors: {
+    onSpawn: AvatarNetworkAction.spawn.receive((action) => {
       getMutableState(AvatarState)[action.entityUUID].merge({ avatarID: action.avatarID })
     }),
-    AvatarNetworkAction.setAvatarID.receive((action) => {
+    onSetAvatarID: AvatarNetworkAction.setAvatarID.receive((action) => {
       getMutableState(AvatarState)[action.entityUUID].merge({ avatarID: action.avatarID })
     }),
-    WorldNetworkAction.destroyObject.receive((action) => {
+    onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
       getMutableState(AvatarState)[action.entityUUID].set(none)
     })
-  ],
+  },
 
   selectRandomAvatar() {
     Engine.instance.api
@@ -167,8 +166,5 @@ export const AvatarStateReactor = () => {
 export const AvatarNetworkSystem = defineSystem({
   uuid: 'ee.engine.avatar.AvatarNetworkSystem',
   insert: { with: SimulationSystemGroup },
-  execute: () => {
-    receiveActions(AvatarState)
-  },
   reactor: AvatarStateReactor
 })

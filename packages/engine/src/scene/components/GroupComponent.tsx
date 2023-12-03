@@ -32,7 +32,6 @@ import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../commo
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  QueryComponents,
   defineComponent,
   getComponent,
   getMutableComponent,
@@ -42,7 +41,7 @@ import {
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { QueryReactor } from '../../ecs/functions/SystemFunctions'
+import { QueryComponents, QueryReactor } from '../../ecs/functions/QueryFunctions'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 export type Object3DWithEntity = Object3D & { entity: Entity }
 

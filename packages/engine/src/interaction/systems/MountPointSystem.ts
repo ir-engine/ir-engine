@@ -36,13 +36,8 @@ import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'

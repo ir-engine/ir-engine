@@ -36,7 +36,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
-  defineQuery,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -44,7 +43,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, defineQuery, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'

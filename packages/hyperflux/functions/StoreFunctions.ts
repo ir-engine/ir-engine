@@ -24,20 +24,23 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Downgraded, State } from '@hookstate/core'
+import bitecs from 'bitecs'
 import { merge } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Query, QueryComponents } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
   ActionQueueHandle,
   ActionQueueInstance,
-  addOutgoingTopicIfNecessary,
   ResolvedActionType,
-  Topic
+  Topic,
+  addOutgoingTopicIfNecessary
 } from './ActionFunctions'
 import { ReactorRoot } from './ReactorFunctions'
-import { initializeState, StateDefinitions } from './StateFunctions'
+import { StateDefinitions, initializeState } from './StateFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
@@ -114,6 +117,11 @@ export interface HyperStore {
 
   /** active reactors */
   activeReactors: Set<ReactorRoot>
+
+  activeSystemReactors: Map<SystemUUID, ReactorRoot>
+  currentSystemUUID: SystemUUID
+
+  reactiveQueryStates: Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>
 }
 
 export class HyperFlux {
@@ -125,7 +133,6 @@ export function createHyperStore(options: {
   getDispatchId: () => string
   getPeerId: () => string
   getDispatchTime: () => number
-  getCurrentReactorRoot?: () => ReactorRoot | undefined
   defaultDispatchDelay?: () => number
 }) {
   const store = {
@@ -134,8 +141,8 @@ export function createHyperStore(options: {
     getDispatchId: options.getDispatchId,
     getPeerId: options.getPeerId,
     getDispatchTime: options.getDispatchTime,
-    getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => null),
     defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
+    getCurrentReactorRoot: () => store.activeSystemReactors.get(store.currentSystemUUID),
     peerID: uuidv4() as PeerID,
     stateMap: {},
     valueMap: {},
@@ -151,6 +158,9 @@ export function createHyperStore(options: {
       outgoing: {}
     },
     activeReactors: new Set(),
+    activeSystemReactors: new Map<SystemUUID, ReactorRoot>(),
+    currentSystemUUID: '__null__' as SystemUUID,
+    reactiveQueryStates: new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>(),
     toJSON: () => {
       const state = Object.entries(store.stateMap).reduce((obj, [name, state]) => {
         return merge(obj, { [name]: state.attach(Downgraded).value })
@@ -162,6 +172,7 @@ export function createHyperStore(options: {
     }
   } as HyperStore
   HyperFlux.store = store
+  bitecs.createWorld(store)
   addOutgoingTopicIfNecessary(store.defaultTopic)
   for (const StateDefinition of StateDefinitions.values()) {
     initializeState(StateDefinition)

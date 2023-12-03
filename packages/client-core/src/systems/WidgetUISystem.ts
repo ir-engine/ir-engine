@@ -30,31 +30,31 @@ import { isDev } from '@etherealengine/common/src/config'
 import { V_001, V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
-  defineQuery,
   getComponent,
   hasComponent,
   removeComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { isMobileXRHeadset, ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
-import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { ReferenceSpace, XRState, isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
 import {
   RegisteredWidgets,
   WidgetAppActions,
   WidgetAppService,
   WidgetAppState
 } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
   defineActionQueue,
   defineState,

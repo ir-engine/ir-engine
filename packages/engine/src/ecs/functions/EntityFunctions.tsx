@@ -41,13 +41,13 @@ export const removeEntity = (entity: Entity) => {
 
   const promise = removeAllComponents(entity)
 
-  bitECS.removeEntity(Engine.instance, entity)
+  bitECS.removeEntity(Engine.instance.store, entity)
 
   return promise
 }
 
 export const entityExists = (entity: Entity) => {
-  return bitECS.entityExists(Engine.instance, entity)
+  return bitECS.entityExists(Engine.instance.store, entity)
 }
 
 export const EntityContext = React.createContext(UndefinedEntity)

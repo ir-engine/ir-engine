@@ -24,10 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { defineAction, defineState, getMutableState, getState, none, receiveActions } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InstanceID } from '../../schemas/networking/instance.schema'
 
 export class MediasoupDataProducerActions {
@@ -148,8 +146,8 @@ export const MediasoupDataProducerConsumerState = defineState({
     return getState(MediasoupDataProducersConsumersObjectsState).producers[producer.producerID]
   },
 
-  receptors: [
-    MediasoupDataProducerActions.producerCreated.receive((action) => {
+  receptors: {
+    onProducerCreate: MediasoupDataProducerActions.producerCreated.receive((action) => {
       const state = getMutableState(MediasoupDataProducerConsumerState)
       const networkID = action.$network as InstanceID
       if (!state.value[networkID]) {
@@ -167,7 +165,7 @@ export const MediasoupDataProducerConsumerState = defineState({
       })
     }),
 
-    MediasoupDataProducerActions.producerClosed.receive((action) => {
+    onProducerClosed: MediasoupDataProducerActions.producerClosed.receive((action) => {
       const state = getMutableState(MediasoupDataProducerConsumerState)
       const networkID = action.$network as InstanceID
       if (!state.value[networkID]) return
@@ -177,7 +175,7 @@ export const MediasoupDataProducerConsumerState = defineState({
       }
     }),
 
-    MediasoupDataConsumerActions.consumerCreated.receive((action) => {
+    onConsumerCreated: MediasoupDataConsumerActions.consumerCreated.receive((action) => {
       const state = getMutableState(MediasoupDataProducerConsumerState)
       const networkID = action.$network as InstanceID
       if (!state.value[networkID]) {
@@ -195,7 +193,7 @@ export const MediasoupDataProducerConsumerState = defineState({
       })
     }),
 
-    MediasoupDataConsumerActions.consumerClosed.receive((action) => {
+    onConsumerClosed: MediasoupDataConsumerActions.consumerClosed.receive((action) => {
       const state = getMutableState(MediasoupDataProducerConsumerState)
       const networkID = action.$network as InstanceID
       if (!state.value[networkID]) return
@@ -204,15 +202,5 @@ export const MediasoupDataProducerConsumerState = defineState({
         state[networkID].set(none)
       }
     })
-  ]
-})
-
-const execute = () => {
-  receiveActions(MediasoupDataProducerConsumerState)
-}
-
-export const MediasoupDataProducerConsumerStateSystem = defineSystem({
-  uuid: 'ee.engine.network.mediasoup.MediasoupDataProducerConsumerStateSystem',
-  insert: { after: PresentationSystemGroup },
-  execute
+  }
 })

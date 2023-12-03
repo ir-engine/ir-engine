@@ -26,10 +26,9 @@ Ethereal Engine. All Rights Reserved.
 /** Functions to provide engine level functionalities. */
 
 import logger from '@etherealengine/engine/src/common/functions/logger'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { HyperFlux, getMutableState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { executeFixedPipeline } from './FixedPipelineSystem'
 import { SystemDefinitions, defineSystem, executeSystem } from './SystemFunctions'
@@ -98,7 +97,7 @@ export const executeSystems = (elapsedTime: number) => {
   engineState.frameTime.set(performance.timeOrigin + elapsedTime)
 
   const start = nowMilliseconds()
-  const incomingActions = [...Engine.instance.store.actions.incoming]
+  const incomingActions = [...HyperFlux.store.actions.incoming]
 
   const elapsedSeconds = elapsedTime / 1000
   engineState.deltaSeconds.set(
@@ -108,7 +107,7 @@ export const executeSystems = (elapsedTime: number) => {
 
   executeSystem(RootSystemGroup)
 
-  for (const { query, result } of Engine.instance.reactiveQueryStates) {
+  for (const { query, result } of HyperFlux.store.reactiveQueryStates) {
     const entitiesAdded = query.enter().length
     const entitiesRemoved = query.exit().length
     if (entitiesAdded || entitiesRemoved) {

@@ -42,14 +42,13 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  defineQuery,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, defineQuery, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'

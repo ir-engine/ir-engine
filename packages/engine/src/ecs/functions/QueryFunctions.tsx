@@ -24,10 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { HyperFlux, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, Suspense, memo, useEffect, useLayoutEffect, useMemo } from 'react'
-import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { Component, ComponentType, getComponent, useOptionalComponent } from './ComponentFunctions'
 import { EntityContext } from './EntityFunctions'
@@ -37,21 +36,21 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
   const enterQuery = bitECS.enterQuery(query)
   const exitQuery = bitECS.exitQuery(query)
 
-  const _remove = () => bitECS.removeQuery(Engine.instance, wrappedQuery._query)
-  const _removeEnter = () => bitECS.removeQuery(Engine.instance, wrappedQuery._enterQuery)
-  const _removeExit = () => bitECS.removeQuery(Engine.instance, wrappedQuery._exitQuery)
+  const _remove = () => bitECS.removeQuery(HyperFlux.store, wrappedQuery._query)
+  const _removeEnter = () => bitECS.removeQuery(HyperFlux.store, wrappedQuery._enterQuery)
+  const _removeExit = () => bitECS.removeQuery(HyperFlux.store, wrappedQuery._exitQuery)
 
   const wrappedQuery = () => {
-    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_remove)
-    return query(Engine.instance) as Entity[]
+    HyperFlux.store.activeSystemReactors.get(HyperFlux.store.currentSystemUUID)?.cleanupFunctions.add(_remove)
+    return query(HyperFlux) as Entity[]
   }
   wrappedQuery.enter = () => {
-    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_removeEnter)
-    return enterQuery(Engine.instance) as Entity[]
+    HyperFlux.store.activeSystemReactors.get(HyperFlux.store.currentSystemUUID)?.cleanupFunctions.add(_removeEnter)
+    return enterQuery(HyperFlux) as Entity[]
   }
   wrappedQuery.exit = () => {
-    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_removeExit)
-    return exitQuery(Engine.instance) as Entity[]
+    HyperFlux.store.activeSystemReactors.get(HyperFlux.store.currentSystemUUID)?.cleanupFunctions.add(_removeExit)
+    return exitQuery(HyperFlux) as Entity[]
   }
 
   wrappedQuery._query = query
@@ -61,9 +60,9 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
 }
 
 export function removeQuery(query: ReturnType<typeof defineQuery>) {
-  bitECS.removeQuery(Engine.instance, query._query)
-  bitECS.removeQuery(Engine.instance, query._enterQuery)
-  bitECS.removeQuery(Engine.instance, query._exitQuery)
+  bitECS.removeQuery(HyperFlux.store, query._query)
+  bitECS.removeQuery(HyperFlux.store, query._enterQuery)
+  bitECS.removeQuery(HyperFlux.store, query._exitQuery)
 }
 
 export type QueryComponents = (Component<any> | bitECS.QueryModifier | bitECS.Component)[]
@@ -83,10 +82,10 @@ export function useQuery(components: QueryComponents) {
     const query = defineQuery(components)
     result.set(query())
     const queryState = { query, result, components }
-    Engine.instance.reactiveQueryStates.add(queryState)
+    HyperFlux.store.reactiveQueryStates.add(queryState)
     return () => {
       removeQuery(query)
-      Engine.instance.reactiveQueryStates.delete(queryState)
+      HyperFlux.store.reactiveQueryStates.delete(queryState)
     }
   }, [])
 
@@ -169,14 +168,14 @@ class QueryReactorErrorBoundary extends React.Component<any, ErrorState> {
 export const getComponentCountOfType = <C extends Component>(component: C): number => {
   const query = defineQuery([component])
   const length = query().length
-  bitECS.removeQuery(Engine.instance, query._query)
+  bitECS.removeQuery(HyperFlux.store, query._query)
   return length
 }
 
 export const getAllComponentsOfType = <C extends Component<any>>(component: C): ComponentType<C>[] => {
   const query = defineQuery([component])
   const entities = query()
-  bitECS.removeQuery(Engine.instance, query._query)
+  bitECS.removeQuery(HyperFlux.store, query._query)
   return entities.map((e) => {
     return getComponent(e, component)!
   })

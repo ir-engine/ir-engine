@@ -29,7 +29,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { applyIncomingActions, getMutableState, receiveActions } from '@etherealengine/hyperflux'
+import { applyIncomingActions, getMutableState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
@@ -42,7 +42,6 @@ import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
 import { NetworkState } from '../NetworkState'
-import { EntityNetworkState } from '../state/EntityNetworkState'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 
 describe('NetworkPeerFunctions', () => {
@@ -183,7 +182,6 @@ describe('NetworkPeerFunctions', () => {
       NetworkPeerFunctions.destroyPeer(network, anotherPeerID)
 
       applyIncomingActions()
-      receiveActions(EntityNetworkState)
 
       assert(!NetworkObjectComponent.getNetworkObject(userId, networkId))
     })

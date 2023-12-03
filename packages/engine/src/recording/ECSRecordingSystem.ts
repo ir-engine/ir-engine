@@ -53,7 +53,6 @@ import {
   dispatchAction,
   getMutableState,
   getState,
-  receiveActions,
   Topic
 } from '@etherealengine/hyperflux'
 
@@ -141,31 +140,31 @@ export const RecordingState = defineState({
     recordingID: null as RecordingID | null
   },
 
-  receptors: [
-    ECSRecordingActions.startRecording.receive((action) => {
+  receptors: {
+    onStartRecording: ECSRecordingActions.startRecording.receive((action) => {
       const state = getMutableState(RecordingState)
       state.active.set(true)
       state.startedAt.set(null)
       state.recordingID.set(null)
     }),
-    ECSRecordingActions.recordingStarted.receive((action) => {
+    onRecordingStarted: ECSRecordingActions.recordingStarted.receive((action) => {
       const state = getMutableState(RecordingState)
       state.startedAt.set(Date.now())
       state.recordingID.set(action.recordingID)
     }),
-    ECSRecordingActions.stopRecording.receive((action) => {
+    onStopRecording: ECSRecordingActions.stopRecording.receive((action) => {
       const state = getMutableState(RecordingState)
       state.active.set(false)
       state.startedAt.set(null)
       state.recordingID.set(null)
     }),
-    ECSRecordingActions.error.receive((action) => {
+    onError: ECSRecordingActions.error.receive((action) => {
       const state = getMutableState(RecordingState)
       state.active.set(false)
       state.startedAt.set(null)
       state.recordingID.set(null)
     })
-  ],
+  },
 
   requestRecording: async (peerSchema: RecordingConfigSchema) => {
     try {
@@ -243,14 +242,14 @@ export const PlaybackState = defineState({
     currentTime: null as number | null
   },
 
-  receptors: [
-    ECSRecordingActions.playbackChanged.receive((action) => {
+  receptors: {
+    onPlaybackChanged: ECSRecordingActions.playbackChanged.receive((action) => {
       const state = getMutableState(PlaybackState)
       state.playing.set(action.playing)
       state.recordingID.set(action.playing ? action.recordingID : null)
       state.currentTime.set(action.playing ? 0 : null)
     })
-  ],
+  },
 
   startPlaybackOnServer(args: { recordingID: RecordingID; targetUser?: UserID }) {
     const { recordingID, targetUser } = args
@@ -772,9 +771,6 @@ const startPlaybackActionQueue = defineActionQueue(ECSRecordingActions.startPlay
 const stopPlaybackActionQueue = defineActionQueue(ECSRecordingActions.stopPlayback.matches)
 
 const execute = () => {
-  receiveActions(RecordingState)
-  receiveActions(PlaybackState)
-
   const recordingState = getState(RecordingState)
   const playbackState = getState(PlaybackState)
 

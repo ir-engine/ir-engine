@@ -36,8 +36,7 @@ import {
   clearOutgoingActions,
   dispatchAction,
   getMutableState,
-  getState,
-  receiveActions
+  getState
 } from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
@@ -56,7 +55,6 @@ import { createEngine } from '../../initializeEngine'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
-import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
@@ -100,7 +98,6 @@ describe.skip('EquippableSystem Integration Tests', () => {
       })
     )
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 

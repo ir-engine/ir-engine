@@ -27,6 +27,7 @@ import { defineAction } from '@etherealengine/hyperflux'
 
 import {
   matches,
+  matchesEntityContext,
   matchesEntityUUID,
   matchesNetworkId,
   matchesPeerID,

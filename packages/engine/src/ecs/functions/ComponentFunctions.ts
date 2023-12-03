@@ -34,7 +34,7 @@ import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { HookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { ReactorRoot, defineActionQueue, startReactor } from '@etherealengine/hyperflux'
+import { HyperFlux, ReactorRoot, defineActionQueue, startReactor } from '@etherealengine/hyperflux'
 import {
   hookstate,
   NO_PROXY,
@@ -44,7 +44,6 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { Engine } from '../classes/Engine'
 import { Entity, UndefinedEntity } from '../classes/Entity'
 import { EntityContext, useEntityContext } from './EntityFunctions'
 import { defineSystem } from './SystemFunctions'
@@ -256,7 +255,7 @@ export const setComponent = <C extends Component>(
   if (!entity) {
     throw new Error('[setComponent]: entity is undefined')
   }
-  if (!bitECS.entityExists(Engine.instance, entity)) {
+  if (!bitECS.entityExists(HyperFlux.store, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
   if (args && Component.receptors) {
@@ -271,7 +270,7 @@ export const setComponent = <C extends Component>(
       Component.stateMap[entity] = hookstate(value, subscribable())
     } else Component.stateMap[entity]!.set(value)
 
-    bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
+    bitECS.addComponent(HyperFlux.store, Component, entity, false) // don't clear data on-add
 
     const state = Component.stateMap[entity]!
 
@@ -301,7 +300,7 @@ export const setComponent = <C extends Component>(
         uuid: `${entity}.${Component.name}.actionReceptor`,
         insert: { before: InputSystemGroup },
         execute: () => {
-          Engine.instance.store.receptorEntityContext = entity
+          HyperFlux.store.receptorEntityContext = entity
           // queue may need to be reset when actions are recieved out of order
           // or when state needs to be rolled back
           if (queue.needsReset) {
@@ -315,7 +314,7 @@ export const setComponent = <C extends Component>(
               receptor.matchesAction.test(action) && receptor(action)
             }
           }
-          Engine.instance.store.receptorEntityContext = UndefinedEntity
+          HyperFlux.store.receptorEntityContext = UndefinedEntity
         }
       })
     }
@@ -398,7 +397,7 @@ export const removeComponent = async <C extends Component>(entity: Entity, compo
   component.existenceMapPromiseResolver[entity]?.resolve?.()
   component.existenceMapPromiseResolver[entity] = _createPromiseResolver()
   component.onRemove(entity, component.stateMap[entity]!)
-  bitECS.removeComponent(Engine.instance, component, entity, false)
+  bitECS.removeComponent(HyperFlux.store, component, entity, false)
   delete component.valueMap[entity]
   const root = component.reactorMap.get(entity)
   component.reactorMap.delete(entity)
@@ -428,8 +427,8 @@ export const componentJsonDefaults = <C extends Component>(component: C) => {
 }
 
 export const getAllComponents = (entity: Entity): Component[] => {
-  if (!bitECS.entityExists(Engine.instance, entity)) return []
-  return bitECS.getEntityComponents(Engine.instance, entity) as Component[]
+  if (!bitECS.entityExists(HyperFlux.store, entity)) return []
+  return bitECS.getEntityComponents(HyperFlux.store, entity) as Component[]
 }
 
 export const getAllComponentData = (entity: Entity): { [name: string]: ComponentType<any> } => {
@@ -439,7 +438,7 @@ export const getAllComponentData = (entity: Entity): { [name: string]: Component
 export const removeAllComponents = (entity: Entity) => {
   const promises = [] as Promise<void>[]
   try {
-    for (const component of bitECS.getEntityComponents(Engine.instance, entity)) {
+    for (const component of bitECS.getEntityComponents(HyperFlux.store, entity)) {
       promises.push(removeComponent(entity, component as Component))
     }
   } catch (_) {

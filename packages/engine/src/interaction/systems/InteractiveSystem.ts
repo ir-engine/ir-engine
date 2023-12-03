@@ -37,8 +37,8 @@ import { V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import {
   DistanceFromCameraComponent,

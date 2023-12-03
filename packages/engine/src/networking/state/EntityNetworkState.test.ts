@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { act } from '@testing-library/react'
 import assert from 'assert'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getMutableState, receiveActions } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
@@ -39,7 +38,8 @@ import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -49,11 +49,6 @@ import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../components/Net
 import { NetworkPeerFunctions } from '../functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 import { NetworkState } from '../NetworkState'
-import {
-  EntityNetworkState,
-  receiveRequestAuthorityOverObject,
-  receiveTransferAuthorityOfObject
-} from './EntityNetworkState'
 
 describe('EntityNetworkState', () => {
   beforeEach(async () => {
@@ -95,7 +90,6 @@ describe('EntityNetworkState', () => {
       )
 
       applyIncomingActions()
-      receiveActions(EntityNetworkState)
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -136,8 +130,6 @@ describe('EntityNetworkState', () => {
         })
       )
       applyIncomingActions()
-
-      await act(() => receiveActions(EntityNetworkState))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -180,7 +172,6 @@ describe('EntityNetworkState', () => {
         })
       )
       applyIncomingActions()
-      await act(() => receiveActions(EntityNetworkState))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -213,7 +204,6 @@ describe('EntityNetworkState', () => {
         })
       )
       applyIncomingActions()
-      await act(() => receiveActions(EntityNetworkState))
 
       const entity = UUIDComponent.entitiesByUUID[Engine.instance.userID as any as EntityUUID]
 
@@ -254,7 +244,6 @@ describe('EntityNetworkState', () => {
         })
       )
       applyIncomingActions()
-      await act(() => receiveActions(EntityNetworkState))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -273,19 +262,16 @@ describe('EntityNetworkState', () => {
         WorldNetworkAction.transferAuthorityOfObject.matches
       )
 
-      receiveRequestAuthorityOverObject(
+      dispatchAction(
         WorldNetworkAction.requestAuthorityOverObject({
           $from: userId,
-          ownerId: userId,
-          networkId: objNetId,
+          entityUUID: Engine.instance.peerID as any as EntityUUID,
           $topic: NetworkTopics.world,
           newAuthority: peerID2
         })
       )
 
       ActionFunctions.applyIncomingActions()
-
-      for (const action of transferAuthorityOfObjectQueue()) receiveTransferAuthorityOfObject(action)
 
       const networkObjectEntitiesAfter = networkObjectQuery()
       const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
@@ -326,7 +312,6 @@ describe('EntityNetworkState', () => {
     )
 
     applyIncomingActions()
-    await act(() => receiveActions(EntityNetworkState))
 
     const networkObjectQuery = defineQuery([NetworkObjectComponent])
     const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -345,20 +330,16 @@ describe('EntityNetworkState', () => {
       WorldNetworkAction.transferAuthorityOfObject.matches
     )
 
-    receiveRequestAuthorityOverObject(
+    dispatchAction(
       WorldNetworkAction.requestAuthorityOverObject({
         $from: userId, // from user
-        ownerId: hostUserId,
-        networkId: objNetId,
+        entityUUID: Engine.instance.peerID as any as EntityUUID,
         $topic: NetworkTopics.world,
         newAuthority: peerID2
       })
     )
 
     applyIncomingActions()
-    await act(() => receiveActions(EntityNetworkState))
-
-    for (const action of transferAuthorityOfObjectQueue()) receiveTransferAuthorityOfObject(action)
 
     const networkObjectEntitiesAfter = networkObjectQuery()
     const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()

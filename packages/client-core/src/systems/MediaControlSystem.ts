@@ -30,12 +30,12 @@ import { isClient } from '@etherealengine/engine/src/common/functions/getEnviron
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
-  defineQuery,
   getComponent,
   getOptionalComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { addInteractableUI } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'

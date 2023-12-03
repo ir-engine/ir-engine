@@ -36,7 +36,6 @@ import {
   getMutableState,
   getState,
   none,
-  receiveActions,
   useHookstate
 } from '@etherealengine/hyperflux'
 
@@ -48,14 +47,9 @@ import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { NetworkState } from '../../networking/NetworkState'
@@ -96,8 +90,8 @@ export const GrabbableState = defineState({
     }
   >,
 
-  receptors: [
-    GrabbableNetworkAction.setGrabbedObject.receive((action) => {
+  receptors: {
+    onSetGrabbedObject: GrabbableNetworkAction.setGrabbedObject.receive((action) => {
       const state = getMutableState(GrabbableState)
       if (action.grabbed)
         state[action.entityUUID].set({
@@ -106,7 +100,7 @@ export const GrabbableState = defineState({
         })
       else state[action.entityUUID].set(none)
     })
-  ]
+  }
 })
 
 const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
@@ -167,7 +161,7 @@ export function transferAuthorityOfObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {
   if (action.newAuthority !== Engine.instance.peerID) return
-  const grabbableEntity = NetworkObjectComponent.getNetworkObject(action.ownerId, action.networkId)!
+  const grabbableEntity = UUIDComponent.entitiesByUUID[action.entityUUID]
   if (hasComponent(grabbableEntity, GrabbableComponent)) {
     const grabberUserId = NetworkState.worldNetwork.peers[action.newAuthority]?.userId
     dispatchAction(
@@ -274,8 +268,7 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
   } else {
     dispatchAction(
       WorldNetworkAction.requestAuthorityOverObject({
-        networkId: networkComponent.networkId,
-        ownerId: networkComponent.ownerId,
+        entityUUID: getComponent(grabbedEntity, UUIDComponent),
         newAuthority: Engine.instance.peerID,
         $to: networkComponent.authorityPeerID
       })
@@ -300,8 +293,7 @@ export const dropEntity = (grabberEntity: Entity): void => {
   } else {
     dispatchAction(
       WorldNetworkAction.transferAuthorityOfObject({
-        networkId: networkComponent.networkId,
-        ownerId: networkComponent.ownerId,
+        entityUUID: getComponent(grabbedEntity, UUIDComponent),
         newAuthority: networkComponent.authorityPeerID
       })
     )
@@ -337,7 +329,6 @@ const onGrab = (targetEntity: Entity, handedness = 'right' as XRHandedness) => {
 
 const execute = () => {
   if (getState(EngineState).isEditor) return
-  receiveActions(GrabbableState)
 
   /** @todo this should move to input group */
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]

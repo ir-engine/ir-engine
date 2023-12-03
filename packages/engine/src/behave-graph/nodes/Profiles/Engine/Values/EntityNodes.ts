@@ -36,14 +36,9 @@ import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { SceneState } from '../../../../../ecs/classes/Scene'
-import {
-  ComponentMap,
-  defineQuery,
-  getComponent,
-  hasComponent,
-  setComponent
-} from '../../../../../ecs/functions/ComponentFunctions'
+import { ComponentMap, getComponent, hasComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../../../../ecs/functions/EntityFunctions'
+import { defineQuery } from '../../../../../ecs/functions/QueryFunctions'
 import { RigidBodyComponent } from '../../../../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'

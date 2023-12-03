@@ -32,7 +32,6 @@ import { SceneState } from '../../src/ecs/classes/Scene'
 import {
   addComponent,
   defineComponent,
-  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -40,6 +39,7 @@ import {
 } from '../../src/ecs/functions/ComponentFunctions'
 import { executeSystems, RootSystemGroup } from '../../src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
+import { defineQuery } from '../../src/ecs/functions/QueryFunctions'
 import { defineSystem } from '../../src/ecs/functions/SystemFunctions'
 import { createEngine } from '../../src/initializeEngine'
 import { loadEmptyScene } from '../util/loadEmptyScene'

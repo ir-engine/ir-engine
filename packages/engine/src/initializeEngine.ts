@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import * as bitecs from 'bitecs'
-
 import { BoxGeometry, Mesh, MeshNormalMaterial } from 'three'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { Timer } from './common/functions/Timer'
@@ -55,8 +53,6 @@ export const createEngine = () => {
     throw new Error('Engine already exists')
   }
   Engine.instance = new Engine()
-
-  bitecs.createWorld(Engine.instance)
 
   Engine.instance.scene.matrixAutoUpdate = false
   Engine.instance.scene.matrixWorldAutoUpdate = false

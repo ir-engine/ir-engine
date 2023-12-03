@@ -31,12 +31,7 @@ import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
@@ -45,6 +40,7 @@ import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { AnimationSystem } from '@etherealengine/engine/src/avatar/systems/AnimationSystem'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { MediaStreamState } from '../../transports/MediaStreams'
 
 const FACE_EXPRESSION_THRESHOLD = 0.1
