@@ -34,7 +34,7 @@ import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
-import { defineQuery } from '../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../ecs/functions/QueryFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { GroupComponent, GroupQueryReactor } from '../scene/components/GroupComponent'
 import { SceneTagComponent } from '../scene/components/SceneTagComponent'

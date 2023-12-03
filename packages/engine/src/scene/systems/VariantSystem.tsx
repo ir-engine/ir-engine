@@ -27,7 +27,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { Not } from 'bitecs'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
