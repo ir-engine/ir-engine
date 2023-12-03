@@ -47,7 +47,7 @@ import {
 import { Entity, UndefinedEntity } from '../classes/Entity'
 import { EntityContext, useEntityContext } from './EntityFunctions'
 import { defineSystem } from './SystemFunctions'
-import { InputSystemGroup } from './EngineFunctions'
+import { InputSystemGroup } from './SystemGroups'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 

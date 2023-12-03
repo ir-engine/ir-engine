@@ -27,8 +27,8 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { EngineState } from '../classes/EngineState'
-import { SimulationSystemGroup } from './EngineFunctions'
 import { executeSystem } from './SystemFunctions'
+import { SimulationSystemGroup } from './SystemGroups'
 
 // const logger = multiLogger.child({ component: 'engine:ecs:FixedPipelineSystem' })
 /**

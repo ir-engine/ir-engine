@@ -53,9 +53,9 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import {
   AudioFileFormat,

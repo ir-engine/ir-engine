@@ -42,9 +42,9 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
+import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'

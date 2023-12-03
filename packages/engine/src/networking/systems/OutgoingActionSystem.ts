@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
-import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { NetworkActions } from '../NetworkState'
 import { Network } from '../classes/Network'
 import { NetworkActionFunctions } from '../functions/NetworkActionFunctions'

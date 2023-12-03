@@ -122,6 +122,8 @@ export interface HyperStore {
   currentSystemUUID: SystemUUID
 
   reactiveQueryStates: Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>
+
+  systemPerformanceProfilingEnabled: boolean
 }
 
 export class HyperFlux {
@@ -169,7 +171,8 @@ export function createHyperStore(options: {
         ...store,
         state
       }
-    }
+    },
+    systemPerformanceProfilingEnabled: false
   } as HyperStore
   HyperFlux.store = store
   bitecs.createWorld(store)

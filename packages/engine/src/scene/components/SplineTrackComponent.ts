@@ -35,9 +35,9 @@ import {
   getOptionalComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { SplineComponent } from './SplineComponent'
 import { UUIDComponent } from './UUIDComponent'

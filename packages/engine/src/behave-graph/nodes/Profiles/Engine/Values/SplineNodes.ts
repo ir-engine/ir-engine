@@ -32,8 +32,8 @@ import {
   getOptionalComponent,
   setComponent
 } from '../../../../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
 import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '../../../../../ecs/functions/SystemGroups'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SplineComponent } from '../../../../../scene/components/SplineComponent'
 import { SplineTrackComponent } from '../../../../../scene/components/SplineTrackComponent'

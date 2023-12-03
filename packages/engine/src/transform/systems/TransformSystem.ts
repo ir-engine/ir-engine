@@ -37,10 +37,10 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineQuery } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import {
   BoundingBoxComponent,
   BoundingBoxDynamicTag,

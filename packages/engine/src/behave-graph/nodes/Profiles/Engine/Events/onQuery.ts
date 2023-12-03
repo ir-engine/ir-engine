@@ -31,13 +31,13 @@ import {
   defineQuery,
   removeQuery
 } from '../../../../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
 import {
   SystemDefinitions,
   SystemUUID,
   defineSystem,
   destroySystem
 } from '../../../../../ecs/functions/SystemFunctions'
+import { InputSystemGroup } from '../../../../../ecs/functions/SystemGroups'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 let systemCounter = 0

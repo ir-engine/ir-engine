@@ -45,7 +45,7 @@ import { XRState } from '../../xr/XRState'
 
 import { InputState } from '../../input/state/InputState'
 
-import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'

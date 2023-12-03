@@ -46,9 +46,9 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'

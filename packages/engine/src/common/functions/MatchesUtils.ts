@@ -31,7 +31,8 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { HyperFlux } from '@etherealengine/hyperflux'
+
 import { Entity } from '../../ecs/classes/Entity'
 
 export * from 'ts-matches'
@@ -78,7 +79,7 @@ const matchesEntity = matches.number as Validator<unknown, Entity>
 const matchesEntityUUID = matches.string as Validator<unknown, EntityUUID>
 
 const matchesEntityContext = matches.guard((v): v is EntityUUID => {
-  return v === Engine.instance.store.receptorEntityContext
+  return v === HyperFlux.store.receptorEntityContext
 })
 
 const matchesActionFromUser = (userId: UserID) => {

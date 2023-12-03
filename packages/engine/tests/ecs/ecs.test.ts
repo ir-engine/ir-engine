@@ -37,10 +37,11 @@ import {
   hasComponent,
   removeComponent
 } from '../../src/ecs/functions/ComponentFunctions'
-import { executeSystems, RootSystemGroup } from '../../src/ecs/functions/EngineFunctions'
+import { executeSystems } from '../../src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
 import { defineQuery } from '../../src/ecs/functions/QueryFunctions'
 import { defineSystem } from '../../src/ecs/functions/SystemFunctions'
+import { RootSystemGroup } from '../../src/ecs/functions/SystemGroups'
 import { createEngine } from '../../src/initializeEngine'
 import { loadEmptyScene } from '../util/loadEmptyScene'
 

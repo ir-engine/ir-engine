@@ -33,8 +33,8 @@ import {
 import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { matches, Validator } from '../common/functions/MatchesUtils'
-import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '../ecs/functions/SystemGroups'
 import { Widget } from './Widgets'
 
 type WidgetMutableState = Record<string, { enabled: boolean; visible: boolean }>

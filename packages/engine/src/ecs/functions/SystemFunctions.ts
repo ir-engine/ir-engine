@@ -29,12 +29,11 @@ import { FC, useEffect } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { getState, startReactor } from '@etherealengine/hyperflux'
+import { startReactor } from '@etherealengine/hyperflux'
 
 import { HyperFlux } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { EngineState } from '../classes/EngineState'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
@@ -87,7 +86,7 @@ export function executeSystem(systemUUID: SystemUUID) {
     HyperFlux.store.activeSystemReactors.set(system.uuid, reactor)
   }
 
-  if (getState(EngineState).systemPerformanceProfilingEnabled) {
+  if (HyperFlux.store.systemPerformanceProfilingEnabled) {
     const startTime = nowMilliseconds()
 
     try {

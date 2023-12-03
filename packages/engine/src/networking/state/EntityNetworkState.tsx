@@ -43,15 +43,15 @@ import {
 import { Engine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
 import { setComponent } from '../../ecs/functions/ComponentFunctions'
-import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export const EntityNetworkState = defineState({
   name: 'ee.EntityNetworkState',

@@ -26,49 +26,20 @@ Ethereal Engine. All Rights Reserved.
 /** Functions to provide engine level functionalities. */
 
 import logger from '@etherealengine/engine/src/common/functions/logger'
-import { HyperFlux, getMutableState } from '@etherealengine/hyperflux'
+import { HyperFlux, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { EngineState } from '../classes/EngineState'
-import { executeFixedPipeline } from './FixedPipelineSystem'
-import { SystemDefinitions, defineSystem, executeSystem } from './SystemFunctions'
+import { SystemDefinitions, SystemUUID, executeSystem } from './SystemFunctions'
+import { AnimationSystemGroup, InputSystemGroup, PresentationSystemGroup, SimulationSystemGroup } from './SystemGroups'
 
-export const RootSystemGroup = defineSystem({
-  uuid: 'ee.engine.root-group',
-  insert: {},
-  execute: executeFixedPipeline
-})
-
-export const InputSystemGroup = defineSystem({
-  uuid: 'ee.engine.input-group',
-  insert: { before: RootSystemGroup }
-})
-
-/** Run inside of fixed pipeline */
-export const SimulationSystemGroup = defineSystem({
-  uuid: 'ee.engine.simulation-group',
-  insert: {}
-})
-
-export const AnimationSystemGroup = defineSystem({
-  uuid: 'ee.engine.animation-group',
-  insert: { with: RootSystemGroup }
-})
-
-export const PresentationSystemGroup = defineSystem({
-  uuid: 'ee.engine.presentation-group',
-  insert: { after: RootSystemGroup }
-})
-
-export const getDAG = (systemUUID = RootSystemGroup, depth = 0) => {
+export const getDAG = (systemUUID: SystemUUID, depth = 0) => {
   const system = SystemDefinitions.get(systemUUID)
   if (!system) return
 
   for (const preSystem of system.preSystems) {
     getDAG(preSystem, depth + 1)
   }
-
-  if (systemUUID === RootSystemGroup) getDAG(SimulationSystemGroup, depth + 1)
 
   console.log('-'.repeat(depth), system.uuid.split('.').pop())
 
@@ -105,7 +76,10 @@ export const executeSystems = (elapsedTime: number) => {
   )
   engineState.elapsedSeconds.set(elapsedSeconds)
 
-  executeSystem(RootSystemGroup)
+  executeSystem(InputSystemGroup)
+  executeFixedSystem(SimulationSystemGroup)
+  executeSystem(AnimationSystemGroup)
+  executeSystem(PresentationSystemGroup)
 
   for (const { query, result } of HyperFlux.store.reactiveQueryStates) {
     const entitiesAdded = query.enter().length
@@ -119,5 +93,51 @@ export const executeSystems = (elapsedTime: number) => {
   const duration = end - start
   if (duration > 150) {
     logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
+  }
+}
+
+/**
+ * System for running simulation logic with fixed time intervals
+ */
+export const executeFixedSystem = (systemUUID: SystemUUID) => {
+  const start = nowMilliseconds()
+  let timeUsed = 0
+
+  const engineState = getMutableState(EngineState)
+  const { frameTime, simulationTime, simulationTimestep } = getState(EngineState)
+
+  let simulationDelay = frameTime - simulationTime
+
+  const maxMilliseconds = 8
+
+  // If the difference between simulationTime and frameTime becomes too large,
+  // we should simply skip ahead.
+  const maxSimulationDelay = 5000 // 5 seconds
+
+  if (simulationDelay < simulationTimestep) {
+    engineState.simulationTime.set(Math.floor(frameTime / simulationTimestep) * simulationTimestep)
+    // simulation time is already up-to-date with frame time, so do nothing
+    return
+  }
+
+  let timeout = timeUsed > maxMilliseconds
+  let updatesLimitReached = false
+
+  while (simulationDelay > simulationTimestep && !timeout && !updatesLimitReached) {
+    engineState.simulationTime.set(
+      (t) => Math.floor((t + simulationTimestep) / simulationTimestep) * simulationTimestep
+    )
+
+    executeSystem(systemUUID)
+
+    simulationDelay -= simulationTimestep
+    timeUsed = nowMilliseconds() - start
+    timeout = timeUsed > maxMilliseconds
+
+    if (simulationDelay >= maxSimulationDelay) {
+      // fast-forward if the simulation is too far behind
+      engineState.simulationTime.set((t) => Math.floor(frameTime / simulationTimestep) * simulationTimestep)
+      break
+    }
   }
 }

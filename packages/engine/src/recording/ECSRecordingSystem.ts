@@ -77,7 +77,7 @@ import matches, { Validator } from 'ts-matches'
 import { checkScope } from '../common/functions/checkScope'
 import { isClient } from '../common/functions/getEnvironment'
 import { matchesUserId } from '../common/functions/MatchesUtils'
-import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '../ecs/functions/SystemGroups'
 import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'
 import { PhysicsSerialization } from '../physics/PhysicsSerialization'
 

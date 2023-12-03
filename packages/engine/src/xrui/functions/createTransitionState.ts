@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 
 type TransitionType = 'IN' | 'OUT'
 

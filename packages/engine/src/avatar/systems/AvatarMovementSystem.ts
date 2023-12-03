@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineQuery } from '../../ecs/functions/ComponentFunctions'
-import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { applyGamepadInput } from '.././functions/moveAvatar'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 

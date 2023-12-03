@@ -54,9 +54,9 @@ import {
   scenePath
 } from '../../schemas/projects/scene.schema'
 import { getComponent, getOptionalComponent } from '../functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../functions/EngineFunctions'
 import { EntityTreeComponent } from '../functions/EntityTree'
 import { defineSystem } from '../functions/SystemFunctions'
+import { PresentationSystemGroup } from '../functions/SystemGroups'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
 import { UndefinedEntity } from './Entity'

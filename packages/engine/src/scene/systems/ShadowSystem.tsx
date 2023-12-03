@@ -59,10 +59,10 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor, defineQuery, useQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'

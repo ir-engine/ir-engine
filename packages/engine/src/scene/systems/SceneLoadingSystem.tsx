@@ -53,11 +53,11 @@ import {
   setComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { QueryReactor, useQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { NetworkState } from '../../networking/NetworkState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { PhysicsState } from '../../physics/state/PhysicsState'

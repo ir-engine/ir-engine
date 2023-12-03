@@ -31,8 +31,8 @@ import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
 import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
-import { InputSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { ActionQueueHandle, ActionReceptor, defineActionQueue } from './ActionFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
 

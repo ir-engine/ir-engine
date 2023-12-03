@@ -42,10 +42,11 @@ import {
   hasComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { createEntity, defineQuery, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'

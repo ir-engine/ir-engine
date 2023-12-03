@@ -39,14 +39,19 @@ import {
   getOptionalComponent,
   hasComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { RootSystemGroup, SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { System, SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import {
+  RootSystemGroup,
+  SimulationSystemGroup,
+  System,
+  SystemDefinitions,
+  SystemUUID
+} from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { HyperFlux, NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import ActionsPanel from './ActionsPanel'
@@ -299,7 +304,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
           }}
           valueRenderer={(raw, value, ...keyPath) => {
             const system = SystemDefinitions.get((keyPath[0] === 'enabled' ? keyPath[1] : keyPath[0]) as SystemUUID)!
-            const systemReactor = system ? Engine.instance.activeSystemReactors.get(system.uuid) : undefined
+            const systemReactor = system ? HyperFlux.store.activeSystemReactors.get(system.uuid) : undefined
             return (
               <>
                 {systemReactor?.error.value && (
@@ -326,7 +331,7 @@ export const DebugToggle = () => {
       if (keyCode === 192) {
         showingStateRef.current = !showingStateRef.current
         setShowing(showingStateRef.current)
-        getMutableState(EngineState).systemPerformanceProfilingEnabled.set(showingStateRef.current)
+        HyperFlux.store.systemPerformanceProfilingEnabled = showingStateRef.current
       }
     }
     window.addEventListener('keydown', downHandler)
