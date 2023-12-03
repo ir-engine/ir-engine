@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Downgraded, State } from '@hookstate/core'
-import bitecs from 'bitecs'
+import * as bitecs from 'bitecs'
 import { merge } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 

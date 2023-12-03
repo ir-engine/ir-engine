@@ -44,13 +44,13 @@ import { ObjectDirection } from '../../common/constants/Axis3D'
 import { isClient } from '../../common/functions/getEnvironment'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
-  defineQuery,
   getComponent,
   getOptionalComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'

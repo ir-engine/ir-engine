@@ -31,7 +31,8 @@ import { defineAction, defineState, getMutableState, getState, useHookstate } fr
 import { useEffect } from 'react'
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { Entity } from '../ecs/classes/Entity'
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../ecs/functions/QueryFunctions'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { DepthDataTexture } from './DepthDataTexture'
 

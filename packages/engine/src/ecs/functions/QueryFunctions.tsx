@@ -42,15 +42,15 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
 
   const wrappedQuery = () => {
     HyperFlux.store.activeSystemReactors.get(HyperFlux.store.currentSystemUUID)?.cleanupFunctions.add(_remove)
-    return query(HyperFlux) as Entity[]
+    return query(HyperFlux.store) as Entity[]
   }
   wrappedQuery.enter = () => {
     HyperFlux.store.activeSystemReactors.get(HyperFlux.store.currentSystemUUID)?.cleanupFunctions.add(_removeEnter)
-    return enterQuery(HyperFlux) as Entity[]
+    return enterQuery(HyperFlux.store) as Entity[]
   }
   wrappedQuery.exit = () => {
     HyperFlux.store.activeSystemReactors.get(HyperFlux.store.currentSystemUUID)?.cleanupFunctions.add(_removeExit)
-    return exitQuery(HyperFlux) as Entity[]
+    return exitQuery(HyperFlux.store) as Entity[]
   }
 
   wrappedQuery._query = query

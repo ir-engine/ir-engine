@@ -37,13 +37,13 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
-  defineQuery,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'

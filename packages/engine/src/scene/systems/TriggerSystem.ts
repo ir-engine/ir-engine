@@ -24,7 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'

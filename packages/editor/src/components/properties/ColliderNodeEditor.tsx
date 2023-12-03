@@ -28,13 +28,9 @@ import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { CallbackComponent } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import {
   ColliderComponent,

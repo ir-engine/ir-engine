@@ -137,7 +137,6 @@ export const defineComponent = <
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
   Component.errors = []
-  Component.receptors = {}
   Object.assign(Component, def)
   if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
   Component.reactorMap = new Map()

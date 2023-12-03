@@ -25,13 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import {
-  Query,
-  defineQuery,
-  getComponent,
-  removeComponent,
-  removeQuery
-} from '../../../../../ecs/functions/ComponentFunctions'
+import { getComponent, removeComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { Query, defineQuery, removeQuery } from '../../../../../ecs/functions/QueryFunctions'
 import { SystemUUID, defineSystem } from '../../../../../ecs/functions/SystemFunctions'
 import { PhysicsSystem } from '../../../../../physics/PhysicsModule'
 import { CollisionComponent } from '../../../../../physics/components/CollisionComponent'

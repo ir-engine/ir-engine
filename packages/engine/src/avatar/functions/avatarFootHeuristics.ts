@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Euler, Quaternion, Vector3 } from 'three'
 import { V_010 } from '../../common/constants/MathConstants'
-import { Engine } from '../../ecs/classes/Engine.1'
+import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'

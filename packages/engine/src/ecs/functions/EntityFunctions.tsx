@@ -31,8 +31,8 @@ import { Entity, UndefinedEntity } from '../classes/Entity'
 import { removeAllComponents } from './ComponentFunctions'
 
 export const createEntity = (): Entity => {
-  let entity = bitECS.addEntity(Engine.instance)
-  if (entity === 0) entity = bitECS.addEntity(Engine.instance) // always discard entity 0 since we do a lot of `if (entity)` checks
+  let entity = bitECS.addEntity(Engine.instance.store)
+  if (entity === 0) entity = bitECS.addEntity(Engine.instance.store) // always discard entity 0 since we do a lot of `if (entity)` checks
   return entity as Entity
 }
 

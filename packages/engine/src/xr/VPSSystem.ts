@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
-import { defineQuery, getComponent, getMutableComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent, getMutableComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../ecs/functions/QueryFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { LocalTransformComponent } from '../transform/components/TransformComponent'
 import { PersistentAnchorActions, PersistentAnchorComponent } from './XRAnchorComponents'

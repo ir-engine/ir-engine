@@ -27,7 +27,8 @@ import { BufferGeometry, DoubleSide, Mesh, MeshStandardMaterial, SRGBColorSpace,
 
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { GroupComponent } from '../components/GroupComponent'
 import { ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
 import { fitTexture } from './fitTexture'

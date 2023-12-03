@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 
 const gizmoQuery = defineQuery([TransformGizmoComponent])

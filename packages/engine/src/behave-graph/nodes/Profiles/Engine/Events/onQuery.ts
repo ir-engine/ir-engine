@@ -24,13 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, SocketsList, makeEventNodeDefinition, sequence } from '@behave-graph/core'
-import {
-  Component,
-  ComponentMap,
-  Query,
-  defineQuery,
-  removeQuery
-} from '../../../../../ecs/functions/ComponentFunctions'
+import { Component, ComponentMap } from '../../../../../ecs/functions/ComponentFunctions'
+import { Query, defineQuery, removeQuery } from '../../../../../ecs/functions/QueryFunctions'
 import {
   SystemDefinitions,
   SystemUUID,

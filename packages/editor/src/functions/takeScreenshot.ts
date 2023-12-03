@@ -37,9 +37,10 @@ import {
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { defineQuery, getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { ScreenshotSettings } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'

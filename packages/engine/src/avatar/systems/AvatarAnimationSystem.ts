@@ -48,7 +48,8 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, defineQuery, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
