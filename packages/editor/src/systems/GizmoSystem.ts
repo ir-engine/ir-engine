@@ -83,6 +83,7 @@ const reactor = () => {
     } else {
       const lastSelection = selectedEntities[selectedEntities.length - 1].value
       if (!lastSelection) return
+      if (!sceneQuery().includes(lastSelection)) return
       setComponent(lastSelection, TransformGizmoComponent)
       if (pivotEntity.value !== UndefinedEntity) {
         removeEntity(pivotEntity.value)
@@ -97,7 +98,7 @@ const reactor = () => {
 
     /*for (const entity of gizmoQuery()) {
           removeComponent(entity,TransformGizmoComponent)
-        }*/
+    }*/
 
     return () => {}
   }, [selectionState.selectedEntities])

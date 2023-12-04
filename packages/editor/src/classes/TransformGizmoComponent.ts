@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   defineComponent,
+  defineQuery,
   getComponent,
   setComponent,
   useComponent
@@ -35,6 +36,7 @@ import { TransformControls } from '@etherealengine/engine/src/scene/classes/Tran
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import {
   SnapMode,
@@ -66,11 +68,9 @@ export const TransformGizmoComponent = defineComponent({
     const entity = useEntityContext()
     const gizmoComponent = useComponent(entity, TransformGizmoComponent)
     const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-
+    const query = defineQuery([SceneObjectComponent]) // hardcoded for now until we can make it dynamic
     const transformComponent = useComponent(entity, TransformComponent)
     const selectionState = useHookstate(getMutableState(SelectionState))
-    //const gizmoDummy = new Object3D()
-    //gizmoDummy.name = 'gizmoProxy'
     const gizmoEntity = createEntity()
 
     const box = new Box3()
@@ -97,7 +97,8 @@ export const TransformGizmoComponent = defineComponent({
 
           EditorControlFunctions.commitTransformSave([entity])
         } else {
-          const entities = selectionState.selectedEntities.value
+          const entities = selectionState.selectedEntities.value.filter((value) => query().includes(value))
+
           const translationVector = transformComponent.value.position.sub(gizmoComponent.value.worldPositionStart)
 
           switch (gizmoComponent.value.mode) {
@@ -130,7 +131,6 @@ export const TransformGizmoComponent = defineComponent({
       gizmoComponent.value.attach(entity)
 
       return () => {
-        //removeObjectFromGroup(entity, gizmoDummy)
         removeEntity(gizmoEntity)
       }
     }, [])
