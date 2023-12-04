@@ -125,8 +125,7 @@ export const TransformGizmoComponent = defineComponent({
       // create dummy Entity for gizmo helper
       setComponent(gizmoEntity, NameComponent, 'gizmoEntity')
       setComponent(gizmoEntity, VisibleComponent)
-
-      addObjectToGroup(gizmoEntity, gizmoComponent.value)
+      addObjectToGroup(gizmoEntity, gizmoComponent.value) // adding object calls attach internally on the gizmo, so attch entity last
 
       gizmoComponent.value.attach(entity)
 

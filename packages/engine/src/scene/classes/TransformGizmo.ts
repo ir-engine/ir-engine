@@ -216,8 +216,6 @@ class TransformControls extends Object3D<TransformControlsEventMap> {
     const rotationAngle = 0
     const eye = new Vector3()
 
-    // TODO: remove properties unused in plane and gizmo
-
     defineProperty('worldPosition', worldPosition)
     defineProperty('worldPositionStart', worldPositionStart)
     defineProperty('worldQuaternion', worldQuaternion)
@@ -258,7 +256,6 @@ class TransformControls extends Object3D<TransformControlsEventMap> {
     setObjectLayers(this, ObjectLayers.TransformGizmo)
   }
 
-  // updateMatrixWorld  updates key transformation variables
   updateMatrixWorld() {
     if (this.entity !== UndefinedEntity) {
       let parentEntity = SceneState.getRootEntity(getState(SceneState).activeScene!) // we can always ensure scene entity is root parent even if entty tree component doesnt exist
@@ -311,8 +308,6 @@ class TransformControls extends Object3D<TransformControlsEventMap> {
       const planeIntersect = intersectObjectWithRay(this._plane, _raycaster, true)
 
       if (planeIntersect) {
-        //this.entity.updateMatrixWorld()
-        //this.entity.parent!.updateMatrixWorld()
         const currenttransform = getComponent(this.entity, TransformComponent)
         this._positionStart.copy(currenttransform.position)
         this._quaternionStart.copy(currenttransform.rotation)
@@ -531,7 +526,7 @@ class TransformControls extends Object3D<TransformControlsEventMap> {
       _mouseUpEvent.mode = this.mode
       this.dispatchEvent(_mouseUpEvent as any)
     }
-    // integrate it directly here
+    // cannot call editor function here, better to keep thee event system
     this.dragging = false
     this.axis = null
   }
@@ -549,6 +544,7 @@ class TransformControls extends Object3D<TransformControlsEventMap> {
   }
 
   // Set current entity
+  // Note adding to group also calls this function
   attach(entity) {
     this.entity = entity
 
