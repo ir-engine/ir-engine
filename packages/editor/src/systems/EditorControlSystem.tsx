@@ -53,7 +53,7 @@ import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { EditorCameraState } from '../classes/EditorCameraState'
-import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
+import { TransformGizmoEcsComponent } from '../classes/TransformGizmoECSComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { addMediaNode } from '../functions/addMediaNode'
 import isInputSelected from '../functions/isInputSelected'
@@ -75,7 +75,7 @@ const isMacOS = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
 let lastZoom = 0
 let selectedEntities: Entity[]
 let dragging = false
-const gizmoQuery = defineQuery([TransformGizmoComponent])
+const gizmoQuery = defineQuery([TransformGizmoEcsComponent])
 
 const onKeyQ = () => {
   const nodes = getState(SelectionState).selectedEntities
@@ -263,7 +263,7 @@ const execute = () => {
   if (selectionState.selectedEntities) {
     for (const entity of gizmoQuery()) {
       // no gizmos exist it wont run
-      dragging = getComponent(entity, TransformGizmoComponent).dragging
+      dragging = getComponent(entity, TransformGizmoEcsComponent).dragging
       if (dragging) break
     }
   }
