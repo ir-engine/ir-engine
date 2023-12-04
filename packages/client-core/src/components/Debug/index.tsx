@@ -162,11 +162,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
     return Object.fromEntries(
       entityExists(entity)
         ? getEntityComponents(Engine.instance, entity).reduce<[string, any][]>((components, C: Component<any, any>) => {
-            if (C !== NameComponent) {
-              const component = getComponent(entity, C)
-              if (typeof component === 'object') components.push([C.name, { ...component }])
-              else components.push([C.name, component])
-            }
+            if (C !== NameComponent) components.push([C.name, getComponent(entity, C)])
             return components
           }, [])
         : []

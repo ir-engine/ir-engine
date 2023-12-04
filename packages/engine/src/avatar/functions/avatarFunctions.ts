@@ -55,7 +55,6 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import iterateObject3D from '../../scene/util/iterateObject3D'
@@ -69,6 +68,7 @@ import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { generateEntityJsonFromObject } from '../../scene/functions/loadGLTFModel'
 import { EntityJsonType, SceneID } from '../../schemas/projects/scene.schema'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
@@ -146,7 +146,7 @@ export const loadAvatarForUser = async (
   removeComponent(entity, AvatarPendingComponent)
 
   if (!parent) throw new Error('Avatar model not found')
-  setupAvatarForUser(entity, parent)
+  setupAvatarForUser(entity, parent, avatarURL)
 
   if (isClient && loadingEffect) {
     const avatar = getComponent(entity, AvatarComponent)
@@ -164,14 +164,10 @@ export const loadAvatarForUser = async (
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
 }
 
-// for testing
-const explodeAvatars = true
-
-export const setupAvatarForUser = (entity: Entity, model: VRM) => {
+export const setupAvatarForUser = (entity: Entity, model: VRM, avatarURL: string) => {
   const avatar = getComponent(entity, AvatarComponent)
 
   rigAvatarModel(entity)(model)
-  if (!explodeAvatars) addObjectToGroup(entity, model.scene)
 
   computeTransformMatrix(entity)
 
@@ -179,30 +175,27 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 
   iterateObject3D(model.scene, (obj) => {
     if (!obj) return
+    if (obj === model.scene && !obj.name) obj.name = avatarURL
     obj.frustumCulled = false
-    if (explodeAvatars) {
-      const uuid = obj.uuid as EntityUUID
-      const eJson = generateEntityJsonFromObject(entity, obj)
-      entityJson[uuid] = eJson
-    }
+    const uuid = obj.uuid as EntityUUID
+    const eJson = generateEntityJsonFromObject(entity, obj)
+    entityJson[uuid] = eJson
   })
 
-  if (explodeAvatars) {
-    // todo, make this the asset src + userId
-    const sceneID = (entity + '-avatar') as SceneID
+  // To ensure the scene is unique, we concatenate the avatarURL and userID
+  const sceneID = (avatarURL + getComponent(entity, UUIDComponent)) as SceneID
 
-    SceneState.loadScene(sceneID, {
-      scene: {
-        entities: entityJson,
-        root: model.scene.uuid as EntityUUID,
-        version: 0
-      },
-      scenePath: sceneID,
-      name: '',
-      project: '',
-      thumbnailUrl: ''
-    })
-  }
+  SceneState.loadScene(sceneID, {
+    scene: {
+      entities: entityJson,
+      root: model.scene.uuid as EntityUUID,
+      version: 0
+    },
+    scenePath: sceneID,
+    name: '',
+    project: '',
+    thumbnailUrl: ''
+  })
 
   setupAvatarHeight(entity, model.scene)
   createIKAnimator(entity)

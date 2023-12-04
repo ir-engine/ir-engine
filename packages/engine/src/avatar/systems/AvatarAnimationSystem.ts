@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Euler, MathUtils, Mesh, Quaternion, SkinnedMesh, SphereGeometry, Vector3 } from 'three'
 
 import {
   defineActionQueue,
@@ -55,11 +55,13 @@ import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { MeshComponent } from '../../scene/components/MeshComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { TransformSystem } from '../../transform/TransformModule'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRRigComponent } from '../../xr/XRRigComponent'
@@ -73,6 +75,7 @@ import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { AnimationSystem } from './AnimationSystem'
@@ -352,43 +355,9 @@ const execute = () => {
         )
       }
     }
-    // rigComponent.vrm.update(deltaTime)
-
-    const humanoid = (rigComponent.vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRif
-    for (const boneName of VRMHumanBoneList) {
-      const boneNode = humanoid.original.getBoneNode(boneName)
-
-      if (boneNode != null) {
-        const rigBoneNode = humanoid.getBoneNode(boneName)!
-        const parentWorldRotation = humanoid._parentWorldRotations[boneName]!
-        const invParentWorldRotation = _quatA.copy(parentWorldRotation).invert()
-        const boneRotation = humanoid._boneRotations[boneName]!
-
-        boneNode.quaternion
-          .copy(rigBoneNode.quaternion)
-          .multiply(parentWorldRotation)
-          .premultiply(invParentWorldRotation)
-          .multiply(boneRotation)
-
-        // Move the mass center of the VRM
-        if (boneName === 'hips') {
-          const boneWorldPosition = rigBoneNode.getWorldPosition(_boneWorldPos)
-          if (!boneNode.parent) {
-            console.warn('boneNode.parent is null', boneNode)
-          } else {
-            boneNode.parent.updateWorldMatrix(true, false)
-            const parentWorldMatrix = boneNode.parent.matrixWorld
-            const localPosition = boneWorldPosition.applyMatrix4(parentWorldMatrix.invert())
-            boneNode.position.copy(localPosition)
-          }
-        }
-      }
-    }
+    rigComponent.vrm.update(deltaTime)
   }
 }
-
-const _quatA = new Quaternion()
-const _boneWorldPos = new Vector3()
 
 const reactor = () => {
   const xrState = getMutableState(XRState)
@@ -436,4 +405,25 @@ export const AvatarAnimationSystem = defineSystem({
   insert: { after: AnimationSystem },
   execute,
   reactor
+})
+
+const skinnedMeshQuery = defineQuery([SkinnedMeshComponent, MeshComponent])
+
+const updateSkinnedMeshes = () => {
+  for (const entity of skinnedMeshQuery()) {
+    const skinnedMesh = getComponent(entity, MeshComponent) as SkinnedMesh
+    if (skinnedMesh.bindMode === 'attached') {
+      skinnedMesh.bindMatrixInverse.copy(skinnedMesh.matrixWorld).invert()
+    } else if (skinnedMesh.bindMode === 'detached') {
+      skinnedMesh.bindMatrixInverse.copy(skinnedMesh.bindMatrix).invert()
+    } else {
+      console.warn('THREE.SkinnedMesh: Unrecognized bindMode: ' + skinnedMesh.bindMode)
+    }
+  }
+}
+
+export const SkinnedMeshTransformSystem = defineSystem({
+  uuid: 'ee.engine.SkinnedMeshTransformSystem',
+  insert: { after: TransformSystem },
+  execute: updateSkinnedMeshes
 })
