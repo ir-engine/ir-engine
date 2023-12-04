@@ -36,7 +36,7 @@ import {
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 
 export const AnimateScaleComponent = defineComponent({
@@ -77,7 +77,7 @@ export const AnimateScaleComponent = defineComponent({
 
 const animateScale = (entity: Entity, newScale: Vector3) => {
   const highlight = { scaler: 0 }
-  const scale = getComponent(entity, TransformComponent).scale
+  const scale = getComponent(entity, LocalTransformComponent).scale
   setComponent(
     entity,
     TweenComponent,
