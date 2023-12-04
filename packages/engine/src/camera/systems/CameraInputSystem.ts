@@ -217,6 +217,8 @@ const execute = () => {
   const mouseMoved = pointerState.movement.lengthSq() > 0 && keys?.PrimaryClick?.pressed
 
   for (const entity of avatarControllerEntities) {
+    if (!inputSource) continue
+
     const avatarController = getComponent(entity, AvatarControllerComponent)
     const cameraEntity = avatarController.cameraEntity
     const target =

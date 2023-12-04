@@ -45,7 +45,6 @@ import {
   InstanceType,
   instancePath
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
@@ -247,25 +246,20 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
     'server-' + hostId
   )
 
-  const projects = await app.service(projectsPath).find()
+  await loadEngineInjection()
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    await loadEngineInjection(projects)
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
     if (!sceneId) throw new Error('No sceneId provided')
 
-    const sceneName = sceneId.split('/').at(-1)!.replace('.scene.json', '')
-    const projectName = sceneId.split('/').at(-2)!
-
     const sceneUpdatedListener = async () => {
-      const sceneData = await app
-        .service(scenePath)
-        .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
+      const sceneData = await app.service(scenePath).get(null, { query: { sceneKey: sceneId, metadataOnly: false } })
       SceneState.loadScene(sceneId, sceneData)
+      getMutableState(SceneState).activeScene.set(sceneId)
       /** @todo - quick hack to wait until scene has loaded */
 
       await new Promise<void>((resolve) => {
@@ -284,8 +278,6 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
     app.service(scenePath).on('updated', sceneUpdatedListener)
     app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
-
-    await loadEngineInjection(projects)
 
     logger.info('Scene loaded!')
   }

@@ -28,9 +28,14 @@ import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import LocationPage from '@etherealengine/client-core/src/world/Location'
 
 const LocationRoutes = () => {
+  const projectsLoaded = useEngineInjection()
+
+  if (!projectsLoaded) return <LoadingCircle message={t('common:loader.loadingProjects')} />
+
   return (
     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
       <Routes>

@@ -34,15 +34,29 @@ import { PopupMenuInline } from '@etherealengine/client-core/src/user/components
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
 import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/EditorPage'
-import { ProjectPage } from '@etherealengine/editor/src/pages/ProjectPage'
+import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 const RedirectStudio = () => {
   const { projectName, sceneName } = useParams()
   const navigate = useNavigate()
+
   useEffect(() => {
-    navigate('/studio/' + projectName + '?scene=' + sceneName)
-  })
+    Engine.instance.api
+      .service(scenePath)
+      .get(null, { query: { project: projectName, name: sceneName, metadataOnly: true } })
+      .then((result) => {
+        getMutableState(EditorState).merge({
+          sceneName,
+          projectName,
+          sceneID: result.scenePath
+        })
+        navigate(`/studio?scenePath=${result.scenePath}`)
+      })
+  }, [])
+
   return <></>
 }
 
@@ -56,8 +70,7 @@ const EditorRouter = () => {
       <PopupMenuInline />
       <Routes>
         <Route path=":projectName/:sceneName" element={<RedirectStudio />} />
-        <Route path=":projectName" element={<EditorPage />} />
-        <Route path="*" element={<ProjectPage />} />
+        <Route path="*" element={<EditorPage />} />
       </Routes>
     </Suspense>
   )

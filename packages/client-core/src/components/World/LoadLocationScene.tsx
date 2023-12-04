@@ -64,9 +64,14 @@ export const useLoadLocation = (props: { locationName: string }) => {
 
   useEffect(() => {
     if (locationState.currentLocation.selfNotAuthorized.value) {
+      getMutableState(AppLoadingState).merge({
+        state: AppLoadingStates.FAIL,
+        loaded: false
+      })
       WarningUIService.openWarning({
         title: t('common:instanceServer.notAuthorizedAtLocationTitle'),
-        body: t('common:instanceServer.notAuthorizedAtLocation')
+        body: t('common:instanceServer.notAuthorizedAtLocation'),
+        action: () => RouterState.navigate('/')
       })
     }
   }, [locationState.currentLocation.selfNotAuthorized])
@@ -76,16 +81,14 @@ export const useLoadLocation = (props: { locationName: string }) => {
    */
   useEffect(() => {
     if (!locationState.currentLocation.location.sceneId.value) return
-    const scenePath = locationState.currentLocation.location.sceneId.value.split('/')
-    const project = scenePath[scenePath.length - 2]
-    const scene = scenePath[scenePath.length - 1].replace('.scene.json', '')
-    return SceneServices.setCurrentScene(project, scene)
+    const scenePath = locationState.currentLocation.location.sceneId.value
+    return SceneServices.setCurrentScene(scenePath)
   }, [locationState.currentLocation.location.sceneId])
 }
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
   useEffect(() => {
-    LocationState.setLocationName(`${props.projectName}/${props.sceneName}`)
+    LocationState.setLocationName(`projects/${props.projectName}/${props.sceneName}.scene.json`)
     loadSceneJsonOffline(props.projectName, props.sceneName)
   }, [])
 }
