@@ -92,11 +92,15 @@ export const locomotionPack = 'locomotion'
 export const parseAvatarModelAsset = (model: any) => {
   const scene = model.scene ?? model // FBX files does not have 'scene' property
   if (!scene) return
-  const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as any
+  const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as VRM & {
+    userData: any
+  }
 
   if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
 
-  return vrm as VRM
+  vrm.humanoid.autoUpdateHumanBones = false
+
+  return vrm
 }
 
 export const isAvaturn = (url: string) => {

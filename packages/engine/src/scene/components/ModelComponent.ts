@@ -24,14 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Scene, SkinnedMesh } from 'three'
+import { Scene } from 'three'
 
 import { NO_PROXY, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { VRM } from '@pixiv/three-vrm'
+import { Not } from 'bitecs'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -43,22 +45,24 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { addError } from '../functions/ErrorFunctions'
+import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { Object3DWithEntity } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
+import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
 
 export type SceneWithEntity = Scene & { entity: Entity }
@@ -218,35 +222,13 @@ function ModelReactor() {
     }
   }, [modelComponent.scene])
 
-  // update scene
+  const childMeshQuery = useQuery([SourceComponent, MeshComponent, Not(SkinnedMeshComponent)])
   useEffect(() => {
-    const scene = getComponent(entity, ModelComponent).scene
-    if (!scene) return
-
-    let active = true
-
-    // check for skinned meshes, and turn off frustum culling for them
-    const skinnedMeshSearch = iterateEntityNode(
-      scene.entity,
-      (childEntity) => getComponent(childEntity, MeshComponent),
-      (childEntity) =>
-        hasComponent(childEntity, MeshComponent) &&
-        (getComponent(childEntity, MeshComponent) as SkinnedMesh).isSkinnedMesh
-    )
-
-    if (skinnedMeshSearch[0]) {
-      modelComponent.hasSkinnedMesh.set(true)
-      modelComponent.generateBVH.set(false)
-      for (const skinnedMesh of skinnedMeshSearch) {
-        skinnedMesh.frustumCulled = false
-      }
-      setComponent(entity, FrustumCullCameraComponent)
+    for (const entity of childMeshQuery) {
+      if (getComponent(entity, SourceComponent) !== modelComponent.src.value) continue
+      if (modelComponent.generateBVH.value) generateMeshBVH(getComponent(entity, MeshComponent))
     }
-
-    return () => {
-      active = false
-    }
-  }, [modelComponent.scene, modelComponent.generateBVH])
+  }, [childMeshQuery, modelComponent.generateBVH])
 
   useEffect(() => {
     if (!modelComponent.scene.value) return
