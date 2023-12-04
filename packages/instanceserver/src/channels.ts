@@ -97,11 +97,11 @@ interface InstanceserverStatus {
  * @param app
  * @param newInstance
  */
-const createNewInstance = async (app: Application, newInstance: InstanceData) => {
+const createNewInstance = async (app: Application, newInstance: InstanceData, headers: object) => {
   const { locationId, channelId } = newInstance
 
-  logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId)
-  const instanceResult = await app.service(instancePath).create(newInstance)
+  logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId, headers)
+  const instanceResult = await app.service(instancePath).create(newInstance, { headers })
   if (!channelId) {
     await app.service(channelPath).create({
       instanceId: instanceResult.id
@@ -155,6 +155,7 @@ const assignExistingInstance = async (
 
 const initializeInstance = async (
   app: Application,
+  headers: object,
   status: InstanceserverStatus,
   locationId: LocationID,
   channelId: ChannelID,
@@ -196,7 +197,7 @@ const initializeInstance = async (
       ipAddress: ipAddress,
       podName: config.kubernetes.enabled ? instanceServerState.instanceServer.value?.objectMeta?.name : 'local'
     } as InstanceData
-    await createNewInstance(app, newInstance)
+    await createNewInstance(app, newInstance, headers)
   } else {
     const instance = existingInstanceResult.data[0]
     if (locationId) {
@@ -363,6 +364,7 @@ let instanceStarted = false
  */
 const createOrUpdateInstance = async (
   app: Application,
+  headers: object,
   status: InstanceserverStatus,
   locationId: LocationID,
   channelId: ChannelID,
@@ -382,7 +384,7 @@ const createOrUpdateInstance = async (
 
   if (isReady || isNeedingNewServer) {
     instanceStarted = true
-    await initializeInstance(app, status, locationId, channelId, userId)
+    await initializeInstance(app, headers, status, locationId, channelId, userId)
     await loadEngine(app, sceneId)
   } else {
     try {
@@ -618,7 +620,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   const isResult = await serverState.agonesSDK.getGameServer()
   const status = isResult.status as InstanceserverStatus
 
-  await createOrUpdateInstance(app, status, locationId, channelId, sceneID, userId)
+  await createOrUpdateInstance(app, connection.headers, status, locationId, channelId, sceneID, userId)
 
   if (instanceServerState.instance) {
     connection.instanceId = instanceServerState.instance.id
@@ -709,7 +711,7 @@ export default (app: Application): void => {
       return
     }
 
-    createOrUpdateInstance(app, status, locationId, null!, sceneId)
+    createOrUpdateInstance(app, {}, status, locationId, null!, sceneId)
   })
 
   const kickCreatedListener = async (data: UserKickType) => {

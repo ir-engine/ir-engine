@@ -35,8 +35,9 @@ import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const instanceResolver = resolve<InstanceType, HookContext>({
   location: virtual(async (instance, context) => {
-    if (context.event !== 'removed' && instance.locationId)
-      return await context.app.service(locationPath).get(instance.locationId)
+    if (context.event !== 'removed' && instance.locationId) {
+      return await context.app.service(locationPath).get(instance.locationId, { headers: context.headers })
+    }
   }),
   assignedAt: virtual(async (location) => (location.assignedAt ? fromDateTimeSql(location.assignedAt) : '')),
   createdAt: virtual(async (location) => fromDateTimeSql(location.createdAt)),
