@@ -148,7 +148,7 @@ export const TransformGizmoComponent = defineComponent({
     useEffect(() => {
       if (selectionState.selectedEntities.value.length < 1) return
       let newPosition = getComponent(entity, TransformComponent).position
-      const selectedEntities = selectionState.selectedEntities.value
+      const selectedEntities = selectionState.selectedEntities.value.filter((value) => query().includes(value))
       const selectedTransform = getComponent(selectedEntities[selectedEntities.length - 1], TransformComponent)
 
       switch (editorHelperState.transformPivot.value) {
