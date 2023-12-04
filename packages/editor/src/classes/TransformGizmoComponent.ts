@@ -54,7 +54,7 @@ import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 
 export const TransformGizmoComponent = defineComponent({
-  name: 'TransformEcsGizmo',
+  name: 'TransformGizmo',
 
   onInit(entity) {
     const control = new TransformControls()
