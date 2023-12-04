@@ -26,47 +26,36 @@ Ethereal Engine. All Rights Reserved.
 import {
   defineComponent,
   getComponent,
-  removeComponent,
   setComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { TransformControls } from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import {
   SnapMode,
   TransformMode,
   TransformPivot,
   TransformSpace
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { Box3, Euler, Object3D, Vector3 } from 'three'
+import { Box3, Euler, Vector3 } from 'three'
 import { degToRad } from 'three/src/math/MathUtils'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 
 export const TransformGizmoComponent = defineComponent({
-  name: 'TransformGizmo',
+  name: 'TransformEcsGizmo',
 
   onInit(entity) {
-    const control = new TransformControls(
-      getComponent(Engine.instance.cameraEntity, CameraComponent),
-      EngineRenderer.instance.renderer.domElement
-    )
+    const control = new TransformControls()
     return control
   },
   onRemove: (entity, component) => {
@@ -80,8 +69,8 @@ export const TransformGizmoComponent = defineComponent({
 
     const transformComponent = useComponent(entity, TransformComponent)
     const selectionState = useHookstate(getMutableState(SelectionState))
-    const gizmoDummy = new Object3D()
-    gizmoDummy.name = 'gizmoProxy'
+    //const gizmoDummy = new Object3D()
+    //gizmoDummy.name = 'gizmoProxy'
     const gizmoEntity = createEntity()
 
     const box = new Box3()
@@ -137,21 +126,12 @@ export const TransformGizmoComponent = defineComponent({
       setComponent(gizmoEntity, NameComponent, 'gizmoEntity')
       setComponent(gizmoEntity, VisibleComponent)
 
-      // set layers
-      const raycaster = gizmoComponent.value.getRaycaster()
-      raycaster.layers.set(ObjectLayers.TransformGizmo)
-      setObjectLayers(gizmoDummy, ObjectLayers.TransformGizmo)
-
-      setObjectLayers(gizmoComponent.value, ObjectLayers.TransformGizmo)
-
-      // add dummy to entity and gizmo to dummy entity and attach
-      addObjectToGroup(entity, gizmoDummy)
-      gizmoComponent.value.attach(gizmoDummy)
       addObjectToGroup(gizmoEntity, gizmoComponent.value)
-      removeComponent(gizmoEntity, LocalTransformComponent)
+
+      gizmoComponent.value.attach(entity)
 
       return () => {
-        removeObjectFromGroup(entity, gizmoDummy)
+        //removeObjectFromGroup(entity, gizmoDummy)
         removeEntity(gizmoEntity)
       }
     }, [])

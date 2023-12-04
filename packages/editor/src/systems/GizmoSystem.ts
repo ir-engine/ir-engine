@@ -44,14 +44,14 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { useHookstate, useState } from '@hookstate/core'
 import { useEffect } from 'react'
 import { Object3D } from 'three'
-import { TransformGizmoEcsComponent } from '../classes/TransformGizmoECSComponent'
+import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 import { SelectionState } from '../services/SelectionServices'
 
-const gizmoQuery = defineQuery([TransformGizmoEcsComponent])
+const gizmoQuery = defineQuery([TransformGizmoComponent])
 
 const execute = () => {
   for (const entity of gizmoQuery()) {
-    const gizmo = getComponent(entity, TransformGizmoEcsComponent)
+    const gizmo = getComponent(entity, TransformGizmoComponent)
     gizmo.updateMatrixWorld()
   }
 }
@@ -66,8 +66,8 @@ const reactor = () => {
     if (!selectedEntities.value) return
     const pivotEntityName = 'pivotEntity'
     for (const entity of sceneQuery()) {
-      if (!hasComponent(entity, TransformGizmoEcsComponent)) continue
-      removeComponent(entity, TransformGizmoEcsComponent)
+      if (!hasComponent(entity, TransformGizmoComponent)) continue
+      removeComponent(entity, TransformGizmoComponent)
     }
 
     if (selectedEntities.length > 1 && pivotEntity.value === UndefinedEntity) {
@@ -79,11 +79,11 @@ const reactor = () => {
         parentEntity: SceneState.getRootEntity(getState(SceneState).activeScene!)
       })
       addObjectToGroup(pivotEntity.value, pivotProxy)
-      setComponent(pivotEntity.value, TransformGizmoEcsComponent)
+      setComponent(pivotEntity.value, TransformGizmoComponent)
     } else {
       const lastSelection = selectedEntities[selectedEntities.length - 1].value
       if (!lastSelection) return
-      setComponent(lastSelection, TransformGizmoEcsComponent)
+      setComponent(lastSelection, TransformGizmoComponent)
       if (pivotEntity.value !== UndefinedEntity) {
         removeEntity(pivotEntity.value)
 
