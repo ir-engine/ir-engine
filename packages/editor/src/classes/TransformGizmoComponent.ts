@@ -44,7 +44,10 @@ import {
   TransformPivot,
   TransformSpace
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  TransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Box3, Euler, Vector3 } from 'three'
@@ -69,11 +72,10 @@ export const TransformGizmoComponent = defineComponent({
     const gizmoComponent = useComponent(entity, TransformGizmoComponent)
     const editorHelperState = useHookstate(getMutableState(EditorHelperState))
     const query = defineQuery([SceneObjectComponent]) // hardcoded for now until we can make it dynamic
-    const transformComponent = useComponent(entity, TransformComponent)
     const selectionState = useHookstate(getMutableState(SelectionState))
     const gizmoEntity = createEntity()
-
     const box = new Box3()
+    const transformComponent = useComponent(entity, LocalTransformComponent)
 
     useEffect(() => {
       // create dummy object to attach gizmo to, we can only attach to three js objects
