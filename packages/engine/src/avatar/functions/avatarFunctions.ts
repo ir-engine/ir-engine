@@ -202,8 +202,6 @@ export const setupAvatarForUser = (entity: Entity, model: VRM, avatarURL: string
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
   avatar.model = model.scene
-
-  globalThis.MY_AVATAR = model.scene
 }
 
 export const createIKAnimator = async (entity: Entity) => {
