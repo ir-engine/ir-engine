@@ -34,7 +34,6 @@ import {
   Component,
   componentJsonDefaults,
   ComponentJSONIDMap,
-  ComponentMap,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -226,11 +225,10 @@ const createObjectFromSceneElement = (
 
   const entityUUID =
     componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? MathUtils.generateUUID()
-  const fullComponentJson = [
-    ...componentJson,
-    { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
-    { name: ComponentMap.get(LocalTransformComponent.name)!.jsonID! }
-  ].map((comp) => ({
+  if (!componentJson.some((comp) => comp.name === LocalTransformComponent.jsonID)) {
+    componentJson.push({ name: LocalTransformComponent.jsonID })
+  }
+  const fullComponentJson = [...componentJson, { name: VisibleComponent.jsonID }].map((comp) => ({
     name: comp.name,
     props: {
       ...componentJsonDefaults(ComponentJSONIDMap.get(comp.name)!),
