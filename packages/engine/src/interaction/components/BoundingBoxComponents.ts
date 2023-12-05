@@ -118,7 +118,11 @@ export const computeBoundingBox = (entity: Entity) => {
 
   for (const obj of group) {
     obj.traverse(traverseComputeBoundingBox)
-    box.expandByObject(obj, true)
+    try {
+      box.expandByObject(obj, true)
+    } catch (e) {
+      console.warn('Error expanding bounding box', e)
+    }
   }
 }
 

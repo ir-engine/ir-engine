@@ -36,7 +36,7 @@ export type MotionCapturePoses = 'sitting' | 'standing'
 export type MotionCapturePoseState = { begun: boolean }
 
 const minSeatedAngle = 1.25, //radians
-  poseHoldTime = 0.5 //seconds
+  poseHoldTime = 0.25 //seconds
 let poseHoldTimer = 0
 
 export const evaluatePose = (entity: Entity) => {

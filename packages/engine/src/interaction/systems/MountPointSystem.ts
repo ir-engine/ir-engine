@@ -79,6 +79,7 @@ const execute = () => {
   if (getState(EngineState).isEditor) return
 
   const unmountEntity = (entity: Entity) => {
+    if (!hasComponent(entity, SittingComponent)) return
     const rigidBody = getComponent(entity, RigidBodyComponent)
 
     dispatchAction(

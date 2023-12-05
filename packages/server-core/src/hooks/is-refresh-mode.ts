@@ -23,19 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import appConfig from '@etherealengine/server-core/src/appconfig'
+import { HookContext } from '../../declarations'
 
-import { EditorNavbar } from '../components/projects/EditorNavbar'
-import Projects from '../components/projects/ProjectsPage'
+const { forceRefresh } = appConfig.db
+const { testEnabled } = appConfig
+const prepareDb = process.env.PREPARE_DATABASE === 'true'
 
-import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
+export const isRefreshMode = forceRefresh || testEnabled || prepareDb
 
-export const ProjectPage = () => {
-  useRemoveEngineCanvas()
-  return (
-    <>
-      <EditorNavbar />
-      <Projects />
-    </>
-  )
+/**
+ * Hook used to check if server is currently running in refresh mode. i.e. reinit, prepare db or test.
+ * @param context
+ */
+export const checkRefreshMode = () => {
+  return (context: HookContext) => {
+    return isRefreshMode ? true : false
+  }
 }
