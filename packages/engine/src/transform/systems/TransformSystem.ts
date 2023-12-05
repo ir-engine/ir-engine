@@ -41,15 +41,16 @@ import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import {
+  AggregateBoundingBoxComponent,
   BoundingBoxComponent,
   BoundingBoxDynamicTag,
-  updateBoundingBoxAndHelper
+  updateAggregateBoundingBox,
+  updateBoundingBox
 } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
 import {
   RigidBodyComponent,
   RigidBodyDynamicTagComponent,
-  RigidBodyFixedTagComponent,
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
@@ -74,11 +75,10 @@ const nonDynamicLocalTransformQuery = defineQuery([
   Not(RigidBodyKinematicVelocityBasedTagComponent)
 ])
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
-const fixedRigidBodyQuery = defineQuery([TransformComponent, RigidBodyComponent, RigidBodyFixedTagComponent])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
-const staticBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent])
 const dynamicBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
+const dynamicAggregateBoundingBoxQuery = defineQuery([AggregateBoundingBoxComponent, BoundingBoxDynamicTag])
 
 const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
@@ -377,7 +377,8 @@ const execute = () => {
 
   for (const entity in TransformComponent.dirtyTransforms) TransformComponent.dirtyTransforms[entity] = false
 
-  for (const entity of dynamicBoundingBoxQuery()) updateBoundingBoxAndHelper(entity)
+  for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
+  for (const entity of dynamicAggregateBoundingBoxQuery()) updateAggregateBoundingBox(entity)
 
   const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
@@ -389,7 +390,9 @@ const execute = () => {
   _frustum.setFromProjectionMatrix(_projScreenMatrix)
 
   for (const entity of frustumCulledQuery()) {
-    const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)?.box
+    const boundingBox = (
+      getOptionalComponent(entity, AggregateBoundingBoxComponent) ?? getOptionalComponent(entity, BoundingBoxComponent)
+    )?.box
     const cull = boundingBox
       ? _frustum.intersectsBox(boundingBox)
       : _frustum.containsPoint(getComponent(entity, TransformComponent).position)
@@ -405,21 +408,6 @@ const execute = () => {
         )
     }
   }
-
-  /** for HMDs, only iterate priority queue entities to reduce matrix updates per frame. otherwise, this will be automatically run by threejs */
-  /** @todo include in auto performance scaling metrics */
-  // if (getState(XRState).xrFrame) {
-  //   /**
-  //    * Update threejs skeleton manually
-  //    *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation
-  //    */
-  //   Skeleton.prototype.update = skeletonUpdate
-  //   for (const entity of Engine.instance.priorityAvatarEntities) {
-  //     const group = getComponent(entity, GroupComponent)
-  //     for (const obj of group) obj.traverse(iterateSkeletons)
-  //   }
-  //   Skeleton.prototype.update = noop
-  // }
 }
 
 const reactor = () => {
@@ -432,8 +420,6 @@ const reactor = () => {
     })
 
     return () => {
-      Skeleton.prototype.update = skeletonUpdate
-
       networkState.networkSchema[TransformSerialization.ID].set(none)
 
       originChildEntities.clear()

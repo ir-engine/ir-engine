@@ -47,7 +47,7 @@ import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { AggregateBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -414,7 +414,7 @@ const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
 const inputSources = defineQuery([InputSourceComponent])
 
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
-const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
+const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, AggregateBoundingBoxComponent])
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
 
 const rayRotation = new Quaternion()
@@ -557,7 +557,7 @@ const execute = () => {
 
         // 3rd heuristic is bboxes
         for (const entity of inputBoundingBoxes()) {
-          const boundingBox = getComponent(entity, BoundingBoxComponent)
+          const boundingBox = getComponent(entity, AggregateBoundingBoxComponent)
           const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
           if (hit) {
             const distance = inputRay.origin.distanceTo(bboxHitTarget)

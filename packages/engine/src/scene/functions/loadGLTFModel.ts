@@ -130,7 +130,6 @@ export const parseObjectComponentsFromGLTF = (
     }
   })
 
-  const entities: Entity[] = []
   const entityJson: Record<EntityUUID, EntityJsonType> = {}
 
   for (const mesh of meshesToProcess) {
@@ -207,6 +206,10 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
       scale: obj.scale.clone()
     }
   })
+  setComponent(objEntity, EntityTreeComponent, {
+    parentEntity: parentEntity,
+    uuid
+  })
   addObjectToGroup(objEntity, obj)
   setComponent(objEntity, GLTFLoadedComponent, ['entity'])
 
@@ -279,6 +282,8 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   const inColliderGroup =
     obj.parent?.userData && Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
   if (!inColliderGroup) {
+    setComponent(objEntity, BoundingBoxComponent)
+
     const mesh = obj as Mesh
     mesh.isMesh && setComponent(objEntity, MeshComponent, mesh)
 
@@ -298,8 +303,6 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     if (obj.userData['componentJson']) {
       eJson.components.push(...obj.userData['componentJson'])
     }
-
-    setComponent(objEntity, BoundingBoxComponent)
   }
 
   return eJson

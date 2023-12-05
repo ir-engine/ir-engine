@@ -60,7 +60,7 @@ import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 
 import { AvatarMovementSystem } from '../../avatar/systems/AvatarMovementSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
+import { AggregateBoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
 import { createInteractUI } from '../functions/interactUI'
 import { InteractiveUI, addInteractableUI } from './InteractiveSystem'
@@ -83,7 +83,7 @@ const execute = () => {
 
   for (const entity of mountPointQuery.enter()) {
     const mountPoint = getComponent(entity, MountPointComponent)
-    setComponent(entity, BoundingBoxComponent, {
+    setComponent(entity, AggregateBoundingBoxComponent, {
       box: new Box3().setFromCenterAndSize(
         getComponent(entity, TransformComponent).position,
         new Vector3(0.1, 0.1, 0.1)

@@ -26,18 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Box3, Box3Helper, BufferGeometry, Mesh } from 'three'
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -47,6 +48,21 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
+
+  onInit: (entity) => {
+    return {
+      box: new Box3()
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.array.test(json.box)) component.box.value.copy(json.box)
+  }
+})
+
+export const AggregateBoundingBoxComponent = defineComponent({
+  name: 'AggregateBoundingBoxComponent',
 
   onInit: (entity) => {
     return {
@@ -63,13 +79,10 @@ export const BoundingBoxComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const boundingBox = useComponent(entity, BoundingBoxComponent)
-    const group = useOptionalComponent(entity, GroupComponent)
+    const boundingBox = useComponent(entity, AggregateBoundingBoxComponent)
 
     useEffect(() => {
-      if (!group?.length) return
-
-      computeBoundingBox(entity)
+      updateAggregateBoundingBox(entity)
 
       if (!debugEnabled.value) return
 
@@ -89,60 +102,46 @@ export const BoundingBoxComponent = defineComponent({
         removeEntity(helperEntity)
         boundingBox.helper.set(UndefinedEntity)
       }
-    }, [debugEnabled, group])
+    }, [debugEnabled])
 
     return null
   }
 })
 
-export const updateBoundingBoxAndHelper = (entity: Entity) => {
-  updateBoundingBox(entity)
-
-  const debugEnabled = getState(RendererState).nodeHelperVisibility
-  if (!debugEnabled) return
-
-  const boundingBox = getComponent(entity, BoundingBoxComponent)
-  const helperEntity = boundingBox.helper
-  const helperObject = getComponent(helperEntity, GroupComponent)?.[0] as any as Box3Helper
-  if (!helperObject) return
-
-  helperObject.box.copy(boundingBox.box)
-  helperObject.updateMatrixWorld(true)
-}
-
-export const computeBoundingBox = (entity: Entity) => {
-  const box = getComponent(entity, BoundingBoxComponent).box
-  const group = getComponent(entity, GroupComponent)
+export const updateAggregateBoundingBox = (entity: Entity) => {
+  const box = getComponent(entity, AggregateBoundingBoxComponent).box
 
   box.makeEmpty()
 
-  for (const obj of group) {
-    obj.traverse(traverseComputeBoundingBox)
-    try {
-      box.expandByObject(obj, true)
-    } catch (e) {
-      console.warn('Error expanding bounding box', e)
+  const callback = (child: Entity) => {
+    const boundingBox = getOptionalComponent(child, BoundingBoxComponent)
+    if (boundingBox) {
+      updateBoundingBox(child)
+      box.union(boundingBox.box)
     }
   }
+
+  iterateEntityNode(entity, callback)
+
+  /** helper has custom logic in updateMatrixWorld */
+  const boundingBox = getComponent(entity, AggregateBoundingBoxComponent)
+  const helperEntity = boundingBox.helper
+  if (!helperEntity) return
+
+  const helperObject = getComponent(helperEntity, GroupComponent)?.[0] as any as Box3Helper
+  helperObject.updateMatrixWorld(true)
 }
 
 export const updateBoundingBox = (entity: Entity) => {
   const box = getComponent(entity, BoundingBoxComponent).box
   const group = getComponent(entity, GroupComponent) as any as Mesh<BufferGeometry>[]
   box.makeEmpty()
-  for (const obj of group) expandBoxByObject(obj, box, 0)
-}
-
-const traverseComputeBoundingBox = (mesh: Mesh) => {
-  if (mesh.isMesh) {
-    if (mesh.geometry.attributes.position && mesh.geometry.attributes.position.array.length < 3) return //console.warn('Empty mesh geometry', mesh)
-    mesh.geometry.computeBoundingBox()
-  }
+  for (const obj of group) expandBoxByObject(obj, box)
 }
 
 const _box = new Box3()
 
-const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3, layer: number) => {
+const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
   const geometry = object.geometry
 
   if (geometry) {
@@ -153,12 +152,6 @@ const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3, layer: numbe
     _box.copy(geometry.boundingBox!)
     _box.applyMatrix4(object.matrixWorld)
     box.union(_box)
-  }
-
-  const children = object.children as Mesh<BufferGeometry>[]
-
-  for (let i = 0, l = children.length; i < l; i++) {
-    expandBoxByObject(children[i], box, i)
   }
 }
 

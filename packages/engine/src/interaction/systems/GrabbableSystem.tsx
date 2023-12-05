@@ -68,7 +68,7 @@ import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
+import { AggregateBoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
 import { createInteractUI } from '../functions/interactUI'
 import { InteractableTransitions, addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
@@ -220,7 +220,7 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
   transform.position.copy(getComponent(entity, TransformComponent).position)
 
   if (hasComponent(xrui.entity, VisibleComponent)) {
-    const boundingBox = getComponent(entity, BoundingBoxComponent)
+    const boundingBox = getComponent(entity, AggregateBoundingBoxComponent)
     if (boundingBox) {
       const boundingBoxHeight = boundingBox.box.max.y - boundingBox.box.min.y
       transform.position.y += boundingBoxHeight * 2
