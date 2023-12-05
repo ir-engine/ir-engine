@@ -23,9 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FlyControlSystem } from '../avatar/systems/FlyControlSystem'
-import { MotionCaptureInputSystem } from '../mocap/MotionCaptureInputSystem'
-import { ButtonCleanupSystem } from './systems/ButtonCleanupSystem'
-import { ClientInputSystem } from './systems/ClientInputSystem'
+import { defineComponent } from '../ecs/functions/ComponentFunctions'
+import { MotionCapturePoseState, MotionCapturePoses } from './poseToInput'
 
-export { FlyControlSystem, ButtonCleanupSystem, ClientInputSystem, MotionCaptureInputSystem }
+export const MotionCapturePoseComponent = defineComponent({
+  name: 'MotionCapturePoseComponent',
+  onInit: () => {
+    return {} as Record<MotionCapturePoses, MotionCapturePoseState>
+  }
+})

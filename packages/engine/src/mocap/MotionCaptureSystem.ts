@@ -125,7 +125,6 @@ const execute = () => {
     timeSeriesMocapLastSeen.set(peerID, Date.now())
     setComponent(entity, MotionCaptureRigComponent)
     solveMotionCapturePose(entity, data?.results.poseWorldLandmarks, data?.results.poseLandmarks)
-
     mocapData.clear() // TODO: add a predictive filter and remove this
   }
 
