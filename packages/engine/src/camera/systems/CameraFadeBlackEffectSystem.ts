@@ -109,6 +109,7 @@ const reactor = () => {
     })
 
     const mesh = new Mesh(geometry, material)
+    mesh.layers.set(ObjectLayers.Camera)
     mesh.scale.set(-1, 1, -1)
     mesh.renderOrder = 1
     mesh.name = 'Camera Fade Transition'

@@ -81,7 +81,7 @@ export type ReactorRoot = {
   fiber: any
   isRunning: boolean
   Reactor: React.FC
-  error: Error | null
+  errors: Error[]
   promise: Promise<void>
   cleanupFunctions: Set<() => void>
   run: (force?: boolean) => Promise<void>
@@ -97,7 +97,7 @@ export function useReactorRootContext(): ReactorRoot {
 export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactNode; reactorRoot: ReactorRoot }>(
   function error(props, error?: Error) {
     if (error) {
-      props.reactorRoot.error = error
+      props.reactorRoot.errors.push(error)
       props.reactorRoot.stop()
       return null
     } else {
@@ -118,7 +118,10 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
-  const onRecoverableError = (err) => console.error(err)
+  const onRecoverableError = (err) => {
+    console.error(err, reactorRoot)
+    reactorRoot.errors.push(err)
+  }
 
   const fiberRoot = ReactorReconciler.createContainer(
     {},
@@ -137,7 +140,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     fiber: fiberRoot,
     isRunning: false,
     Reactor,
-    error: null as Error | null,
+    errors: [] as Error[],
     promise: null! as Promise<void>,
     run() {
       if (reactorRoot.isRunning) return Promise.resolve()
@@ -161,7 +164,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
       return new Promise<void>((resolve) => {
         ReactorReconciler.updateContainer(null, fiberRoot, null, () => {
           reactorRoot.isRunning = false
-          HyperFlux.store.activeReactors.delete(reactorRoot)
+          if (!reactorRoot.errors.length) HyperFlux.store.activeReactors.delete(reactorRoot)
           reactorRoot.cleanupFunctions.forEach((fn) => fn())
           reactorRoot.cleanupFunctions.clear()
           resolve()

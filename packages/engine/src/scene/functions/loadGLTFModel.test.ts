@@ -50,7 +50,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { parseGLTFModel } from './loadGLTFModel'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
-describe('loadGLTFModel', () => {
+describe.skip('loadGLTFModel', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()

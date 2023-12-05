@@ -88,8 +88,7 @@ const WarningSystemXRUI = function () {
 
   return (
     <>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto"></link>
-      <div xr-layer="true" className={'z-1'} style={{ zIndex: '-1', fontFamily: 'Roboto' }}>
+      <div xr-layer="true" className={'z-1'} style={{ zIndex: '-1', fontFamily: 'Roboto, sans-serif' }}>
         <div
           xr-layer="true"
           className={'pl-6 pr-8 max-w-sm'}
