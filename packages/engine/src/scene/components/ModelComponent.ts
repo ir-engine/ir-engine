@@ -52,7 +52,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { addError } from '../functions/ErrorFunctions'
+import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { Object3DWithEntity, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -170,6 +170,8 @@ function ModelReactor() {
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
     const asset = model.asset as GLTF | null
+    removeError(entity, ModelComponent, 'INVALID_SOURCE')
+    removeError(entity, ModelComponent, 'LOADING_ERROR')
     if (!asset) return
     const fileExtension = model.src.split('.').pop()?.toLowerCase()
     asset.scene.animations = asset.animations
