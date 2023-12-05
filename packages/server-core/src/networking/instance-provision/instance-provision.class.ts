@@ -560,7 +560,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
    * a cleanup was performed.
    *
    * @param instance of ipaddress and port
-   * @returns {@Boolean}
+   * @returns {Boolean}
    */
 
   async isCleanup(instance: InstanceType): Promise<boolean> {
@@ -602,7 +602,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
    * A method which finds a running Instanceserver
    *
    * @param params of query of locationId and instanceId
-   * @returns {@function} getFreeInstanceserver and getISInService
+   * @returns {function} getFreeInstanceserver and getISInService
    */
 
   async find(params?: InstanceProvisionParams) {
