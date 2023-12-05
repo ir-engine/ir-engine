@@ -42,6 +42,7 @@ import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
 import { Box, Divider, Stack } from '@mui/material'
 
+import { materialPrototypeUnavailableComponent } from '@etherealengine/engine/src/renderer/materials/components/MaterialPrototypeComponent'
 import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { Button } from '../inputs/Button'
@@ -71,7 +72,8 @@ export function MaterialEditor(props: { materialID: string }) {
   const { materialID } = props
   const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const materialComponent = materialLibrary.materials[materialID]
-  const prototypeComponent = materialLibrary.prototypes.value[materialComponent.prototype.value]
+  const prototypeComponent =
+    materialLibrary.prototypes.value[materialComponent.prototype.value] ?? materialPrototypeUnavailableComponent
   const material = materialFromId(materialID).material
   const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
     label: prototype.prototypeId,

@@ -36,6 +36,7 @@ import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/pro
 import {
   SceneCreateData,
   SceneDataType,
+  SceneID,
   SceneJsonType,
   SceneMetadataCreate,
   ScenePatch,
@@ -75,9 +76,7 @@ export class SceneService
   async getSceneFiles(directory: string, storageProviderName?: string) {
     const storageProvider = getStorageProvider(storageProviderName)
     const fileResults = await storageProvider.listObjects(directory, false)
-    return fileResults.Contents.map((dirent) => dirent.Key)
-      .filter((name) => name.endsWith('.scene.json'))
-      .map((name) => name.split('/').pop()!.replace('.scene.json', ''))
+    return fileResults.Contents.map((dirent) => dirent.Key).filter((name) => name.endsWith('.scene.json')) as SceneID[]
   }
 
   async find(params?: SceneParams) {
@@ -104,13 +103,12 @@ export class SceneService
 
       const files = await this.getSceneFiles(sceneJsonPath, storageProviderName)
       const sceneData = await Promise.all(
-        files.map(async (sceneName) =>
+        files.map(async (sceneID) =>
           this.app.service(scenePath).get('', {
             ...params,
             query: {
               ...params?.query,
-              name: sceneName,
-              project: project.name,
+              sceneKey: sceneID,
               metadataOnly: params?.query?.metadataOnly,
               internal: params?.query?.internal
             }
@@ -124,12 +122,13 @@ export class SceneService
       const sceneJsonPath = params?.query?.directory?.toString()
       const files = await this.getSceneFiles(sceneJsonPath, storageProviderName)
       const sceneData = await Promise.all(
-        files.map(async (sceneName) =>
+        files.map(async (sceneID) =>
           this.app.service(scenePath).get('', {
             ...params,
             query: {
               ...params?.query,
-              name: sceneName,
+              storageProviderName,
+              sceneKey: sceneID,
               metadataOnly: true,
               internal: true
             }
@@ -150,9 +149,11 @@ export class SceneService
     const metadataOnly = params?.query?.metadataOnly
     const internal = params?.query?.internal
     const storageProviderName = params?.query?.storageProviderName
-    const sceneKey = params?.query?.sceneKey?.toString()
+    const sceneKey = params?.query?.sceneKey!
 
-    const sceneData = await getSceneData(sceneKey!, metadataOnly, internal, storageProviderName)
+    if (!sceneKey) throw new Error('No sceneKey provided')
+
+    const sceneData = await getSceneData(sceneKey, metadataOnly, internal, storageProviderName)
 
     return sceneData as SceneDataType
   }
@@ -206,7 +207,9 @@ export class SceneService
       }
     }
 
-    return { project: project!, name: newSceneName } as SceneMetadataCreate
+    const scenePath = `${directory}${newSceneName}.scene.json`
+
+    return { project: project!, name: newSceneName, scenePath } as SceneMetadataCreate
   }
 
   async patch(id: NullableId, data: ScenePatch, params?: Params) {

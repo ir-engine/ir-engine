@@ -112,7 +112,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
   const { entity, camera, scene, renderer } = renderPanel.state
 
   const hasWriteAccess = userHasAccess('static_resource:write')
-  const viewMode = mode === AvatarDrawerMode.ViewEdit && !editMode
+  const viewMode = mode === AvatarDrawerMode.ViewEdit && !editMode.value
 
   let thumbnailSrc = ''
   if (state.source.value === 'file' && state.thumbnailFile.value) {
@@ -524,10 +524,10 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       )}
 
       {state.source.value === 'url' && (
-        <Box sx={{ display: 'flex', alignItems: 'self-end' }}>
+        <Box sx={{ display: 'flex', justifyItems: 'self-end', flexDirection: 'column' }}>
           <InputText
             name="thumbnailUrl"
-            sx={{ mt: 2, mb: 1, flex: 1 }}
+            sx={{ mt: 2, mb: 1, flex: 1, width: '100%' }}
             label={t('admin:components.avatar.thumbnailUrl')}
             value={state.thumbnailUrl.value}
             error={state.formErrors.thumbnailUrl.value}
@@ -539,7 +539,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
             <Button
               className={styles.gradientButton}
               startIcon={<Icon type="Portrait" />}
-              sx={{ marginLeft: 1, width: '250px' }}
+              sx={{ width: '250px' }}
               title={t('admin:components.avatar.saveThumbnailTooltip')}
               disabled={viewMode || !state.avatarUrl.value || avatarLoading.value}
               onClick={handleGenerateUrlThumbnail}

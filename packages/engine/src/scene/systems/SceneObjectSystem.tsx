@@ -51,9 +51,12 @@ import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../t
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, GroupQueryReactor, Object3DWithEntity } from '../components/GroupComponent'
+import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
+import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
+import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import iterateObject3D from '../util/iterateObject3D'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
@@ -146,6 +149,9 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
   const csm = useHookstate(renderState.csm)
 
   useEffect(() => {
+    const source = hasComponent(entity, ModelComponent)
+      ? getModelSceneID(entity)
+      : getComponent(entity, SourceComponent)
     return () => {
       const layers = Object.values(Engine.instance.objectLayerList)
       for (const layer of layers) {
@@ -154,7 +160,11 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
       if (obj.isProxified) {
         disposeObject3D(obj)
       } else {
-        iterateObject3D(obj, disposeObject3D)
+        iterateObject3D(
+          obj,
+          disposeObject3D,
+          (obj: Object3DWithEntity) => getComponent(obj.entity, SourceComponent) === source
+        )
       }
     }
   }, [])

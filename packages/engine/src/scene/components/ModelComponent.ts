@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Scene, SkinnedMesh } from 'three'
 
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { VRM } from '@pixiv/three-vrm'
@@ -38,41 +38,37 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
-  ComponentType,
   defineComponent,
   getComponent,
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { addError, removeError } from '../functions/ErrorFunctions'
+import { addError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { Object3DWithEntity, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
-import { VariantComponent } from './VariantComponent'
 
 export type SceneWithEntity = Scene & { entity: Entity }
 
-function clearMaterials(model: ComponentType<typeof ModelComponent>) {
-  if (!model.scene) return
+function clearMaterials(src: string) {
   try {
-    removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src ?? '' })
+    removeMaterialSource({ type: SourceType.MODEL, path: src ?? '' })
   } catch (e) {
     if (e?.name === 'MaterialNotFound') {
-      console.warn('could not find material in source ' + model.scene.userData.src)
+      console.warn('could not find material in source ' + src)
     } else {
       throw e
     }
@@ -112,16 +108,8 @@ export const ModelComponent = defineComponent({
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
-    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent) && !component.scene.value)
+    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent) && component.src.value)
       setComponent(entity, SceneAssetPendingTagComponent)
-  },
-
-  onRemove: (entity, component) => {
-    if (component.scene.value) {
-      if (component.src.value) {
-        clearMaterials(component.value)
-      }
-    }
   },
 
   errors: ['LOADING_ERROR', 'INVALID_URL'],
@@ -132,72 +120,71 @@ export const ModelComponent = defineComponent({
 function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const variantComponent = useOptionalComponent(entity, VariantComponent)
-  const model = modelComponent.value
-  const source = model.src
+  const uuid = useComponent(entity, UUIDComponent)
 
-  // update src
   useEffect(() => {
-    if (source === model.scene?.userData?.src) return
-    if (variantComponent && !variantComponent.calculated) return
-    try {
-      if (model.scene) {
-        clearMaterials(model)
-      }
-      if (!model.src) return
-      const uuid = getComponent(entity, UUIDComponent)
-      const fileExtension = model.src.split('.').pop()?.toLowerCase()
-      switch (fileExtension) {
-        case 'glb':
-        case 'gltf':
-        case 'fbx':
-        case 'vrm':
-        case 'usdz':
-          AssetLoader.load(
-            model.src,
-            {
-              ignoreDisposeGeometry: model.generateBVH,
-              uuid
-            },
-            (loadedAsset) => {
-              loadedAsset.scene.animations = loadedAsset.animations
-              if (!entityExists(entity)) return
-              removeError(entity, ModelComponent, 'LOADING_ERROR')
-              loadedAsset.scene.userData.src = model.src
-              loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
-              modelComponent.asset.set(loadedAsset)
-              if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
-              modelComponent.scene.set(loadedAsset.scene)
-            },
-            (onprogress) => {
-              if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
-              SceneAssetPendingTagComponent.loadingProgress.merge({
-                [entity]: {
-                  loadedAmount: onprogress.loaded,
-                  totalAmount: onprogress.total
-                }
-              })
-            },
-            (err) => {
-              console.error(err)
-              removeComponent(entity, SceneAssetPendingTagComponent)
-            }
-          )
-          break
-        default:
-          throw new Error(`Model type '${fileExtension}' not supported`)
-      }
-    } catch (err) {
-      console.error(err)
-      addError(entity, ModelComponent, 'LOADING_ERROR', err.message)
+    let aborted = false
+
+    const model = modelComponent.value
+    if (!model.src) {
+      const dudScene = new Scene() as SceneWithEntity & Object3DWithEntity
+      dudScene.entity = entity
+      Object.assign(dudScene, {
+        isProxified: true
+      })
+      modelComponent.scene.set(dudScene)
+      modelComponent.asset.set(null)
+      return
     }
-  }, [modelComponent.src, variantComponent?.calculated])
+
+    AssetLoader.load(
+      modelComponent.src.value,
+      {
+        ignoreDisposeGeometry: modelComponent.generateBVH.value,
+        uuid: uuid.value
+      },
+      (loadedAsset) => {
+        if (aborted) return
+        modelComponent.asset.set(loadedAsset)
+      },
+      (onprogress) => {
+        if (aborted) return
+        SceneAssetPendingTagComponent.loadingProgress.merge({
+          [entity]: {
+            loadedAmount: onprogress.loaded,
+            totalAmount: onprogress.total
+          }
+        })
+      },
+      (err) => {
+        if (aborted) return
+        console.error(err)
+        removeComponent(entity, SceneAssetPendingTagComponent)
+      }
+    )
+    return () => {
+      aborted = true
+    }
+  }, [modelComponent.src])
+
+  useEffect(() => {
+    const model = modelComponent.get(NO_PROXY)!
+    const asset = model.asset as GLTF | null
+    if (!asset) return
+    const fileExtension = model.src.split('.').pop()?.toLowerCase()
+    asset.scene.animations = asset.animations
+    asset.scene.userData.src = model.src
+    asset.scene.userData.sceneID = getModelSceneID(entity)
+    asset.scene.userData.type === 'glb' && delete asset.scene.userData.type
+    if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
+    modelComponent.scene.set(asset.scene as any)
+  }, [modelComponent.asset])
 
   // update scene
   useEffect(() => {
     const scene = getComponent(entity, ModelComponent).scene
-
     if (!scene) return
+
     addObjectToGroup(entity, scene)
 
     if (EngineRenderer.instance)
@@ -215,21 +202,20 @@ function ModelReactor() {
 
     const loadedJsonHierarchy = parseGLTFModel(entity)
     const uuid = getModelSceneID(entity)
-    getMutableState(SceneState).scenes[uuid].set({
-      snapshots: [
-        {
-          data: {
-            scene: { entities: loadedJsonHierarchy, root: '' as EntityUUID, version: 0 },
-            name: '',
-            project: '',
-            thumbnailUrl: ''
-          },
-          selectedEntities: []
-        }
-      ],
-      index: 0
+    SceneState.loadScene(uuid, {
+      scene: {
+        entities: loadedJsonHierarchy,
+        root: '' as EntityUUID,
+        version: 0
+      },
+      scenePath: uuid,
+      name: '',
+      project: '',
+      thumbnailUrl: ''
     })
+    const src = modelComponent.src.value
     return () => {
+      clearMaterials(src)
       getMutableState(SceneState).scenes[uuid].set(none)
       removeObjectFromGroup(entity, scene)
     }
@@ -263,7 +249,7 @@ function ModelReactor() {
     return () => {
       active = false
     }
-  }, [modelComponent.scene, model.generateBVH])
+  }, [modelComponent.scene, modelComponent.generateBVH])
 
   useEffect(() => {
     if (!modelComponent.scene.value) return

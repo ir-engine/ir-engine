@@ -35,7 +35,7 @@ import {
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 
@@ -63,10 +63,11 @@ export const AnimateScaleComponent = defineComponent({
       const transformComponent = getComponent(entity, TransformComponent)
       const originalScale = transformComponent.scale.clone()
 
-      animateScale(entity, originalScale.clone().multiplyScalar(sizeMultiplier.value), true)
+      animateScale(entity, originalScale.clone().multiplyScalar(sizeMultiplier.value))
 
       return () => {
-        animateScale(entity, originalScale, false)
+        if (!entityExists(entity)) return
+        animateScale(entity, originalScale)
       }
     }, [])
 
@@ -74,7 +75,7 @@ export const AnimateScaleComponent = defineComponent({
   }
 })
 
-const animateScale = (entity: Entity, newScale: Vector3, grow: boolean) => {
+const animateScale = (entity: Entity, newScale: Vector3) => {
   const highlight = { scaler: 0 }
   const scale = getComponent(entity, TransformComponent).scale
   setComponent(
@@ -92,6 +93,7 @@ const animateScale = (entity: Entity, newScale: Vector3, grow: boolean) => {
       })
       .start()
       .onComplete(() => {
+        if (!entityExists(entity)) return
         removeComponent(entity, TweenComponent)
       })
   )
