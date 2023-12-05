@@ -23,9 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FlyControlSystem } from '../avatar/systems/FlyControlSystem'
-import { MotionCaptureInputSystem } from '../mocap/MotionCaptureInputSystem'
-import { ButtonCleanupSystem } from './systems/ButtonCleanupSystem'
-import { ClientInputSystem } from './systems/ClientInputSystem'
+import appConfig from '@etherealengine/server-core/src/appconfig'
+import { HookContext } from '../../declarations'
 
-export { FlyControlSystem, ButtonCleanupSystem, ClientInputSystem, MotionCaptureInputSystem }
+const { forceRefresh } = appConfig.db
+const { testEnabled } = appConfig
+const prepareDb = process.env.PREPARE_DATABASE === 'true'
+
+export const isRefreshMode = forceRefresh || testEnabled || prepareDb
+
+/**
+ * Hook used to check if server is currently running in refresh mode. i.e. reinit, prepare db or test.
+ * @param context
+ */
+export const checkRefreshMode = () => {
+  return (context: HookContext) => {
+    return isRefreshMode ? true : false
+  }
+}

@@ -54,7 +54,7 @@ export const MountPointComponent = defineComponent({
     return {
       type: MountPoint.seat as MountPointTypes,
       helperEntity: null as Entity | null,
-      dismountOffset: new Vector3(0, 0, 0)
+      dismountOffset: new Vector3(0, 0, 0.75)
     }
   },
 
