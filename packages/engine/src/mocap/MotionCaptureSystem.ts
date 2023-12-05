@@ -140,15 +140,15 @@ const execute = () => {
       if (!localbone) continue
       //logic for optional lower body solve
       if (
-        boneName == VRMHumanBoneName.LeftUpperLeg ||
-        boneName == VRMHumanBoneName.RightUpperLeg ||
-        boneName == VRMHumanBoneName.LeftLowerLeg ||
-        boneName == VRMHumanBoneName.RightLowerLeg ||
-        boneName == VRMHumanBoneName.LeftFoot ||
-        boneName == VRMHumanBoneName.RightFoot
+        boneName === VRMHumanBoneName.LeftUpperLeg ||
+        boneName === VRMHumanBoneName.RightUpperLeg ||
+        boneName === VRMHumanBoneName.LeftLowerLeg ||
+        boneName === VRMHumanBoneName.RightLowerLeg ||
+        boneName === VRMHumanBoneName.LeftFoot ||
+        boneName === VRMHumanBoneName.RightFoot
       ) {
         //if the bones are located in the lower body, slerp based on the lowerBodySolveFactor then continue
-        localbone.quaternion.slerp(
+        localbone.quaternion.fastSlerp(
           new Quaternion(
             MotionCaptureRigComponent.rig[boneName].x[entity],
             MotionCaptureRigComponent.rig[boneName].y[entity],
