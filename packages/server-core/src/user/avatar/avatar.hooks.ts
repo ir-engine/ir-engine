@@ -104,7 +104,8 @@ const ensureUserAccessibleAvatars = async (context: HookContext<AvatarService>) 
 }
 
 const checkUserHasPermissionOrIsOwner = async (context: HookContext<AvatarService>) => {
-  if (await checkScope(context.params.user!, 'globalAvatars', 'write')) {
+  const hasAvatarWriteScope = await checkScope(context.params.user!, 'globalAvatars', 'write')
+  if (hasAvatarWriteScope) {
     return
   }
 
