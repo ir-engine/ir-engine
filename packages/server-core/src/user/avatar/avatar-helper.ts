@@ -170,7 +170,6 @@ export const uploadAvatarStaticResource = async (
   data: AvatarUploadArguments,
   params?: AvatarParams
 ) => {
-  console.log('uploadAvatarStaticResource', data)
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
 
   const staticResourceKey = `static-resources/avatar/${data.isPublic ? 'public' : params?.user!.id}/`
