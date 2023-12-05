@@ -72,7 +72,7 @@ const grey = new Color(0.5, 0.5, 0.5)
 
 let prevLandmarks: NormalizedLandmarkList
 
-const transitionMultiplier = 10
+const transitionMultiplier = 5
 
 const rightFootHistory = [] as number[]
 const leftFootHistory = [] as number[]
@@ -269,7 +269,6 @@ export function solveMotionCapturePose(
   const deltaSeconds = getState(EngineState).deltaSeconds
 
   const landmarks = newLandmarks.map((landmark, index) => {
-    // if (!landmark.visibility || landmark.visibility < 0.3) return prevLandmarks[index]
     const prevLandmark = prevLandmarks[index]
     const visibility = ((landmark.visibility ?? 0) + (prevLandmark.visibility ?? 0)) / 2
     const alpha = smootheLerpAlpha(5 + 20 * visibility, deltaSeconds)
@@ -313,6 +312,14 @@ export function solveMotionCapturePose(
     VRMHumanBoneName.RightLowerArm
   )
   if (estimatingLowerBody) {
+    //transition the solve factor to blend the lower body solve in as per motion capture system logic
+    if (MotionCaptureRigComponent.lowerBodySolveFactor[entity] < 1) {
+      MotionCaptureRigComponent.lowerBodySolveFactor[entity] = Math.min(
+        MotionCaptureRigComponent.lowerBodySolveFactor[entity] + deltaSeconds * transitionMultiplier,
+        1
+      )
+    }
+
     calculateGroundedFeet(landmarks)
     solveLimb(
       entity,
@@ -355,13 +362,6 @@ export function solveMotionCapturePose(
     //  VRMHumanBoneName.LeftUpperLeg,
     //  VRMHumanBoneName.LeftFoot
     //)
-
-    if (MotionCaptureRigComponent.lowerBodySolveFactor[entity] < 1) {
-      MotionCaptureRigComponent.lowerBodySolveFactor[entity] = Math.min(
-        MotionCaptureRigComponent.lowerBodySolveFactor[entity] + deltaSeconds * transitionMultiplier,
-        1
-      )
-    }
   } else {
     //if we are not estimating the lower body
     MotionCaptureRigComponent.lowerBodySolveFactor[entity] > 0
