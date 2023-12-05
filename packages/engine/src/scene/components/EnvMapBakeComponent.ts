@@ -30,7 +30,6 @@ import {
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
-  Scene,
   SphereGeometry,
   Vector3
 } from 'three'
@@ -38,12 +37,10 @@ import {
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
 import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent, traverseEntityNode } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import {
   envmapParsReplaceLambert,
@@ -55,7 +52,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
-import { GroupComponent, addObjectToGroup } from './GroupComponent'
+import { addObjectToGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
@@ -130,36 +127,6 @@ export const EnvMapBakeComponent = defineComponent({
     return null
   }
 })
-
-export const prepareSceneForBake = (): Scene => {
-  const scene = Engine.instance.scene.clone(false)
-  const sceneEntity = SceneState.getRootEntity()
-  const parents = {
-    [sceneEntity]: scene
-  } as { [key: Entity]: Object3D }
-
-  traverseEntityNode(sceneEntity, (entity) => {
-    if (entity === sceneEntity) return
-
-    const group = getComponent(entity, GroupComponent) as unknown as Mesh<any, MeshStandardMaterial>[]
-    const node = getComponent(entity, EntityTreeComponent)
-
-    if (group) {
-      for (const obj of group) {
-        const newObj = obj.clone(true)
-        if (node.parentEntity) parents[node.parentEntity].add(newObj)
-        newObj.traverse((o: any) => {
-          if (o.material) {
-            o.material = obj.material.clone()
-            o.material.roughness = 1
-          }
-        })
-      }
-    }
-  })
-
-  return scene
-}
 
 //Hacky tentative solution, injects shader code into threejs' shaders for box box projected envmaps
 //Depends on shader type to add pbr or non pbr shader logic

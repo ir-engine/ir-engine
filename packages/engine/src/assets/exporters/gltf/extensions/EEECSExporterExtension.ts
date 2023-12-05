@@ -29,7 +29,7 @@ import {
   getMutableComponent,
   hasComponent
 } from '../../../../ecs/functions/ComponentFunctions'
-import { Object3DWithEntity } from '../../../../scene/components/GroupComponent'
+import { Object3D } from '../../../../scene/components/GroupComponent'
 import { NameComponent } from '../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../scene/components/SceneObjectComponent'
 import { LocalTransformComponent, TransformComponent } from '../../../../transform/components/TransformComponent'
@@ -39,7 +39,7 @@ import { ExporterExtension } from './ExporterExtension'
 export class EEECSExporterExtension extends ExporterExtension implements GLTFExporterPlugin {
   name = 'EE_ecs'
 
-  writeNode(object: Object3DWithEntity, nodeDef: { [key: string]: any }) {
+  writeNode(object: Object3D, nodeDef: { [key: string]: any }) {
     if (!object.entity) return
     const entity = object.entity
     if (!hasComponent(entity, SceneObjectComponent)) return

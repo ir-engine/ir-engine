@@ -44,13 +44,12 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor } from '../../ecs/functions/SystemFunctions'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
 
   onInit: (entity: Entity) => {
-    return [] as Object3DWithEntity[]
+    return [] as Object3D[]
   },
 
   onRemove: (entity, component) => {
@@ -61,7 +60,7 @@ export const GroupComponent = defineComponent({
 })
 
 export function addObjectToGroup(entity: Entity, object: Object3D) {
-  const obj = object as Object3DWithEntity & Camera
+  const obj = object as Object3D & Camera
   obj.entity = entity
 
   if (!hasComponent(entity, GroupComponent)) setComponent(entity, GroupComponent, [])
@@ -108,7 +107,7 @@ export function removeGroupComponent(entity: Entity) {
 }
 
 export function removeObjectFromGroup(entity: Entity, object: Object3D) {
-  const obj = object as Object3DWithEntity & Camera
+  const obj = object as Object3D & Camera
 
   if (hasComponent(entity, GroupComponent)) {
     const group = getComponent(entity, GroupComponent)
@@ -119,11 +118,17 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
   }
 
   object.removeFromParent()
+
+  /** @todo this will be moved to onRemove for ObjectLayerComponent once it exists */
+  const layers = Object.values(Engine.instance.objectLayerList)
+  for (const layer of layers) {
+    if (layer.has(obj)) layer.delete(obj)
+  }
 }
 
 export type GroupReactorProps = {
   entity: Entity
-  obj: Object3DWithEntity
+  obj: Object3D
 }
 
 export const GroupReactor = memo((props: { GroupChildReactor: FC<GroupReactorProps> }) => {

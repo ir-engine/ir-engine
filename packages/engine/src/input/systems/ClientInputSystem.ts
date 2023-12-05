@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Mesh, MeshBasicMaterial, Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -56,7 +56,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { GroupComponent, Object3DWithEntity } from '../../scene/components/GroupComponent'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
@@ -518,9 +518,7 @@ const execute = () => {
         const objects = inputObjects()
           .map((eid) => getComponent(eid, GroupComponent))
           .flat()
-        const hits = raycaster
-          .intersectObjects<Object3DWithEntity>(objects, true)
-          .sort((a, b) => a.distance - b.distance)
+        const hits = raycaster.intersectObjects<Object3D>(objects, true).sort((a, b) => a.distance - b.distance)
 
         if (hits.length && hits[0].distance < hitDistance) {
           const object = hits[0].object

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Scene } from 'three'
+import { Object3D, Scene } from 'three'
 
 import { NO_PROXY, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
@@ -37,15 +37,16 @@ import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshCompone
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
   hasComponent,
   removeComponent,
+  serializeComponent,
   setComponent,
   useComponent,
+  useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -58,14 +59,13 @@ import { addError } from '../functions/ErrorFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import { Object3DWithEntity } from './GroupComponent'
+import { EnvmapComponent } from './EnvmapComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
+import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
-
-export type SceneWithEntity = Scene & { entity: Entity }
 
 function clearMaterials(src: string) {
   try {
@@ -89,7 +89,7 @@ export const ModelComponent = defineComponent({
       generateBVH: true,
       avoidCameraOcclusion: false,
       // internal
-      scene: null as SceneWithEntity | null,
+      scene: null as Scene | null,
       asset: null as VRM | GLTF | null,
       hasSkinnedMesh: false
     }
@@ -131,7 +131,7 @@ function ModelReactor() {
 
     const model = modelComponent.value
     if (!model.src) {
-      const dudScene = new Scene() as SceneWithEntity & Object3DWithEntity
+      const dudScene = new Scene() as Scene & Object3D
       dudScene.entity = entity
       Object.assign(dudScene, {
         isProxified: true
@@ -222,13 +222,35 @@ function ModelReactor() {
     }
   }, [modelComponent.scene])
 
-  const childMeshQuery = useQuery([SourceComponent, MeshComponent, Not(SkinnedMeshComponent)])
+  const childNonSkinnedMeshQuery = useQuery([SourceComponent, MeshComponent, Not(SkinnedMeshComponent)])
   useEffect(() => {
-    for (const entity of childMeshQuery) {
-      if (getComponent(entity, SourceComponent) !== modelComponent.src.value) continue
-      if (modelComponent.generateBVH.value) generateMeshBVH(getComponent(entity, MeshComponent))
+    const modelSceneID = getModelSceneID(entity)
+    for (const childEntity of childNonSkinnedMeshQuery) {
+      if (getComponent(childEntity, SourceComponent) !== modelSceneID) continue
+      if (modelComponent.generateBVH.value) generateMeshBVH(getComponent(childEntity, MeshComponent))
     }
-  }, [childMeshQuery, modelComponent.generateBVH])
+  }, [childNonSkinnedMeshQuery, modelComponent.generateBVH])
+
+  const childMeshQuery = useQuery([SourceComponent, MeshComponent])
+  const shadowComponent = useOptionalComponent(entity, ShadowComponent)
+  useEffect(() => {
+    const modelSceneID = getModelSceneID(entity)
+    for (const childEntity of childMeshQuery) {
+      if (getComponent(childEntity, SourceComponent) !== modelSceneID) continue
+      if (shadowComponent) setComponent(childEntity, ShadowComponent, serializeComponent(entity, ShadowComponent))
+      else removeComponent(childEntity, ShadowComponent)
+    }
+  }, [childMeshQuery, shadowComponent])
+
+  const envmapComponent = useOptionalComponent(entity, EnvmapComponent)
+  useEffect(() => {
+    const modelSceneID = getModelSceneID(entity)
+    for (const childEntity of childMeshQuery) {
+      if (getComponent(childEntity, SourceComponent) !== modelSceneID) continue
+      if (envmapComponent) setComponent(childEntity, EnvmapComponent, serializeComponent(entity, EnvmapComponent))
+      else removeComponent(childEntity, EnvmapComponent)
+    }
+  }, [childMeshQuery, envmapComponent])
 
   useEffect(() => {
     if (!modelComponent.scene.value) return

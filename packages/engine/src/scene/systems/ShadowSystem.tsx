@@ -73,7 +73,8 @@ import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
-import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
+import { GroupComponent, GroupQueryReactor, addObjectToGroup } from '../components/GroupComponent'
+import { MeshComponent } from '../components/MeshComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
@@ -275,6 +276,29 @@ const DropShadowReactor = () => {
   return null
 }
 
+function ShadowMeshReactor(props: { entity: Entity; obj: Mesh<any, Material> }) {
+  const { entity, obj } = props
+
+  const shadowComponent = useComponent(entity, ShadowComponent)
+  const csm = useHookstate(getMutableState(RendererState).csm)
+
+  useEffect(() => {
+    obj.castShadow = shadowComponent.cast.value
+    obj.receiveShadow = shadowComponent.receive.value
+
+    const csm = getState(RendererState).csm
+    if (obj.material && obj.receiveShadow) {
+      csm?.setupMaterial(obj)
+    }
+
+    return () => {
+      csm?.teardownMaterial(obj)
+    }
+  }, [shadowComponent.cast, shadowComponent.receive, csm])
+
+  return null
+}
+
 const shadowOffset = new Vector3(0, 0.01, 0)
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(dropShadowComponentQuery, compareDistanceToCamera)
@@ -359,6 +383,7 @@ const reactor = () => {
       ) : (
         <QueryReactor Components={[ShadowComponent]} ChildEntityReactor={DropShadowReactor} />
       )}
+      <GroupQueryReactor GroupChildReactor={ShadowMeshReactor} Components={[MeshComponent, ShadowComponent]} />
     </>
   )
 }

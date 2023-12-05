@@ -43,6 +43,7 @@ import {
   BufferAttribute,
   Matrix4,
   Mesh,
+  Object3D,
   OrthographicCamera,
   PerspectiveCamera,
   Quaternion,
@@ -65,7 +66,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { GroupComponent, Object3DWithEntity } from '../../scene/components/GroupComponent'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { MeshComponent } from '../../scene/components/MeshComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -298,7 +299,7 @@ function createRigidBodyForGroup(
   colliderDescOptions: ColliderDescOptions,
   overrideShapeType = false
 ): RigidBody {
-  const group = getComponent(entity, GroupComponent) as any as Mesh[] & Object3DWithEntity[]
+  const group = getComponent(entity, GroupComponent) as any as Mesh[] & Object3D[]
   if (!group) return undefined!
 
   const colliderDescs = [] as ColliderDesc[]

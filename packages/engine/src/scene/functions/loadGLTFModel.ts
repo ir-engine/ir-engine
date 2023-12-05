@@ -42,11 +42,12 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ComponentJsonType, EntityJsonType } from '../../schemas/projects/scene.schema'
 import { LocalTransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroupComponent, Object3DWithEntity, addObjectToGroup } from '../components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
@@ -155,7 +156,7 @@ export const parseGLTFModel = (entity: Entity) => {
   // always parse components first using old ECS parsing schema
   const entityJson = parseObjectComponentsFromGLTF(entity, scene)
   // current ECS parsing schema
-  iterateObject3D(scene, (obj: Object3DWithEntity) => {
+  iterateObject3D(scene, (obj: Object3D) => {
     const uuid = obj.uuid as EntityUUID
     const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
     entityJson[uuid] = eJson
@@ -176,11 +177,7 @@ export const parseGLTFModel = (entity: Entity) => {
   return entityJson
 }
 
-export const generateEntityJsonFromObject = (
-  rootEntity: Entity,
-  obj: Object3DWithEntity,
-  entityJson?: EntityJsonType
-) => {
+export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, entityJson?: EntityJsonType) => {
   // create entity outside of scene loading reactor since we need to access it before the reactor is guaranteed to have executed
   let objEntity = obj.entity
   if (!objEntity) {
@@ -301,6 +298,8 @@ export const generateEntityJsonFromObject = (
     if (obj.userData['componentJson']) {
       eJson.components.push(...obj.userData['componentJson'])
     }
+
+    setComponent(objEntity, BoundingBoxComponent)
   }
 
   return eJson

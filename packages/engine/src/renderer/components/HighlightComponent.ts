@@ -28,9 +28,11 @@ import { Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { MeshComponent } from '../../scene/components/MeshComponent'
 import { RendererState } from '../RendererState'
 import { EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 
@@ -45,20 +47,17 @@ export const HighlightComponent = defineComponent({
     const group = useComponent(entity, GroupComponent)
 
     useEffect(() => {
-      const objs = [...group.value]
-      for (const object of objs) {
-        object.traverse((obj) => {
-          if (obj.type !== 'Mesh') return
-          addToSelection(obj as Mesh)
-        })
-      }
+      iterateEntityNode(entity, (childEntity) => {
+        const obj = getComponent(childEntity, MeshComponent)
+        if (obj.type !== 'Mesh') return
+        addToSelection(obj as Mesh)
+      })
       return () => {
-        for (const object of objs) {
-          object.traverse((obj) => {
-            if (obj.type !== 'Mesh') return
-            removeFromSelection(obj as Mesh)
-          })
-        }
+        iterateEntityNode(entity, (childEntity) => {
+          const obj = getComponent(childEntity, MeshComponent)
+          if (obj.type !== 'Mesh') return
+          removeFromSelection(obj as Mesh)
+        })
       }
     }, [group, postProcessingSettingsState.effects, postProcessingSettingsState.enabled, usePostProcessing])
 
