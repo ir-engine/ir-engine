@@ -80,6 +80,7 @@ import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkC
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
 import { AttachmentPointComponent } from '@etherealengine/engine/src/scene/components/AttachmentPointComponent'
+import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import AttachmentPointEditor from '../components/properties/AttachmentPointEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
@@ -89,6 +90,7 @@ import { MediaSettingsEditor } from '../components/properties/MediaSettingsEdito
 import { MeshNodeEditor } from '../components/properties/MeshNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
+import ObjectGridSnapEditor from '../components/properties/ObjectGridSnapEditor'
 import ParticleSystemNodeEditor from '../components/properties/ParticleSystemNodeEditor'
 import PersistentAnchorNodeEditor from '../components/properties/PersistentAnchorNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
@@ -121,6 +123,7 @@ EntityNodeEditor.set(DirectionalLightComponent, DirectionalLightNodeEditor)
 EntityNodeEditor.set(HemisphereLightComponent, HemisphereLightNodeEditor)
 EntityNodeEditor.set(AmbientLightComponent, AmbientLightNodeEditor)
 EntityNodeEditor.set(AttachmentPointComponent, AttachmentPointEditor)
+EntityNodeEditor.set(ObjectGridSnapComponent, ObjectGridSnapEditor)
 EntityNodeEditor.set(PointLightComponent, PointLightNodeEditor)
 EntityNodeEditor.set(SpotLightComponent, SpotLightNodeEditor)
 EntityNodeEditor.set(GroundPlaneComponent, GroundPlaneNodeEditor)
