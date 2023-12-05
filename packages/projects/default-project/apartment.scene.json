@@ -1268,6 +1268,49 @@
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
       "index": 20,
       "name": "New EnvMap Bake"
+    },
+    "4e6a56be-a4d8-4091-a741-10fbefaea21d": {
+      "name": "mount-point",
+      "components": [
+        {
+          "name": "mount-point",
+          "props": {
+            "type": "seat",
+            "dismountOffset": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -3.4,
+              "y": 0.5,
+              "z": -2.4
+            },
+            "rotation": {
+              "x": 0,
+              "y": -0.7071067811865475,
+              "z": 0,
+              "w": 0.7071067811865476
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        }
+      ],
+      "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
+      "index": 24
     }
   },
   "root": "60a390ad-4193-493d-84bf-cfb77b5095c2"
