@@ -37,9 +37,11 @@ import {
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import logger from '../../ServerLogger'
 
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import isAction from '../../hooks/is-action'
@@ -99,6 +101,23 @@ const ensureUserAccessibleAvatars = async (context: HookContext<AvatarService>) 
       isPublic: true
     }
   }
+}
+
+const checkUserHasPermissionOrIsOwner = async (context: HookContext<AvatarService>) => {
+  if (await checkScope(context.params.user!, 'globalAvatars', 'write')) {
+    return
+  }
+
+  const foundAvatar = await context.app.service(avatarPath).get(context.id!)
+  if (!foundAvatar) {
+    throw new BadRequest('Avatar not found')
+  }
+
+  if (foundAvatar.userId !== context.params.user?.id) {
+    throw new Forbidden('User is not owner of this avatar')
+  }
+
+  context.data = { ...context.data, userId: context.params.user.id }
 }
 
 const sortByUserName = async (context: HookContext<AvatarService>) => {
@@ -195,7 +214,7 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('globalAvatars', 'write')),
+      iff(isProvider('external'), checkUserHasPermissionOrIsOwner),
       () => schemaHooks.validateData(avatarPatchValidator),
       schemaHooks.resolveData(avatarPatchResolver)
     ],
