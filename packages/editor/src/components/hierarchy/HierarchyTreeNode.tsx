@@ -97,9 +97,9 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const nodeName = useComponent(node.entity, NameComponent).value
 
-  const errors = node.entity ? useOptionalComponent(node.entity as Entity, ErrorComponent) : undefined
+  const errors = node.entity ? useOptionalComponent(node.entity, ErrorComponent) : undefined
 
-  const sceneAssetLoading = useOptionalComponent(node.entity as Entity, SceneAssetPendingTagComponent)
+  const sceneAssetLoading = useOptionalComponent(node.entity, SceneAssetPendingTagComponent)
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -157,18 +157,18 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     let beforeNode: Entity
 
     if (place === 'Before') {
-      const entityTreeComponent = getComponent(node.entity as Entity, EntityTreeComponent)
+      const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
       parentNode = entityTreeComponent?.parentEntity!
-      beforeNode = node.entity as Entity
+      beforeNode = node.entity
     } else if (place === 'After') {
-      const entityTreeComponent = getComponent(node.entity as Entity, EntityTreeComponent)
+      const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
       parentNode = entityTreeComponent?.parentEntity!
       const parentTreeComponent = getComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
       if (!node.lastChild && parentNode && parentTreeComponent?.children.length > node.childIndex + 1) {
         beforeNode = parentTreeComponent.children[node.childIndex + 1]
       }
     } else {
-      parentNode = node.entity as Entity
+      parentNode = node.entity
     }
 
     if (!parentNode)
@@ -267,8 +267,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const editors = entityExists(node.entity as Entity)
-    ? getAllComponents(node.entity as Entity)
+  const editors = entityExists(node.entity)
+    ? getAllComponents(node.entity)
         .map((c) => EntityNodeEditor.get(c)!)
         .filter((c) => !!c)
     : []

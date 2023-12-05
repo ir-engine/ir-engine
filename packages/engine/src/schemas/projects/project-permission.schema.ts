@@ -62,11 +62,7 @@ export const projectPermissionDataSchema = Type.Intersect(
   [
     projectPermissionDataProperties,
     Type.Object({
-      inviteCode: Type.Optional(
-        TypedString<InviteCode>({
-          format: 'uuid'
-        })
-      )
+      inviteCode: Type.Optional(TypedString<InviteCode>())
     })
   ],
   {

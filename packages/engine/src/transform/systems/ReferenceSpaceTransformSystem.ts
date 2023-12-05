@@ -25,10 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { MeshDepthMaterial, Scene, WebGLRenderTarget } from 'three'
 
-import { updateLocalAvatarPosition, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
+import { moveAvatar, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../scene/components/GroupComponent'
@@ -52,8 +53,8 @@ const execute = () => {
    * 1 - Update local client movement
    */
   if (localClientEntity) {
-    updateLocalAvatarPosition()
-    updateLocalAvatarRotation()
+    moveAvatar(localClientEntity)
+    updateLocalAvatarRotation(localClientEntity)
     computeTransformMatrix(localClientEntity)
 
     // the following is a workaround for a bug in the multiview rendering implementation, described here:
@@ -89,5 +90,6 @@ const execute = () => {
 
 export const ReferenceSpaceTransformSystem = defineSystem({
   uuid: 'ee.engine.ReferenceSpaceTransformSystem',
+  insert: { before: AnimationSystemGroup },
   execute
 })

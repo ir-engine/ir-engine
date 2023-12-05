@@ -26,9 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import {
   Box3,
-  DirectionalLight,
   DoubleSide,
-  Group,
   Material,
   Mesh,
   MeshBasicMaterial,
@@ -45,8 +43,9 @@ import { defineState, getMutableState, getState, hookstate, useHookstate } from 
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
-import { CameraComponent } from '../../camera/components/CameraComponent'
+import { CSMHelper } from '../../assets/csm/CSMHelper'
 import { V_001 } from '../../common/constants/MathConstants'
+import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -62,6 +61,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
@@ -100,29 +100,6 @@ const raycaster = new Raycaster()
 raycaster.firstHitOnly = true
 const raycasterPosition = new Vector3()
 
-const csmGroup = new Group()
-csmGroup.name = 'CSM-group'
-let helper
-
-/** @deprecated @todo replace this whith EntityCSM when WebXR Light Estimation is entity driven */
-const SimpleCSM = (props: { light: DirectionalLight }) => {
-  useEffect(() => {
-    getMutableState(RendererState).csm.set(
-      new CSM({
-        camera: getComponent(Engine.instance.cameraEntity, CameraComponent),
-        parent: csmGroup,
-        light: props.light
-      })
-    )
-    return () => {
-      getState(RendererState).csm?.dispose()
-      getMutableState(RendererState).csm.set(null)
-    }
-  }, [])
-
-  return null
-}
-
 const EntityCSMReactor = (props: { entity: Entity }) => {
   const activeLightEntity = props.entity
 
@@ -131,21 +108,8 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
   const directionalLight = directionalLightComponent?.light.value
 
   useEffect(() => {
-    getMutableState(RendererState).csm.set(
-      new CSM({
-        camera: getComponent(Engine.instance.cameraEntity, CameraComponent),
-        parent: csmGroup,
-        light: directionalLight
-      })
-    )
-    // helper = new CSMHelper(getState(RendererState).csm!)
-    // Engine.instance.scene.add(helper)
-
-    const activeLightParent = directionalLight.parent
-    if (activeLightParent) activeLightParent.remove(directionalLight)
-
+    getMutableState(RendererState).csm.set(new CSM({ light: directionalLight }))
     return () => {
-      activeLightParent?.add(directionalLight!)
       getState(RendererState).csm?.dispose()
       getMutableState(RendererState).csm.set(null)
     }
@@ -186,13 +150,9 @@ const PlainCSMReactor = () => {
   useEffect(() => {
     getMutableState(RendererState).csm.set(
       new CSM({
-        camera: getComponent(Engine.instance.cameraEntity, CameraComponent),
-        parent: csmGroup,
         shadowMapSize: shadowMapResolution.value
       })
     )
-    // helper = new CSMHelper(getState(RendererState).csm!)
-    // Engine.instance.scene.add(helper)
 
     return () => {
       getState(RendererState).csm?.dispose()
@@ -218,26 +178,35 @@ const PlainCSMReactor = () => {
 const directionalLightQuery = defineQuery([VisibleComponent, DirectionalLightComponent])
 
 function CSMReactor() {
-  const xrState = getMutableState(XRLightProbeState)
-  const isEstimatingLight = useHookstate(xrState.isEstimatingLight)
+  const xrLightProbeState = getMutableState(XRLightProbeState)
+  const xrLightProbeEntity = useHookstate(xrLightProbeState.directionalLightEntity)
   const directionalLights = useQuery([VisibleComponent, DirectionalLightComponent])
 
+  const rendererState = useHookstate(getMutableState(RendererState))
+  useEffect(() => {
+    if (!rendererState.csm.value || !rendererState.nodeHelperVisibility.value) return
+    const helper = new CSMHelper()
+    rendererState.csmHelper.set(helper)
+    return () => {
+      helper.remove()
+      rendererState.csmHelper.set(null)
+    }
+  }, [rendererState.csm, rendererState.nodeHelperVisibility])
+
   const csmEnabled = useHookstate(getMutableState(RenderSettingsState))?.csm?.value
-
   if (!csmEnabled) return null
-
-  if (isEstimatingLight.value)
-    return <SimpleCSM light={xrState.directionalLight.value} key={xrState.directionalLight.value!.uuid} />
 
   let activeLightEntity = null as Entity | null
 
+  if (xrLightProbeEntity.value) activeLightEntity = xrLightProbeEntity.value
   /** @todo support multiple lights #8277 */
   /** @todo useQuery returns no results for the mount render, so use a query directly here (query will still rerender) #9015 */
   // for (const entity of directionalLights) {
-  for (const entity of directionalLightQuery()) {
-    if (getComponent(entity, DirectionalLightComponent).useInCSM) activeLightEntity = entity
-    break
-  }
+  else
+    for (const entity of directionalLightQuery()) {
+      if (getComponent(entity, DirectionalLightComponent).useInCSM) activeLightEntity = entity
+      break
+    }
 
   /** @todo directional light useInCSM does not reactivly update between these when switching in studio */
   if (!activeLightEntity) return <PlainCSMReactor />
@@ -350,7 +319,7 @@ const updateDropShadowTransforms = () => {
 }
 
 const execute = () => {
-  const renderState = getState(RendererState)
+  if (!isClient) return
 
   const useShadows = getShadowsEnabled()
   if (!useShadows && !getState(EngineState).isEditor) {
@@ -358,19 +327,19 @@ const execute = () => {
     return
   }
 
-  const csm = getState(RendererState).csm
-  if (!csm) return
-  csm.sourceLight?.getWorldDirection(csm.lightDirection)
-  if (renderState.qualityLevel > 0) csm.update()
-  // if (helper) helper.update()
+  const { csm, csmHelper } = getState(RendererState)
+  if (csm) {
+    csm.update()
+    if (csmHelper) csmHelper.update(csm)
+  }
 }
 
 const reactor = () => {
+  if (!isClient) return null
+
   const useShadows = useShadowsEnabled()
 
   useEffect(() => {
-    Engine.instance.scene.add(csmGroup)
-
     AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`).then(
       (texture: Texture) => {
         shadowMaterial.map = texture
@@ -381,10 +350,6 @@ const reactor = () => {
 
     EngineRenderer.instance.renderer.shadowMap.enabled = EngineRenderer.instance.renderer.shadowMap.autoUpdate =
       getShadowsEnabled()
-
-    return () => {
-      Engine.instance.scene.remove(csmGroup)
-    }
   }, [])
 
   return (
@@ -400,6 +365,7 @@ const reactor = () => {
 
 export const ShadowSystem = defineSystem({
   uuid: 'ee.engine.ShadowSystem',
+  insert: { with: AnimationSystemGroup },
   execute,
   reactor
 })

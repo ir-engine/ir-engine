@@ -137,7 +137,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Equirectangular && (
               <ImagePreviewInput
                 value={envmapComponent.envMapSourceURL.value}
-                onChange={updateProperty(EnvmapComponent, 'envMapSourceURL')}
+                onChange={commitProperty(EnvmapComponent, 'envMapSourceURL')}
               />
             )}
             {errors?.MISSING_FILE && (

@@ -30,8 +30,9 @@ import { SelectTagComponent } from '@etherealengine/engine/src/scene/components/
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { useEffect } from 'react'
-import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
+import { MaterialSelectionState } from '../components/materials/MaterialLibraryState'
 import { filterParentEntities } from '../functions/filterParentEntities'
 
 export const SelectionState = defineState({
@@ -41,6 +42,7 @@ export const SelectionState = defineState({
     selectedParentEntities: [] as Entity[]
   },
   updateSelection: (selectedEntities: Entity[]) => {
+    getMutableState(MaterialSelectionState).selectedMaterial.set(null)
     getMutableState(SelectionState).merge({
       selectedEntities: selectedEntities,
       selectedParentEntities: filterParentEntities(selectedEntities)
@@ -52,7 +54,6 @@ const reactor = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
 
   useEffect(() => {
-    cancelGrabOrPlacement()
     const entities = [...selectedEntities.value]
     for (const entity of entities) {
       if (!entityExists(entity)) continue
@@ -72,5 +73,6 @@ const reactor = () => {
 
 export const EditorSelectionReceptorSystem = defineSystem({
   uuid: 'ee.engine.EditorSelectionReceptorSystem',
+  insert: { before: PresentationSystemGroup },
   reactor
 })

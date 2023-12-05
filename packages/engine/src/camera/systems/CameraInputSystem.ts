@@ -45,12 +45,12 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 
 import { XRState } from '../../xr/XRState'
 
 import { InputState } from '../../input/state/InputState'
 
+import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -130,7 +130,7 @@ export const handleCameraZoom = (cameraEntity: Entity, value: number): void => {
   followComponent.zoomLevel = nextZoomLevel
 }
 
-const avatarControllerQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
+const avatarControllerQuery = defineQuery([AvatarControllerComponent])
 
 const onKeyV = () => {
   for (const entity of avatarControllerQuery()) {
@@ -206,16 +206,19 @@ const execute = () => {
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
   const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
-  const keys = inputSource.buttons
 
-  if (keys.KeyV?.down) onKeyV()
-  if (keys.KeyF?.down) onKeyF()
-  if (keys.KeyC?.down) onKeyC()
+  const keys = inputSource?.buttons
+
+  if (keys?.KeyV?.down) onKeyV()
+  if (keys?.KeyF?.down) onKeyF()
+  if (keys?.KeyC?.down) onKeyC()
 
   const pointerState = getState(InputState).pointerState
-  const mouseMoved = pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed
+  const mouseMoved = pointerState.movement.lengthSq() > 0 && keys?.PrimaryClick?.pressed
 
   for (const entity of avatarControllerEntities) {
+    if (!inputSource) continue
+
     const avatarController = getComponent(entity, AvatarControllerComponent)
     const cameraEntity = avatarController.cameraEntity
     const target =
@@ -234,7 +237,7 @@ const execute = () => {
       target.phi += z * 2
     }
 
-    const keyDelta = (keys.ArrowLeft ? 1 : 0) + (keys.ArrowRight ? -1 : 0)
+    const keyDelta = (keys?.ArrowLeft ? 1 : 0) + (keys?.ArrowRight ? -1 : 0)
     target.theta += 100 * deltaSeconds * keyDelta
     setTargetCameraRotation(cameraEntity, target.phi, target.theta)
 
@@ -246,7 +249,7 @@ const execute = () => {
         0.1
       )
     }
-    if (keys.PrimaryClick?.pressed) {
+    if (keys?.PrimaryClick?.pressed) {
       if (accumulator > INPUT_CAPTURE_DELAY) {
         InputSourceComponent.captureButtons(cameraEntity)
         capturedInputSource = inputSourceEntity
@@ -267,5 +270,6 @@ const execute = () => {
 
 export const CameraInputSystem = defineSystem({
   uuid: 'ee.engine.CameraInputSystem',
+  insert: { with: InputSystemGroup },
   execute
 })

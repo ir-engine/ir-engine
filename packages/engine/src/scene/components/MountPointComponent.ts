@@ -29,12 +29,16 @@ import { ArrowHelper, Vector3 } from 'three'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches, matchesVector3 } from '../../common/functions/MatchesUtils'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup } from './GroupComponent'
+import { NameComponent } from './NameComponent'
+import { setVisibleComponent } from './VisibleComponent'
 
 export const MountPoint = {
   seat: 'seat' as const
@@ -49,14 +53,13 @@ export const MountPointComponent = defineComponent({
   onInit: (entity) => {
     return {
       type: MountPoint.seat as MountPointTypes,
-      helper: null as ArrowHelper | null,
+      helperEntity: null as Entity | null,
       dismountOffset: new Vector3(0, 0, 0)
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    console.log(json)
     if (matches.string.test(json.type)) component.type.set(json.type)
     if (matchesVector3.test(json.dismountOffset)) component.dismountOffset.set(json.dismountOffset)
   },
@@ -68,29 +71,28 @@ export const MountPointComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const mountPoint = useComponent(entity, MountPointComponent)
 
     useEffect(() => {
-      if (debugEnabled.value && !mountPoint.helper.value) {
-        const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
-        helper.name = `mount-point-helper-${entity}`
+      if (!debugEnabled.value) return
 
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(entity, helper)
+      const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
+      helper.name = `mount-point-helper-${entity}`
 
-        mountPoint.helper.set(helper)
-      }
+      const helperEntity = createEntity()
+      addObjectToGroup(helperEntity, helper)
+      setComponent(helperEntity, NameComponent, helper.name)
+      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+      setVisibleComponent(helperEntity, true)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      mountPoint.helperEntity.set(helperEntity)
 
-      if (!debugEnabled.value && mountPoint.helper.value) {
-        removeObjectFromGroup(entity, mountPoint.helper.value)
-        mountPoint.helper.set(none)
+      return () => {
+        removeEntity(helperEntity)
+        mountPoint.helperEntity.set(none)
       }
     }, [debugEnabled])
 

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ScopeTypeType, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import type { Knex } from 'knex'
 import { getDateTimeSql } from '../../../util/datetime-sql'
@@ -41,12 +42,12 @@ export async function up(knex: Knex): Promise<void> {
   if (tableExists === true) {
     const scopeTypeData: ScopeTypeType[] = [
       {
-        type: `${clientSettingPath}:read`,
+        type: `${clientSettingPath}:read` as ScopeType,
         createdAt: await getDateTimeSql(),
         updatedAt: await getDateTimeSql()
       },
       {
-        type: `${clientSettingPath}:write`,
+        type: `${clientSettingPath}:write` as ScopeType,
         createdAt: await getDateTimeSql(),
         updatedAt: await getDateTimeSql()
       }

@@ -41,6 +41,7 @@ import {
 import { Engine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
 import { getMutableComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -75,24 +76,32 @@ export const EntityNetworkState = defineState({
           authorityPeerID: action.$peer,
           networkId: action.networkId
         })
+
         setComponent(entity, TransformComponent)
         const sceneState = getState(SceneState)
         if (!sceneState.activeScene) {
           throw new Error('Trying to spawn an object with no active scene')
         }
-        const activeSceneID = SceneState.getCurrentScene()!.scene.root
+        const activeSceneID = SceneState.getCurrentScene()!.root
         const activeSceneEntity = UUIDComponent.entitiesByUUID[activeSceneID]
         setComponent(entity, EntityTreeComponent, {
           parentEntity: activeSceneEntity
         })
-        setComponent(entity, LocalTransformComponent, { position: action.position!, rotation: action.rotation! })
+        const spawnPosition = new Vector3()
+        if (action.position) spawnPosition.copy(action.position)
+
+        const spawnRotation = new Quaternion()
+        if (action.rotation) spawnRotation.copy(action.rotation)
+
+        setComponent(entity, LocalTransformComponent, { position: spawnPosition, rotation: spawnRotation })
+
         state[action.entityUUID].merge({
           ownerId: action.$from,
           networkId: action.networkId,
           peerId: action.$peer,
           prefab: action.prefab,
-          spawnPosition: action.position ?? new Vector3(),
-          spawnRotation: action.rotation ?? new Quaternion()
+          spawnPosition,
+          spawnRotation
         })
       }
     ],
@@ -173,5 +182,6 @@ const execute = () => {
 
 export const EntityNetworkStateSystem = defineSystem({
   uuid: 'ee.engine.avatar.EntityNetworkStateSystem',
+  insert: { with: SimulationSystemGroup },
   execute
 })

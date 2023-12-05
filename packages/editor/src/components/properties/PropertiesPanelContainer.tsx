@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   ComponentJSONIDMap,
   getAllComponents,
@@ -94,9 +94,9 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
         border: isDragging ? '2px solid lightgrey' : 'none'
       }}
     >
-      <CoreNodeEditor entity={entity} key={entity} />
+      <CoreNodeEditor entity={entity} key={uuid.value} />
       {components.map((c, i) => (
-        <EntityComponentEditor key={`${entity}-${c.name}`} multiEdit={multiEdit} entity={entity} component={c} />
+        <EntityComponentEditor key={`${uuid.value}-${c.name}`} multiEdit={multiEdit} entity={entity} component={c} />
       ))}
     </div>
   )
@@ -110,15 +110,21 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
 export const PropertiesPanelContainer = () => {
   const selectionState = useHookstate(getMutableState(SelectionState))
   const editorState = useHookstate(getMutableState(EditorState))
-  const selectedEntities = selectionState.selectedEntities.value
+  const [entity, setEntity] = React.useState<Entity | null>(UndefinedEntity)
+  const [multiEdit, setMultiEdit] = React.useState<boolean>(false)
+
   const { t } = useTranslation()
 
-  const lockedNode = editorState.lockPropertiesPanel.value
-  const multiEdit = selectedEntities.length > 1
-
-  const entity = lockedNode
-    ? UUIDComponent.entitiesByUUID[lockedNode] ?? lockedNode
-    : selectedEntities[selectedEntities.length - 1]
+  useEffect(() => {
+    const selectedEntities = selectionState.selectedEntities.value
+    const lockedNode = editorState.lockPropertiesPanel.value
+    setMultiEdit(selectedEntities.length > 1)
+    setEntity(
+      lockedNode
+        ? UUIDComponent.entitiesByUUID[lockedNode] ?? lockedNode
+        : selectedEntities[selectedEntities.length - 1]
+    )
+  }, [selectionState.selectedEntities])
 
   const materialID = useHookstate(getMutableState(MaterialSelectionState)).selectedMaterial.value
 

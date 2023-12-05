@@ -62,10 +62,10 @@ import { XRState } from '../../xr/XRState'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
+import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
-import { defaultBonesData } from '../DefaultSkeletonBones'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -86,12 +86,18 @@ export const locomotionPack = 'locomotion'
 export const parseAvatarModelAsset = (model: any) => {
   const scene = model.scene ?? model // FBX files does not have 'scene' property
   if (!scene) return
-
-  const vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as any
+  const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as any
 
   if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
 
   return vrm as VRM
+}
+
+export const isAvaturn = (url: string) => {
+  const fileExtensionRegex = /\.[0-9a-z]+$/i
+  const avaturnUrl = config.client.avaturnAPI
+  if (avaturnUrl && !fileExtensionRegex.test(url)) return url.startsWith(avaturnUrl)
+  else return false
 }
 
 export const loadAvatarModelAsset = async (avatarURL: string) => {
@@ -101,7 +107,12 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   //   )
   //   sourceRig = parseAvatarModelAsset(sourceVRM)!.humanoid.normalizedHumanBones
   // }
-  const model = await AssetLoader.loadAsync(avatarURL)
+
+  //check if the url to the file has a file extension, if not, assume it's a glb
+
+  const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
+
+  const model = await AssetLoader.loadAsync(avatarURL, undefined, undefined, override)
   return parseAvatarModelAsset(model)
 }
 
@@ -114,9 +125,7 @@ export const loadAvatarForUser = async (
     throw new Error('Avatar model already loading')
 
   if (loadingEffect) {
-    if (hasComponent(entity, AvatarControllerComponent)) {
-      getComponent(entity, AvatarControllerComponent).movementEnabled = false
-    }
+    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
   }
 
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(false)
@@ -143,6 +152,7 @@ export const loadAvatarForUser = async (
       dissolveMaterials: dissolveMaterials as ShaderMaterial[],
       originMaterials: avatarMaterials as MaterialMap[]
     })
+    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
   }
 
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
@@ -256,15 +266,6 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   box.expandByObject(model).getSize(tempVec3ForHeight)
   box.getCenter(tempVec3ForCenter)
   resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
-}
-
-/**
- * Creates an empty skinned mesh with the default skeleton attached.
- * The skeleton created is compatible with default animation tracks
- * @returns SkinnedMesh
- */
-export function makeDefaultSkinnedMesh() {
-  return makeSkinnedMeshFromBoneData(defaultBonesData)
 }
 
 /**

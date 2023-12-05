@@ -35,6 +35,7 @@ import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { VariantComponent } from '../components/VariantComponent'
 import { setInstancedMeshVariant, setMeshVariant, setModelVariant } from '../functions/loaders/VariantFunctions'
+import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const updateFrequency = 0.1
 let lastUpdate = 0
@@ -50,7 +51,7 @@ const instancedMeshVariantQuery = defineQuery([
 
 function execute() {
   const engineState = getState(EngineState)
-  if (!engineState.sceneLoaded) return
+  if (!engineState.sceneLoaded || engineState.isEditing) return
 
   if (engineState.elapsedSeconds - lastUpdate < updateFrequency) return
   lastUpdate = engineState.elapsedSeconds
@@ -66,11 +67,8 @@ function execute() {
   }
 }
 
-function reactor() {
-  return null
-}
-
 export const VariantSystem = defineSystem({
   uuid: 'ee.engine.scene.VariantSystem',
+  insert: { with: SceneLoadingSystem },
   execute
 })

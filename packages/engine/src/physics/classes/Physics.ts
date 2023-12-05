@@ -88,10 +88,7 @@ function load() {
 }
 
 function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
-  const world = new World(gravity)
-  /** @todo create a better api for raycast debugger*/
-  ;(world as any).raycastDebugs = []
-  return world
+  return new World(gravity)
 }
 
 function createCollisionEventQueue() {
@@ -316,7 +313,9 @@ function createRigidBodyForGroup(
     obj.traverse((mesh: Mesh) => {
       if (
         (!overrideShapeType && (!mesh.userData || mesh.userData.type === 'glb')) ||
-        (!mesh.isMesh && !mesh.userData.type)
+        (!mesh.isMesh &&
+          !mesh.userData.type &&
+          !Object.keys(mesh.userData).some((key) => key.startsWith('xrengine.collider')))
       )
         return
 
@@ -475,8 +474,6 @@ function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (col
     })
   }
 
-  ;(world as any).raycastDebugs.push({ raycastQuery, hits })
-
   return hits
 }
 
@@ -546,8 +543,11 @@ const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, hand
   const entity1 = (rigidBody1?.userData as any)['entity']
   const entity2 = (rigidBody2?.userData as any)['entity']
 
-  const collisionComponent1 = getOptionalComponent(entity1, CollisionComponent)
-  const collisionComponent2 = getOptionalComponent(entity2, CollisionComponent)
+  setComponent(entity1, CollisionComponent)
+  setComponent(entity2, CollisionComponent)
+
+  const collisionComponent1 = getComponent(entity1, CollisionComponent)
+  const collisionComponent2 = getComponent(entity2, CollisionComponent)
 
   if (started) {
     const type = isTriggerEvent ? CollisionEvents.TRIGGER_START : CollisionEvents.COLLISION_START

@@ -28,6 +28,7 @@ import { Quaternion, Vector3 } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ReferenceSpace, XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 
 /**
  * XRPersistentAnchorSystem
@@ -172,5 +173,6 @@ const execute = () => {
 
 export const XRPersistentAnchorSystem = defineSystem({
   uuid: 'ee.engine.XRPersistentAnchorSystem',
+  insert: { with: XRSystem },
   execute
 })
