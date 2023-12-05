@@ -110,6 +110,20 @@ else
   VITE_8TH_WALL=$VITE_8TH_WALL
 fi
 
+if [ -z "$VITE_AVATURN_URL" ]
+then
+  VITE_AVATURN_URL=null
+else
+  VITE_AVATURN_URL=$VITE_AVATURN_URL
+fi
+
+if [ -z "$VITE_AVATURN_API" ]
+then
+  VITE_AVATURN_API=null
+else
+  VITE_AVATURN_API=$VITE_AVATURN_API
+fi
+
 if [ -z "$NODE_ENV" ]
 then
   NODE_ENV=development
@@ -163,7 +177,9 @@ docker buildx build \
   --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
   --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
   --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
-  --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET .
+  --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET \
+  --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
+  --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
 
 docker tag $REGISTRY_HOST:32000/etherealengine $REGISTRY_HOST:32000/etherealengine:$TAG
 docker push $REGISTRY_HOST:32000/etherealengine:$TAG

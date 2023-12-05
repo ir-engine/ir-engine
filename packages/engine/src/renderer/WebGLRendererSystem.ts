@@ -93,6 +93,8 @@ export class EngineRenderer {
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
 
   renderer: WebGLRenderer = null!
+  /** used to optimize proxified threejs objects during render time, see loadGLTFModel and https://github.com/EtherealEngine/etherealengine/issues/9308 */
+  rendering = false
   effectComposer: EffectComposerWithSchema = null!
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
@@ -216,7 +218,9 @@ export class EngineRenderer {
       xrCamera.layers.mask = camera.layers.mask
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
+      this.rendering = true
       this.renderer.render(Engine.instance.scene, camera)
+      this.rendering = false
     } else {
       const state = getState(RendererState)
       const engineState = getState(EngineState)
@@ -246,7 +250,9 @@ export class EngineRenderer {
        * Editor should always use post processing, even if no postprocessing schema is in the scene,
        *   it still uses post processing for effects such as outline.
        */
+      this.rendering = true
       this.effectComposer.render(delta)
+      this.rendering = false
     }
   }
 

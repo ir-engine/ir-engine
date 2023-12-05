@@ -62,6 +62,7 @@ import { ShadowComponent } from './components/ShadowComponent'
 import { SkyboxComponent } from './components/SkyboxComponent'
 import { SpawnPointComponent } from './components/SpawnPointComponent'
 import { SplineComponent } from './components/SplineComponent'
+import { SplineTrackComponent } from './components/SplineTrackComponent'
 import { SpotLightComponent } from './components/SpotLightComponent'
 import { SystemComponent } from './components/SystemComponent'
 import { VariantComponent } from './components/VariantComponent'
@@ -71,7 +72,6 @@ import { VolumetricComponent } from './components/VolumetricComponent'
 import { WaterComponent } from './components/WaterComponent'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { FogSystem } from './systems/FogSystem'
-import { LightSystem } from './systems/LightSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
@@ -116,6 +116,7 @@ export const SceneComponents = [
   SkyboxComponent,
   SpawnPointComponent,
   SplineComponent,
+  SplineTrackComponent,
   SystemComponent,
   SpotLightComponent,
   SystemComponent,
@@ -132,7 +133,6 @@ export const SceneComponents = [
 export {
   EnvironmentSystem,
   FogSystem,
-  LightSystem,
   MaterialLibrarySystem,
   MountPointSystem,
   NoiseOffsetSystem,

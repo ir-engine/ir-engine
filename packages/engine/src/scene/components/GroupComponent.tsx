@@ -65,7 +65,8 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.entity = entity
 
   if (!hasComponent(entity, GroupComponent)) setComponent(entity, GroupComponent, [])
-  if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
+  if (getComponent(entity, GroupComponent).includes(obj))
+    return console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
   if (!hasComponent(entity, LocalTransformComponent)) setComponent(entity, LocalTransformComponent)
 
   getMutableComponent(entity, GroupComponent).merge([obj])

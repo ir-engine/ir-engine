@@ -230,6 +230,7 @@ export const setComponent = <C extends Component>(
         )
       }) as ReactorRoot
       root['entity'] = entity
+      root['component'] = Component.name
       Component.reactorMap.set(entity, root)
     }
   }

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Material, Shader, WebGLRenderer } from 'three'
 
 import { defineComponent } from '../../../ecs/functions/ComponentFunctions'
-import { MaterialSource } from './MaterialSource'
+import { MaterialSource, SourceType } from './MaterialSource'
 
 export type MaterialPrototypeComponentType<T extends Material = Material> = {
   prototypeId: string
@@ -49,10 +49,13 @@ export const MaterialPrototypeComponent = defineComponent({
   jsonID: 'material-prototype',
   onInit(entity) {
     return {
-      prototypeId: '',
-      baseMaterial: null!,
+      prototypeId: 'UNAVAILABLE',
+      baseMaterial: Material,
       arguments: {},
-      src: null!
+      src: {
+        type: SourceType.BUILT_IN,
+        path: 'UNAVAILABLE'
+      }
     } as MaterialPrototypeComponentType
   },
   onSet: (entity, component, json) => {

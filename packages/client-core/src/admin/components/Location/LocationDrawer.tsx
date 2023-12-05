@@ -176,7 +176,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
     const data: LocationData = {
       name: state.name.value,
       slugifiedName: '',
-      sceneId: state.scene.value as SceneID,
+      sceneId: `projects/${state.scene.value}.scene.json` as SceneID,
       maxUsersPerInstance: state.maxUsers.value,
       locationSetting: {
         id: '',

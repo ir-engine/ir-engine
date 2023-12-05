@@ -24,7 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { SceneDataType, SceneMetadataType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import {
+  SceneDataType,
+  SceneID,
+  SceneMetadataType,
+  scenePath
+} from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const SCENE_PAGE_LIMIT = 100
@@ -57,7 +62,7 @@ export const AdminSceneService = {
       lastFetched: Date.now()
     })
   },
-  fetchAdminScene: async (sceneKey: string) => {
+  fetchAdminScene: async (sceneKey: SceneID) => {
     const scene = await Engine.instance.api
       .service(scenePath)
       .get(null, { query: { sceneKey: sceneKey, metadataOnly: false } })
