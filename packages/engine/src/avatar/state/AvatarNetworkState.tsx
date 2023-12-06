@@ -32,6 +32,7 @@ import {
   dispatchAction,
   getMutableState,
   none,
+  receiveActions,
   useHookstate,
   useState
 } from '@etherealengine/hyperflux'
@@ -40,12 +41,14 @@ import { Paginated } from '@feathersjs/feathers'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { entityExists } from '../../ecs/functions/EntityFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
-import { userPath } from '../../schemas/user/user.schema'
+import { AvatarID, AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
+import { userAvatarPath } from '../../schemas/user/user-avatar.schema'
 import { loadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from './AvatarNetworkActions'
@@ -56,7 +59,7 @@ export const AvatarState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
-      avatarID?: string
+      avatarID?: AvatarID
       userAvatarDetails: AvatarType
     }
   >,
@@ -65,7 +68,7 @@ export const AvatarState = defineState({
     [
       AvatarNetworkAction.setAvatarID,
       (state, action: typeof AvatarNetworkAction.setAvatarID.matches._TYPE) => {
-        state[action.entityUUID].merge({ avatarID: action.avatarID })
+        state[action.entityUUID].merge({ avatarID: action.avatarID as AvatarID })
       }
     ],
 
@@ -96,14 +99,14 @@ export const AvatarState = defineState({
       })
   },
 
-  updateUserAvatarId(avatarId: string) {
+  updateUserAvatarId(avatarId: AvatarID) {
     Engine.instance.api
-      .service(userPath)
-      .patch(Engine.instance.userID, { avatarId: avatarId })
+      .service(userAvatarPath)
+      .patch(null, { avatarId: avatarId }, { query: { userId: Engine.instance.userID } })
       .then(() => {
         dispatchAction(
           AvatarNetworkAction.setAvatarID({
-            avatarID: avatarId,
+            avatarID: avatarId as AvatarID,
             entityUUID: Engine.instance.userID as any as EntityUUID
           })
         )
@@ -182,3 +185,12 @@ export const AvatarStateReactor = () => {
     </>
   )
 }
+
+export const AvatarNetworkSystem = defineSystem({
+  uuid: 'ee.engine.avatar.AvatarNetworkSystem',
+  insert: { with: SimulationSystemGroup },
+  execute: () => {
+    receiveActions(AvatarState)
+  },
+  reactor: AvatarStateReactor
+})

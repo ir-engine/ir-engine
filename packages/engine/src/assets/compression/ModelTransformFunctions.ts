@@ -689,7 +689,7 @@ export async function transformModel(args: ModelTransformParameters) {
         {
           name: fileName,
           byteLength: data.byteLength,
-          
+
         }
       })
     )*/

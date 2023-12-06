@@ -31,13 +31,14 @@ import {
   defineQuery,
   removeQuery
 } from '../../../../../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
 import {
   SystemDefinitions,
   SystemUUID,
   defineSystem,
-  disableSystem,
-  startSystem
+  destroySystem
 } from '../../../../../ecs/functions/SystemFunctions'
+import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 let systemCounter = 0
 
@@ -66,20 +67,20 @@ export const OnQuery = makeEventNodeDefinition({
 
     const componentName = (index) => {
       const choices = Array.from(ComponentMap.keys()).sort()
-      choices.unshift('none')
       return {
         key: `componentName${index}`,
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: TransformComponent.name
       }
     }
     const type = () => {
-      const choices = ['entry', 'exit']
-      choices.unshift('none')
+      const choices = ['enter', 'exit']
       return {
         key: 'type',
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     }
 
@@ -88,11 +89,11 @@ export const OnQuery = makeEventNodeDefinition({
       const groups = systemDefinitions.filter((key) => key.includes('group')).sort()
       const nonGroups = systemDefinitions.filter((key) => !key.includes('group')).sort()
       const choices = [...groups, ...nonGroups]
-      choices.unshift('none')
       return {
         key: 'system',
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: InputSystemGroup
       }
     }
     // unsure how to get all system groups
@@ -120,46 +121,30 @@ export const OnQuery = makeEventNodeDefinition({
       const component = ComponentMap.get(componentName)!
       queryComponents.push(component)
     }
-    const query = defineQuery(queryComponents)
+    const query = defineQuery(queryComponents)[type]
     let prevQueryResult = []
     let newQueryResult = []
-    let queryType
-    switch (type) {
-      case 'entry': {
-        queryType = query.enter
-        break
-      }
-      case 'exit': {
-        queryType = query.exit
-        break
-      }
-      case 'none': {
-        queryType = query
-        break
-      }
-    }
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onQuery-' + systemCounter++,
+      insert: { with: system },
       execute: () => {
-        newQueryResult = queryType()
+        newQueryResult = query()
         if (newQueryResult.length === 0) return
         if (prevQueryResult === newQueryResult) return
         const tempResult = newQueryResult
-        function delayedLoop(i) {
+        function delayedIteration(i) {
           if (i < tempResult.length) {
-            const eid = tempResult[i]
-            write('entity', eid)
-            commit('flow')
-            setTimeout(() => {
-              prevQueryResult = tempResult
-              delayedLoop(i + 1)
-            }, 50) //milliseconds, to prevent write from skipping over entities
+            write('entity', tempResult[i])
+            commit('flow', () => {
+              delayedIteration(i + 1)
+            })
           }
         }
-        delayedLoop(0)
+        // Start the delayed iteration
+        delayedIteration(0)
+        prevQueryResult = tempResult
       }
     })
-    startSystem(systemUUID, { with: system })
     const state: State = {
       query,
       systemUUID
@@ -168,7 +153,7 @@ export const OnQuery = makeEventNodeDefinition({
     return state
   },
   dispose: ({ state: { query, systemUUID }, graph: { getDependency } }) => {
-    disableSystem(systemUUID)
+    destroySystem(systemUUID)
     removeQuery(query)
     return initialState()
   }

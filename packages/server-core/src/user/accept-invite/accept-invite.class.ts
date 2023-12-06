@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeType, ScopeTypeInterface, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
@@ -151,13 +151,13 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
         const existingAdminScope = (await this.app.service(scopePath).find({
           query: {
             userId: inviteeIdentityProvider.userId,
-            type: 'admin:admin'
+            type: 'admin:admin' as ScopeType
           }
-        })) as Paginated<ScopeType>
+        })) as Paginated<ScopeTypeInterface>
         if (existingAdminScope.total === 0)
           await this.app.service(scopePath).create({
             userId: inviteeIdentityProvider.userId,
-            type: 'admin:admin'
+            type: 'admin:admin' as ScopeType
           })
       }
 
@@ -261,7 +261,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         const instance =
           invite.inviteType === 'instance' ? await this.app.service(instancePath).get(invite.targetObjectId) : null
-        const locationId = instance ? instance.locationId : invite.targetObjectId
+        const locationId = instance ? (instance.locationId as LocationID) : (invite.targetObjectId as LocationID)
         const location = await this.app.service(locationPath).get(locationId)
         returned.locationName = location.slugifiedName
         if (instance) returned.instanceId = instance.id as InstanceID
@@ -270,8 +270,8 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
           const userId = inviteeIdentityProvider.userId
           if (!location.locationAuthorizedUsers.find((authUser) => authUser.userId === userId))
             await this.app.service(locationAuthorizedUserPath).create({
-              locationId: location.id,
-              userId: userId
+              locationId: location.id as LocationID,
+              userId: userId as UserID
             })
         }
         if (invite.spawnDetails) {

@@ -19,9 +19,11 @@
   },
   "loader": {
     "connecting": "Connecting...",
+    "loadingClient": "Loading client...",
     "authenticating": "Authenticating...",
     "starting": "Starting...",
     "loadingLocation": "Loading locations...",
+    "loadingProjects": "Loading projects...",
     "loadingEngine": "Loading engine...",
     "loadingEditor": "Loading editor...",
     "loadingRoutes": "Loading routes...",

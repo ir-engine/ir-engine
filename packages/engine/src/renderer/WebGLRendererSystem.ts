@@ -41,16 +41,17 @@ import { defineState, getMutableState, getState, useHookstate } from '@ethereale
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
+import { isClient } from '../common/functions/getEnvironment'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { EffectMapType, defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
 import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
-import { RenderInfoSystem } from './RenderInfoSystem'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 import { updateShadowMap } from './functions/RenderSettingsFunction'
@@ -92,6 +93,8 @@ export class EngineRenderer {
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
 
   renderer: WebGLRenderer = null!
+  /** used to optimize proxified threejs objects during render time, see loadGLTFModel and https://github.com/EtherealEngine/etherealengine/issues/9308 */
+  rendering = false
   effectComposer: EffectComposerWithSchema = null!
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
@@ -215,11 +218,13 @@ export class EngineRenderer {
       xrCamera.layers.mask = camera.layers.mask
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
+      this.rendering = true
       this.renderer.render(Engine.instance.scene, camera)
+      this.rendering = false
     } else {
       const state = getState(RendererState)
       const engineState = getState(EngineState)
-      if (!engineState.isEditor && state.automatic && engineState.connectedWorld) this.changeQualityLevel()
+      if (!engineState.isEditor && state.automatic) this.changeQualityLevel()
       if (this.needsResize) {
         const curPixelRatio = this.renderer.getPixelRatio()
         const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
@@ -245,7 +250,9 @@ export class EngineRenderer {
        * Editor should always use post processing, even if no postprocessing schema is in the scene,
        *   it still uses post processing for effects such as outline.
        */
+      this.rendering = true
       this.effectComposer.render(delta)
+      this.rendering = false
     }
   }
 
@@ -294,6 +301,7 @@ export const PostProcessingSettingsState = defineState({
 })
 
 const execute = () => {
+  if (!EngineRenderer.instance) return
   const deltaSeconds = getState(EngineState).deltaSeconds
   EngineRenderer.instance.execute(deltaSeconds)
 }
@@ -362,7 +370,7 @@ const reactor = () => {
 
 export const WebGLRendererSystem = defineSystem({
   uuid: 'ee.engine.WebGLRendererSystem',
+  insert: { with: PresentationSystemGroup },
   execute,
-  reactor,
-  postSystems: [RenderInfoSystem]
+  reactor: isClient ? reactor : undefined
 })

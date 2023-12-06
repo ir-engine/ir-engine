@@ -75,7 +75,7 @@ const ProjectTable = ({ className }: Props) => {
   const [openUserPermissionDrawer, setOpenUserPermissionDrawer] = useState(false)
   const [changeDestination, setChangeDestination] = useState(false)
 
-  const projects = useFind(projectPath, {
+  const projectsQuery = useFind(projectPath, {
     query: {
       allowed: true,
       $limit: 100,
@@ -85,7 +85,7 @@ const ProjectTable = ({ className }: Props) => {
     }
   })
 
-  const projectsData = projects.data as ProjectType[]
+  const projectsData = projectsQuery.data as ProjectType[]
 
   const projectRef = useRef(project)
 
@@ -364,7 +364,7 @@ const ProjectTable = ({ className }: Props) => {
 
   return (
     <Box className={className}>
-      <TableComponent query={projects} rows={rows} column={projectsColumns} />
+      <TableComponent query={projectsQuery} rows={rows} column={projectsColumns} />
 
       {openProjectDrawer && project && (
         <ProjectDrawer

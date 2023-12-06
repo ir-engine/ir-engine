@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
@@ -35,11 +36,12 @@ import { ChannelID } from './channel.schema'
 export const messagePath = 'message'
 
 export const messageMethods = ['create', 'find'] as const
+export type MessageID = OpaqueType<'MessageID'> & string
 
 // Main data model schema
 export const messageSchema = Type.Object(
   {
-    id: Type.String({
+    id: TypedString<MessageID>({
       format: 'uuid'
     }),
     text: Type.String(),
@@ -54,7 +56,7 @@ export const messageSchema = Type.Object(
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'Message', additionalProperties: false }
+  { $id: 'Message' as MessageID, additionalProperties: false }
 )
 export interface MessageType extends Static<typeof messageSchema> {}
 

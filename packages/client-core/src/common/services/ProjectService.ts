@@ -48,6 +48,7 @@ import { projectGithubPushPath } from '@etherealengine/engine/src/schemas/projec
 import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
@@ -163,7 +164,7 @@ export const ProjectService = {
     }
   },
 
-  createPermission: async (userInviteCode: string, projectId: string) => {
+  createPermission: async (userInviteCode: InviteCode, projectId: string) => {
     try {
       await API.instance.client.service(projectPermissionPath).create({
         inviteCode: userInviteCode,

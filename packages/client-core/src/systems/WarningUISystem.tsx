@@ -35,6 +35,7 @@ import {
   removeComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -87,8 +88,7 @@ const WarningSystemXRUI = function () {
 
   return (
     <>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto"></link>
-      <div xr-layer="true" className={'z-1'} style={{ zIndex: '-1', fontFamily: 'Roboto' }}>
+      <div xr-layer="true" className={'z-1'} style={{ zIndex: '-1', fontFamily: 'Roboto, sans-serif' }}>
         <div
           xr-layer="true"
           className={'pl-6 pr-8 max-w-sm'}
@@ -240,6 +240,7 @@ const reactor = () => {
 
 export const WarningUISystem = defineSystem({
   uuid: 'ee.client.WarningUISystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })

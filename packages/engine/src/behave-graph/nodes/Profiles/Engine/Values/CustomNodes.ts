@@ -47,7 +47,6 @@ import { CameraActions } from '../../../../../camera/CameraState'
 import { FollowCameraComponent } from '../../../../../camera/components/FollowCameraComponent'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { SceneServices } from '../../../../../ecs/classes/Scene'
 import {
   getComponent,
   getMutableComponent,
@@ -76,21 +75,19 @@ export const playVideo = makeFlowNodeDefinition({
         text: key,
         value: PlayMode[key as keyof typeof PlayMode]
       }))
+
       return {
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     },
     videoFit: (_, graphApi) => {
-      const choices = [
-        { text: 'cover', value: 'cover' },
-        { text: 'contain', value: 'contain' },
-        { text: 'vertical', value: 'vertical' },
-        { text: 'horizontal', value: 'horizontal' }
-      ]
+      const choices = ['cover', 'contain', 'vertical', 'horizontal']
       return {
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     }
   },
@@ -143,7 +140,8 @@ export const playAudio = makeFlowNodeDefinition({
       }))
       return {
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     }
   },
@@ -223,8 +221,8 @@ export const makeRaycast = makeFlowNodeDefinition({
   }
 })*/
 
-export const getAvatarAnimations = makeFunctionNodeDefinition({
-  typeName: 'engine/media/getAvatarAnimations',
+export const getAnimationPack = makeFunctionNodeDefinition({
+  typeName: 'engine/media/getAnimationPack',
   category: NodeCategory.Query,
   label: 'Get Avatar Animations',
   in: {
@@ -238,10 +236,10 @@ export const getAvatarAnimations = makeFunctionNodeDefinition({
       }
     }
   },
-  out: { animationName: 'string' },
+  out: { animationPack: 'string' },
   exec: ({ read, write, graph }) => {
-    const animationName: string = read('animationName')
-    write('animationName', animationName)
+    const animationPack: string = read('animationName')
+    write('animationPack', animationPack)
   }
 })
 
@@ -295,7 +293,8 @@ export const setAnimationAction = makeFlowNodeDefinition({
       ]
       return {
         valueType: 'number',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     },
     loopMode: (_, graphApi) => {
@@ -306,7 +305,8 @@ export const setAnimationAction = makeFlowNodeDefinition({
       ]
       return {
         valueType: 'number',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     },
     weight: 'float',
@@ -362,9 +362,11 @@ export const loadAsset = makeAsyncNodeDefinition({
       const entity = await loadAsset()
       write('entity', entity)
       commit('loadEnd', () => {
+        write('entity', entity)
         finished?.()
       })
     })
+
     return null
   },
   dispose: ({ state, graph: { getDependency } }) => {
@@ -422,7 +424,8 @@ export const startXRSession = makeFlowNodeDefinition({
       const choices = ['inline', 'immersive-ar', 'immersive-vr']
       return {
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     }
   },
@@ -456,15 +459,15 @@ export const switchScene = makeFlowNodeDefinition({
   label: 'Switch Scene',
   in: {
     flow: 'flow',
-    projectName: 'string',
+    projectName: 'string', // i wish i could access the ProjectState
     sceneName: 'string'
   },
   out: {},
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const projectName = read<string>('projectName')
-    const sceneName = read<string>('sceneName')
-    SceneServices.setCurrentScene(projectName, sceneName)
+    // const projectName = read<string>('projectName')
+    // const sceneName = read<string>('sceneName')
+    // SceneServices.setCurrentScene(projectName, sceneName)
   }
 })
 

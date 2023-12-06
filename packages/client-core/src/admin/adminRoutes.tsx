@@ -26,27 +26,21 @@ Ethereal Engine. All Rights Reserved.
 import React, { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Dashboard from '@etherealengine/ui/src/primitives/mui/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
 import { AuthState } from '../user/services/AuthService'
-import { UserUISystem } from '../user/UserUISystem'
 import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
 import Analytics from './components/Analytics'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
+import '@etherealengine/engine/src/EngineModule'
+
 const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
-const AdminSystemInjection = () => {
-  startSystems([UserUISystem], { after: PresentationSystemGroup })
-}
-
 const AdminRoutes = () => {
-  const location = useLocation()
+  const _location = useLocation()
   const admin = useHookstate(getMutableState(AuthState)).user
 
   const allowedRoutes = useHookstate(getMutableState(AllowedAdminRoutesState))
@@ -54,18 +48,17 @@ const AdminRoutes = () => {
   const scopes = admin?.scopes?.value
 
   useEffect(() => {
-    AdminSystemInjection()
-    getMutableState(EngineState).isEngineInitialized.set(true)
     allowedRoutes.set(DefaultAdminRoutes)
   }, [])
 
   useEffect(() => {
     for (const [route, state] of Object.entries(allowedRoutes)) {
+      const routeScope = state.scope.value
       const hasScope =
-        state.scope.value === '' ||
+        routeScope === '' ||
         scopes?.find((scope) => {
           const [scopeKey, type] = scope.type.split(':')
-          return scopeKey === state.scope.value
+          return Array.isArray(routeScope) ? routeScope.includes(scopeKey) : scopeKey === routeScope
         })
       state.access.set(!!hasScope)
     }
@@ -77,7 +70,7 @@ const AdminRoutes = () => {
 
   return (
     <Dashboard>
-      <Suspense fallback={<LoadingCircle message={`Loading ${location.pathname.split('/')[2]}...`} />}>
+      <Suspense fallback={<LoadingCircle message={`Loading ${_location.pathname.split('/')[2]}...`} />}>
         <Routes>
           <Route path="/*" element={<$allowed />} />
           {<Route path="/" element={<Analytics />} />}

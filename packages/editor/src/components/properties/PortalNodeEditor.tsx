@@ -52,7 +52,7 @@ import SelectInput from '../inputs/SelectInput'
 import { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperties, updateProperty } from './Util'
 
 type PortalOptions = {
   name: string
@@ -134,7 +134,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   }
 
   const changePreviewType = (val) => {
-    updateProperties(PortalComponent, { previewType: val })
+    commitProperties(PortalComponent, { previewType: val })
     loadPortals()
   }
 
@@ -218,7 +218,13 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')}>
-        <EulerInput quaternion={portalComponent.spawnRotation.value ?? rotation} onChange={changeSpawnRotation} />
+        <EulerInput
+          quaternion={portalComponent.spawnRotation.value ?? rotation}
+          onChange={changeSpawnRotation}
+          onRelease={() =>
+            commitProperty(PortalComponent, 'spawnRotation')(getComponent(props.entity, PortalComponent).spawnRotation)
+          }
+        />
       </InputGroup>
     </NodeEditor>
   )

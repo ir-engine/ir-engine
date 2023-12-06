@@ -43,7 +43,7 @@ import { commitProperty } from '../properties/Util'
 import { Flow } from './ee-flow'
 import './ee-flow/styles.css'
 
-const ActiveBehaveGraph = (props: { entity }) => {
+export const ActiveBehaveGraph = (props: { entity }) => {
   const { entity } = props
 
   // reactivity
@@ -60,6 +60,7 @@ const ActiveBehaveGraph = (props: { entity }) => {
       registry={behaveGraphState.registries[graphComponent.domain]}
       onChangeGraph={
         (newGraph) => {
+          if (!newGraph) return
           if (isEqual(graphComponent.graph, newGraph)) return
           commitProperty(BehaveGraphComponent, 'graph')(newGraph)
         }

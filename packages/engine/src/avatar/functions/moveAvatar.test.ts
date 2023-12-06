@@ -27,7 +27,6 @@ import { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
   applyIncomingActions,
@@ -37,6 +36,7 @@ import {
   receiveActions
 } from '@etherealengine/hyperflux'
 
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -58,7 +58,7 @@ describe('moveAvatar function tests', () => {
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.userID = 'userId' as UserID
-    Engine.instance.peerID = 'peerID' as PeerID
+    loadEmptyScene()
   })
 
   afterEach(() => {

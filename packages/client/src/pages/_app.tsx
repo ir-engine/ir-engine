@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
@@ -33,7 +33,7 @@ import { NotificationState } from '@etherealengine/client-core/src/common/servic
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import '@etherealengine/client-core/src/util/GlobalStyle.css'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -41,7 +41,8 @@ import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjectio
 
 import { StyledEngineProvider, Theme } from '@mui/material/styles'
 
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { useTranslation } from 'react-i18next'
 import RouterComp from '../route/public'
 import { ThemeContextProvider } from '../themes/themeContext'
 
@@ -54,13 +55,15 @@ declare module '@mui/styles/defaultTheme' {
 const AppPage = ({ route }: { route: string }) => {
   const notistackRef = useRef<SnackbarProvider>()
   const authState = useHookstate(getMutableState(AuthState))
+  const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
   const selfUser = authState.user
-  const [projectComponents, setProjectComponents] = useState<Array<any>>([])
-  const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
+  const [projectComponents, setProjectComponents] = useState<Array<any> | null>(null)
   const projectState = useHookstate(getMutableState(ProjectState))
   const notificationstate = useHookstate(getMutableState(NotificationState))
+  const { t } = useTranslation()
 
-  const initApp = useCallback(() => {
+  useEffect(() => {
+    AuthService.doLoginAuto()
     initGA()
     logPageView()
   }, [])
@@ -69,35 +72,26 @@ const AppPage = ({ route }: { route: string }) => {
     notificationstate.snackbar.set(notistackRef.current)
   }, [notistackRef.current])
 
-  useEffect(initApp, [])
-
-  // useEffect(() => {
-  //   chapiWalletPolyfill
-  //     .loadOnce()
-  //     .then(() => console.log('CHAPI wallet polyfill loaded.'))
-  //     .catch((e) => console.error('Error loading polyfill:', e))
-  // }, [])
+  NotificationState.useNotifications()
 
   useEffect(() => {
-    if (selfUser?.id.value && projectState.updateNeeded.value) {
-      ProjectService.fetchProjects()
-      if (!fetchedProjectComponents) {
-        setFetchedProjectComponents(true)
-        Engine.instance.api
-          .service(projectsPath)
-          .find()
-          .then((projects) => {
-            loadWebappInjection(projects).then((result) => {
-              setProjectComponents(result)
-            })
-          })
-      }
-    }
-  }, [selfUser, projectState.updateNeeded.value])
+    if (!isLoggedIn.value || projectComponents) return
+    loadWebappInjection().then((result) => {
+      setProjectComponents(result)
+    })
+  }, [isLoggedIn])
+
+  useEffect(() => {
+    if (selfUser?.id.value && projectState.updateNeeded.value) ProjectService.fetchProjects()
+  }, [selfUser?.id, projectState.updateNeeded])
 
   useEffect(() => {
     Engine.instance.userID = selfUser.id.value
   }, [selfUser.id])
+
+  if (!isLoggedIn.value) {
+    return <LoadingCircle message={t('common:loader.authenticating')} />
+  }
 
   return (
     <>
@@ -117,10 +111,8 @@ const AppPage = ({ route }: { route: string }) => {
               <InviteToast />
               <Debug />
             </div>
-            <RouterComp route={route} />
-            {projectComponents.map((Component, i) => (
-              <Component key={i} />
-            ))}
+            {projectComponents && <RouterComp route={route} />}
+            {projectComponents?.map((Component, i) => <Component key={i} />)}
           </SnackbarProvider>
         </StyledEngineProvider>
       </ThemeContextProvider>

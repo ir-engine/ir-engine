@@ -32,7 +32,7 @@ export default function traverseEarlyOut(entity: Entity, cb: (entity: Entity) =>
 
   if (stopTravel) return stopTravel
 
-  const entityTreeComponent = getComponent(entity as Entity, EntityTreeComponent)
+  const entityTreeComponent = getComponent(entity, EntityTreeComponent)
 
   const children = entityTreeComponent.children
   if (!children) return stopTravel

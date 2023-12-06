@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 export interface LocationColumn {
   id: 'sceneId' | 'maxUsersPerInstance' | 'scene' | 'name' | 'locationType' | 'tags' | 'videoEnabled' | 'action'
@@ -78,7 +79,7 @@ export interface LocationData {
   avatar: string
   status: string
   location: string
-  inviteCode: string
+  inviteCode: InviteCode
   instanceId: InstanceID
   action: any
 }

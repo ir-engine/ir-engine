@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  InviteCode,
   UserID,
   UserPatch,
   UserType,
@@ -36,12 +37,13 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
-import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { MethodNotAllowed } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
@@ -51,6 +53,7 @@ import persistData from '../../hooks/persist-data'
 import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
 import getFreeInviteCode from '../../util/get-free-invite-code'
+import { userAvatarDataResolver } from '../user-avatar/user-avatar.resolvers'
 import { UserService } from './user.class'
 import {
   userDataResolver,
@@ -115,8 +118,11 @@ const restrictUserRemove = async (context: HookContext<UserService>) => {
   const loggedInUser = context.params.user as UserType
   if (await checkScope(loggedInUser, 'user', 'write')) {
     const isRemovedUserAdmin =
-      (await context.app.service(scopePath).find({ query: { userId: context.id as UserID, type: 'admin:admin' } }))
-        .total > 0
+      (
+        await context.app
+          .service(scopePath)
+          .find({ query: { userId: context.id as UserID, type: 'admin:admin' as ScopeType } })
+      ).total > 0
 
     if (isRemovedUserAdmin && !(await checkScope(loggedInUser, 'admin', 'admin'))) {
       throw new MethodNotAllowed('Must be an admin to remove admins')
@@ -192,10 +198,43 @@ const updateInviteCode = async (context: HookContext<UserService>) => {
 
   for (const item of result) {
     if (!item.isGuest && !item.inviteCode) {
-      const code = await getFreeInviteCode(context.app)
+      const code = (await getFreeInviteCode(context.app)) as InviteCode
       await context.service._patch(item.id, {
         inviteCode: code
       })
+    }
+  }
+}
+
+/**
+ * Add or updates the user's avatar if they don't have one.
+ * @param context
+ */
+const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
+  const data: UserType[] = Array.isArray(context['actualData']) ? context['actualData'] : [context['actualData']]
+
+  for (const item of data) {
+    if (item?.avatarId) {
+      const existingUserAvatar = await context.app.service(userAvatarPath).find({
+        query: {
+          userId: item.id
+        }
+      })
+
+      if (existingUserAvatar.data.length === 0) {
+        const userAvatarData = await userAvatarDataResolver.resolve(
+          {
+            userId: item.id,
+            avatarId: item.avatarId
+          },
+          context
+        )
+        await context.app.service(userAvatarPath).create(userAvatarData)
+      } else if (existingUserAvatar.data[0].avatarId !== item.avatarId) {
+        await context.app.service(userAvatarPath).patch(existingUserAvatar.data[0].id, {
+          avatarId: item.avatarId
+        })
+      }
     }
   }
 }
@@ -295,7 +334,7 @@ export default createSkippableHooks(
         () => schemaHooks.validateData(userDataValidator),
         schemaHooks.resolveData(userDataResolver),
         persistData,
-        discard('scopes')
+        discard('scopes', 'avatarId')
       ],
       update: [disallow()],
       patch: [
@@ -305,7 +344,7 @@ export default createSkippableHooks(
         disallowNonId,
         removeUserScopes,
         addUserScopes(false),
-        discard('scopes')
+        discard('scopes', 'avatarId')
       ],
       remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
     },
@@ -314,9 +353,9 @@ export default createSkippableHooks(
       all: [],
       find: [],
       get: [],
-      create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode],
+      create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode, addUpdateUserAvatar],
       update: [],
-      patch: [updateInviteCode],
+      patch: [updateInviteCode, addUpdateUserAvatar],
       remove: []
     },
 

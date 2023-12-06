@@ -24,33 +24,27 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, LineSegments, Mesh } from 'three'
+import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments, Mesh } from 'three'
 import { MeshBVHVisualizer } from 'three-mesh-bvh'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { RaycastArgs } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
-import { RaycastHit } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
-import { GroupQueryReactor, GroupReactorProps } from '../../scene/components/GroupComponent'
+import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
+import { createInfiniteGridHelper } from '../../scene/classes/InfiniteGridHelper'
+import {
+  GroupComponent,
+  GroupQueryReactor,
+  GroupReactorProps,
+  addObjectToGroup
+} from '../../scene/components/GroupComponent'
+import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-
-type RaycastDebugs = {
-  raycastQuery: RaycastArgs
-  hits: RaycastHit[]
-}
-
-const debugLines = new Set<Line<BufferGeometry, LineBasicMaterial>>()
-const debugLineLifetime = 1000 // 1 second
-
-const lineMaterial = new LineBasicMaterial({ vertexColors: true })
-const _lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
-_lineSegments.frustumCulled = false
 
 const visualizers = [] as MeshBVHVisualizer[]
 
@@ -66,9 +60,9 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
 
     function addMeshBVHVisualizer(obj: Mesh) {
       const mesh = obj as any as Mesh
-      if (mesh.isMesh && mesh.geometry?.boundsTree) {
+      if (mesh.isMesh && mesh.parent && mesh.geometry?.boundsTree) {
         const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
-        mesh.parent!.add(meshBVHVisualizer)
+        mesh.parent.add(meshBVHVisualizer)
         visualizers.push(meshBVHVisualizer)
         meshBVHVisualizers.push(meshBVHVisualizer)
         meshBVHVisualizer.depth = 20
@@ -92,82 +86,62 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
 }
 
 const execute = () => {
-  const enabled = getState(RendererState).physicsDebug
+  const physicsDebugEntity = getState(RendererState).physicsDebugEntity
 
-  _lineSegments.visible = enabled
-
-  const physicsWorld = getState(PhysicsState).physicsWorld
-
-  if (enabled && physicsWorld) {
-    const debugRenderBuffer = physicsWorld.debugRender()
-    _lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
-    _lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
-
-    for (const { raycastQuery, hits } of (physicsWorld as any).raycastDebugs as RaycastDebugs[]) {
-      // const line = new Line(
-      //   new BufferGeometry().setFromPoints([
-      //     new Vector3(0, 0, 0),
-      //     raycastQuery.direction.clone().multiplyScalar(raycastQuery.maxDistance)
-      //   ]),
-      //   new LineBasicMaterial({ color: 0x0000ff })
-      // )
-      // line.position.copy(raycastQuery.origin)
-      // Engine.instance.scene.add(line)
-      // debugLines.add(line)
-      // line.userData.originTime = Date.now()
+  if (physicsDebugEntity) {
+    const lineSegments = getComponent(physicsDebugEntity, GroupComponent)[0] as any as LineSegments
+    const physicsWorld = getState(PhysicsState).physicsWorld
+    if (physicsWorld) {
+      const debugRenderBuffer = physicsWorld.debugRender()
+      lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
+      lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
     }
-  } else {
-    for (const line of debugLines) {
-      Engine.instance.scene.remove(line)
-      line.material.dispose()
-      line.geometry.dispose()
-    }
-    debugLines.clear()
   }
 
   for (const visualizer of visualizers) {
     visualizer.updateMatrixWorld(true)
   }
-
-  for (const line of debugLines) {
-    line.updateMatrixWorld()
-    if (Date.now() - line.userData.originTime > debugLineLifetime) {
-      Engine.instance.scene.remove(line)
-      line.material.dispose()
-      line.geometry.dispose()
-      debugLines.delete(line)
-    }
-  }
-
-  if (physicsWorld) (physicsWorld as any).raycastDebugs = []
 }
 
 const reactor = () => {
   const engineRendererSettings = useHookstate(getMutableState(RendererState))
 
   useEffect(() => {
-    InfiniteGridHelper.instance = new InfiniteGridHelper()
-    Engine.instance.scene.add(InfiniteGridHelper.instance)
+    if (!engineRendererSettings.physicsDebug.value) return
 
-    setObjectLayers(_lineSegments, ObjectLayers.PhysicsHelper)
-    Engine.instance.scene.add(_lineSegments)
+    const lineMaterial = new LineBasicMaterial({ vertexColors: true })
+    const lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
+    lineSegments.frustumCulled = false
+    setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
+
+    const lineSegmentsEntity = createEntity()
+    setVisibleComponent(lineSegmentsEntity, true)
+    addObjectToGroup(lineSegmentsEntity, lineSegments)
+    engineRendererSettings.physicsDebugEntity.set(lineSegmentsEntity)
 
     return () => {
-      _lineSegments.removeFromParent()
-      Engine.instance.scene.remove(InfiniteGridHelper.instance)
-      InfiniteGridHelper.instance = null!
+      removeEntity(lineSegmentsEntity)
+      engineRendererSettings.physicsDebugEntity.set(null)
     }
-  }, [])
+  }, [engineRendererSettings.physicsDebug])
 
   useEffect(() => {
-    InfiniteGridHelper.instance.setGridHeight(engineRendererSettings.gridHeight.value)
-  }, [engineRendererSettings.gridHeight])
+    if (!engineRendererSettings.gridVisibility.value) return
+
+    const infiniteGridHelperEntity = createInfiniteGridHelper()
+    getMutableState(RendererState).infiniteGridHelperEntity.set(infiniteGridHelperEntity)
+    return () => {
+      removeEntity(infiniteGridHelperEntity)
+      getMutableState(RendererState).infiniteGridHelperEntity.set(null)
+    }
+  }, [engineRendererSettings.gridVisibility])
 
   return <GroupQueryReactor GroupChildReactor={DebugGroupChildReactor} />
 }
 
 export const DebugRendererSystem = defineSystem({
   uuid: 'ee.engine.DebugRendererSystem',
+  insert: { before: WebGLRendererSystem },
   execute,
   reactor
 })

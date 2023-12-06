@@ -38,7 +38,7 @@ import {
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -118,10 +118,9 @@ export const GroundPlaneComponent = defineComponent({
       const physicsWorld = getState(PhysicsState).physicsWorld
       Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
 
-      if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
+      removeComponent(entity, SceneAssetPendingTagComponent)
 
       return () => {
-        if (!entityExists(entity)) return
         Physics.removeRigidBody(entity, physicsWorld)
         removeObjectFromGroup(entity, mesh)
       }

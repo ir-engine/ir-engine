@@ -28,110 +28,112 @@ import { Knex } from 'knex'
 import { scopeTypePath, ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
+import { ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { getDateTimeSql } from '../../util/datetime-sql'
 
 export const scopeTypeSeed = [
   {
-    type: 'admin:admin'
+    type: 'admin:admin' as ScopeType
   },
   {
-    type: 'routes:read'
+    type: 'routes:read' as ScopeType
   },
   {
-    type: 'routes:write'
+    type: 'routes:write' as ScopeType
   },
   {
-    type: 'location:read'
+    type: 'location:read' as ScopeType
   },
   {
-    type: 'location:write'
+    type: 'location:write' as ScopeType
   },
   {
-    type: 'static_resource:read'
+    type: 'static_resource:read' as ScopeType
   },
   {
-    type: 'static_resource:write'
+    type: 'static_resource:write' as ScopeType
   },
   {
-    type: 'editor:write'
+    type: 'editor:write' as ScopeType
   },
   {
-    type: 'bot:read'
+    type: 'bot:read' as ScopeType
   },
   {
-    type: 'bot:write'
+    type: 'bot:write' as ScopeType
   },
   {
-    type: 'globalAvatars:read'
+    type: 'globalAvatars:read' as ScopeType
   },
   {
-    type: 'globalAvatars:write'
+    type: 'globalAvatars:write' as ScopeType
   },
   {
-    type: 'benchmarking:read'
+    type: 'benchmarking:read' as ScopeType
   },
   {
-    type: 'benchmarking:write'
+    type: 'benchmarking:write' as ScopeType
   },
   {
-    type: 'instance:read'
+    type: 'instance:read' as ScopeType
   },
   {
-    type: 'instance:write'
+    type: 'instance:write' as ScopeType
   },
   {
-    type: 'invite:read'
+    type: 'invite:read' as ScopeType
   },
   {
-    type: 'invite:write'
+    type: 'invite:write' as ScopeType
   },
   {
-    type: 'channel:read'
+    type: 'channel:read' as ScopeType
   },
   {
-    type: 'channel:write'
+    type: 'channel:write' as ScopeType
   },
   {
-    type: 'user:read'
+    type: 'user:read' as ScopeType
   },
   {
-    type: 'user:write'
+    type: 'user:write' as ScopeType
   },
   {
-    type: 'scene:read'
+    type: 'scene:read' as ScopeType
   },
   {
-    type: 'scene:write'
+    type: 'scene:write' as ScopeType
   },
   {
-    type: 'projects:read'
+    type: 'projects:read' as ScopeType
   },
   {
-    type: 'projects:write'
+    type: 'projects:write' as ScopeType
   },
   {
-    type: 'settings:read'
+    type: 'settings:read' as ScopeType
   },
   {
-    type: 'settings:write'
+    type: 'settings:write' as ScopeType
   },
   {
-    type: 'settings_client:read'
+    type: `${clientSettingPath}:read` as ScopeType
   },
   {
-    type: 'settings_client:write'
+    type: `${clientSettingPath}:write` as ScopeType
   },
   {
-    type: 'server:read'
+    type: 'server:read' as ScopeType
   },
   {
-    type: 'server:write'
+    type: 'server:write' as ScopeType
   },
   {
-    type: 'recording:read'
+    type: 'recording:read' as ScopeType
   },
   {
-    type: 'recording:write'
+    type: 'recording:write' as ScopeType
   }
 ]
 
