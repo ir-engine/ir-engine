@@ -947,6 +947,7 @@
     "title": "Editor",
     "lbl-confirm": "Ok",
     "lbl-cancel": "Cancel",
+    "sure-confirm": "Are you sure?",
     "exportProject": {
       "title": "Export Project",
       "lbl-confirm": "Export Project",
@@ -1006,7 +1007,10 @@
       "msg": "You can file a <1>GitHub Issue</1> or e-mail us for support at <3>{{mail}}</3>",
       "discord": "You can also find us on <1>Discord</1>"
     },
-    "confirmContentDelete": "Do you want to delete",
+    "delete": {
+      "confirm-content": "Do you want to delete {{content}}?",
+      "not-allowed-local-dev": "To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead."
+    },
     "file": "file",
     "folder": "folder"
   },
