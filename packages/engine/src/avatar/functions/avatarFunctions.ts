@@ -67,6 +67,7 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
+import { emoteAnimations, locomotionAnimation } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -81,7 +82,9 @@ import { retargetMixamoAnimation } from './retargetMixamoRig'
 const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
 
-export const locomotionPack = 'locomotion'
+export const getPreloaded = () => {
+  return ['sitting']
+}
 
 export const parseAvatarModelAsset = (model: any) => {
   const scene = model.scene ?? model // FBX files does not have 'scene' property
@@ -182,9 +185,10 @@ export const createIKAnimator = async (entity: Entity) => {
   const manager = getState(AnimationState)
 
   for (let i = 0; i < animations!.length; i++) {
+    if (!animations[i]) continue
     animations[i] = retargetMixamoAnimation(
       animations[i],
-      manager.loadedAnimations[locomotionPack]?.scene!,
+      manager.loadedAnimations[locomotionAnimation]?.scene!,
       rigComponent.vrm
     )
   }
@@ -197,22 +201,35 @@ export const createIKAnimator = async (entity: Entity) => {
 
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
-  if (!manager.loadedAnimations.value[locomotionPack]) {
-    //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
-    const asset = (await AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionPack}.glb`
+  let loadedAnimations = [] as AnimationClip[]
+  if (!manager.loadedAnimations.value[locomotionAnimation]) {
+    //preload locomotion animations
+    const locomotionPackAsset = (await AssetLoader.loadAsync(
+      `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionAnimation}.glb`
     )) as GLTF
-
-    manager.loadedAnimations[locomotionPack].set(asset)
+    manager.loadedAnimations[locomotionAnimation].set(locomotionPackAsset)
+    loadedAnimations = cloneDeep(locomotionPackAsset.animations)
+    console.log(locomotionPackAsset)
+    //preload all emote animation files
+    const emoteKeys = Object.keys(emoteAnimations)
+    for (let i = 0; i < emoteKeys.length; i++) {
+      const emoteAsset = await AssetLoader.loadAsync(
+        `${config.client.fileServer}/projects/default-project/assets/animations/emotes/${emoteKeys[i]}.fbx`
+      )
+      manager.loadedAnimations[emoteKeys[i]].set(emoteAsset)
+      loadedAnimations.push(cloneDeep(emoteAsset.scene.animations[0]))
+    }
   }
 
-  const run = manager.loadedAnimations.value[locomotionPack].animations[4] ?? [new AnimationClip()]
-  const walk = manager.loadedAnimations.value[locomotionPack].animations[6] ?? [new AnimationClip()]
+  const run = manager.loadedAnimations.value[locomotionAnimation].animations[4] ?? [new AnimationClip()]
+  const walk = manager.loadedAnimations.value[locomotionAnimation].animations[6] ?? [new AnimationClip()]
   const movement = getState(AvatarMovementSettingsState)
   if (run) movement.runSpeed = getRootSpeed(run) * 0.01
   if (walk) movement.walkSpeed = getRootSpeed(walk) * 0.01
 
-  return cloneDeep(manager.loadedAnimations[locomotionPack].value?.animations) ?? [new AnimationClip()]
+  console.log(loadedAnimations)
+
+  return loadedAnimations ?? [new AnimationClip()]
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {

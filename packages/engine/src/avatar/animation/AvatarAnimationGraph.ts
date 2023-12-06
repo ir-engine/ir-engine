@@ -38,15 +38,15 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { locomotionPack } from '../functions/avatarFunctions'
 import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
+import { locomotionAnimation } from './Util'
 
 const animationQueue = defineActionQueue(AvatarNetworkAction.setAnimationState.matches)
 
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
   const manager = getState(AnimationState)
-  const clip = AnimationClip.findByName(animations ?? manager.loadedAnimations[locomotionPack]!.animations, name)
+  const clip = AnimationClip.findByName(animations ?? manager.loadedAnimations[locomotionAnimation]!.animations, name)
   return mixer.clipAction(clip)
 }
 
