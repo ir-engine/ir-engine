@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
-import { UserID, userSchema } from '../user/user.schema'
+import { InviteCode, UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 
 export const projectPermissionPath = 'project-permission'
@@ -59,7 +59,12 @@ export interface ProjectPermissionType extends Static<typeof projectPermissionSc
 export const projectPermissionDataProperties = Type.Partial(projectPermissionSchema)
 
 export const projectPermissionDataSchema = Type.Intersect(
-  [projectPermissionDataProperties, Type.Object({ inviteCode: Type.Optional(Type.String()) })],
+  [
+    projectPermissionDataProperties,
+    Type.Object({
+      inviteCode: Type.Optional(TypedString<InviteCode>())
+    })
+  ],
   {
     $id: 'ProjectPermissionData',
     additionalProperties: false

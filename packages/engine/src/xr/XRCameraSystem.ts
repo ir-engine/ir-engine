@@ -36,6 +36,7 @@ import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 
 const cameraLPos = new Vector3()
 const cameraRPos = new Vector3()
@@ -127,7 +128,6 @@ function updateCameraFromXRViewerPose() {
   const pose = xrState.viewerPose
 
   if (pose) {
-    const inverseWorldScale = 1 / XRState.worldScale
     const views = pose.views
     const xrRendererState = getState(XRRendererState)
     const glBaseLayer = xrRendererState.glBaseLayer
@@ -141,7 +141,7 @@ function updateCameraFromXRViewerPose() {
       renderer.setRenderTarget(newRenderTarget)
     }
 
-    cameraTransform.position.copy(pose.transform.position as any).multiplyScalar(inverseWorldScale)
+    cameraTransform.position.copy(pose.transform.position as any)
     cameraTransform.rotation.copy(pose.transform.orientation as any)
     cameraTransform.matrix
       .compose(cameraTransform.position, cameraTransform.rotation, V_111)
@@ -191,7 +191,7 @@ function updateCameraFromXRViewerPose() {
         viewCamera.matrixWorldAutoUpdate = false
       }
 
-      viewCamera.position.copy(view.transform.position as any).multiplyScalar(inverseWorldScale)
+      viewCamera.position.copy(view.transform.position as any)
       viewCamera.quaternion.copy(view.transform.orientation as any)
       viewCamera.matrixWorld
         .compose(viewCamera.position, viewCamera.quaternion, V_111)
@@ -213,7 +213,8 @@ let _currentDepthFar = null as number | null
 const _vec = new Vector2()
 
 export function updateXRCamera() {
-  const renderer = EngineRenderer.instance.renderer
+  const renderer = EngineRenderer.instance?.renderer
+  if (!renderer) return
 
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   const xrState = getState(XRState)
@@ -273,5 +274,6 @@ const execute = () => {
 
 export const XRCameraSystem = defineSystem({
   uuid: 'ee.engine.XRCameraSystem',
+  insert: { with: XRSystem },
   execute
 })

@@ -26,7 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { Hook, HookContext, Paginated } from '@feathersjs/feathers'
 
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
-import { locationPath, LocationType, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
+import {
+  LocationID,
+  locationPath,
+  LocationType,
+  RoomCode
+} from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import {
   InstanceData,
@@ -66,12 +71,17 @@ export default (): Hook => {
       throw new Error(`Location for match type '${gameMode}'(${locationName}) is not found.`)
     }
 
-    const freeInstance = await getFreeInstanceserver({ app, iteration: 0, locationId: location.data[0].id })
+    const freeInstance = await getFreeInstanceserver({
+      app,
+      headers: context.params.headers,
+      iteration: 0,
+      locationId: location.data[0].id as LocationID
+    })
     try {
       const existingInstance = (await app.service(instancePath).find({
         query: {
           ipAddress: `${freeInstance.ipAddress}:${freeInstance.port}`,
-          locationId: location.data[0].id,
+          locationId: location.data[0].id as LocationID,
           ended: false
         }
       })) as Paginated<InstanceType>

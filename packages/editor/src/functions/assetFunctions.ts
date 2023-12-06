@@ -32,11 +32,70 @@ import {
 } from '@etherealengine/client-core/src/util/upload'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { assetLibraryPath } from '@etherealengine/engine/src/schemas/assets/asset-library.schema'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { addMediaNode } from './addMediaNode'
+
+const logger = multiLogger.child({ component: 'editor:assetFunctions' })
+
+/**
+ * @param config
+ * @param config.projectName input and upload the file to the assets directory of the project
+ * @param config.directoryPath input and upload the file to the `directoryPath`
+ */
+export const inputFileWithAddToScene = async ({
+  projectName,
+  directoryPath
+}: {
+  projectName?: string
+  directoryPath?: string
+}): Promise<null> =>
+  new Promise((resolve) => {
+    const el = document.createElement('input')
+    el.type = 'file'
+    el.multiple = true
+    el.accept =
+      '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
+    el.style.display = 'none'
+
+    el.onchange = async () => {
+      let uploadedURLs: string[] = []
+      if (el.files && el.files.length > 0) {
+        const files = Array.from(el.files)
+        if (projectName) {
+          uploadedURLs = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map((url) => url[0])
+        } else if (directoryPath) {
+          uploadedURLs = await Promise.all(
+            files.map(
+              (file) =>
+                uploadToFeathersService(fileBrowserUploadPath, [file], {
+                  fileName: file.name,
+                  path: directoryPath,
+                  contentType: ''
+                }).promise
+            )
+          )
+        }
+
+        await Promise.all(uploadedURLs.filter((url) => /\.zip$/.test(url)).map(extractZip)).then(() =>
+          logger.info('zip files extracted')
+        )
+
+        if (projectName) {
+          uploadedURLs.forEach((url) => addMediaNode(url))
+        }
+
+        resolve(null)
+      }
+    }
+
+    el.click()
+    el.remove()
+  })
 
 export const uploadProjectFiles = (projectName: string, files: File[], isAsset = false, onProgress?) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []

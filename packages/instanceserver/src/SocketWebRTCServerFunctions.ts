@@ -35,14 +35,11 @@ import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/functions/NetworkActionFunctions'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { encode } from 'msgpackr'
 import { InstanceServerState } from './InstanceServerState'
-import { MediasoupServerSystem } from './MediasoupServerSystem'
-import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
 import { startWebRTC } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc:network' })
@@ -110,10 +107,6 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostId
     outgoingDataTransport,
     outgoingDataProducers: {} as Record<DataChannelType, DataProducer>
   }
-
-  startSystem(MediasoupServerSystem, {
-    before: ServerHostNetworkSystem
-  })
 
   const network = createNetwork(id, hostId, topic, transport)
 

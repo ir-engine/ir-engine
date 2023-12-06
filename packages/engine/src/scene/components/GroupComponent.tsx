@@ -43,32 +43,19 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor } from '../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
-  jsonID: 'group',
 
   onInit: (entity: Entity) => {
     return [] as Object3DWithEntity[]
   },
 
   onRemove: (entity, component) => {
-    // console.log(component.value)
     for (const obj of component.value) {
       obj.removeFromParent()
-      // obj.traverse((mesh: Mesh) => {
-      //   console.log('removed mesh', mesh)
-      //   if (Array.isArray(mesh.material)) {
-      //     mesh.material.forEach(disposeMaterial)
-      //   } else if (mesh.material) {
-      //     disposeMaterial(mesh.material)
-      //   }
-      //   mesh.geometry?.dispose()
-      // })
-      // TODO: only dispose geometries/materials when no other entities are using them...
     }
   }
 })
@@ -78,27 +65,39 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.entity = entity
 
   if (!hasComponent(entity, GroupComponent)) setComponent(entity, GroupComponent, [])
-  if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
-  if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
+  if (getComponent(entity, GroupComponent).includes(obj))
+    return console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
+  if (!hasComponent(entity, LocalTransformComponent)) setComponent(entity, LocalTransformComponent)
 
   getMutableComponent(entity, GroupComponent).merge([obj])
 
+  const localTransform = getComponent(entity, LocalTransformComponent)
   const transform = getComponent(entity, TransformComponent)
-  obj.position.copy(transform.position)
-  obj.quaternion.copy(transform.rotation)
-  obj.scale.copy(transform.scale)
+  obj.position.copy(localTransform.position)
+  obj.quaternion.copy(localTransform.rotation)
+  obj.scale.copy(localTransform.scale)
   obj.matrixAutoUpdate = false
   obj.matrixWorldAutoUpdate = false
-  obj.matrix = transform.matrix
+  obj.matrix = localTransform.matrix
   obj.matrixWorld = transform.matrix
   obj.matrixWorldInverse = transform.matrixInverse
+
+  Object.assign(obj, {
+    updateWorldMatrix: () => {}
+  })
+
   if (object !== Engine.instance.scene) Engine.instance.scene.add(object)
 
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies
-  proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
-  proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
-  proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
+  proxifyVector3WithDirty(LocalTransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
+  proxifyQuaternionWithDirty(
+    LocalTransformComponent.rotation,
+    entity,
+    TransformComponent.dirtyTransforms,
+    obj.quaternion
+  )
+  proxifyVector3WithDirty(LocalTransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
 }
 
 export function removeGroupComponent(entity: Entity) {

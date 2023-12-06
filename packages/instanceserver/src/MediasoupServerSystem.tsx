@@ -26,26 +26,22 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import React, { useEffect } from 'react'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import {
   MediasoupDataConsumerActions,
-  MediasoupDataProducerActions,
-  MediasoupDataProducerConsumerStateSystem
+  MediasoupDataProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
   MediaProducerActions,
-  MediasoupMediaConsumerActions,
-  MediasoupMediaProducerConsumerStateSystem
+  MediasoupMediaConsumerActions
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import {
-  MediasoupTransportActions,
-  MediasoupTransportStateSystem
-} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { MediasoupRecordingSystem } from './MediasoupRecordingFunctions'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import {
   createOutgoingDataProducer,
@@ -71,6 +67,9 @@ const requestTransportConnectActionQueue = defineActionQueue(MediasoupTransportA
 const transportCloseActionQueue = defineActionQueue(MediasoupTransportActions.transportClosed.matches)
 
 const execute = () => {
+  // queues will accumulate actions until the scene is loaded, then they will be processed
+  if (!getState(EngineState).sceneLoaded) return
+
   for (const action of requestConsumerActionQueue()) {
     handleRequestConsumer(action)
   }
@@ -141,12 +140,7 @@ export const reactor = () => {
 
 export const MediasoupServerSystem = defineSystem({
   uuid: 'ee.instanceserver.MediasoupServerSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
-  reactor,
-  preSystems: [
-    MediasoupTransportStateSystem,
-    MediasoupMediaProducerConsumerStateSystem,
-    MediasoupDataProducerConsumerStateSystem,
-    MediasoupRecordingSystem
-  ]
+  reactor
 })

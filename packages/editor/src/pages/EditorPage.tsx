@@ -23,66 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
-import { startClientSystems } from '@etherealengine/client-core/src/world/startClientSystems'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import {
-  PresentationSystemGroup,
-  SimulationSystemGroup
-} from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { RenderInfoSystem } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
+import '@etherealengine/engine/src/EngineModule'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import '../EditorModule'
 import EditorContainer from '../components/EditorContainer'
-import { EditorInstanceNetworkingSystem } from '../components/realtime/EditorInstanceNetworkingSystem'
 import { EditorState } from '../services/EditorServices'
-import { EditorCameraSystem } from '../systems/EditorCameraSystem'
-import { EditorControlSystem } from '../systems/EditorControlSystem'
-import { EditorFlyControlSystem } from '../systems/EditorFlyControlSystem'
-import { GizmoSystem } from '../systems/GizmoSystem'
-import { ModelHandlingSystem } from '../systems/ModelHandlingSystem'
-
-import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
-
-// ensure all our systems are imported, #9077
-const EditorSystemsReferenced = [useDefaultLocationSystems]
-
-const editorSystems = () => {
-  startSystems([EditorFlyControlSystem, EditorControlSystem, EditorCameraSystem, GizmoSystem], {
-    before: PresentationSystemGroup
-  })
-  startSystems([ModelHandlingSystem], { with: SimulationSystemGroup })
-
-  startSystems([EditorInstanceNetworkingSystem, ClientNetworkingSystem, RenderInfoSystem], {
-    after: PresentationSystemGroup
-  })
-}
+import { ProjectPage } from './ProjectPage'
 
 export const useStudioEditor = () => {
   const [engineReady, setEngineReady] = useState(false)
 
   useEffect(() => {
-    if (engineReady) return
     getMutableState(EngineState).isEditor.set(true)
     getMutableState(EngineState).isEditing.set(true)
-    const projects = Engine.instance.api.service(projectsPath).find()
-    startClientSystems()
-
-    editorSystems()
-    if (engineReady) return
-    projects.then((proj) => {
-      loadEngineInjection(proj).then(() => {
-        setEngineReady(true)
-        getMutableState(EngineState).isEngineInitialized.set(true)
-      })
+    loadEngineInjection().then(() => {
+      setEngineReady(true)
     })
   }, [])
 
@@ -90,14 +56,34 @@ export const useStudioEditor = () => {
 }
 
 export const EditorPage = () => {
-  const params = useParams()
+  const [params] = useSearchParams()
   const projectState = useHookstate(getMutableState(ProjectState))
-  const editorState = useHookstate(getMutableState(EditorState))
+  const { sceneID, projectName } = useHookstate(getMutableState(EditorState))
 
   useEffect(() => {
-    const { projectName, sceneName } = params
-    getMutableState(EditorState).merge({ projectName: projectName ?? null, sceneName: sceneName ?? null })
+    const sceneInParams = params.get('scenePath')
+    if (sceneInParams) sceneID.set(sceneInParams as SceneID)
+    const projectNameInParams = params.get('project')
+    if (projectNameInParams) projectName.set(projectNameInParams as SceneID)
   }, [params])
 
-  return <>{projectState.projects.value.length && editorState.projectName.value && <EditorContainer />}</>
+  useEffect(() => {
+    if (!sceneID.value) return
+
+    const parsed = new URL(window.location.href)
+    const query = parsed.searchParams
+
+    query.set('scenePath', sceneID.value)
+
+    parsed.search = query.toString()
+    if (typeof history.pushState !== 'undefined') {
+      window.history.replaceState({}, '', parsed.toString())
+    }
+  }, [sceneID])
+
+  if (!projectState.projects.value.length) return <LoadingCircle message={t('common:loader.loadingEditor')} />
+
+  if (!sceneID.value && !projectName.value) return <ProjectPage />
+
+  return <EditorContainer />
 }

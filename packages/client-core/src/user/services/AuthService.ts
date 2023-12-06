@@ -38,6 +38,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { generateTokenPath } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
 import {
   IdentityProviderType,
@@ -47,6 +48,7 @@ import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-to
 import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
 import { magicLinkPath } from '@etherealengine/engine/src/schemas/user/magic-link.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { UserAvatarPatch, userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 import {
   UserSettingID,
   UserSettingPatch,
@@ -55,6 +57,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import {
   UserID,
+  UserName,
   UserPatch,
   UserPublicPatch,
   UserType,
@@ -70,11 +73,11 @@ export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken t
 
 export const UserSeed: UserType = {
   id: '' as UserID,
-  name: '',
+  name: '' as UserName,
   isGuest: true,
-  avatarId: '',
+  avatarId: '' as AvatarID,
   avatar: {
-    id: '',
+    id: '' as AvatarID,
     name: '',
     isPublic: true,
     userId: '' as UserID,
@@ -171,6 +174,11 @@ async function _resetToGuestToken(options = { reset: true }) {
 
 export const AuthService = {
   async doLoginAuto(forceClientAuthReset?: boolean) {
+    // Oauth callbacks may be running when a guest identity-provider has been deleted.
+    // This would normally cause doLoginAuto to make a guest user, which we do not want.
+    // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
+    // The client and auth settigns will not be needed on these routes
+    if (/auth\/oauth/.test(location.pathname)) return
     const authState = getMutableState(AuthState)
     try {
       const accessToken = !forceClientAuthReset && authState?.authUser?.accessToken?.value
@@ -630,7 +638,7 @@ export const AuthService = {
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
-  async updateUsername(userId: UserID, name: string) {
+  async updateUsername(userId: UserID, name: UserName) {
     const { name: updatedName } = (await Engine.instance.api
       .service(userPath)
       .patch(userId, { name: name })) as UserType
@@ -661,6 +669,19 @@ export const AuthService = {
         }
       }
 
+      const userAvatarPatchedListener = async (userAvatar: UserAvatarPatch) => {
+        console.log('USER AVATAR PATCHED %o', userAvatar)
+
+        if (!userAvatar.userId) return
+
+        const selfUser = getMutableState(AuthState).user
+
+        if (selfUser.id.value === userAvatar.userId) {
+          const user = await Engine.instance.api.service(userPath).get(userAvatar.userId)
+          getMutableState(AuthState).user.merge(user)
+        }
+      }
+
       const locationBanCreatedListener = async (params) => {
         const selfUser = getState(AuthState).user
         const currentLocation = getState(LocationState).currentLocation.location
@@ -673,10 +694,12 @@ export const AuthService = {
       }
 
       Engine.instance.api.service(userPath).on('patched', userPatchedListener)
+      Engine.instance.api.service(userAvatarPath).on('patched', userAvatarPatchedListener)
       Engine.instance.api.service(locationBanPath).on('created', locationBanCreatedListener)
 
       return () => {
         Engine.instance.api.service(userPath).off('patched', userPatchedListener)
+        Engine.instance.api.service(userAvatarPath).off('patched', userAvatarPatchedListener)
         Engine.instance.api.service(locationBanPath).off('created', locationBanCreatedListener)
       }
     }, [])

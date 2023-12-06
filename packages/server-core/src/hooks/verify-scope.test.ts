@@ -28,9 +28,10 @@ import assert from 'assert'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserName, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Forbidden } from '@feathersjs/errors'
 import { Application } from '../../declarations'
 import { createFeathersKoaApp } from '../createApp'
@@ -57,14 +58,14 @@ describe('verify-scope', () => {
   })
 
   it('should fail if user does not have scope', async () => {
-    const name = `Test #${Math.random()}`
+    const name = `Test #${Math.random()}` as UserName
     const isGuest = true
 
     let user = await app.service(userPath).create({
       name,
       isGuest,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
@@ -88,19 +89,19 @@ describe('verify-scope', () => {
   })
 
   it('should verify guest has scope', async () => {
-    const name = `Test #${Math.random()}`
+    const name = `Test #${Math.random()}` as UserName
     const isGuest = true
 
     let user = await app.service(userPath).create({
       name,
       isGuest,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
     await app.service(scopePath).create({
-      type: 'location:read',
+      type: 'location:read' as ScopeType,
       userId: user.id
     })
 
@@ -116,19 +117,19 @@ describe('verify-scope', () => {
   })
 
   it('should verify user has scope', async () => {
-    const name = `Test #${Math.random()}`
+    const name = `Test #${Math.random()}` as UserName
     const isGuest = false
 
     let user = await app.service(userPath).create({
       name,
       isGuest,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
     await app.service(scopePath).create({
-      type: 'location:read',
+      type: 'location:read' as ScopeType,
       userId: user.id
     })
 
@@ -152,24 +153,24 @@ describe('verify-scope', () => {
   })
 
   it('should verify admin', async () => {
-    const name = `Test #${Math.random()}`
+    const name = `Test #${Math.random()}` as UserName
     const isGuest = false
 
     let user = await app.service(userPath).create({
       name,
       isGuest,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
     await app.service(scopePath).create({
-      type: 'location:read',
+      type: 'location:read' as ScopeType,
       userId: user.id
     })
 
     await app.service(scopePath).create({
-      type: 'admin:admin',
+      type: 'admin:admin' as ScopeType,
       userId: user.id
     })
 

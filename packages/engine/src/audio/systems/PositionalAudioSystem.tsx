@@ -29,11 +29,13 @@ import { Vector3 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { ComponentType, defineQuery, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MediaSettingsState } from '../../networking/MediaSettingsState'
@@ -67,8 +69,9 @@ const avatarAudioStreams: WeakMap<ComponentType<typeof NetworkObjectComponent>, 
 
 const execute = () => {
   const audioState = getState(AudioState)
-
   const audioContext = audioState.audioContext
+  if (!audioContext) return
+
   const network = NetworkState.mediaNetwork
   const mediaSettings = getState(MediaSettingsState)
   const immersiveMedia = mediaSettings.immersiveMedia
@@ -173,7 +176,7 @@ const execute = () => {
     const panner = AudioNodeGroups.get(audioObj)?.panner!
     if (!panner) continue
 
-    getAvatarBoneWorldPosition(entity, 'Head', _vec3)
+    getAvatarBoneWorldPosition(entity, VRMHumanBoneName.Head, _vec3)
     const { rotation } = getComponent(entity, TransformComponent)
 
     updateAudioPanner(panner, _vec3, rotation, endTime, mediaSettings)
@@ -237,6 +240,7 @@ const reactor = () => {
 
 export const PositionalAudioSystem = defineSystem({
   uuid: 'ee.engine.PositionalAudioSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })

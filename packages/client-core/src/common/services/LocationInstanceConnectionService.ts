@@ -35,16 +35,15 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { API } from '../../API'
+import { LocationID, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 
 export type InstanceState = {
   ipAddress: string
   port: string
-  locationId: string | null
-  sceneId: SceneID | null
+  locationId?: LocationID
+  sceneId?: SceneID
   roomCode: RoomCode
 }
 
@@ -71,7 +70,7 @@ export function useWorldInstance() {
 //Service
 export const LocationInstanceConnectionService = {
   provisionServer: async (
-    locationId?: string,
+    locationId?: LocationID,
     instanceId?: InstanceID,
     sceneId?: SceneID,
     roomCode?: RoomCode,
@@ -80,7 +79,7 @@ export const LocationInstanceConnectionService = {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
     const token = getState(AuthState).authUser.accessToken
     if (instanceId != null) {
-      const instance = (await API.instance.client.service(instancePath).find({
+      const instance = (await Engine.instance.api.service(instancePath).find({
         query: {
           id: instanceId,
           ended: false
@@ -90,7 +89,7 @@ export const LocationInstanceConnectionService = {
         instanceId = null!
       }
     }
-    const provisionResult = await API.instance.client.service(instanceProvisionPath).find({
+    const provisionResult = await Engine.instance.api.service(instanceProvisionPath).find({
       query: {
         locationId,
         instanceId,
@@ -117,10 +116,10 @@ export const LocationInstanceConnectionService = {
       }, 1000)
     }
   },
-  provisionExistingServer: async (locationId: string, instanceId: InstanceID, sceneId: SceneID) => {
+  provisionExistingServer: async (locationId: LocationID, instanceId: InstanceID, sceneId: SceneID) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision Existing World Server')
     const token = getState(AuthState).authUser.accessToken
-    const instance = (await API.instance.client.service(instancePath).find({
+    const instance = (await Engine.instance.api.service(instancePath).find({
       query: {
         id: instanceId,
         ended: false
@@ -136,7 +135,7 @@ export const LocationInstanceConnectionService = {
       }
       return
     }
-    const provisionResult = await API.instance.client.service(instanceProvisionPath).find({
+    const provisionResult = await Engine.instance.api.service(instanceProvisionPath).find({
       query: {
         locationId,
         instanceId,
@@ -158,10 +157,10 @@ export const LocationInstanceConnectionService = {
       console.warn('Failed to connect to expected existing instance')
     }
   },
-  provisionExistingServerByRoomCode: async (locationId: string, roomCode: RoomCode, sceneId: SceneID) => {
+  provisionExistingServerByRoomCode: async (locationId: LocationID, roomCode: RoomCode, sceneId: SceneID) => {
     logger.info({ locationId, roomCode, sceneId }, 'Provision Existing World Server')
     const token = getState(AuthState).authUser.accessToken
-    const instance = (await API.instance.client.service(instancePath).find({
+    const instance = (await Engine.instance.api.service(instancePath).find({
       query: {
         roomCode,
         ended: false
@@ -177,7 +176,7 @@ export const LocationInstanceConnectionService = {
       }
       return
     }
-    const provisionResult = await API.instance.client.service(instanceProvisionPath).find({
+    const provisionResult = await Engine.instance.api.service(instanceProvisionPath).find({
       query: {
         locationId,
         roomCode,

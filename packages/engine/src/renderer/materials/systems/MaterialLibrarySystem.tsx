@@ -28,8 +28,8 @@ import React, { ReactElement, useEffect } from 'react'
 import { NO_PROXY, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../../../ecs/functions/SystemFunctions'
+import { SceneLoadingSystem } from '../../../scene/systems/SceneLoadingSystem'
 import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibrary'
-import { NoiseOffsetSystem } from '../constants/plugins/NoiseOffsetPlugin'
 import {
   protoIdToFactory,
   registerMaterial,
@@ -109,6 +109,6 @@ function reactor(): ReactElement {
 
 export const MaterialLibrarySystem = defineSystem({
   uuid: 'ee.engine.scene.MaterialLibrarySystem',
-  reactor,
-  subSystems: [NoiseOffsetSystem]
+  insert: { with: SceneLoadingSystem },
+  reactor
 })

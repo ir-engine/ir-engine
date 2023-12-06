@@ -36,17 +36,19 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
+import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
-import { addMediaNode } from '../../functions/addMediaNode'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
@@ -95,8 +97,9 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const nodeName = useComponent(node.entity, NameComponent).value
 
-  const errors = node.entity ? useOptionalComponent(node.entity as Entity, ErrorComponent) : undefined
-  const firstError = errors?.keys[0]
+  const errors = node.entity ? useOptionalComponent(node.entity, ErrorComponent) : undefined
+
+  const sceneAssetLoading = useOptionalComponent(node.entity, SceneAssetPendingTagComponent)
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -154,18 +157,18 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     let beforeNode: Entity
 
     if (place === 'Before') {
-      const entityTreeComponent = getComponent(node.entity as Entity, EntityTreeComponent)
+      const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
       parentNode = entityTreeComponent?.parentEntity!
-      beforeNode = node.entity as Entity
+      beforeNode = node.entity
     } else if (place === 'After') {
-      const entityTreeComponent = getComponent(node.entity as Entity, EntityTreeComponent)
+      const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
       parentNode = entityTreeComponent?.parentEntity!
       const parentTreeComponent = getComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
       if (!node.lastChild && parentNode && parentTreeComponent?.children.length > node.childIndex + 1) {
         beforeNode = parentTreeComponent.children[node.childIndex + 1]
       }
     } else {
-      parentNode = node.entity as Entity
+      parentNode = node.entity
     }
 
     if (!parentNode)
@@ -264,13 +267,12 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const editors =
-    typeof node.entity === 'number' && entityExists(node.entity as Entity)
-      ? getAllComponents(node.entity as Entity)
-          .map((c) => EntityNodeEditor.get(c)!)
-          .filter((c) => !!c)
-      : []
-  const IconComponent = editors.length && editors[editors.length - 1].iconComponent
+  const editors = entityExists(node.entity)
+    ? getAllComponents(node.entity)
+        .map((c) => EntityNodeEditor.get(c)!)
+        .filter((c) => !!c)
+    : []
+  const IconComponent = editors.reduce((acc, c) => c.iconComponent || acc, null)
   const renaming = data.renamingNode && data.renamingNode.entity === node.entity
   const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
 
@@ -330,7 +332,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                 </div>
               )}
             </div>
-            {firstError && <NodeIssuesIcon node={[{ severity: 'error', message: firstError }]} />}
+            {errors?.value && <NodeIssuesIcon errors={errors.value} />}
+            {sceneAssetLoading?.value && <CircularProgress className={styles.assetLoadingIndicator} />}
           </div>
         </div>
 

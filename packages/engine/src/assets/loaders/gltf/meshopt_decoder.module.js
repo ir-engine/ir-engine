@@ -1,5 +1,6 @@
 // This file is part of meshoptimizer library and is distributed under the terms of MIT License.
 // Copyright (C) 2016-2022, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
+import Worker from 'web-worker'
 var MeshoptDecoder = (function() {
 	"use strict";
 
@@ -96,47 +97,42 @@ var MeshoptDecoder = (function() {
 
 	function initWorkers(count) {
 		var source =
-			"var instance; var ready = WebAssembly.instantiate(new Uint8Array([" + new Uint8Array(unpack(wasm)) + "]), {})" +
+			"data:text/javascript,var instance; var ready = WebAssembly.instantiate(new Uint8Array([" + new Uint8Array(unpack(wasm)) + "]), {})" +
 			".then(function(result) { instance = result.instance; instance.exports.__wasm_call_ctors(); });" +
 			"self.onmessage = workerProcess;" + 
-			`function decode(fun, target, count, size, source, filter) {
-				var sbrk = instance.exports.sbrk;
-				var count4 = (count + 3) & ~3;
-				var tp = sbrk(count4 * size);
-				var sp = sbrk(source.length);
-				var heap = new Uint8Array(instance.exports.memory.buffer);
-				heap.set(source, sp);
-				var res = fun(tp, count, size, sp, source.length);
-				if (res == 0 && filter) {
-					filter(tp, count4, size);
-				}
-				target.set(heap.subarray(tp, tp + count * size));
-				sbrk(tp - sbrk(0));
-				if (res != 0) {
-					throw new Error("Malformed buffer data: " + res);
-				}
-			}` +
-		`function workerProcess(event) {
-			ready.then(function() {
-				var data = event.data;
-				try {
-					var target = new Uint8Array(data.count * data.size);
-					decode(instance.exports[data.mode], target, data.count, data.size, data.source, instance.exports[data.filter]);
-					self.postMessage({ id: data.id, count: data.count, action: "resolve", value: target }, [ target.buffer ]);
-				} catch (error) {
-					self.postMessage({ id: data.id, count: data.count, action: "reject", value: error });
-				}
-			});
-		}`;
-
-		var blob = new Blob([source], {type: 'text/javascript'});
-		var url = URL.createObjectURL(blob);
+			"function decode(fun, target, count, size, source, filter) {" +
+				"var sbrk = instance.exports.sbrk;" +
+				"var count4 = (count + 3) & ~3;" +
+				"var tp = sbrk(count4 * size);" +
+				"var sp = sbrk(source.length);" +
+				"var heap = new Uint8Array(instance.exports.memory.buffer);" +
+				"heap.set(source, sp);" +
+				"var res = fun(tp, count, size, sp, source.length);" +
+				"if (res == 0 && filter) {" +
+					"filter(tp, count4, size);" +
+				"}" +
+				"target.set(heap.subarray(tp, tp + count * size));" +
+				"sbrk(tp - sbrk(0));" +
+				"if (res != 0) {" +
+					"throw new Error('Malformed buffer data: ' + res);" +
+				"}" +
+			"}" +
+			"function workerProcess(event) {" +
+				"ready.then(function() {" +
+					"var data = event.data;" +
+					"try {" +
+						"var target = new Uint8Array(data.count * data.size);" +
+						"decode(instance.exports[data.mode], target, data.count, data.size, data.source, instance.exports[data.filter]);" +
+						"self.postMessage({ id: data.id, count: data.count, action: 'resolve', value: target }, [ target.buffer ]);" +
+					"} catch (error) {" +
+						"self.postMessage({ id: data.id, count: data.count, action: 'reject', value: error });" +
+					"}" +
+				"});" +
+			"}";
 
 		for (var i = 0; i < count; ++i) {
-			workers[i] = createWorker(url);
+			workers[i] = createWorker(source);
 		}
-
-		URL.revokeObjectURL(url);
 	}
 
 	function decodeWorker(count, size, source, mode, filter) {
