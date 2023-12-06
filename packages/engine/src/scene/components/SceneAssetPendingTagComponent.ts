@@ -31,14 +31,6 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 export const SceneAssetPendingTagComponent = defineComponent({
   name: 'SceneAssetPendingTagComponent',
 
-  onSet(entity, component, json) {
-    console.trace('SceneAssetPendingTagComponent onSet', entity)
-  },
-
-  onRemove(entity, component) {
-    console.trace('SceneAssetPendingTagComponent onRemove', entity)
-  },
-
   loadingProgress: createState(
     {} as Record<
       Entity,
