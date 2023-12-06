@@ -254,7 +254,7 @@ export const updateComponent = <C extends Component>(
 
   const comp = getMutableComponent(entity, Component)
   if (!comp) {
-    throw new Error('[updateComponent]: component does not exist')
+    throw new Error('[updateComponent]: component does not exist ' + Component.name)
   }
 
   startTransition(() => {
