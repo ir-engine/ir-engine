@@ -23,31 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
-import { Entity } from '../../../ecs/classes/Entity'
-import { setComponent } from '../../../ecs/functions/ComponentFunctions'
-import {
-  MaterialPrototypeComponent,
-  MaterialPrototypeComponentType,
-  RENDER_COMPONENT_MATERIAL_PROTOTYPE_DEFAULT_VALUES
-} from '../components/MaterialPrototypeComponent'
+import appConfig from '@etherealengine/server-core/src/appconfig'
+import { HookContext } from '../../declarations'
 
-export const deserializeMaterialPrototype: ComponentDeserializeFunction = (
-  entity: Entity,
-  componentData: MaterialPrototypeComponentType
-) => {
-  const props = parseMaterialPrototypeProperties(componentData)
-  setComponent(entity, MaterialPrototypeComponent, props)
+const { forceRefresh } = appConfig.db
+const { testEnabled } = appConfig
+const prepareDb = process.env.PREPARE_DATABASE === 'true'
+
+export const isRefreshMode = forceRefresh || testEnabled || prepareDb
+
+/**
+ * Hook used to check if server is currently running in refresh mode. i.e. reinit, prepare db or test.
+ * @param context
+ */
+export const checkRefreshMode = () => {
+  return (context: HookContext) => {
+    return isRefreshMode ? true : false
+  }
 }
-
-function parseMaterialPrototypeProperties(data): MaterialPrototypeComponentType {
-  return { ...RENDER_COMPONENT_MATERIAL_PROTOTYPE_DEFAULT_VALUES, ...data }
-}
-
-export const updateMaterialPrototype: ComponentUpdateFunction = (entity: Entity) => {}
-
-export const serializeMaterialPrototype: ComponentSerializeFunction = (entity: Entity) => {}
