@@ -2,7 +2,7 @@
     "entryPoints": ["./src"],
     "entryPointStrategy": "expand",
     "tsconfig": "./tsconfig.json",
-    "exclude": ["**/**.js", "**/{node_modules,dist,tests}/**", "./scripts/**"],
+    "exclude": ["**/**.js", "**/{node_modules,dist,tests}/**"],
     "excludePrivate": true,
     "excludeProtected": true,
     "excludeInternal": true,
