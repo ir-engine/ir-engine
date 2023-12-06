@@ -23,19 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { defineComponent } from '../ecs/functions/ComponentFunctions'
+import { MotionCapturePoseState, MotionCapturePoses } from './poseToInput'
 
-import { EditorNavbar } from '../components/projects/EditorNavbar'
-import Projects from '../components/projects/ProjectsPage'
-
-import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
-
-export const ProjectPage = () => {
-  useRemoveEngineCanvas()
-  return (
-    <>
-      <EditorNavbar />
-      <Projects />
-    </>
-  )
-}
+export const MotionCapturePoseComponent = defineComponent({
+  name: 'MotionCapturePoseComponent',
+  onInit: () => {
+    return {} as Record<MotionCapturePoses, MotionCapturePoseState>
+  }
+})

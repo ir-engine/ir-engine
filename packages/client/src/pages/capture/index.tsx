@@ -29,9 +29,14 @@ import { Route, Routes } from 'react-router-dom'
 
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
+import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import Capture from './capture'
 
 const LocationRoutes = () => {
+  const projectsLoaded = useEngineInjection()
+
+  if (!projectsLoaded) return <LoadingCircle message={t('common:loader.loadingProjects')} />
+
   return (
     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
       <Routes>

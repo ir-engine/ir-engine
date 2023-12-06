@@ -23,19 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { Engine } from '../ecs/classes/Engine'
+import { hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../ecs/functions/EngineFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
+import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
+import { evaluatePose } from './poseToInput'
 
-import { EditorNavbar } from '../components/projects/EditorNavbar'
-import Projects from '../components/projects/ProjectsPage'
-
-import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
-
-export const ProjectPage = () => {
-  useRemoveEngineCanvas()
-  return (
-    <>
-      <EditorNavbar />
-      <Projects />
-    </>
-  )
+export const execute = () => {
+  const entity = Engine.instance.localClientEntity
+  if (!hasComponent(entity, MotionCaptureRigComponent)) return
+  if (!hasComponent(entity, MotionCapturePoseComponent)) setComponent(entity, MotionCapturePoseComponent)
+  evaluatePose(Engine.instance.localClientEntity)
 }
+
+export const MotionCaptureInputSystem = defineSystem({
+  uuid: 'ee.engine.MotionCaptureInputSystem',
+  insert: { before: InputSystemGroup },
+  execute
+})

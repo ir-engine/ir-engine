@@ -46,7 +46,7 @@ import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctio
 import { matches, matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineQuery,
@@ -58,6 +58,7 @@ import {
 import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { NetworkState } from '../../networking/NetworkState'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -71,7 +72,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
 import { createInteractUI } from '../functions/interactUI'
-import { InteractableTransitions, addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
+import { InteractState, InteractableTransitions, addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
 
 export class GrabbableNetworkAction {
   static setGrabbedObject = defineAction({
@@ -315,7 +316,6 @@ export const dropEntity = (grabberEntity: Entity): void => {
  */
 export const grabbableInteractMessage = 'Grab'
 
-const interactedActionQueue = defineActionQueue(EngineActions.interactedWithObject.matches)
 const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
 
 const grabberQuery = defineQuery([GrabberComponent])
@@ -347,13 +347,8 @@ const execute = () => {
     const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
     if (inputSource.buttons.KeyU?.down) onDrop()
     /** @todo currently mouse has to be over the grabbable for it to be grabbed */
-    // if (inputSource.buttons.KeyE?.down) onGrab(inputSource.assignedButtonEntity)
-  }
-
-  for (const action of interactedActionQueue()) {
-    if (action.targetEntity && hasComponent(action.targetEntity, GrabbableComponent)) {
-      onGrab(action.targetEntity, action.handedness === 'none' ? 'right' : action.handedness)
-    }
+    if (inputSource.buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
+      onGrab(getState(InteractState).available[0], inputSource.source.handedness)
   }
 
   for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)

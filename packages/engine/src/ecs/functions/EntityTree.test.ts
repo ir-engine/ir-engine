@@ -66,7 +66,6 @@ describe('EntityTreeComponent', () => {
     const node = getComponent(entity, EntityTreeComponent)
     assert.equal(node.children.length, 0)
     assert.equal(node.parentEntity, null)
-    assert.equal(node.rootEntity, null)
   })
 
   it('should set given values', () => {
@@ -80,7 +79,6 @@ describe('EntityTreeComponent', () => {
 
     assert.equal(node.children.length, 0)
     assert.equal(node.parentEntity, sceneEntity)
-    assert.equal(node.rootEntity, sceneEntity)
 
     assert.equal(getComponent(entity, UUIDComponent), testUUID)
     assert.equal(UUIDComponent.entitiesByUUID[testUUID], entity)
@@ -130,7 +128,6 @@ describe('EntityTreeComponent', () => {
     assert.equal(sceneNode.children[4], UUIDComponent.entitiesByUUID['child-3'])
     assert.equal(sceneNode.children[5], UUIDComponent.entitiesByUUID['child-4'])
     assert.equal(sceneNode.parentEntity, null)
-    assert.equal(sceneNode.rootEntity, sceneEntity)
   })
 
   it('should remove entity from maps', () => {
@@ -173,7 +170,6 @@ describe('EntityTreeFunctions', () => {
       assert(hasComponent(sceneEntity, TransformComponent))
       assert(hasComponent(sceneEntity, EntityTreeComponent))
       assert.equal(getComponent(sceneEntity, EntityTreeComponent).parentEntity, null)
-      assert.equal(getComponent(sceneEntity, EntityTreeComponent).rootEntity, sceneEntity)
     })
   })
 

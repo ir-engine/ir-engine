@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -66,7 +65,9 @@ import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAcces
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { useNavigate } from 'react-router-dom'
 import { getProjects } from '../../functions/projectFunctions'
+import { EditorState } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
@@ -183,6 +184,7 @@ const ProjectsPage = () => {
   const projectDrawerOpen = useHookstate(false)
   const changeDestination = useHookstate(false)
 
+  const navigate = useNavigate()
   const hasWriteAccess =
     activeProject.value?.hasWriteAccess || (userHasAccess('admin:admin') && userHasAccess('projects:write'))
 
@@ -275,7 +277,15 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
-    RouterState.navigate(`/studio/${project.name}`)
+    navigate(`/studio?project=${project.name}`)
+    getMutableState(EditorState).projectName.set(project.name)
+    const parsed = new URL(window.location.href)
+    const query = parsed.searchParams
+    query.set('project', project.name)
+    parsed.search = query.toString()
+    if (typeof history.pushState !== 'undefined') {
+      window.history.replaceState({}, '', parsed.toString())
+    }
   }
 
   const onCreateProject = async (name) => {

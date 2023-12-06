@@ -77,14 +77,13 @@ export const TransformGizmoComponent = defineComponent({
     const entity = useEntityContext()
     const gizmoComponent = useComponent(entity, TransformGizmoComponent)
     const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-
-    const transformComponent = useComponent(entity, TransformComponent)
     const selectionState = useHookstate(getMutableState(SelectionState))
     const gizmoDummy = new Object3D()
     gizmoDummy.name = 'gizmoProxy'
     const gizmoEntity = createEntity()
 
     const box = new Box3()
+    const transformComponent = useComponent(entity, LocalTransformComponent)
 
     useEffect(() => {
       // create dummy object to attach gizmo to, we can only attach to three js objects

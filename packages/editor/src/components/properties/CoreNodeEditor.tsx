@@ -64,7 +64,6 @@ const visibleInputGroupStyle = {
 export const CoreNodeEditor = (props) => {
   const { t } = useTranslation()
   const editorState = useHookstate(getMutableState(EditorState))
-  const selectionState = useHookstate(getMutableState(SelectionState))
 
   useOptionalComponent(props.entity, VisibleComponent)
 
@@ -84,7 +83,9 @@ export const CoreNodeEditor = (props) => {
       >
         <button
           onClick={() => {
-            const currentEntity = selectionState.selectedEntities.value[0]
+            const entities = getMutableState(SelectionState).selectedEntities.value
+            const currentEntity = entities[0]
+
             const currentState = editorState.lockPropertiesPanel.value
             if (currentState) {
               getMutableState(EditorState).lockPropertiesPanel.set('' as EntityUUID)
