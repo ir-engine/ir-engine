@@ -147,27 +147,6 @@ export const defineComponent = <
   return Component as typeof Component & { _TYPE: ComponentType }
 }
 
-/**
- * @deprecated use `defineComponent`
- */
-export const createMappedComponent = <
-  ComponentType = object | unknown,
-  Schema extends bitECS.ISchema = Record<string, any>
->(
-  name: string,
-  schema?: Schema
-) => {
-  const Component = defineComponent<ComponentType, Schema, ComponentType, unknown>({
-    name,
-    schema,
-    onSet: (entity, component, json: any) => {
-      Component.stateMap[entity]!.set(json ?? true)
-    },
-    toJSON: (entity, component) => component.value as any
-  })
-  return Component
-}
-
 export const getOptionalMutableComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
@@ -176,11 +155,6 @@ export const getOptionalMutableComponent = <ComponentType>(
   if (component.existenceMap[entity]) return component.stateMap[entity]
   return undefined
 }
-
-/**
- * @deprecated use `getOptionalMutableComponent`
- */
-export const getOptionalComponentState = getOptionalMutableComponent
 
 export const getMutableComponent = <ComponentType>(
   entity: Entity,
@@ -191,11 +165,6 @@ export const getMutableComponent = <ComponentType>(
   // if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
   return componentState
 }
-
-/**
- * @deprecated use `getMutableComponent`
- */
-export const getComponentState = getMutableComponent
 
 export const getOptionalComponent = <ComponentType>(
   entity: Entity,
