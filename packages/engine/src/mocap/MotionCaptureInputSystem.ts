@@ -23,40 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { Engine } from '../ecs/classes/Engine'
+import { hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../ecs/functions/EngineFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
+import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
+import { evaluatePose } from './poseToInput'
 
-export interface AvatarColumn {
-  id: 'select' | 'id' | 'name' | 'user' | 'isPublic' | 'thumbnail' | 'action'
-  label: string | React.ReactElement
-  minWidth?: number
-  align?: 'right'
+export const execute = () => {
+  const entity = Engine.instance.localClientEntity
+  if (!hasComponent(entity, MotionCaptureRigComponent)) return
+  if (!hasComponent(entity, MotionCapturePoseComponent)) setComponent(entity, MotionCapturePoseComponent)
+  evaluatePose(Engine.instance.localClientEntity)
 }
 
-export const avatarColumns: AvatarColumn[] = [
-  { id: 'id', label: 'Id', minWidth: 65 },
-  { id: 'name', label: 'Name', minWidth: 65 },
-  { id: 'user', label: 'Owner', minWidth: 65 },
-  { id: 'isPublic', label: 'Public', minWidth: 65 },
-  {
-    id: 'thumbnail',
-    label: 'Thumbnail',
-    minWidth: 65,
-    align: 'right'
-  },
-  {
-    id: 'action',
-    label: 'Action',
-    minWidth: 65,
-    align: 'right'
-  }
-]
-
-export interface AvatarData {
-  el: AvatarType
-  select: JSX.Element
-  id: string
-  name: string | undefined
-  owner: string | undefined
-  action: JSX.Element
-  thumbnail: JSX.Element
-}
+export const MotionCaptureInputSystem = defineSystem({
+  uuid: 'ee.engine.MotionCaptureInputSystem',
+  insert: { before: InputSystemGroup },
+  execute
+})
