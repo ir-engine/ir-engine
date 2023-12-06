@@ -139,13 +139,6 @@ export const SceneState = defineState({
     }
   },
 
-  unloadActiveScene: () => {
-    const activeScene = getState(SceneState).activeScene
-    if (activeScene) {
-      SceneState.unloadScene(activeScene)
-    }
-  },
-
   getRootEntity: (sceneID?: SceneID) => {
     if (!getState(SceneState).scenes[sceneID ?? getState(SceneState).activeScene!]) return UndefinedEntity
     const scene = getState(SceneState).scenes[sceneID ?? getState(SceneState).activeScene!]
