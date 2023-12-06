@@ -157,8 +157,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       }
     }
 
-    console.log('debug1 the url was', url)
-
     avatarSrc.set(url)
   }
 
