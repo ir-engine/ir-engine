@@ -86,14 +86,17 @@ export const getPreloaded = () => {
   return ['sitting']
 }
 
-export const parseAvatarModelAsset = (model: any) => {
-  const scene = model.scene ?? model // FBX files does not have 'scene' property
-  if (!scene) return
+/** Checks if the asset is a VRM. If not, attempt to use
+ *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
+export const autoconvertMixamoAvatar = (model: any) => {
+  const scene = model.scene ?? model // FBX assets do not have 'scene' property
+  if (!scene) return null
+
   const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as any
 
   if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
 
-  return vrm as VRM
+  return vrm
 }
 
 export const isAvaturn = (url: string) => {
@@ -103,20 +106,14 @@ export const isAvaturn = (url: string) => {
   else return false
 }
 
-export const loadAvatarModelAsset = async (avatarURL: string) => {
-  // if (!sourceRig) {
-  //   const sourceVRM = await AssetLoader.loadAsync(
-  //     `${config.client.fileServer}/projects/default-project/assets/animations/mocap_skeleton.vrm`
-  //   )
-  //   sourceRig = parseAvatarModelAsset(sourceVRM)!.humanoid.normalizedHumanBones
-  // }
-
-  //check if the url to the file has a file extension, if not, assume it's a glb
+export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {
+  //check if the url to the file is an avaturn url to infer the file type
 
   const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
 
-  const model = await AssetLoader.loadAsync(avatarURL, undefined, undefined, override)
-  return parseAvatarModelAsset(model)
+  AssetLoader.loadAsync(avatarURL, undefined, undefined, override).then((loadedAsset) => {
+    setComponent(entity, AvatarRigComponent, { vrm: loadedAsset })
+  })
 }
 
 export const loadAvatarForUser = async (
@@ -231,6 +228,8 @@ export const getAnimations = async () => {
 
   return loadedAnimations ?? [new AnimationClip()]
 }
+
+export const loadAnimationsFromObjectKeys = async (animationNames) => {}
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
