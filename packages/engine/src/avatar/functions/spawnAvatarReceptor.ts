@@ -34,8 +34,7 @@ import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
-import { addComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
@@ -71,17 +70,16 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   if (!entity) return
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
-  const primary = ownerID === (entityUUID as string as UserID)
+  const isOwner = ownerID === (entityUUID as string as UserID)
 
-  if (primary) {
+  if (isOwner) {
     const existingAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(entityUUID as string as UserID)
 
     // already spawned into the world on another device or tab
     if (existingAvatarEntity) return
   }
 
-  addComponent(entity, AvatarComponent, {
-    primary,
+  setComponent(entity, AvatarComponent, {
     avatarHalfHeight: defaultAvatarHalfHeight,
     avatarHeight: defaultAvatarHeight,
     model: null
@@ -90,9 +88,9 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const userNames = getState(WorldState).userNames
   const userName = userNames[entityUUID]
   const shortId = ownerID.substring(0, 7)
-  addComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))
+  setComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))
 
-  addComponent(entity, VisibleComponent, true)
+  setComponent(entity, VisibleComponent, true)
 
   setComponent(entity, BoundingBoxDynamicTag)
   setComponent(entity, BoundingBoxComponent)
@@ -102,10 +100,10 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, EnvmapComponent, {
     type: EnvMapSourceType.Bake,
     envMapIntensity: 0.5,
-    envMapSourceEntityUUID: getComponent(getState(SceneState).sceneEntity, UUIDComponent)
+    envMapSourceEntityUUID: getComponent(SceneState.getRootEntity(), UUIDComponent)
   })
 
-  addComponent(entity, AnimationComponent, {
+  setComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(new Object3D()),
     animations: [] as AnimationClip[]
   })
@@ -117,7 +115,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
-    addComponent(entity, LocalInputTagComponent, true)
   } else {
     createAvatarRigidBody(entity)
     createAvatarCollider(entity)
@@ -180,5 +177,5 @@ export const createAvatarController = (entity: Entity) => {
     controller: Physics.createCharacterController(getState(PhysicsState).physicsWorld, {})
   })
 
-  addComponent(entity, CollisionComponent)
+  setComponent(entity, CollisionComponent)
 }

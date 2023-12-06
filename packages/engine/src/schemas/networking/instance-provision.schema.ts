@@ -42,11 +42,11 @@ export const instanceProvisionSchema = Type.Object(
     }),
     ipAddress: Type.String(),
     port: Type.String(),
-    roomCode: TypedString<RoomCode>({ format: 'uuid' }),
+    roomCode: TypedString<RoomCode>(),
     podName: Type.Optional(Type.String())
   },
   { $id: 'InstanceProvision', additionalProperties: false }
 )
-export type InstanceProvisionType = Static<typeof instanceProvisionSchema>
+export interface InstanceProvisionType extends Static<typeof instanceProvisionSchema> {}
 
 export const instanceProvisionValidator = getValidator(instanceProvisionSchema, dataValidator)

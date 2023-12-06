@@ -31,7 +31,6 @@ import {
   hasComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -65,14 +64,11 @@ const visibleInputGroupStyle = {
 export const CoreNodeEditor = (props) => {
   const { t } = useTranslation()
   const editorState = useHookstate(getMutableState(EditorState))
-  const selectionState = useHookstate(getMutableState(SelectionState))
 
   useOptionalComponent(props.entity, VisibleComponent)
 
   const onChangeVisible = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
-      (n) => typeof n !== 'string'
-    ) as EntityOrObjectUUID[]
+    const nodes = getMutableState(SelectionState).selectedEntities.value
     EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
   }
 
@@ -87,7 +83,9 @@ export const CoreNodeEditor = (props) => {
       >
         <button
           onClick={() => {
-            const currentEntity = selectionState.selectedEntities.value[0]
+            const entities = getMutableState(SelectionState).selectedEntities.value
+            const currentEntity = entities[0]
+
             const currentState = editorState.lockPropertiesPanel.value
             if (currentState) {
               getMutableState(EditorState).lockPropertiesPanel.set('' as EntityUUID)

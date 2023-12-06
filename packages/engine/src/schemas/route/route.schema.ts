@@ -24,18 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
 
 export const routePath = 'route'
 
 export const routeMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export type RouteID = OpaqueType<'RouteID'> & string
 
 // Main data model schema
 export const routeSchema = Type.Object(
   {
-    id: Type.String({
+    id: TypedString<RouteID>({
       format: 'uuid'
     }),
     route: Type.String(),
@@ -45,19 +48,19 @@ export const routeSchema = Type.Object(
   },
   { $id: 'Route', additionalProperties: false }
 )
-export type RouteType = Static<typeof routeSchema>
+export interface RouteType extends Static<typeof routeSchema> {}
 
 // Schema for creating new entries
 export const routeDataSchema = Type.Pick(routeSchema, ['route', 'project'], {
   $id: 'RouteData'
 })
-export type RouteData = Static<typeof routeDataSchema>
+export interface RouteData extends Static<typeof routeDataSchema> {}
 
 // Schema for updating existing entries
 export const routePatchSchema = Type.Partial(routeSchema, {
   $id: 'RoutePatch'
 })
-export type RoutePatch = Static<typeof routePatchSchema>
+export interface RoutePatch extends Static<typeof routePatchSchema> {}
 
 // Schema for allowed query properties
 export const routeQueryProperties = Type.Pick(routeSchema, ['id', 'route', 'project'])
@@ -69,7 +72,7 @@ export const routeQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type RouteQuery = Static<typeof routeQuerySchema>
+export interface RouteQuery extends Static<typeof routeQuerySchema> {}
 
 export const routeValidator = getValidator(routeSchema, dataValidator)
 export const routeDataValidator = getValidator(routeDataSchema, dataValidator)

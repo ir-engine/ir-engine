@@ -24,22 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Object3D } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   ComponentJSONIDMap,
   getAllComponents,
   hasComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { MaterialComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialComponent'
-import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -48,41 +44,18 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import MaterialEditor from '../materials/MaterialEditor'
+import { MaterialSelectionState } from '../materials/MaterialLibraryState'
 import { CoreNodeEditor } from './CoreNodeEditor'
-import Object3DNodeEditor from './Object3DNodeEditor'
-
-/**
- * PropertiesPanelContent used as container element contains content of editor view.
- * @type {Style}
- */
-const propertiesPanelContentStyle: React.CSSProperties = {
-  overflowY: 'auto',
-  height: '100%'
-}
-/**
- * NoNodeSelectedMessage used to show the message when no selected no is there.
- *
- * @type {Style}
- */
-const noNodeSelectedMessageStyle: React.CSSProperties = {
-  height: '100%',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  color: 'var(--textColor)'
-}
 
 const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
   const { entity, component, multiEdit } = props
-  const componentMounted = useOptionalComponent(entity as Entity, component)
+  const componentMounted = useOptionalComponent(entity, component)
   const Editor = EntityNodeEditor.get(component)!
   if (!componentMounted) return null
   // nodeEntity is used as key here to signal to React when the entity has changed,
   // and to prevent state from being recycled between editor instances, which
   // can cause hookstate to throw errors.
-  return (
-    <Editor key={`${entity}-${Editor.name}`} multiEdit={multiEdit} entity={entity as Entity} component={component} />
-  )
+  return <Editor key={`${entity}-${Editor.name}`} multiEdit={multiEdit} entity={entity} component={component} />
 }
 
 const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
@@ -111,7 +84,7 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
 
   if (!uuid) return null
 
-  const components = getAllComponents(entity as Entity).filter((c) => EntityNodeEditor.has(c))
+  const components = getAllComponents(entity).filter((c) => EntityNodeEditor.has(c))
 
   return (
     <div
@@ -121,9 +94,9 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
         border: isDragging ? '2px solid lightgrey' : 'none'
       }}
     >
-      <CoreNodeEditor entity={entity} key={entity} />
+      <CoreNodeEditor entity={entity} key={uuid.value} />
       {components.map((c, i) => (
-        <EntityComponentEditor key={`${entity}-${c.name}`} multiEdit={multiEdit} entity={entity} component={c} />
+        <EntityComponentEditor key={`${uuid.value}-${c.name}`} multiEdit={multiEdit} entity={entity} component={c} />
       ))}
     </div>
   )
@@ -137,58 +110,50 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
 export const PropertiesPanelContainer = () => {
   const selectionState = useHookstate(getMutableState(SelectionState))
   const editorState = useHookstate(getMutableState(EditorState))
-  const selectedEntities = selectionState.selectedEntities.value
+  const [entity, setEntity] = React.useState<Entity | null>(UndefinedEntity)
+  const [multiEdit, setMultiEdit] = React.useState<boolean>(false)
+
   const { t } = useTranslation()
 
-  const materialLibrary = getState(MaterialLibraryState)
-
-  //rendering editor views for customization of element properties
-  let content
-
-  const lockedNode = editorState.lockPropertiesPanel.value
-  const multiEdit = selectedEntities.length > 1
-
-  const nodeEntity = lockedNode
-    ? UUIDComponent.entitiesByUUID[lockedNode] ?? lockedNode
-    : selectedEntities[selectedEntities.length - 1]
-
-  const isMaterial =
-    typeof nodeEntity === 'string' &&
-    (!!materialLibrary.materials[nodeEntity] ||
-      Object.values(materialLibrary.materials)
-        .map(({ material }) => material.uuid)
-        .includes(nodeEntity))
-
-  const isObject3D = typeof nodeEntity === 'string' && !isMaterial
-
-  const node = isMaterial
-    ? materialLibrary.materials[nodeEntity as string] ??
-      Object.values(materialLibrary.materials).find(({ material }) => material.uuid === nodeEntity)
-    : isObject3D
-    ? Engine.instance.scene.getObjectByProperty('uuid', nodeEntity as string)
-    : nodeEntity
-
-  if (!nodeEntity || !node) {
-    content = <div style={noNodeSelectedMessageStyle}>{t('editor:properties.noNodeSelected')}</div>
-  } else if (isObject3D) {
-    content = (
-      <div>
-        {/* @todo these types are incorrect */}
-        <Object3DNodeEditor multiEdit={multiEdit} obj3d={node as Object3D} />
-      </div>
+  useEffect(() => {
+    const selectedEntities = selectionState.selectedEntities.value
+    const lockedNode = editorState.lockPropertiesPanel.value
+    setMultiEdit(selectedEntities.length > 1)
+    setEntity(
+      lockedNode
+        ? UUIDComponent.entitiesByUUID[lockedNode] ?? lockedNode
+        : selectedEntities[selectedEntities.length - 1]
     )
-  } else if (isMaterial) {
-    content = (
-      <div>
-        <MaterialEditor key={`${nodeEntity}-MaterialEditor`} material={(node as MaterialComponentType).material} />
-      </div>
-    )
-  } else {
-    const entity = nodeEntity as Entity
-    content = <EntityEditor entity={entity} key={entity} multiEdit={multiEdit} />
-  }
+  }, [selectionState.selectedEntities])
 
-  return <div style={propertiesPanelContentStyle}>{content}</div>
+  const materialID = useHookstate(getMutableState(MaterialSelectionState)).selectedMaterial.value
+
+  return (
+    <div
+      style={{
+        overflowY: 'auto',
+        height: '100%'
+      }}
+    >
+      {materialID ? (
+        <MaterialEditor materialID={materialID} />
+      ) : entity ? (
+        <EntityEditor entity={entity} key={entity} multiEdit={multiEdit} />
+      ) : (
+        <div
+          style={{
+            height: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            color: 'var(--textColor)'
+          }}
+        >
+          {t('editor:properties.noNodeSelected')}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default PropertiesPanelContainer

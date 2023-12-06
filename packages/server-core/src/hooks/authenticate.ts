@@ -45,7 +45,7 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
 
   // If user param is already stored then we don't need to
   // authenticate. This is typically an internal service call.
-  if (store && store.user) {
+  if (!config.testEnabled && store && store.user) {
     if (!context.params.user) {
       context.params.user = store.user
     }

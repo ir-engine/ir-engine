@@ -47,6 +47,7 @@ import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/class
 import {
   MediaStreamAppData,
   MediaTagType,
+  NetworkConnectionParams,
   NetworkState,
   addNetwork,
   removeNetwork,
@@ -81,7 +82,7 @@ import {
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import {
   Action,
@@ -107,8 +108,9 @@ import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/
 import { encode } from 'msgpackr'
 
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { defineSystem, disableSystem, startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { LocationID, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { MessageID } from '@etherealengine/engine/src/schemas/social/message.schema'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
@@ -137,7 +139,7 @@ export const promisedRequest = (network: SocketWebRTCClientNetwork, type: any, d
     const message = {
       type: type,
       data: data,
-      id: id++
+      id: (id++).toString() as MessageID
     }
     network.transport.primus.write(message)
 
@@ -235,29 +237,21 @@ export const connectToNetwork = async (
   instanceID: InstanceID,
   ipAddress: string,
   port: string,
-  locationId?: string | null,
-  channelId?: ChannelID | null,
-  roomCode?: RoomCode | null
+  locationId?: LocationID,
+  channelId?: ChannelID,
+  roomCode?: RoomCode
 ) => {
   logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, locationId, channelId, roomCode })
 
   const authState = getState(AuthState)
   const token = authState.authUser.accessToken
 
-  const query = {
+  const query: NetworkConnectionParams = {
     instanceID,
     locationId,
     channelId,
     roomCode,
     token
-  } as {
-    instanceID: InstanceID
-    locationId?: string
-    channelId?: ChannelID
-    roomCode?: RoomCode
-    address?: string
-    port?: string
-    token: string
   }
 
   if (locationId) delete query.channelId
@@ -337,7 +331,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
 
   const authState = getState(AuthState)
   const accessToken = authState.authUser.accessToken
-  const inviteCode = getSearchParamFromURL('inviteCode')
+  const inviteCode = getSearchParamFromURL('inviteCode') as InviteCode
   const payload = { accessToken, peerID: Engine.instance.peerID, inviteCode }
 
   const { status, routerRtpCapabilities, cachedActions } = await new Promise<AuthTask>((resolve) => {
@@ -394,9 +388,6 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
     if (spectateUserId) {
       dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
     }
-
-    // todo move to a reactor
-    getMutableState(EngineState).connectedWorld.set(true)
   }
 
   ;(network.transport.mediasoupDevice.loaded
@@ -503,13 +494,14 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
           const errorQueue = defineActionQueue(MediasoupTransportActions.requestTransportConnectError.matches)
 
           const cleanup = () => {
-            disableSystem(systemUUID)
+            destroySystem(systemUUID)
             removeActionQueue(actionQueue)
             removeActionQueue(errorQueue)
           }
 
           const systemUUID = defineSystem({
-            uuid: 'action-receptor-' + requestID,
+            uuid: '[WebRTC] transport connected ' + requestID,
+            insert: { after: PresentationSystemGroup },
             execute: () => {
               for (const action of actionQueue()) {
                 if (action.requestID !== requestID) return
@@ -524,7 +516,6 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
               }
             }
           })
-          startSystem(systemUUID, { after: PresentationSystemGroup })
         })
         callback()
       } catch (e) {
@@ -592,13 +583,14 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
             const errorQueue = defineActionQueue(MediaProducerActions.requestProducerError.matches)
 
             const cleanup = () => {
-              disableSystem(systemUUID)
+              destroySystem(systemUUID)
               removeActionQueue(actionQueue)
               removeActionQueue(errorQueue)
             }
 
             const systemUUID = defineSystem({
-              uuid: 'action-receptor-' + requestID,
+              uuid: '[WebRTC] media producer ' + requestID,
+              insert: { after: PresentationSystemGroup },
               execute: () => {
                 for (const action of actionQueue()) {
                   if (action.requestID !== requestID) return
@@ -613,7 +605,6 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
                 }
               }
             })
-            startSystem(systemUUID, { after: PresentationSystemGroup })
           })
           callback({ id: producerPromise.producerID })
         } catch (e) {
@@ -635,7 +626,6 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
         errback: (error: Error) => void
       ) => {
         const { sctpStreamParameters, label, protocol, appData } = parameters
-        if (label === '__CONNECT__') return callback({ id: '__CONNECT__' })
 
         const requestID = MathUtils.generateUUID()
         dispatchAction(
@@ -659,13 +649,14 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
             const errorQueue = defineActionQueue(MediasoupDataProducerActions.requestProducerError.matches)
 
             const cleanup = () => {
-              disableSystem(systemUUID)
+              destroySystem(systemUUID)
               removeActionQueue(actionQueue)
               removeActionQueue(errorQueue)
             }
 
             const systemUUID = defineSystem({
-              uuid: 'action-receptor-' + requestID,
+              uuid: '[WebRTC] data producer ' + requestID,
+              insert: { after: PresentationSystemGroup },
               execute: () => {
                 for (const action of actionQueue()) {
                   if (action.requestID !== requestID) return
@@ -680,7 +671,6 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
                 }
               }
             })
-            startSystem(systemUUID, { after: PresentationSystemGroup })
           })
           callback({ id: producerPromise.producerID })
         } catch (e) {
@@ -725,49 +715,6 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
       }, 5000)
     }
   })
-
-  /**
-   * Since mediasoup only connects the transport upon a consumer or producer being created,
-   * we need to create a dummy consumer/producer to trigger the transport to connect.
-   */
-  try {
-    if (direction === 'recv') {
-      const consumer = await transport.consumeData({
-        id: '',
-        dataProducerId: '',
-        sctpStreamParameters: {
-          streamId: 1000000,
-          ordered: true,
-          maxPacketLifeTime: 0
-        },
-        label: '__CONNECT__'
-      })
-      consumer.close()
-    } else {
-      const producer = await transport.produceData({
-        label: '__CONNECT__'
-      })
-      producer.close()
-    }
-  } catch (e) {
-    // no-op
-  }
-
-  // /**
-  //  * Since mediasoup only connects the transport upon a consumer or producer being created,
-  //  * we need to manually dive in and call it's internal implementation.
-  //  * - NOTE this does not work for Edge11
-  // */
-  // const handler = (transport as any)._handler
-  // const offer = await handler._pc.createOffer()
-  // const localSdpObject = sdpTransform.parse(offer.sdp)
-  // const _dtlsParameters = sdpCommonUtils.extractDtlsParameters({ sdpObject: localSdpObject })
-  // _dtlsParameters.role = handler._forcedLocalDtlsRole
-  // handler._remoteSdp!.updateDtlsRole(handler._forcedLocalDtlsRole === 'client' ? 'server' : 'client')
-  // await new Promise<void>((resolve, reject) => {
-  //   transport.safeEmit('connect', { dtlsParameters: _dtlsParameters }, resolve, reject)
-  // })
-  // handler._transportReady = true
 
   getMutableState(MediasoupTransportObjectsState)[transportID].set(transport)
 }

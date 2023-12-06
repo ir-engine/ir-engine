@@ -64,15 +64,14 @@ export const HemisphereLightComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    removeObjectFromGroup(entity, component.light.value)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const light = useComponent(entity, HemisphereLightComponent)
     useEffect(() => {
       addObjectToGroup(entity, light.light.value)
+      return () => {
+        removeObjectFromGroup(entity, light.light.value)
+      }
     }, [])
     useEffect(() => {
       light.light.value.groundColor.set(light.groundColor.value)

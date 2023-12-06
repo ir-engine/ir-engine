@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineAction, defineState } from '@etherealengine/hyperflux'
 
-import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
+import { matches } from '../../common/functions/MatchesUtils'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
@@ -43,22 +43,15 @@ export const EngineState = defineState({
 
     physicsSubsteps: 1,
 
-    /** @deprecated */
-    isEngineInitialized: false,
     sceneLoading: false,
     sceneLoaded: false,
     loadingProgress: 0,
-    connectedWorld: false,
-    isTeleporting: false,
     spectating: false,
     avatarLoadingEffect: true,
     /**
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
      */
-    shareLink: '',
-    shareTitle: '',
     publicPath: '',
-    transformsNeedSorting: true,
     isBot: false,
     /** @deprecated use isEditing instead */
     isEditor: false,
@@ -70,21 +63,23 @@ export const EngineState = defineState({
 export class EngineActions {
   /** @deprecated */
   static sceneLoaded = defineAction({
-    type: 'xre.engine.Engine.SCENE_LOADED' as const
+    type: 'ee.engine.Engine.SCENE_LOADED' as const
   })
 
   static spectateUser = defineAction({
-    type: 'xre.engine.Engine.SPECTATE_USER' as const,
+    type: 'ee.engine.Engine.SPECTATE_USER' as const,
     user: matches.string.optional()
   })
 
   static exitSpectate = defineAction({
-    type: 'xre.engine.Engine.EXIT_SPECTATE' as const
+    type: 'ee.engine.Engine.EXIT_SPECTATE' as const
   })
 
-  static interactedWithObject = defineAction({
-    type: 'xre.engine.Engine.INTERACTED_WITH_OBJECT' as const,
-    targetEntity: matchesEntity.optional(),
-    handedness: matches.string as Validator<unknown, XRHandedness>
+  static notification = defineAction({
+    type: 'ee.engine.Engine.ERROR' as const,
+    text: matches.string,
+    variant: matches.literals('default', 'error', 'success', 'warning', 'info') // from notistack
+    /** @todo add more action types in NotificationService */
+    // actionType: matches.literal('default')
   })
 }

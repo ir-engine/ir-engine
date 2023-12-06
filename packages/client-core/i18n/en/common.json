@@ -10,15 +10,20 @@
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"
   },
+  "interactables": {
+    "link": "Click to follow"
+  },
   "toast": {
     "joined": "joined",
     "left": "left"
   },
   "loader": {
     "connecting": "Connecting...",
+    "loadingClient": "Loading client...",
     "authenticating": "Authenticating...",
     "starting": "Starting...",
     "loadingLocation": "Loading locations...",
+    "loadingProjects": "Loading projects...",
     "loadingEngine": "Loading engine...",
     "loadingEditor": "Loading editor...",
     "loadingRoutes": "Loading routes...",
@@ -103,6 +108,7 @@
   },
   "ar": {
     "placeScene": "Place Scene",
+    "auto": "Auto",
     "doneTrigger": "Hold Trigger To Confirm",
     "done": "Done"
   },

@@ -29,7 +29,12 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { LocationData, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import {
+  LocationData,
+  LocationID,
+  LocationType,
+  locationPath
+} from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -171,11 +176,11 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
     const data: LocationData = {
       name: state.name.value,
       slugifiedName: '',
-      sceneId: state.scene.value as SceneID,
+      sceneId: `projects/${state.scene.value}.scene.json` as SceneID,
       maxUsersPerInstance: state.maxUsers.value,
       locationSetting: {
         id: '',
-        locationId: '',
+        locationId: '' as LocationID,
         locationType: state.type.value as 'private' | 'public' | 'showroom',
         audioEnabled: state.audioEnabled.value,
         screenSharingEnabled: state.screenSharingEnabled.value,

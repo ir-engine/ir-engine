@@ -37,11 +37,12 @@ import {
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { addEntityNodeChild, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
+import { loadEmptyScene } from '../../../engine/tests/util/loadEmptyScene'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 class TempProp {
@@ -93,14 +94,15 @@ describe.skip('EditorControlFunctions', () => {
 
     beforeEach(() => {
       createEngine()
+      loadEmptyScene()
 
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      const rootNode = getState(SceneState).sceneEntity
+      const rootNode = SceneState.getRootEntity(getState(SceneState).activeScene!)
       nodes = [createEntity(), createEntity()]
 
       for (let i = 0; i < 2; i++) {
-        addEntityNodeChild(nodes[i], rootNode)
+        setComponent(nodes[i], EntityTreeComponent, { parentEntity: rootNode })
         addComponent(nodes[i], TestComponent, getRandomValues())
       }
     })
@@ -129,7 +131,7 @@ describe.skip('EditorControlFunctions', () => {
       createEngine()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      rootNode = getState(SceneState).sceneEntity
+      rootNode = SceneState.getRootEntity(getState(SceneState).activeScene!)
     })
 
     afterEach(() => {
@@ -142,10 +144,10 @@ describe.skip('EditorControlFunctions', () => {
 
     beforeEach(() => {
       createEngine()
+      loadEmptyScene()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      const world = getState(SceneState)
-      rootNode = world.sceneEntity
+      rootNode = SceneState.getRootEntity(getState(SceneState).activeScene!)
     })
 
     afterEach(() => {
@@ -153,24 +155,24 @@ describe.skip('EditorControlFunctions', () => {
     })
 
     it('creates prefab of given type', () => {
-      EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode)
+      EditorControlFunctions.createObjectFromSceneElement([{ name: ShadowComponent.jsonID }], rootNode)
       // assert(hasComponent(entity, EntityTreeComponent))
       // assert.equal(getComponent(entity, EntityTreeComponent).parentEntity, rootNode)
       // assert.equal(getComponent(rootNode, EntityTreeComponent).children.length, 1)
       // assert.equal(getComponent(rootNode, EntityTreeComponent).children[0], entity)
-      // assert(hasComponent(entity, GroupComponent))
+      // assert(hasComponent(entity, ShadowComponent))
     })
 
     it('places created prefab before passed objects', () => {
-      addEntityNodeChild(createEntity(), rootNode)
-      addEntityNodeChild(createEntity(), rootNode)
+      setComponent(createEntity(), EntityTreeComponent, { parentEntity: rootNode })
+      setComponent(createEntity(), EntityTreeComponent, { parentEntity: rootNode })
       const before = createEntity()
-      addEntityNodeChild(before, rootNode)
-      addEntityNodeChild(createEntity(), rootNode)
-      addEntityNodeChild(createEntity(), rootNode)
+      setComponent(before, EntityTreeComponent, { parentEntity: rootNode })
+      setComponent(createEntity(), EntityTreeComponent, { parentEntity: rootNode })
+      setComponent(createEntity(), EntityTreeComponent, { parentEntity: rootNode })
       console.log(rootNode)
 
-      EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode, before)
+      EditorControlFunctions.createObjectFromSceneElement([{ name: ShadowComponent.jsonID }], rootNode, before)
 
       // assert.equal(getComponent(entity, EntityTreeComponent).parentEntity, rootNode)
       // assert.equal(getComponent(rootNode, EntityTreeComponent).children.length, 6)
@@ -178,9 +180,9 @@ describe.skip('EditorControlFunctions', () => {
     })
 
     it('creates unique name for each newly created objects', () => {
-      EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode)
-      EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode)
-      EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode)
+      EditorControlFunctions.createObjectFromSceneElement([{ name: ShadowComponent.jsonID }], rootNode)
+      EditorControlFunctions.createObjectFromSceneElement([{ name: ShadowComponent.jsonID }], rootNode)
+      EditorControlFunctions.createObjectFromSceneElement([{ name: ShadowComponent.jsonID }], rootNode)
 
       // assert.equal(getComponent(entity1, NameComponent), 'New Group')
       // assert.equal(getComponent(entity2, NameComponent), 'New Group 2')
@@ -196,19 +198,20 @@ describe.skip('EditorControlFunctions', () => {
 
     beforeEach(() => {
       createEngine()
+      loadEmptyScene()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      const rootNode = getState(SceneState).sceneEntity
+      const rootNode = SceneState.getRootEntity(getState(SceneState).activeScene!)
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       beforeNodes = [createEntity(), createEntity()]
 
-      addEntityNodeChild(nodes[0], rootNode)
-      addEntityNodeChild(nodes[1], rootNode)
-      addEntityNodeChild(parentNodes[0], rootNode)
-      addEntityNodeChild(parentNodes[1], rootNode)
-      addEntityNodeChild(beforeNodes[0], parentNodes[0])
-      addEntityNodeChild(beforeNodes[1], parentNodes[1])
+      setComponent(nodes[0], EntityTreeComponent, { parentEntity: rootNode })
+      setComponent(nodes[1], EntityTreeComponent, { parentEntity: rootNode })
+      setComponent(parentNodes[0], EntityTreeComponent, { parentEntity: rootNode })
+      setComponent(parentNodes[1], EntityTreeComponent, { parentEntity: rootNode })
+      setComponent(beforeNodes[0], EntityTreeComponent, { parentEntity: parentNodes[0] })
+      setComponent(beforeNodes[1], EntityTreeComponent, { parentEntity: parentNodes[1] })
     })
 
     afterEach(() => {
@@ -219,7 +222,7 @@ describe.skip('EditorControlFunctions', () => {
       EditorControlFunctions.duplicateObject(nodes)
       applyIncomingActions()
 
-      const rootEntity = getState(SceneState).sceneEntity
+      const rootEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
       const rootNode = getComponent(rootEntity, EntityTreeComponent)
       rootNode.children.forEach((entity) => {
         assert(hasComponent(entity, EntityTreeComponent))
@@ -234,21 +237,20 @@ describe.skip('EditorControlFunctions', () => {
 
     beforeEach(() => {
       createEngine()
+      loadEmptyScene()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      const world = getState(SceneState)
-
-      const rootNode = world.sceneEntity
+      const rootNode = SceneState.getRootEntity(getState(SceneState).activeScene!)
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       beforeNodes = [createEntity(), createEntity()]
 
-      addEntityNodeChild(parentNodes[0], rootNode)
-      addEntityNodeChild(parentNodes[1], rootNode)
-      addEntityNodeChild(nodes[0], parentNodes[0])
-      addEntityNodeChild(nodes[1], parentNodes[1])
-      addEntityNodeChild(beforeNodes[0], parentNodes[0])
-      addEntityNodeChild(beforeNodes[1], parentNodes[1])
+      setComponent(parentNodes[0], EntityTreeComponent, { parentEntity: rootNode })
+      setComponent(parentNodes[1], EntityTreeComponent, { parentEntity: rootNode })
+      setComponent(nodes[0], EntityTreeComponent, { parentEntity: parentNodes[0] })
+      setComponent(nodes[1], EntityTreeComponent, { parentEntity: parentNodes[1] })
+      setComponent(beforeNodes[0], EntityTreeComponent, { parentEntity: parentNodes[0] })
+      setComponent(beforeNodes[1], EntityTreeComponent, { parentEntity: parentNodes[1] })
     })
 
     afterEach(() => {
@@ -274,19 +276,20 @@ describe.skip('EditorControlFunctions', () => {
 
     beforeEach(() => {
       createEngine()
+      loadEmptyScene()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      const rootNode = getState(SceneState).sceneEntity
+      const rootNode = SceneState.getRootEntity(getState(SceneState).activeScene!)
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       ;[...nodes, ...parentNodes].map((node) =>
         setComponent(node, NameComponent, `Test-RemoveObjectCommandEntity-${node}`)
       )
 
-      addEntityNodeChild(parentNodes[0], rootNode)
-      addEntityNodeChild(parentNodes[1], rootNode)
-      addEntityNodeChild(nodes[0], parentNodes[0])
-      addEntityNodeChild(nodes[1], parentNodes[1])
+      setComponent(parentNodes[0], EntityTreeComponent, { parentEntity: rootNode })
+      setComponent(parentNodes[1], EntityTreeComponent, { parentEntity: rootNode })
+      setComponent(nodes[0], EntityTreeComponent, { parentEntity: parentNodes[0] })
+      setComponent(nodes[1], EntityTreeComponent, { parentEntity: parentNodes[1] })
     })
 
     afterEach(() => {
@@ -302,7 +305,7 @@ describe.skip('EditorControlFunctions', () => {
     })
 
     it('will not remove root node', () => {
-      EditorControlFunctions.removeObject([getState(SceneState).sceneEntity])
+      EditorControlFunctions.removeObject([SceneState.getRootEntity(getState(SceneState).activeScene!)])
 
       nodes.forEach((node: Entity) => {
         assert(hasComponent(node, EntityTreeComponent))

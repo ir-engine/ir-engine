@@ -32,6 +32,7 @@ import { emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { smsPath } from '@etherealengine/engine/src/schemas/user/sms.schema'
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -39,7 +40,6 @@ import config from '../../appconfig'
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface MagicLinkParams extends KnexAdapterParams {}
 
 /**
@@ -61,7 +61,7 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
    */
   async sendEmail(toEmail: string, token: string): Promise<void> {
     const hashLink = `${config.server.url}/login/${token}`
-    let username
+    let username = '' as UserName
 
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
 

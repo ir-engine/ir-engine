@@ -55,16 +55,17 @@ import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRRigComponent } from '../../xr/XRRigComponent'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
-import { XRState, isMobileXRHeadset } from '../../xr/XRState'
+import { XRControlsState, XRState, isMobileXRHeadset } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
-import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
+import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
@@ -72,6 +73,7 @@ import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
+import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -104,8 +106,8 @@ const tipAxisRestriction = new Euler(0, 0, 0)
 
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
-  const { physicsDebug: debugEnable } = getMutableState(RendererState)
-  if (!debugEnable.value) {
+  const { physicsDebug } = getMutableState(RendererState)
+  if (!physicsDebug.value) {
     //remove visualizers
     for (let i = 0; i < visualizers.length; i++) {
       removeEntity(visualizers[i].value)
@@ -116,6 +118,7 @@ const setVisualizers = () => {
   for (let i = 0; i < 11; i++) {
     const e = createEntity()
     setComponent(e, VisibleComponent, true)
+    setComponent(e, NameComponent, 'Avatar Debug Visualizer')
     addObjectToGroup(e, new Mesh(new SphereGeometry(0.05)))
     setComponent(e, TransformComponent)
     visualizers[i].set(e)
@@ -173,7 +176,7 @@ const execute = () => {
     if (!rig?.hips?.node) continue
 
     const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
-    if (rigidbodyComponent) {
+    if (rigidbodyComponent && rigidbodyComponent.body.isEnabled()) {
       // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
       avatarAnimationComponent.locomotion.x = 0
       avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
@@ -230,8 +233,10 @@ const execute = () => {
       const headTransform = getComponent(head, TransformComponent)
       const headTarget = getMutableComponent(head, AvatarIKTargetComponent)
 
-      applyInputSourcePoseToIKTargets()
-      setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
+      if (entity == Engine.instance.localClientEntity) {
+        applyInputSourcePoseToIKTargets(head, rightHand, leftHand, rightFoot, leftFoot)
+        setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
+      }
 
       //special case for the head if we're in xr mode
       if (getOptionalComponent(entity, XRRigComponent)) {
@@ -345,36 +350,19 @@ const execute = () => {
     }
     rigComponent.vrm.update(deltaTime)
   }
-
-  /** Run debug */
-  if (avatarDebug) {
-    for (const entity of priorityQueue.priorityEntities) {
-      const rigComponent = getComponent(entity, AvatarRigComponent)
-      if (rigComponent?.helper) {
-        rigComponent.rig.hips.node.updateWorldMatrix(true, true)
-        rigComponent.helper?.updateMatrixWorld(true)
-      }
-    }
-  }
 }
 
 const reactor = () => {
   const xrState = getMutableState(XRState)
-  const heightDifference = useHookstate(xrState.userAvatarHeightDifference)
-  const sessionMode = useHookstate(xrState.sessionMode)
-  const pose = useHookstate(xrState.viewerPose)
-  const active = useHookstate(xrState.sessionActive)
-  useEffect(() => {
-    if (xrState.sessionMode.value == 'immersive-vr' && heightDifference.value)
-      xrState.sceneScale.set(Math.max(heightDifference.value, 0.5))
-  }, [heightDifference, sessionMode])
-  useEffect(() => {
-    if (xrState.sessionMode.value == 'immersive-vr' && !heightDifference.value) setTrackingSpace()
-  }, [pose])
+  const session = useHookstate(xrState.session)
   const renderState = useHookstate(getMutableState(RendererState))
+  const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
+  const userReady = useHookstate(getMutableState(EngineState).userReady)
+
   useEffect(() => {
     setVisualizers()
   }, [renderState.physicsDebug])
+
   useEffect(() => {
     if (xrState.sessionMode.value == 'immersive-vr')
       dispatchAction(
@@ -383,12 +371,31 @@ const reactor = () => {
           entityUUID: Engine.instance.userID as any as EntityUUID
         })
       )
-  }, [active])
+  }, [session])
+
+  useEffect(() => {
+    if (!session.value) return
+
+    const entity = Engine.instance.localClientEntity
+    if (!entity) return
+
+    if (isCameraAttachedToAvatar.value) {
+      setComponent(entity, AvatarHeadDecapComponent, true)
+    } else {
+      removeComponent(entity, AvatarHeadDecapComponent)
+    }
+  }, [isCameraAttachedToAvatar, session])
+
+  useEffect(() => {
+    if (userReady.value) setTrackingSpace()
+  }, [userReady])
+
   return null
 }
 
 export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
+  insert: { after: AnimationSystem },
   execute,
   reactor
 })

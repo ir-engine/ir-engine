@@ -42,9 +42,11 @@ import Switch from '@etherealengine/ui/src/primitives/mui/Switch'
 
 import { ProjectPermissionType } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
+import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 
@@ -56,12 +58,12 @@ interface Props {
 
 const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
   const { t } = useTranslation()
-  const [userInviteCode, setUserInviteCode] = useState('')
+  const [userInviteCode, setUserInviteCode] = useState('' as InviteCode)
   const [error, setError] = useState('')
   const selfUser = useHookstate(getMutableState(AuthState)).user
   const selfUserPermission =
     project?.projectPermissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner' ||
-    selfUser.scopes?.value?.find((scope) => scope.type === 'admin:admin')
+    userHasAccess('admin:admin')
       ? 'owner'
       : 'user'
 
@@ -83,7 +85,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
-    setUserInviteCode('')
+    setUserInviteCode('' as InviteCode)
     setError('')
   }
 

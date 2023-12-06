@@ -45,19 +45,19 @@ export const taskServerSettingSchema = Type.Object(
   },
   { $id: 'TaskServerSetting', additionalProperties: false }
 )
-export type TaskServerSettingType = Static<typeof taskServerSettingSchema>
+export interface TaskServerSettingType extends Static<typeof taskServerSettingSchema> {}
 
 // Schema for creating new entries
 export const taskServerSettingDataSchema = Type.Pick(taskServerSettingSchema, ['port', 'processInterval'], {
   $id: 'TaskServerSettingData'
 })
-export type TaskServerSettingData = Static<typeof taskServerSettingDataSchema>
+export interface TaskServerSettingData extends Static<typeof taskServerSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const taskServerSettingPatchSchema = Type.Partial(taskServerSettingSchema, {
   $id: 'TaskServerSettingPatch'
 })
-export type TaskServerSettingPatch = Static<typeof taskServerSettingPatchSchema>
+export interface TaskServerSettingPatch extends Static<typeof taskServerSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const taskServerSettingQueryProperties = Type.Pick(taskServerSettingSchema, ['id', 'port', 'processInterval'])
@@ -69,7 +69,7 @@ export const taskServerSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type TaskServerSettingQuery = Static<typeof taskServerSettingQuerySchema>
+export interface TaskServerSettingQuery extends Static<typeof taskServerSettingQuerySchema> {}
 
 export const taskServerSettingValidator = getValidator(taskServerSettingSchema, dataValidator)
 export const taskServerSettingDataValidator = getValidator(taskServerSettingDataSchema, dataValidator)

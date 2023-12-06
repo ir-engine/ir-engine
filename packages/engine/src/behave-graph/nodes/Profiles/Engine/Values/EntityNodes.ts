@@ -31,9 +31,11 @@ import {
 } from '@behave-graph/core'
 import { toQuat, toVector3 } from '@behave-graph/scene'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { getState } from '@etherealengine/hyperflux'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
+import { SceneState } from '../../../../../ecs/classes/Scene'
 import {
   ComponentMap,
   defineQuery,
@@ -61,10 +63,10 @@ export const getEntity = makeFunctionNodeDefinition({
         text: getComponent(entity, NameComponent),
         value: getComponent(entity, UUIDComponent) as string
       }))
-      choices.unshift({ text: 'none', value: '' })
       return {
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: getComponent(SceneState.getRootEntity(getState(SceneState).activeScene!), UUIDComponent)
       }
     }
   },
@@ -100,6 +102,41 @@ export const getCameraEntity = makeFunctionNodeDefinition({
   }
 })
 
+export const onEntity = makeFlowNodeDefinition({
+  typeName: 'engine/entity/onEntity',
+  category: NodeCategory.Action,
+  label: 'Test if entity is valid',
+  in: {
+    flow: 'flow',
+    entity: 'entity'
+  },
+  out: {
+    flow: 'flow',
+    entity: 'entity',
+    exists: 'bool',
+    position: 'vec3',
+    rotation: 'quat',
+    scale: 'vec3',
+    matrix: 'mat4'
+  },
+  initialState: undefined,
+  triggered: ({ read, write, commit, graph: { getDependency } }) => {
+    const entity: Entity = read('entity')
+    if (!entity) {
+      write('exists', false)
+    } else {
+      write('exists', true)
+      write('entity', entity)
+      const transform = getComponent(entity, TransformComponent)
+      write('position', transform.position)
+      write('rotation', transform.rotation)
+      write('scale', transform.scale)
+      write('matrix', transform.matrix)
+    }
+    commit('flow')
+  }
+})
+
 export const getEntityTransform = makeFunctionNodeDefinition({
   typeName: 'engine/entity/getEntityTransform',
   category: NodeCategory.Query,
@@ -129,21 +166,21 @@ export const addEntity = makeFlowNodeDefinition({
         text: getComponent(entity, NameComponent),
         value: getComponent(entity, UUIDComponent) as string
       }))
-      choices.unshift({ text: 'none', value: '' as string })
       return {
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: getComponent(SceneState.getRootEntity(getState(SceneState).activeScene!), UUIDComponent)
       }
     },
-    component: (_, graphApi) => {
+    componentName: (_, graphApi) => {
       const choices = Array.from(ComponentMap.entries())
         .filter(([, component]) => !!component.jsonID)
         .map(([name]) => name)
         .sort()
-      choices.unshift('none')
       return {
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: TransformComponent.name
       }
     },
     entityName: 'string'
@@ -153,7 +190,7 @@ export const addEntity = makeFlowNodeDefinition({
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
     const parentEntityUUID = read<string>('parentEntity')
     const parentEntity: Entity = parentEntityUUID == '' ? null : UUIDComponent.entitiesByUUID[parentEntityUUID]
-    const componentName = read<string>('component')
+    const componentName = read<string>('componentName')
     const entity = addEntityToScene([{ name: ComponentMap.get(componentName)?.jsonID! }], parentEntity)
     const entityName = read<string>('entityName')
     if (entityName.length > 0) setComponent(entity, NameComponent, entityName)
@@ -168,7 +205,17 @@ export const deleteEntity = makeFlowNodeDefinition({
   label: 'delete Entity',
   in: {
     flow: 'flow',
-    entity: 'entity'
+    entity: (_, graphApi) => {
+      const choices = sceneQuery().map((entity) => ({
+        text: getComponent(entity, NameComponent),
+        value: getComponent(entity, UUIDComponent) as string
+      }))
+      choices.unshift({ text: 'none', value: '' })
+      return {
+        valueType: 'string',
+        choices: choices // no default beacause we dont want to acciedently delete the default, none is safer
+      }
+    }
   },
   out: { flow: 'flow' },
   initialState: undefined,

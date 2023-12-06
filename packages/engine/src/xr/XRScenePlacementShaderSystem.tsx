@@ -28,8 +28,10 @@ import { Material, Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { GroupQueryReactor, Object3DWithEntity } from '../scene/components/GroupComponent'
+import { SceneObjectComponent } from '../scene/components/SceneObjectComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { XRState } from './XRState'
 
@@ -54,7 +56,8 @@ const addShaderToObject = (object: Object3DWithEntity) => {
       }
     }
     obj.material.transparent = true
-    obj.material.opacity = 0.4
+    obj.material.opacity = 0.3
+    obj.material.needsUpdate = true
   }
 }
 
@@ -82,7 +85,7 @@ function XRScenePLacementReactor({ obj }) {
   const sessionActive = useHookstate(xrState.sessionActive)
 
   useEffect(() => {
-    const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value === 'placing'
+    const useShader = xrState.scenePlacementMode.value === 'placing'
     if (useShader) {
       obj.traverse(addShaderToObject)
       return () => {
@@ -95,11 +98,16 @@ function XRScenePLacementReactor({ obj }) {
 }
 
 const reactor = () => {
-  return <GroupQueryReactor GroupChildReactor={XRScenePLacementReactor} Components={[VisibleComponent]} />
+  return (
+    <GroupQueryReactor
+      GroupChildReactor={XRScenePLacementReactor}
+      Components={[VisibleComponent, SceneObjectComponent]}
+    />
+  )
 }
 
 export const XRScenePlacementShaderSystem = defineSystem({
   uuid: 'ee.engine.XRScenePlacementShaderSystem',
-  execute: () => {},
+  insert: { after: PresentationSystemGroup },
   reactor
 })

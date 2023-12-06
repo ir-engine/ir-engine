@@ -90,9 +90,17 @@ type OEmbedFunctionType = (app: Application, url: URL, currentOEmbed: OembedType
  *
  */
 export interface ProjectEventHooks {
+  /**
+   * Runs when a project is installed.
+   * In local, the next time `npm run dev` is run.
+   * In k8s, the next time the builder is run, OR immediately after the project is updated.
+   */
   onInstall?: InstallFunctionType
+  /** Runs any time a server instance spins up */
   onLoad?: InstallFunctionType
+  /** Runs every time a project is updated in a deployment OR when the builder runs */
   onUpdate?: InstallFunctionType
+  /** Runs when a project is uninstalled */
   onUninstall?: InstallFunctionType
   /**
    * get oEmbed for active routes that match URL

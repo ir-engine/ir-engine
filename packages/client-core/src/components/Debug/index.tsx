@@ -43,20 +43,19 @@ import { RootSystemGroup, SimulationSystemGroup } from '@etherealengine/engine/s
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { System, SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import ActionsPanel from './ActionsPanel'
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
 
 type DesiredType =
   | {
-      enabled?: boolean
       preSystems?: Record<SystemUUID, DesiredType>
       simulation?: DesiredType
       subSystems?: Record<SystemUUID, DesiredType>
@@ -67,11 +66,9 @@ type DesiredType =
 const convertSystemTypeToDesiredType = (system: System): DesiredType => {
   const { preSystems, subSystems, postSystems } = system
   if (preSystems.length === 0 && subSystems.length === 0 && postSystems.length === 0) {
-    return Engine.instance.activeSystems.has(system.uuid)
+    return true
   }
-  const desired: DesiredType = {
-    enabled: Engine.instance.activeSystems.has(system.uuid)
-  }
+  const desired: DesiredType = {}
   if (preSystems.length > 0) {
     desired.preSystems = preSystems.reduce(
       (acc, uuid) => {
@@ -102,7 +99,6 @@ const convertSystemTypeToDesiredType = (system: System): DesiredType => {
       {} as Record<SystemUUID, DesiredType>
     )
   }
-  if (system.uuid === RootSystemGroup) delete desired.enabled
   return desired
 }
 
@@ -115,11 +111,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
 
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
-    Engine.instance.localClientEntity &&
-    engineState.connectedWorld.value &&
-    hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
-
-  const networks = getMutableState(NetworkState).networks
+    !!Engine.instance.localClientEntity && hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
   const onClickRespawn = (): void => {
     Engine.instance.localClientEntity && respawnAvatar(Engine.instance.localClientEntity)
@@ -135,28 +127,29 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
 
   const renderEntityTreeRoots = () => {
     return {
-      ...Object.keys(EntityTreeComponent.roots.value).reduce(
-        (r, child, i) =>
-          Object.assign(r, {
-            [`${i} - ${
-              getComponent(child as any as Entity, NameComponent) ?? getComponent(child as any as Entity, UUIDComponent)
-            }`]: renderEntityTree(child as any as Entity)
-          }),
-        {}
-      )
+      ...Object.values(getState(SceneState).scenes)
+        .map((scene, i) => {
+          const root = scene.snapshots[scene.index].data.root
+          const entity = UUIDComponent.entitiesByUUID[root]
+          if (!entity || !entityExists(entity)) return null
+          return {
+            [`${i} - ${getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent)}`]:
+              renderEntityTree(entity)
+          }
+        })
+        .filter((exists) => !!exists)
     }
   }
 
   const renderEntityTree = (entity: Entity) => {
     const node = getComponent(entity, EntityTreeComponent)
     return {
-      entity,
       components: renderEntityComponents(entity),
       children: {
         ...node.children.reduce(
-          (r, child, i) =>
+          (r, child) =>
             Object.assign(r, {
-              [`${i} - ${getComponent(child, NameComponent) ?? getComponent(child, UUIDComponent)}`]:
+              [`${child} - ${getComponent(child, NameComponent) ?? getComponent(child, UUIDComponent)}`]:
                 renderEntityTree(child)
             }),
           {}
@@ -171,7 +164,8 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
         ? getEntityComponents(Engine.instance, entity).reduce<[string, any][]>((components, C: Component<any, any>) => {
             if (C !== NameComponent) {
               const component = getComponent(entity, C)
-              components.push([C.name, { ...component }])
+              if (typeof component === 'object') components.push([C.name, { ...component }])
+              else components.push([C.name, component])
             }
             return components
           }, [])
@@ -210,12 +204,29 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
   }
 
   const namedEntities = useHookstate({})
+  const erroredComponents = useHookstate([] as any[])
   const entityTree = useHookstate({} as any)
 
   const dag = convertSystemTypeToDesiredType(SystemDefinitions.get(RootSystemGroup)!)
 
   namedEntities.set(renderAllEntities())
   entityTree.set(renderEntityTreeRoots())
+
+  erroredComponents.set(
+    [...Engine.instance.store.activeReactors.values()]
+      .filter((reactor) => (reactor as any).entity && reactor.errors.length)
+      .map((reactor) => {
+        return reactor.errors.map((error) => {
+          return {
+            entity: (reactor as any).entity,
+            component: (reactor as any).component,
+            error
+          }
+        })
+      })
+      .flat()
+  )
+
   return (
     <div className={styles.debugContainer} style={{ pointerEvents: 'all' }}>
       <div className={styles.debugOptionContainer}>
@@ -286,6 +297,10 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
         <JSONTree data={namedEntities.get(NO_PROXY)} />
       </div>
       <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.erroredEntities')}</h1>
+        <JSONTree data={erroredComponents.get(NO_PROXY)} />
+      </div>
+      <div className={styles.jsonPanel}>
         <h1>{t('common:debug.state')}</h1>
         <JSONTree
           data={Engine.instance.store.stateMap}
@@ -308,22 +323,12 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
             const systemReactor = system ? Engine.instance.activeSystemReactors.get(system.uuid) : undefined
             return (
               <>
-                <input
-                  type="checkbox"
-                  checked={value ? true : false}
-                  onChange={() => {
-                    if (Engine.instance.activeSystems.has(system.uuid)) {
-                      Engine.instance.activeSystems.delete(system.uuid)
-                    } else {
-                      Engine.instance.activeSystems.add(system.uuid)
-                    }
-                  }}
-                ></input>
-                {systemReactor?.error && (
-                  <span style={{ color: 'red' }}>
-                    {systemReactor.error.name}: {systemReactor.error.message}
-                  </span>
-                )}
+                {systemReactor &&
+                  systemReactor.errors.map((error, i) => (
+                    <span key={i} style={{ color: 'red' }}>
+                      {error.name}: {error.message}
+                    </span>
+                  ))}
               </>
             )
           }}

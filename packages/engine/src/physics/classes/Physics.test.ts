@@ -28,7 +28,8 @@ import {
   ActiveEvents,
   ColliderDesc,
   RigidBodyDesc,
-  RigidBodyType
+  RigidBodyType,
+  ShapeType
 } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
@@ -50,10 +51,21 @@ import {
 } from '../components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
-import { boxDynamicConfig } from '../functions/physicsObjectDebugFunctions'
 import { PhysicsState } from '../state/PhysicsState'
-import { CollisionEvents, SceneQueryType } from '../types/PhysicsTypes'
+import { ColliderDescOptions, CollisionEvents, SceneQueryType } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
+
+export const boxDynamicConfig = {
+  shapeType: ShapeType.Cuboid,
+  bodyType: RigidBodyType.Fixed,
+  collisionLayer: CollisionGroups.Default,
+  collisionMask: CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground,
+  friction: 1,
+  restitution: 0,
+  isTrigger: false,
+  spawnPosition: new Vector3(0, 0.25, 5),
+  spawnScale: new Vector3(0.5, 0.25, 0.5)
+} as ColliderDescOptions
 
 describe('Physics', () => {
   beforeEach(async () => {

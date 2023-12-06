@@ -29,6 +29,7 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { FileBrowserContentType, fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { NotificationService } from './NotificationService'
 
 export const FILES_PAGE_LIMIT = 100
 
@@ -55,21 +56,26 @@ export const FileBrowserService = {
 
     fileBrowserState.retrieving.set(true)
 
-    const files = (await Engine.instance.api.service(fileBrowserPath).find({
-      query: {
-        $skip: skip * FILES_PAGE_LIMIT,
-        $limit: FILES_PAGE_LIMIT,
-        directory
-      }
-    })) as Paginated<FileBrowserContentType>
-    fileBrowserState.merge({
-      files: files.data,
-      skip: files.skip,
-      total: files.total,
-      retrieving: false,
-      fetched: true,
-      lastFetched: Date.now()
-    })
+    try {
+      const files = (await Engine.instance.api.service(fileBrowserPath).find({
+        query: {
+          $skip: skip * FILES_PAGE_LIMIT,
+          $limit: FILES_PAGE_LIMIT,
+          directory
+        }
+      })) as Paginated<FileBrowserContentType>
+      fileBrowserState.merge({
+        files: files.data,
+        skip: files.skip,
+        total: files.total,
+        retrieving: false,
+        fetched: true,
+        lastFetched: Date.now()
+      })
+    } catch (err) {
+      NotificationService.dispatchNotify((err as Error)?.message, { variant: 'error' })
+      fileBrowserState.retrieving.set(false)
+    }
   },
   moveContent: async (oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) => {
     return Engine.instance.api.service(fileBrowserPath).update(null, { oldName, newName, oldPath, newPath, isCopy })
@@ -83,5 +89,10 @@ export const FileBrowserService = {
   resetSkip: () => {
     const fileBrowserState = getMutableState(FileBrowserState)
     fileBrowserState.skip.set(0)
+  },
+  getNestingDirectory: () => {
+    return Engine.instance.api
+      .service(fileBrowserPath)
+      .get('', { query: { getNestingDirectory: true } }) as Promise<string>
   }
 }

@@ -34,7 +34,7 @@ import { WebLayerManager } from '@etherealengine/xrui/core/three/WebLayerManager
 import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
 import { setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, EntityContext } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
@@ -45,10 +45,13 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
 
-export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
+export function createXRUI<S extends State<any> | null>(
+  UIFunc: React.FC,
+  state = null as S,
+  settings: { interactable: boolean } = { interactable: true },
+  entity = createEntity()
+): XRUI<S> {
   if (!isClient) throw new Error('XRUI is not supported in nodejs')
-
-  const entity = createEntity()
 
   const containerElement = document.createElement('div')
   containerElement.style.position = 'fixed'
@@ -57,9 +60,13 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
   const rootElement = createRoot(containerElement!)
   rootElement.render(
     //@ts-ignore
-    <XRUIStateContext.Provider value={state}>
-      <UIFunc />
-    </XRUIStateContext.Provider>
+    <EntityContext.Provider value={entity}>
+      {/* 
+      // @ts-ignore */}
+      <XRUIStateContext.Provider value={state}>
+        <UIFunc />
+      </XRUIStateContext.Provider>
+    </EntityContext.Provider>
   )
 
   const container = new WebContainer3D(containerElement, { manager: WebLayerManager.instance })
@@ -75,7 +82,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, XRUIComponent, container)
   setComponent(entity, VisibleComponent, true)
-  setComponent(entity, InputComponent, { highlight: false, grow: true })
+  if (settings.interactable) setComponent(entity, InputComponent, { highlight: false, grow: true })
 
   return { entity, state, container }
 }

@@ -31,7 +31,6 @@ import { ChannelService, ChannelState } from '@etherealengine/client-core/src/so
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Badge from '@etherealengine/ui/src/primitives/mui/Badge'
@@ -46,7 +45,8 @@ import Fab from '@mui/material/Fab'
 
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { MessageID, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
@@ -296,9 +296,9 @@ export const InstanceChat = ({
     const userThumbnail = useUserAvatarThumbnail(message.senderId)
 
     return (
-      <Fragment key={message.id}>
+      <Fragment key={message.id as MessageID}>
         {message.isNotification ? (
-          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+          <div key={message.id as MessageID} className={`${styles.selfEnd} ${styles.noMargin}`}>
             <div className={styles.dFlex}>
               <div className={`${styles.msgNotification} ${styles.mx2}`}>
                 <p className={styles.shadowText}>{message.text}</p>
@@ -306,7 +306,7 @@ export const InstanceChat = ({
             </div>
           </div>
         ) : (
-          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+          <div key={message.id as MessageID} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
               <div
                 className={`${message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner} ${
@@ -315,11 +315,11 @@ export const InstanceChat = ({
               >
                 <div className={styles.msgWrapper}>
                   {messages[index - 1] && messages[index - 1].isNotification ? (
-                    <h3 className={styles.sender}>{message.sender.name}</h3>
+                    <h3 className={styles.sender}>{message.sender.name as UserName}</h3>
                   ) : (
                     messages[index - 1] &&
                     message.senderId !== messages[index - 1].senderId && (
-                      <h3 className={styles.sender}>{message.sender.name}</h3>
+                      <h3 className={styles.sender}>{message.sender.name as UserName}</h3>
                     )
                   )}
                   <p className={styles.text}>{message.text}</p>
@@ -361,7 +361,7 @@ export const InstanceChat = ({
           >
             <div className={styles.scrollFix} />
             {sortedMessages?.map((message, index, messages) => (
-              <Message message={message} index={index} key={message.id} />
+              <Message message={message} index={index} key={message.id as MessageID} />
             ))}
           </div>
         )}
@@ -449,7 +449,6 @@ export const InstanceChat = ({
 }
 
 export const InstanceChatWrapper = () => {
-  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
 
@@ -461,14 +460,12 @@ export const InstanceChatWrapper = () => {
   const worldNetwork = useWorldNetwork()
 
   useEffect(() => {
-    if (worldNetwork?.connected?.value) {
-      ChannelService.getInstanceChannel()
-    }
-  }, [worldNetwork?.connected?.value])
+    if (worldNetwork?.connected?.value) ChannelService.getInstanceChannel()
+  }, [worldNetwork?.connected])
 
   return (
     <>
-      {engineState.connectedWorld.value && targetChannelId.value ? (
+      {targetChannelId.value ? (
         <div className={`${bottomShelfStyle} ${styles.chatRoot}`}>
           <InstanceChat />
         </div>

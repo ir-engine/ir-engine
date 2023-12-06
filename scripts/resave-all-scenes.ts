@@ -34,27 +34,13 @@ import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { delay } from '@etherealengine/engine/src/common/functions/delay'
 import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import {
-  ComponentJSONIDMap,
-  ComponentMap,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { ComponentJSONIDMap, ComponentMap } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { Physics } from '@etherealengine/engine/src/physics/classes/Physics'
 import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
-import { FogSettingsComponent } from '@etherealengine/engine/src/scene/components/FogSettingsComponent'
-import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
-import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
-import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
-import {
-  updateSceneEntitiesFromJSON,
-  updateSceneEntity
-} from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 require('fix-esm').register()
@@ -109,40 +95,40 @@ const resaveAllProjects = async () => {
 
     createEngine()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
-    await loadEngineInjection(projects)
+    await loadEngineInjection()
 
     getMutableState(EngineState).isEditor.set(true)
 
     // read scene file
-    const sceneJson = JSON.parse(fs.readFileSync(scene, { encoding: 'utf-8' })) as SceneJson
-    getMutableState(SceneState).sceneData.set({
-      scene: sceneJson,
-      name: scene
-    } as any)
+    // const sceneJson = JSON.parse(fs.readFileSync(scene, { encoding: 'utf-8' })) as SceneJson
+    // getMutableState(SceneState).sceneData.set({
+    //   scene: sceneJson,
+    //   name: scene
+    // } as any)
 
-    const sceneState = getState(SceneState)
-    setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null!, uuid: sceneJson.root })
-    updateSceneEntity(sceneJson.root, sceneJson.entities[sceneJson.root])
-    updateSceneEntitiesFromJSON(sceneJson.root)
+    // const sceneState = getState(SceneState)
+    // setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null!, uuid: sceneJson.root })
+    // updateSceneEntity(sceneJson.root, sceneJson.entities[sceneJson.root])
+    // updateSceneEntitiesFromJSON(sceneJson.root)
 
-    if ((sceneJson as any).metadata) {
-      for (const [key, val] of Object.entries((sceneJson as any).metadata) as any) {
-        switch (key) {
-          case 'renderSettings':
-            setComponent(sceneState.sceneEntity, RenderSettingsComponent, val)
-            break
-          case 'postprocessing':
-            setComponent(sceneState.sceneEntity, PostProcessingComponent, val)
-            break
-          case 'mediaSettings':
-            setComponent(sceneState.sceneEntity, MediaSettingsComponent, val)
-            break
-          case 'fog':
-            setComponent(sceneState.sceneEntity, FogSettingsComponent, val)
-            break
-        }
-      }
-    }
+    // if ((sceneJson as any).metadata) {
+    //   for (const [key, val] of Object.entries((sceneJson as any).metadata) as any) {
+    //     switch (key) {
+    //       case 'renderSettings':
+    //         setComponent(sceneState.sceneEntity, RenderSettingsComponent, val)
+    //         break
+    //       case 'postprocessing':
+    //         setComponent(sceneState.sceneEntity, PostProcessingComponent, val)
+    //         break
+    //       case 'mediaSettings':
+    //         setComponent(sceneState.sceneEntity, MediaSettingsComponent, val)
+    //         break
+    //       case 'fog':
+    //         setComponent(sceneState.sceneEntity, FogSettingsComponent, val)
+    //         break
+    //     }
+    //   }
+    // }
 
     await delay(1)
 

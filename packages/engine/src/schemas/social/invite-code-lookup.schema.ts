@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Static, Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
-import { UserID } from '../user/user.schema'
+import { InviteCode, UserID } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
@@ -41,12 +41,12 @@ export const inviteCodeLookupSchema = Type.Object(
     id: TypedString<UserID>({
       format: 'uuid'
     }),
-    inviteCode: Type.String(),
+    inviteCode: TypedString<InviteCode>(),
     instanceAttendance: Type.Array(Type.Ref(instanceAttendanceSchema))
   },
   { $id: 'InviteCodeLookup', additionalProperties: false }
 )
-export type InviteCodeLookupType = Static<typeof inviteCodeLookupSchema>
+export interface InviteCodeLookupType extends Static<typeof inviteCodeLookupSchema> {}
 
 // Schema for allowed query properties
 export const inviteCodeLookupQueryProperties = Type.Pick(inviteCodeLookupSchema, ['inviteCode'])
@@ -58,7 +58,7 @@ export const inviteCodeLookupQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type InviteCodeLookupQuery = Static<typeof inviteCodeLookupQuerySchema>
+export interface InviteCodeLookupQuery extends Static<typeof inviteCodeLookupQuerySchema> {}
 
 export const inviteCodeLookupValidator = getValidator(inviteCodeLookupSchema, dataValidator)
 export const inviteCodeLookupQueryValidator = getValidator(inviteCodeLookupQuerySchema, queryValidator)

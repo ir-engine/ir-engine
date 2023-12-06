@@ -35,7 +35,7 @@ import {
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
+import { InfiniteGridHelper } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { useHookstate } from '@etherealengine/hyperflux'
 
@@ -50,6 +50,7 @@ export const ModelPreviewPanel = (props) => {
   const renderPanel = useRender3DPanelSystem(panelRef)
   const { camera, entity, scene, renderer } = renderPanel.state
   const gridHelper = new InfiniteGridHelper()
+  gridHelper.add(...InfiniteGridHelper.createLines(8000))
   gridHelper.layers.set(ObjectLayers.Panel)
   gridHelper.children.forEach((child) => {
     child.layers.set(ObjectLayers.Panel)

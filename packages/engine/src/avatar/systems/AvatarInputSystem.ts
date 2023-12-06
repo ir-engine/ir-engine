@@ -27,13 +27,12 @@ import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
@@ -47,9 +46,9 @@ import {
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { StandardGamepadButton, XRStandardGamepadButton } from '../../input/state/ButtonState'
+import { StandardGamepadButton } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
-import { InteractState } from '../../interaction/systems/InteractiveSystem'
+import { ClientInputSystem } from '../../input/systems/ClientInputSystem'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -57,7 +56,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { getCameraMode, hasMovementControls } from '../../xr/XRState'
+import { XRControlsState } from '../../xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -136,15 +135,6 @@ const onShiftLeft = () => {
   controller.isWalking.set(!controller.isWalking.value)
 }
 
-const onInteract = (handedness: XRHandedness = 'none') => {
-  dispatchAction(
-    EngineActions.interactedWithObject({
-      targetEntity: getState(InteractState).available[0],
-      handedness
-    })
-  )
-}
-
 const onKeyP = () => {
   getMutableState(RendererState).physicsDebug.set(!getMutableState(RendererState).physicsDebug.value)
 }
@@ -200,6 +190,7 @@ const getAvatarDoubleClick = (buttons): boolean => {
   clickCount = 0
   return false
 }
+
 const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
@@ -215,8 +206,9 @@ const execute = () => {
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
   const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
-  const attachedMode = getCameraMode() === 'attached'
-  if (!attachedMode) {
+  const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
+
+  if (!isCameraAttachedToAvatar) {
     const firstWalkableEntityWithInput = walkableQuery().find(
       (entity) => getComponent(entity, InputComponent)?.inputSources.length
     )
@@ -242,35 +234,22 @@ const execute = () => {
     }
   }
 
-  /** @todo until we have something more sophisticated, allow interaction input even when interactables are captured */
-  for (const inputSourceEntity of inputSourceQuery()) {
-    const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
-
-    const buttons = inputSource.buttons
-
-    const standardGamepad =
-      inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === ''
-
-    if (buttons.KeyE?.down) onInteract()
-
-    if (standardGamepad && buttons[StandardGamepadButton.ButtonY]?.down) {
-      onInteract()
-    }
+  let inputEntities: Entity[] = nonCapturedInputSourceEntities
+  if (inputEntities.length === 0) {
+    inputEntities = inputSourceQuery().filter((entity) => {
+      const inputSource = getComponent(entity, InputSourceComponent)
+      if (controller.cameraEntity === inputSource.assignedButtonEntity) return true
+    })
   }
-
-  for (const inputSourceEntity of nonCapturedInputSourceEntities) {
+  for (const inputSourceEntity of inputEntities) {
     const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
 
     const buttons = inputSource.buttons
 
     const standardGamepad =
       inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === ''
-    const xrStandardGamepad = inputSource.source.gamepad?.mapping === 'xr-standard'
 
     if (buttons.ShiftLeft?.down) onShiftLeft()
-    if (xrStandardGamepad) {
-      if (buttons[XRStandardGamepadButton.Trigger]?.down) onInteract(inputSource.source.handedness)
-    }
 
     const gamepadJump = standardGamepad && buttons[StandardGamepadButton.ButtonA]?.down
 
@@ -278,10 +257,10 @@ const execute = () => {
       if (buttons.KeyP?.down) onKeyP()
     }
 
-    if (!hasMovementControls()) return
-    //** touch input (only for avatar jump)*/
+    if (!isMovementControlsEnabled) continue
 
-    const doubleClicked = attachedMode ? false : getAvatarDoubleClick(buttons)
+    //** touch input (only for avatar jump)*/
+    const doubleClicked = isCameraAttachedToAvatar ? false : getAvatarDoubleClick(buttons)
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
     const keyDeltaZ =
@@ -295,11 +274,12 @@ const execute = () => {
     controller.gamepadJumpActive = !!buttons.Space?.pressed || gamepadJump || doubleClicked
 
     const controlScheme =
-      inputSource.source.handedness === 'none'
+      inputSource.source.handedness === 'none' || !isCameraAttachedToAvatar
         ? AvatarAxesControlScheme.Move
         : inputSource.source.handedness === avatarInputSettings.preferredHand
         ? avatarInputSettings.rightAxesControlScheme
         : avatarInputSettings.leftAxesControlScheme
+
     AvatarAxesControlSchemeBehavior[controlScheme](
       inputSource.source,
       controller,
@@ -310,5 +290,6 @@ const execute = () => {
 
 export const AvatarInputSystem = defineSystem({
   uuid: 'ee.engine.AvatarInputSystem',
+  insert: { after: ClientInputSystem },
   execute
 })
