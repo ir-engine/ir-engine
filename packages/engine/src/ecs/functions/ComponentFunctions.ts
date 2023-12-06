@@ -427,9 +427,6 @@ export const updateComponent = <C extends Component>(
  * @deprecated Use {@link setComponent} instead
  * @description Like {@link setComponent}, but errors if the component already exists.
  * @throws Error when the component exists: {@link Error}
- * @param entity
- * @param Component
- * @param args
  */
 export const addComponent = <C extends Component>(
   entity: Entity,
@@ -492,7 +489,8 @@ export const removeComponent = async <C extends Component>(entity: Entity, compo
 
 /**
  * @description
- * Initializes a Component of the given kind with {@link Component.onInit}, and returns its serialized JSON data.
+ * Initializes a temporary Component of the same type that the given Component, using its {@link Component.onInit} function, and returns its serialized JSON data.
+ * @notes The temporary Component won't be inserted into the ECS system, and its data will be GC'ed at the end of this function.
  * @param component The desired Component.
  * @returns JSON object containing the requested data.
  */
@@ -519,14 +517,19 @@ export const getAllComponents = (entity: Entity): Component[] => {
 }
 
 /**
- * @description `@todo` Returns ?? containing ?? associated with all {@link Component}s of the given {@link Entity}.
+ * @description Returns an {@link Object} containing the data of all {@link Component}s of the given {@link Entity}.
  * @param entity The desired Entity.
- * @returns `@todo` What type does this return? How is it used?
+ * @returns An {@link Object} where each component of the given {@link Entity} has its own field.
  */
 export const getAllComponentData = (entity: Entity): { [name: string]: ComponentType<any> } => {
   return Object.fromEntries(getAllComponents(entity).map((C) => [C.name, getComponent(entity, C)]))
 }
 
+/**
+ * @description Creates a {@link Query} with the given {@link Component}, and returns the number of {@link Component}s currently stored in the engine's buffer for that {@link Component} type.
+ * @param component The desired Component
+ * @returns The amount of Component's that the engine stores for the given component type.
+ */
 export const getComponentCountOfType = <C extends Component>(component: C): number => {
   const query = defineQuery([component])
   const length = query().length
@@ -534,6 +537,11 @@ export const getComponentCountOfType = <C extends Component>(component: C): numb
   return length
 }
 
+/**
+ * `@todo` Explain this function
+ * @param component The desired Component
+ * @returns An array of {@link ComponentType} components
+ */
 export const getAllComponentsOfType = <C extends Component<any>>(component: C): ComponentType<C>[] => {
   const query = defineQuery([component])
   const entities = query()
