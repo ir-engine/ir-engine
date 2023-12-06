@@ -99,7 +99,23 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   )
   proxifyVector3WithDirty(LocalTransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
 }
+export function addWorldObjectToGroup(entity: Entity, object: Object3D) {
+  const obj = object as Object3DWithEntity & Camera
+  obj.entity = entity
 
+  if (!hasComponent(entity, GroupComponent)) setComponent(entity, GroupComponent, [])
+  if (getComponent(entity, GroupComponent).includes(obj))
+    return console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
+  getMutableComponent(entity, GroupComponent).merge([obj])
+  Object.assign(obj, {
+    updateWorldMatrix: () => {}
+  })
+
+  if (object !== Engine.instance.scene) Engine.instance.scene.add(object)
+
+  // sometimes it's convenient to update the entity transform via the Object3D,
+  // so allow people to do that via proxies
+}
 export function removeGroupComponent(entity: Entity) {
   if (hasComponent(entity, GroupComponent)) {
     for (const obj of getComponent(entity, GroupComponent)) obj.removeFromParent()
