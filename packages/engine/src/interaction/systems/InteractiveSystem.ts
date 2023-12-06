@@ -42,8 +42,7 @@ import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import {
   DistanceFromCameraComponent,
-  setDistanceFromCameraComponent,
-  setDistanceFromLocalClientComponent
+  DistanceFromLocalClientComponent
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
@@ -147,8 +146,8 @@ const execute = () => {
 
   // ensure distance component is set on all interactables
   for (const entity of allInteractablesQuery.enter()) {
-    setDistanceFromCameraComponent(entity)
-    setDistanceFromLocalClientComponent(entity)
+    setComponent(entity, DistanceFromCameraComponent)
+    setComponent(entity, DistanceFromLocalClientComponent)
   }
 
   // TODO: refactor InteractiveUI to be ui-centric rather than interactable-centeric

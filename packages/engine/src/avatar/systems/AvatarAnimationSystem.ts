@@ -77,6 +77,7 @@ import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
+import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { AnimationSystem } from './AnimationSystem'
 
@@ -356,43 +357,9 @@ const execute = () => {
       }
     }
 
-    rigComponent.vrm.update(deltaTime)
-
-    const humanoid = (rigComponent.vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRig
-    for (const boneName of VRMHumanBoneList) {
-      const boneNode = humanoid.original.getBoneNode(boneName)
-
-      if (boneNode != null) {
-        const rigBoneNode = humanoid.getBoneNode(boneName)!
-        const parentWorldRotation = humanoid._parentWorldRotations[boneName]!
-        const invParentWorldRotation = _quatA.copy(parentWorldRotation).invert()
-        const boneRotation = humanoid._boneRotations[boneName]!
-
-        boneNode.quaternion
-          .copy(rigBoneNode.quaternion)
-          .multiply(parentWorldRotation)
-          .premultiply(invParentWorldRotation)
-          .multiply(boneRotation)
-
-        // Move the mass center of the VRM
-        if (boneName === 'hips') {
-          const boneWorldPosition = rigBoneNode.getWorldPosition(_boneWorldPos)
-          if (!boneNode.parent) {
-            console.warn('boneNode.parent is null', boneNode)
-          } else {
-            boneNode.parent.updateWorldMatrix(true, false)
-            const parentWorldMatrix = boneNode.parent.matrixWorld
-            const localPosition = boneWorldPosition.applyMatrix4(parentWorldMatrix.invert())
-            boneNode.position.copy(localPosition)
-          }
-        }
-      }
-    }
+    updateVRMRetargeting(rigComponent.vrm, deltaTime)
   }
 }
-
-const _quatA = new Quaternion()
-const _boneWorldPos = new Vector3()
 
 const reactor = () => {
   const xrState = getMutableState(XRState)

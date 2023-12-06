@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Types } from 'bitecs'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const DistanceComponentSchema = { squaredDistance: Types.f32 }
 
@@ -42,16 +42,13 @@ export const DistanceFromCameraComponent = defineComponent({
 export const FrustumCullCameraSchema = { isCulled: Types.ui8 }
 export const FrustumCullCameraComponent = defineComponent({
   name: 'FrustumCullCameraComponent',
-  schema: FrustumCullCameraSchema
+  schema: FrustumCullCameraSchema,
+
+  onRemove(entity, component) {
+    // reset upon removing the component
+    FrustumCullCameraComponent.isCulled[entity] = 0
+  }
 })
-
-export function setDistanceFromLocalClientComponent(entity: Entity) {
-  setComponent(entity, DistanceFromLocalClientComponent)
-}
-
-export function setDistanceFromCameraComponent(entity: Entity) {
-  setComponent(entity, DistanceFromCameraComponent)
-}
 
 export const compareDistanceToCamera = (a: Entity, b: Entity) => {
   const aDist = DistanceFromCameraComponent.squaredDistance[a]

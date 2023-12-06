@@ -44,6 +44,7 @@ import { LocalTransformComponent, TransformComponent } from '../../transform/com
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
+import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
@@ -78,7 +79,7 @@ const execute = () => {
     const model = getComponent(entity, ModelComponent)
     if (model.asset instanceof VRM) {
       const position = getComponent(entity, TransformComponent).position
-      model.asset.update(deltaSeconds)
+      updateVRMRetargeting(model.asset, deltaSeconds)
       getComponent(entity, TransformComponent).position.copy(position)
     }
   }

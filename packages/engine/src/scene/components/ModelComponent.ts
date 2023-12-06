@@ -180,6 +180,7 @@ function ModelReactor() {
     asset.scene.userData.src = model.src
     asset.scene.userData.sceneID = getModelSceneID(entity)
     asset.scene.userData.type === 'glb' && delete asset.scene.userData.type
+    if (asset instanceof VRM) asset.humanoid.autoUpdateHumanBones = false
     if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
     modelComponent.scene.set(asset.scene as any)
   }, [modelComponent.asset])

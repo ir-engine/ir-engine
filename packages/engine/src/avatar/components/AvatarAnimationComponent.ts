@@ -101,9 +101,9 @@ export const AvatarRigComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      /** Holds all the bones */
+      /** Holds all the bones - this is where IK data is blended with FK data */
       rig: null! as VRMHumanBones,
-      /** Read-only bones in bind pose */
+      /** Read-only bones in bind pose - this is where FK data is put*/
       localRig: null! as VRMHumanBones,
       /** the target */
       targetBones: null! as Record<VRMHumanBoneName, Bone>,

@@ -252,9 +252,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
       }
     },
     isProxified: {
-      get() {
-        return true
-      }
+      value: true
     }
   })
 
