@@ -234,7 +234,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
         if (EngineRenderer.instance?.rendering) return []
         return hasComponent(objEntity, EntityTreeComponent)
           ? getComponent(objEntity, EntityTreeComponent)
-              .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length ?? 0 > 0)
+              .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
               .flatMap((child) => getComponent(child, GroupComponent))
           : []
       },
