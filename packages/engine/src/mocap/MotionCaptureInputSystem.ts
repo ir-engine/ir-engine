@@ -23,32 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Shader, WebGLRenderer } from 'three'
+import { Engine } from '../ecs/classes/Engine'
+import { hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../ecs/functions/EngineFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
+import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
+import { evaluatePose } from './poseToInput'
 
-import { MaterialSource, SourceType } from './MaterialSource'
-
-export type MaterialPrototypeComponentType<T extends Material = Material> = {
-  prototypeId: string
-  baseMaterial: { new (params): T }
-  arguments: {
-    [_: string]: {
-      type: string
-      default: any
-      min?: number
-      max?: number
-      options?: any[]
-    }
-  }
-  src: MaterialSource
-  onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
+export const execute = () => {
+  const entity = Engine.instance.localClientEntity
+  if (!hasComponent(entity, MotionCaptureRigComponent)) return
+  if (!hasComponent(entity, MotionCapturePoseComponent)) setComponent(entity, MotionCapturePoseComponent)
+  evaluatePose(Engine.instance.localClientEntity)
 }
 
-export const materialPrototypeUnavailableComponent: MaterialPrototypeComponentType = {
-  prototypeId: 'unavailable',
-  baseMaterial: Material,
-  arguments: {},
-  src: {
-    type: SourceType.BUILT_IN,
-    path: 'UNAVAILABLE'
-  }
-}
+export const MotionCaptureInputSystem = defineSystem({
+  uuid: 'ee.engine.MotionCaptureInputSystem',
+  insert: { before: InputSystemGroup },
+  execute
+})

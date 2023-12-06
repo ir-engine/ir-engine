@@ -23,32 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Shader, WebGLRenderer } from 'three'
+import { defineComponent } from '../ecs/functions/ComponentFunctions'
+import { MotionCapturePoseState, MotionCapturePoses } from './poseToInput'
 
-import { MaterialSource, SourceType } from './MaterialSource'
-
-export type MaterialPrototypeComponentType<T extends Material = Material> = {
-  prototypeId: string
-  baseMaterial: { new (params): T }
-  arguments: {
-    [_: string]: {
-      type: string
-      default: any
-      min?: number
-      max?: number
-      options?: any[]
-    }
+export const MotionCapturePoseComponent = defineComponent({
+  name: 'MotionCapturePoseComponent',
+  onInit: () => {
+    return {} as Record<MotionCapturePoses, MotionCapturePoseState>
   }
-  src: MaterialSource
-  onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
-}
-
-export const materialPrototypeUnavailableComponent: MaterialPrototypeComponentType = {
-  prototypeId: 'unavailable',
-  baseMaterial: Material,
-  arguments: {},
-  src: {
-    type: SourceType.BUILT_IN,
-    path: 'UNAVAILABLE'
-  }
-}
+})
