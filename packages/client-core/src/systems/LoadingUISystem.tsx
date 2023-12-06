@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import getImagePalette from 'image-palette-core'
 import React, { useEffect } from 'react'
-import { Color, CompressedTexture, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture, Vector2 } from 'three'
+import { BackSide, Color, CompressedTexture, Mesh, MeshBasicMaterial, SphereGeometry, Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
@@ -37,12 +37,13 @@ import {
   addComponent,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import {
@@ -55,7 +56,10 @@ import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/Ob
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { AuthState } from '../user/services/AuthService'
@@ -73,21 +77,29 @@ const LoadingUISystemState = defineState({
     const ui = createLoaderDetailView()
     addComponent(ui.entity, NameComponent, 'Loading XRUI')
 
+    const meshEntity = createEntity()
     const mesh = new Mesh(
       new SphereGeometry(10),
-      new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false })
+      new MeshBasicMaterial({ side: BackSide, transparent: true, depthWrite: true, depthTest: false })
     )
 
-    // flip inside out
-    mesh.scale.set(-1, 1, -1)
-
     mesh.renderOrder = 1
-    Engine.instance.scene.add(mesh)
     setObjectLayers(mesh, ObjectLayers.UI)
+
+    setComputedTransformComponent(meshEntity, Engine.instance.cameraEntity, () => {
+      getComponent(meshEntity, TransformComponent).position.copy(
+        getComponent(Engine.instance.cameraEntity, TransformComponent).position
+      )
+    })
+
+    setComponent(meshEntity, VisibleComponent)
+    addObjectToGroup(meshEntity, mesh)
+
+    getComponent(meshEntity, TransformComponent).scale.set(-1, 1, -1)
 
     return {
       ui,
-      mesh,
+      meshEntity,
       transition
     }
   }
@@ -120,7 +132,7 @@ function LoadingReactor() {
   const userReady = useHookstate(getMutableState(EngineState).userReady)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
-  const mesh = state.mesh.value
+  const meshEntity = state.meshEntity.value
 
   /** Handle loading state changes */
   useEffect(() => {
@@ -142,9 +154,11 @@ function LoadingReactor() {
 
   /** Scene data changes */
   useEffect(() => {
-    const sceneData = SceneState.getCurrentScene()
+    const currentSceneID = getState(SceneState).activeScene!
+    const sceneData = SceneState.getSceneMetadata(currentSceneID)
     if (!sceneData) return
     const envmapURL = sceneData.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
+    const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
     if (envmapURL && mesh.userData.url !== envmapURL) {
       mesh.userData.url = envmapURL
       setDefaultPalette()
@@ -205,7 +219,7 @@ const mainThemeColor = new Color()
 const defaultColor = new Color()
 
 const execute = () => {
-  const { transition, ui, mesh } = getState(LoadingUISystemState)
+  const { transition, ui, meshEntity } = getState(LoadingUISystemState)
   if (!transition) return
 
   const engineState = getState(EngineState)
@@ -235,9 +249,6 @@ const execute = () => {
       })
   }
 
-  mesh.position.copy(getComponent(Engine.instance.cameraEntity, CameraComponent).position)
-  mesh.updateMatrixWorld(true)
-
   // add a slow rotation to animate on desktop, otherwise just keep it static for VR
   // getComponent(Engine.instance.cameraEntity, CameraComponent).rotateY(world.delta * 0.35)
 
@@ -250,8 +261,10 @@ const execute = () => {
   const opacity = getState(LoadingSystemState).loadingScreenOpacity
   const ready = opacity > 0
 
+  setVisibleComponent(meshEntity, ready)
+
+  const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
   mesh.material.opacity = opacity
-  mesh.visible = ready
 
   xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
     const mat = layer.contentMesh.material as MeshBasicMaterial
@@ -298,6 +311,7 @@ const reactor = () => {
 
 export const LoadingUISystem = defineSystem({
   uuid: 'ee.client.LoadingUISystem',
+  insert: { before: TransformSystem },
   execute,
   reactor
 })

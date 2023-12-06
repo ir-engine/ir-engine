@@ -38,6 +38,7 @@ import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { editorCameraCenter, EditorCameraState } from '../classes/EditorCameraState'
 
 const ZOOM_SPEED = 0.1
@@ -143,5 +144,6 @@ const execute = () => {
 
 export const EditorCameraSystem = defineSystem({
   uuid: 'ee.editor.EditorCameraSystem',
+  insert: { before: PresentationSystemGroup },
   execute
 })

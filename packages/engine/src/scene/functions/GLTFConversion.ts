@@ -23,25 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, MathUtils, Object3D } from 'three'
+import { MathUtils, Object3D } from 'three'
 
 import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  getAllComponents,
-  getComponent,
-  serializeComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { sceneRelativePathIdentifier } from '../../common/functions/parseSceneJSON'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { Object3DWithEntity } from '../components/GroupComponent'
-import { NameComponent } from '../components/NameComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
+import { EntityJsonType, SceneJsonType } from '../../schemas/projects/scene.schema'
 
-export const nodeToEntityJson = (node: any): EntityJson => {
+export const nodeToEntityJson = (node: any): EntityJsonType => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
   const uuid = node.extras?.uuid ? node.extras.uuid : MathUtils.generateUUID()
   return {
@@ -55,11 +45,11 @@ export const nodeToEntityJson = (node: any): EntityJson => {
   }
 }
 
-export const gltfToSceneJson = (gltf: any): SceneJson => {
+export const gltfToSceneJson = (gltf: any): SceneJsonType => {
   handleScenePaths(gltf, 'decode')
   const rootGL = gltf.scenes[gltf.scene]
   const rootUuid = MathUtils.generateUUID() as EntityUUID
-  const result: SceneJson = {
+  const result: SceneJsonType = {
     entities: {},
     root: rootUuid,
     version: 2.0
@@ -82,78 +72,6 @@ export const gltfToSceneJson = (gltf: any): SceneJson => {
     })
   }
   return result
-}
-
-export interface GLTFExtension {
-  beforeParse?(input)
-  afterParse?(input)
-  writeTexture?(map, textureDef)
-  writeMaterial?(material, materialDef)
-  writeMesh?(mesh, meshDef)
-  writeNode?(node, nodeDef)
-}
-
-const serializeECS = (roots: Object3DWithEntity[]) => {
-  const idxTable = new Map<Entity, number>()
-  const extensionSet = new Set<string>()
-  const frontier: Object3DWithEntity[] = []
-  const haveChildren = [] as any[]
-  const result = {
-    asset: { version: '2.0', generator: 'Ethereal Engine glTF Scene Conversion' },
-    scenes: [{ nodes: [] as any[] }],
-    scene: 0,
-    nodes: [] as any[],
-    extensionsUsed: new Array<string>()
-  }
-
-  frontier.push(...roots)
-  do {
-    const srcObj = frontier.pop()
-    if (srcObj?.userData.gltfExtensions) {
-      const nodeBase = {
-        name: srcObj.name,
-        extensions: srcObj.userData.gltfExtensions,
-        extras: { uuid: getComponent(srcObj.entity, UUIDComponent) }
-      }
-      for (const [name] of Object.entries(nodeBase.extensions)) {
-        extensionSet.add(name)
-      }
-      delete srcObj.userData.gltfExtensions
-      const children = getComponent(srcObj.entity, EntityTreeComponent)?.children
-
-      if (children) {
-        haveChildren.push(nodeBase)
-        nodeBase['children'] = children
-      }
-      if (roots.includes(srcObj)) {
-        result.scenes[0].nodes.push(result.nodes.length)
-      }
-      idxTable.set(srcObj.entity, result.nodes.length)
-      result.nodes.push(nodeBase)
-    }
-    if (srcObj?.children) {
-      frontier.push(...(srcObj.children as Object3DWithEntity[]))
-    }
-  } while (frontier.length > 0)
-  result.extensionsUsed = [...extensionSet.values()]
-  for (const parent of haveChildren) {
-    parent.children = parent.children.map((entity) => idxTable.get(entity))
-  }
-  return result
-}
-
-export const sceneToGLTF = (roots: Object3DWithEntity[]) => {
-  for (const root of roots) {
-    root.traverse((node: Object3DWithEntity) => {
-      if (node.entity) {
-        prepareObjectForGLTFExport(node)
-      }
-    })
-  }
-
-  const gltf = serializeECS(roots)
-  handleScenePaths(gltf, 'encode')
-  return gltf
 }
 
 /**
@@ -183,46 +101,6 @@ export const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
           }
         }
       }
-    }
-  }
-}
-
-const addComponentDataToGLTFExtension = (obj3d: Object3D, data: ComponentJson) => {
-  if (!obj3d.userData.gltfExtensions) obj3d.userData.gltfExtensions = {}
-  if (data.props && typeof data.props !== 'object')
-    throw new Error('glTF component props must be an object or undefined')
-
-  const componentProps = {}
-
-  for (const key in data.props) {
-    const value = data.props[key]
-    if (value instanceof Color) {
-      componentProps[key] = `#${value.getHexString()}`
-    } else {
-      componentProps[key] = value
-    }
-  }
-
-  obj3d.userData.gltfExtensions[data.name] = componentProps
-}
-
-export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity) => {
-  const name = getComponent(obj3d.entity, NameComponent)
-  if (name) obj3d.name = name
-
-  const { entity } = obj3d
-
-  const components = getAllComponents(entity)
-
-  for (const component of components) {
-    const sceneComponentID = component.jsonID
-    if (sceneComponentID) {
-      const data = serializeComponent(entity, component)
-      if (data)
-        addComponentDataToGLTFExtension(obj3d, {
-          name: sceneComponentID,
-          props: Object.assign({}, data)
-        })
     }
   }
 }

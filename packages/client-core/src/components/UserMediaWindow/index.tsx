@@ -55,6 +55,7 @@ import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -324,7 +325,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const togglePiP = () => isPiP.set(!isPiP.value)
 
-  const username = getUsername()
+  const username = getUsername() as UserName
 
   const avatarThumbnail = useUserAvatarThumbnail(userId)
 

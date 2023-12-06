@@ -102,6 +102,41 @@ export const getCameraEntity = makeFunctionNodeDefinition({
   }
 })
 
+export const onEntity = makeFlowNodeDefinition({
+  typeName: 'engine/entity/onEntity',
+  category: NodeCategory.Action,
+  label: 'Test if entity is valid',
+  in: {
+    flow: 'flow',
+    entity: 'entity'
+  },
+  out: {
+    flow: 'flow',
+    entity: 'entity',
+    exists: 'bool',
+    position: 'vec3',
+    rotation: 'quat',
+    scale: 'vec3',
+    matrix: 'mat4'
+  },
+  initialState: undefined,
+  triggered: ({ read, write, commit, graph: { getDependency } }) => {
+    const entity: Entity = read('entity')
+    if (!entity) {
+      write('exists', false)
+    } else {
+      write('exists', true)
+      write('entity', entity)
+      const transform = getComponent(entity, TransformComponent)
+      write('position', transform.position)
+      write('rotation', transform.rotation)
+      write('scale', transform.scale)
+      write('matrix', transform.matrix)
+    }
+    commit('flow')
+  }
+})
+
 export const getEntityTransform = makeFunctionNodeDefinition({
   typeName: 'engine/entity/getEntityTransform',
   category: NodeCategory.Query,

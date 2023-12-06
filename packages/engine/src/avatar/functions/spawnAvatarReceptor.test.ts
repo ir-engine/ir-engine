@@ -36,10 +36,10 @@ import {
   receiveActions
 } from '@etherealengine/hyperflux'
 
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
@@ -63,6 +63,7 @@ describe('spawnAvatarReceptor', () => {
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.userID = 'user' as UserID
+    loadEmptyScene()
   })
 
   afterEach(() => {
@@ -92,7 +93,6 @@ describe('spawnAvatarReceptor', () => {
     assert(hasComponent(entity, NameComponent))
     assert(hasComponent(entity, AvatarAnimationComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
-    assert(hasComponent(entity, LocalInputTagComponent))
     assert(hasComponent(entity, RigidBodyComponent))
     assert(hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent))
     strictEqual(getState(PhysicsState).physicsWorld.colliders.len(), 1)

@@ -73,6 +73,7 @@ import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
+import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -349,17 +350,6 @@ const execute = () => {
     }
     rigComponent.vrm.update(deltaTime)
   }
-
-  /** Run debug */
-  if (avatarDebug) {
-    for (const entity of priorityQueue.priorityEntities) {
-      const rigComponent = getComponent(entity, AvatarRigComponent)
-      if (rigComponent?.helper) {
-        rigComponent.rig.hips.node.updateWorldMatrix(true, true)
-        rigComponent.helper?.updateMatrixWorld(true)
-      }
-    }
-  }
 }
 
 const reactor = () => {
@@ -405,6 +395,7 @@ const reactor = () => {
 
 export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
+  insert: { after: AnimationSystem },
   execute,
   reactor
 })

@@ -235,18 +235,15 @@ const getAssetType = (assetFileName: string): AssetType => {
  */
 const getAssetClass = (assetFileName: string): AssetClass => {
   assetFileName = assetFileName.toLowerCase()
-
-  if (/\.xre\.gltf$/.test(assetFileName)) {
-    return AssetClass.Asset
-  } else if (/\.(?:gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
+  if (/\.(gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
     return AssetClass.Model
-  } else if (/\.png|jpg|jpeg|tga|ktx2|dds$/.test(assetFileName)) {
+  } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
     return AssetClass.Image
-  } else if (/\.mp4|avi|webm|mkv|mov|m3u8|mpd$/.test(assetFileName)) {
+  } else if (/\.(mp4|avi|webm|mkv|mov|m3u8|mpd)$/.test(assetFileName)) {
     return AssetClass.Video
-  } else if (/\.mp3|ogg|m4a|flac|wav$/.test(assetFileName)) {
+  } else if (/\.(mp3|ogg|m4a|flac|wav)$/.test(assetFileName)) {
     return AssetClass.Audio
-  } else if (/\.drcs|uvol|manifest$/.test(assetFileName)) {
+  } else if (/\.(drcs|uvol|manifest)$/.test(assetFileName)) {
     return AssetClass.Volumetric
   } else {
     return AssetClass.Unknown
@@ -369,7 +366,8 @@ const load = (
   args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {}
+  onError = (event: ErrorEvent | Error) => {},
+  assetTypeOverride: AssetType = null!
 ) => {
   if (!_url) {
     onError(new Error('URL is empty'))
@@ -377,7 +375,7 @@ const load = (
   }
   const url = getAbsolutePath(_url)
 
-  const assetType = AssetLoader.getAssetType(url)
+  const assetType = assetTypeOverride ? assetTypeOverride : AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
 
   const callback = assetLoadCallback(url, args, assetType, onLoad)
@@ -389,9 +387,14 @@ const load = (
   }
 }
 
-const loadAsync = async (url: string, args: LoadingArgs = {}, onProgress = (request: ProgressEvent) => {}) => {
+const loadAsync = async (
+  url: string,
+  args: LoadingArgs = {},
+  onProgress = (request: ProgressEvent) => {},
+  assetTypeOverride: AssetType = null!
+) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, args, resolve, onProgress, reject)
+    load(url, args, resolve, onProgress, reject, assetTypeOverride)
   })
 }
 

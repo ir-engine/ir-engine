@@ -27,7 +27,7 @@ import React, { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -99,7 +99,7 @@ const LocationTable = ({ className, search }: Props) => {
 
   const createData = (
     el: LocationType,
-    id: string,
+    id: LocationID,
     name: string,
     sceneId: SceneID,
     maxUsersPerInstance: string,
@@ -112,7 +112,7 @@ const LocationTable = ({ className, search }: Props) => {
       el,
       id,
       name: <a href={`/location/${transformLink(name)}`}>{name}</a>,
-      sceneId: <a href={`/studio/${sceneId}`}>{sceneId}</a>,
+      sceneId: <a href={`/studio/${sceneId.split('/')[0]}`}>{sceneId}</a>,
       maxUsersPerInstance,
       scene,
       locationType,
@@ -141,7 +141,7 @@ const LocationTable = ({ className, search }: Props) => {
   const rows = adminLocations.data.map((el) => {
     return createData(
       el,
-      el.id,
+      el.id as LocationID,
       el.name,
       el.sceneId as SceneID,
       el.maxUsersPerInstance.toString(),

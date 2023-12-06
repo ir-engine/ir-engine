@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineAction, defineState } from '@etherealengine/hyperflux'
 
-import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
+import { matches } from '../../common/functions/MatchesUtils'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
@@ -43,12 +43,9 @@ export const EngineState = defineState({
 
     physicsSubsteps: 1,
 
-    /** @deprecated */
-    isEngineInitialized: false,
     sceneLoading: false,
     sceneLoaded: false,
     loadingProgress: 0,
-    isTeleporting: false,
     spectating: false,
     avatarLoadingEffect: true,
     /**
@@ -76,12 +73,6 @@ export class EngineActions {
 
   static exitSpectate = defineAction({
     type: 'ee.engine.Engine.EXIT_SPECTATE' as const
-  })
-
-  static interactedWithObject = defineAction({
-    type: 'ee.engine.Engine.INTERACTED_WITH_OBJECT' as const,
-    targetEntity: matchesEntity.optional(),
-    handedness: matches.string as Validator<unknown, XRHandedness>
   })
 
   static notification = defineAction({

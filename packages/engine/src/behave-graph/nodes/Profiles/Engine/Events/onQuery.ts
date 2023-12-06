@@ -36,8 +36,7 @@ import {
   SystemDefinitions,
   SystemUUID,
   defineSystem,
-  disableSystem,
-  startSystem
+  destroySystem
 } from '../../../../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
@@ -125,6 +124,7 @@ export const OnQuery = makeEventNodeDefinition({
     let newQueryResult = []
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onQuery-' + systemCounter++,
+      insert: { with: system },
       execute: () => {
         newQueryResult = query()
         if (newQueryResult.length === 0) return
@@ -138,7 +138,6 @@ export const OnQuery = makeEventNodeDefinition({
         prevQueryResult = tempResult
       }
     })
-    startSystem(systemUUID, { with: system })
     const state: State = {
       query,
       systemUUID
@@ -147,7 +146,7 @@ export const OnQuery = makeEventNodeDefinition({
     return state
   },
   dispose: ({ state: { query, systemUUID }, graph: { getDependency } }) => {
-    disableSystem(systemUUID)
+    destroySystem(systemUUID)
     removeQuery(query)
     return initialState()
   }

@@ -31,7 +31,6 @@ import {
   defineAction,
   defineActionQueue,
   defineState,
-  dispatchAction,
   getMutableState,
   getState,
   none,
@@ -39,19 +38,31 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+
 import { useEffect } from 'react'
 import { Validator, matches } from '../../common/functions/MatchesUtils'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { SourceComponent } from '../../scene/components/SourceComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { migrateSceneData } from '../../scene/systems/SceneLoadingSystem'
-import { SceneDataType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
+import { serializeEntity } from '../../scene/functions/serializeWorld'
+import {
+  EntityJsonType,
+  SceneDataType,
+  SceneID,
+  SceneJsonType,
+  SceneMetadataType,
+  scenePath
+} from '../../schemas/projects/scene.schema'
+import { getComponent, getOptionalComponent } from '../functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../functions/EngineFunctions'
+import { EntityTreeComponent } from '../functions/EntityTree'
 import { defineSystem } from '../functions/SystemFunctions'
 import { Engine } from './Engine'
-import { EngineActions, EngineState } from './EngineState'
+import { EngineState } from './EngineState'
 import { UndefinedEntity } from './Entity'
 
 export interface SceneSnapshotInterface {
-  data: SceneDataType
+  data: SceneJsonType
   selectedEntities: Array<EntityUUID>
 }
 
@@ -61,19 +72,47 @@ export const SceneState = defineState({
     scenes: {} as Record<
       SceneID,
       {
+        metadata: SceneMetadataType
         snapshots: Array<SceneSnapshotInterface>
         index: number
       }
     >,
     /** @todo replace activeScene with proper multi-scene support */
     activeScene: null as null | SceneID,
-    background: null as null | Color | Texture
+    background: null as null | Color | Texture,
+    environment: null as null | Texture
   }),
 
   getCurrentScene: () => {
     const activeScene = getState(SceneState).activeScene
     if (!activeScene) return null
-    return getState(SceneState).scenes[activeScene].snapshots[getState(SceneState).scenes[activeScene].index].data
+    return SceneState.getScene(activeScene)!
+  },
+
+  getMutableCurrentScene: () => {
+    const activeSceneID = getState(SceneState).activeScene
+    if (!activeSceneID) return null
+    return SceneState.getMutableScene(activeSceneID)!
+  },
+
+  getScene: (sceneID: SceneID) => {
+    const { scenes } = getState(SceneState)
+    const scene = scenes[sceneID]
+    if (!scene) return null
+    return scene.snapshots[scene.index].data
+  },
+
+  getSceneMetadata: (sceneID: SceneID) => {
+    const { scenes } = getState(SceneState)
+    const scene = scenes[sceneID]
+    if (!scene) return null
+    return scene.metadata
+  },
+
+  getMutableScene: (sceneID: SceneID) => {
+    const { scenes } = getMutableState(SceneState)
+    const scene = scenes[sceneID]
+    return scene.snapshots[scene.index.value].data
   },
 
   useScene: (sceneID: SceneID) => {
@@ -83,9 +122,14 @@ export const SceneState = defineState({
     return snapshots[index.value].data
   },
 
-  loadScene: (sceneID: SceneID, data: SceneDataType) => {
-    getMutableState(SceneState).scenes[sceneID].set({ snapshots: [{ data, selectedEntities: [] }], index: 0 })
-    getMutableState(SceneState).activeScene.set(sceneID)
+  loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
+    const metadata: SceneMetadataType = sceneData
+    const data: SceneJsonType = sceneData.scene
+    getMutableState(SceneState).scenes[sceneID].set({
+      metadata,
+      snapshots: [{ data, selectedEntities: [] }],
+      index: 0
+    })
   },
 
   unloadScene: (sceneID: SceneID) => {
@@ -99,24 +143,18 @@ export const SceneState = defineState({
     if (!getState(SceneState).scenes[sceneID ?? getState(SceneState).activeScene!]) return UndefinedEntity
     const scene = getState(SceneState).scenes[sceneID ?? getState(SceneState).activeScene!]
     const currentSnapshot = scene.snapshots[scene.index].data
-    return UUIDComponent.entitiesByUUID[currentSnapshot.scene.root]
+    return UUIDComponent.entitiesByUUID[currentSnapshot.root]
   },
 
   // Snapshots
   resetHistory: (sceneID: SceneID) => {
     if (!getState(SceneState).scenes[sceneID]) throw new Error(`Scene ${sceneID} does not exist.`)
-    const sceneData = getState(SceneState).scenes[sceneID].snapshots[0].data
-    let migratedSceneData
-    try {
-      migratedSceneData = migrateSceneData(sceneData)
-    } catch (e) {
-      console.error(e)
-      migratedSceneData = JSON.parse(JSON.stringify(sceneData))
-      dispatchAction(EngineActions.notification({ text: 'Failed to migrate scene.', variant: 'error' }))
-    }
+    const scene = getState(SceneState).scenes[sceneID]
+    const data = scene.snapshots[0].data
     getMutableState(SceneState).scenes[sceneID].set({
+      metadata: scene.metadata,
       index: 0,
-      snapshots: [{ data: migratedSceneData, selectedEntities: [] }]
+      snapshots: [{ data, selectedEntities: [] }]
     })
     SceneState.applyCurrentSnapshot(sceneID)
   },
@@ -126,6 +164,44 @@ export const SceneState = defineState({
     return JSON.parse(JSON.stringify({ sceneID, ...state.snapshots[state.index] })) as SceneSnapshotInterface & {
       sceneID: SceneID
     }
+  },
+
+  snapshotFromECS: (sceneID: SceneID) => {
+    const entities = SourceComponent.entitiesBySource[sceneID] ?? []
+    const serializedEntities: [EntityUUID, EntityJsonType][] = entities.map((entity) => {
+      const components = serializeEntity(entity)
+      const name = getComponent(entity, NameComponent)
+      const uuid = getComponent(entity, UUIDComponent)
+      const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
+      const entityJson: EntityJsonType = {
+        name,
+        components
+      }
+      if (parentEntity) {
+        entityJson.parent = getComponent(parentEntity, UUIDComponent)
+      }
+      return [uuid, entityJson]
+    })
+    let rootEntity = entities[0]
+    while (getComponent(rootEntity, SourceComponent) === sceneID) {
+      const entityTree = getOptionalComponent(rootEntity, EntityTreeComponent)
+      if (!entityTree || entityTree.parentEntity === null) break
+      rootEntity = entityTree.parentEntity
+    }
+    const root = getComponent(rootEntity, UUIDComponent)
+    const data: SceneJsonType = {
+      entities: {} as Record<EntityUUID, EntityJsonType>,
+      root,
+      version: 0
+    }
+    for (const [uuid, entityJson] of serializedEntities) {
+      data.entities[uuid] = entityJson
+    }
+    const snapshot: SceneSnapshotInterface = {
+      data,
+      selectedEntities: []
+    }
+    return snapshot
   },
 
   applyCurrentSnapshot: (sceneID: SceneID) => {
@@ -143,17 +219,17 @@ export const SceneState = defineState({
 })
 
 export const SceneServices = {
-  setCurrentScene: (projectName: string, sceneName: string) => {
+  setCurrentScene: (sceneID: SceneID) => {
     Engine.instance.api
       .service(scenePath)
-      .get(null, { query: { project: projectName, name: sceneName } })
+      .get(null, { query: { sceneKey: sceneID } })
       .then((sceneData) => {
-        /**@todo replace projectName/sceneName with sceneID once #9119 */
-        SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, sceneData)
+        SceneState.loadScene(sceneID, sceneData)
+        getMutableState(SceneState).activeScene.set(sceneID)
       })
 
     return () => {
-      SceneState.unloadScene(`${projectName}/${sceneName}` as SceneID)
+      SceneState.unloadScene(sceneID)
     }
   }
 }
@@ -183,7 +259,7 @@ export class SceneSnapshotAction {
   static appendSnapshot = defineAction({
     type: 'ee.scene.snapshot.APPEND_SNAPSHOT' as const,
     sceneID: matches.string as Validator<unknown, SceneID>,
-    json: matches.object as Validator<unknown, SceneJson>
+    json: matches.object as Validator<unknown, SceneJsonType>
     // $topic: EditorTopic,
     // $cache: true
   })
@@ -192,7 +268,7 @@ export class SceneSnapshotAction {
     type: 'ee.scene.snapshot.CREATE_SNAPSHOT' as const,
     sceneID: matches.string as Validator<unknown, SceneID>,
     selectedEntities: matches.array as Validator<unknown, Array<EntityUUID>>,
-    data: matches.object as Validator<unknown, SceneData>
+    data: matches.object as Validator<unknown, SceneJsonType>
   })
 }
 
@@ -201,7 +277,6 @@ export const EditorTopic = 'editor' as Topic
 const undoQueue = defineActionQueue(SceneSnapshotAction.undo.matches)
 const redoQueue = defineActionQueue(SceneSnapshotAction.redo.matches)
 const clearHistoryQueue = defineActionQueue(SceneSnapshotAction.clearHistory.matches)
-const appendSnapshotQueue = defineActionQueue(SceneSnapshotAction.appendSnapshot.matches)
 const modifyQueue = defineActionQueue(SceneSnapshotAction.createSnapshot.matches)
 
 const execute = () => {
@@ -230,6 +305,8 @@ const execute = () => {
 
   for (const action of modifyQueue()) {
     if (!isEditing) return
+    const scenes = getMutableState(SceneState).scenes
+    if (!scenes[action.sceneID]) return
     const state = getMutableState(SceneState).scenes[action.sceneID]
     const { data, selectedEntities } = action
     state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), { data, selectedEntities }])
@@ -252,6 +329,7 @@ const reactor = () => {
 
 export const SceneSnapshotSystem = defineSystem({
   uuid: 'ee.scene.SceneSnapshotSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })

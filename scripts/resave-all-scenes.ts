@@ -95,7 +95,7 @@ const resaveAllProjects = async () => {
 
     createEngine()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
-    await loadEngineInjection(projects)
+    await loadEngineInjection()
 
     getMutableState(EngineState).isEditor.set(true)
 

@@ -29,7 +29,7 @@ import { inviteTypes } from '@etherealengine/engine/src/schemas/social/invite-ty
 import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
@@ -47,7 +47,7 @@ describe('invite.service', () => {
   })
 
   before(async () => {
-    const name = 'test-invite-user-name-' + v1()
+    const name = ('test-invite-user-name-' + v1()) as UserName
     const avatarName = 'test-invite-avatar-name-' + v1()
 
     const avatar = await app.service(avatarPath).create({

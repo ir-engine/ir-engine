@@ -24,18 +24,24 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { MathUtils } from 'three'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { SceneState } from '../../../../../ecs/classes/Scene'
-import { getComponent, hasComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import {
+  ComponentJSONIDMap,
+  getComponent,
+  hasComponent,
+  setComponent
+} from '../../../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../../../../ecs/functions/EntityTree'
 import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
-import { createNewEditorNode } from '../../../../../scene/systems/SceneLoadingSystem'
+import { VisibleComponent } from '../../../../../scene/components/VisibleComponent'
+import { ComponentJsonType } from '../../../../../schemas/projects/scene.schema'
+import { LocalTransformComponent } from '../../../../../transform/components/TransformComponent'
 
 export const addEntityToScene = (
-  componentJson: Array<ComponentJson>,
+  componentJson: Array<ComponentJsonType>,
   parentEntity = SceneState.getRootEntity(),
   beforeEntity = null as Entity | null
 ) => {
@@ -48,8 +54,14 @@ export const addEntityToScene = (
     }
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
-  setComponent(newEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-  createNewEditorNode(newEntity, componentJson, parentEntity)
+  setComponent(newEntity, LocalTransformComponent)
+  const uuid = MathUtils.generateUUID() as EntityUUID
+  setComponent(newEntity, UUIDComponent, uuid)
+  setComponent(newEntity, VisibleComponent)
+  for (const component of componentJson) {
+    if (ComponentJSONIDMap.has(component.name))
+      setComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
+  }
 
   return newEntity
 }

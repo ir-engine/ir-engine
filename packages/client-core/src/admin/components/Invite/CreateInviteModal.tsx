@@ -50,7 +50,7 @@ import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHoo
 import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { InviteCode, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
@@ -144,8 +144,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
     locationId.set(e.target.value)
     const location = adminLocations.find((location) => location.id === e.target.value)
     if (location && location.sceneId) {
-      const sceneName = location.sceneId.split('/')
-      AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
+      AdminSceneService.fetchAdminScene(location.sceneId)
     }
   }
 
@@ -155,8 +154,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
     if (instance) {
       const location = adminLocations.find((location) => location.id === instance.locationId)
       if (location) {
-        const sceneName = location.sceneId.split('/')
-        AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
+        AdminSceneService.fetchAdminScene(location.sceneId)
       }
     }
   }
@@ -397,7 +395,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
               )}
               {setSpawn.value && spawnTypeTab.value === 0 && (
                 <InputSelect
-                  name="user"
+                  name={'user' as UserName}
                   className={classNames({
                     [styles.maxWidth90]: true,
                     [styles.inputField]: true

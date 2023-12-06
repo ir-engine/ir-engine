@@ -61,11 +61,15 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
+import { GroupComponent, Object3DWithEntity } from '../../scene/components/GroupComponent'
+import { MeshComponent } from '../../scene/components/MeshComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
@@ -84,10 +88,7 @@ function load() {
 }
 
 function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
-  const world = new World(gravity)
-  /** @todo create a better api for raycast debugger*/
-  ;(world as any).raycastDebugs = []
-  return world
+  return new World(gravity)
 }
 
 function createCollisionEventQueue() {
@@ -104,10 +105,10 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
-  addComponent(entity, RigidBodyComponent, { body })
+  setComponent(entity, RigidBodyComponent, { body })
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.body.bodyType())
-  addComponent(entity, RigidBodyTypeTagComponent, true)
+  setComponent(entity, RigidBodyTypeTagComponent, true)
 
   // apply the initial transform if there is one
   if (hasComponent(entity, TransformComponent)) {
@@ -284,7 +285,7 @@ function createColliderDesc(
   applyDescToCollider(
     colliderDesc,
     colliderDescOptions,
-    positionRelativeToRoot.multiply(rootObject.scale),
+    positionRelativeToRoot.multiply(rootObject.getWorldScale(new Vector3())),
     quaternionRelativeToRoot
   )
 
@@ -297,7 +298,7 @@ function createRigidBodyForGroup(
   colliderDescOptions: ColliderDescOptions,
   overrideShapeType = false
 ): RigidBody {
-  const group = getComponent(entity, GroupComponent) as any as Mesh[]
+  const group = getComponent(entity, GroupComponent) as any as Mesh[] & Object3DWithEntity[]
   if (!group) return undefined!
 
   const colliderDescs = [] as ColliderDesc[]
@@ -305,11 +306,16 @@ function createRigidBodyForGroup(
 
   // create collider desc using userdata of each child mesh
   for (const obj of group) {
-    obj.updateMatrixWorld(true)
+    if (obj.entity && hasComponent(obj.entity, TransformComponent)) {
+      computeLocalTransformMatrix(obj.entity)
+      computeTransformMatrix(obj.entity)
+    }
     obj.traverse((mesh: Mesh) => {
       if (
         (!overrideShapeType && (!mesh.userData || mesh.userData.type === 'glb')) ||
-        (!mesh.isMesh && !mesh.userData.type)
+        (!mesh.isMesh &&
+          !mesh.userData.type &&
+          !Object.keys(mesh.userData).some((key) => key.startsWith('xrengine.collider')))
       )
         return
 
@@ -326,6 +332,21 @@ function createRigidBodyForGroup(
       }
     })
   }
+
+  hasComponent(entity, EntityTreeComponent) &&
+    iterateEntityNode(entity, (child) => {
+      const mesh = getComponent(child, MeshComponent)
+      if (!mesh) return // || ((mesh?.geometry.attributes['position'] as BufferAttribute).array.length ?? 0 === 0)) return
+      if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
+
+      const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
+      const colliderDesc = createColliderDesc(mesh, args, mesh, overrideShapeType)
+
+      if (colliderDesc) {
+        ;(typeof args.removeMesh === 'undefined' || args.removeMesh === true) && meshesToRemove.push(mesh)
+        colliderDescs.push(colliderDesc)
+      }
+    })
 
   const rigidBodyType =
     typeof colliderDescOptions.bodyType === 'string'
@@ -453,8 +474,6 @@ function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (col
     })
   }
 
-  ;(world as any).raycastDebugs.push({ raycastQuery, hits })
-
   return hits
 }
 
@@ -524,8 +543,11 @@ const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, hand
   const entity1 = (rigidBody1?.userData as any)['entity']
   const entity2 = (rigidBody2?.userData as any)['entity']
 
-  const collisionComponent1 = getOptionalComponent(entity1, CollisionComponent)
-  const collisionComponent2 = getOptionalComponent(entity2, CollisionComponent)
+  setComponent(entity1, CollisionComponent)
+  setComponent(entity2, CollisionComponent)
+
+  const collisionComponent1 = getComponent(entity1, CollisionComponent)
+  const collisionComponent2 = getComponent(entity2, CollisionComponent)
 
   if (started) {
     const type = isTriggerEvent ? CollisionEvents.TRIGGER_START : CollisionEvents.COLLISION_START

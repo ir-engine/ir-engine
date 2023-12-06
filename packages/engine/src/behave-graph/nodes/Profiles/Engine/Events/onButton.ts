@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Choices, NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
 import { Query, defineQuery, getComponent, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
 import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
+import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
 import {
   ButtonState,
@@ -93,6 +93,7 @@ export const OnButton = makeEventNodeDefinition({
     const query = defineQuery([InputSourceComponent])
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onButton-' + systemCounter++,
+      insert: { with: InputSystemGroup },
       execute: () => {
         for (const eid of query()) {
           const inputSource = getComponent(eid, InputSourceComponent)
@@ -108,8 +109,6 @@ export const OnButton = makeEventNodeDefinition({
       }
     })
 
-    startSystem(systemUUID, { with: InputSystemGroup })
-
     const state: State = {
       query,
       systemUUID
@@ -118,7 +117,7 @@ export const OnButton = makeEventNodeDefinition({
     return state
   },
   dispose: ({ state: { query, systemUUID }, graph: { getDependency } }) => {
-    disableSystem(systemUUID)
+    destroySystem(systemUUID)
     removeQuery(query)
     return initialState()
   }
