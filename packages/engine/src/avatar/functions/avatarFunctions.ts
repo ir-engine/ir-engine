@@ -131,7 +131,7 @@ export const loadAvatarForUser = async (
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(false)
 
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
-  const parent = (await loadAvatarModelAsset(avatarURL)) as VRM
+  //const parent = (await loadAvatarModelAsset(avatarURL)) as VRM
 
   /** hack a cancellable promise - check if the url we start with is the one we end up with */
   if (!hasComponent(entity, AvatarPendingComponent) || getComponent(entity, AvatarPendingComponent).url !== avatarURL)
@@ -140,7 +140,7 @@ export const loadAvatarForUser = async (
   removeComponent(entity, AvatarPendingComponent)
 
   if (!parent) throw new Error('Avatar model not found')
-  setupAvatarForUser(entity, parent)
+  //setupAvatarForUser(entity, parent)
 
   if (isClient && loadingEffect) {
     const avatar = getComponent(entity, AvatarComponent)
@@ -154,8 +154,6 @@ export const loadAvatarForUser = async (
     })
     if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
   }
-
-  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
 }
 
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
@@ -206,7 +204,6 @@ export const getAnimations = async () => {
     )) as GLTF
     manager.loadedAnimations[locomotionAnimation].set(locomotionPackAsset)
     loadedAnimations = cloneDeep(locomotionPackAsset.animations)
-    console.log(locomotionPackAsset)
     //preload all emote animation files
     const emoteKeys = Object.keys(emoteAnimations)
     for (let i = 0; i < emoteKeys.length; i++) {
@@ -233,7 +230,6 @@ export const loadAnimationsFromObjectKeys = async (animationNames) => {}
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  removeComponent(entity, AvatarRigComponent)
 
   const rig = model.humanoid?.normalizedHumanBones
 
@@ -246,8 +242,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
     rig,
     localRig: cloneDeep(rig), //cloneDeep(sourceRig),
     targetBones,
-    skinnedMeshes,
-    vrm: model
+    skinnedMeshes
   })
 
   avatarAnimationComponent.rootYRatio = 1

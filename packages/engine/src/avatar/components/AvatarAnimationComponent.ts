@@ -41,6 +41,8 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
+import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
@@ -58,6 +60,7 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { PoseSchema, TransformComponent } from '../../transform/components/TransformComponent'
+import { setupAvatarForUser } from '../functions/avatarFunctions'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -101,9 +104,9 @@ export const AvatarRigComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      /** Holds all the bones */
+      /** Holds all the proxified bones */
       rig: null! as VRMHumanBones,
-      /** Read-only bones in bind pose */
+      /** local space rig used for forward kinematic animation blending into the rig */
       localRig: null! as VRMHumanBones,
       /** the target */
       targetBones: null! as Record<VRMHumanBoneName, Bone>,
@@ -122,15 +125,10 @@ export const AvatarRigComponent = defineComponent({
 
       footGap: 0,
 
-      flipped: false,
-
       /** Cache of the skinned meshes currently on the rig */
       skinnedMeshes: [] as SkinnedMesh[],
       /** The VRM model */
-      vrm: null! as VRM,
-
-      rootOffset: new Vector3(),
-      ikOverride: '' as 'xr' | 'mocap' | ''
+      vrm: null! as VRM
     }
   },
 
@@ -146,7 +144,6 @@ export const AvatarRigComponent = defineComponent({
     if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
     if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
-    if (matches.string.test(json.ikOverride)) component.ikOverride.set(json.ikOverride)
   },
 
   reactor: function () {
@@ -188,8 +185,8 @@ export const AvatarRigComponent = defineComponent({
 
     useEffect(() => {
       if (!rigComponent.value || !rigComponent.value.vrm) return
-      const userData = (rigComponent.value.vrm as any).userData
-      if (userData) rigComponent.flipped.set(userData && userData.flipped)
+      setupAvatarForUser(entity, rigComponent.value.vrm)
+      if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
     }, [rigComponent.vrm])
 
     /**
@@ -210,7 +207,7 @@ export const AvatarRigComponent = defineComponent({
 })
 
 /**Used to generate an offset map that retargets ik position animations to fit any rig */
-export const retargetIkUtility = (entity: Entity, bindTracks: KeyframeTrack[], height: number) => {
+export const retargetIkUtility = (entity: Entity, bindTracks: KeyframeTrack[], height: number, flipped: boolean) => {
   const offset = new Vector3()
   const foot = new Vector3()
 
@@ -222,9 +219,9 @@ export const retargetIkUtility = (entity: Entity, bindTracks: KeyframeTrack[], h
 
   offset.y = rig.localRig.rightFoot.node.getWorldPosition(foot).y * 2 * scaleMultiplier - 0.05
 
-  const direction = rig.flipped ? -1 : 1
+  const direction = flipped ? -1 : 1
 
-  const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, rig.flipped ? Math.PI : 0, 0))
+  const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, flipped ? Math.PI : 0, 0))
 
   const ikOffsetsMap = new Map<string, Vector3>()
 

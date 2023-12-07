@@ -32,11 +32,9 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { AvatarMovementSystem } from './AvatarMovementSystem'
@@ -52,8 +50,6 @@ const execute = () => {
     }
     setComponent(entity, NameComponent, action.$from + '_' + action.name)
     setComponent(entity, AvatarIKTargetComponent, { blendWeight: action.blendWeight })
-
-    setComponent(UUIDComponent.entitiesByUUID[action.$from], AvatarRigComponent, { ikOverride: 'xr' })
 
     const helper = new AxesHelper(0.5)
     setObjectLayers(helper, ObjectLayers.Gizmos)
