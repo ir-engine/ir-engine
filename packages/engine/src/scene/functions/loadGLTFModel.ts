@@ -293,10 +293,10 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
       })
 
     const bone = obj as Bone
-    bone.isBone && setComponent(objEntity, BoneComponent)
+    bone.isBone && setComponent(objEntity, BoneComponent, bone)
 
     const skinnedMesh = obj as SkinnedMesh
-    skinnedMesh.isSkinnedMesh && setComponent(objEntity, SkinnedMeshComponent)
+    skinnedMesh.isSkinnedMesh && setComponent(objEntity, SkinnedMeshComponent, skinnedMesh)
 
     if (obj.userData['componentJson']) {
       eJson.components.push(...obj.userData['componentJson'])

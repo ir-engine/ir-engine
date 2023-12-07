@@ -32,7 +32,7 @@ import Button from '@etherealengine/client-core/src/common/components/Button'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import { AvatarEffectComponent } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
+import { SpawnEffectComponent } from '@etherealengine/engine/src/avatar/components/SpawnEffectComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -81,7 +81,7 @@ const AvatarMenu = () => {
 
   const handleConfirmAvatar = () => {
     if (userAvatarId.value !== selectedAvatarId.value) {
-      if (!hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent) && authState.user?.value) {
+      if (!hasComponent(Engine.instance.localClientEntity, SpawnEffectComponent) && authState.user?.value) {
         AvatarState.updateUserAvatarId(selectedAvatarId.value)
       }
     }

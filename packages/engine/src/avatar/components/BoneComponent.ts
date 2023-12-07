@@ -23,6 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Bone } from 'three'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const BoneComponent = defineComponent({ name: 'BoneComponent' })
+export const BoneComponent = defineComponent({
+  name: 'BoneComponent',
+
+  onInit: (entity) => null! as Bone,
+
+  onSet: (entity, component, mesh: Bone) => {
+    if (!mesh || !mesh.isBone) throw new Error('BoneComponent: Invalid bone')
+
+    component.set(mesh)
+    BoneComponent.valueMap[entity] = mesh
+  }
+})

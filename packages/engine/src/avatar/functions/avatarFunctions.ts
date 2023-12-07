@@ -25,20 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
 import { clone, cloneDeep } from 'lodash'
-import {
-  AnimationClip,
-  AnimationMixer,
-  Bone,
-  Box3,
-  BufferGeometry,
-  Group,
-  Mesh,
-  Object3D,
-  ShaderMaterial,
-  Skeleton,
-  SkinnedMesh,
-  Vector3
-} from 'three'
+import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -68,6 +55,7 @@ import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
+import { AggregateBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { generateEntityJsonFromObject } from '../../scene/functions/loadGLTFModel'
 import { EntityJsonType, SceneID } from '../../schemas/projects/scene.schema'
@@ -78,8 +66,8 @@ import { AvatarAnimationComponent, AvatarRigComponent } from '../components/Avat
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
-import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
+import { SpawnEffectComponent } from '../components/SpawnEffectComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { resizeAvatar } from './resizeAvatar'
 import { retargetMixamoAnimation } from './retargetMixamoRig'
@@ -134,7 +122,7 @@ export const loadAvatarForUser = async (
   if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
     throw new Error('Avatar model already loading')
 
-  if (loadingEffect) {
+  if (isClient && loadingEffect) {
     if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
   }
 
@@ -153,14 +141,17 @@ export const loadAvatarForUser = async (
   setupAvatarForUser(entity, parent, avatarURL)
 
   if (isClient && loadingEffect) {
-    const avatar = getComponent(entity, AvatarComponent)
-    const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(entity, avatar.model!)
     const effectEntity = createEntity()
-    setComponent(effectEntity, AvatarEffectComponent, {
+    setComponent(effectEntity, SpawnEffectComponent, {
       sourceEntity: entity,
-      opacityMultiplier: 1,
-      dissolveMaterials: dissolveMaterials as ShaderMaterial[],
-      originMaterials: avatarMaterials as MaterialMap[]
+      opacityMultiplier: 1
+    })
+
+    const bbox = getComponent(entity, AggregateBoundingBoxComponent).box
+    console.log({ bbox })
+
+    setComponent(entity, AvatarDissolveComponent, {
+      height: bbox.max.y
     })
     if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
   }
@@ -168,10 +159,16 @@ export const loadAvatarForUser = async (
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
 }
 
+export const unloadAvatarForUser = async (entity: Entity, avatarURL: string) => {
+  const sceneID = (avatarURL + getComponent(entity, UUIDComponent)) as SceneID
+  SceneState.unloadScene(sceneID)
+}
+
 export const setupAvatarForUser = (entity: Entity, model: VRM, avatarURL: string) => {
   const avatar = getComponent(entity, AvatarComponent)
 
   rigAvatarModel(entity)(model)
+  setupAvatarHeight(entity, model.scene)
 
   computeTransformMatrix(entity)
 
@@ -201,7 +198,6 @@ export const setupAvatarForUser = (entity: Entity, model: VRM, avatarURL: string
     thumbnailUrl: ''
   })
 
-  setupAvatarHeight(entity, model.scene)
   createIKAnimator(entity)
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
@@ -271,32 +267,10 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   return model
 }
 
-export const setupAvatarMaterials = (entity: Entity, root: Object3D) => {
-  const materialList: Array<MaterialMap> = []
-  const dissolveMatList: Array<ShaderMaterial> = []
-  setObjectLayers(root, ObjectLayers.Avatar)
-
-  root.traverse((object) => {
-    const bone = object as Bone
-    if (bone.isBone) object.visible = false
-    const mesh = object as Mesh<BufferGeometry, ShaderMaterial>
-    if (mesh.material) {
-      const material = mesh.material
-      materialList.push({
-        id: object.uuid,
-        material: material
-      })
-      mesh.material = AvatarDissolveComponent.createDissolveMaterial(mesh as any)
-      dissolveMatList.push(mesh.material)
-    }
-  })
-
-  return [dissolveMatList, materialList]
-}
-
 export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   const box = new Box3()
   box.expandByObject(model).getSize(tempVec3ForHeight)
+  setComponent(entity, AggregateBoundingBoxComponent, { box })
   box.getCenter(tempVec3ForCenter)
   resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
 }

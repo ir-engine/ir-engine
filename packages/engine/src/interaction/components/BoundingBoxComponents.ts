@@ -73,7 +73,7 @@ export const AggregateBoundingBoxComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (matches.array.test(json.box)) component.box.value.copy(json.box)
+    if (matches.object.test(json.box)) component.box.value.copy(json.box)
   },
 
   reactor: function () {

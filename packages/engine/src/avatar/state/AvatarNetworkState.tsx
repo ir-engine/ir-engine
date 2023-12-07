@@ -49,7 +49,7 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AvatarID, AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
 import { userAvatarPath } from '../../schemas/user/user-avatar.schema'
-import { loadAvatarForUser } from '../functions/avatarFunctions'
+import { loadAvatarForUser, unloadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from './AvatarNetworkActions'
 
@@ -170,6 +170,10 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
         AvatarState.selectRandomAvatar()
       }
     })
+
+    return () => {
+      unloadAvatarForUser(entity, url)
+    }
   }, [state.userAvatarDetails])
 
   return null

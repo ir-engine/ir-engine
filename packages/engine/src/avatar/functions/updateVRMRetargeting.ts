@@ -27,8 +27,7 @@ import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Object3D, Quaternion, Vector3 } from 'three'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { GroupComponent } from '../../scene/components/GroupComponent'
-import { MeshComponent } from '../../scene/components/MeshComponent'
+import { BoneComponent } from '../components/BoneComponent'
 
 export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
   vrm.update(deltaTime)
@@ -52,18 +51,20 @@ export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
       // Move the mass center of the VRM
       if (boneName === 'hips') {
         const boneWorldPosition = rigBoneNode.getWorldPosition(_boneWorldPos)
+
         const boneEntity = boneNode.entity
-        const parentEntity = getComponent(boneEntity, EntityTreeComponent).parentEntity!
-        if (!parentEntity) {
-          console.warn('boneNode has no parent', boneNode)
-        } else {
-          const parentBoneNode =
-            getComponent(parentEntity, MeshComponent) ?? getComponent(parentEntity, GroupComponent)?.[0]
-          parentBoneNode.updateWorldMatrix(true, false)
-          const parentWorldMatrix = parentBoneNode.matrixWorld
-          const localPosition = boneWorldPosition.applyMatrix4(parentWorldMatrix.invert())
-          boneNode.position.copy(localPosition)
-        }
+        if (!boneEntity) continue
+
+        const parentEntity = getComponent(boneEntity, EntityTreeComponent).parentEntity
+        if (!parentEntity) continue
+
+        const parentBoneNode = getComponent(parentEntity, BoneComponent)
+        if (!parentBoneNode) continue
+
+        parentBoneNode.updateWorldMatrix(true, false)
+        const parentWorldMatrix = parentBoneNode.matrixWorld
+        const localPosition = boneWorldPosition.applyMatrix4(parentWorldMatrix.invert())
+        boneNode.position.copy(localPosition)
       }
     }
   }

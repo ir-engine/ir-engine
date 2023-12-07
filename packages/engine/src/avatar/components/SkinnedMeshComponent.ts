@@ -23,6 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SkinnedMesh } from 'three'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const SkinnedMeshComponent = defineComponent({ name: 'SkinnedMeshComponent' })
+export const SkinnedMeshComponent = defineComponent({
+  name: 'SkinnedMeshComponent',
+
+  onInit: (entity) => null! as SkinnedMesh,
+
+  onSet: (entity, component, mesh: SkinnedMesh) => {
+    if (!mesh || !mesh.isSkinnedMesh) throw new Error('SkinnedMeshComponent: Invalid skinned mesh')
+
+    component.set(mesh)
+    SkinnedMeshComponent.valueMap[entity] = mesh
+  }
+})

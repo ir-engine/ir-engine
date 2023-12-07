@@ -29,10 +29,14 @@ import { defineComponent } from '@etherealengine/engine/src/ecs/functions/Compon
 
 export const MeshComponent = defineComponent({
   name: 'Mesh Component',
+
   jsonID: 'mesh',
+
   onInit: (entity) => null! as Mesh,
+
   onSet: (entity, component, mesh: Mesh) => {
     if (!mesh || !mesh.isMesh) throw new Error('MeshComponent: Invalid mesh')
+
     component.set(mesh)
     MeshComponent.valueMap[entity] = mesh
   }
