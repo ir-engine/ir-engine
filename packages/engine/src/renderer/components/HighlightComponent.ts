@@ -28,7 +28,7 @@ import { Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { MeshComponent } from '../../scene/components/MeshComponent'
@@ -46,14 +46,14 @@ export const HighlightComponent = defineComponent({
 
     useEffect(() => {
       iterateEntityNode(entity, (childEntity) => {
-        const obj = getComponent(childEntity, MeshComponent)
-        if (obj.type !== 'Mesh') return
+        const obj = getOptionalComponent(childEntity, MeshComponent)
+        if (obj?.type !== 'Mesh') return
         addToSelection(obj as Mesh)
       })
       return () => {
         iterateEntityNode(entity, (childEntity) => {
-          const obj = getComponent(childEntity, MeshComponent)
-          if (obj.type !== 'Mesh') return
+          const obj = getOptionalComponent(childEntity, MeshComponent)
+          if (obj?.type !== 'Mesh') return
           removeFromSelection(obj as Mesh)
         })
       }

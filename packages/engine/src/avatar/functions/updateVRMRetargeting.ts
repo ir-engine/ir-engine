@@ -55,7 +55,7 @@ export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
         const boneEntity = boneNode.entity
         if (!boneEntity) continue
 
-        const parentEntity = getComponent(boneEntity, EntityTreeComponent).parentEntity
+        const parentEntity = getComponent(boneEntity, EntityTreeComponent)?.parentEntity
         if (!parentEntity) continue
 
         const parentBoneNode = getComponent(parentEntity, BoneComponent)

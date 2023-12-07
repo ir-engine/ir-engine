@@ -148,7 +148,6 @@ export const loadAvatarForUser = async (
     })
 
     const bbox = getComponent(entity, AggregateBoundingBoxComponent).box
-    console.log({ bbox })
 
     setComponent(entity, AvatarDissolveComponent, {
       height: bbox.max.y
