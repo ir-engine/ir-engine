@@ -58,6 +58,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { emoteAnimations, locomotionAnimation } from '../animation/Util'
+import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -167,16 +168,20 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   avatar.model = model.scene
 }
 
-export const retargetAvatarAnimations = (entity: Entity, animations = [] as AnimationClip[]) => {
+export const retargetAvatarAnimations = (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const manager = getState(AnimationState)
 
+  const animations = getMutableComponent(entity, AnimationComponent).animations
+
   for (let i = 0; i < animations.length; i++) {
-    if (!animations[i]) continue
-    animations[i] = retargetMixamoAnimation(
-      animations[i],
-      manager.loadedAnimations[locomotionAnimation]?.scene!,
-      rigComponent.vrm
+    if (!animations[i].value) continue
+    animations[i].set(
+      retargetMixamoAnimation(
+        animations[i].value,
+        manager.loadedAnimations[locomotionAnimation]?.scene!,
+        rigComponent.vrm
+      )
     )
   }
 }
