@@ -24,19 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
-import { clone, cloneDeep } from 'lodash'
-import {
-  AnimationClip,
-  AnimationMixer,
-  Bone,
-  Box3,
-  Group,
-  Object3D,
-  ShaderMaterial,
-  Skeleton,
-  SkinnedMesh,
-  Vector3
-} from 'three'
+import { cloneDeep } from 'lodash'
+import { AnimationClip, Bone, Box3, Group, Object3D, ShaderMaterial, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -47,6 +36,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -68,7 +58,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { emoteAnimations, locomotionAnimation } from '../animation/Util'
-import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -156,6 +145,9 @@ export const loadAvatarForUser = async (
   }
 }
 
+/**Kicks off avatar animation loading and setup. Called after an avatar's model asset is
+ * successfully loaded and retargeted.
+ */
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   const avatar = getComponent(entity, AvatarComponent)
   if (avatar && avatar.model) removeObjectFromGroup(entity, avatar.model)
@@ -168,18 +160,18 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 
   computeTransformMatrix(entity)
   setupAvatarHeight(entity, model.scene)
-  createIKAnimator(entity)
+
+  setAvatarAnimations(entity)
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
   avatar.model = model.scene
 }
 
-export const createIKAnimator = async (entity: Entity) => {
+export const retargetAvatarAnimations = (entity: Entity, animations = [] as AnimationClip[]) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
-  const animations = await getAnimations()
   const manager = getState(AnimationState)
 
-  for (let i = 0; i < animations!.length; i++) {
+  for (let i = 0; i < animations.length; i++) {
     if (!animations[i]) continue
     animations[i] = retargetMixamoAnimation(
       animations[i],
@@ -187,43 +179,38 @@ export const createIKAnimator = async (entity: Entity) => {
       rigComponent.vrm
     )
   }
-
-  setComponent(entity, AnimationComponent, {
-    animations: clone(animations),
-    mixer: new AnimationMixer(rigComponent.localRig.hips.node.parent!)
-  })
 }
 
-export const getAnimations = async () => {
+/**Loads the locomotion animations, emotes and optionals*/
+export const setAvatarAnimations = (entity: Entity) => {
   const manager = getMutableState(AnimationState)
-  let loadedAnimations = [] as AnimationClip[]
+  const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
   if (!manager.loadedAnimations.value[locomotionAnimation]) {
     //preload locomotion animations
-    const locomotionPackAsset = (await AssetLoader.loadAsync(
+    AssetLoader.loadAsync(
       `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionAnimation}.glb`
-    )) as GLTF
-    manager.loadedAnimations[locomotionAnimation].set(locomotionPackAsset)
-    loadedAnimations = cloneDeep(locomotionPackAsset.animations)
+    ).then((locomotionAsset: GLTF) => {
+      manager.loadedAnimations[locomotionAnimation].set(locomotionAsset)
+    })
     //preload all emote animation files
     const emoteKeys = Object.keys(emoteAnimations)
     for (let i = 0; i < emoteKeys.length; i++) {
-      const emoteAsset = await AssetLoader.loadAsync(
+      AssetLoader.loadAsync(
         `${config.client.fileServer}/projects/default-project/assets/animations/emotes/${emoteKeys[i]}.fbx`
-      )
-      manager.loadedAnimations[emoteKeys[i]].set(emoteAsset)
-      loadedAnimations.push(cloneDeep(emoteAsset.scene.animations[0]))
+      ).then((loadedEmotes) => {
+        manager.loadedAnimations[emoteKeys[i]].set(loadedEmotes)
+      })
     }
   }
+}
 
-  const run = manager.loadedAnimations.value[locomotionAnimation].animations[4] ?? [new AnimationClip()]
-  const walk = manager.loadedAnimations.value[locomotionAnimation].animations[6] ?? [new AnimationClip()]
+export const setSpeedFromRootMotion = (entity: Entity) => {
+  const manager = getState(AnimationState)
+  const run = manager.loadedAnimations[locomotionAnimation].animations[4] ?? [new AnimationClip()]
+  const walk = manager.loadedAnimations[locomotionAnimation].animations[6] ?? [new AnimationClip()]
   const movement = getState(AvatarMovementSettingsState)
   if (run) movement.runSpeed = getRootSpeed(run) * 0.01
   if (walk) movement.walkSpeed = getRootSpeed(walk) * 0.01
-
-  console.log(loadedAnimations)
-
-  return loadedAnimations ?? [new AnimationClip()]
 }
 
 export const loadAnimationsFromObjectKeys = async (animationNames) => {}
