@@ -40,7 +40,7 @@ import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projec
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import { getIncrementalName } from '../FileUtil'
+import { getIncrementalName, syncWithProjects } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -162,9 +162,12 @@ export class FileBrowserService
     const parentPath = path.dirname(directory)
     const key = await getIncrementalName(path.basename(directory), parentPath, storageProvider, true)
 
-    const result = await storageProvider.putObject({ Key: path.join(parentPath, key) } as StorageObjectInterface, {
+    const dirPath = path.join(parentPath, key)
+    const result = await storageProvider.putObject({ Key: dirPath } as StorageObjectInterface, {
       isDirectory: true
     })
+
+    if (result) syncWithProjects.addDirectory(dirPath)
 
     await storageProvider.createInvalidation([key])
 
@@ -187,6 +190,8 @@ export class FileBrowserService
 
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
+
+    if (result) syncWithProjects.moveOrCopyFile(oldNamePath, newNamePath, data.isCopy)
 
     await Promise.all([
       storageProvider.createInvalidation([oldNamePath]),
@@ -213,7 +218,7 @@ export class FileBrowserService
     const project = reducedPathSplit.length > 0 && reducedPathSplit[0] === 'projects' ? reducedPathSplit[1] : undefined
     const key = path.join(reducedPath, name)
 
-    await storageProvider.putObject(
+    const result = await storageProvider.putObject(
       {
         Key: key,
         Body: data.body,
@@ -223,6 +228,8 @@ export class FileBrowserService
         isDirectory: false
       }
     )
+
+    if (result) syncWithProjects.addFile(key, data.body)
 
     const hash = createStaticResourceHash(data.body, { mimeType: data.contentType, assetURL: key })
     const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
@@ -278,6 +285,8 @@ export class FileBrowserService
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
     await storageProvider.createInvalidation([key])
+
+    if (result) syncWithProjects.removeFile(key)
 
     const filePath = path.join(projectsRootFolder, key)
 

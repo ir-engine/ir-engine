@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import fs from 'fs'
 import path from 'path'
 
+import { isDev } from '@etherealengine/common/src/config'
+import appRootPath from 'app-root-path'
 import { StorageProviderInterface } from './storageprovider/storageprovider.interface'
 
 export const copyRecursiveSync = function (src: string, dest: string): void {
@@ -69,4 +71,34 @@ export const getIncrementalName = async function (
   }
 
   return filename
+}
+
+export const syncWithProjects = {
+  _getPath: (filePath: string) => {
+    return path.join(appRootPath.path, 'packages/projects', filePath)
+  },
+  addFile: (filePath: string, body: any) => {
+    if (isDev) {
+      fs.writeFileSync(syncWithProjects._getPath(filePath), body)
+    }
+  },
+  addDirectory: (dirPath: string) => {
+    if (isDev) {
+      fs.mkdirSync(syncWithProjects._getPath(dirPath))
+    }
+  },
+  moveOrCopyFile: (oldPath: string, newPath: string, isCopy?: boolean) => {
+    if (!isDev) return
+
+    if (!oldPath.startsWith(appRootPath.path)) oldPath = syncWithProjects._getPath(oldPath)
+    if (!newPath.startsWith(appRootPath.path)) newPath = syncWithProjects._getPath(newPath)
+
+    if (isCopy) copyRecursiveSync(oldPath, newPath)
+    else fs.renameSync(oldPath, newPath)
+  },
+  removeFile: (filePath: string) => {
+    if (isDev) {
+      fs.rmSync(syncWithProjects._getPath(filePath), { force: true, recursive: true })
+    }
+  }
 }
