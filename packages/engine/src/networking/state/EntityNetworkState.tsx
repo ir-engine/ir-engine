@@ -46,6 +46,7 @@ import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -71,6 +72,7 @@ export const EntityNetworkState = defineState({
       (state, action: typeof WorldNetworkAction.spawnObject.matches._TYPE) => {
         const entity = UUIDComponent.entitiesByUUID[action.entityUUID] ?? createEntity()
         setComponent(entity, UUIDComponent, action.entityUUID)
+        setComponent(entity, NameComponent, action.entityUUID)
         setComponent(entity, NetworkObjectComponent, {
           ownerId: action.$from,
           authorityPeerID: action.$peer,
@@ -82,11 +84,11 @@ export const EntityNetworkState = defineState({
         if (!sceneState.activeScene) {
           throw new Error('Trying to spawn an object with no active scene')
         }
-        const activeSceneID = SceneState.getCurrentScene()!.root
-        const activeSceneEntity = UUIDComponent.entitiesByUUID[activeSceneID]
+
         setComponent(entity, EntityTreeComponent, {
-          parentEntity: activeSceneEntity
+          parentEntity: SceneState.getRootEntity(getState(SceneState).activeScene!)
         })
+
         const spawnPosition = new Vector3()
         if (action.position) spawnPosition.copy(action.position)
 
