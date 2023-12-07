@@ -60,6 +60,7 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { PoseSchema, TransformComponent } from '../../transform/components/TransformComponent'
+import { AnimationState } from '../AnimationManager'
 import { setupAvatarForUser } from '../functions/avatarFunctions'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
@@ -201,6 +202,10 @@ export const AvatarRigComponent = defineComponent({
         proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity, bone.node.quaternion)
       }
     }, [rigComponent.rig])
+
+    const manager = useHookstate(getMutableState(AnimationState))
+
+    useEffect(() => {}, [manager.loadedAnimations])
 
     return null
   }

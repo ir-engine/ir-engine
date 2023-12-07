@@ -189,7 +189,6 @@ export const retargetAvatarAnimations = (entity: Entity) => {
 /**Loads the locomotion animations, emotes and optionals*/
 export const setAvatarAnimations = (entity: Entity) => {
   const manager = getMutableState(AnimationState)
-  const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
   if (!manager.loadedAnimations.value[locomotionAnimation]) {
     //preload locomotion animations
     AssetLoader.loadAsync(
