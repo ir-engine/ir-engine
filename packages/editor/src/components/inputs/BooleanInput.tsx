@@ -36,6 +36,7 @@ let uniqueId = 0
 interface BooleanInputProp {
   value: boolean
   onChange: (value: boolean) => void
+  onRelease?: (value: boolean) => void
   disabled?: boolean
 }
 
@@ -44,6 +45,10 @@ export const BooleanInput = (props: BooleanInputProp) => {
 
   const onChange = (e) => {
     props.onChange(e.target.checked)
+  }
+
+  const onBlur = (e) => {
+    if (props.onRelease) props.onRelease(props.value)
   }
 
   const onKeyPress = (e: KeyboardEvent<HTMLLabelElement>) => {
@@ -58,6 +63,7 @@ export const BooleanInput = (props: BooleanInputProp) => {
         type="checkbox"
         checked={props.value}
         onChange={onChange}
+        onBlur={onBlur}
         disabled={props.disabled}
       />
       <label htmlFor={checkboxId} className="Input BooleanInputLabel" tabIndex={0} onKeyPress={onKeyPress}>
