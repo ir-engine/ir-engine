@@ -82,11 +82,11 @@ export const EntityNetworkState = defineState({
         if (!sceneState.activeScene) {
           throw new Error('Trying to spawn an object with no active scene')
         }
-        const activeSceneID = SceneState.getCurrentScene()!.root
-        const activeSceneEntity = UUIDComponent.entitiesByUUID[activeSceneID]
+
         setComponent(entity, EntityTreeComponent, {
-          parentEntity: activeSceneEntity
+          parentEntity: SceneState.getRootEntity(getState(SceneState).activeScene!)
         })
+
         const spawnPosition = new Vector3()
         if (action.position) spawnPosition.copy(action.position)
 
