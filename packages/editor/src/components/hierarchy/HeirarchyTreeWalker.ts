@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { EditorState } from '../../services/EditorServices'
@@ -49,6 +50,9 @@ export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
  *
  * @param  {entityNode}    expandedNodes
  */
+
+const sceneQuery = defineQuery([SceneObjectComponent])
+
 export function* heirarchyTreeWalker(
   activeScene: SceneID,
   treeNode: Entity,
@@ -64,6 +68,7 @@ export function* heirarchyTreeWalker(
     const { depth, entity: entityNode, childIndex, lastChild } = stack.pop() as HeirarchyTreeNodeType
 
     if (!entityExists(entityNode)) continue
+    if (!sceneQuery().includes(entityNode)) continue
 
     const expandedNodes = getState(EditorState).expandedNodes
 
