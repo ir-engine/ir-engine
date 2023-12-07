@@ -88,9 +88,7 @@ export class SceneService
 
     const projectName = params?.query?.project?.toString()
 
-    if (projectName) {
-      projectParams = { ...projectParams, query: { name: projectName } }
-    }
+    projectParams = { ...projectParams, query: { name: projectName } }
 
     const storageProviderName = params?.query?.storageProviderName?.toString()
 
