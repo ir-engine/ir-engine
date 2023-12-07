@@ -313,21 +313,21 @@ export default function HierarchyPanel() {
   const onDeleteNode = useCallback((node: HeirarchyTreeNodeType) => {
     handleClose()
 
-    const objs = node.selected ? selectionState.selectedEntities.value : [node.entity]
+    const objs = node.selected ? getState(SelectionState).selectedEntities : [node.entity]
     EditorControlFunctions.removeObject(objs)
   }, [])
 
   const onDuplicateNode = useCallback((node: HeirarchyTreeNodeType) => {
     handleClose()
 
-    const objs = node.selected ? selectionState.selectedEntities.value : [node.entity]
+    const objs = node.selected ? getState(SelectionState).selectedEntities : [node.entity]
     EditorControlFunctions.duplicateObject(objs)
   }, [])
 
   const onGroupNodes = useCallback((node: HeirarchyTreeNodeType) => {
     handleClose()
 
-    const objs = node.selected ? selectionState.selectedEntities.value : [node.entity]
+    const objs = node.selected ? getState(SelectionState).selectedEntities : [node.entity]
 
     EditorControlFunctions.groupObjects(objs)
   }, [])
