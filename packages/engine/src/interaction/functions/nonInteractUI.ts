@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
