@@ -65,9 +65,15 @@ import {
   DistanceFromLocalClientComponent,
   FrustumCullCameraComponent
 } from '../components/DistanceComponents'
-import { LocalTransformComponent, TransformComponent } from '../components/TransformComponent'
+import {
+  LocalTransformComponent,
+  TransformComponent,
+  composeMatrix,
+  decomposeMatrix
+} from '../components/TransformComponent'
 
 const transformQuery = defineQuery([TransformComponent])
+const localTransformQuery = defineQuery([TransformComponent, LocalTransformComponent])
 const nonDynamicLocalTransformQuery = defineQuery([
   LocalTransformComponent,
   Not(RigidBodyDynamicTagComponent),
@@ -85,15 +91,17 @@ const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCam
 const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
 
 export const computeLocalTransformMatrix = (entity: Entity) => {
-  const localTransform = getComponent(entity, LocalTransformComponent)
-  localTransform.matrix.compose(localTransform.position, localTransform.rotation, localTransform.scale)
+  // const localTransform = getComponent(entity, LocalTransformComponent)
+  composeMatrix(entity, LocalTransformComponent)
+  // localTransform.matrix.compose(localTransform.position, localTransform.rotation, localTransform.scale)
 }
 
 export const computeTransformMatrix = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   updateTransformFromComputedTransform(entity)
   updateTransformFromLocalTransform(entity)
-  transform.matrix.compose(transform.position, transform.rotation, transform.scale)
+  composeMatrix(entity, TransformComponent)
+  // transform.matrix.compose(transform.position, transform.rotation, transform.scale)
   transform.matrixInverse.copy(transform.matrix).invert()
 }
 
@@ -193,7 +201,8 @@ const updateTransformFromLocalTransform = (entity: Entity) => {
   if (!localTransform || !parentTransform || isRigidbody) return false
   const transform = getComponent(entity, TransformComponent)
   transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
-  transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+  decomposeMatrix(entity, TransformComponent)
+  // transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
   return true
 }
 
@@ -260,6 +269,7 @@ const compareReferenceDepth = (a: Entity, b: Entity) => {
 }
 
 const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
+const isDirtyLocal = (entity: Entity) => LocalTransformComponent.dirtyTransforms[entity]
 
 // @todo: once all animations are entity-based, we no longer need to check for AnimationComponent
 // @todo: currently this assumes if not visible, it doesn't need to be updated.
@@ -357,10 +367,11 @@ const execute = () => {
     TransformComponent.dirtyTransforms[entity] = makeDirty
   }
 
-  const dirtyNonDynamicLocalTransformEntities = nonDynamicLocalTransformQuery().filter(isDirty)
   const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
 
-  for (const entity of dirtyNonDynamicLocalTransformEntities) computeLocalTransformMatrix(entity)
+  const dirtyLocalTransformEntities = localTransformQuery().filter(isDirtyLocal)
+
+  for (const entity of dirtyLocalTransformEntities) computeLocalTransformMatrix(entity)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
   const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirtyOrAnimatingAndVisible)

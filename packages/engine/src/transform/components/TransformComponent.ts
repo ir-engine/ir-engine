@@ -48,6 +48,13 @@ export type TransformComponentType = {
   matrixInverse: Matrix4
 }
 
+export type LocalTransformComponentType = {
+  position: Vector3
+  rotation: Quaternion
+  scale: Vector3
+  matrix: Matrix4
+}
+
 const { f64 } = Types
 export const Vector3Schema = { x: f64, y: f64, z: f64 }
 export const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
@@ -60,8 +67,6 @@ export const TransformSchema = {
   rotation: QuaternionSchema,
   scale: Vector3Schema
 }
-
-const matrix = new Matrix4()
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
@@ -117,9 +122,76 @@ export const TransformComponent = defineComponent({
     delete TransformComponent.dirtyTransforms[entity]
   },
 
+  getWorldPosition: (entity: Entity, vec3: Vector3) => {
+    const transform = getComponent(entity, TransformComponent)
+    vec3.x = transform.matrix.elements[12]
+    vec3.y = transform.matrix.elements[13]
+    vec3.z = transform.matrix.elements[14]
+    return vec3
+  },
+
+  // this method is essentially equivalent to Matrix4.decompose
+  getWorldRotation: (entity: Entity, quaternion: Quaternion) => {
+    const transform = getComponent(entity, TransformComponent)
+    const te = transform.matrix.elements
+
+    let sx = _v1.set(te[0], te[1], te[2]).length()
+    const sy = _v1.set(te[4], te[5], te[6]).length()
+    const sz = _v1.set(te[8], te[9], te[10]).length()
+
+    // if determine is negative, we need to invert one scale
+    const det = transform.matrix.determinant()
+    if (det < 0) sx = -sx
+
+    // scale the rotation part
+    _m1.copy(transform.matrix)
+
+    const invSX = 1 / sx
+    const invSY = 1 / sy
+    const invSZ = 1 / sz
+
+    _m1.elements[0] *= invSX
+    _m1.elements[1] *= invSX
+    _m1.elements[2] *= invSX
+
+    _m1.elements[4] *= invSY
+    _m1.elements[5] *= invSY
+    _m1.elements[6] *= invSY
+
+    _m1.elements[8] *= invSZ
+    _m1.elements[9] *= invSZ
+    _m1.elements[10] *= invSZ
+
+    quaternion.setFromRotationMatrix(_m1)
+
+    return quaternion
+  },
+
+  getWorldScale: (entity: Entity, vec3: Vector3) => {
+    const transform = getComponent(entity, TransformComponent)
+    const te = transform.matrix.elements
+
+    let sx = _v1.set(te[0], te[1], te[2]).length()
+    const sy = _v1.set(te[4], te[5], te[6]).length()
+    const sz = _v1.set(te[8], te[9], te[10]).length()
+
+    // if determine is negative, we need to invert one scale
+    const det = transform.matrix.determinant()
+    if (det < 0) sx = -sx
+
+    vec3.x = sx
+    vec3.y = sy
+    vec3.z = sz
+
+    return vec3
+  },
+
   dirtyTransforms: {} as Record<Entity, boolean>,
   transformsNeedSorting: false
 })
+
+const _v1 = new Vector3()
+const _m1 = new Matrix4()
 
 export const LocalTransformComponent = defineComponent({
   name: 'LocalTransformComponent',
@@ -127,7 +199,7 @@ export const LocalTransformComponent = defineComponent({
   schema: TransformSchema,
 
   onInit: (entity) => {
-    const dirtyTransforms = TransformComponent.dirtyTransforms
+    const dirtyTransforms = LocalTransformComponent.dirtyTransforms
 
     const component = {
       position: proxifyVector3WithDirty(LocalTransformComponent.position, entity, dirtyTransforms) as Vector3,
@@ -139,7 +211,7 @@ export const LocalTransformComponent = defineComponent({
         new Vector3(1, 1, 1)
       ) as Vector3,
       matrix: new Matrix4()
-    } as TransformComponentType
+    } as LocalTransformComponentType
 
     return component
   },
@@ -209,5 +281,153 @@ export const LocalTransformComponent = defineComponent({
     const transform = getComponent(entity, TransformComponent)
     transform.matrix.multiplyMatrices(parentTransform.matrix, component.matrix.value)
     transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
-  }
+  },
+
+  dirtyTransforms: {} as Record<Entity, boolean>
 })
+
+export const composeMatrix = (
+  entity: Entity,
+  Component: typeof TransformComponent | typeof LocalTransformComponent
+) => {
+  const te = getComponent(entity, Component).matrix.elements
+
+  const x = Component.rotation.x[entity]
+  const y = Component.rotation.y[entity]
+  const z = Component.rotation.z[entity]
+  const w = Component.rotation.w[entity]
+
+  const x2 = x + x,
+    y2 = y + y,
+    z2 = z + z
+  const xx = x * x2,
+    xy = x * y2,
+    xz = x * z2
+  const yy = y * y2,
+    yz = y * z2,
+    zz = z * z2
+  const wx = w * x2,
+    wy = w * y2,
+    wz = w * z2
+
+  const sx = Component.scale.x[entity]
+  const sy = Component.scale.y[entity]
+  const sz = Component.scale.z[entity]
+
+  te[0] = (1 - (yy + zz)) * sx
+  te[1] = (xy + wz) * sx
+  te[2] = (xz - wy) * sx
+  te[3] = 0
+
+  te[4] = (xy - wz) * sy
+  te[5] = (1 - (xx + zz)) * sy
+  te[6] = (yz + wx) * sy
+  te[7] = 0
+
+  te[8] = (xz + wy) * sz
+  te[9] = (yz - wx) * sz
+  te[10] = (1 - (xx + yy)) * sz
+  te[11] = 0
+
+  te[12] = Component.position.x[entity]
+  te[13] = Component.position.y[entity]
+  te[14] = Component.position.z[entity]
+  te[15] = 1
+}
+
+export const decomposeMatrix = (
+  entity: Entity,
+  Component: typeof TransformComponent | typeof LocalTransformComponent
+) => {
+  const matrix = getComponent(entity, Component).matrix
+  const te = matrix.elements
+
+  let sx = _v1.set(te[0], te[1], te[2]).length()
+  const sy = _v1.set(te[4], te[5], te[6]).length()
+  const sz = _v1.set(te[8], te[9], te[10]).length()
+
+  // if determine is negative, we need to invert one scale
+  const det = matrix.determinant()
+  if (det < 0) sx = -sx
+
+  Component.position.x[entity] = te[12]
+  Component.position.y[entity] = te[13]
+  Component.position.z[entity] = te[14]
+
+  // scale the rotation part
+  _m1.copy(matrix)
+
+  const invSX = 1 / sx
+  const invSY = 1 / sy
+  const invSZ = 1 / sz
+
+  _m1.elements[0] *= invSX
+  _m1.elements[1] *= invSX
+  _m1.elements[2] *= invSX
+
+  _m1.elements[4] *= invSY
+  _m1.elements[5] *= invSY
+  _m1.elements[6] *= invSY
+
+  _m1.elements[8] *= invSZ
+  _m1.elements[9] *= invSZ
+  _m1.elements[10] *= invSZ
+
+  setFromRotationMatrix(entity, _m1, Component)
+
+  Component.scale.x[entity] = sx
+  Component.scale.y[entity] = sy
+  Component.scale.z[entity] = sz
+}
+
+export const setFromRotationMatrix = (
+  entity: Entity,
+  m: Matrix4,
+  Component: typeof TransformComponent | typeof LocalTransformComponent
+) => {
+  // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+
+  // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+
+  const te = m.elements,
+    m11 = te[0],
+    m12 = te[4],
+    m13 = te[8],
+    m21 = te[1],
+    m22 = te[5],
+    m23 = te[9],
+    m31 = te[2],
+    m32 = te[6],
+    m33 = te[10],
+    trace = m11 + m22 + m33
+
+  if (trace > 0) {
+    const s = 0.5 / Math.sqrt(trace + 1.0)
+
+    Component.rotation.w[entity] = 0.25 / s
+    Component.rotation.x[entity] = (m32 - m23) * s
+    Component.rotation.y[entity] = (m13 - m31) * s
+    Component.rotation.z[entity] = (m21 - m12) * s
+  } else if (m11 > m22 && m11 > m33) {
+    const s = 2.0 * Math.sqrt(1.0 + m11 - m22 - m33)
+
+    Component.rotation.w[entity] = (m32 - m23) / s
+    Component.rotation.x[entity] = 0.25 * s
+    Component.rotation.y[entity] = (m12 + m21) / s
+    Component.rotation.z[entity] = (m13 + m31) / s
+  } else if (m22 > m33) {
+    const s = 2.0 * Math.sqrt(1.0 + m22 - m11 - m33)
+
+    Component.rotation.w[entity] = (m13 - m31) / s
+    Component.rotation.x[entity] = (m12 + m21) / s
+    Component.rotation.y[entity] = 0.25 * s
+    Component.rotation.z[entity] = (m23 + m32) / s
+  } else {
+    const s = 2.0 * Math.sqrt(1.0 + m33 - m11 - m22)
+
+    Component.rotation.w[entity] = (m21 - m12) / s
+    Component.rotation.x[entity] = (m13 + m31) / s
+    Component.rotation.y[entity] = (m23 + m32) / s
+    Component.rotation.z[entity] = 0.25 * s
+  }
+}
