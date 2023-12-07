@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Euler, MathUtils, Mesh, Quaternion, SkinnedMesh, SphereGeometry, Vector3 } from 'three'
+import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import {
   defineActionQueue,
@@ -55,7 +55,6 @@ import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { MeshComponent } from '../../scene/components/MeshComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
@@ -409,11 +408,11 @@ export const AvatarAnimationSystem = defineSystem({
   reactor
 })
 
-const skinnedMeshQuery = defineQuery([SkinnedMeshComponent, MeshComponent])
+const skinnedMeshQuery = defineQuery([SkinnedMeshComponent])
 
 const updateSkinnedMeshes = () => {
   for (const entity of skinnedMeshQuery()) {
-    const skinnedMesh = getComponent(entity, MeshComponent) as SkinnedMesh
+    const skinnedMesh = getComponent(entity, SkinnedMeshComponent)
     if (skinnedMesh.bindMode === 'attached') {
       skinnedMesh.bindMatrixInverse.copy(skinnedMesh.matrixWorld).invert()
     } else if (skinnedMesh.bindMode === 'detached') {
