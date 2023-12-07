@@ -226,7 +226,7 @@ export const setComponent = <C extends Component>(
         return React.createElement(
           EntityContext.Provider,
           { value: entity },
-          React.createElement(Component.reactor || (() => null), {})
+          React.createElement(Component.reactor!, {})
         )
       }) as ReactorRoot
       root['entity'] = entity
