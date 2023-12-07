@@ -1,5 +1,9 @@
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { defineComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  useComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addWorldObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
@@ -14,26 +18,28 @@ export const ObjectGridSnapComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      density: 1 as number
+      density: 1 as number,
+      bbox: new Box3()
     }
   },
   onSet: (entity, component, json) => {
     if (!json) return
   },
   toJSON: (entity, component) => {
-    return {}
+    return {
+      density: component.density.value
+    }
   },
   reactor: () => {
     const entity = useEntityContext()
+
+    const snapComponent = useComponent(entity, ObjectGridSnapComponent)
 
     useExecute(
       () => {
         const testDot1 = new Mesh(new SphereGeometry(1), new MeshStandardMaterial())
         const testDot2 = new Mesh(new SphereGeometry(1), new MeshStandardMaterial())
-        // for(const obj of getComponent(entity,GroupComponent)){
-        //   if(obj===getComponent(entity,GroupComponent)[0])continue
-        //   removeObjectFromGroup(entity,obj)
-        // }
+
         const boundingBoxComponent = getComponent(entity as Entity, BoundingBoxComponent)
         const objectSpaceBoundingBox = new Box3()
         const worldSpaceBoundingBox = boundingBoxComponent.box
@@ -47,14 +53,6 @@ export const ObjectGridSnapComponent = defineComponent({
 
         const min = objectSpaceBoundingBox.min
         const max = objectSpaceBoundingBox.max
-
-        // const testDot1=new Mesh(new SphereGeometry(0.12))
-        // //let pos=new Vector3(0.51,  2, 0.53)
-        // //pos.applyMatrix4(getComponent(entity, TransformComponent).matrixInverse)
-        // testDot1.position.copy(min)
-        // addWorldObjectToGroup(entity,testDot1)
-        // testDot2.position.copy(max)
-        // addWorldObjectToGroup(entity,testDot2)
 
         const testDot3 = new Mesh(new SphereGeometry(0.12), new MeshStandardMaterial())
         testDot3.material.color = new Color(0xd1f589)
