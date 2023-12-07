@@ -281,29 +281,8 @@ export const updateComponent = <C extends Component>(
   })
 }
 
-/**
- * Like `setComponent`, but throws an error if the component already exists.
- * @param entity
- * @param Component
- * @param args
- * @returns
- * @deprecated - use setComponent instead
- */
-export const addComponent = <C extends Component>(
-  entity: Entity,
-  Component: C,
-  args: SetComponentType<C> | undefined = undefined
-) => {
-  if (hasComponent(entity, Component)) throw new Error(`${Component.name} already exists on entity ${entity}`)
-  setComponent(entity, Component, args)
-}
-
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
   return component.existenceMap[entity] ?? false
-}
-
-export const getOrAddComponent = <C extends Component>(entity: Entity, component: C, args?: SetComponentType<C>) => {
-  return hasComponent(entity, component) ? getComponent(entity, component) : addComponent(entity, component, args)
 }
 
 export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
@@ -520,7 +499,6 @@ export type Query = ReturnType<typeof defineQuery>
 globalThis.EE_getComponent = getComponent
 globalThis.EE_getAllComponents = getAllComponents
 globalThis.EE_getAllComponentData = getAllComponentData
-globalThis.EE_addComponent = addComponent
 globalThis.EE_setComponent = setComponent
 globalThis.EE_removeComponent = removeComponent
 

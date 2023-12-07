@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -35,7 +35,7 @@ import { createNonInteractiveModalView } from '../ui/nonInteractiveModalView'
 export function createNonInteractUI(entity: Entity, message: string) {
   const ui = createNonInteractiveModalView(entity, message)
   const nameComponent = getComponent(entity, NameComponent)
-  addComponent(ui.entity, NameComponent, 'ui-' + message + '-' + nameComponent)
+  setComponent(ui.entity, NameComponent, 'ui-' + message + '-' + nameComponent)
 
   const xrui = getComponent(ui.entity, XRUIComponent)
   xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {

@@ -34,7 +34,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
-  addComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -78,7 +77,7 @@ const LoadingUISystemState = defineState({
     const transition = createTransitionState(transitionPeriodSeconds, 'IN')
     const ui = createLoaderDetailView()
     getMutableComponent(ui.entity, InputComponent).grow.set(false)
-    addComponent(ui.entity, NameComponent, 'Loading XRUI')
+    setComponent(ui.entity, NameComponent, 'Loading XRUI')
 
     const meshEntity = createEntity()
     const mesh = new Mesh(

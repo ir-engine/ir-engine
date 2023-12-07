@@ -51,7 +51,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   defineQuery,
   getComponent,
   hasComponent,
@@ -262,8 +261,8 @@ const DropShadowReactor = () => {
     const shadowEntity = createEntity()
     const shadowObject = new Mesh(shadowGeometry, shadowMaterial.value.clone())
     addObjectToGroup(shadowEntity, shadowObject)
-    addComponent(shadowEntity, NameComponent, 'Shadow for ' + getComponent(entity, NameComponent))
-    addComponent(shadowEntity, VisibleComponent)
+    setComponent(shadowEntity, NameComponent, 'Shadow for ' + getComponent(entity, NameComponent))
+    setComponent(shadowEntity, VisibleComponent)
     setComponent(entity, DropShadowComponent, { radius, center, entity: shadowEntity })
 
     return () => {
