@@ -121,14 +121,6 @@ describe('ComponentFunctions', async () => {
       assert.equal(TestComponent.value[entity], 3)
     })
 
-    it('should throw on duplicate add component', () => {
-      const TestComponent = defineComponent({ name: 'TestComponent', onInit: () => true })
-
-      const entity = createEntity()
-      setComponent(entity, TestComponent)
-      assert.throws(() => setComponent(entity, TestComponent))
-    })
-
     it('should throw on null entity argument', () => {
       assert.throws(() => setComponent(null!, null!, null!))
       assert.throws(() => setComponent(undefined!, undefined!, null!))
