@@ -34,6 +34,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
+import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Button } from '../inputs/Button'
 
@@ -49,9 +50,26 @@ export const FilePropertiesPanel = (props: {
     JSON.parse(JSON.stringify(fileProperties.get(NO_PROXY))) as FileType
   )
 
+  const isModified = useHookstate(false)
+
   const onChange = useCallback((state: State<any>) => {
+    isModified.set(true)
     return (e) => {
       state.set(e.target.value)
+    }
+  }, [])
+
+  const onSaveChanges = useCallback(() => {
+    if (isModified.value) {
+      if (modifiableProperties.name.value != fileProperties.value!.name) {
+        FileBrowserService.moveContent(
+          fileProperties.value!.name,
+          modifiableProperties.name.value,
+          fileProperties.value!.path,
+          fileProperties.value!.path
+        )
+      }
+      isModified.set(false)
     }
   }, [])
 
@@ -114,6 +132,11 @@ export const FilePropertiesPanel = (props: {
             value={tags[index].value}
           />
         ))}
+        {isModified.value && (
+          <Button onClick={onSaveChanges} style={{ marginTop: '15px' }}>
+            Save Changes
+          </Button>
+        )}
       </form>
     </Dialog>
   )
