@@ -70,6 +70,7 @@ import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/compon
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
+import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { Vector3 } from 'three'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -116,7 +117,14 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
   ],
   FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
   Scripting: [SystemComponent, BehaveGraphComponent],
-  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, SplineTrackComponent, SplineComponent]
+  Misc: [
+    EnvMapBakeComponent,
+    ScenePreviewCameraComponent,
+    SkyboxComponent,
+    SplineTrackComponent,
+    SplineComponent,
+    TextComponent
+  ]
 }
 
 const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementListItemType) => {
