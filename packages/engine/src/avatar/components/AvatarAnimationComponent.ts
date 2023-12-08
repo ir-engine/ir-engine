@@ -208,7 +208,7 @@ export const AvatarRigComponent = defineComponent({
     useEffect(() => {
       if (!manager.loadedAnimations.value) return
       retargetAvatarAnimations(entity)
-    }, [manager.loadedAnimations])
+    }, [manager.loadedAnimations, rigComponent.rig])
 
     return null
   }

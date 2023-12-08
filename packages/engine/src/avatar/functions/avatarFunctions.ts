@@ -116,7 +116,7 @@ export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {
   })
 }
 
-export const loadAvatarForUser = async (
+export const loadAvatarForUser = (
   entity: Entity,
   avatarURL: string,
   loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
@@ -233,8 +233,6 @@ export const setAvatarSpeedFromRootMotion = () => {
   if (run) movement.runSpeed.set(getRootSpeed(run) * 0.01)
   if (walk) movement.walkSpeed.set(getRootSpeed(walk) * 0.01)
 }
-
-export const loadAnimationsFromObjectKeys = async (animationNames) => {}
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
