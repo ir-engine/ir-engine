@@ -62,6 +62,7 @@ import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
 import { translateAndRotateAvatar } from '.././functions/moveAvatar'
 import { AvatarAxesControlScheme, AvatarInputSettingsState } from '.././state/AvatarInputSettingsState'
+import { applyInputSourcePoseToIKTargets } from '../functions/applyInputSourcePoseToIKTargets'
 
 const _quat = new Quaternion()
 
@@ -200,6 +201,8 @@ let mouseMovedDuringPrimaryClick = false
 const execute = () => {
   const { localClientEntity } = Engine.instance
   if (!localClientEntity) return
+
+  applyInputSourcePoseToIKTargets(localClientEntity)
 
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
