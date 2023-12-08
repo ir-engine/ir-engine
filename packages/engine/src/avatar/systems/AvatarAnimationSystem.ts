@@ -156,8 +156,8 @@ const execute = () => {
 
     if (!rig?.hips?.node) continue
 
-    const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
-    if (rigidbodyComponent && rigidbodyComponent.body.isEnabled()) {
+    const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+    if (rigidbodyComponent.body.isEnabled()) {
       // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
       avatarAnimationComponent.locomotion.x = 0
       avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
@@ -219,43 +219,41 @@ const execute = () => {
     //right now the only times we want to be using inverse kinematics is when we're in xr mode,
     //or when we're running our own leg calculations for mocap
     if (shouldUseIK) {
-      hipsForward.set(0, 0, 1)
-
       if (entity == Engine.instance.localClientEntity) {
         setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
       }
 
+      const transform = getComponent(entity, TransformComponent)
+
       if (headTargetBlendWeight) {
         const headTransform = getComponent(head, TransformComponent)
-        rig.hips.node.position.copy(
-          _vector3.copy(headTransform.position).setY(headTransform.position.y - rigComponent.torsoLength - 0.125)
-        )
+        rig.hips.node.position
+          .copy(headTransform.position)
+          .setY(headTransform.position.y - rigComponent.torsoLength - 0.125)
 
         //offset target forward to account for hips being behind the head
-        hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
+        hipsForward.set(0, 0, 1)
+        hipsForward.applyQuaternion(rigidbodyComponent.rotation)
         hipsForward.multiplyScalar(0.125)
         rig.hips.node.position.sub(hipsForward)
 
+        // convert to local space
+        rig.hips.node.position.applyMatrix4(transform.matrixInverse)
+
         //calculate head look direction and apply to head bone
         //look direction should be set outside of the xr switch
-        rig.head.node.quaternion.copy(
-          _quat.multiplyQuaternions(
-            rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
-            headTransform.rotation
-          )
+        rig.head.node.quaternion.multiplyQuaternions(
+          rig.spine.node.getWorldQuaternion(_quat).invert(),
+          headTransform.rotation
         )
       } else {
         /**todo: fix foot heuristic function causing ik solve issues */
       }
 
-      const transform = getComponent(entity, TransformComponent)
-
       const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
       const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
 
-      if (headTargetBlendWeight) rig.hips.node.position.applyMatrix4(transform.matrixInverse)
-
-      if (rightHand && rightHandTargetBlendWeight) {
+      if (rightHandTargetBlendWeight) {
         solveTwoBoneIK(
           rig.rightUpperArm.node,
           rig.rightLowerArm.node,
@@ -272,7 +270,7 @@ const execute = () => {
         )
       }
 
-      if (leftHand && leftHandTargetBlendWeight) {
+      if (leftHandTargetBlendWeight) {
         solveTwoBoneIK(
           rig.leftUpperArm.node,
           rig.leftLowerArm.node,
@@ -293,7 +291,7 @@ const execute = () => {
         footRaycastTimer = 0
       }
 
-      if (rightFoot && rightFootTargetBlendWeight) {
+      if (rightFootTargetBlendWeight) {
         solveTwoBoneIK(
           rig.rightUpperLeg.node,
           rig.rightLowerLeg.node,
@@ -310,7 +308,7 @@ const execute = () => {
         )
       }
 
-      if (leftFoot && leftFootTargetBlendWeight) {
+      if (leftFootTargetBlendWeight) {
         solveTwoBoneIK(
           rig.leftUpperLeg.node,
           rig.leftLowerLeg.node,
