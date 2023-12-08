@@ -505,5 +505,5 @@ export default function HierarchyPanel() {
   const sceneJson = SceneState.getScene(editorState.sceneID.value!)
 
   if (!editorState.sceneID.value || !sceneState.scenes[editorState.sceneID.value] || !sceneJson) return null
-  return <HierarchyPanelContents key={sceneJson.root} rootEntity={sceneJson.root} />
+  return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} />
 }
