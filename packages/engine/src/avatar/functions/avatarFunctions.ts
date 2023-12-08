@@ -36,7 +36,6 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -147,7 +146,7 @@ export const loadAvatarForUser = async (
 }
 
 /**Kicks off avatar animation loading and setup. Called after an avatar's model asset is
- * successfully loaded and retargeted.
+ * successfully loaded.
  */
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   const avatar = getComponent(entity, AvatarComponent)
@@ -171,19 +170,13 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 export const retargetAvatarAnimations = (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const manager = getState(AnimationState)
-
-  const animations = getMutableComponent(entity, AnimationComponent).animations
-
-  for (let i = 0; i < animations.length; i++) {
-    if (!animations[i].value) continue
-    animations[i].set(
-      retargetMixamoAnimation(
-        animations[i].value,
-        manager.loadedAnimations[locomotionAnimation]?.scene!,
-        rigComponent.vrm
-      )
-    )
+  const animations = [] as AnimationClip[]
+  for (const key in manager.loadedAnimations) {
+    console.log(manager.loadedAnimations[key].animations)
+    for (const animation of manager.loadedAnimations[key].animations)
+      animations.push(retargetMixamoAnimation(animation, manager.loadedAnimations[key].scene, rigComponent.vrm))
   }
+  setComponent(entity, AnimationComponent, { animations })
 }
 
 /**Loads the locomotion animations, emotes and optionals*/
@@ -201,8 +194,10 @@ export const setAvatarAnimations = (entity: Entity) => {
     for (let i = 0; i < emoteKeys.length; i++) {
       AssetLoader.loadAsync(
         `${config.client.fileServer}/projects/default-project/assets/animations/emotes/${emoteKeys[i]}.fbx`
-      ).then((loadedEmotes) => {
+      ).then((loadedEmotes: GLTF) => {
         manager.loadedAnimations[emoteKeys[i]].set(loadedEmotes)
+        //fbx files need animations reassignment to maintain consistency with GLTF
+        loadedEmotes.animations = loadedEmotes.scene.animations
       })
     }
   }

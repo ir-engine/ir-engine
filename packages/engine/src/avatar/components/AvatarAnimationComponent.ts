@@ -61,7 +61,7 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { PoseSchema, TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
-import { setupAvatarForUser } from '../functions/avatarFunctions'
+import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -205,7 +205,10 @@ export const AvatarRigComponent = defineComponent({
 
     const manager = useHookstate(getMutableState(AnimationState))
 
-    useEffect(() => {}, [manager.loadedAnimations])
+    useEffect(() => {
+      if (!manager.loadedAnimations.value) return
+      retargetAvatarAnimations(entity)
+    }, [manager.loadedAnimations])
 
     return null
   }
