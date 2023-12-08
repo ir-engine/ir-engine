@@ -44,6 +44,7 @@ import {
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
+import { isMobile } from '../../common/functions/isMobile'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
@@ -57,13 +58,16 @@ import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { PlayMode } from '../constants/PlayMode'
 import {
+  ASTCTextureTarget,
   AudioFileFormat,
   DRACOTarget,
   FORMAT_TO_EXTENSION,
   GLBTarget,
   GeometryFormat,
+  KTX2TextureTarget,
   PlayerManifest,
   TextureFormat,
   TextureType,
@@ -106,19 +110,39 @@ export const calculatePriority = (manifest: PlayerManifest) => {
 
   const textureTypes = Object.keys(manifest.texture)
   for (let i = 0; i < textureTypes.length; i++) {
-    const textureType = textureTypes[i]
-    const currentTextureTargets = Object.keys(manifest.texture[textureType].targets)
-    currentTextureTargets.sort((a, b) => {
-      const aData = manifest.texture[textureType].targets[a]
-      const bData = manifest.texture[textureType].targets[b]
+    const textureType = textureTypes[i] as TextureType
+    const currentTextureTargets = Object.keys(manifest.texture[textureType]!.targets)
+    const supportedTextures = [] as string[]
+    currentTextureTargets.forEach((target) => {
+      const targetData = manifest.texture[textureType]!.targets[target]
+      if (isMobile || isMobileXRHeadset) {
+        if (targetData.format === 'astc/ktx2') {
+          supportedTextures.push(target)
+        }
+      } else {
+        // Desktop
+        if (targetData.format === 'ktx2') {
+          supportedTextures.push(target)
+        }
+      }
+    })
+    if (supportedTextures.length === 0) {
+      // No supported textures, fallback to all textures
+      supportedTextures.push(...currentTextureTargets)
+    }
+
+    supportedTextures.sort((a, b) => {
+      type TextureTargetType = KTX2TextureTarget | ASTCTextureTarget
+      const aData = manifest.texture[textureType]!.targets[a] as TextureTargetType
+      const bData = manifest.texture[textureType]!.targets[b] as TextureTargetType
       const aPixelPerSec = aData.frameRate * aData.settings.resolution.width * aData.settings.resolution.height
       const bPixelPerSec = bData.frameRate * bData.settings.resolution.width * bData.settings.resolution.height
       return aPixelPerSec - bPixelPerSec
     })
-    currentTextureTargets.forEach((target, index) => {
-      manifest.texture[textureType].targets[target].priority = index
+    supportedTextures.forEach((target, index) => {
+      manifest.texture[textureType]!.targets[target].priority = index
     })
-    textureTargets[textureType] = currentTextureTargets
+    textureTargets[textureType] = supportedTextures
   }
 
   return [manifest, geometryTargets, textureTargets] as [PlayerManifest, string[], typeof textureTargets]
