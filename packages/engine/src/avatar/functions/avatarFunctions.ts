@@ -64,7 +64,6 @@ import { AnimationState } from '../AnimationManager'
 import config from '@etherealengine/common/src/config'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { emoteAnimations, locomotionAnimation } from '../animation/Util'
@@ -106,54 +105,37 @@ export const isAvaturn = (url: string) => {
   else return false
 }
 
-export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {
-  //check if the url to the file is an avaturn url to infer the file type
-
-  const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
-
-  AssetLoader.loadAsync(avatarURL, undefined, undefined, override).then((loadedAsset) => {
-    setComponent(entity, AvatarRigComponent, { vrm: loadedAsset })
-  })
-}
-
-export const loadAvatarForUser = (
+/**tries to load avatar model asset if an avatar is not already pending */
+export const loadAvatarModelAsset = (
   entity: Entity,
   avatarURL: string,
   loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 ) => {
-  if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
-    throw new Error('Avatar model already loading')
+  //check if the url to the file is an avaturn url to infer the file type
+  const pendingComponent = getOptionalComponent(entity, AvatarPendingComponent)
+  if (pendingComponent && pendingComponent.url === avatarURL) return
 
-  if (loadingEffect) {
-    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
-  }
-
-  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(false)
+  const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
 
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
-  //const parent = (await loadAvatarModelAsset(avatarURL)) as VRM
 
-  /** hack a cancellable promise - check if the url we start with is the one we end up with */
-  if (!hasComponent(entity, AvatarPendingComponent) || getComponent(entity, AvatarPendingComponent).url !== avatarURL)
-    throw new Error('Avatar model changed while loading')
+  AssetLoader.loadAsync(avatarURL, undefined, undefined, override).then((loadedAsset) => {
+    setComponent(entity, AvatarRigComponent, { vrm: loadedAsset })
+    removeComponent(entity, AvatarPendingComponent)
 
-  removeComponent(entity, AvatarPendingComponent)
-
-  if (!parent) throw new Error('Avatar model not found')
-  //setupAvatarForUser(entity, parent)
-
-  if (isClient && loadingEffect) {
-    const avatar = getComponent(entity, AvatarComponent)
-    const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(entity, avatar?.model)
-    const effectEntity = createEntity()
-    setComponent(effectEntity, AvatarEffectComponent, {
-      sourceEntity: entity,
-      opacityMultiplier: 1,
-      dissolveMaterials: dissolveMaterials as ShaderMaterial[],
-      originMaterials: avatarMaterials as MaterialMap[]
-    })
-    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
-  }
+    /**this is awaiting refactor from PR #9369 */
+    if (isClient && loadingEffect) {
+      const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(loadedAsset.scene)
+      const effectEntity = createEntity()
+      setComponent(effectEntity, AvatarEffectComponent, {
+        sourceEntity: entity,
+        opacityMultiplier: 1,
+        dissolveMaterials: dissolveMaterials as ShaderMaterial[],
+        originMaterials: avatarMaterials as MaterialMap[]
+      })
+      if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
+    }
+  })
 }
 
 /**Kicks off avatar animation loading and setup. Called after an avatar's model asset is
@@ -256,7 +238,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   return model
 }
 
-export const setupAvatarMaterials = (entity, root) => {
+export const setupAvatarMaterials = (root) => {
   const materialList: Array<MaterialMap> = []
   const dissolveMatList: Array<ShaderMaterial> = []
   setObjectLayers(root, ObjectLayers.Avatar)
