@@ -33,6 +33,7 @@ export const InputSystemGroup = defineSystem({
 /** Run inside of fixed pipeline */
 export const SimulationSystemGroup = defineSystem({
   uuid: 'ee.engine.simulation-group',
+  timeStep: 1 / 60,
   insert: {}
 })
 
@@ -45,3 +46,10 @@ export const PresentationSystemGroup = defineSystem({
   uuid: 'ee.engine.presentation-group',
   insert: {}
 })
+
+export const DefaultSystemPipeline = [
+  InputSystemGroup,
+  SimulationSystemGroup,
+  AnimationSystemGroup,
+  PresentationSystemGroup
+]

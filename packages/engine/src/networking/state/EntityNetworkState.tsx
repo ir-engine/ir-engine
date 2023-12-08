@@ -70,8 +70,9 @@ export const EntityNetworkState = defineState({
 
   receptors: {
     onSpawnObject: WorldNetworkAction.spawnObject.receive((action) => {
+      const userId = getState(NetworkState).networks[action.$network].peers[action.$peer].userId
       getMutableState(EntityNetworkState)[action.entityUUID].merge({
-        ownerId: action.$from,
+        ownerId: userId,
         networkId: action.networkId,
         authorityPeerId: action.$peer,
         spawnPosition: action.position ?? new Vector3(),

@@ -30,7 +30,7 @@ import { SelectTagComponent } from '@etherealengine/engine/src/scene/components/
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { useEffect } from 'react'
 import { MaterialSelectionState } from '../components/materials/MaterialLibraryState'
 import { filterParentEntities } from '../functions/filterParentEntities'

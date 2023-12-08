@@ -55,7 +55,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserKickType, userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { State, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { HyperFlux, State, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -231,6 +231,7 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
   const hostId = instanceServerState.instance.id as UserID & InstanceID
   Engine.instance.userID = hostId
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
+  HyperFlux.store.forwardingTopics.add(topic)
 
   await setupIPs()
   const network = await initializeNetwork(app, hostId, hostId, topic)

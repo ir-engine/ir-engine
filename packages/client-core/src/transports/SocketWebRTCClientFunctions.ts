@@ -107,8 +107,8 @@ import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/fu
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { encode } from 'msgpackr'
 
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { LocationID, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { MessageID } from '@etherealengine/engine/src/schemas/social/message.schema'
 

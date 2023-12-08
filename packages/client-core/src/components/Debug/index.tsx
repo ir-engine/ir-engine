@@ -41,13 +41,13 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { System, SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
-  RootSystemGroup,
-  SimulationSystemGroup,
-  System,
-  SystemDefinitions,
-  SystemUUID
-} from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+  AnimationSystemGroup,
+  InputSystemGroup,
+  PresentationSystemGroup,
+  SimulationSystemGroup
+} from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -58,52 +58,36 @@ import ActionsPanel from './ActionsPanel'
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
 
-type DesiredType =
-  | {
-      preSystems?: Record<SystemUUID, DesiredType>
-      simulation?: DesiredType
-      subSystems?: Record<SystemUUID, DesiredType>
-      postSystems?: Record<SystemUUID, DesiredType>
-    }
-  | boolean // enabled
+type SystemTree = {
+  preSystems: Record<SystemUUID, SystemTree>
+  subSystems: Record<SystemUUID, SystemTree>
+  postSystems: Record<SystemUUID, SystemTree>
+}
 
-const convertSystemTypeToDesiredType = (system: System): DesiredType => {
-  const { preSystems, subSystems, postSystems } = system
-  if (preSystems.length === 0 && subSystems.length === 0 && postSystems.length === 0) {
-    return true
-  }
-  const desired: DesiredType = {}
-  if (preSystems.length > 0) {
-    desired.preSystems = preSystems.reduce(
+const expandSystemToTree = (system: System): SystemTree => {
+  return {
+    preSystems: system.preSystems.reduce(
       (acc, uuid) => {
-        acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+        acc[uuid] = expandSystemToTree(SystemDefinitions.get(uuid)!)
         return acc
       },
-      {} as Record<SystemUUID, DesiredType>
-    )
-  }
-  if (system.uuid === RootSystemGroup) {
-    desired.simulation = convertSystemTypeToDesiredType(SystemDefinitions.get(SimulationSystemGroup)!)
-  }
-  if (subSystems.length > 0) {
-    desired.subSystems = subSystems.reduce(
+      {} as Record<SystemUUID, SystemTree>
+    ),
+    subSystems: system.subSystems.reduce(
       (acc, uuid) => {
-        acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+        acc[uuid] = expandSystemToTree(SystemDefinitions.get(uuid)!)
         return acc
       },
-      {} as Record<SystemUUID, DesiredType>
-    )
-  }
-  if (postSystems.length > 0) {
-    desired.postSystems = postSystems.reduce(
+      {} as Record<SystemUUID, SystemTree>
+    ),
+    postSystems: system.postSystems.reduce(
       (acc, uuid) => {
-        acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+        acc[uuid] = expandSystemToTree(SystemDefinitions.get(uuid)!)
         return acc
       },
-      {} as Record<SystemUUID, DesiredType>
+      {} as Record<SystemUUID, SystemTree>
     )
   }
-  return desired
 }
 
 export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefObject<boolean> }) => {
@@ -211,8 +195,6 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
   const namedEntities = useHookstate({})
   const entityTree = useHookstate({} as any)
 
-  const dag = convertSystemTypeToDesiredType(SystemDefinitions.get(RootSystemGroup)!)
-
   namedEntities.set(renderAllEntities())
   entityTree.set(renderEntityTreeRoots())
   return (
@@ -294,31 +276,41 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
       <ActionsPanel />
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.systems')}</h1>
-        <JSONTree
-          data={dag}
-          labelRenderer={(raw, ...keyPath) => {
-            const label = raw[0]
-            if (label === 'preSystems' || label === 'simulation' || label === 'subSystems' || label === 'postSystems')
-              return <span style={{ color: 'green' }}>{t(`common:debug.${label}`)}</span>
-            return <span style={{ color: 'black' }}>{label}</span>
-          }}
-          valueRenderer={(raw, value, ...keyPath) => {
-            const system = SystemDefinitions.get((keyPath[0] === 'enabled' ? keyPath[1] : keyPath[0]) as SystemUUID)!
-            const systemReactor = system ? HyperFlux.store.activeSystemReactors.get(system.uuid) : undefined
-            return (
-              <>
-                {systemReactor?.error.value && (
-                  <span style={{ color: 'red' }}>
-                    {systemReactor.error.value.name}: {systemReactor.error.value.message}
-                  </span>
-                )}
-              </>
-            )
-          }}
-          shouldExpandNodeInitially={() => true}
-        />
+        <SystemDagView uuid={InputSystemGroup} />
+        <SystemDagView uuid={SimulationSystemGroup} />
+        <SystemDagView uuid={AnimationSystemGroup} />
+        <SystemDagView uuid={PresentationSystemGroup} />
       </div>
     </div>
+  )
+}
+
+export const SystemDagView = (props: { uuid: SystemUUID }) => {
+  const { t } = useTranslation()
+  return (
+    <JSONTree
+      data={expandSystemToTree(SystemDefinitions.get(props.uuid)!)}
+      labelRenderer={(raw, ...keyPath) => {
+        const label = raw[0]
+        if (label === 'preSystems' || label === 'subSystems' || label === 'postSystems')
+          return <span style={{ color: 'green' }}>{t(`common:debug.${label}`)}</span>
+        return <span style={{ color: 'black' }}>{label}</span>
+      }}
+      valueRenderer={(raw, value, ...keyPath) => {
+        const system = SystemDefinitions.get(keyPath[0] as SystemUUID)!
+        const systemReactor = system ? HyperFlux.store.activeSystemReactors.get(system.uuid) : undefined
+        return (
+          <>
+            {systemReactor?.error.value && (
+              <span style={{ color: 'red' }}>
+                {systemReactor.error.value.name}: {systemReactor.error.value.message}
+              </span>
+            )}
+          </>
+        )
+      }}
+      shouldExpandNodeInitially={() => true}
+    />
   )
 }
 

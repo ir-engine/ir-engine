@@ -43,7 +43,7 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
@@ -278,7 +278,6 @@ export const useOfflineNetwork = () => {
       const networkState = getMutableState(NetworkState)
       networkState.hostIds.world.set(userId as any as InstanceID)
       addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
-      addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkState.worldNetwork.authenticated = true
       NetworkState.worldNetwork.connected = true

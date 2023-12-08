@@ -28,24 +28,21 @@ import * as Hyperflux from '@etherealengine/hyperflux'
 import { createHyperStore, getState } from '@etherealengine/hyperflux'
 import { HyperFlux, HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
-import { NetworkTopics } from '../../networking/classes/Network'
-
 import '../../patchEngineNode'
 import '../utils/threejsPatches'
 
 import type { FeathersApplication } from '@feathersjs/feathers'
-import { Group, Object3D, Scene } from 'three'
+import { Object3D } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
 import { getAllEntities } from 'bitecs'
 import { Timer } from '../../common/functions/Timer'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkState } from '../../networking/NetworkState'
 import { removeEntity } from '../functions/EntityFunctions'
 import { removeQuery } from '../functions/QueryFunctions'
 import { EngineState } from './EngineState'
-import { Entity, UndefinedEntity } from './Entity'
+import { Entity } from './Entity'
 
 export class Engine {
   static instance: Engine
@@ -64,15 +61,7 @@ export class Engine {
   }
 
   store = createHyperStore({
-    forwardIncomingActions: (action) => {
-      const isHost =
-        action.$topic === this.store.defaultTopic
-          ? false
-          : (action.$topic === NetworkTopics.world ? NetworkState.worldNetwork : NetworkState.mediaNetwork)?.isHosting
-      return isHost || action.$from === this.userID
-    },
     getDispatchId: () => Engine.instance.userID,
-    getPeerId: () => Engine.instance.peerID,
     getDispatchTime: () => getState(EngineState).simulationTime,
     defaultDispatchDelay: () => getState(EngineState).simulationTimestep
   }) as HyperStore
@@ -81,8 +70,11 @@ export class Engine {
 
   /**
    * Reference to the three.js scene object.
+   * @deprecated use getState(EngineState).scene instead
    */
-  scene = new Scene()
+  get scene() {
+    return getState(EngineState).scene
+  }
 
   /**
    * Map of object lists by layer
@@ -92,18 +84,27 @@ export class Engine {
 
   /**
    * The xr origin reference space entity
+   * @deprecated use getState(EngineState).originEntity instead
    */
-  originEntity: Entity = UndefinedEntity
+  get originEntity() {
+    return getState(EngineState).originEntity
+  }
 
   /**
    * The xr origin group
+   * @deprecated use getState(EngineState).origin instead
    */
-  origin = new Group()
+  get origin() {
+    return getState(EngineState).origin
+  }
 
   /**
    * The camera entity
+   * @deprecated use getState(EngineState).cameraEntity instead
    */
-  cameraEntity = UndefinedEntity
+  get cameraEntity() {
+    return getState(EngineState).cameraEntity
+  }
 
   /**
    * The local client entity

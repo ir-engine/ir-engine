@@ -30,29 +30,8 @@ import { HyperFlux, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { EngineState } from '../classes/EngineState'
-import { SystemDefinitions, SystemUUID, executeSystem } from './SystemFunctions'
+import { SystemUUID, executeSystem } from './SystemFunctions'
 import { AnimationSystemGroup, InputSystemGroup, PresentationSystemGroup, SimulationSystemGroup } from './SystemGroups'
-
-export const getDAG = (systemUUID: SystemUUID, depth = 0) => {
-  const system = SystemDefinitions.get(systemUUID)
-  if (!system) return
-
-  for (const preSystem of system.preSystems) {
-    getDAG(preSystem, depth + 1)
-  }
-
-  console.log('-'.repeat(depth), system.uuid.split('.').pop())
-
-  for (const subSystem of system.subSystems) {
-    getDAG(subSystem, depth + 1)
-  }
-
-  for (const postSystem of system.postSystems) {
-    getDAG(postSystem, depth + 1)
-  }
-}
-
-globalThis.getDAG = getDAG
 
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
@@ -80,14 +59,6 @@ export const executeSystems = (elapsedTime: number) => {
   executeFixedSystem(SimulationSystemGroup)
   executeSystem(AnimationSystemGroup)
   executeSystem(PresentationSystemGroup)
-
-  for (const { query, result } of HyperFlux.store.reactiveQueryStates) {
-    const entitiesAdded = query.enter().length
-    const entitiesRemoved = query.exit().length
-    if (entitiesAdded || entitiesRemoved) {
-      result.set(query())
-    }
-  }
 
   const end = nowMilliseconds()
   const duration = end - start

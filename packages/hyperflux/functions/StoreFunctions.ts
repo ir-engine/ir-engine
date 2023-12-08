@@ -32,15 +32,9 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { Query, QueryComponents } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import {
-  ActionQueueHandle,
-  ActionQueueInstance,
-  ResolvedActionType,
-  Topic,
-  addOutgoingTopicIfNecessary
-} from './ActionFunctions'
+import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
 import { ReactorRoot } from './ReactorFunctions'
-import { StateDefinitions, initializeState } from './StateFunctions'
+import { StateDefinitions, setInitialState } from './StateFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
@@ -49,10 +43,9 @@ export interface HyperStore {
    */
   defaultTopic: Topic
   /**
-   *  If false, actions are dispatched on the incoming queue.
-   *  If true, actions are dispatched on the incoming queue and then forwarded to the outgoing queue.
+   *  Topics that should forward their incoming actions to the outgoing queue.
    */
-  forwardIncomingActions: (action: Required<ResolvedActionType>) => boolean
+  forwardingTopics: Set<Topic>
   /**
    * A function which returns the dispatch id assigned to actions
    * @deprecated can be derived from agentId via mapping
@@ -103,14 +96,14 @@ export interface HyperStore {
     knownUUIDs: Set<string>
     /** Outgoing actions */
     outgoing: Record<
-      string,
+      Topic,
       {
         /** All actions that are waiting to be sent */
         queue: Array<Required<ResolvedActionType>>
         /** All actions that have been sent */
         history: Array<Required<ResolvedActionType>>
         /** All incoming action UUIDs that have been processed */
-        historyUUIDs: Set<string>
+        forwardedUUIDs: Set<string>
       }
     >
   }
@@ -131,17 +124,14 @@ export class HyperFlux {
 }
 
 export function createHyperStore(options: {
-  forwardIncomingActions?: (action: Required<ResolvedActionType>) => boolean
   getDispatchId: () => string
-  getPeerId: () => string
   getDispatchTime: () => number
   defaultDispatchDelay?: () => number
 }) {
   const store = {
     defaultTopic: 'default' as Topic,
-    forwardIncomingActions: options.forwardIncomingActions ?? (() => false),
+    forwardingTopics: new Set<Topic>(),
     getDispatchId: options.getDispatchId,
-    getPeerId: options.getPeerId,
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
     getCurrentReactorRoot: () => store.activeSystemReactors.get(store.currentSystemUUID),
@@ -150,7 +140,6 @@ export function createHyperStore(options: {
     valueMap: {},
     receptorEntityContext: UndefinedEntity,
     actions: {
-      queueDefinitions: new Map(),
       queues: new Map(),
       activeQueue: null,
       cached: [],
@@ -176,9 +165,8 @@ export function createHyperStore(options: {
   } as HyperStore
   HyperFlux.store = store
   bitecs.createWorld(store)
-  addOutgoingTopicIfNecessary(store.defaultTopic)
   for (const StateDefinition of StateDefinitions.values()) {
-    initializeState(StateDefinition)
+    setInitialState(StateDefinition)
   }
   return store
 }

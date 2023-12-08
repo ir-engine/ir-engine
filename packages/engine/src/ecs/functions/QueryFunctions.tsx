@@ -30,26 +30,21 @@ import React, { ErrorInfo, FC, Suspense, memo, useEffect, useLayoutEffect, useMe
 import { Entity } from '../classes/Entity'
 import { Component, ComponentType, getComponent, useOptionalComponent } from './ComponentFunctions'
 import { EntityContext } from './EntityFunctions'
+import { defineSystem } from './SystemFunctions'
+import { PresentationSystemGroup } from './SystemGroups'
 
 export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier)[]) {
   const query = bitECS.defineQuery(components) as bitECS.Query
   const enterQuery = bitECS.enterQuery(query)
   const exitQuery = bitECS.exitQuery(query)
 
-  const _remove = () => bitECS.removeQuery(HyperFlux.store, wrappedQuery._query)
-  const _removeEnter = () => bitECS.removeQuery(HyperFlux.store, wrappedQuery._enterQuery)
-  const _removeExit = () => bitECS.removeQuery(HyperFlux.store, wrappedQuery._exitQuery)
-
   const wrappedQuery = () => {
-    HyperFlux.store.activeSystemReactors.get(HyperFlux.store.currentSystemUUID)?.cleanupFunctions.add(_remove)
     return query(HyperFlux.store) as Entity[]
   }
   wrappedQuery.enter = () => {
-    HyperFlux.store.activeSystemReactors.get(HyperFlux.store.currentSystemUUID)?.cleanupFunctions.add(_removeEnter)
     return enterQuery(HyperFlux.store) as Entity[]
   }
   wrappedQuery.exit = () => {
-    HyperFlux.store.activeSystemReactors.get(HyperFlux.store.currentSystemUUID)?.cleanupFunctions.add(_removeExit)
     return exitQuery(HyperFlux.store) as Entity[]
   }
 
@@ -66,6 +61,20 @@ export function removeQuery(query: ReturnType<typeof defineQuery>) {
 }
 
 export type QueryComponents = (Component<any> | bitECS.QueryModifier | bitECS.Component)[]
+
+export const ReactiveQuerySystem = defineSystem({
+  uuid: 'ee.hyperflux.ReactiveQuerySystem',
+  insert: { after: PresentationSystemGroup },
+  execute: () => {
+    for (const { query, result } of HyperFlux.store.reactiveQueryStates) {
+      const entitiesAdded = query.enter().length
+      const entitiesRemoved = query.exit().length
+      if (entitiesAdded || entitiesRemoved) {
+        result.set(query())
+      }
+    }
+  }
+})
 
 /**
  * Use a query in a reactive context (a React component)

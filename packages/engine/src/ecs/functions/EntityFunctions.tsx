@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import * as bitECS from 'bitecs'
 import React from 'react'
 
-import { Engine } from '../classes/Engine'
+import { HyperFlux } from '@etherealengine/hyperflux'
 import { Entity, UndefinedEntity } from '../classes/Entity'
 import { removeAllComponents } from './ComponentFunctions'
 
 export const createEntity = (): Entity => {
-  let entity = bitECS.addEntity(Engine.instance.store)
-  if (entity === 0) entity = bitECS.addEntity(Engine.instance.store) // always discard entity 0 since we do a lot of `if (entity)` checks
+  let entity = bitECS.addEntity(HyperFlux.store)
+  if (entity === 0) entity = bitECS.addEntity(HyperFlux.store) // always discard entity 0 since we do a lot of `if (entity)` checks
   return entity as Entity
 }
 
@@ -41,13 +41,13 @@ export const removeEntity = (entity: Entity) => {
 
   const promise = removeAllComponents(entity)
 
-  bitECS.removeEntity(Engine.instance.store, entity)
+  bitECS.removeEntity(HyperFlux.store, entity)
 
   return promise
 }
 
 export const entityExists = (entity: Entity) => {
-  return bitECS.entityExists(Engine.instance.store, entity)
+  return bitECS.entityExists(HyperFlux.store, entity)
 }
 
 export const EntityContext = React.createContext(UndefinedEntity)

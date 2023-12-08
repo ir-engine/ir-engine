@@ -30,7 +30,7 @@ import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { FaceRetouchingNatural, Send } from '@mui/icons-material'
 
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { useTranslation } from 'react-i18next'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'

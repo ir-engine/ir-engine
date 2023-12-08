@@ -30,8 +30,8 @@ import { defineActionQueue, defineState, getState } from '@etherealengine/hyperf
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { defaultAction } from '../components/NotificationActions'
 
 const logger = multiLogger.child({ component: 'client-core:Notification' })

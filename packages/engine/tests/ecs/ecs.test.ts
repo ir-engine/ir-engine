@@ -40,8 +40,6 @@ import {
 import { executeSystems } from '../../src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
 import { defineQuery } from '../../src/ecs/functions/QueryFunctions'
-import { defineSystem } from '../../src/ecs/functions/SystemFunctions'
-import { RootSystemGroup } from '../../src/ecs/functions/SystemGroups'
 import { createEngine } from '../../src/initializeEngine'
 import { loadEmptyScene } from '../util/loadEmptyScene'
 
@@ -79,12 +77,6 @@ const execute = () => {
     mockState.splice(mockState.indexOf(entity))
   }
 }
-
-const MockSystem = defineSystem({
-  uuid: 'MockSystem',
-  insert: { with: RootSystemGroup },
-  execute
-})
 
 describe('ECS', () => {
   beforeEach(async () => {

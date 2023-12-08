@@ -54,78 +54,76 @@ export type StateDefinition<S, Receptors extends ReceptorMap> = {
 
 export const StateDefinitions = new Map<string, StateDefinition<any, ReceptorMap>>()
 
+export const setInitialState = (def: StateDefinition<any, ReceptorMap>) => {
+  const initial = typeof def.initial === 'function' ? (def.initial as any)() : JSON.parse(JSON.stringify(def.initial))
+  HyperFlux.store.valueMap[def.name] = initial
+  if (HyperFlux.store.stateMap[def.name]) {
+    HyperFlux.store.stateMap[def.name].set(initial)
+  } else {
+    HyperFlux.store.stateMap[def.name] = createState(HyperFlux.store.valueMap[def.name])
+  }
+}
+
 export function defineState<S, R extends ReceptorMap, StateExtras = unknown>(
   definition: StateDefinition<S, R> & StateExtras
 ) {
   if (StateDefinitions.has(definition.name)) throw new Error(`State ${definition.name} already defined`)
   StateDefinitions.set(definition.name, definition)
-  if (HyperFlux.store) initializeState(definition)
+  if (HyperFlux.store) setInitialState(definition)
+
+  let initialized = false
+
+  let receptorActionQueue = null as null | ActionQueueHandle
+
+  defineSystem({
+    uuid: `${definition.name}.UpdateSystem`,
+    insert: { before: InputSystemGroup },
+    execute: () => {
+      // initialize the state and it's receptor action queue if necessary
+      if (!initialized) {
+        if (definition.receptors)
+          receptorActionQueue = defineActionQueue(Object.values(definition.receptors).map((r) => r.matchesAction))
+        if (definition.onCreate) definition.onCreate(HyperFlux.store, getMutableState(definition))
+        setInitialState(definition)
+        HyperFlux.store.stateMap[definition.name].attach(() => ({
+          id: Symbol('update root state value map'),
+          init: () => ({
+            onSet(arg) {
+              if (arg.path.length === 0 && typeof arg.value === 'object')
+                HyperFlux.store.valueMap[definition.name] = arg.value
+            }
+          })
+        }))
+        initialized = true
+      }
+
+      if (!receptorActionQueue) return
+
+      // queue may need to be reset when actions are recieved out of order
+      // or when state needs to be rolled back
+      if (receptorActionQueue.needsReset) {
+        // reset the state to the initial value when the queue is reset
+        setInitialState(definition)
+        receptorActionQueue.reset()
+      }
+
+      // apply each action to each matching receptor, in order
+      for (const action of receptorActionQueue()) {
+        for (const receptor of Object.values(definition.receptors!)) {
+          receptor.matchesAction.test(action) && receptor(action)
+        }
+      }
+    }
+  })
+
   return definition as StateDefinition<S, R> & { _TYPE: S } & StateExtras
 }
 
-export function initializeState<S, R extends ReceptorMap>(StateDefinition: StateDefinition<S, R>) {
-  if (HyperFlux.store.stateMap[StateDefinition.name]) return
-
-  logger.info(`initializeState ${StateDefinition.name}`)
-
-  const setInitial = () => {
-    const initial =
-      typeof StateDefinition.initial === 'function'
-        ? (StateDefinition.initial as any)()
-        : JSON.parse(JSON.stringify(StateDefinition.initial))
-    HyperFlux.store.valueMap[StateDefinition.name] = initial
-    if (HyperFlux.store.stateMap[StateDefinition.name]) {
-      HyperFlux.store.stateMap[StateDefinition.name].set(initial)
-    } else {
-      HyperFlux.store.stateMap[StateDefinition.name] = createState(HyperFlux.store.valueMap[StateDefinition.name])
-    }
-  }
-
-  setInitial()
-
-  HyperFlux.store.stateMap[StateDefinition.name].attach(() => ({
-    id: Symbol('update root state value map'),
-    init: () => ({
-      onSet(arg) {
-        if (arg.path.length === 0 && typeof arg.value === 'object')
-          HyperFlux.store.valueMap[StateDefinition.name] = arg.value
-      }
-    })
-  }))
-  if (StateDefinition.onCreate) StateDefinition.onCreate(HyperFlux.store, getMutableState(StateDefinition))
-
-  if (StateDefinition.receptors) {
-    const queue = defineActionQueue(Object.values(StateDefinition.receptors).map((r) => r.matchesAction))
-
-    defineSystem({
-      uuid: `${StateDefinition.name}.actionReceptor`,
-      insert: { before: InputSystemGroup },
-      execute: () => {
-        // queue may need to be reset when actions are recieved out of order
-        // or when state needs to be rolled back
-        if (queue.needsReset) {
-          // reset the state to the initial value when the queue is reset
-          setInitial()
-          queue.reset()
-        }
-        // apply each action to each matching receptor, in order
-        for (const action of queue()) {
-          for (const receptor of Object.values(StateDefinition.receptors!)) {
-            receptor.matchesAction.test(action) && receptor(action)
-          }
-        }
-      }
-    })
-  }
-}
-
 export function getMutableState<S, R extends ReceptorMap>(StateDefinition: StateDefinition<S, R>) {
-  if (!HyperFlux.store.stateMap[StateDefinition.name]) initializeState(StateDefinition)
   return HyperFlux.store.stateMap[StateDefinition.name] as State<S>
 }
 
 export function getState<S, R extends ReceptorMap>(StateDefinition: StateDefinition<S, R>) {
-  if (!HyperFlux.store.stateMap[StateDefinition.name]) initializeState(StateDefinition)
   return HyperFlux.store.valueMap[StateDefinition.name] as DeepReadonly<S>
 }
 

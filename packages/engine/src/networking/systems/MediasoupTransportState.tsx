@@ -24,11 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { defineAction, defineState, getMutableState, getState, none, receiveActions } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { InstanceID } from '../../schemas/networking/instance.schema'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
@@ -126,8 +124,8 @@ export const MediasoupTransportState = defineState({
     return getState(MediasoupTransportObjectsState)[transport.transportID]
   },
 
-  receptors: [
-    MediasoupTransportActions.transportCreated.receive((action) => {
+  receptors: {
+    onTransportCreated: MediasoupTransportActions.transportCreated.receive((action) => {
       const state = getMutableState(MediasoupTransportState)
       const networkID = action.$network
       if (!state.value[networkID]) {
@@ -144,13 +142,13 @@ export const MediasoupTransportState = defineState({
         }
       })
     }),
-    MediasoupTransportActions.transportConnected.receive((action) => {
+    onTransportConnected: MediasoupTransportActions.transportConnected.receive((action) => {
       const state = getMutableState(MediasoupTransportState)
       const networkID = action.$network
       if (!state.value[networkID]) return
       state[networkID][action.transportID].connected.set(true)
     }),
-    MediasoupTransportActions.transportClosed.receive((action) => {
+    onTransportClosed: MediasoupTransportActions.transportClosed.receive((action) => {
       const network = action.$network
       const state = getMutableState(MediasoupTransportState)
       state[network]?.transports[action.transportID].set(none)
@@ -158,15 +156,5 @@ export const MediasoupTransportState = defineState({
         state[network].set(none)
       }
     })
-  ]
-})
-
-const execute = () => {
-  receiveActions(MediasoupTransportState)
-}
-
-export const MediasoupTransportStateSystem = defineSystem({
-  uuid: 'ee.engine.network.mediasoup.MediasoupTransportStateSystem',
-  insert: { after: PresentationSystemGroup },
-  execute
+  }
 })

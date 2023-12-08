@@ -38,7 +38,6 @@ import {
   dispatchAction,
   getMutableState,
   getState,
-  initializeState,
   removeActionQueue
 } from '..'
 
@@ -116,7 +115,6 @@ describe('Hyperflux Unit Tests', () => {
   it('should be able to dispatch an action to a local store', () => {
     const store = createHyperStore({
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -144,7 +142,6 @@ describe('Hyperflux Unit Tests', () => {
     const store = createHyperStore({
       forwardIncomingActions: () => false,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -175,7 +172,6 @@ describe('Hyperflux Unit Tests', () => {
     const store = createHyperStore({
       forwardIncomingActions: () => true,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -202,7 +198,6 @@ describe('Hyperflux Unit Tests', () => {
     const store = createHyperStore({
       forwardIncomingActions: () => false,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -220,7 +215,6 @@ describe('Hyperflux Unit Tests', () => {
   it('should add incoming actions to cache as indicated', () => {
     const store = createHyperStore({
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -280,7 +274,6 @@ describe('Hyperflux Unit Tests', () => {
     const store = createHyperStore({
       forwardIncomingActions: () => false,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -301,7 +294,6 @@ describe('Hyperflux Unit Tests', () => {
     const store = createHyperStore({
       forwardIncomingActions: () => false,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -333,7 +325,6 @@ describe('Hyperflux Unit Tests', () => {
     const store = createHyperStore({
       forwardIncomingActions: () => true,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -364,7 +355,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.history.length, 4)
     assert.equal(store.actions.knownUUIDs.size, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 4)
-    assert.equal(store.actions.outgoing[store.defaultTopic].historyUUIDs.size, 4)
+    assert.equal(store.actions.outgoing[store.defaultTopic].forwardedUUIDs.size, 4)
     const history = Array.from(store.actions.history.values())
     assert.equal(history[1], store.actions.outgoing[store.defaultTopic].history[1])
     assert.equal(history[2], store.actions.outgoing[store.defaultTopic].history[2])
@@ -379,7 +370,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.history.length, 4)
     assert.equal(store.actions.knownUUIDs.size, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 4)
-    assert.equal(store.actions.outgoing[store.defaultTopic].historyUUIDs.size, 4)
+    assert.equal(store.actions.outgoing[store.defaultTopic].forwardedUUIDs.size, 4)
   })
 
   it('should be able to define state and register it to a store', () => {
@@ -392,10 +383,8 @@ describe('Hyperflux Unit Tests', () => {
     })
     const store = createHyperStore({
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
-    initializeState(HospitalityState)
     assert(store.stateMap['test.hospitality.0'])
   })
 
@@ -412,10 +401,8 @@ describe('Hyperflux Unit Tests', () => {
     })
     const store = createHyperStore({
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
-    initializeState(HospitalityState)
     const hospitality = getMutableState(HospitalityState).value
     assert.equal(hospitality.create, true)
   })
@@ -430,10 +417,8 @@ describe('Hyperflux Unit Tests', () => {
     })
     const store = createHyperStore({
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
-    initializeState(HospitalityState)
     assert(store.stateMap['test.hospitality.2'])
     const hospitality = getMutableState(HospitalityState).value
     assert.equal(hospitality.greetingCount, 0)
@@ -450,10 +435,8 @@ describe('Hyperflux Unit Tests', () => {
 
     const store = createHyperStore({
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
-    initializeState(HospitalityState)
     assert(store.stateMap['test.hospitality.3'])
 
     const hospitality = getMutableState(HospitalityState)
@@ -474,7 +457,6 @@ describe('Hyperflux Unit Tests', () => {
     const store = createHyperStore({
       forwardIncomingActions: () => true,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const queue = defineActionQueue([greet.matches, goodbye.matches])
@@ -505,7 +487,6 @@ describe('Hyperflux Unit Tests', () => {
     const store = createHyperStore({
       forwardIncomingActions: () => true,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
 
@@ -532,7 +513,6 @@ describe('Hyperflux Unit Tests', () => {
     const store = createHyperStore({
       forwardIncomingActions: () => true,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
 
@@ -566,7 +546,6 @@ describe('Hyperflux Unit Tests', () => {
     const store = createHyperStore({
       forwardIncomingActions: () => true,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
 
@@ -624,24 +603,23 @@ describe('Hyperflux Unit Tests', () => {
         firstGreeting: null as string | null
       }),
 
-      receptors: [
-        greet.receive((action) => {
+      receptors: {
+        onGreet: greet.receive((action) => {
           const state = getMutableState(HospitalityState)
           state.greetingCount.set((v) => v + 1)
           if (!state.firstGreeting.value) state.firstGreeting.set(action.greeting)
         }),
-        goodbye.receive((action) => {
+        onGoodbye: goodbye.receive((action) => {
           const state = getMutableState(HospitalityState)
           state.greetingCount.set((v) => v - 1)
           if (!state.firstGreeting.value) state.firstGreeting.set(action.greeting)
         })
-      ]
+      }
     })
 
     const store = createHyperStore({
       forwardIncomingActions: () => true,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
 

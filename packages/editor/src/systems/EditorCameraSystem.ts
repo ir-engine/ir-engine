@@ -38,7 +38,7 @@ import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { editorCameraCenter, EditorCameraState } from '../classes/EditorCameraState'
 
 const ZOOM_SPEED = 0.1

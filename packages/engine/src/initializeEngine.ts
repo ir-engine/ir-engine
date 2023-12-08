@@ -23,22 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BoxGeometry, Mesh, MeshNormalMaterial } from 'three'
-import { CameraComponent } from './camera/components/CameraComponent'
 import { Timer } from './common/functions/Timer'
 import { isClient } from './common/functions/getEnvironment'
 import { Engine } from './ecs/classes/Engine'
-import { getComponent, setComponent } from './ecs/functions/ComponentFunctions'
 import { executeSystems } from './ecs/functions/EngineFunctions'
-import { createEntity } from './ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from './ecs/functions/EntityTree'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
-import { addObjectToGroup } from './scene/components/GroupComponent'
-import { NameComponent } from './scene/components/NameComponent'
-import { VisibleComponent } from './scene/components/VisibleComponent'
-import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { setObjectLayers } from './scene/functions/setObjectLayers'
-import { TransformComponent } from './transform/components/TransformComponent'
 
 // core module
 import '@etherealengine/engine/src/ecs/ECSModule'
@@ -53,34 +42,7 @@ export const createEngine = () => {
     throw new Error('Engine already exists')
   }
   Engine.instance = new Engine()
-
-  Engine.instance.scene.matrixAutoUpdate = false
-  Engine.instance.scene.matrixWorldAutoUpdate = false
-  Engine.instance.scene.layers.set(ObjectLayers.Scene)
-
-  Engine.instance.originEntity = createEntity()
-  setComponent(Engine.instance.originEntity, NameComponent, 'origin')
-  setComponent(Engine.instance.originEntity, EntityTreeComponent, { parentEntity: null })
-  setComponent(Engine.instance.originEntity, TransformComponent)
-  setComponent(Engine.instance.originEntity, VisibleComponent, true)
-  addObjectToGroup(Engine.instance.originEntity, Engine.instance.origin)
-  Engine.instance.origin.name = 'world-origin'
-  const originHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
-  setObjectLayers(originHelperMesh, ObjectLayers.Gizmos)
-  originHelperMesh.frustumCulled = false
-  Engine.instance.origin.add(originHelperMesh)
-
-  Engine.instance.cameraEntity = createEntity()
-  setComponent(Engine.instance.cameraEntity, NameComponent, 'camera')
-  setComponent(Engine.instance.cameraEntity, CameraComponent)
-  setComponent(Engine.instance.cameraEntity, VisibleComponent, true)
-  getComponent(Engine.instance.cameraEntity, TransformComponent).position.set(0, 5, 2)
-  setComponent(Engine.instance.cameraEntity, EntityTreeComponent, { parentEntity: null })
-
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-  camera.matrixAutoUpdate = false
-  camera.matrixWorldAutoUpdate = false
-
   if (isClient) EngineRenderer.instance = new EngineRenderer()
   Engine.instance.engineTimer = Timer(executeSystems)
+  executeSystems(0)
 }

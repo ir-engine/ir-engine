@@ -48,12 +48,20 @@ export type InsertSystem = {
 export interface SystemArgs {
   uuid: string
   insert: InsertSystem
+  timeStep?: number | 'variable'
   execute?: () => void
   reactor?: FC
 }
 
 export interface System {
   uuid: SystemUUID
+  /**
+   * The timestep for the system.
+   * If set to 'variable', the system will run every frame.
+   * If set to a number, the system will run every n milliseconds.
+   * Defaults to 'variable'.
+   */
+  timeStep: number | 'variable'
   reactor?: FC
   insert?: InsertSystem
   preSystems: SystemUUID[]
@@ -86,35 +94,25 @@ export function executeSystem(systemUUID: SystemUUID) {
     HyperFlux.store.activeSystemReactors.set(system.uuid, reactor)
   }
 
+  const startTime = nowMilliseconds()
+
+  try {
+    HyperFlux.store.currentSystemUUID = systemUUID
+    system.execute()
+  } catch (e) {
+    logger.error(`Failed to execute system ${system.uuid}`)
+    logger.error(e)
+  } finally {
+    HyperFlux.store.currentSystemUUID = '__null__' as SystemUUID
+  }
+
+  const endTime = nowMilliseconds()
+
   if (HyperFlux.store.systemPerformanceProfilingEnabled) {
-    const startTime = nowMilliseconds()
-
-    try {
-      HyperFlux.store.currentSystemUUID = systemUUID
-      system.execute()
-    } catch (e) {
-      logger.error(`Failed to execute system ${system.uuid}`)
-      logger.error(e)
-    } finally {
-      HyperFlux.store.currentSystemUUID = '__null__' as SystemUUID
-    }
-
-    const endTime = nowMilliseconds()
-
     const systemDuration = endTime - startTime
     if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
       lastWarningTime.set(systemUUID, endTime)
       logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
-    }
-  } else {
-    try {
-      HyperFlux.store.currentSystemUUID = systemUUID
-      system.execute()
-    } catch (e) {
-      logger.error(`Failed to execute system ${system.uuid}`)
-      logger.error(e)
-    } finally {
-      HyperFlux.store.currentSystemUUID = '__null__' as SystemUUID
     }
   }
 
@@ -144,6 +142,7 @@ export function defineSystem(systemConfig: SystemArgs) {
     subSystems: [],
     postSystems: [],
     sceneSystem: false,
+    timeStep: 'variable',
     ...systemConfig,
     uuid: systemConfig.uuid as SystemUUID,
     enabled: false

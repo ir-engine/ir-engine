@@ -193,7 +193,7 @@ export const XRAnchorSystemState = defineState({
     const scenePlacementEntity = createEntity()
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
     setComponent(scenePlacementEntity, LocalTransformComponent)
-    setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
     setComponent(scenePlacementEntity, VisibleComponent, true)
     setComponent(scenePlacementEntity, InputComponent, { highlight: false, grow: false })
 
