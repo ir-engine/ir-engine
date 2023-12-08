@@ -67,7 +67,7 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
-import { locomotionAnimation } from '../animation/Util'
+import { emoteAnimations, locomotionAnimation } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -172,7 +172,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   computeTransformMatrix(entity)
   setupAvatarHeight(entity, model.scene)
 
-  loadBaseAnimations(entity)
+  if (!getState(AnimationState).loadedAnimations[locomotionAnimation]) loadBaseLocomotionAnimations()
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
   avatar.model = model.scene
@@ -192,37 +192,43 @@ export const retargetAvatarAnimations = (entity: Entity) => {
 }
 
 /**Loads the locomotion animations, emotes and optionals*/
-export const loadBaseAnimations = (entity: Entity) => {
+export const loadBaseLocomotionAnimations = () => {
   const manager = getMutableState(AnimationState)
-  if (!manager.loadedAnimations.value[locomotionAnimation]) {
-    //preload locomotion animations
+
+  //preload locomotion animations
+  AssetLoader.loadAsync(
+    `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionAnimation}.glb`
+  ).then((locomotionAsset: GLTF) => {
+    manager.loadedAnimations[locomotionAnimation].set(locomotionAsset)
+  })
+}
+
+export const loadEmoteAnimations = (entity: Entity) => {
+  const manager = getMutableState(AnimationState)
+
+  const emoteKeys = Object.keys(emoteAnimations)
+  for (let i = 0; i < emoteKeys.length; i++) {
     AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionAnimation}.glb`
-    ).then((locomotionAsset: GLTF) => {
-      manager.loadedAnimations[locomotionAnimation].set(locomotionAsset)
+      `${config.client.fileServer}/projects/default-project/assets/animations/emotes/${emoteKeys[i]}.fbx`
+    ).then((loadedEmotes: GLTF) => {
+      manager.loadedAnimations[emoteKeys[i]].set(loadedEmotes)
+      //fbx files need animations reassignment to maintain consistency with GLTF
+      loadedEmotes.animations = loadedEmotes.scene.animations
     })
-    //preload all emote animation files
-    /**temporarily commented out, there must be some other way */
-    //const emoteKeys = Object.keys(emoteAnimations)
-    //for (let i = 0; i < emoteKeys.length; i++) {
-    //  AssetLoader.loadAsync(
-    //    `${config.client.fileServer}/projects/default-project/assets/animations/emotes/${emoteKeys[i]}.fbx`
-    //  ).then((loadedEmotes: GLTF) => {
-    //    manager.loadedAnimations[emoteKeys[i]].set(loadedEmotes)
-    //    //fbx files need animations reassignment to maintain consistency with GLTF
-    //    loadedEmotes.animations = loadedEmotes.scene.animations
-    //  })
-    //}
   }
 }
 
-export const setSpeedFromRootMotion = (entity: Entity) => {
+/**todo: stop using global state for avatar speed, its an antipattern
+ * in future this will be derrived from the actual root motion of a
+ * given avatar's locomotion animations
+ */
+export const setAvatarSpeedFromRootMotion = () => {
   const manager = getState(AnimationState)
   const run = manager.loadedAnimations[locomotionAnimation].animations[4] ?? [new AnimationClip()]
   const walk = manager.loadedAnimations[locomotionAnimation].animations[6] ?? [new AnimationClip()]
-  const movement = getState(AvatarMovementSettingsState)
-  if (run) movement.runSpeed = getRootSpeed(run) * 0.01
-  if (walk) movement.walkSpeed = getRootSpeed(walk) * 0.01
+  const movement = getMutableState(AvatarMovementSettingsState)
+  if (run) movement.runSpeed.set(getRootSpeed(run) * 0.01)
+  if (walk) movement.walkSpeed.set(getRootSpeed(walk) * 0.01)
 }
 
 export const loadAnimationsFromObjectKeys = async (animationNames) => {}
