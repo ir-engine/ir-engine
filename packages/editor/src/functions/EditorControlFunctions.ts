@@ -100,8 +100,9 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
         const index = componentData.findIndex((c) => c.name === sceneComponentID)
         if (index > -1) componentData.splice(index, 1)
       }
+      newSnapshot.data.entities[entityUUID].components = componentData
     }
-
+    console.log(newSnapshot)
     dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
   }
 }
