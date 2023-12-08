@@ -57,6 +57,7 @@ import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { PlayMode } from '../constants/PlayMode'
 import {
   AudioFileFormat,
   DRACOTarget,
@@ -163,7 +164,6 @@ export const UVOL2Component = defineComponent({
   onInit: (entity) => {
     return {
       canPlay: false,
-      playbackStartTime: 0,
       manifestPath: '',
       data: {} as PlayerManifest,
       hasAudio: false,
@@ -440,6 +440,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     []
   )
   const currentTime = useRef(0) // in seconds
+  const playbackStartTime = useRef(0) // timestamp
 
   useEffect(() => {
     if (volumetric.useLoadingEffect.value) {
@@ -837,7 +838,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       }
       return
     }
-    component.playbackStartTime.set(Date.now())
+    playbackStartTime.current = Date.now()
     volumetric.startTime.set(currentTime.current)
     geometryBufferHealth.current -= currentTime.current
     component.textureTypes.value.forEach((textureType) => {
@@ -914,6 +915,13 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
        * Disposing should be done only on keyframeA
        * Because, keyframeA will use the previous buffer of keyframeB in the next frame.
        */
+      mesh.geometry.attributes[name] = attribute
+      mesh.geometry.attributes[name].needsUpdate = true
+      return
+    } else if (
+      (name === 'keyframeA' || name === 'keyframeANormal') &&
+      component.data.deletePreviousBuffers.value === false
+    ) {
       mesh.geometry.attributes[name] = attribute
       mesh.geometry.attributes[name].needsUpdate = true
       return
@@ -1043,7 +1051,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       }
     }
     const oldTexture = textureBuffer.get(oldTextureKey)
-    if (oldTexture) {
+    if (oldTexture && component.data.deletePreviousBuffers.value !== false) {
       oldTexture.dispose()
       textureBuffer.delete(oldTextureKey)
     }
@@ -1149,11 +1157,16 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (component.data.value.audio) {
       currentTime.current = audio.currentTime
     } else {
-      currentTime.current = volumetric.startTime.value + (Date.now() - component.playbackStartTime.value) / 1000
+      currentTime.current = volumetric.startTime.value + (Date.now() - playbackStartTime.current) / 1000
     }
     if (currentTime.current > component.data.value.duration || audio.ended) {
-      volumetric.ended.set(true)
-      return
+      if (component.data.deletePreviousBuffers.value === false && volumetric.playMode.value === PlayMode.loop) {
+        currentTime.current = 0
+        playbackStartTime.current = Date.now()
+      } else {
+        volumetric.ended.set(true)
+        return
+      }
     }
 
     updateGeometry(currentTime.current)
