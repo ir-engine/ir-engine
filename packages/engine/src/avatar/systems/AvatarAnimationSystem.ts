@@ -33,16 +33,9 @@ import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { NetworkState } from '../../networking/NetworkState'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RendererState } from '../../renderer/RendererState'
@@ -62,7 +55,6 @@ import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
@@ -206,125 +198,112 @@ const execute = () => {
     const head = UUIDComponent.entitiesByUUID[uuid + ikTargets.head]
     const headTargetBlendWeight = AvatarIKTargetComponent.blendWeight[head]
 
-    const motionCaptureRigComponent = getOptionalComponent(entity, MotionCaptureRigComponent)
+    // if (entity == Engine.instance.localClientEntity) {
+    //   setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
+    // }
 
-    const shouldUseIK =
-      !!motionCaptureRigComponent ||
-      leftFootTargetBlendWeight ||
-      rightFootTargetBlendWeight ||
-      leftHandTargetBlendWeight ||
-      rightHandTargetBlendWeight ||
-      headTargetBlendWeight
+    const transform = getComponent(entity, TransformComponent)
 
-    //right now the only times we want to be using inverse kinematics is when we're in xr mode,
-    //or when we're running our own leg calculations for mocap
-    if (shouldUseIK) {
-      if (entity == Engine.instance.localClientEntity) {
-        setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
-      }
+    if (headTargetBlendWeight) {
+      const headTransform = getComponent(head, TransformComponent)
+      rig.hips.node.position.set(
+        headTransform.position.x,
+        headTransform.position.y - rigComponent.torsoLength - 0.125,
+        headTransform.position.z
+      )
 
-      const transform = getComponent(entity, TransformComponent)
+      //offset target forward to account for hips being behind the head
+      hipsForward.set(0, 0, 1)
+      hipsForward.applyQuaternion(rigidbodyComponent.rotation)
+      hipsForward.multiplyScalar(0.125)
+      rig.hips.node.position.sub(hipsForward)
 
-      if (headTargetBlendWeight) {
-        const headTransform = getComponent(head, TransformComponent)
-        rig.hips.node.position
-          .copy(headTransform.position)
-          .setY(headTransform.position.y - rigComponent.torsoLength - 0.125)
+      // convert to local space
+      rig.hips.node.position.applyMatrix4(transform.matrixInverse)
 
-        //offset target forward to account for hips being behind the head
-        hipsForward.set(0, 0, 1)
-        hipsForward.applyQuaternion(rigidbodyComponent.rotation)
-        hipsForward.multiplyScalar(0.125)
-        rig.hips.node.position.sub(hipsForward)
-
-        // convert to local space
-        rig.hips.node.position.applyMatrix4(transform.matrixInverse)
-
-        //calculate head look direction and apply to head bone
-        //look direction should be set outside of the xr switch
-        rig.head.node.quaternion.multiplyQuaternions(
-          rig.spine.node.getWorldQuaternion(_quat).invert(),
-          headTransform.rotation
-        )
-      } else {
-        /**todo: fix foot heuristic function causing ik solve issues */
-      }
-
-      const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
-      const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
-
-      if (rightHandTargetBlendWeight) {
-        solveTwoBoneIK(
-          rig.rightUpperArm.node,
-          rig.rightLowerArm.node,
-          rig.rightHand.node,
-          rightHandTransform.position,
-          rightHandTransform.rotation,
-          null,
-          _vector3.copy(transform.position).sub(right),
-          tipAxisRestriction,
-          null,
-          null,
-          rightHandTargetBlendWeight,
-          rightHandTargetBlendWeight
-        )
-      }
-
-      if (leftHandTargetBlendWeight) {
-        solveTwoBoneIK(
-          rig.leftUpperArm.node,
-          rig.leftLowerArm.node,
-          rig.leftHand.node,
-          leftHandTransform.position,
-          leftHandTransform.rotation,
-          null,
-          _vector3.copy(transform.position).add(right),
-          tipAxisRestriction,
-          null,
-          null,
-          leftHandTargetBlendWeight,
-          leftHandTargetBlendWeight
-        )
-      }
-
-      if (footRaycastTimer >= footRaycastInterval) {
-        footRaycastTimer = 0
-      }
-
-      if (rightFootTargetBlendWeight) {
-        solveTwoBoneIK(
-          rig.rightUpperLeg.node,
-          rig.rightLowerLeg.node,
-          rig.rightFoot.node,
-          rightFootTransform.position,
-          rightFootTransform.rotation,
-          null,
-          _vector3.copy(transform.position).add(forward),
-          null,
-          midAxisRestriction,
-          null,
-          rightFootTargetBlendWeight,
-          rightFootTargetBlendWeight
-        )
-      }
-
-      if (leftFootTargetBlendWeight) {
-        solveTwoBoneIK(
-          rig.leftUpperLeg.node,
-          rig.leftLowerLeg.node,
-          rig.leftFoot.node,
-          leftFootTransform.position,
-          leftFootTransform.rotation,
-          null,
-          _vector3.copy(transform.position).add(forward),
-          null,
-          midAxisRestriction,
-          null,
-          leftFootTargetBlendWeight,
-          leftFootTargetBlendWeight
-        )
-      }
+      //calculate head look direction and apply to head bone
+      //look direction should be set outside of the xr switch
+      rig.head.node.quaternion.multiplyQuaternions(
+        rig.spine.node.getWorldQuaternion(_quat).invert(),
+        headTransform.rotation
+      )
     }
+
+    const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
+    const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
+
+    if (rightHandTargetBlendWeight) {
+      solveTwoBoneIK(
+        rig.rightUpperArm.node,
+        rig.rightLowerArm.node,
+        rig.rightHand.node,
+        rightHandTransform.position,
+        rightHandTransform.rotation,
+        null,
+        _vector3.copy(transform.position).sub(right),
+        tipAxisRestriction,
+        null,
+        null,
+        rightHandTargetBlendWeight,
+        rightHandTargetBlendWeight
+      )
+    }
+
+    if (leftHandTargetBlendWeight) {
+      solveTwoBoneIK(
+        rig.leftUpperArm.node,
+        rig.leftLowerArm.node,
+        rig.leftHand.node,
+        leftHandTransform.position,
+        leftHandTransform.rotation,
+        null,
+        _vector3.copy(transform.position).add(right),
+        tipAxisRestriction,
+        null,
+        null,
+        leftHandTargetBlendWeight,
+        leftHandTargetBlendWeight
+      )
+    }
+
+    if (footRaycastTimer >= footRaycastInterval) {
+      footRaycastTimer = 0
+    }
+
+    if (rightFootTargetBlendWeight) {
+      solveTwoBoneIK(
+        rig.rightUpperLeg.node,
+        rig.rightLowerLeg.node,
+        rig.rightFoot.node,
+        rightFootTransform.position,
+        rightFootTransform.rotation,
+        null,
+        _vector3.copy(transform.position).add(forward),
+        null,
+        midAxisRestriction,
+        null,
+        rightFootTargetBlendWeight,
+        rightFootTargetBlendWeight
+      )
+    }
+
+    if (leftFootTargetBlendWeight) {
+      solveTwoBoneIK(
+        rig.leftUpperLeg.node,
+        rig.leftLowerLeg.node,
+        rig.leftFoot.node,
+        leftFootTransform.position,
+        leftFootTransform.rotation,
+        null,
+        _vector3.copy(transform.position).add(forward),
+        null,
+        midAxisRestriction,
+        null,
+        leftFootTargetBlendWeight,
+        leftFootTargetBlendWeight
+      )
+    }
+
     rigComponent.vrm.update(deltaTime)
   }
 }
