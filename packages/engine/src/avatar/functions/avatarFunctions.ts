@@ -66,7 +66,7 @@ import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
-import { emoteAnimations, locomotionAnimation } from '../animation/Util'
+import { locomotionAnimation, optionalAnimations } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -154,8 +154,12 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   computeTransformMatrix(entity)
   setupAvatarHeight(entity, model.scene)
 
+  const animationState = getState(AnimationState)
   //set global states if they are not already set
-  if (!getState(AnimationState).loadedAnimations[locomotionAnimation]) loadLocomotionAnimations()
+  if (!animationState.loadedAnimations[locomotionAnimation]) loadLocomotionAnimations()
+  /**todo: crawl scene to only load necessary optional animations */
+  if (!animationState.loadedAnimations[optionalAnimations.seated])
+    loadAnimationArray([optionalAnimations.seated], 'optional')
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
   avatar.model = model.scene
@@ -188,17 +192,17 @@ export const loadLocomotionAnimations = () => {
   })
 }
 
-export const loadAnimationsFromObject = (entity: Entity) => {
+export const loadAnimationArray = (animations: string[], subDir: string) => {
   const manager = getMutableState(AnimationState)
 
-  const emoteKeys = Object.keys(emoteAnimations)
-  for (let i = 0; i < emoteKeys.length; i++) {
+  for (let i = 0; i < animations.length; i++) {
     AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/animations/emotes/${emoteKeys[i]}.fbx`
+      `${config.client.fileServer}/projects/default-project/assets/animations/${subDir}/${animations[i]}.fbx`
     ).then((loadedEmotes: GLTF) => {
-      manager.loadedAnimations[emoteKeys[i]].set(loadedEmotes)
+      manager.loadedAnimations[animations[i]].set(loadedEmotes)
       //fbx files need animations reassignment to maintain consistency with GLTF
       loadedEmotes.animations = loadedEmotes.scene.animations
+      loadedEmotes.animations[0].name = animations[i]
     })
   }
 }
