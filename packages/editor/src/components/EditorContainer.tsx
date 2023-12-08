@@ -349,7 +349,7 @@ const defaultLayout: LayoutData = {
   }
 }
 
-const panels = [
+const tabs = [
   HierarchyPanelTab,
   PropertiesPanelTab,
   GraphPanelTab,
@@ -374,13 +374,13 @@ const EditorContainer = () => {
   const dialogComponent = useHookstate(getMutableState(DialogState).dialog).value
   const dockPanelRef = useRef<DockLayout>(null)
 
-  const panelMenu = panels.map((panel) => {
+  const panelMenu = tabs.map((tab) => {
     return {
-      name: panel.title,
+      name: tab.title,
       action: () => {
         const currentLayout = dockPanelRef?.current?.getLayout()
         if (!currentLayout) return
-        if (dockPanelRef.current!.find(panel.id!)) {
+        if (dockPanelRef.current!.find(tab.id!)) {
           return
         }
         //todo: add support for multiple instances of a panel type
@@ -395,8 +395,9 @@ const EditorContainer = () => {
         //   }
         // }
         // panel.id = panelId
-        const firstPanel = currentLayout.dockbox.children[0] as PanelData
-        firstPanel.tabs.push(panel)
+        const targetId = tab.parent!.id! ?? currentLayout.dockbox.children[0].id
+        const targetPanel = dockPanelRef.current!.find(targetId) as PanelData
+        targetPanel.tabs.push(tab)
         dockPanelRef?.current?.loadLayout(currentLayout)
       }
     }
