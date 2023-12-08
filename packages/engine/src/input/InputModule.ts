@@ -24,7 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { FlyControlSystem } from '../avatar/systems/FlyControlSystem'
+import { MotionCaptureInputSystem } from '../mocap/MotionCaptureInputSystem'
 import { ButtonCleanupSystem } from './systems/ButtonCleanupSystem'
 import { ClientInputSystem } from './systems/ClientInputSystem'
 
-export { FlyControlSystem, ButtonCleanupSystem, ClientInputSystem }
+export { FlyControlSystem, ButtonCleanupSystem, ClientInputSystem, MotionCaptureInputSystem }

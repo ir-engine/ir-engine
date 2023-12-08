@@ -157,14 +157,12 @@ const execute = () => {
   const engineState = getState(EngineState)
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  if (!nonCapturedInputSource) return
-
-  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
-
-  const keys = inputSource.buttons
-
-  if (keys.PrimaryClick?.down) onPrimaryClick()
-  if (keys.SecondaryClick?.down) onSecondaryClick()
+  if (nonCapturedInputSource) {
+    const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+    const keys = inputSource.buttons
+    if (keys.PrimaryClick?.down) onPrimaryClick()
+    if (keys.SecondaryClick?.down) onSecondaryClick()
+  }
 
   videoPreviewTimer += engineState.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0
