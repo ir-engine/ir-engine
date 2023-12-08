@@ -108,7 +108,12 @@ export const ModelComponent = defineComponent({
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
-    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent) && component.src.value)
+    if (
+      !getState(EngineState).sceneLoaded &&
+      hasComponent(entity, SceneObjectComponent) &&
+      component.src.value &&
+      !component.scene.value
+    )
       setComponent(entity, SceneAssetPendingTagComponent)
   },
 
