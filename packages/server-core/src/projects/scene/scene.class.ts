@@ -201,7 +201,7 @@ export class SceneService
       for (const ext of sceneAssetFiles) {
         fs.copyFileSync(
           path.resolve(appRootPath.path, `${localDirectory}default${ext}`),
-          path.resolve(projectPathLocal + newSceneName + ext)
+          path.resolve(path.join(projectPathLocal, newSceneName) + ext)
         )
       }
     }
