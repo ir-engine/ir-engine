@@ -596,7 +596,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       )}
       <ConfirmDialog
         open={openConfirm.value}
-        description={`${t('editor:dialog.confirmContentDelete')} ${contentToDeletePath.value.split('/').at(-1)} ?`}
+        description={t('editor:dialog.delete.confirm-content', {
+          content: contentToDeletePath.value.split('/').at(-1)
+        })}
         onClose={handleConfirmClose}
         onSubmit={deleteContent}
       />

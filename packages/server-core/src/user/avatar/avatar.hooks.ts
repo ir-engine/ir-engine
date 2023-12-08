@@ -196,7 +196,6 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
 
 /**
  * Hook used to check if request has any public avatar in data.
- * @param context
  */
 const isPublicAvatar = () => {
   return (context: HookContext) => {
@@ -204,7 +203,7 @@ const isPublicAvatar = () => {
 
     const hasPublic = data.find((item) => item.isPublic)
 
-    return hasPublic ? true : false
+    return !!hasPublic
   }
 }
 

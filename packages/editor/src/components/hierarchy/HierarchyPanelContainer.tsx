@@ -41,6 +41,7 @@ import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@ethere
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -76,7 +77,7 @@ const uploadOptions = {
  *
  * @constructor
  */
-export default function HierarchyPanel() {
+function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID }) {
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
@@ -94,6 +95,7 @@ export default function HierarchyPanel() {
 
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
+  const rootEntity = useHookstate(UUIDComponent.entitiesByUUIDState[rootEntityUUID])
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -111,15 +113,10 @@ export default function HierarchyPanel() {
   }
 
   useEffect(() => {
-    if (!activeScene.value) return
-
-    const rootUUID = SceneState.getScene(activeScene.value)!.root!
-    const rootEntity = UUIDComponent.entitiesByUUID[rootUUID]
-
-    if (!expandedNodes.value[activeScene.value] && rootEntity) {
-      expandedNodes.set({ [activeScene.value]: { [rootEntity]: true } })
+    if (!expandedNodes.value[activeScene.value!]) {
+      expandedNodes.set({ [activeScene.value!]: { [rootEntity.value]: true } })
     }
-  }, [activeScene])
+  }, [rootEntity])
 
   useEffect(() => {
     if (!activeScene.value) return
@@ -499,4 +496,14 @@ export default function HierarchyPanel() {
       </ContextMenu>
     </>
   )
+}
+
+export default function HierarchyPanel() {
+  const editorState = useHookstate(getMutableState(EditorState))
+  const sceneState = useHookstate(getMutableState(SceneState))
+
+  const sceneJson = SceneState.getScene(editorState.sceneID.value!)
+
+  if (!editorState.sceneID.value || !sceneState.scenes[editorState.sceneID.value] || !sceneJson) return null
+  return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} />
 }

@@ -384,6 +384,7 @@ export interface BasePlayerManifest {
     emissiveIntensity?: number
     aoMapIntensity?: number /* Occlusion */
   }
+  deletePreviousBuffers?: boolean
 }
 
 export interface DRACO_Manifest extends BasePlayerManifest {

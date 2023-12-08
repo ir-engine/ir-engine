@@ -65,6 +65,7 @@ import { SplineComponent } from './components/SplineComponent'
 import { SplineTrackComponent } from './components/SplineTrackComponent'
 import { SpotLightComponent } from './components/SpotLightComponent'
 import { SystemComponent } from './components/SystemComponent'
+import { TextComponent } from './components/TextComponent'
 import { VariantComponent } from './components/VariantComponent'
 import { VideoComponent } from './components/VideoComponent'
 import { VisibleComponent } from './components/VisibleComponent'
@@ -127,7 +128,8 @@ export const SceneComponents = [
   WaterComponent,
   TransformComponent,
   XRAnchorComponent,
-  LinkComponent
+  LinkComponent,
+  TextComponent
 ]
 
 export {
