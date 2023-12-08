@@ -172,7 +172,8 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   computeTransformMatrix(entity)
   setupAvatarHeight(entity, model.scene)
 
-  if (!getState(AnimationState).loadedAnimations[locomotionAnimation]) loadBaseLocomotionAnimations()
+  //set global states if they are not already set
+  if (!getState(AnimationState).loadedAnimations[locomotionAnimation]) loadLocomotionAnimations()
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
   avatar.model = model.scene
@@ -191,8 +192,7 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   setComponent(entity, AnimationComponent, { animations, mixer: new AnimationMixer(rigComponent.localRig.hips.node) })
 }
 
-/**Loads the locomotion animations, emotes and optionals*/
-export const loadBaseLocomotionAnimations = () => {
+export const loadLocomotionAnimations = () => {
   const manager = getMutableState(AnimationState)
 
   //preload locomotion animations
@@ -200,10 +200,13 @@ export const loadBaseLocomotionAnimations = () => {
     `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionAnimation}.glb`
   ).then((locomotionAsset: GLTF) => {
     manager.loadedAnimations[locomotionAnimation].set(locomotionAsset)
+    //update avatar speed from root motion
+    // todo: refactor this for direct translation from root motion
+    setAvatarSpeedFromRootMotion()
   })
 }
 
-export const loadEmoteAnimations = (entity: Entity) => {
+export const loadAnimationsFromObject = (entity: Entity) => {
   const manager = getMutableState(AnimationState)
 
   const emoteKeys = Object.keys(emoteAnimations)
@@ -218,7 +221,7 @@ export const loadEmoteAnimations = (entity: Entity) => {
   }
 }
 
-/**todo: stop using global state for avatar speed, its an antipattern
+/**todo: stop using global state for avatar speed
  * in future this will be derrived from the actual root motion of a
  * given avatar's locomotion animations
  */
