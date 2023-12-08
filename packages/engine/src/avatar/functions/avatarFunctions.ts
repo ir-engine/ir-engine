@@ -25,7 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
 import { cloneDeep } from 'lodash'
-import { AnimationClip, Bone, Box3, Group, Object3D, ShaderMaterial, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import {
+  AnimationClip,
+  AnimationMixer,
+  Bone,
+  Box3,
+  Group,
+  Object3D,
+  ShaderMaterial,
+  Skeleton,
+  SkinnedMesh,
+  Vector3
+} from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -56,7 +67,7 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
-import { emoteAnimations, locomotionAnimation } from '../animation/Util'
+import { locomotionAnimation } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -161,7 +172,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   computeTransformMatrix(entity)
   setupAvatarHeight(entity, model.scene)
 
-  setAvatarAnimations(entity)
+  loadBaseAnimations(entity)
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
   avatar.model = model.scene
@@ -172,15 +183,16 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   const manager = getState(AnimationState)
   const animations = [] as AnimationClip[]
   for (const key in manager.loadedAnimations) {
-    console.log(manager.loadedAnimations[key].animations)
     for (const animation of manager.loadedAnimations[key].animations)
-      animations.push(retargetMixamoAnimation(animation, manager.loadedAnimations[key].scene, rigComponent.vrm))
+      animations.push(
+        retargetMixamoAnimation(cloneDeep(animation), manager.loadedAnimations[key].scene, rigComponent.vrm)
+      )
   }
-  setComponent(entity, AnimationComponent, { animations })
+  setComponent(entity, AnimationComponent, { animations, mixer: new AnimationMixer(rigComponent.localRig.hips.node) })
 }
 
 /**Loads the locomotion animations, emotes and optionals*/
-export const setAvatarAnimations = (entity: Entity) => {
+export const loadBaseAnimations = (entity: Entity) => {
   const manager = getMutableState(AnimationState)
   if (!manager.loadedAnimations.value[locomotionAnimation]) {
     //preload locomotion animations
@@ -190,16 +202,17 @@ export const setAvatarAnimations = (entity: Entity) => {
       manager.loadedAnimations[locomotionAnimation].set(locomotionAsset)
     })
     //preload all emote animation files
-    const emoteKeys = Object.keys(emoteAnimations)
-    for (let i = 0; i < emoteKeys.length; i++) {
-      AssetLoader.loadAsync(
-        `${config.client.fileServer}/projects/default-project/assets/animations/emotes/${emoteKeys[i]}.fbx`
-      ).then((loadedEmotes: GLTF) => {
-        manager.loadedAnimations[emoteKeys[i]].set(loadedEmotes)
-        //fbx files need animations reassignment to maintain consistency with GLTF
-        loadedEmotes.animations = loadedEmotes.scene.animations
-      })
-    }
+    /**temporarily commented out, there must be some other way */
+    //const emoteKeys = Object.keys(emoteAnimations)
+    //for (let i = 0; i < emoteKeys.length; i++) {
+    //  AssetLoader.loadAsync(
+    //    `${config.client.fileServer}/projects/default-project/assets/animations/emotes/${emoteKeys[i]}.fbx`
+    //  ).then((loadedEmotes: GLTF) => {
+    //    manager.loadedAnimations[emoteKeys[i]].set(loadedEmotes)
+    //    //fbx files need animations reassignment to maintain consistency with GLTF
+    //    loadedEmotes.animations = loadedEmotes.scene.animations
+    //  })
+    //}
   }
 }
 
