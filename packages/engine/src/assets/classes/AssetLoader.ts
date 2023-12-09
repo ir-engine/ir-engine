@@ -48,6 +48,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { isClient } from '../../common/functions/getEnvironment'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
+import { iOS } from '../../common/functions/isMobile'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -361,7 +362,7 @@ type LoadingArgs = {
   assetRoot?: Entity
 }
 
-const load = (
+const load = async (
   _url: string,
   args: LoadingArgs,
   onLoad = (response: any) => {},
@@ -373,10 +374,38 @@ const load = (
     onError(new Error('URL is empty'))
     return
   }
-  const url = getAbsolutePath(_url)
+  let url = getAbsolutePath(_url)
 
   const assetType = assetTypeOverride ? assetTypeOverride : AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
+  if (iOS && (assetType === AssetType.PNG || assetType === AssetType.JPEG)) {
+    const img = new Image()
+    img.crossOrigin = 'anonymous' //browser will yell without this
+    img.src = url
+    await img.decode() //new way to wait for image to load
+    // Initialize the canvas and it's size
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+
+    // Set width and height
+    const originalWidth = img.width
+    const originalHeight = img.height
+
+    const resizingFactor = originalWidth + originalHeight >= 1024 ? 0.5 : 1
+
+    const canvasWidth = originalWidth * resizingFactor
+    const canvasHeight = originalHeight * resizingFactor
+
+    canvas.width = canvasWidth
+    canvas.height = canvasHeight
+
+    // Draw image and export to a data-uri
+    ctx?.drawImage(img, 0, 0, canvasWidth, canvasHeight)
+    const dataURI = canvas.toDataURL()
+
+    // Do something with the result, like overwrite original
+    url = dataURI
+  }
 
   const callback = assetLoadCallback(url, args, assetType, onLoad)
 
