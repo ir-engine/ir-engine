@@ -384,14 +384,23 @@ const load = async (
     img.src = url
     await img.decode() //new way to wait for image to load
     // Initialize the canvas and it's size
-    const canvas = document.createElement('canvas')
+    const canvas = document.createElement('canvas') //dead dom elements? Remove after Three loads them
     const ctx = canvas.getContext('2d')
 
     // Set width and height
     const originalWidth = img.width
     const originalHeight = img.height
 
-    const resizingFactor = originalWidth + originalHeight >= 1024 ? 0.5 : 1
+    let resizingFactor = 1
+    if (originalWidth > originalHeight) {
+      if (originalWidth > 1024) {
+        resizingFactor = 1024 / originalWidth
+      }
+    } else {
+      if (originalHeight > 1024) {
+        resizingFactor = 1024 / originalHeight
+      }
+    }
 
     const canvasWidth = originalWidth * resizingFactor
     const canvasHeight = originalHeight * resizingFactor
