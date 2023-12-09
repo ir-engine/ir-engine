@@ -75,19 +75,27 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
 
   const playerRig = getComponent(localClientEntity, AvatarRigComponent)
 
-  for (const [key, foot] of Object.entries(feet)) {
-    if (!foot || key != currentStep) continue
-
-    //calculate foot offset so both feet aren't at the transform's center
+  /**calculate foot offset so both feet aren't at the transform's center */
+  const calculateFootOffset = () => {
     footOffset.set(currentStep == ikTargets.leftFoot ? playerRig.footGap : -playerRig.footGap, 0, 0)
     footOffset.applyQuaternion(playerTransform.rotation)
     footOffset.add(playerTransform.position)
+    return footOffset
+  }
+
+  for (const [key, foot] of Object.entries(feet)) {
+    const ikTransform = getComponent(foot, LocalTransformComponent)
+    if (ikTransform.position.x + ikTransform.position.y + ikTransform.position.z == 0) {
+      ikTransform.position.copy(calculateFootOffset())
+      continue
+    }
+    if (!foot || key != currentStep) continue
+
+    calculateFootOffset()
 
     //calculate movement direction and use it to get speed
     walkDirection.subVectors(lastPlayerPosition, playerTransform.position).multiplyScalar(speedMultiplier)
     const playerSpeed = walkDirection.lengthSq()
-
-    const ikTransform = getComponent(foot, LocalTransformComponent)
 
     //get distance from the player
     const ikDistanceSqFromPlayer = ikTargetToPlayer.subVectors(ikTransform.position, footOffset).setY(0).lengthSq()
@@ -112,7 +120,6 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
       currentStep = key == ikTargets.leftFoot ? ikTargets.rightFoot : ikTargets.leftFoot
       continue
     }
-
     //interpolate foot to next step position
     ikTransform.position.lerp(nextStep[key].position, delta * (minSpeed + playerSpeed))
     //set foot y to player y until we have step math
