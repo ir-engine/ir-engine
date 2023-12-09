@@ -28,10 +28,7 @@ import React, { useEffect, useRef } from 'react'
 import ResizeObserver from 'resize-observer-polyfill'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import {
-  loadModelForPreview,
-  resetAnimationLogic
-} from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
+import { resetAnimationLogic } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
@@ -86,13 +83,13 @@ export const ModelPreviewPanel = (props) => {
     const loadModel = async () => {
       try {
         resetAnimationLogic(entity.value)
-        const model = await loadModelForPreview(entity.value, url)
-        if (model) {
-          model.name = 'avatar'
-          const result = scene.value.getObjectByName(model.name)
-          if (result) scene.value.remove(result)
-          scene.value.add(model)
-        }
+        //const model = await loadModelForPreview(entity.value, url)
+        //if (model) {
+        //  model.name = 'avatar'
+        //  const result = scene.value.getObjectByName(model.name)
+        //  if (result) scene.value.remove(result)
+        //  scene.value.add(model)
+        //}
         loading.set(false)
       } catch (err) {
         loading.set(false)

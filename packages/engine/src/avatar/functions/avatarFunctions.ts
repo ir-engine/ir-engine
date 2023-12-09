@@ -111,6 +111,7 @@ export const loadAvatarModelAsset = (
   avatarURL: string,
   loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 ) => {
+  if (!avatarURL) return
   //check if the url to the file is an avaturn url to infer the file type
   const pendingComponent = getOptionalComponent(entity, AvatarPendingComponent)
   if (pendingComponent && pendingComponent.url === avatarURL) return
@@ -123,7 +124,9 @@ export const loadAvatarModelAsset = (
     setComponent(entity, AvatarRigComponent, { vrm: loadedAsset })
     removeComponent(entity, AvatarPendingComponent)
 
-    /**this is awaiting refactor from PR #9369 */
+    /**this is awaiting refactor from PR #9369, ideally this logic is not in the async callback
+     * and instead in a reactor that listens for the avatar vrm being set
+     */
     if (isClient && loadingEffect) {
       const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(loadedAsset.scene)
       const effectEntity = createEntity()
