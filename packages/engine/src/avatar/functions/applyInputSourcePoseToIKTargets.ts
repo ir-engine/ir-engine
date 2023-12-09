@@ -38,6 +38,7 @@ import { ReferenceSpace, XRControlsState, XRState } from '../../xr/XRState'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 
 // rotate +90 around rig finger's X axis
@@ -277,13 +278,18 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
   const ikTargetLeftHand = UUIDComponent.entitiesByUUID[uuid + ikTargets.leftHand]
   const ikTargetRightHand = UUIDComponent.entitiesByUUID[uuid + ikTargets.rightHand]
   const ikTargetHead = UUIDComponent.entitiesByUUID[uuid + ikTargets.head]
+  const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[uuid + ikTargets.leftFoot]
+  const ikTargetRightFoot = UUIDComponent.entitiesByUUID[uuid + ikTargets.rightFoot]
+
+  // reset all IK targets
+  if (ikTargetHead) AvatarIKTargetComponent.blendWeight[ikTargetHead] = 0
+  if (ikTargetLeftHand) AvatarIKTargetComponent.blendWeight[ikTargetLeftHand] = 0
+  if (ikTargetRightHand) AvatarIKTargetComponent.blendWeight[ikTargetRightHand] = 0
+  if (ikTargetLeftFoot) AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] = 0
+  if (ikTargetRightFoot) AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] = 0
 
   const isInXR = xrFrame && referenceSpace
-
   if (!isInXR) {
-    if (ikTargetHead) AvatarIKTargetComponent.blendWeight[ikTargetHead] = 0
-    if (ikTargetLeftHand) AvatarIKTargetComponent.blendWeight[ikTargetLeftHand] = 0
-    if (ikTargetRightHand) AvatarIKTargetComponent.blendWeight[ikTargetRightHand] = 0
     return
   }
 
@@ -296,17 +302,21 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
     ikTransform.position.copy(cameraTransform.position)
     ikTransform.rotation.copy(cameraTransform.rotation)
     AvatarIKTargetComponent.blendWeight[ikTargetHead] = 1
-  } else {
-    if (ikTargetHead) AvatarIKTargetComponent.blendWeight[ikTargetHead] = 0
+    const rigComponent = getComponent(localClientEntity, AvatarRigComponent)
+    const avatar = getComponent(localClientEntity, AvatarComponent)
+    if (rigComponent) {
+      const avatarTransform = getComponent(localClientEntity, TransformComponent)
+      if (cameraTransform.position.y - avatarTransform.position.y < avatar.avatarHeight) {
+        AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] = 1
+        AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] = 1
+      }
+    }
   }
 
   const inverseWorldScale = 1 / XRState.worldScale
 
   const localClientTransform = getComponent(localClientEntity, TransformComponent)
   const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
-
-  let hasLeftHand = false
-  let hasRightHand = false
 
   for (const inputSourceEntity of nonCapturedInputSourceEntities) {
     const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
@@ -337,7 +347,8 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
           }
         }
         applyHandPose(inputSourceComponent.source, localClientEntity)
-        handedness === 'right' ? (hasRightHand = true) : (hasLeftHand = true)
+
+        AvatarIKTargetComponent.blendWeight[entity] = 1
       } else {
         removeComponent(localClientEntity, XRHandComponent)
         if (inputSourceComponent.source.gripSpace) {
@@ -351,7 +362,8 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
             ikTransform.rotation
               .copy(pose.transform.orientation as any as Quaternion)
               .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
-            handedness === 'right' ? (hasRightHand = true) : (hasLeftHand = true)
+
+            AvatarIKTargetComponent.blendWeight[entity] = 1
           }
         } else {
           const pose = xrFrame.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)
@@ -361,13 +373,10 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
               .copy(pose.transform.orientation as any as Quaternion)
               .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
 
-            handedness === 'right' ? (hasRightHand = true) : (hasLeftHand = true)
+            AvatarIKTargetComponent.blendWeight[entity] = 1
           }
         }
       }
     }
   }
-
-  if (ikTargetLeftHand) AvatarIKTargetComponent.blendWeight[ikTargetLeftHand] = hasLeftHand ? 1 : 0
-  if (ikTargetRightHand) AvatarIKTargetComponent.blendWeight[ikTargetRightHand] = hasRightHand ? 1 : 0
 }

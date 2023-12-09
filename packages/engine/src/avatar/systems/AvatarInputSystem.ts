@@ -63,6 +63,7 @@ import { autopilotSetPosition } from '.././functions/autopilotFunctions'
 import { translateAndRotateAvatar } from '.././functions/moveAvatar'
 import { AvatarAxesControlScheme, AvatarInputSettingsState } from '.././state/AvatarInputSettingsState'
 import { applyInputSourcePoseToIKTargets } from '../functions/applyInputSourcePoseToIKTargets'
+import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
 const _quat = new Quaternion()
 
@@ -203,6 +204,9 @@ const execute = () => {
   if (!localClientEntity) return
 
   applyInputSourcePoseToIKTargets(localClientEntity)
+
+  const { deltaSeconds } = getState(EngineState)
+  setIkFootTarget(localClientEntity, deltaSeconds)
 
   const avatarInputSettings = getState(AvatarInputSettingsState)
 

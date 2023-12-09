@@ -198,10 +198,6 @@ const execute = () => {
     const head = UUIDComponent.entitiesByUUID[uuid + ikTargets.head]
     const headTargetBlendWeight = AvatarIKTargetComponent.blendWeight[head]
 
-    // if (entity == Engine.instance.localClientEntity) {
-    //   setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
-    // }
-
     const transform = getComponent(entity, TransformComponent)
 
     if (headTargetBlendWeight) {

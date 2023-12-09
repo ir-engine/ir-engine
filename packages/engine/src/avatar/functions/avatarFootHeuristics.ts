@@ -25,18 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { Euler, Quaternion, Vector3 } from 'three'
 import { V_010 } from '../../common/constants/MathConstants'
-import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 
 const walkDirection = new Vector3()
 const stepDirection = new Vector3()
 const nextStep = {
-  rightFoot: { position: new Vector3(), rotation: new Quaternion() },
-  leftFoot: { position: new Vector3(), rotation: new Quaternion() }
+  [ikTargets.rightFoot]: { position: new Vector3(), rotation: new Quaternion() },
+  [ikTargets.leftFoot]: { position: new Vector3(), rotation: new Quaternion() }
 }
 const footOffset = new Vector3()
 const lastPlayerPosition = new Vector3()
@@ -46,21 +47,34 @@ const quat = new Quaternion()
 let currentStep = ikTargets.leftFoot
 const speedMultiplier = 80
 const minSpeed = 2.5
+
 //step threshold should be a function of leg length
 //walk threshold to determine when to move the feet back into standing position, should be
-export const setIkFootTarget = (stepThreshold: number, delta: number) => {
-  const { localClientEntity, userID } = Engine.instance
+export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
+  const userID = getComponent(localClientEntity, UUIDComponent)
 
-  if (!localClientEntity) return
+  const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[userID + ikTargets.leftFoot]
+  const ikTargetRightFoot = UUIDComponent.entitiesByUUID[userID + ikTargets.rightFoot]
+  if (!ikTargetLeftFoot || !ikTargetRightFoot) return
+
+  const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot]
+  const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[ikTargetRightFoot]
+  if (!leftFootTargetBlendWeight || !rightFootTargetBlendWeight) return
+
+  const rigComponent = getComponent(localClientEntity, AvatarRigComponent)
+  const stepThreshold = rigComponent.upperLegLength + rigComponent.lowerLegLength
 
   const feet = {
-    rightFoot: UUIDComponent.entitiesByUUID[userID + ikTargets.rightFoot],
-    leftFoot: UUIDComponent.entitiesByUUID[userID + ikTargets.leftFoot]
+    [ikTargets.rightFoot]: UUIDComponent.entitiesByUUID[userID + ikTargets.rightFoot],
+    [ikTargets.leftFoot]: UUIDComponent.entitiesByUUID[userID + ikTargets.leftFoot]
   }
+
   const playerTransform = getComponent(localClientEntity, TransformComponent)
   if (lastPlayerPosition.x == 0 && lastPlayerPosition.y == 0 && lastPlayerPosition.z == 0)
     lastPlayerPosition.copy(playerTransform.position)
+
   const playerRig = getComponent(localClientEntity, AvatarRigComponent)
+
   for (const [key, foot] of Object.entries(feet)) {
     if (!foot || key != currentStep) continue
 
@@ -73,7 +87,7 @@ export const setIkFootTarget = (stepThreshold: number, delta: number) => {
     walkDirection.subVectors(lastPlayerPosition, playerTransform.position).multiplyScalar(speedMultiplier)
     const playerSpeed = walkDirection.lengthSq()
 
-    const ikTransform = getComponent(foot, TransformComponent)
+    const ikTransform = getComponent(foot, LocalTransformComponent)
 
     //get distance from the player
     const ikDistanceSqFromPlayer = ikTargetToPlayer.subVectors(ikTransform.position, footOffset).setY(0).lengthSq()
