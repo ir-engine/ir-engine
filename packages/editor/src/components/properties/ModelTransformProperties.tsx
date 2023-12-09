@@ -67,6 +67,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   const transforming = useHookstate<boolean>(false)
   const transformHistory = useHookstate<string[]>([])
   const isClientside = useHookstate<boolean>(true)
+  const isBatchCompress = useHookstate<boolean>(false)
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: modelState.src.value,
@@ -209,6 +210,14 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
                 value={isClientside.value}
                 onChange={(val: boolean) => {
                   isClientside.set(val)
+                }}
+              />
+            </InputGroup>
+            <InputGroup name="Batch Compress" label="Batch Compress">
+              <BooleanInput
+                value={isBatchCompress.value}
+                onChange={(val: boolean) => {
+                  isBatchCompress.set(val)
                 }}
               />
             </InputGroup>
