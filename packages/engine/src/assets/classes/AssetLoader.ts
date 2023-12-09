@@ -392,7 +392,7 @@ const load = async (
     const originalHeight = img.height
 
     let resizingFactor = 1
-    if (originalWidth > originalHeight) {
+    if (originalWidth >= originalHeight) {
       if (originalWidth > 1024) {
         resizingFactor = 1024 / originalWidth
       }
