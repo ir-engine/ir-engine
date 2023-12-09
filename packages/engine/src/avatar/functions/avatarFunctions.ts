@@ -152,8 +152,9 @@ export const loadAvatarForUser = async (
     setComponent(entity, AvatarDissolveComponent, {
       height: bbox.max.y
     })
-    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
   }
+
+  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
 
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
 }

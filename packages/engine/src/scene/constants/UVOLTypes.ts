@@ -77,7 +77,7 @@ export interface GeometryTarget {
    * Smaller targets are given smaller priority i.e., Player assumes smaller priority can be played on low-end devices
    * @default 0
    */
-  priority: number
+  priority?: number
 }
 
 export interface DracoEncodeOptions {
@@ -175,7 +175,7 @@ export interface UniformSolveTarget extends GeometryTarget {
    * Number of segments
    * This info is supplied by the encoder
    */
-  segmentCount: number
+  segmentCount?: number
   /**
    * Number of frames in the the segments
    * This info is supplied by the encoder
@@ -207,7 +207,7 @@ export interface GeometryInput {
   targets: Record<string, GLBTarget | DRACOTarget | UniformSolveTarget>
 }
 
-export type TextureFormat = 'ktx2' | 'astc/ktx'
+export type TextureFormat = 'ktx2' | 'astc/ktx2'
 
 export interface TextureTarget {
   /**
@@ -228,7 +228,7 @@ export interface TextureTarget {
    * Smaller targets are given smaller priority i.e., Player assumes smaller priority can be played on low-end devices
    * @default 0
    */
-  priority: number
+  priority?: number
 }
 
 export interface KTX2EncodeOptions {
@@ -257,7 +257,7 @@ export interface KTX2EncodeOptions {
   /**
    * Vertically flip images
    */
-  lower_left_maps_to_s0t0?: boolean
+  vflip?: boolean
 }
 export interface KTX2TextureTarget extends TextureTarget {
   format: 'ktx2'
@@ -265,23 +265,8 @@ export interface KTX2TextureTarget extends TextureTarget {
 }
 
 export interface ASTCEncodeOptions {
-  blocksize:
-    | '4x4'
-    | '5x4'
-    | '5x5'
-    | '6x5'
-    | '6x6'
-    | '8x5'
-    | '8x6'
-    | '10x5'
-    | '10x6'
-    | '8x8'
-    | '10x8'
-    | '10x10'
-    | '12x10'
-    | '12x12'
-  quality: '-fastest' | '-fast' | '-medium' | '-thorough' | '-verythorough' | '-exhaustive' | number
-  yflip?: boolean
+  quality?: 'fastest' | 'fast' | 'medium' | 'thorough' | 'exhaustive'
+  vflip?: boolean
   resolution: {
     width: number
     height: number
@@ -289,7 +274,7 @@ export interface ASTCEncodeOptions {
 }
 
 export interface ASTCTextureTarget extends TextureTarget {
-  format: 'astc/ktx'
+  format: 'astc/ktx2'
   settings: ASTCEncodeOptions
 }
 
@@ -353,6 +338,18 @@ export interface EncoderManifest {
    * E.g. "output/texture_[target]_[type]/[index][ext]""
    */
   textureOutputPath: string
+  materialProperties?: {
+    normalMapType?: number
+    normalScale?: [number, number]
+    roughness?: number
+    emissiveIntensity?: number
+    aoMapIntensity?: number /* Occlusion */
+  }
+  /**
+   * If set, the player will delete the previous buffers after the new buffers are loaded.
+   * @default true
+   */
+  deletePreviousBuffers?: boolean
 }
 
 export interface BasePlayerManifest {
@@ -369,12 +366,12 @@ export interface BasePlayerManifest {
   }
   texture: {
     baseColor: {
-      targets: Record<string, KTX2TextureTarget | ASTCTextureTarget>
+      targets: Record<string, TextureTarget>
       path: EncoderManifest['textureOutputPath']
     }
   } & Partial<{
     [key in OptionalTextureType]: {
-      targets: Record<string, KTX2TextureTarget | ASTCTextureTarget>
+      targets: Record<string, TextureTarget>
     }
   }>
   materialProperties?: {
@@ -384,6 +381,11 @@ export interface BasePlayerManifest {
     emissiveIntensity?: number
     aoMapIntensity?: number /* Occlusion */
   }
+  /**
+   * If set, the player will delete the previous buffers after the new buffers are loaded.
+   * @default true
+   */
+  deletePreviousBuffers: boolean
 }
 
 export interface DRACO_Manifest extends BasePlayerManifest {
@@ -421,5 +423,5 @@ export const FORMAT_TO_EXTENSION: Record<AudioFileFormat | GeometryFormat | Text
   glb: '.glb',
   'uniform-solve': '.glb',
   ktx2: '.ktx2',
-  'astc/ktx': '.ktx'
+  'astc/ktx2': '.ktx2'
 }
