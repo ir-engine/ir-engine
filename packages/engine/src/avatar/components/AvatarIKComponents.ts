@@ -93,19 +93,19 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   switch (hand) {
     case 'left':
       return {
-        position: rig.rig.leftHand.node.getWorldPosition(vec3),
-        rotation: rig.rig.leftHand.node.getWorldQuaternion(quat)
+        position: rig.normalizedRig.leftHand.node.getWorldPosition(vec3),
+        rotation: rig.normalizedRig.leftHand.node.getWorldQuaternion(quat)
       }
     case 'right':
       return {
-        position: rig.rig.rightHand.node.getWorldPosition(vec3),
-        rotation: rig.rig.rightHand.node.getWorldQuaternion(quat)
+        position: rig.normalizedRig.rightHand.node.getWorldPosition(vec3),
+        rotation: rig.normalizedRig.rightHand.node.getWorldQuaternion(quat)
       }
     default:
     case 'none':
       return {
-        position: rig.rig.head.node.getWorldPosition(vec3),
-        rotation: rig.rig.head.node.getWorldQuaternion(quat)
+        position: rig.normalizedRig.head.node.getWorldPosition(vec3),
+        rotation: rig.normalizedRig.head.node.getWorldQuaternion(quat)
       }
   }
 }

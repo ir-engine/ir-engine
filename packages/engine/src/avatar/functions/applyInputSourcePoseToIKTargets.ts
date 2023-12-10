@@ -28,7 +28,6 @@ import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
@@ -260,7 +259,7 @@ const handOffsetRadians = Math.PI / 2.5
 const rightHandOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
 const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
 
-const footBlendTransitionMultiplier = 5
+const footBlendTransitionMultiplier = 0.5
 
 //set offsets so hands align with controllers. Multiplying two quaternions because gimbal lock in euler angles prevents setting the offset in one quaternion
 const leftControllerOffset = new Quaternion()
@@ -288,6 +287,8 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
   if (ikTargetHead) AvatarIKTargetComponent.blendWeight[ikTargetHead] = 0
   if (ikTargetLeftHand) AvatarIKTargetComponent.blendWeight[ikTargetLeftHand] = 0
   if (ikTargetRightHand) AvatarIKTargetComponent.blendWeight[ikTargetRightHand] = 0
+  if (ikTargetLeftFoot) AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] = 0
+  if (ikTargetRightFoot) AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] = 0
 
   const isInXR = xrFrame && referenceSpace
   if (!isInXR) {
@@ -307,25 +308,9 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
     const avatar = getComponent(localClientEntity, AvatarComponent)
     if (rigComponent) {
       const avatarTransform = getComponent(localClientEntity, TransformComponent)
-      const deltaSeconds = getState(EngineState).deltaSeconds * footBlendTransitionMultiplier
       if (cameraTransform.position.y - avatarTransform.position.y < avatar.avatarHeight) {
-        AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] = Math.min(
-          AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] + deltaSeconds,
-          1
-        )
-        AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] = Math.min(
-          AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] + deltaSeconds,
-          1
-        )
-      } else {
-        AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] = Math.max(
-          AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] - deltaSeconds,
-          0
-        )
-        AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] = Math.max(
-          AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] - deltaSeconds,
-          0
-        )
+        AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] = 1
+        AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] = 1
       }
     }
   }

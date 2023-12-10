@@ -59,6 +59,7 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
 
   const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot]
   const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[ikTargetRightFoot]
+
   if (!leftFootTargetBlendWeight || !rightFootTargetBlendWeight) return
 
   const rigComponent = getComponent(localClientEntity, AvatarRigComponent)

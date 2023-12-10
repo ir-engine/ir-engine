@@ -28,7 +28,6 @@ import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'thr
 
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -144,9 +143,11 @@ const execute = () => {
 
     const deltaTime = elapsedSeconds - avatarAnimationComponent.deltaAccumulator
     avatarAnimationComponent.deltaAccumulator = elapsedSeconds
-    const rig = rigComponent.rig
+    const rig = rigComponent.rawRig
 
     if (!rig?.hips?.node) continue
+
+    rigComponent.vrm.update(deltaTime)
 
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
     if (rigidbodyComponent.body.isEnabled()) {
@@ -161,20 +162,6 @@ const execute = () => {
       )
     } else {
       avatarAnimationComponent.locomotion.setScalar(0)
-    }
-
-    /**
-     * Apply procedural IK based animations or FK animations depending on the animation state
-     * First reset targets
-     */
-
-    rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
-    for (let i = 0; i < VRMHumanBoneList.length; i++) {
-      if (rigComponent.localRig[VRMHumanBoneList[i]]) {
-        rigComponent.rig[VRMHumanBoneList[i]]?.node.quaternion.copy(
-          rigComponent.localRig[VRMHumanBoneList[i]]!.node.quaternion
-        )
-      }
     }
 
     const uuid = getComponent(entity, UUIDComponent)
@@ -299,8 +286,6 @@ const execute = () => {
         leftFootTargetBlendWeight
       )
     }
-
-    rigComponent.vrm.update(deltaTime)
   }
 }
 
@@ -350,7 +335,7 @@ const reactor = () => {
 
 export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
-  insert: { after: AnimationSystem },
+  insert: { before: AnimationSystem },
   execute,
   reactor
 })

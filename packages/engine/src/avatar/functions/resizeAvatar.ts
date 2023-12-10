@@ -45,7 +45,7 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
   const avatar = getComponent(entity, AvatarComponent)
   const transform = getComponent(entity, TransformComponent)
   const rigComponent = getComponent(entity, AvatarRigComponent)
-  const rig = rigComponent.rig
+  const rig = rigComponent.normalizedRig
 
   avatar.avatarHeight = height
   avatar.avatarHalfHeight = avatar.avatarHeight / 2
