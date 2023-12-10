@@ -30,12 +30,11 @@ import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/com
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { defineQuery, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { defineState, getMutableState, syncStateWithLocalStorage, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { MeshComponent } from '@etherealengine/engine/src/scene/components/MeshComponent'
 import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
@@ -57,8 +56,6 @@ export const DebugTabs = {
   Systems: SystemDebug,
   State: StateDebug
 }
-
-const meshQuery = defineQuery([MeshComponent])
 
 export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefObject<boolean> }) => {
   useHookstate(getMutableState(EngineState).frameTime).value
