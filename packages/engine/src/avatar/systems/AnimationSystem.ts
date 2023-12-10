@@ -39,7 +39,7 @@ import { MeshComponent } from '../../scene/components/MeshComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformSystem } from '../../transform/TransformModule'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
@@ -67,7 +67,7 @@ const execute = () => {
       traverseEntityNode(entity, (childEntity) => {
         const mesh = getComponent(childEntity, MeshComponent)
         if (!mesh) return
-        const rotation = getComponent(childEntity, LocalTransformComponent).rotation
+        const rotation = getComponent(childEntity, TransformComponent).rotation
         rotation.copy(mesh.quaternion)
       })
     const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)

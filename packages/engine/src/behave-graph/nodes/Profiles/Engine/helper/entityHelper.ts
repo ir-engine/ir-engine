@@ -38,7 +38,7 @@ import { EntityTreeComponent } from '../../../../../ecs/functions/EntityTree'
 import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../../../../scene/components/VisibleComponent'
 import { ComponentJsonType } from '../../../../../schemas/projects/scene.schema'
-import { LocalTransformComponent } from '../../../../../transform/components/TransformComponent'
+import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 export const addEntityToScene = (
   componentJson: Array<ComponentJsonType>,
@@ -54,7 +54,7 @@ export const addEntityToScene = (
     }
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
-  setComponent(newEntity, LocalTransformComponent)
+  setComponent(newEntity, TransformComponent)
   const uuid = MathUtils.generateUUID() as EntityUUID
   setComponent(newEntity, UUIDComponent, uuid)
   setComponent(newEntity, VisibleComponent)

@@ -47,7 +47,7 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export const EntityNetworkState = defineState({
@@ -93,7 +93,7 @@ export const EntityNetworkState = defineState({
         const spawnRotation = new Quaternion()
         if (action.rotation) spawnRotation.copy(action.rotation)
 
-        setComponent(entity, LocalTransformComponent, { position: spawnPosition, rotation: spawnRotation })
+        setComponent(entity, TransformComponent, { position: spawnPosition, rotation: spawnRotation })
 
         state[action.entityUUID].merge({
           ownerId: action.$from,

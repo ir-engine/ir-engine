@@ -48,7 +48,7 @@ import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { GroupComponent } from './GroupComponent'
@@ -158,7 +158,7 @@ export const ColliderComponent = defineComponent({
     const entity = useEntityContext()
 
     const transformComponent = useComponent(entity, TransformComponent)
-    const localTransformComponent = useOptionalComponent(entity, LocalTransformComponent)
+    const localTransformComponent = useOptionalComponent(entity, TransformComponent)
     const colliderComponent = useComponent(entity, ColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)

@@ -27,7 +27,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
@@ -38,7 +38,7 @@ import {
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { SplineComponent } from './SplineComponent'
 import { UUIDComponent } from './UUIDComponent'
 
@@ -161,11 +161,9 @@ export const SplineTrackComponent = defineComponent({
         const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
         if (!parentEntity) return
         const parentTransform = getComponent(parentEntity, TransformComponent)
-        const localTransformComponent = getComponent(entity, LocalTransformComponent)
-        localTransformComponent.matrix
-          .copy(transform.matrix)
-          .premultiply(parentTransform.matrixInverse)
-          .decompose(localTransformComponent.position, localTransformComponent.rotation, localTransformComponent.scale)
+        transform.matrix
+          .premultiply(mat4.copy(parentTransform.matrixWorld).invert())
+          .decompose(transform.position, transform.rotation, transform.scale)
       },
       { with: AnimationSystemGroup }
     )
@@ -182,3 +180,5 @@ export const SplineTrackComponent = defineComponent({
     return null
   }
 })
+
+const mat4 = new Matrix4()

@@ -32,7 +32,7 @@ import {
 import { Object3D } from '../../../../scene/components/GroupComponent'
 import { NameComponent } from '../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../scene/components/SceneObjectComponent'
-import { LocalTransformComponent, TransformComponent } from '../../../../transform/components/TransformComponent'
+import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -51,7 +51,7 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
     for (const component of components) {
       if (
         component === TransformComponent ||
-        component === LocalTransformComponent || //skip transform data as that is stored in the object3d
+        component === TransformComponent || //skip transform data as that is stored in the object3d
         !component.jsonID //skip components that don't have a jsonID
       )
         continue

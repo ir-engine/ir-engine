@@ -57,7 +57,7 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AggregateBoundingBoxComponent } from '../components/BoundingBoxComponents'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
 import { createInteractUI } from '../functions/interactUI'
 import { InteractState, InteractiveUI, addInteractableUI } from './InteractiveSystem'
@@ -143,7 +143,7 @@ const execute = () => {
 
   for (const entity of mountPointQuery.enter()) {
     const mountPoint = getComponent(entity, MountPointComponent)
-    setComponent(entity, AggregateBoundingBoxComponent, {
+    setComponent(entity, BoundingBoxComponent, {
       box: new Box3().setFromCenterAndSize(
         getComponent(entity, TransformComponent).position,
         new Vector3(0.1, 0.1, 0.1)

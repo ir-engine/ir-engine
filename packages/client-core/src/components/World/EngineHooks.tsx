@@ -280,9 +280,9 @@ export const useOfflineNetwork = () => {
       addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
-      NetworkState.worldNetwork.authenticated = true
-      NetworkState.worldNetwork.connected = true
-      NetworkState.worldNetwork.ready = true
+      NetworkState.worldNetworkState.authenticated.set(true)
+      NetworkState.worldNetworkState.connected.set(true)
+      NetworkState.worldNetworkState.ready.set(true)
 
       NetworkPeerFunctions.createPeer(
         NetworkState.worldNetwork as Network,

@@ -41,11 +41,7 @@ export const updateWorldOriginFromScenePlacement = () => {
   originTransform.position.copy(scenePosition)
   originTransform.rotation.copy(sceneRotation)
   originTransform.scale.setScalar(worldScale)
-  originTransform.matrixInverse.compose(originTransform.position, originTransform.rotation, originTransform.scale)
-  originTransform.matrix
-    .copy(originTransform.matrixInverse)
-    .invert()
-    .decompose(originTransform.position, originTransform.rotation, originTransform.scale)
+  originTransform.matrix.compose(originTransform.position, originTransform.rotation, originTransform.scale).invert()
   if (ReferenceSpace.localFloor) {
     const xrRigidTransform = new XRRigidTransform(scenePosition, sceneRotation)
     ReferenceSpace.origin = ReferenceSpace.localFloor.getOffsetReferenceSpace(xrRigidTransform)

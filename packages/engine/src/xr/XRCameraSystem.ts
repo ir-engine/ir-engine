@@ -147,7 +147,7 @@ function updateCameraFromXRViewerPose() {
       .compose(cameraTransform.position, cameraTransform.rotation, V_111)
       .premultiply(originTransform.matrix)
       .decompose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
-    cameraTransform.matrixInverse.copy(cameraTransform.matrix).invert()
+    camera.matrixWorldInverse.copy(cameraTransform.matrix).invert()
 
     // check if it's necessary to rebuild camera list
     let cameraListNeedsUpdate = false

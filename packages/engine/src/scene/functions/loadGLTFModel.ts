@@ -42,10 +42,9 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ComponentJsonType, EntityJsonType } from '../../schemas/projects/scene.schema'
-import { LocalTransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
@@ -198,8 +197,13 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   })
 
   setComponent(objEntity, NameComponent, name)
+  setComponent(objEntity, TransformComponent, {
+    position: obj.position.clone(),
+    rotation: obj.quaternion.clone(),
+    scale: obj.scale.clone()
+  })
   eJson.components.push({
-    name: LocalTransformComponent.jsonID,
+    name: TransformComponent.jsonID,
     props: {
       position: obj.position.clone(),
       rotation: obj.quaternion.clone(),
@@ -280,8 +284,6 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   const inColliderGroup =
     obj.parent?.userData && Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
   if (!inColliderGroup) {
-    setComponent(objEntity, BoundingBoxComponent)
-
     const mesh = obj as Mesh
     mesh.isMesh && setComponent(objEntity, MeshComponent, mesh)
 

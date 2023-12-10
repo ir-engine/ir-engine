@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Euler, MathUtils, Matrix4, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import {
   defineActionQueue,
@@ -104,6 +104,7 @@ const _quat = new Quaternion()
 const _vector3 = new Vector3()
 const _right = new Vector3()
 const _forward = new Vector3()
+const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
 
 const midAxisRestriction = new Euler(0, 0, 0)
@@ -281,7 +282,7 @@ const execute = () => {
       const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
       const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
 
-      if (getState(XRState).sessionActive) rig.hips.node.position.applyMatrix4(transform.matrixInverse)
+      if (getState(XRState).sessionActive) rig.hips.node.position.applyMatrix4(mat4.copy(transform.matrix).invert())
 
       if (rightHand && rightHandTarget.blendWeight.value > 0) {
         solveTwoBoneIK(

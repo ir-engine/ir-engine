@@ -61,7 +61,7 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { portalPath } from '../../schemas/projects/portal.schema'
-import { LocalTransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { setCallback } from './CallbackComponent'
@@ -206,7 +206,7 @@ export const PortalComponent = defineComponent({
       setComponent(helperEntity, NameComponent, helper.name)
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
-      getComponent(helperEntity, LocalTransformComponent).rotation.copy(
+      getComponent(helperEntity, TransformComponent).rotation.copy(
         new Quaternion().setFromAxisAngle(V_100, Math.PI / 2)
       )
 

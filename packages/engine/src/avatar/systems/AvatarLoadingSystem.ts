@@ -33,7 +33,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarDissolveComponent } from '.././components/AvatarDissolveComponent'
 import { SpawnEffectComponent } from '.././components/SpawnEffectComponent'
 import { AvatarAnimationSystem } from './AvatarAnimationSystem'
@@ -63,7 +63,7 @@ const execute = () => {
 
     for (const rayEntity of lightEntities) {
       const ray = getComponent(rayEntity, GroupComponent)[0] as typeof SpawnEffectComponent.lightMesh
-      const rayTransform = getComponent(rayEntity, LocalTransformComponent)
+      const rayTransform = getComponent(rayEntity, TransformComponent)
       rayTransform.position.y += 2 * delta
       rayTransform.scale.y = lightScale(rayTransform.position.y, ray.geometry.boundingSphere!.radius)
       ray.material.opacity = lightOpacity(rayTransform.position.y, ray.geometry.boundingSphere!.radius)

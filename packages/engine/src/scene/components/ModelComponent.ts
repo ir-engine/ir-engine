@@ -50,7 +50,6 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { AggregateBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -205,8 +204,6 @@ function ModelReactor() {
           removeComponent(entity, SceneAssetPendingTagComponent)
         })
     else removeComponent(entity, SceneAssetPendingTagComponent)
-
-    setComponent(entity, AggregateBoundingBoxComponent)
 
     const loadedJsonHierarchy = parseGLTFModel(entity)
     const uuid = getModelSceneID(entity)

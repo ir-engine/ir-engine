@@ -48,7 +48,7 @@ import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
-import { AggregateBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { createInteractUI } from '../../interaction/functions/interactUI'
 import { createNonInteractUI } from '../../interaction/functions/nonInteractUI'
 import {
@@ -76,7 +76,7 @@ const interactMessage = 'Click to follow'
 const onLinkInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const transform = getComponent(xrui.entity, TransformComponent)
   if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
-  const boundingBox = getComponent(entity, AggregateBoundingBoxComponent)
+  const boundingBox = getComponent(entity, BoundingBoxComponent)
   const input = getComponent(entity, InputComponent)
 
   if (hasComponent(xrui.entity, VisibleComponent)) {
@@ -185,7 +185,7 @@ export const LinkComponent = defineComponent({
     }, [link.url, link.sceneNav])
 
     useEffect(() => {
-      setComponent(entity, AggregateBoundingBoxComponent)
+      setComponent(entity, BoundingBoxComponent)
       setComponent(entity, InputComponent, { highlight: true, grow: true })
       if (!getState(EngineState).isEditor) {
         addInteractableUI(entity, createNonInteractUI(entity, interactMessage), onLinkInteractUpdate)

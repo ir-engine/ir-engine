@@ -27,6 +27,7 @@ import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Object3D, Quaternion, Vector3 } from 'three'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoneComponent } from '../components/BoneComponent'
 
 export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
@@ -38,6 +39,10 @@ export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
 
     if (boneNode != null) {
       const rigBoneNode = humanoid.getBoneNode(boneName)!
+
+      delete TransformComponent.dirtyTransforms[rigBoneNode.entity]
+      delete TransformComponent.dirtyTransforms[rigBoneNode.entity]
+
       const parentWorldRotation = humanoid._parentWorldRotations[boneName]!
       const invParentWorldRotation = _quatA.copy(parentWorldRotation).invert()
       const boneRotation = humanoid._boneRotations[boneName]!

@@ -64,7 +64,7 @@ import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent, setVisibleComponent } from '../scene/components/VisibleComponent'
 import { ReferenceSpaceTransformSystem } from '../transform/TransformModule'
-import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
@@ -85,7 +85,7 @@ export const updateHitTest = (entity: Entity) => {
   const parentEntity = Engine.instance.originEntity
   setComponent(entity, EntityTreeComponent, { parentEntity })
 
-  const localTransform = getComponent(entity, LocalTransformComponent)
+  const localTransform = getComponent(entity, TransformComponent)
   localTransform.position.copy(pose.transform.position as any)
   localTransform.rotation.copy(pose.transform.orientation as any)
 }
@@ -93,7 +93,7 @@ export const updateHitTest = (entity: Entity) => {
 export const updateAnchor = (entity: Entity) => {
   const xrFrame = getState(XRState).xrFrame!
   const anchor = getComponent(entity, XRAnchorComponent).anchor
-  const localTransform = getComponent(entity, LocalTransformComponent)
+  const localTransform = getComponent(entity, TransformComponent)
   const pose = ReferenceSpace.localFloor && xrFrame.getPose(anchor.anchorSpace, ReferenceSpace.localFloor)
   if (pose) {
     localTransform.position.copy(pose.transform.position as any)
@@ -116,7 +116,7 @@ const maxDollhouseScale = 0.2
 const minDollhouseDist = 0.01
 const maxDollhouseDist = 1
 
-const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformComponent>) => {
+const getTargetWorldSize = (localTransform: ComponentType<typeof TransformComponent>) => {
   const xrState = getState(XRState)
   const placing = xrState.scenePlacementMode === 'placing'
   if (!placing) return xrState.sceneScale
@@ -152,7 +152,7 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
 
 export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   // assumes local transform is relative to origin
-  const localTransform = getComponent(scenePlacementEntity, LocalTransformComponent)
+  const localTransform = getComponent(scenePlacementEntity, TransformComponent)
 
   const xrState = getState(XRState)
   const xrFrame = xrState.xrFrame
@@ -193,7 +193,7 @@ export const XRAnchorSystemState = defineState({
   initial: () => {
     const scenePlacementEntity = createEntity()
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
-    setComponent(scenePlacementEntity, LocalTransformComponent)
+    setComponent(scenePlacementEntity, TransformComponent)
     setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(scenePlacementEntity, VisibleComponent, true)
     setComponent(scenePlacementEntity, InputComponent, { highlight: false, grow: false })

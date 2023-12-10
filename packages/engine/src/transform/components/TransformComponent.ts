@@ -26,33 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { Types } from 'bitecs'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
-
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineComponent,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type TransformComponentType = {
   position: Vector3
   rotation: Quaternion
   scale: Vector3
   matrix: Matrix4
-  matrixInverse: Matrix4
-}
-
-export type LocalTransformComponentType = {
-  position: Vector3
-  rotation: Quaternion
-  scale: Vector3
-  matrix: Matrix4
+  matrixWorld: Matrix4
 }
 
 const { f64 } = Types
@@ -70,6 +54,7 @@ export const TransformSchema = {
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
+  jsonID: 'transform',
   schema: TransformSchema,
 
   onInit: (entity) => {
@@ -84,7 +69,7 @@ export const TransformComponent = defineComponent({
         new Vector3(1, 1, 1)
       ) as Vector3,
       matrix: new Matrix4(),
-      matrixInverse: new Matrix4()
+      matrixWorld: new Matrix4()
     } as TransformComponentType
     return component
   },
@@ -102,20 +87,20 @@ export const TransformComponent = defineComponent({
 
     /** @todo the rest of this onSet is necessary until #9193 */
 
-    component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
-    component.matrixInverse.value.copy(component.matrix.value).invert()
+    // component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
 
-    /** Update local transform */
-    const localTransform = getOptionalComponent(entity, LocalTransformComponent)
-    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
-    if (localTransform && entityTree?.parentEntity) {
-      const parentEntity = entityTree.parentEntity
-      const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
-      if (parentTransform) {
-        localTransform.matrix.copy(component.matrix.value).premultiply(parentTransform.matrixInverse)
-        localTransform.matrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
-      }
-    }
+    // /** Update local transform */
+    // const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+    // if (entityTree?.parentEntity) {
+    //   const parentEntity = entityTree.parentEntity
+    //   const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
+    //   if (parentTransform) {
+    //     component.matrixWorld.value.copy(parentTransform.matrix).invert().multiply(component.matrix.value)
+    //     return
+    //   }
+    // }
+
+    // component.matrixWorld.value.copy(component.matrix.value)
   },
 
   onRemove: (entity) => {
@@ -193,109 +178,13 @@ export const TransformComponent = defineComponent({
 const _v1 = new Vector3()
 const _m1 = new Matrix4()
 
-export const LocalTransformComponent = defineComponent({
-  name: 'LocalTransformComponent',
-  jsonID: 'transform',
-  schema: TransformSchema,
+export const composeMatrix = (entity: Entity) => {
+  const te = getComponent(entity, TransformComponent).matrix.elements
 
-  onInit: (entity) => {
-    const dirtyTransforms = LocalTransformComponent.dirtyTransforms
-
-    const component = {
-      position: proxifyVector3WithDirty(LocalTransformComponent.position, entity, dirtyTransforms) as Vector3,
-      rotation: proxifyQuaternionWithDirty(LocalTransformComponent.rotation, entity, dirtyTransforms) as Quaternion,
-      scale: proxifyVector3WithDirty(
-        LocalTransformComponent.scale,
-        entity,
-        dirtyTransforms,
-        new Vector3(1, 1, 1)
-      ) as Vector3,
-      matrix: new Matrix4()
-    } as LocalTransformComponentType
-
-    return component
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      position: {
-        x: component.position.value.x,
-        y: component.position.value.y,
-        z: component.position.value.z
-      } as Vector3,
-      rotation: {
-        x: component.rotation.value.x,
-        y: component.rotation.value.y,
-        z: component.rotation.value.z,
-        w: component.rotation.value.w
-      } as Quaternion,
-      scale: {
-        x: component.scale.value.x,
-        y: component.scale.value.y,
-        z: component.scale.value.z
-      } as Vector3
-    }
-  },
-
-  onSet: (entity, component, json: Partial<DeepReadonly<TransformComponentType>> = {}) => {
-    if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
-    TransformComponent.transformsNeedSorting = true
-
-    const position = json.position?.isVector3
-      ? json.position
-      : json.position
-      ? new Vector3(json.position.x, json.position.y, json.position.z)
-      : null
-
-    if (position) component.position.value.copy(position)
-
-    const rotation = json.rotation?.isQuaternion
-      ? json.rotation
-      : json.rotation
-      ? new Quaternion(json.rotation.x, json.rotation.y, json.rotation.z, json.rotation.w)
-      : null
-
-    if (rotation) component.rotation.value.copy(rotation)
-
-    const scale = json.scale?.isVector3
-      ? json.scale
-      : json.scale
-      ? new Vector3(json.scale.x, json.scale.y, json.scale.z)
-      : null
-
-    if (scale) component.scale.value.copy(scale)
-
-    /** @todo the rest of this onSet is necessary until #9193 */
-
-    component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
-
-    // ensure TransformComponent is updated immediately, raising warnings if it does not have a parent
-    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
-    if (!entityTree) return console.warn('Entity does not have EntityTreeComponent', entity)
-
-    const parentTransform = entityTree?.parentEntity
-      ? getOptionalComponent(entityTree.parentEntity, TransformComponent)
-      : undefined
-    if (!parentTransform) return console.warn('Entity does not have parent TransformComponent', entity)
-
-    const transform = getComponent(entity, TransformComponent)
-    transform.matrix.multiplyMatrices(parentTransform.matrix, component.matrix.value)
-    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
-  },
-
-  dirtyTransforms: {} as Record<Entity, boolean>
-})
-
-export const composeMatrix = (
-  entity: Entity,
-  Component: typeof TransformComponent | typeof LocalTransformComponent
-) => {
-  const te = getComponent(entity, Component).matrix.elements
-
-  const x = Component.rotation.x[entity]
-  const y = Component.rotation.y[entity]
-  const z = Component.rotation.z[entity]
-  const w = Component.rotation.w[entity]
+  const x = TransformComponent.rotation.x[entity]
+  const y = TransformComponent.rotation.y[entity]
+  const z = TransformComponent.rotation.z[entity]
+  const w = TransformComponent.rotation.w[entity]
 
   const x2 = x + x,
     y2 = y + y,
@@ -310,9 +199,9 @@ export const composeMatrix = (
     wy = w * y2,
     wz = w * z2
 
-  const sx = Component.scale.x[entity]
-  const sy = Component.scale.y[entity]
-  const sz = Component.scale.z[entity]
+  const sx = TransformComponent.scale.x[entity]
+  const sy = TransformComponent.scale.y[entity]
+  const sz = TransformComponent.scale.z[entity]
 
   te[0] = (1 - (yy + zz)) * sx
   te[1] = (xy + wz) * sx
@@ -329,17 +218,14 @@ export const composeMatrix = (
   te[10] = (1 - (xx + yy)) * sz
   te[11] = 0
 
-  te[12] = Component.position.x[entity]
-  te[13] = Component.position.y[entity]
-  te[14] = Component.position.z[entity]
+  te[12] = TransformComponent.position.x[entity]
+  te[13] = TransformComponent.position.y[entity]
+  te[14] = TransformComponent.position.z[entity]
   te[15] = 1
 }
 
-export const decomposeMatrix = (
-  entity: Entity,
-  Component: typeof TransformComponent | typeof LocalTransformComponent
-) => {
-  const matrix = getComponent(entity, Component).matrix
+export const decomposeMatrix = (entity: Entity) => {
+  const matrix = getComponent(entity, TransformComponent).matrix
   const te = matrix.elements
 
   let sx = _v1.set(te[0], te[1], te[2]).length()
@@ -350,9 +236,9 @@ export const decomposeMatrix = (
   const det = matrix.determinant()
   if (det < 0) sx = -sx
 
-  Component.position.x[entity] = te[12]
-  Component.position.y[entity] = te[13]
-  Component.position.z[entity] = te[14]
+  TransformComponent.position.x[entity] = te[12]
+  TransformComponent.position.y[entity] = te[13]
+  TransformComponent.position.z[entity] = te[14]
 
   // scale the rotation part
   _m1.copy(matrix)
@@ -373,18 +259,14 @@ export const decomposeMatrix = (
   _m1.elements[9] *= invSZ
   _m1.elements[10] *= invSZ
 
-  setFromRotationMatrix(entity, _m1, Component)
+  setFromRotationMatrix(entity, _m1)
 
-  Component.scale.x[entity] = sx
-  Component.scale.y[entity] = sy
-  Component.scale.z[entity] = sz
+  TransformComponent.scale.x[entity] = sx
+  TransformComponent.scale.y[entity] = sy
+  TransformComponent.scale.z[entity] = sz
 }
 
-export const setFromRotationMatrix = (
-  entity: Entity,
-  m: Matrix4,
-  Component: typeof TransformComponent | typeof LocalTransformComponent
-) => {
+export const setFromRotationMatrix = (entity: Entity, m: Matrix4) => {
   // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
   // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
@@ -404,30 +286,30 @@ export const setFromRotationMatrix = (
   if (trace > 0) {
     const s = 0.5 / Math.sqrt(trace + 1.0)
 
-    Component.rotation.w[entity] = 0.25 / s
-    Component.rotation.x[entity] = (m32 - m23) * s
-    Component.rotation.y[entity] = (m13 - m31) * s
-    Component.rotation.z[entity] = (m21 - m12) * s
+    TransformComponent.rotation.w[entity] = 0.25 / s
+    TransformComponent.rotation.x[entity] = (m32 - m23) * s
+    TransformComponent.rotation.y[entity] = (m13 - m31) * s
+    TransformComponent.rotation.z[entity] = (m21 - m12) * s
   } else if (m11 > m22 && m11 > m33) {
     const s = 2.0 * Math.sqrt(1.0 + m11 - m22 - m33)
 
-    Component.rotation.w[entity] = (m32 - m23) / s
-    Component.rotation.x[entity] = 0.25 * s
-    Component.rotation.y[entity] = (m12 + m21) / s
-    Component.rotation.z[entity] = (m13 + m31) / s
+    TransformComponent.rotation.w[entity] = (m32 - m23) / s
+    TransformComponent.rotation.x[entity] = 0.25 * s
+    TransformComponent.rotation.y[entity] = (m12 + m21) / s
+    TransformComponent.rotation.z[entity] = (m13 + m31) / s
   } else if (m22 > m33) {
     const s = 2.0 * Math.sqrt(1.0 + m22 - m11 - m33)
 
-    Component.rotation.w[entity] = (m13 - m31) / s
-    Component.rotation.x[entity] = (m12 + m21) / s
-    Component.rotation.y[entity] = 0.25 * s
-    Component.rotation.z[entity] = (m23 + m32) / s
+    TransformComponent.rotation.w[entity] = (m13 - m31) / s
+    TransformComponent.rotation.x[entity] = (m12 + m21) / s
+    TransformComponent.rotation.y[entity] = 0.25 * s
+    TransformComponent.rotation.z[entity] = (m23 + m32) / s
   } else {
     const s = 2.0 * Math.sqrt(1.0 + m33 - m11 - m22)
 
-    Component.rotation.w[entity] = (m21 - m12) / s
-    Component.rotation.x[entity] = (m13 + m31) / s
-    Component.rotation.y[entity] = (m23 + m32) / s
-    Component.rotation.z[entity] = 0.25 * s
+    TransformComponent.rotation.w[entity] = (m21 - m12) / s
+    TransformComponent.rotation.x[entity] = (m13 + m31) / s
+    TransformComponent.rotation.y[entity] = (m23 + m32) / s
+    TransformComponent.rotation.z[entity] = 0.25 * s
   }
 }

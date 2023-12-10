@@ -70,7 +70,7 @@ import { GroupComponent } from '../../scene/components/GroupComponent'
 import { MeshComponent } from '../../scene/components/MeshComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
@@ -308,7 +308,6 @@ function createRigidBodyForGroup(
   // create collider desc using userdata of each child mesh
   for (const obj of group) {
     if (obj.entity && hasComponent(obj.entity, TransformComponent)) {
-      computeLocalTransformMatrix(obj.entity)
       computeTransformMatrix(obj.entity)
     }
     obj.traverse((mesh: Mesh) => {

@@ -56,7 +56,7 @@ export const EngineState = defineState({
     /** @deprecated use isEditing instead */
     isEditor: false,
     isEditing: false,
-    systemPerformanceProfilingEnabled: false
+    systemPerformanceProfilingEnabled: true //false
   })
 })
 

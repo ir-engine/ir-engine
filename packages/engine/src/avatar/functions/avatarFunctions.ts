@@ -53,9 +53,10 @@ import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
-import { AggregateBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { generateEntityJsonFromObject } from '../../scene/functions/loadGLTFModel'
 import { EntityJsonType, SceneID } from '../../schemas/projects/scene.schema'
@@ -79,7 +80,8 @@ export const locomotionPack = 'locomotion'
 
 export const parseAvatarModelAsset = (model: any) => {
   const scene = model.scene ?? model // FBX files does not have 'scene' property
-  if (!scene) return
+  if (!scene) return console.warn('Avatar model has no scene')
+
   const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as VRM & {
     userData: any
   }
@@ -111,7 +113,22 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
 
   const model = await AssetLoader.loadAsync(avatarURL, undefined, undefined, override)
-  return parseAvatarModelAsset(model)
+  const vrm = parseAvatarModelAsset(model)
+
+  if (!vrm) return
+
+  try {
+    /** Upload to gpu immediately */
+    await EngineRenderer.instance?.renderer.compileAsync(
+      vrm.scene,
+      getComponent(Engine.instance.cameraEntity, CameraComponent),
+      Engine.instance.scene
+    )
+  } catch (err) {
+    console.error('Failed to compile avatar model', err)
+  }
+
+  return vrm
 }
 
 export const loadAvatarForUser = async (
@@ -147,10 +164,10 @@ export const loadAvatarForUser = async (
       opacityMultiplier: 1
     })
 
-    const bbox = getComponent(entity, AggregateBoundingBoxComponent).box
+    const avatarHeight = getComponent(entity, AvatarComponent).avatarHeight
 
     setComponent(entity, AvatarDissolveComponent, {
-      height: bbox.max.y
+      height: avatarHeight
     })
   }
 
@@ -270,7 +287,6 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   const box = new Box3()
   box.expandByObject(model).getSize(tempVec3ForHeight)
-  setComponent(entity, AggregateBoundingBoxComponent, { box })
   box.getCenter(tempVec3ForCenter)
   resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
 }

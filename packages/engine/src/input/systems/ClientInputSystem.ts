@@ -47,7 +47,7 @@ import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { AggregateBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
@@ -58,7 +58,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -108,7 +108,7 @@ export const addClientInputListeners = () => {
     setComponent(entity, EntityTreeComponent, {
       parentEntity: session?.interactionMode === 'world-space' ? Engine.instance.originEntity : null
     })
-    setComponent(entity, LocalTransformComponent)
+    setComponent(entity, TransformComponent)
     setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
   }
 
@@ -401,7 +401,7 @@ const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
 const inputSources = defineQuery([InputSourceComponent])
 
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
-const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, AggregateBoundingBoxComponent])
+const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
 
 const rayRotation = new Quaternion()
@@ -475,7 +475,7 @@ const execute = () => {
     }
 
     if (xrFrame && source.targetRayMode === 'tracked-pointer') {
-      const transform = getComponent(sourceEid, LocalTransformComponent)
+      const transform = getComponent(sourceEid, TransformComponent)
 
       const referenceSpace = ReferenceSpace.localFloor
       if (xrFrame && referenceSpace) {
@@ -544,7 +544,7 @@ const execute = () => {
 
         // 3rd heuristic is bboxes
         for (const entity of inputBoundingBoxes()) {
-          const boundingBox = getComponent(entity, AggregateBoundingBoxComponent)
+          const boundingBox = getComponent(entity, BoundingBoxComponent)
           const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
           if (hit) {
             const distance = inputRay.origin.distanceTo(bboxHitTarget)

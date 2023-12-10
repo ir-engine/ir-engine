@@ -50,7 +50,7 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { LocalTransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { useAnimationTransition } from '../functions/createTransitionState'
 
 export const PointerComponent = defineComponent({
@@ -118,7 +118,7 @@ export const PointerComponent = defineComponent({
     setComponent(entity, PointerComponent, { inputSource })
     setComponent(entity, NameComponent, 'Pointer' + inputSource.handedness)
     setComponent(entity, EntityTreeComponent, { parentEntity: inputSourceEntity })
-    setComponent(entity, LocalTransformComponent)
+    setComponent(entity, TransformComponent)
     setComponent(entity, VisibleComponent)
     PointerComponent.pointers.set(inputSource, entity)
   },
