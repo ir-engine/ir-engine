@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Mesh, MeshBasicMaterial, Quaternion, Ray, Raycaster, Vector2, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -220,9 +220,10 @@ export const addClientInputListeners = () => {
   }
 
   const handleMouseMove = (event: MouseEvent) => {
-    const pointerState = getMutableState(InputState).pointerState
+    const pointerState = getState(InputState).pointerState
     pointerState.position.set(
-      new Vector2((event.clientX / window.innerWidth) * 2 - 1, (event.clientY / window.innerHeight) * -2 + 1)
+      (event.clientX / window.innerWidth) * 2 - 1,
+      (event.clientY / window.innerHeight) * -2 + 1
     )
   }
 
@@ -428,6 +429,10 @@ const execute = () => {
     getComponent(Engine.instance.cameraEntity, CameraComponent)
   )
 
+  pointerState.movement.subVectors(pointerState.position, pointerState.lastPosition)
+  pointerState.lastPosition.copy(pointerState.position)
+  pointerState.lastScroll.copy(pointerState.scroll)
+
   const xrFrame = getState(XRState).xrFrame
   const origin = ReferenceSpace.origin
 
@@ -569,15 +574,6 @@ const reactor = () => {
   const xrState = useHookstate(getMutableState(XRState))
 
   useEffect(addClientInputListeners, [xrState.session])
-
-  const pointerPosition = useHookstate(getMutableState(InputState).pointerState.position)
-  const pointerState = getState(InputState).pointerState
-
-  useEffect(() => {
-    pointerState.movement.subVectors(pointerState.lastPosition, pointerState.position)
-    pointerState.lastPosition.copy(pointerState.position)
-    pointerState.lastScroll.copy(pointerState.scroll)
-  }, [pointerPosition])
 
   return null
 }
