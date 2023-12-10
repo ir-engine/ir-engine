@@ -97,12 +97,16 @@ function createCollisionEventQueue() {
   return collisionEventQueue
 }
 
+const position = new Vector3()
+const rotation = new Quaternion()
+const scale = new Vector3()
+
 function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc[]) {
-  if (hasComponent(entity, TransformComponent)) {
-    const { position, rotation } = getComponent(entity, TransformComponent)
-    rigidBodyDesc.translation = position
-    rigidBodyDesc.rotation = rotation
-  }
+  getComponent(entity, TransformComponent).matrixWorld.decompose(position, rotation, scale)
+
+  rigidBodyDesc.translation = position
+  rigidBodyDesc.rotation = rotation
+
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
@@ -111,28 +115,24 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.body.bodyType())
   setComponent(entity, RigidBodyTypeTagComponent, true)
 
-  // apply the initial transform if there is one
-  if (hasComponent(entity, TransformComponent)) {
-    const { position, rotation, scale } = getComponent(entity, TransformComponent)
-    rigidBody.body.setTranslation(position, true)
-    rigidBody.body.setRotation(rotation, true)
-    rigidBody.body.setLinvel(V_000, true)
-    rigidBody.body.setAngvel(V_000, true)
-    rigidBody.previousPosition.copy(position)
-    rigidBody.previousRotation.copy(rotation)
-    if (
-      RigidBodyTypeTagComponent === RigidBodyKinematicPositionBasedTagComponent ||
-      RigidBodyTypeTagComponent === RigidBodyKinematicVelocityBasedTagComponent
-    ) {
-      rigidBody.targetKinematicPosition.copy(position)
-      rigidBody.targetKinematicRotation.copy(rotation)
-    }
-    rigidBody.position.copy(position)
-    rigidBody.rotation.copy(rotation)
-    rigidBody.linearVelocity.copy(V_000)
-    rigidBody.angularVelocity.copy(V_000)
-    rigidBody.scale.copy(scale)
+  rigidBody.body.setTranslation(position, true)
+  rigidBody.body.setRotation(rotation, true)
+  rigidBody.body.setLinvel(V_000, true)
+  rigidBody.body.setAngvel(V_000, true)
+  rigidBody.previousPosition.copy(position)
+  rigidBody.previousRotation.copy(rotation)
+  if (
+    RigidBodyTypeTagComponent === RigidBodyKinematicPositionBasedTagComponent ||
+    RigidBodyTypeTagComponent === RigidBodyKinematicVelocityBasedTagComponent
+  ) {
+    rigidBody.targetKinematicPosition.copy(position)
+    rigidBody.targetKinematicRotation.copy(rotation)
   }
+  rigidBody.position.copy(position)
+  rigidBody.rotation.copy(rotation)
+  rigidBody.linearVelocity.copy(V_000)
+  rigidBody.angularVelocity.copy(V_000)
+  rigidBody.scale.copy(scale)
 
   // set entity in userdata for fast look up when required.
   const rigidBodyUserdata = { entity: entity }

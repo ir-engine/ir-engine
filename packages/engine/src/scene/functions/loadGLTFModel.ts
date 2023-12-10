@@ -45,6 +45,7 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ComponentJsonType, EntityJsonType } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
@@ -150,6 +151,7 @@ export const parseGLTFModel = (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
   const scene = model.scene!
   scene.updateMatrixWorld(true)
+  computeTransformMatrix(entity)
 
   // always parse components first using old ECS parsing schema
   const entityJson = parseObjectComponentsFromGLTF(entity, scene)

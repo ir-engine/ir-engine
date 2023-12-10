@@ -144,18 +144,29 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
       </div>
       <StatsPanel show={showingStateRef.current} />
       <div className={styles.jsonPanel}>
-        {['None'].concat(Object.keys(DebugTabs)).map((tab, i) => (
-          <button
-            key={i}
-            onClick={() => activeTab.set(tab)}
-            className={styles.flagBtn + (activeTab.value === tab ? ' ' + styles.active : '')}
-            style={{ width: '100px' }}
-          >
-            {tab}
-          </button>
-        ))}
+        {['None']
+          .concat(Object.keys(DebugTabs))
+          .concat('All')
+          .map((tab, i) => (
+            <button
+              key={i}
+              onClick={() => activeTab.set(tab)}
+              className={styles.flagBtn + (activeTab.value === tab ? ' ' + styles.active : '')}
+              style={{ width: '100px' }}
+            >
+              {tab}
+            </button>
+          ))}
       </div>
-      {ActiveTabComponent && <ActiveTabComponent />}
+      {activeTab.value === 'All' ? (
+        <>
+          {Object.values(DebugTabs).map((Tab, i) => (
+            <Tab key={i} />
+          ))}
+        </>
+      ) : (
+        ActiveTabComponent && <ActiveTabComponent />
+      )}
     </div>
   )
 }

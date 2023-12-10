@@ -28,7 +28,6 @@ import { Object3D, Scene } from 'three'
 
 import { NO_PROXY, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -210,7 +209,7 @@ function ModelReactor() {
     SceneState.loadScene(uuid, {
       scene: {
         entities: loadedJsonHierarchy,
-        root: '' as EntityUUID,
+        root: getComponent(entity, UUIDComponent),
         version: 0
       },
       scenePath: uuid,
