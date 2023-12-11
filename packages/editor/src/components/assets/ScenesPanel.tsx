@@ -255,6 +255,7 @@ export default function ScenesPanel() {
 export const ScenePanelTab: TabData = {
   id: 'scenePanel',
   closable: true,
+  cached: true,
   title: (
     <PanelDragContainer>
       <PanelIcon as={Inventory2Icon} size={12} />

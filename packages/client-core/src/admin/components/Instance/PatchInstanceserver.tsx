@@ -53,7 +53,7 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
   })
 
   const { t } = useTranslation()
-  const adminLocations = useFind(locationPath).data
+  const adminLocations = useFind(locationPath, { query: { action: 'admin' } }).data
   const patchInstanceserver = useMutation('instanceserver-provision').patch
 
   const locationsMenu: InputMenuItem[] = adminLocations.map((el) => {

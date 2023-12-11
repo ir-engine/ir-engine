@@ -61,12 +61,18 @@ export const updateAudioPanner = (
   if (isNaN(position.x)) return
   _rot.set(0, 0, 1).applyQuaternion(rotation)
   if (isNaN(_rot.x)) return
-  panner.positionX.linearRampToValueAtTime(position.x, endTime)
-  panner.positionY.linearRampToValueAtTime(position.y, endTime)
-  panner.positionZ.linearRampToValueAtTime(position.z, endTime)
-  panner.orientationX.linearRampToValueAtTime(_rot.x, endTime)
-  panner.orientationY.linearRampToValueAtTime(_rot.y, endTime)
-  panner.orientationZ.linearRampToValueAtTime(_rot.z, endTime)
+  // firefox only supports the deprecated API
+  if (!panner.positionX) {
+    panner.setPosition(position.x, position.y, position.z)
+    panner.setOrientation(_rot.x, _rot.y, _rot.z)
+  } else {
+    panner.positionX.linearRampToValueAtTime(position.x, endTime)
+    panner.positionY.linearRampToValueAtTime(position.y, endTime)
+    panner.positionZ.linearRampToValueAtTime(position.z, endTime)
+    panner.orientationX.linearRampToValueAtTime(_rot.x, endTime)
+    panner.orientationY.linearRampToValueAtTime(_rot.y, endTime)
+    panner.orientationZ.linearRampToValueAtTime(_rot.z, endTime)
+  }
   panner.refDistance = settings.refDistance
   panner.rolloffFactor = settings.rolloffFactor
   panner.maxDistance = settings.maxDistance

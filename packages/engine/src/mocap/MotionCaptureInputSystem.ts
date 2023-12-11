@@ -23,38 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { Engine } from '../ecs/classes/Engine'
+import { hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../ecs/functions/EngineFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
+import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
+import { evaluatePose } from './poseToInput'
 
-import TuneIcon from '@mui/icons-material/Tune'
-
-import { TabData } from 'rc-dock'
-import { useTranslation } from 'react-i18next'
-import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
-import { InfoTooltip } from '../layout/Tooltip'
-import styles from '../styles.module.scss'
-import PropertiesPanelContainer from './PropertiesPanelContainer'
-
-export const PropertiesPanelTitle = () => {
-  const { t } = useTranslation()
-
-  return (
-    <div className={styles.dockableTab}>
-      <PanelDragContainer>
-        <PanelIcon as={TuneIcon} size={12} />
-        <PanelTitle>
-          <InfoTooltip title={t('editor:properties.info')}>
-            <span>{t('editor:properties.title')}</span>
-          </InfoTooltip>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
-  )
+export const execute = () => {
+  const entity = Engine.instance.localClientEntity
+  if (!hasComponent(entity, MotionCaptureRigComponent)) return
+  if (!hasComponent(entity, MotionCapturePoseComponent)) setComponent(entity, MotionCapturePoseComponent)
+  evaluatePose(Engine.instance.localClientEntity)
 }
 
-export const PropertiesPanelTab: TabData = {
-  id: 'propertiesPanel',
-  closable: true,
-  cached: true,
-  title: <PropertiesPanelTitle />,
-  content: <PropertiesPanelContainer />
-}
+export const MotionCaptureInputSystem = defineSystem({
+  uuid: 'ee.engine.MotionCaptureInputSystem',
+  insert: { before: InputSystemGroup },
+  execute
+})
