@@ -150,6 +150,10 @@ function ModelReactor() {
       },
       (loadedAsset) => {
         if (aborted) return
+        if (typeof loadedAsset !== 'object') {
+          addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
+          return
+        }
         modelComponent.asset.set(loadedAsset)
       },
       (onprogress) => {
@@ -161,9 +165,10 @@ function ModelReactor() {
           }
         })
       },
-      (err) => {
+      (err: Error) => {
         if (aborted) return
         console.error(err)
+        addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
         removeComponent(entity, SceneAssetPendingTagComponent)
       }
     )
@@ -175,9 +180,9 @@ function ModelReactor() {
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
     const asset = model.asset as GLTF | null
+    if (!asset) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    if (!asset) return
     const fileExtension = model.src.split('.').pop()?.toLowerCase()
     asset.scene.animations = asset.animations
     asset.scene.userData.src = model.src
