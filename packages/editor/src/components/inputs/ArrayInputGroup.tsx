@@ -37,6 +37,7 @@ export interface ArrayInputGroupProp {
   label?: any
   values: string[]
   onChange?: (values: string[]) => void
+  onRelease?: (values: string[]) => void
   acceptFileTypes?: any
   acceptDropItems?: any
 }
@@ -75,7 +76,8 @@ const ArrayInputGroup = ({
   values,
   onChange,
   acceptFileTypes,
-  acceptDropItems
+  acceptDropItems,
+  ...rest
 }: ArrayInputGroupProp) => {
   const addInput = (count = 1) => {
     const valuesCopy = [...values]
@@ -114,6 +116,7 @@ const ArrayInputGroup = ({
             }}
             acceptFileTypes={acceptFileTypes}
             acceptDropItems={acceptDropItems}
+            {...rest}
           />
           <IconButton
             disableRipple
@@ -140,6 +143,7 @@ const ArrayInputGroup = ({
                 onChange={(value) => onChangeText(value, index + 1)}
                 acceptFileTypes={acceptFileTypes}
                 acceptDropItems={acceptDropItems}
+                {...rest}
               />
               <IconButton
                 disableRipple
