@@ -43,7 +43,7 @@ export const evaluatePose = (entity: Entity) => {
   const rig = getComponent(entity, AvatarRigComponent).rig
   const deltaSeconds = getState(EngineState).deltaSeconds
   const pose = getMutableComponent(entity, MotionCapturePoseComponent)
-  if (!MotionCaptureRigComponent.solvingLowerBody[entity]) return 'none'
+  if (MotionCaptureRigComponent.lowerBodySolveFactor[entity] < 1) return 'none'
 
   /**Detect if our legs pose has changed by their angle */
   const getLegsSeatedChange = (toPose: MotionCapturePoses): boolean => {

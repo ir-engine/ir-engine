@@ -23,8 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ReferenceSpaceTransformSystem } from './systems/ReferenceSpaceTransformSystem'
-import { TransformInterpolationSystem } from './systems/TransformInterpolationSystem'
-import { TransformSystem } from './systems/TransformSystem'
+import { Vector3 } from 'three'
+import matches from 'ts-matches'
+import { matchesVector3 } from '../../common/functions/MatchesUtils'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export { ReferenceSpaceTransformSystem, TransformSystem, TransformInterpolationSystem }
+export const TransformInterpolationComponent = defineComponent({
+  name: 'TransformInterpolationComponent',
+
+  onInit(entity) {
+    return { fromPoint: new Vector3(), toPoint: new Vector3(), time: 0, currentTime: 0 }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+
+    if (matchesVector3.test(json.fromPoint)) component.fromPoint.set(json.fromPoint)
+    if (matchesVector3.test(json.toPoint)) component.toPoint.set(json.toPoint)
+    if (matches.number.test(json.time)) component.time.set(json.time)
+    if (matches.number.test(json.currentTime)) component.currentTime.set(json.currentTime)
+  }
+})

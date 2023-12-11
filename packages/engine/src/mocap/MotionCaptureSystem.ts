@@ -41,7 +41,7 @@ import { addDataChannelHandler, removeDataChannelHandler } from '../networking/s
 
 import { getState } from '@etherealengine/hyperflux'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
-import { Quaternion } from 'three'
+import { Quaternion, Vector3 } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AnimationSystem } from '../avatar/systems/AnimationSystem'
 import { V_010 } from '../common/constants/MathConstants'
@@ -127,7 +127,6 @@ const execute = () => {
     solveMotionCapturePose(entity, data?.results.poseWorldLandmarks, data?.results.poseLandmarks)
     mocapData.clear() // TODO: add a predictive filter and remove this
   }
-
   for (const entity of motionCaptureQuery()) {
     const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
     if (!peers) {
@@ -139,17 +138,28 @@ const execute = () => {
     for (const boneName of VRMHumanBoneList) {
       const localbone = rigComponent.localRig[boneName]?.node
       if (!localbone) continue
-      if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
-        if (
-          boneName == VRMHumanBoneName.LeftUpperLeg ||
-          boneName == VRMHumanBoneName.RightUpperLeg ||
-          boneName == VRMHumanBoneName.LeftLowerLeg ||
-          boneName == VRMHumanBoneName.RightLowerLeg ||
-          boneName == VRMHumanBoneName.LeftFoot ||
-          boneName == VRMHumanBoneName.RightFoot
+      //logic for optional lower body solve
+      if (
+        boneName === VRMHumanBoneName.LeftUpperLeg ||
+        boneName === VRMHumanBoneName.RightUpperLeg ||
+        boneName === VRMHumanBoneName.LeftLowerLeg ||
+        boneName === VRMHumanBoneName.RightLowerLeg ||
+        boneName === VRMHumanBoneName.LeftFoot ||
+        boneName === VRMHumanBoneName.RightFoot
+      ) {
+        //if the bones are located in the lower body, slerp based on the lowerBodySolveFactor then continue
+        localbone.quaternion.fastSlerp(
+          new Quaternion(
+            MotionCaptureRigComponent.rig[boneName].x[entity],
+            MotionCaptureRigComponent.rig[boneName].y[entity],
+            MotionCaptureRigComponent.rig[boneName].z[entity],
+            MotionCaptureRigComponent.rig[boneName].w[entity]
+          ),
+          MotionCaptureRigComponent.lowerBodySolveFactor[entity]
         )
-          continue
+        continue
       }
+      //if the bones are anywhere else, set directly
       if (
         MotionCaptureRigComponent.rig[boneName].x[entity] === 0 &&
         MotionCaptureRigComponent.rig[boneName].y[entity] === 0 &&
@@ -164,34 +174,29 @@ const execute = () => {
         MotionCaptureRigComponent.rig[boneName].z[entity],
         MotionCaptureRigComponent.rig[boneName].w[entity]
       )
-
-      if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
-      if (MotionCaptureRigComponent.solvingLowerBody[entity])
-        localbone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
-      localbone.scale.set(1, 1, 1)
     }
 
+    //lerp hip bone position based on lowerBodySolveFactor
     const hipBone = rigComponent.localRig.hips.node
-    if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
-      hipBone.position.set(
+    hipBone.position.lerp(
+      new Vector3(
         MotionCaptureRigComponent.hipPosition.x[entity],
         MotionCaptureRigComponent.hipPosition.y[entity],
         MotionCaptureRigComponent.hipPosition.z[entity]
-      )
-      hipBone.updateMatrixWorld(true)
-    }
+      ),
+      MotionCaptureRigComponent.lowerBodySolveFactor[entity]
+    )
+    hipBone.updateMatrixWorld(true)
 
     const worldHipsParent = rigComponent.rig.hips.node.parent
     if (worldHipsParent)
-      if (MotionCaptureRigComponent.solvingLowerBody[entity])
-        worldHipsParent.position.setY(
-          lerp(
-            worldHipsParent.position.y,
-            MotionCaptureRigComponent.footOffset[entity],
-            getState(EngineState).deltaSeconds * 5
-          )
-        )
-      else worldHipsParent.position.setY(0)
+      worldHipsParent.position.setY(
+        lerp(
+          worldHipsParent.position.y,
+          MotionCaptureRigComponent.footOffset[entity],
+          getState(EngineState).deltaSeconds * 5
+        ) * MotionCaptureRigComponent.lowerBodySolveFactor[entity]
+      )
 
     // rotate hips 180 degrees
     hipBone.quaternion.premultiply(rotate180YQuaternion)

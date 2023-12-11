@@ -57,6 +57,7 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformInterpolationComponent } from '../../transform/components/TransformInterpolationComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
 import { createInteractUI } from '../functions/interactUI'
@@ -139,6 +140,14 @@ const execute = () => {
         targetMount: getComponent(mountEntity, UUIDComponent)
       })
     )
+
+    _vec.copy(getComponent(mountEntity, TransformComponent).position).y -=
+      getComponent(avatarEntity, AvatarComponent).avatarHalfHeight * 0.5
+    setComponent(avatarEntity, TransformInterpolationComponent, {
+      fromPoint: getComponent(avatarEntity, TransformComponent).position,
+      toPoint: _vec,
+      time: 0.5
+    })
   }
 
   for (const entity of mountPointQuery.enter()) {
@@ -175,8 +184,12 @@ const execute = () => {
     const mountTransform = getComponent(getComponent(entity, SittingComponent).mountPointEntity, TransformComponent)
     const avatar = getComponent(entity, AvatarComponent)
     setComponent(entity, TransformComponent, { rotation: mountTransform.rotation })
-    _vec.copy(mountTransform.position).y -= avatar.avatarHalfHeight * 0.5
-    teleportAvatar(entity, _vec)
+
+    /**if the avatar has finished lerping to the seat, start setting its position to keep it in sync with the mount point */
+    if (!hasComponent(entity, TransformInterpolationComponent)) {
+      _vec.copy(mountTransform.position).y -= avatar.avatarHalfHeight * 0.5
+      teleportAvatar(entity, _vec)
+    }
 
     //if (!hasComponent(entity, MotionCaptureRigComponent)) continue
 
