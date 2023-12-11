@@ -39,8 +39,7 @@ import {
   SystemDefinitions,
   SystemUUID,
   defineSystem,
-  destroySystem,
-  executeSystem
+  destroySystem
 } from '../../../../../ecs/functions/SystemFunctions'
 import { NodetoEnginetype } from './commonHelper'
 
@@ -191,7 +190,6 @@ export function getActionConsumers() {
             queue() // clear the queue
           }
         })
-        executeSystem(systemUUID)
         const state: State = {
           queue,
           systemUUID
