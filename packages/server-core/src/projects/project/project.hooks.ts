@@ -66,6 +66,7 @@ import { Knex } from 'knex'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
+import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import { cleanString } from '../../util/cleanString'
 import { getDateTimeSql } from '../../util/datetime-sql'
@@ -542,64 +543,67 @@ const updateProjectJob = async (context: HookContext) => {
   }
 }
 
-export default {
-  around: {
-    all: [schemaHooks.resolveExternal(projectExternalResolver), schemaHooks.resolveResult(projectResolver)]
-  },
+export default createSkippableHooks(
+  {
+    around: {
+      all: [schemaHooks.resolveExternal(projectExternalResolver), schemaHooks.resolveResult(projectResolver)]
+    },
 
-  before: {
-    all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
-    find: [enableClientPagination(), ensurePushStatus, addLimitToParams],
-    get: [],
-    create: [
-      iff(isProvider('external'), verifyScope('editor', 'write')),
-      () => schemaHooks.validateData(projectDataValidator),
-      schemaHooks.resolveData(projectDataResolver),
-      checkIfProjectExists,
-      checkIfNameIsValid,
-      uploadLocalProject,
-      updateCreateData
-    ],
-    update: [
-      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-      updateProjectJob
-    ],
-    patch: [
-      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-      () => schemaHooks.validateData(projectPatchValidator),
-      schemaHooks.resolveData(projectPatchResolver),
-      iff(isProvider('external'), linkGithubToProject)
-    ],
-    remove: [
-      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-      getProjectName,
-      runProjectUninstallScript,
-      removeProjectFiles,
-      removeLocationFromProject,
-      removeRouteFromProject,
-      removeAvatarsFromProject,
-      removeStaticResourcesFromProject,
-      removeProjectUpdate
-    ]
-  },
+    before: {
+      all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
+      find: [enableClientPagination(), ensurePushStatus, addLimitToParams],
+      get: [],
+      create: [
+        iff(isProvider('external'), verifyScope('editor', 'write')),
+        () => schemaHooks.validateData(projectDataValidator),
+        schemaHooks.resolveData(projectDataResolver),
+        checkIfProjectExists,
+        checkIfNameIsValid,
+        uploadLocalProject,
+        updateCreateData
+      ],
+      update: [
+        iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+        updateProjectJob
+      ],
+      patch: [
+        iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+        () => schemaHooks.validateData(projectPatchValidator),
+        schemaHooks.resolveData(projectPatchResolver),
+        iff(isProvider('external'), linkGithubToProject)
+      ],
+      remove: [
+        iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+        getProjectName,
+        runProjectUninstallScript,
+        removeProjectFiles,
+        removeLocationFromProject,
+        removeRouteFromProject,
+        removeAvatarsFromProject,
+        removeStaticResourcesFromProject,
+        removeProjectUpdate
+      ]
+    },
 
-  after: {
-    all: [],
-    find: [addDataToProjectResult],
-    get: [],
-    create: [createProjectPermission],
-    update: [],
-    patch: [],
-    remove: []
-  },
+    after: {
+      all: [],
+      find: [addDataToProjectResult],
+      get: [],
+      create: [createProjectPermission],
+      update: [],
+      patch: [],
+      remove: []
+    },
 
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+    error: {
+      all: [],
+      find: [],
+      get: [],
+      create: [],
+      update: [],
+      patch: [],
+      remove: []
+    }
+  },
+  ['find']
+)

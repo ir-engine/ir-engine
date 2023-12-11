@@ -37,7 +37,7 @@ import {
   instanceAttendancePath
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { Knex } from 'knex'
-import { Application } from '../../../declarations'
+import { Application, HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
 
@@ -77,7 +77,7 @@ export default (app: Application): void => {
    * This method find all users
    * @returns users
    */
-  service.publish('patched', async (data: UserType, context) => {
+  service.publish('patched', async (data: UserType, context: HookContext) => {
     try {
       const userID = data.id
       const dataToSend = {
@@ -90,6 +90,7 @@ export default (app: Application): void => {
           userId: userID,
           ended: false
         },
+        headers: context.params.headers,
         paginate: false
       })) as any as InstanceAttendanceType[]
 
