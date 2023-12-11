@@ -102,7 +102,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
       }
       newSnapshot.data.entities[entityUUID].components = componentData
     }
-    console.log(newSnapshot)
+
     dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
   }
 }
