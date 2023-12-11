@@ -38,6 +38,7 @@ import appConfig from '../../appconfig'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
@@ -155,9 +156,26 @@ async function createNewUser(context: HookContext<IdentityProviderService>) {
     .service(avatarPath)
     .find({ isInternal: true, query: { isPublic: true, skipUser: true, $limit: 1000 } })
 
+  let selectedAvatarId
+  while (selectedAvatarId == null) {
+    const randomId = random(avatars.data.length - 1)
+    const selectedAvatar = avatars.data[randomId]
+    try {
+      await Promise.all([
+        context.app.service(staticResourcePath).get(selectedAvatar.modelResourceId),
+        context.app.service(staticResourcePath).get(selectedAvatar.thumbnailResourceId)
+      ])
+      selectedAvatarId = selectedAvatar.id
+    } catch (err) {
+      console.log('error in getting resources')
+      avatars.data.splice(randomId, 1)
+      if (avatars.data.length < 1) throw new Error('All avatars are missing static resources')
+    }
+  }
+
   context.existingUser = await context.app.service(userPath).create({
     isGuest,
-    avatarId: avatars.data[random(avatars.data.length - 1)].id
+    avatarId: selectedAvatarId
   })
 }
 
