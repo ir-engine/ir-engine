@@ -1275,7 +1275,7 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
 
   const project = projectData.data[0]
 
-  const user = await app.service(userPath).get(project.updateUserId!)
+  const user = await app.service(userPath)._get(project.updateUserId!)
   if (project.updateType === 'tag') {
     const latestTaggedCommit = await getLatestProjectTaggedCommitInBranch(
       app,

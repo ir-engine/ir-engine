@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import RecordingResourceUpload from './recording-resource-upload/recording-resource-upload'
-import RecordingResource from './recording-resource/recording-resource'
-import Recording from './recording/recording'
+export const recordingResourceUploadPath = 'recording-resource-upload'
 
-export default [Recording, RecordingResource, RecordingResourceUpload]
+export const recordingResourceUploadMethods = ['create'] as const

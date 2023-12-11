@@ -23,8 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import RecordingResourceUpload from './recording-resource-upload/recording-resource-upload'
-import RecordingResource from './recording-resource/recording-resource'
-import Recording from './recording/recording'
+import {
+  recordingResourceUploadMethods,
+  recordingResourceUploadPath
+} from '@etherealengine/engine/src/schemas/recording/recording-resource-upload.schema'
+import { Application } from '../../../declarations'
+import { RecordingResourceUploadService } from './recording-resource-upload.class'
+import RecordingResourceUploadDocs from './recording-resource-upload.docs'
+import hooks from './recording-resource-upload.hooks'
 
-export default [Recording, RecordingResource, RecordingResourceUpload]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [recordingResourceUploadPath]: RecordingResourceUploadService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(recordingResourceUploadPath, new RecordingResourceUploadService(app), {
+    // A list of all methods this service exposes externally
+    methods: recordingResourceUploadMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: RecordingResourceUploadDocs
+  })
+
+  const service = app.service(recordingResourceUploadPath)
+  service.hooks(hooks)
+}

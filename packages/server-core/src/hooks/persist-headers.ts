@@ -28,7 +28,7 @@ import { HookContext, NextFunction } from '@feathersjs/feathers'
 import { AsyncLocalStorage } from 'async_hooks'
 import { Application } from '../../declarations'
 
-export const asyncLocalStorage = new AsyncLocalStorage<{ headers: any }>()
+export const asyncLocalStorage = new AsyncLocalStorage<{ headers: object }>()
 
 /**
  * https://github.com/feathersjs-ecosystem/dataloader/blob/main/docs/guide.md

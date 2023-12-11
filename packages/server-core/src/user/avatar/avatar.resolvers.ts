@@ -58,7 +58,7 @@ export const avatarExternalResolver = resolve<AvatarType, HookContext>({
   modelResource: virtual(async (avatar, context) => {
     if (context.event !== 'removed' && avatar.modelResourceId)
       try {
-        return await context.app.service(staticResourcePath).get(avatar.modelResourceId)
+        return await context.app.service(staticResourcePath)._get(avatar.modelResourceId)
       } catch (err) {
         //Swallow missing resource errors, deal with them elsewhere
       }
@@ -66,7 +66,7 @@ export const avatarExternalResolver = resolve<AvatarType, HookContext>({
   thumbnailResource: virtual(async (avatar, context) => {
     if (context.event !== 'removed' && avatar.thumbnailResourceId)
       try {
-        return await context.app.service(staticResourcePath).get(avatar.thumbnailResourceId)
+        return await context.app.service(staticResourcePath)._get(avatar.thumbnailResourceId)
       } catch (err) {
         //Swallow missing resource errors, deal with them elsewhere
       }
