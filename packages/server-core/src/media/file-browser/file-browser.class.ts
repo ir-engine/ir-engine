@@ -25,10 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { NullableId, Paginated, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import appRootPath from 'app-root-path'
+import fs from 'fs'
 import path from 'path/posix'
 
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
+import { isDev } from '@etherealengine/common/src/config'
 import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import {
   FileBrowserContentType,
@@ -52,6 +54,8 @@ export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects
 export interface FileBrowserParams extends KnexAdapterParams {
   nestingDirectory?: string
 }
+
+const PROJECT_FILE_REGEX = /^projects/
 
 const checkDirectoryInsideNesting = (directory: string, nestingDirectory?: string) => {
   if (!nestingDirectory) {
@@ -97,8 +101,7 @@ export class FileBrowserService
 
     checkDirectoryInsideNesting(directory, params?.nestingDirectory)
 
-    const exists = await storageProvider.doesExist(file, directory)
-    return exists
+    return await storageProvider.doesExist(file, directory)
   }
 
   /**
@@ -171,6 +174,9 @@ export class FileBrowserService
 
     await storageProvider.createInvalidation([key])
 
+    if (isDev && PROJECT_FILE_REGEX.test(directory))
+      fs.mkdirSync(path.resolve(projectsRootFolder, path.join(parentPath, key)), { recursive: true })
+
     return result
   }
 
@@ -195,6 +201,11 @@ export class FileBrowserService
       storageProvider.createInvalidation([oldNamePath]),
       storageProvider.createInvalidation([newNamePath])
     ])
+
+    if (isDev) {
+      if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
+      else fs.renameSync(oldNamePath, newNamePath)
+    }
 
     return result
   }
@@ -226,6 +237,13 @@ export class FileBrowserService
         isDirectory: false
       }
     )
+
+    if (isDev && PROJECT_FILE_REGEX.test(key)) {
+      const filePath = path.resolve(projectsRootFolder, key)
+      const dirname = path.dirname(filePath)
+      fs.mkdirSync(dirname, { recursive: true })
+      fs.writeFileSync(filePath, data.body)
+    }
 
     const hash = createStaticResourceHash(data.body, { mimeType: data.contentType, assetURL: key })
     const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
@@ -293,6 +311,8 @@ export class FileBrowserService
     })) as Paginated<StaticResourceType>
 
     if (staticResource?.data?.length > 0) await this.app.service(staticResourcePath).remove(staticResource?.data[0]?.id)
+
+    if (isDev && PROJECT_FILE_REGEX.test(key)) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
 
     return result
   }
