@@ -36,6 +36,7 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   getComponent,
+  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -57,6 +58,7 @@ import { defineState, getMutableState, getState, useHookstate } from '@ethereale
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
@@ -75,6 +77,7 @@ const LoadingUISystemState = defineState({
   initial: () => {
     const transition = createTransitionState(transitionPeriodSeconds, 'IN')
     const ui = createLoaderDetailView()
+    getMutableComponent(ui.entity, InputComponent).grow.set(false)
     addComponent(ui.entity, NameComponent, 'Loading XRUI')
 
     const meshEntity = createEntity()

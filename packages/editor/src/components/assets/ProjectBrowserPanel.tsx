@@ -76,7 +76,14 @@ export default function ProjectBrowserPanel() {
         },
         {
           size: 3,
-          tabs: [{ id: 'previewPanel', title: 'Preview', content: <AssetsPreviewPanel ref={assetsPreviewPanelRef} /> }]
+          tabs: [
+            {
+              id: 'previewPanel',
+              title: 'Preview',
+              cached: true,
+              content: <AssetsPreviewPanel ref={assetsPreviewPanelRef} />
+            }
+          ]
         }
       ]
     }
@@ -98,6 +105,7 @@ export default function ProjectBrowserPanel() {
 export const ProjectBrowserPanelTab: TabData = {
   id: 'filesPanel',
   closable: true,
+  cached: true,
   title: (
     <PanelDragContainer>
       <PanelIcon as={Inventory2Icon} size={12} />

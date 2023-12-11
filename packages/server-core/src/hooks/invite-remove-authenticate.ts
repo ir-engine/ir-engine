@@ -38,7 +38,7 @@ import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     let inviteIdentityProviderUser
-    // Getting logged in user and attaching owner of user
+    // Getting logged-in user and attaching owner of user
     const { id, params, app } = context
     const loggedInUser = params.user as UserType
     const invite = await app.service(invitePath).get(id!)

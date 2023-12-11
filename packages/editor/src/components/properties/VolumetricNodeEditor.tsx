@@ -115,7 +115,8 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         name="Source Paths"
         prefix="Content"
         values={volumetricComponent.paths.value}
-        onChange={commitProperty(VolumetricComponent, 'paths')}
+        onChange={updateProperty(VolumetricComponent, 'paths')}
+        onRelease={commitProperty(VolumetricComponent, 'paths')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={VolumetricFileTypes}
         acceptDropItems={ItemTypes.Volumetrics}

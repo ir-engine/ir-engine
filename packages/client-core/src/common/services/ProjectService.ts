@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { builderInfoPath } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
@@ -196,6 +196,12 @@ export const ProjectService = {
     }
   },
   useAPIListeners: () => {
+    const updateNeeded = useHookstate(getMutableState(ProjectState).updateNeeded)
+
+    useEffect(() => {
+      if (updateNeeded.value) ProjectService.fetchProjects()
+    }, [updateNeeded])
+
     useEffect(() => {
       // TODO #7254
       // API.instance.client.service(projectBuildPath).on('patched', (params) => {})

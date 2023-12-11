@@ -119,9 +119,9 @@ const restrictUserRemove = async (context: HookContext<UserService>) => {
   if (await checkScope(loggedInUser, 'user', 'write')) {
     const isRemovedUserAdmin =
       (
-        await context.app
-          .service(scopePath)
-          .find({ query: { userId: context.id as UserID, type: 'admin:admin' as ScopeType } })
+        await context.app.service(scopePath).find({
+          query: { userId: context.id as UserID, type: 'admin:admin' as ScopeType }
+        })
       ).total > 0
 
     if (isRemovedUserAdmin && !(await checkScope(loggedInUser, 'admin', 'admin'))) {
