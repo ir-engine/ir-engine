@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -66,11 +66,30 @@ export const CoreNodeEditor = (props) => {
   const editorState = useHookstate(getMutableState(EditorState))
 
   useOptionalComponent(props.entity, VisibleComponent)
+  const [locked, setLocked] = useState(editorState.lockPropertiesPanel.value !== '')
+  const [visible, setVisible] = useState(hasComponent(props.entity, VisibleComponent))
 
-  const onChangeVisible = (value) => {
+  useEffect(() => {
+    const entities = getMutableState(SelectionState).selectedEntities.value
+    const currentEntity = entities[0]
+    const currentState = editorState.lockPropertiesPanel.value
+    if (!locked) {
+      if (currentState) {
+        getMutableState(EditorState).lockPropertiesPanel.set('' as EntityUUID)
+      }
+    } else {
+      if (currentEntity) {
+        getMutableState(EditorState).lockPropertiesPanel.set(
+          typeof currentEntity === 'string' ? (currentEntity as EntityUUID) : getComponent(currentEntity, UUIDComponent)
+        )
+      }
+    }
+  }, [locked])
+
+  useEffect(() => {
     const nodes = getMutableState(SelectionState).selectedEntities.value
-    EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
-  }
+    EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, visible)
+  }, [visible])
 
   return (
     <div style={propertiesHeaderStyle}>
@@ -83,21 +102,7 @@ export const CoreNodeEditor = (props) => {
       >
         <button
           onClick={() => {
-            const entities = getMutableState(SelectionState).selectedEntities.value
-            const currentEntity = entities[0]
-
-            const currentState = editorState.lockPropertiesPanel.value
-            if (currentState) {
-              getMutableState(EditorState).lockPropertiesPanel.set('' as EntityUUID)
-            } else {
-              if (currentEntity) {
-                getMutableState(EditorState).lockPropertiesPanel.set(
-                  typeof currentEntity === 'string'
-                    ? (currentEntity as EntityUUID)
-                    : getComponent(currentEntity, UUIDComponent)
-                )
-              }
-            }
+            setLocked(!locked)
           }}
           style={{
             background: 'none',
@@ -106,7 +111,7 @@ export const CoreNodeEditor = (props) => {
             alignItems: 'center'
           }}
         >
-          <PanelIcon as={editorState.lockPropertiesPanel.value ? LockIcon : UnlockIcon} size={20} />
+          <PanelIcon as={editorState.lockPropertiesPanel.value !== '' ? LockIcon : UnlockIcon} size={20} />
         </button>
       </div>
       <div style={nameInputGroupContainerStyle}>
@@ -118,7 +123,7 @@ export const CoreNodeEditor = (props) => {
               label={t('editor:properties.lbl-visible')}
               {...{ style: { visibleInputGroupStyle } }}
             >
-              <BooleanInput value={hasComponent(props.entity, VisibleComponent)} onChange={onChangeVisible} />
+              <BooleanInput value={hasComponent(props.entity, VisibleComponent)} onChange={setVisible} />
             </InputGroup>
           </>
         )}

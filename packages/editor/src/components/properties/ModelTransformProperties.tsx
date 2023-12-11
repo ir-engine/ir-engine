@@ -59,7 +59,6 @@ import StringInput from '../inputs/StringInput'
 import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import GLTFTransformProperties from './GLTFTransformProperties'
-import LightmapBakerProperties from './LightmapBakerProperties'
 import './ModelTransformProperties.css'
 
 export default function ModelTransformProperties({ entity, onChangeModel }: { entity: Entity; onChangeModel: any }) {
@@ -67,7 +66,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   const selectionState = useHookstate(getMutableState(SelectionState))
   const transforming = useHookstate<boolean>(false)
   const transformHistory = useHookstate<string[]>([])
-  const isClientside = useHookstate<boolean>(false)
+  const isClientside = useHookstate<boolean>(true)
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: modelState.src.value,
@@ -199,7 +198,6 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   return (
     <CollapsibleBlock label="Model Transform Properties">
       <div className="TransformContainer">
-        <LightmapBakerProperties modelState={modelState} />
         <GLTFTransformProperties
           transformParms={transformParms}
           onChange={(transformParms: ModelTransformParameters) => {}}

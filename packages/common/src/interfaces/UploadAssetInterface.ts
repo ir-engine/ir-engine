@@ -36,6 +36,7 @@ export type AvatarUploadType = {
   type: 'user-avatar-upload'
   files: (Blob | Buffer)[]
   userId?: UserID
+  path?: string
   args: string | AvatarUploadArgsType
 }
 

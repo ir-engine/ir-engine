@@ -254,7 +254,7 @@ export function solveMotionCapturePose(
   newScreenlandmarks?: NormalizedLandmarkList
 ) {
   const rig = getComponent(entity, AvatarRigComponent)
-  if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
+  if (!rig || !rig.rawRig || !rig.rawRig.hips || !rig.rawRig.hips.node) {
     return
   }
 
@@ -446,7 +446,7 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
       if (feetGrounded[i]) {
         const footLandmark =
           landmarks[i == feetIndices.rightFoot ? POSE_LANDMARKS_RIGHT.RIGHT_ANKLE : POSE_LANDMARKS_LEFT.LEFT_ANKLE].y
-        const footY = footLandmark * -1 + rig.rig.hips.node.position.y
+        const footY = footLandmark * -1 + rig.normalizedRig.hips.node.position.y
         MotionCaptureRigComponent.footOffset[entity] = footY
       }
     }
@@ -505,25 +505,25 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity] = hipWorldQuaterion.z
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity] = hipWorldQuaterion.w
 
-  rig.localRig[VRMHumanBoneName.Hips]?.node.quaternion.copy(hipWorldQuaterion)
+  rig[VRMHumanBoneName.Hips]?.node.quaternion.copy(hipWorldQuaterion)
 
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].x[entity] = spineRotation.x
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].y[entity] = spineRotation.y
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].z[entity] = spineRotation.z
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].w[entity] = spineRotation.w
 
-  rig.localRig[VRMHumanBoneName.Spine]?.node.quaternion.copy(spineRotation)
+  rig.rawRig[VRMHumanBoneName.Spine]?.node.quaternion.copy(spineRotation)
 
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].x[entity] = shoulderRotation.x
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].y[entity] = shoulderRotation.y
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].z[entity] = shoulderRotation.z
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].w[entity] = shoulderRotation.w
 
-  rig.localRig[VRMHumanBoneName.Chest]?.node.quaternion.copy(shoulderRotation)
+  rig.rawRig[VRMHumanBoneName.Chest]?.node.quaternion.copy(shoulderRotation)
 
-  rig.localRig[VRMHumanBoneName.Hips]!.node.updateWorldMatrix(false, false)
-  rig.localRig[VRMHumanBoneName.Spine]!.node.updateWorldMatrix(false, false)
-  rig.localRig[VRMHumanBoneName.Chest]!.node.updateWorldMatrix(false, false)
+  rig.rawRig[VRMHumanBoneName.Hips]!.node.updateWorldMatrix(false, false)
+  rig.rawRig[VRMHumanBoneName.Spine]!.node.updateWorldMatrix(false, false)
+  rig.rawRig[VRMHumanBoneName.Chest]!.node.updateWorldMatrix(false, false)
 }
 
 export const solveLimb = (
@@ -543,7 +543,7 @@ export const solveLimb = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const parentQuaternion = rig.localRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
+  const parentQuaternion = rig.rawRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
 
   const startPoint = new Vector3(start.x, lowestWorldY - start.y, start.z)
   const midPoint = new Vector3(mid.x, lowestWorldY - mid.y, mid.z)
@@ -565,17 +565,17 @@ export const solveLimb = (
   MotionCaptureRigComponent.rig[startTargetBoneName].z[entity] = startLocal.z
   MotionCaptureRigComponent.rig[startTargetBoneName].w[entity] = startLocal.w
 
-  rig.localRig[startTargetBoneName]?.node.quaternion.copy(startLocal)
+  rig.rawRig[startTargetBoneName]?.node.quaternion.copy(startLocal)
 
   MotionCaptureRigComponent.rig[midTargetBoneName].x[entity] = midLocal.x
   MotionCaptureRigComponent.rig[midTargetBoneName].y[entity] = midLocal.y
   MotionCaptureRigComponent.rig[midTargetBoneName].z[entity] = midLocal.z
   MotionCaptureRigComponent.rig[midTargetBoneName].w[entity] = midLocal.w
 
-  rig.localRig[midTargetBoneName]?.node.quaternion.copy(midLocal)
+  rig.rawRig[midTargetBoneName]?.node.quaternion.copy(midLocal)
 
-  rig.localRig[startTargetBoneName]!.node.updateWorldMatrix(false, false)
-  rig.localRig[midTargetBoneName]!.node.updateWorldMatrix(false, false)
+  rig.rawRig[startTargetBoneName]!.node.updateWorldMatrix(false, false)
+  rig.rawRig[midTargetBoneName]!.node.updateWorldMatrix(false, false)
 }
 
 export const resetLimb = (
@@ -591,17 +591,17 @@ export const resetLimb = (
   MotionCaptureRigComponent.rig[startTargetBoneName].z[entity] = 0
   MotionCaptureRigComponent.rig[startTargetBoneName].w[entity] = 1
 
-  rig.localRig[startTargetBoneName]?.node.quaternion.identity()
+  rig.rawRig[startTargetBoneName]?.node.quaternion.identity()
 
   MotionCaptureRigComponent.rig[midTargetBoneName].x[entity] = 0
   MotionCaptureRigComponent.rig[midTargetBoneName].y[entity] = 0
   MotionCaptureRigComponent.rig[midTargetBoneName].z[entity] = 0
   MotionCaptureRigComponent.rig[midTargetBoneName].w[entity] = 1
 
-  rig.localRig[midTargetBoneName]?.node.quaternion.identity()
+  rig.rawRig[midTargetBoneName]?.node.quaternion.identity()
 
-  rig.localRig[startTargetBoneName]!.node.updateWorldMatrix(false, false)
-  rig.localRig[midTargetBoneName]!.node.updateWorldMatrix(false, false)
+  rig.rawRig[startTargetBoneName]!.node.updateWorldMatrix(false, false)
+  rig.rawRig[midTargetBoneName]!.node.updateWorldMatrix(false, false)
 }
 
 export const resetBone = (entity: Entity, boneName: VRMHumanBoneName) => {
@@ -612,7 +612,7 @@ export const resetBone = (entity: Entity, boneName: VRMHumanBoneName) => {
   MotionCaptureRigComponent.rig[boneName].z[entity] = 0
   MotionCaptureRigComponent.rig[boneName].w[entity] = 1
 
-  rig.localRig[boneName]?.node.quaternion.identity()
+  rig.rawRig[boneName]?.node.quaternion.identity()
 }
 
 export const solveHand = (
@@ -631,7 +631,7 @@ export const solveHand = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const parentQuaternion = rig.localRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
+  const parentQuaternion = rig.rawRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
 
   const startPoint = new Vector3(extent.x, lowestWorldY - extent.y, extent.z)
   const ref1Point = new Vector3(ref1.x, lowestWorldY - ref1.y, ref1.z)
@@ -663,9 +663,9 @@ export const solveHand = (
   MotionCaptureRigComponent.rig[extentTargetBoneName].z[entity] = extentQuaternionLocal.z
   MotionCaptureRigComponent.rig[extentTargetBoneName].w[entity] = extentQuaternionLocal.w
 
-  rig.localRig[extentTargetBoneName]?.node.quaternion.copy(extentQuaternionLocal)
+  rig.rawRig[extentTargetBoneName]?.node.quaternion.copy(extentQuaternionLocal)
 
-  rig.localRig[extentTargetBoneName]!.node.updateWorldMatrix(false, false)
+  rig.rawRig[extentTargetBoneName]!.node.updateWorldMatrix(false, false)
 }
 
 export const solveFoot = (
@@ -681,7 +681,7 @@ export const solveFoot = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const parentQuaternion = rig.localRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
+  const parentQuaternion = rig.rawRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
 
   const startPoint = new Vector3(extent.x, lowestWorldY - extent.y, extent.z)
   const ref1Point = new Vector3(ref1.x, lowestWorldY - ref1.y, ref1.z)
@@ -708,9 +708,9 @@ export const solveFoot = (
   MotionCaptureRigComponent.rig[extentTargetBoneName].z[entity] = extentQuaternionLocal.z
   MotionCaptureRigComponent.rig[extentTargetBoneName].w[entity] = extentQuaternionLocal.w
 
-  rig.localRig[extentTargetBoneName]?.node.quaternion.copy(extentQuaternionLocal)
+  rig.rawRig[extentTargetBoneName]?.node.quaternion.copy(extentQuaternionLocal)
 
-  rig.localRig[extentTargetBoneName]!.node.updateWorldMatrix(false, false)
+  rig.rawRig[extentTargetBoneName]!.node.updateWorldMatrix(false, false)
 }
 
 const headRotation = new Quaternion()
@@ -737,7 +737,7 @@ export const solveHead = (
 
   headRotation.multiply(rotate90degreesAroundXAxis)
 
-  rig.localRig[VRMHumanBoneName.Neck]!.node.getWorldQuaternion(parentRotation)
+  rig.rawRig[VRMHumanBoneName.Neck]!.node.getWorldQuaternion(parentRotation)
   headRotation.premultiply(parentRotation.invert())
 
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].x[entity] = headRotation.x
@@ -745,7 +745,7 @@ export const solveHead = (
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].z[entity] = headRotation.z
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].w[entity] = headRotation.w
 
-  rig.localRig[VRMHumanBoneName.Head]?.node.quaternion.copy(headRotation)
+  rig.rawRig[VRMHumanBoneName.Head]?.node.quaternion.copy(headRotation)
 }
 
 const plane = new Plane()
