@@ -34,16 +34,13 @@ import {
   Component,
   componentJsonDefaults,
   ComponentJSONIDMap,
-  ComponentMap,
   getComponent,
   getOptionalComponent,
   hasComponent,
   serializeComponent,
   SerializedComponentType,
-  setComponent,
   updateComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   EntityTreeComponent,
   iterateEntityNode,
@@ -80,27 +77,34 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
 
   //cancelGrabOrPlacement()
 
-  const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
-
+  const scenes: Record<SceneID, Entity[]> = {}
   for (const entity of entities) {
-    const entityUUID = getComponent(entity, UUIDComponent)
-    const componentData = newSnapshot.data.entities[entityUUID].components
-
-    if (add) {
-      const tempEntity = createEntity()
-      setComponent(tempEntity, component)
-      componentData.push({
-        name: sceneComponentID,
-        props: serializeComponent(tempEntity, component)
-      })
-      removeEntity(tempEntity)
-    } else {
-      const index = componentData.findIndex((c) => c.name === sceneComponentID)
-      if (index > -1) componentData.splice(index, 1)
-    }
+    const source = getComponent(entity, SourceComponent)
+    scenes[source] ??= []
+    scenes[source].push(entity)
   }
 
-  dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
+  for (const [sceneID, entities] of Object.entries(scenes)) {
+    const newSnapshot = SceneState.cloneCurrentSnapshot(sceneID as SceneID)
+
+    for (const entity of entities) {
+      const entityUUID = getComponent(entity, UUIDComponent)
+      let componentData = newSnapshot.data.entities[entityUUID].components
+      if (add) {
+        componentData = componentData.filter((c) => c.name !== sceneComponentID)
+        componentData.push({
+          name: sceneComponentID,
+          props: componentJsonDefaults(ComponentJSONIDMap.get(sceneComponentID)!)
+        })
+      } else {
+        const index = componentData.findIndex((c) => c.name === sceneComponentID)
+        if (index > -1) componentData.splice(index, 1)
+      }
+      newSnapshot.data.entities[entityUUID].components = componentData
+    }
+
+    dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
+  }
 }
 
 const modifyName = (entities: Entity[], name: string) => {
@@ -226,11 +230,10 @@ const createObjectFromSceneElement = (
 
   const entityUUID =
     componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? MathUtils.generateUUID()
-  const fullComponentJson = [
-    ...componentJson,
-    { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
-    { name: ComponentMap.get(LocalTransformComponent.name)!.jsonID! }
-  ].map((comp) => ({
+  if (!componentJson.some((comp) => comp.name === LocalTransformComponent.jsonID)) {
+    componentJson.push({ name: LocalTransformComponent.jsonID })
+  }
+  const fullComponentJson = [...componentJson, { name: VisibleComponent.jsonID }].map((comp) => ({
     name: comp.name,
     props: {
       ...componentJsonDefaults(ComponentJSONIDMap.get(comp.name)!),

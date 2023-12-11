@@ -189,6 +189,12 @@ const execute = () => {
   if (isNaN(position.x)) return
   _rot.set(0, 0, -1).applyQuaternion(rotation)
   if (isNaN(_rot.x)) return
+  // firefox only supports the deprecated API
+  if (!audioContext.listener.positionX) {
+    audioContext.listener.setPosition(position.x, position.y, position.z)
+    audioContext.listener.setOrientation(_rot.x, _rot.y, _rot.z, 0, 1, 0)
+    return
+  }
   audioContext.listener.positionX.linearRampToValueAtTime(position.x, endTime)
   audioContext.listener.positionY.linearRampToValueAtTime(position.y, endTime)
   audioContext.listener.positionZ.linearRampToValueAtTime(position.z, endTime)

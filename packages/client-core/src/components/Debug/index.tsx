@@ -204,12 +204,29 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
   }
 
   const namedEntities = useHookstate({})
+  const erroredComponents = useHookstate([] as any[])
   const entityTree = useHookstate({} as any)
 
   const dag = convertSystemTypeToDesiredType(SystemDefinitions.get(RootSystemGroup)!)
 
   namedEntities.set(renderAllEntities())
   entityTree.set(renderEntityTreeRoots())
+
+  erroredComponents.set(
+    [...Engine.instance.store.activeReactors.values()]
+      .filter((reactor) => (reactor as any).entity && reactor.errors.length)
+      .map((reactor) => {
+        return reactor.errors.map((error) => {
+          return {
+            entity: (reactor as any).entity,
+            component: (reactor as any).component,
+            error
+          }
+        })
+      })
+      .flat()
+  )
+
   return (
     <div className={styles.debugContainer} style={{ pointerEvents: 'all' }}>
       <div className={styles.debugOptionContainer}>
@@ -280,6 +297,10 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
         <JSONTree data={namedEntities.get(NO_PROXY)} />
       </div>
       <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.erroredEntities')}</h1>
+        <JSONTree data={erroredComponents.get(NO_PROXY)} />
+      </div>
+      <div className={styles.jsonPanel}>
         <h1>{t('common:debug.state')}</h1>
         <JSONTree
           data={Engine.instance.store.stateMap}
@@ -302,11 +323,12 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
             const systemReactor = system ? Engine.instance.activeSystemReactors.get(system.uuid) : undefined
             return (
               <>
-                {systemReactor?.error && (
-                  <span style={{ color: 'red' }}>
-                    {systemReactor.error.name}: {systemReactor.error.message}
-                  </span>
-                )}
+                {systemReactor &&
+                  systemReactor.errors.map((error, i) => (
+                    <span key={i} style={{ color: 'red' }}>
+                      {error.name}: {error.message}
+                    </span>
+                  ))}
               </>
             )
           }}

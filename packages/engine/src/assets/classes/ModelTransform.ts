@@ -27,14 +27,6 @@ import { DracoOptions, JoinOptions, PaletteOptions } from '@gltf-transform/funct
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
-export type GLTFPackOptions = {
-  compression?: boolean
-  basisU?: boolean
-  instancing?: boolean
-  mergeNodes?: boolean
-  mergeMaterials?: boolean
-}
-
 export type ResourceID = OpaqueType<'ResourceID'> & string
 
 export type ParameterOverride<T> = OpaqueType<'ParameterOverride'> & {
@@ -131,7 +123,6 @@ export type ModelTransformParameters = ExtractedImageTransformParameters & {
 
   meshoptCompression: {
     enabled: boolean
-    options: GLTFPackOptions
   }
 
   dracoCompression: {
@@ -176,14 +167,7 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
     tolerance: 0.001
   },
   meshoptCompression: {
-    enabled: false,
-    options: {
-      compression: true,
-      basisU: true,
-      instancing: false,
-      mergeNodes: true,
-      mergeMaterials: true
-    }
+    enabled: true
   },
   dracoCompression: {
     enabled: false,
