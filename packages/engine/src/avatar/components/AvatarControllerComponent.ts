@@ -78,6 +78,7 @@ export const AvatarControllerComponent = defineComponent({
 
   captureMovement(capturedEntity: Entity, entity: Entity): void {
     const component = getComponent(capturedEntity, AvatarControllerComponent)
+    if (component.movementCaptured.indexOf(entity) !== -1) return
     component.movementCaptured.push(entity)
   },
 

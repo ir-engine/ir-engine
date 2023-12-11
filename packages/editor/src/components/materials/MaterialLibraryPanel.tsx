@@ -55,5 +55,6 @@ export const MaterialLibraryPanelTab: TabData = {
   id: 'materialLibraryPanel',
   title: <MaterialLibraryPanelTitle />,
   closable: true,
+  cached: true,
   content: <MaterialLibraryPanel />
 }

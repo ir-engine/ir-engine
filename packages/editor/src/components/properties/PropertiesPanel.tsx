@@ -54,6 +54,7 @@ export const PropertiesPanelTitle = () => {
 export const PropertiesPanelTab: TabData = {
   id: 'propertiesPanel',
   closable: true,
+  cached: true,
   title: <PropertiesPanelTitle />,
   content: <PropertiesPanelContainer />
 }
