@@ -95,7 +95,14 @@ const AvatarMenu = () => {
     if (searchTimeoutCancelRef.current) {
       searchTimeoutCancelRef.current()
     }
-    searchTimeoutCancelRef.current = debounce(() => search.query.set(searchString), 1000).cancel
+
+    const debouncedSearchQuery = debounce(() => {
+      search.query.set(searchString)
+    }, 500)
+
+    debouncedSearchQuery()
+
+    searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
   }
 
   useEffect(() => {

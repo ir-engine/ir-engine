@@ -214,7 +214,7 @@ const execute = () => {
   if (keys?.KeyC?.down) onKeyC()
 
   const pointerState = getState(InputState).pointerState
-  const mouseMoved = pointerState.movement.lengthSq() > 0 && keys?.PrimaryClick?.pressed
+  const mouseMoved = keys?.PrimaryClick?.pressed
 
   for (const entity of avatarControllerEntities) {
     if (!inputSource) continue

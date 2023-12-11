@@ -45,6 +45,7 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import isAction from '../../hooks/is-action'
+import { checkRefreshMode } from '../../hooks/is-refresh-mode'
 import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
 import { AvatarService } from './avatar.class'
@@ -193,6 +194,19 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
   }
 }
 
+/**
+ * Hook used to check if request has any public avatar in data.
+ */
+const isPublicAvatar = () => {
+  return (context: HookContext) => {
+    const data: AvatarType[] = Array.isArray(context.data) ? context.data : [context.data]
+
+    const hasPublic = data.find((item) => item.isPublic)
+
+    return !!hasPublic
+  }
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveExternal(avatarExternalResolver), schemaHooks.resolveResult(avatarResolver)]
@@ -209,6 +223,7 @@ export default {
     ],
     get: [persistQuery, discardQuery('skipUser')],
     create: [
+      iff(isProvider('external') && !checkRefreshMode() && isPublicAvatar(), verifyScope('globalAvatars', 'write')),
       () => schemaHooks.validateData(avatarDataValidator),
       schemaHooks.resolveData(avatarDataResolver),
       setLoggedInUser('userId')
