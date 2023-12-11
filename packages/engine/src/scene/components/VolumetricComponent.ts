@@ -193,8 +193,7 @@ export function VolumetricReactor() {
     let nextTrack = getNextTrack(volumetric.track.value, pathCount, volumetric.playMode.value)
     const ACCEPTED_TYPES = ['manifest', 'drcs', 'mp4', 'json']
 
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
+    for (let i = 0; i <= pathCount; i++) {
       const path = volumetric.paths.value[nextTrack]
       const extension = path ? path.split('.').pop() : ''
       if (path && extension && ACCEPTED_TYPES.includes(extension)) {
@@ -208,6 +207,7 @@ export function VolumetricReactor() {
         if (nextTrack === -1) return
       }
     }
+    if (nextTrack === -1 || !volumetric.paths.value[nextTrack]) return
 
     const resetTrack = () => {
       // Overwriting with setComponent doesn't cleanup the component
