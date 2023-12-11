@@ -100,9 +100,9 @@ const execute = () => {
   const xrFrame = getState(XRState).xrFrame
   if (!xrFrame) return
 
-  if (!xrLightProbeState.probe) return console.warn('No light probe available')
+  if (!xrLightProbeState.probe) return
 
-  if (!('getLightEstimate' in xrFrame)) return console.warn('getLightEstimate not available in XRFrame')
+  if (!('getLightEstimate' in xrFrame)) return
 
   const lightEstimate = xrFrame.getLightEstimate!(xrLightProbeState.probe)
   if (lightEstimate) {
@@ -158,7 +158,7 @@ const reactor = () => {
     if (!session) return
 
     const lightingSupported = 'requestLightProbe' in session
-    if (!lightingSupported) return
+    if (!lightingSupported) return console.warn('No light probe available')
 
     session
       .requestLightProbe({
