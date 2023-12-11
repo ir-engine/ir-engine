@@ -32,6 +32,7 @@ import { AvatarAnimationComponent } from '@etherealengine/engine/src/avatar/comp
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 
 export const validate = (obj: Object3D, renderer: WebGLRenderer, scene: Scene, camera: Camera) => {
   const objBoundingBox = new Box3().setFromObject(obj)
@@ -77,38 +78,12 @@ export const resetAnimationLogic = (entity: Entity) => {
   setComponent(entity, VisibleComponent, true)
 }
 
-/**These have to be refactored */
-export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
-  //const loaded = (await loadAvatarModelAsset(avatarURL)) as any
-  //if (!loaded) return
-  //let scene = undefined! as Object3D
-  //if (loaded.scene) scene = loaded.scene
-  //else scene = loaded
-  //
-  ////setupAvatarModel(entity)(loaded)
-  //removeGroupComponent(entity)
-  //
-  //if (scene) addObjectToGroup(entity, scene)
-  //scene.traverse((obj: Object3D) => {
-  //  obj.layers.set(ObjectLayers.Panel)
-  //})
-  //scene.removeFromParent()
-  //
-  //// face the camera
-  //scene.rotateY(Math.PI)
-  //
-  //return scene
-}
-
-export const loadModelForPreview = async (entity: Entity, avatarURL: string) => {
-  //const avatar = loadAvatarModelAsset(entity, avatarURL)
-  //const parent = avatar?.scene
-  //if (!parent) return
-  //removeGroupComponent(entity)
-  //addObjectToGroup(entity, parent)
-  //parent.traverse((obj: Object3D) => {
-  //  obj.layers.set(ObjectLayers.Panel)
-  //})
-  //parent.removeFromParent()
-  //return parent
+export const setupSceneForPreview = (avatar) => {
+  let avatarScene = undefined! as Object3D
+  if (avatar.scene) avatarScene = avatar.scene
+  else avatarScene = avatar
+  avatarScene.traverse((obj: Object3D) => {
+    obj.layers.set(ObjectLayers.Panel)
+  })
+  return avatarScene
 }
