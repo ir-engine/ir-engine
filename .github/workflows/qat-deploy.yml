@@ -1,8 +1,6 @@
 name: qat-deploy
 on:
-  push:
-    branches:
-      [qat]
+  workflow_dispatch
 jobs:
   secrets-gate-run:
     runs-on: ubuntu-latest
