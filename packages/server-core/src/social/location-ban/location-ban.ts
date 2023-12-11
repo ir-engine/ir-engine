@@ -60,7 +60,7 @@ export default (app: Application): void => {
   const service = app.service(locationBanPath)
   service.hooks(hooks)
 
-  service.publish('created', async (data: LocationBanType, params) => {
+  service.publish('created', async (data: LocationBanType) => {
     try {
       return Promise.all([app.channel(`userIds/${data.userId}`).send({ locationBan: data })])
     } catch (err) {
