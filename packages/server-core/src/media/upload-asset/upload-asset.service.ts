@@ -177,15 +177,14 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
   if (typeof data.args === 'string') data.args = JSON.parse(data.args)
   const files = params.files
   if (data.type === 'user-avatar-upload') {
-    return await uploadAvatarStaticResource(
-      app,
-      {
-        avatar: files[0].buffer as Buffer,
-        thumbnail: files[1].buffer as Buffer,
-        ...(data.args as AvatarUploadArgsType)
-      },
-      params
-    )
+    const callData = {
+      avatar: files[0].buffer as Buffer,
+      thumbnail: files[1].buffer as Buffer,
+      ...(data.args as AvatarUploadArgsType)
+    } as any
+    if (data.path) callData.path = data.path
+
+    return await uploadAvatarStaticResource(app, callData, params)
   } else if (data.type === 'admin-file-upload') {
     if (!(await verifyScope('admin', 'admin')({ app, params } as any))) throw new Error('Unauthorized')
 
@@ -304,8 +303,8 @@ export default (app: Application): void => {
         before: [
           multipartMiddleware.any(),
           async (ctx, next) => {
-            const files = ctx.request.files
             if (ctx?.feathers && ctx.method !== 'GET') {
+              ctx.feathers.headers = ctx.headers
               ;(ctx as any).feathers.files = (ctx as any).request.files.media
                 ? (ctx as any).request.files.media
                 : ctx.request.files

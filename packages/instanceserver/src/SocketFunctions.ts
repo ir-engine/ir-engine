@@ -58,7 +58,6 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
   const network = getServerNetwork(app)
 
   const onAuthenticationRequest = async (data) => {
-    console.log(data)
     const peerID = data.peerID
 
     if (authTask) return
@@ -90,7 +89,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
         {}
       )
       userId = authResult[identityProviderPath].userId as UserID
-      user = await app.service(userPath).get(userId)
+      user = await app.service(userPath).get(userId, { headers: spark.headers })
 
       if (!user) {
         authTask.status = 'fail'

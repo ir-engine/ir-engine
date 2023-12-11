@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
@@ -314,7 +314,7 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
-    find: [sortByLocationSetting],
+    find: [discardQuery('action'), sortByLocationSetting],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('location', 'write')),

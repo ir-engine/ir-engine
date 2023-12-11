@@ -57,7 +57,7 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
    *
    * @param toEmail email of reciever
    * @param token generated token
-   * @returns {@function} sent email
+   * @returns {function} sent email
    */
   async sendEmail(toEmail: string, token: string): Promise<void> {
     const hashLink = `${config.server.url}/login/${token}`
@@ -88,7 +88,7 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
    *
    * @param mobile of receiver user
    * @param token generated token
-   * @returns {@function}  send sms
+   * @returns {function}  send sms
    */
 
   async sendSms(mobile: string, token: string): Promise<void> {

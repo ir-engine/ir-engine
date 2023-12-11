@@ -89,7 +89,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const endTime = useHookstate<Date>(new Date())
 
   const adminInstances = useFind(instancePath).data
-  const adminLocations = useFind(locationPath).data
+  const adminLocations = useFind(locationPath, { query: { action: 'admin' } }).data
   const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
 
   const adminSceneState = useHookstate(getMutableState(AdminSceneState))

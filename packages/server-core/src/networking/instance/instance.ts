@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
+import { Application, HookContext } from '../../../declarations'
 
 import {
   instanceMethods,
@@ -70,14 +70,15 @@ export default (app: Application): void => {
    * @param data
    * @returns deleted channel
    */
-  service.publish('removed', async (data): Promise<any> => {
+  service.publish('removed', async (data, context: HookContext): Promise<any> => {
     try {
       const adminScopes = (await app.service(scopePath).find({
         query: {
           type: 'admin:admin' as ScopeType
         },
+        headers: context.params.headers,
         paginate: false
-      })) as ScopeTypeInterface[]
+      })) as unknown as ScopeTypeInterface[]
 
       const targetIds = adminScopes.map((admin) => admin.userId)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
