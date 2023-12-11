@@ -39,8 +39,8 @@ import {
   SystemDefinitions,
   SystemUUID,
   defineSystem,
-  disableSystem,
-  startSystem
+  destroySystem,
+  executeSystem
 } from '../../../../../ecs/functions/SystemFunctions'
 import { NodetoEnginetype } from './commonHelper'
 
@@ -176,6 +176,7 @@ export function getActionConsumers() {
         queue() // flush the queue
         const systemUUID = defineSystem({
           uuid: `behave-graph-onAction-${dispatchName}` + systemCounter++,
+          insert: { with: system },
           execute: () => {
             const currQueue = queue()
             if (currQueue.length === 0) return
@@ -190,7 +191,7 @@ export function getActionConsumers() {
             queue() // clear the queue
           }
         })
-        startSystem(systemUUID, { with: system })
+        executeSystem(systemUUID)
         const state: State = {
           queue,
           systemUUID
@@ -199,7 +200,7 @@ export function getActionConsumers() {
         return state
       },
       dispose: ({ state: { queue, systemUUID }, graph: { getDependency } }) => {
-        disableSystem(systemUUID)
+        destroySystem(systemUUID)
         removeActionQueue(queue)
         return initialState()
       }

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Choices, NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
 import { Query, defineQuery, getComponent, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
 import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
+import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
 import { StandardGamepadAxes, XRStandardGamepadAxes } from '../../../../../input/state/ButtonState'
 
@@ -79,6 +79,7 @@ export const OnAxis = makeEventNodeDefinition({
     const query = defineQuery([InputSourceComponent])
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onAxis-' + systemCounter++,
+      insert: { with: InputSystemGroup },
       execute: () => {
         for (const eid of query()) {
           const inputSource = getComponent(eid, InputSourceComponent)
@@ -92,8 +93,6 @@ export const OnAxis = makeEventNodeDefinition({
       }
     })
 
-    startSystem(systemUUID, { with: InputSystemGroup })
-
     const state: State = {
       query,
       systemUUID
@@ -102,7 +101,7 @@ export const OnAxis = makeEventNodeDefinition({
     return state
   },
   dispose: ({ state: { query, systemUUID }, graph: { getDependency } }) => {
-    disableSystem(systemUUID)
+    destroySystem(systemUUID)
     removeQuery(query)
     return initialState()
   }

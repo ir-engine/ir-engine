@@ -29,8 +29,7 @@ import {
   SystemDefinitions,
   SystemUUID,
   defineSystem,
-  disableSystem,
-  startSystem
+  destroySystem
 } from '../../../../../ecs/functions/SystemFunctions'
 
 let systemCounter = 0
@@ -70,11 +69,12 @@ export const OnExecute = makeEventNodeDefinition({
 
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onExecute-' + systemCounter++,
+      insert: { with: system },
       execute: () => {
         commit('flow')
       }
     })
-    startSystem(systemUUID, { with: system })
+
     const state: State = {
       systemUUID
     }
@@ -82,7 +82,7 @@ export const OnExecute = makeEventNodeDefinition({
     return state
   },
   dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
-    disableSystem(systemUUID)
+    destroySystem(systemUUID)
     return initialState()
   }
 })
