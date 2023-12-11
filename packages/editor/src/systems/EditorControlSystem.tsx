@@ -46,6 +46,7 @@ import { SceneObjectComponent } from '@etherealengine/engine/src/scene/component
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
@@ -73,6 +74,7 @@ const isMacOS = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
 let lastZoom = 0
 let selectedEntities: Entity[]
 let dragging = false
+let primaryClickAccum = 0
 
 const onKeyQ = () => {
   /*const nodes = getState(SelectionState).selectedEntities
@@ -225,6 +227,7 @@ const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
 const execute = () => {
   if (Engine.instance.localClientEntity) return // we are in live mode
+  const deltaSeconds = getState(EngineState).deltaSeconds
 
   const editorHelperState = getState(EditorHelperState)
   const selectionState = getMutableState(SelectionState)
@@ -278,6 +281,18 @@ const execute = () => {
     }
   } else if (zoom) {
     throttleZoom(zoom)
+  }
+  if (primaryClickAccum <= 0.2) {
+    if (buttons.PrimaryClick?.up && inputSource.assignedButtonEntity) {
+      const clickedEntity = inputSource.assignedButtonEntity
+      SelectionState.updateSelection([clickedEntity])
+    }
+  }
+  if (buttons.PrimaryClick?.pressed) {
+    primaryClickAccum += deltaSeconds
+  }
+  if (buttons.PrimaryClick?.up) {
+    primaryClickAccum = 0
   }
 }
 

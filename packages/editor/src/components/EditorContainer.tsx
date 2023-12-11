@@ -41,10 +41,11 @@ import Dialog from '@mui/material/Dialog'
 import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { t } from 'i18next'
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
-import { onNewScene, saveScene } from '../functions/sceneFunctions'
+import { onNewScene, saveScene, setSceneInState } from '../functions/sceneFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
@@ -188,13 +189,16 @@ const onSaveAs = async () => {
           />
         )
       })
+      DialogState.setDialog(null)
       if (result?.name && projectName) {
         await saveScene(projectName, result.name, file, abortController.signal)
         editorState.sceneModified.set(false)
-        editorState.sceneName.set(result.name)
+        const newSceneData = await Engine.instance.api
+          .service(scenePath)
+          .get(null, { query: { project: projectName, name: result.name, metadataOnly: true } })
+        setSceneInState(newSceneData.scenePath)
       }
     }
-    DialogState.setDialog(null)
   } catch (error) {
     logger.error(error)
     DialogState.setDialog(
@@ -349,7 +353,7 @@ const defaultLayout: LayoutData = {
   }
 }
 
-const panels = [
+const tabs = [
   HierarchyPanelTab,
   PropertiesPanelTab,
   GraphPanelTab,
@@ -374,13 +378,13 @@ const EditorContainer = () => {
   const dialogComponent = useHookstate(getMutableState(DialogState).dialog).value
   const dockPanelRef = useRef<DockLayout>(null)
 
-  const panelMenu = panels.map((panel) => {
+  const panelMenu = tabs.map((tab) => {
     return {
-      name: panel.title,
+      name: tab.title,
       action: () => {
         const currentLayout = dockPanelRef?.current?.getLayout()
         if (!currentLayout) return
-        if (dockPanelRef.current!.find(panel.id!)) {
+        if (dockPanelRef.current!.find(tab.id!)) {
           return
         }
         //todo: add support for multiple instances of a panel type
@@ -395,8 +399,9 @@ const EditorContainer = () => {
         //   }
         // }
         // panel.id = panelId
-        const firstPanel = currentLayout.dockbox.children[0] as PanelData
-        firstPanel.tabs.push(panel)
+        const targetId = tab.parent!.id! ?? currentLayout.dockbox.children[0].id
+        const targetPanel = dockPanelRef.current!.find(targetId) as PanelData
+        targetPanel.tabs.push(tab)
         dockPanelRef?.current?.loadLayout(currentLayout)
       }
     }
