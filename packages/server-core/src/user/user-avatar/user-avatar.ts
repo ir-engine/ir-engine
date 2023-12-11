@@ -76,7 +76,7 @@ export default (app: Application): void => {
    * This method find all users
    * @returns users
    */
-  service.publish('patched', async (data: UserAvatarType, context) => {
+  service.publish('patched', async (data: UserAvatarType) => {
     try {
       const userId = data.userId
 

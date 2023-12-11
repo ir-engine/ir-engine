@@ -135,6 +135,7 @@ export const InputSourceComponent = defineComponent({
     })
   },
 
+  /** @deprecated */
   nonCapturedInputSourceQuery: () => {
     return nonCapturedInputSourceQuery()
   },

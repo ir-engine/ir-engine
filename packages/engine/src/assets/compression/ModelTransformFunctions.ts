@@ -673,8 +673,21 @@ export async function transformModel(args: ModelTransformParameters) {
   }
   let result
   if (parms.modelFormat === 'glb') {
-    const data = Buffer.from(await io.writeBinary(document))
-    const [projectName, fileName] = fileUploadPath(args.dst)
+    const doUpload = (buffer, uri) => {
+      const [projectName, fileName] = fileUploadPath(uri)
+      const file = new File([buffer], fileName)
+      const uploadRequestState = getMutableState(UploadRequestState)
+      const queue = uploadRequestState.queue.get(NO_PROXY)
+      uploadRequestState.queue.set([...queue, { file, projectName }])
+    }
+
+    const data = await io.writeBinary(document)
+    let finalPath = args.dst.replace(/\.gltf$/, '.glb')
+    if (!finalPath.endsWith('.glb')) {
+      finalPath += '.glb'
+    }
+    doUpload(data, finalPath)
+
     /*
     const uploadArgs = {
       path: savePath,

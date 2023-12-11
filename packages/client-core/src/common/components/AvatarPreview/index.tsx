@@ -88,7 +88,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
 
     const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
     if (avatarRigComponent) {
-      avatarRigComponent.rig.head.node.getWorldPosition(camera.value.position)
+      avatarRigComponent.normalizedRig.head.node.getWorldPosition(camera.value.position)
       camera.value.position.y += 0.2
       camera.value.position.z = 0.6
     }

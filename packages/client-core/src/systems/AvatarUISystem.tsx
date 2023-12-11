@@ -157,14 +157,12 @@ const execute = () => {
   const engineState = getState(EngineState)
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  if (!nonCapturedInputSource) return
-
-  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
-
-  const keys = inputSource.buttons
-
-  if (keys.PrimaryClick?.down) onPrimaryClick()
-  if (keys.SecondaryClick?.down) onSecondaryClick()
+  if (nonCapturedInputSource) {
+    const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+    const keys = inputSource.buttons
+    if (keys.PrimaryClick?.down) onPrimaryClick()
+    if (keys.SecondaryClick?.down) onSecondaryClick()
+  }
 
   videoPreviewTimer += engineState.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0
@@ -227,39 +225,41 @@ const execute = () => {
         const peer = peers.find((peer) => {
           return peer.userId === ownerId
         })
-        const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-          mediaNetwork.id,
-          peer!.peerID,
-          webcamVideoDataChannelType
-        ) as any
-        const active = !consumer?.paused
-        if (videoPreviewMesh.material.map) {
-          if (!active) {
-            videoPreviewMesh.material.map = null!
-            videoPreviewMesh.visible = false
-          }
-        } else {
-          if (active && !applyingVideo.has(ownerId)) {
-            applyingVideo.set(ownerId, true)
-            const track = (consumer as any).track
-            const newVideoTrack = track.clone()
-            const newVideo = document.createElement('video')
-            newVideo.autoplay = true
-            newVideo.id = `${ownerId}_video_immersive`
-            newVideo.muted = true
-            newVideo.setAttribute('playsinline', 'true')
-            newVideo.srcObject = new MediaStream([newVideoTrack])
-            newVideo.play()
-            if (!newVideo.readyState) {
-              newVideo.onloadeddata = () => {
+        if (peer) {
+          const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
+            mediaNetwork.id,
+            peer.peerID,
+            webcamVideoDataChannelType
+          ) as any
+          const active = !consumer?.paused
+          if (videoPreviewMesh.material.map) {
+            if (!active) {
+              videoPreviewMesh.material.map = null!
+              videoPreviewMesh.visible = false
+            }
+          } else {
+            if (active && !applyingVideo.has(ownerId)) {
+              applyingVideo.set(ownerId, true)
+              const track = (consumer as any).track
+              const newVideoTrack = track.clone()
+              const newVideo = document.createElement('video')
+              newVideo.autoplay = true
+              newVideo.id = `${ownerId}_video_immersive`
+              newVideo.muted = true
+              newVideo.setAttribute('playsinline', 'true')
+              newVideo.srcObject = new MediaStream([newVideoTrack])
+              newVideo.play()
+              if (!newVideo.readyState) {
+                newVideo.onloadeddata = () => {
+                  applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
+                  videoPreviewMesh.visible = true
+                  applyingVideo.delete(ownerId)
+                }
+              } else {
                 applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
                 videoPreviewMesh.visible = true
                 applyingVideo.delete(ownerId)
               }
-            } else {
-              applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
-              videoPreviewMesh.visible = true
-              applyingVideo.delete(ownerId)
             }
           }
         }
