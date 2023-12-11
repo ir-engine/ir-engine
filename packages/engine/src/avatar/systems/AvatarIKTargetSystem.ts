@@ -49,7 +49,8 @@ const execute = () => {
       continue
     }
     setComponent(entity, NameComponent, action.$from + '_' + action.name)
-    setComponent(entity, AvatarIKTargetComponent, { blendWeight: action.blendWeight })
+    setComponent(entity, AvatarIKTargetComponent)
+    AvatarIKTargetComponent.blendWeight[entity] = action.blendWeight
 
     const helper = new AxesHelper(0.5)
     setObjectLayers(helper, ObjectLayers.Gizmos)

@@ -178,7 +178,10 @@ export const retargetAvatarAnimations = (entity: Entity) => {
         retargetMixamoAnimation(cloneDeep(animation), manager.loadedAnimations[key].scene, rigComponent.vrm)
       )
   }
-  setComponent(entity, AnimationComponent, { animations, mixer: new AnimationMixer(rigComponent.localRig.hips.node) })
+  setComponent(entity, AnimationComponent, {
+    animations,
+    mixer: new AnimationMixer(rigComponent.normalizedRig.hips.node)
+  })
 }
 
 export const loadLocomotionAnimations = () => {
@@ -226,16 +229,14 @@ export const setAvatarSpeedFromRootMotion = () => {
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-  const rig = model.humanoid?.normalizedHumanBones
-
   const skinnedMeshes = findSkinnedMeshes(model.scene)
   const hips = recursiveHipsLookup(model.scene)
 
   const targetBones = getAllBones(hips)
 
   setComponent(entity, AvatarRigComponent, {
-    rig,
-    localRig: cloneDeep(rig), //cloneDeep(sourceRig),
+    normalizedRig: model.humanoid.normalizedHumanBones,
+    rawRig: model.humanoid.rawHumanBones,
     targetBones,
     skinnedMeshes
   })
@@ -311,8 +312,8 @@ export function makeSkinnedMeshFromBoneData(bonesData) {
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
   const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
-  if (!avatarRigComponent || !avatarRigComponent.rig) return false
-  const bone = avatarRigComponent.rig[boneName] as VRMHumanBone
+  if (!avatarRigComponent || !avatarRigComponent.normalizedRig) return false
+  const bone = avatarRigComponent.normalizedRig[boneName] as VRMHumanBone
   if (!bone) return false
   const el = bone.node.matrixWorld.elements
   position.set(el[12], el[13], el[14])
