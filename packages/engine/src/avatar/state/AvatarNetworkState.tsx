@@ -131,7 +131,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
   }, [entityUUID])
 
   useEffect(() => {
-    if (!state.avatarID.value) return
+    if (!isClient || !state.avatarID.value) return
 
     let aborted = false
 

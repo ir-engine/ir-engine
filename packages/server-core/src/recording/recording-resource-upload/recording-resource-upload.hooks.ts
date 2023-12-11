@@ -23,8 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import RecordingResourceUpload from './recording-resource-upload/recording-resource-upload'
-import RecordingResource from './recording-resource/recording-resource'
-import Recording from './recording/recording'
+import { disallow } from 'feathers-hooks-common'
+import { SYNC } from 'feathers-sync'
 
-export default [Recording, RecordingResource, RecordingResourceUpload]
+export default {
+  before: {
+    all: [],
+    find: [disallow()],
+    get: [disallow()],
+    create: [
+      disallow('external'),
+      (context) => {
+        context[SYNC] = false
+        return context
+      }
+    ],
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
+  },
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  }
+} as any

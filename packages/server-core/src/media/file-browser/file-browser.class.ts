@@ -54,8 +54,11 @@ export interface FileBrowserParams extends KnexAdapterParams {
 }
 
 const checkDirectoryInsideNesting = (directory: string, nestingDirectory?: string) => {
-  if (!nestingDirectory) nestingDirectory = 'projects'
-  const isInsideNestingDirectoryRegex = new RegExp(`(${nestingDirectory})(/).+`, 'g')
+  if (!nestingDirectory) {
+    if (/recordings/.test(directory)) nestingDirectory = 'recordings'
+    else nestingDirectory = 'projects'
+  }
+  const isInsideNestingDirectoryRegex = new RegExp(`^\/?(${nestingDirectory})`, 'g')
 
   if (!isInsideNestingDirectoryRegex.test(directory)) {
     throw new Error(`Not allowed to access "${directory}"`)
@@ -243,6 +246,7 @@ export class FileBrowserService
       await this.app.service(staticResourcePath).patch(
         resource.id,
         {
+          key,
           url
         },
         { isInternal: true }
