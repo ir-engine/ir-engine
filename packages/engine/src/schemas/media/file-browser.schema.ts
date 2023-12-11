@@ -50,6 +50,8 @@ export const fileBrowserUpdateSchema = Type.Object(
     newName: Type.String(),
     oldPath: Type.String(),
     newPath: Type.String(),
+    oldNamePath: Type.String(),
+    newNamePath: Type.String(),
     isCopy: Type.Optional(Type.Boolean()),
     storageProviderName: Type.Optional(Type.String())
   },

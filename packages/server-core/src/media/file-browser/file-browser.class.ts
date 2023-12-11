@@ -185,8 +185,13 @@ export class FileBrowserService
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
 
-    const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
-    const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
+    let oldNamePath = data.oldNamePath
+    let newNamePath = data.newNamePath
+
+    if (!oldNamePath && !newNamePath) {
+      oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
+      newNamePath = path.join(projectsRootFolder, _newPath, fileName)
+    }
 
     await Promise.all([
       storageProvider.createInvalidation([oldNamePath]),
