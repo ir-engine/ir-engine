@@ -30,7 +30,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
@@ -58,7 +57,6 @@ const AppPage = ({ route }: { route: string }) => {
   const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
   const selfUser = authState.user
   const [projectComponents, setProjectComponents] = useState<Array<any> | null>(null)
-  const projectState = useHookstate(getMutableState(ProjectState))
   const notificationstate = useHookstate(getMutableState(NotificationState))
   const { t } = useTranslation()
 
@@ -80,10 +78,6 @@ const AppPage = ({ route }: { route: string }) => {
       setProjectComponents(result)
     })
   }, [isLoggedIn])
-
-  useEffect(() => {
-    if (selfUser?.id.value && projectState.updateNeeded.value) ProjectService.fetchProjects()
-  }, [selfUser?.id, projectState.updateNeeded])
 
   useEffect(() => {
     Engine.instance.userID = selfUser.id.value
