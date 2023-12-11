@@ -59,6 +59,7 @@ import { createEntity, entityExists, removeEntity, useEntityContext } from '../.
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { QueryReactor, defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -133,14 +134,14 @@ const NetworkedSceneObjectReactor = () => {
       if (hasComponent(entity, GLTFLoadedComponent)) return
       const uuid = getComponent(entity, UUIDComponent)
       const transform = getComponent(entity, TransformComponent)
-      // dispatchAction(
-      //   WorldNetworkAction.spawnObject({
-      //     entityUUID: uuid,
-      //     prefab: '',
-      //     position: transform.position.clone(),
-      //     rotation: transform.rotation.clone()
-      //   })
-      // )
+      dispatchAction(
+        WorldNetworkAction.spawnObject({
+          entityUUID: uuid,
+          prefab: '',
+          position: transform.position.clone(),
+          rotation: transform.rotation.clone()
+        })
+      )
       loaded.set(true)
     }
   }, [worldNetwork])
