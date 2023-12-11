@@ -76,7 +76,7 @@ const CreateBot = () => {
   const instanceQuery = useFind(instancePath)
   const instanceData = instanceQuery.data
 
-  const locationQuery = useFind(locationPath)
+  const locationQuery = useFind(locationPath, { query: { action: 'admin' } })
   const locationData = locationQuery.data
 
   const createBotData = useMutation(botPath).create

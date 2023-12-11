@@ -35,7 +35,7 @@ import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/Enti
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
-import { SceneDataType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneDataType, SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { EditorState } from '../services/EditorServices'
 
@@ -145,11 +145,11 @@ export const saveScene = async (
   }
 }
 
-export const setSceneInState = async (newSceneName: string) => {
-  const { projectName, sceneName } = getState(EditorState)
-  if (sceneName === newSceneName) return
-  if (!projectName || !newSceneName) return
-  getMutableState(EditorState).sceneName.set(newSceneName)
+export const setSceneInState = async (newSceneName: SceneID) => {
+  const { sceneID } = getState(EditorState)
+  if (sceneID === newSceneName) return
+  if (!newSceneName) return
+  getMutableState(EditorState).sceneID.set(newSceneName)
 }
 
 export const onNewScene = async () => {
@@ -160,7 +160,7 @@ export const onNewScene = async () => {
     const sceneData = await createNewScene(projectName)
     if (!sceneData) return
 
-    setSceneInState(sceneData.name)
+    setSceneInState(sceneData.scenePath)
   } catch (error) {
     logger.error(error)
   }

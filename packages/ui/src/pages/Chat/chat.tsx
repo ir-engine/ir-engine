@@ -33,16 +33,13 @@ import './index.css'
 
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import '@etherealengine/engine/src/EngineModule'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 export const initializeEngineForChat = async () => {
-  const projects = Engine.instance.api.service(projectsPath).find()
-  await loadEngineInjection(await projects)
+  await loadEngineInjection()
   dispatchAction(EngineActions.sceneLoaded({}))
 }
 

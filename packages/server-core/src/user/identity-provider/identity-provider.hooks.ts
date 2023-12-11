@@ -147,14 +147,14 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
 
 async function createNewUser(context: HookContext<IdentityProviderService>) {
   const isGuest = (context.actualData as IdentityProviderType).type === 'guest'
-  const avatars = await context.app.service(avatarPath).find({ isInternal: true, query: { $limit: 1000 } })
+  const avatars = await context.app
+    .service(avatarPath)
+    .find({ isInternal: true, query: { isPublic: true, skipUser: true, $limit: 1000 } })
 
-  const newUser = await context.app.service(userPath).create({
+  context.existingUser = await context.app.service(userPath).create({
     isGuest,
     avatarId: avatars.data[random(avatars.data.length - 1)].id
   })
-
-  context.existingUser = newUser
 }
 
 /* (AFTER) CREATE HOOKS */

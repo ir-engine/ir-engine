@@ -60,6 +60,7 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { QueryReactor, defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -76,6 +77,8 @@ const reactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
+
+  const physicsWorld = useHookstate(getMutableState(PhysicsState).physicsWorld)
 
   useEffect(() => {
     if (!getState(EngineState).sceneLoading) return
@@ -96,6 +99,8 @@ const reactor = () => {
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }
   }, [sceneAssetPendingTagQuery.length, assetLoadingState])
+
+  if (!physicsWorld.value) return null
 
   return (
     <>
@@ -312,7 +317,7 @@ const EntityChildLoadReactor = (props: {
     })
     setComponent(entity, SourceComponent, props.sceneID)
     return () => {
-      entityExists(entity) && removeEntity(entity)
+      removeEntity(entity)
     }
   }, [dynamicParentState?.loaded, parentLoaded])
 

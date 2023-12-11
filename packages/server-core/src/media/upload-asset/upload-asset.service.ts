@@ -306,6 +306,7 @@ export default (app: Application): void => {
           async (ctx, next) => {
             const files = ctx.request.files
             if (ctx?.feathers && ctx.method !== 'GET') {
+              ctx.feathers.headers = ctx.headers
               ;(ctx as any).feathers.files = (ctx as any).request.files.media
                 ? (ctx as any).request.files.media
                 : ctx.request.files

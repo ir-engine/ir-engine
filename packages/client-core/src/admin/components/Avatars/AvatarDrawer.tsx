@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import InputFile from '@etherealengine/client-core/src/common/components/InputFile'
 import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import { getCanvasBlob, isValidHttpUrl } from '@etherealengine/client-core/src/common/utils'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
@@ -43,8 +42,6 @@ import {
   THUMBNAIL_WIDTH
 } from '@etherealengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -55,12 +52,10 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import FormControl from '@etherealengine/ui/src/primitives/mui/FormControl'
 import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import AvatarPreview from '../../../common/components/AvatarPreview'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { loadAvatarForPreview, resetAnimationLogic } from '../../../user/components/Panel3D/helperFunctions'
-import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
 import { AvatarService } from '../../../user/services/AvatarService'
 import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'
@@ -102,17 +97,14 @@ const defaultState = {
 
 const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => {
   const { t } = useTranslation()
-  const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
   const avatarLoading = useHookstate(false)
   const showConfirm = useHookstate(ConfirmState.None)
-
-  const renderPanel = useRender3DPanelSystem(panelRef)
-  const { entity, camera, scene, renderer } = renderPanel.state
+  const avatarSrc = useHookstate('')
 
   const hasWriteAccess = userHasAccess('static_resource:write')
-  const viewMode = mode === AvatarDrawerMode.ViewEdit && !editMode
+  const viewMode = mode === AvatarDrawerMode.ViewEdit && !editMode.value
 
   let thumbnailSrc = ''
   if (state.source.value === 'file' && state.thumbnailFile.value) {
@@ -165,22 +157,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       }
     }
 
-    if (url) {
-      avatarLoading.set(true)
-      resetAnimationLogic(entity.value)
-      const avatar = await loadAvatarForPreview(entity.value, url)
-      const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
-      if (avatarRigComponent) {
-        avatarRigComponent.rig.head.node.getWorldPosition(camera.value.position)
-        camera.value.position.y += 0.2
-        camera.value.position.z = 0.6
-      }
-      avatarLoading.set(false)
-      if (avatar) {
-        avatar.name = 'avatar'
-        scene.value.add(avatar)
-      }
-    }
+    avatarSrc.set(url)
   }
 
   const handleCancel = () => {
@@ -210,6 +187,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
               })
             : ''
         })
+        state.avatarFile.set(files[0])
         break
       }
       case 'thumbnailFile': {
@@ -222,6 +200,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
               })
             : ''
         })
+        state.thumbnailUrl.set(files[0].name)
         break
       }
     }
@@ -337,8 +316,10 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     canvas.width = THUMBNAIL_WIDTH
     canvas.height = THUMBNAIL_HEIGHT
 
+    const avatarCanvas = document.getElementById('stage')?.firstChild as CanvasImageSource
+
     const newContext = canvas.getContext('2d')
-    newContext?.drawImage(renderer.value.domElement, 0, 0, canvas.width, canvas.height)
+    newContext?.drawImage(avatarCanvas, 0, 0, canvas.width, canvas.height)
 
     const blob = await getCanvasBlob(canvas)
     if (isFile) {
@@ -418,74 +399,11 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         />
       )}
 
-      {editMode.value && (
-        <Box
-          className={styles.preview}
-          style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px', position: 'relative' }}
-        >
-          <div ref={panelRef} id="stage" style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px' }} />
-
-          {avatarLoading.value && (
-            <LoadingView
-              title={t('admin:components.avatar.loading')}
-              variant="body2"
-              sx={{ position: 'absolute', top: 0 }}
-            />
-          )}
-
-          {((state.source.value === 'file' && !state.avatarFile.value) ||
-            (state.source.value === 'url' && !state.avatarUrl.value)) && (
-            <Typography
-              sx={{
-                position: 'absolute',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100%',
-                width: '100%',
-                fontSize: 14,
-                top: 0
-              }}
-            >
-              {t('admin:components.avatar.avatarPreview')}
-            </Typography>
-          )}
-
-          <Tooltip
-            arrow
-            title={
-              <Box sx={{ width: 100 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                  {t('user:avatar.rotate')}:
-                </Typography>
-                <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
-                  {t('admin:components.avatar.leftClick')}
-                  <Icon type="Mouse" fontSize="small" />
-                </Typography>
-
-                <br />
-
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                  {t('user:avatar.pan')}:
-                </Typography>
-                <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
-                  {t('admin:components.avatar.rightClick')} <Icon type="Mouse" fontSize="small" />
-                </Typography>
-
-                <br />
-
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                  {t('admin:components.avatar.zoom')}:
-                </Typography>
-                <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
-                  {t('admin:components.avatar.scroll')} <Icon type="Mouse" fontSize="small" />
-                </Typography>
-              </Box>
-            }
-          >
-            <Icon type="Help" sx={{ position: 'absolute', top: 0, right: 0, margin: 1 }} />
-          </Tooltip>
-        </Box>
+      {!viewMode && (
+        <AvatarPreview
+          avatarUrl={avatarSrc.value}
+          sx={{ width: `${THUMBNAIL_WIDTH}px`, height: `${THUMBNAIL_HEIGHT}px`, m: 'auto' }}
+        />
       )}
 
       {state.source.value === 'file' && (
@@ -524,10 +442,10 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       )}
 
       {state.source.value === 'url' && (
-        <Box sx={{ display: 'flex', alignItems: 'self-end' }}>
+        <Box sx={{ display: 'flex', justifyItems: 'self-end', flexDirection: 'column' }}>
           <InputText
             name="thumbnailUrl"
-            sx={{ mt: 2, mb: 1, flex: 1 }}
+            sx={{ mt: 2, mb: 1, flex: 1, width: '100%' }}
             label={t('admin:components.avatar.thumbnailUrl')}
             value={state.thumbnailUrl.value}
             error={state.formErrors.thumbnailUrl.value}
@@ -539,7 +457,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
             <Button
               className={styles.gradientButton}
               startIcon={<Icon type="Portrait" />}
-              sx={{ marginLeft: 1, width: '250px' }}
+              sx={{ width: '250px' }}
               title={t('admin:components.avatar.saveThumbnailTooltip')}
               disabled={viewMode || !state.avatarUrl.value || avatarLoading.value}
               onClick={handleGenerateUrlThumbnail}
