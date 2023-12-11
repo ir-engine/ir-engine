@@ -256,27 +256,6 @@ export const defineComponent = <
   return Component as typeof Component & { _TYPE: ComponentType }
 }
 
-/**
- * @deprecated Use {@link defineComponent}
- */
-export const createMappedComponent = <
-  ComponentType = object | unknown,
-  Schema extends bitECS.ISchema = Record<string, any>
->(
-  name: string,
-  schema?: Schema
-) => {
-  const Component = defineComponent<ComponentType, Schema, ComponentType, unknown>({
-    name,
-    schema,
-    onSet: (entity, component, json: any) => {
-      Component.stateMap[entity]!.set(json ?? true)
-    },
-    toJSON: (entity, component) => component.value as any
-  })
-  return Component
-}
-
 export const getOptionalMutableComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
@@ -285,11 +264,6 @@ export const getOptionalMutableComponent = <ComponentType>(
   if (component.existenceMap[entity]) return component.stateMap[entity]
   return undefined
 }
-
-/**
- * @deprecated Use {@link getOptionalMutableComponent}
- */
-export const getOptionalComponentState = getOptionalMutableComponent
 
 export const getMutableComponent = <ComponentType>(
   entity: Entity,
@@ -300,11 +274,6 @@ export const getMutableComponent = <ComponentType>(
   // if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
   return componentState
 }
-
-/**
- * @deprecated use {@link getMutableComponent}
- */
-export const getComponentState = getMutableComponent
 
 export const getOptionalComponent = <ComponentType>(
   entity: Entity,
@@ -368,10 +337,11 @@ export const setComponent = <C extends Component>(
         return React.createElement(
           EntityContext.Provider,
           { value: entity },
-          React.createElement(Component.reactor || (() => null), {})
+          React.createElement(Component.reactor!, {})
         )
       }) as ReactorRoot
       root['entity'] = entity
+      root['component'] = Component.name
       Component.reactorMap.set(entity, root)
     }
   }

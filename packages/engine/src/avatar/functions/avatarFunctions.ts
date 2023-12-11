@@ -152,8 +152,9 @@ export const loadAvatarForUser = async (
       dissolveMaterials: dissolveMaterials as ShaderMaterial[],
       originMaterials: avatarMaterials as MaterialMap[]
     })
-    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
   }
+
+  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
 
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
 }
@@ -180,7 +181,6 @@ export const createIKAnimator = async (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const animations = await getAnimations()
   const manager = getState(AnimationState)
-  const avatar = getComponent(entity, AvatarComponent)
 
   for (let i = 0; i < animations!.length; i++) {
     animations[i] = retargetMixamoAnimation(

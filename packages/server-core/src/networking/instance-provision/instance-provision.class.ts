@@ -63,6 +63,7 @@ const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
  */
 export async function getFreeInstanceserver({
   app,
+  headers,
   iteration,
   locationId,
   channelId,
@@ -72,6 +73,7 @@ export async function getFreeInstanceserver({
   provisionConstraints
 }: {
   app: Application
+  headers: object
   iteration: number
   locationId?: LocationID
   channelId?: ChannelID
@@ -86,7 +88,8 @@ export async function getFreeInstanceserver({
       assignedAt: {
         $lt: toDateTimeSql(new Date(new Date().getTime() - 30000))
       }
-    }
+    },
+    headers
   })
   if (!config.kubernetes.enabled) {
     //Clear any instance assignments older than 30 seconds - those assignments have not been
@@ -96,6 +99,7 @@ export async function getFreeInstanceserver({
     const stringIp = `${localIp.ipAddress}:${localIp.port}`
     return checkForDuplicatedAssignments({
       app,
+      headers,
       ipAddress: stringIp,
       iteration,
       locationId,
@@ -182,6 +186,7 @@ export async function getFreeInstanceserver({
 
   return checkForDuplicatedAssignments({
     app,
+    headers,
     ipAddress: instanceIpAddress,
     iteration,
     locationId,
@@ -196,6 +201,7 @@ export async function getFreeInstanceserver({
 
 export async function checkForDuplicatedAssignments({
   app,
+  headers,
   ipAddress,
   iteration,
   locationId,
@@ -207,6 +213,7 @@ export async function checkForDuplicatedAssignments({
   provisionConstraints
 }: {
   app: Application
+  headers: object
   ipAddress: string
   iteration: number
   locationId?: LocationID
@@ -222,20 +229,23 @@ export async function checkForDuplicatedAssignments({
     const query = { ended: false } as any
     if (locationId) query.locationId = locationId
     if (channelId) query.channelId = channelId
-    await app.service(instancePath).patch(null, { ended: true }, { query })
+    await app.service(instancePath).patch(null, { ended: true }, { query, headers })
   }
 
   //Create an assigned instance at this IP
-  const assignResult: any = (await app.service(instancePath).create({
-    ipAddress: ipAddress,
-    locationId: locationId as LocationID,
-    podName: podName,
-    channelId: channelId,
-    assigned: true,
-    assignedAt: toDateTimeSql(new Date()),
-    roomCode: '' as RoomCode,
-    currentUsers: 0
-  })) as InstanceType
+  const assignResult: any = (await app.service(instancePath).create(
+    {
+      ipAddress: ipAddress,
+      locationId: locationId as LocationID,
+      podName: podName,
+      channelId: channelId,
+      assigned: true,
+      assignedAt: toDateTimeSql(new Date()),
+      roomCode: '' as RoomCode,
+      currentUsers: 0
+    },
+    { headers }
+  )) as InstanceType
   await new Promise((resolve) =>
     setTimeout(() => {
       resolve(null)
@@ -247,7 +257,8 @@ export async function checkForDuplicatedAssignments({
       ipAddress: ipAddress,
       assigned: true,
       ended: false
-    }
+    },
+    headers
   })
 
   const duplicateLocationQuery = {
@@ -258,7 +269,8 @@ export async function checkForDuplicatedAssignments({
   if (locationId) duplicateLocationQuery.locationId = locationId
   if (channelId) duplicateLocationQuery.channelId = channelId
   const duplicateLocationAssignment: any = await app.service(instancePath).find({
-    query: duplicateLocationQuery
+    query: duplicateLocationQuery,
+    headers
   })
 
   //If there's more than one instance assigned to this IP, then one of them was made in error, possibly because
@@ -298,6 +310,7 @@ export async function checkForDuplicatedAssignments({
       if (iteration < 10) {
         return getFreeInstanceserver({
           app,
+          headers,
           iteration: iteration + 1,
           locationId,
           channelId,
@@ -422,6 +435,7 @@ export async function checkForDuplicatedAssignments({
     else await new Promise((resolve) => setTimeout(() => resolve(null), 500))
     return getFreeInstanceserver({
       app,
+      headers,
       iteration: iteration + 1,
       locationId,
       channelId,
@@ -473,6 +487,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
 
   async getISInService({
     availableLocationInstances,
+    headers,
     locationId,
     channelId,
     roomCode,
@@ -480,6 +495,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
     provisionConstraints
   }: {
     availableLocationInstances: InstanceType[]
+    headers: object
     locationId?: LocationID
     channelId?: ChannelID
     roomCode?: RoomCode
@@ -500,6 +516,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
     if (nonFullInstances.length === 0)
       return getFreeInstanceserver({
         app: this.app,
+        headers,
         iteration: 0,
         locationId,
         channelId,
@@ -524,6 +541,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       if (instanceUserSort.length > 1)
         return this.getISInService({
           availableLocationInstances: availableLocationInstances.slice(1),
+          headers,
           locationId,
           channelId,
           roomCode,
@@ -532,6 +550,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       else
         return getFreeInstanceserver({
           app: this.app,
+          headers,
           iteration: 0,
           locationId,
           channelId,
@@ -605,16 +624,16 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
    * @returns {function} getFreeInstanceserver and getISInService
    */
 
-  async find(params?: InstanceProvisionParams) {
+  async find(params: InstanceProvisionParams) {
     try {
       let userId = '' as UserID
-      const locationId = params?.query?.locationId as LocationID
-      const instanceId = params?.query?.instanceId as InstanceID
-      const channelId = params?.query?.channelId as ChannelID | undefined
-      const roomCode = params?.query?.roomCode as RoomCode
-      const createPrivateRoom = params?.query?.createPrivateRoom
-      const token = params?.query?.token
-      const provisionConstraints = params?.query?.provisionConstraints
+      const locationId = params.query?.locationId as LocationID
+      const instanceId = params.query?.instanceId as InstanceID
+      const channelId = params.query?.channelId as ChannelID | undefined
+      const roomCode = params.query?.roomCode as RoomCode
+      const createPrivateRoom = params.query?.createPrivateRoom
+      const token = params.query?.token
+      const provisionConstraints = params.query?.provisionConstraints
       logger.info('instance-provision find %s %s %s %s', locationId, instanceId, channelId, roomCode)
       if (!token) throw new NotAuthenticated('No token provided')
       // Check if JWT resolves to a user
@@ -642,6 +661,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         if (channelInstance == null || channelInstance.data.length === 0)
           return getFreeInstanceserver({
             app: this.app,
+            headers: params.headers || {},
             iteration: 0,
             channelId,
             roomCode,
@@ -654,6 +674,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
             if (isCleanup)
               return getFreeInstanceserver({
                 app: this.app,
+                headers: params.headers || {},
                 iteration: 0,
                 channelId,
                 roomCode,
@@ -693,6 +714,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         if ((roomCode && (instance == null || instance.ended)) || createPrivateRoom)
           return getFreeInstanceserver({
             app: this.app,
+            headers: params.headers || {},
             iteration: 0,
             locationId,
             roomCode,
@@ -837,6 +859,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         if (allowedLocationInstances.length === 0)
           return getFreeInstanceserver({
             app: this.app,
+            headers: params.headers || {},
             iteration: 0,
             locationId,
             roomCode,
@@ -846,6 +869,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         else
           return this.getISInService({
             availableLocationInstances: allowedLocationInstances,
+            headers: params.headers || {},
             locationId,
             channelId,
             roomCode,

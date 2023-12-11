@@ -54,6 +54,7 @@ export const HierarchyPanelTitle = () => {
 export const HierarchyPanelTab: TabData = {
   id: 'hierarchyPanel',
   closable: true,
+  cached: true,
   title: <HierarchyPanelTitle />,
   content: <HierarchyPanelContainer />
 }

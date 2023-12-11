@@ -73,6 +73,7 @@ export default (): Hook => {
 
     const freeInstance = await getFreeInstanceserver({
       app,
+      headers: context.params.headers,
       iteration: 0,
       locationId: location.data[0].id as LocationID
     })
