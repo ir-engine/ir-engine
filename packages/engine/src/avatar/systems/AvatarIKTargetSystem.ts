@@ -51,7 +51,8 @@ const execute = () => {
       continue
     }
     setComponent(entity, NameComponent, action.$from + '_' + action.name)
-    setComponent(entity, AvatarIKTargetComponent, { blendWeight: action.blendWeight })
+    setComponent(entity, AvatarIKTargetComponent)
+    AvatarIKTargetComponent.blendWeight[entity] = action.blendWeight
 
     setComponent(UUIDComponent.entitiesByUUID[action.$from], AvatarRigComponent, { ikOverride: 'xr' })
 

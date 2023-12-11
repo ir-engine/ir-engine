@@ -192,7 +192,7 @@ export const createIKAnimator = async (entity: Entity) => {
 
   setComponent(entity, AnimationComponent, {
     animations: clone(animations),
-    mixer: new AnimationMixer(rigComponent.localRig.hips.node.parent!)
+    mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBones.hips.node.parent!)
   })
 }
 
@@ -220,16 +220,14 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   removeComponent(entity, AvatarRigComponent)
 
-  const rig = model.humanoid?.normalizedHumanBones
-
   const skinnedMeshes = findSkinnedMeshes(model.scene)
   const hips = recursiveHipsLookup(model.scene)
 
   const targetBones = getAllBones(hips)
 
   setComponent(entity, AvatarRigComponent, {
-    rig,
-    localRig: cloneDeep(rig), //cloneDeep(sourceRig),
+    normalizedRig: model.humanoid.normalizedHumanBones,
+    rawRig: model.humanoid.rawHumanBones,
     targetBones,
     skinnedMeshes,
     vrm: model
@@ -306,8 +304,8 @@ export function makeSkinnedMeshFromBoneData(bonesData) {
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
   const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
-  if (!avatarRigComponent || !avatarRigComponent.rig) return false
-  const bone = avatarRigComponent.rig[boneName] as VRMHumanBone
+  if (!avatarRigComponent || !avatarRigComponent.normalizedRig) return false
+  const bone = avatarRigComponent.normalizedRig[boneName] as VRMHumanBone
   if (!bone) return false
   const el = bone.node.matrixWorld.elements
   position.set(el[12], el[13], el[14])
