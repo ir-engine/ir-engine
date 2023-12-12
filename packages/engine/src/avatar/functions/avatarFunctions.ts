@@ -122,7 +122,7 @@ export const loadAvatarModelAsset = (
   if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
 
   AssetLoader.loadAsync(avatarURL, undefined, undefined, override).then((loadedAsset) => {
-    setComponent(entity, AvatarRigComponent, { vrm: loadedAsset })
+    setComponent(entity, AvatarRigComponent, { vrm: autoconvertMixamoAvatar(loadedAsset) })
     removeComponent(entity, AvatarPendingComponent)
     if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
 
