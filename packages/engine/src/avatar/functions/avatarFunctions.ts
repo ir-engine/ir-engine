@@ -102,7 +102,7 @@ export const isAvaturn = (url: string) => {
   const fileExtensionRegex = /\.[0-9a-z]+$/i
   const avaturnUrl = config.client.avaturnAPI
   if (avaturnUrl && !fileExtensionRegex.test(url)) return url.startsWith(avaturnUrl)
-  else return false
+  return false
 }
 
 /**tries to load avatar model asset if an avatar is not already pending */
@@ -124,6 +124,7 @@ export const loadAvatarModelAsset = (
   AssetLoader.loadAsync(avatarURL, undefined, undefined, override).then((loadedAsset) => {
     setComponent(entity, AvatarRigComponent, { vrm: loadedAsset })
     removeComponent(entity, AvatarPendingComponent)
+    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
 
     /**this is awaiting refactor from PR #9369, ideally this logic is not in the async callback
      * and instead in a reactor that listens for the avatar vrm being set
@@ -137,7 +138,6 @@ export const loadAvatarModelAsset = (
         dissolveMaterials: dissolveMaterials as ShaderMaterial[],
         originMaterials: avatarMaterials as MaterialMap[]
       })
-      if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
     }
   })
 }
