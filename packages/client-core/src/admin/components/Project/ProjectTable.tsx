@@ -79,6 +79,7 @@ const ProjectTable = ({ className }: Props) => {
     query: {
       allowed: true,
       $limit: 100,
+      action: 'admin',
       $sort: {
         name: 1
       }
