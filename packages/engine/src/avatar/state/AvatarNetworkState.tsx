@@ -164,7 +164,12 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
 
     const avatarDetails = state.userAvatarDetails.get(NO_PROXY)
 
-    loadAvatarModelAsset(entity, url)
+    loadAvatarModelAsset(entity, url).catch((e) => {
+      console.error('Failed to load avatar for user', e, avatarDetails)
+      if (entityUUID === (Engine.instance.userID as any)) {
+        AvatarState.selectRandomAvatar()
+      }
+    })
   }, [state.userAvatarDetails])
 
   return null

@@ -34,6 +34,7 @@ import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/func
 import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 const initialize3D = () => {
   const camera = new PerspectiveCamera(60, 1, 0.25, 100000)
@@ -70,6 +71,7 @@ const initialize3D = () => {
   controls.update()
   const entity = createEntity()
   setComponent(entity, NameComponent, '3D Preview Entity')
+  setComponent(entity, TransformComponent)
 
   return {
     controls,

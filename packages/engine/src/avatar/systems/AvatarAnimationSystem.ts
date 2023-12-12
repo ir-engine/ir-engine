@@ -32,7 +32,13 @@ import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
@@ -149,8 +155,8 @@ const execute = () => {
 
     rigComponent.vrm.update(deltaTime)
 
-    const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-    if (rigidbodyComponent.body.isEnabled()) {
+    const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
+    if (rigidbodyComponent?.body.isEnabled()) {
       // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
       avatarAnimationComponent.locomotion.x = 0
       avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
@@ -197,7 +203,7 @@ const execute = () => {
 
       //offset target forward to account for hips being behind the head
       hipsForward.set(0, 0, 1)
-      hipsForward.applyQuaternion(rigidbodyComponent.rotation)
+      hipsForward.applyQuaternion(transform.rotation)
       hipsForward.multiplyScalar(0.125)
       rig.hips.node.position.sub(hipsForward)
 

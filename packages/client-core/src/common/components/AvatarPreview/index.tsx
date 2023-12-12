@@ -41,6 +41,11 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import styles from './index.module.scss'
 
 import { setupSceneForPreview } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
+import { loadAndPlayAvatarAnimation } from '@etherealengine/engine/src/avatar/animation/AvatarAnimationGraph'
+import { emoteAnimationPath, emoteAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { autoconvertMixamoAvatar, rigAvatarModel } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
+import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 interface Props {
   fill?: boolean
   avatarUrl?: string
@@ -73,12 +78,17 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setAvatarLoading(true)
     resetAnimationLogic(entity.value)
     AssetLoader.loadAsync(avatarUrl).then((avatar) => {
-      const loadedAvatar = setupSceneForPreview(avatar)
+      const vrm = autoconvertMixamoAvatar(avatar)
+      if (!vrm) return
+      setComponent(entity.value, AvatarRigComponent, { vrm })
+      rigAvatarModel(entity.value, vrm)
+      const loadedAvatar = setupSceneForPreview(vrm)
       scene.value.add(loadedAvatar)
       loadedAvatar.name = 'avatar'
       loadedAvatar.rotateY(Math.PI)
       setAvatarLoading(false)
       onAvatarLoaded && onAvatarLoaded()
+      loadAndPlayAvatarAnimation(entity.value, emoteAnimationPath + emoteAnimations.wave + '.fbx')
 
       loadedAvatar.getWorldPosition(camera.value.position)
       camera.value.position.y += 1.8

@@ -29,6 +29,7 @@ import { AnimationMixer, Box3, Camera, Object3D, Scene, Vector3, WebGLRenderer }
 import { MAX_ALLOWED_TRIANGLES } from '@etherealengine/common/src/constants/AvatarConstants'
 import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { AvatarAnimationComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
@@ -65,6 +66,7 @@ export const resetAnimationLogic = (entity: Entity) => {
     mixer: new AnimationMixer(new Object3D()),
     animations: []
   })
+  setComponent(entity, AvatarComponent)
   setComponent(entity, AvatarAnimationComponent, {
     animationGraph: {
       blendAnimation: undefined,

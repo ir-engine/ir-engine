@@ -84,9 +84,9 @@ const AvatarMenu = () => {
       if (!hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent) && authState.user?.value) {
         AvatarState.updateUserAvatarId(selectedAvatarId.value)
       }
+      selectedAvatarId.set('' as AvatarID)
+      avatarLoading.set(true)
     }
-    selectedAvatarId.set('' as AvatarID)
-    avatarLoading.set(true)
   }
 
   const handleSearch = async (searchString: string) => {

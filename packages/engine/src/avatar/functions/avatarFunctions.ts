@@ -81,19 +81,25 @@ import { retargetMixamoAnimation } from './retargetMixamoRig'
 const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
 
+declare module '@pixiv/three-vrm/types/VRM' {
+  export interface VRM {
+    userData: { flipped: boolean }
+  }
+}
+
 export const getPreloaded = () => {
   return ['sitting']
 }
 
 /** Checks if the asset is a VRM. If not, attempt to use
  *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
-export const autoconvertMixamoAvatar = (model: any) => {
+export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
   const scene = model.scene ?? model // FBX assets do not have 'scene' property
   if (!scene) return null
 
-  const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as any
+  const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as VRM
 
-  if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
+  if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true }
 
   return vrm
 }
@@ -106,7 +112,7 @@ export const isAvaturn = (url: string) => {
 }
 
 /**tries to load avatar model asset if an avatar is not already pending */
-export const loadAvatarModelAsset = (
+export const loadAvatarModelAsset = async (
   entity: Entity,
   avatarURL: string,
   loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
@@ -121,25 +127,29 @@ export const loadAvatarModelAsset = (
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
   if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
 
-  AssetLoader.loadAsync(avatarURL, undefined, undefined, override).then((loadedAsset) => {
-    setComponent(entity, AvatarRigComponent, { vrm: loadedAsset })
-    removeComponent(entity, AvatarPendingComponent)
-    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
+  const loadedAsset = await AssetLoader.loadAsync(avatarURL, undefined, undefined, override)
+  const vrm = autoconvertMixamoAvatar(loadedAsset)
+  if (!vrm) throw new Error('Avatar model could not be loaded')
 
-    /**this is awaiting refactor from PR #9369, ideally this logic is not in the async callback
-     * and instead in a reactor that listens for the avatar vrm being set
-     */
-    if (isClient && loadingEffect) {
-      const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(loadedAsset.scene)
-      const effectEntity = createEntity()
-      setComponent(effectEntity, AvatarEffectComponent, {
-        sourceEntity: entity,
-        opacityMultiplier: 1,
-        dissolveMaterials: dissolveMaterials as ShaderMaterial[],
-        originMaterials: avatarMaterials as MaterialMap[]
-      })
-    }
-  })
+  setComponent(entity, AvatarRigComponent, { vrm })
+
+  removeComponent(entity, AvatarPendingComponent)
+
+  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
+
+  /**this is awaiting refactor from PR #9369, ideally this logic is not in the async callback
+   * and instead in a reactor that listens for the avatar vrm being set
+   */
+  if (isClient && loadingEffect) {
+    const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(vrm.scene)
+    const effectEntity = createEntity()
+    setComponent(effectEntity, AvatarEffectComponent, {
+      sourceEntity: entity,
+      opacityMultiplier: 1,
+      dissolveMaterials: dissolveMaterials as ShaderMaterial[],
+      originMaterials: avatarMaterials as MaterialMap[]
+    })
+  }
 }
 
 /**Kicks off avatar animation loading and setup. Called after an avatar's model asset is
@@ -149,7 +159,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   const avatar = getComponent(entity, AvatarComponent)
   if (avatar && avatar.model) removeObjectFromGroup(entity, avatar.model)
 
-  rigAvatarModel(entity)(model)
+  rigAvatarModel(entity, model)
   addObjectToGroup(entity, model.scene)
   iterateObject3D(model.scene, (obj) => {
     obj && (obj.frustumCulled = false)
@@ -227,7 +237,7 @@ export const setAvatarSpeedFromRootMotion = () => {
   if (walk) movement.walkSpeed.set(getRootSpeed(walk) * 0.01)
 }
 
-export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
+export const rigAvatarModel = (entity: Entity, model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
@@ -270,7 +280,11 @@ export const setupAvatarMaterials = (root) => {
 
 export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   const box = new Box3()
-  box.expandByObject(model).getSize(tempVec3ForHeight)
+  try {
+    box.expandByObject(model).getSize(tempVec3ForHeight)
+  } catch (e) {
+    // noop
+  }
   box.getCenter(tempVec3ForCenter)
   resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
 }
