@@ -65,7 +65,11 @@ function pushToEngine(): void {
     })
 
     if (cachedData.length > 0) {
-      LogConfig.api.service(logsApiPath).create(cachedData)
+      try {
+        LogConfig.api.service(logsApiPath).create(cachedData)
+      } catch (err) {
+        console.log(err)
+      }
 
       engineCache.flushAll()
     }

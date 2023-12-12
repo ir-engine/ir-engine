@@ -72,7 +72,7 @@ const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
 interface PrimusConnectionType {
   provider: string
-  headers: any
+  headers: object
   socketQuery?: NetworkConnectionParams & {
     EIO: string
     transport: string
@@ -96,6 +96,7 @@ interface InstanceserverStatus {
  * If it is a location instance, creates a 'channel' entry
  * @param app
  * @param newInstance
+ * @param headers
  */
 const createNewInstance = async (app: Application, newInstance: InstanceData, headers: object) => {
   const { locationId, channelId } = newInstance
@@ -119,15 +120,22 @@ const createNewInstance = async (app: Application, newInstance: InstanceData, he
  * @param existingInstance
  * @param channelId
  * @param locationId
+ * @param headers
  */
 
-const assignExistingInstance = async (
-  app: Application,
-  existingInstance: InstanceType,
-  channelId: ChannelID,
-  locationId: LocationID,
+const assignExistingInstance = async ({
+  app,
+  existingInstance,
+  channelId,
+  headers,
+  locationId
+}: {
+  app: Application
+  existingInstance: InstanceType
+  channelId: ChannelID
+  locationId: LocationID
   headers: object
-) => {
+}) => {
   const serverState = getState(ServerState)
   const instanceServerState = getMutableState(InstanceServerState)
 
@@ -154,18 +162,26 @@ const assignExistingInstance = async (
  * @param status
  * @param locationId
  * @param channelId
+ * @param headers
  * @param userId
  * @returns
  */
 
-const initializeInstance = async (
-  app: Application,
-  headers: object,
-  status: InstanceserverStatus,
-  locationId: LocationID,
-  channelId: ChannelID,
+const initializeInstance = async ({
+  app,
+  status,
+  locationId,
+  channelId,
+  headers,
+  userId
+}: {
+  app: Application
+  status: InstanceserverStatus
+  locationId: LocationID
+  channelId: ChannelID
+  headers: object
   userId?: UserID
-) => {
+}) => {
   logger.info('Initializing new instance')
 
   const serverState = getState(ServerState)
@@ -211,7 +227,8 @@ const initializeInstance = async (
         query: {
           instanceId: instance.id,
           $limit: 1
-        }
+        },
+        headers
       })) as Paginated<ChannelType>
       if (existingChannel.total === 0) {
         await app.service(channelPath).create({
@@ -222,7 +239,13 @@ const initializeInstance = async (
     await serverState.agonesSDK.allocate()
     if (!instanceServerState.instance.value) instanceServerState.instance.set(instance)
     if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
-    await assignExistingInstance(app, instance, channelId, locationId, headers)
+    await assignExistingInstance({
+      app,
+      existingInstance: instance,
+      channelId,
+      headers,
+      locationId
+    })
   }
 }
 
@@ -230,9 +253,10 @@ const initializeInstance = async (
  * Creates and initializes the server network and transport, then loads all systems for the engine
  * @param app
  * @param sceneId
+ * @param headers
  */
 
-const loadEngine = async (app: Application, sceneId?: SceneID) => {
+const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId?: SceneID; headers?: object }) => {
   const instanceServerState = getState(InstanceServerState)
 
   const hostId = instanceServerState.instance.id as UserID & InstanceID
@@ -264,7 +288,9 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
     if (!sceneId) throw new Error('No sceneId provided')
 
     const sceneUpdatedListener = async () => {
-      const sceneData = await app.service(scenePath).get(null, { query: { sceneKey: sceneId, metadataOnly: false } })
+      const sceneData = await app
+        .service(scenePath)
+        .get(null, { query: { sceneKey: sceneId, metadataOnly: false }, headers })
       SceneState.loadScene(sceneId, sceneData)
       getMutableState(SceneState).activeScene.set(sceneId)
       /** @todo - quick hack to wait until scene has loaded */
@@ -301,16 +327,18 @@ const loadEngine = async (app: Application, sceneId?: SceneID) => {
  * Update instance attendance with the new user for analytics purposes
  * @param app
  * @param userId
+ * @param headers
  */
 
-const handleUserAttendance = async (app: Application, userId: UserID) => {
+const handleUserAttendance = async (app: Application, userId: UserID, headers: object) => {
   const instanceServerState = getState(InstanceServerState)
 
   const channel = (await app.service(channelPath).find({
     query: {
       instanceId: instanceServerState.instance.id,
       $limit: 1
-    }
+    },
+    headers
   })) as Paginated<ChannelType>
 
   /** Only a world server gets assigned a channel, since it has chat. A media server uses a channel but does not have one itself */
@@ -319,7 +347,8 @@ const handleUserAttendance = async (app: Application, userId: UserID) => {
       query: {
         channelId: channel.data[0].id,
         userId: userId
-      }
+      },
+      headers
     })) as Paginated<ChannelUserType>
 
     if (!existingChannelUser.total) {
@@ -350,7 +379,7 @@ const handleUserAttendance = async (app: Application, userId: UserID) => {
     userId: userId
   }
   if (!instanceServerState.isMediaInstance) {
-    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!)
+    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!, { headers })
     ;(newInstanceAttendance as any).sceneId = location.sceneId
   }
   await app.service(instanceAttendancePath).create(newInstanceAttendance as any)
@@ -365,18 +394,27 @@ let instanceStarted = false
  * @param locationId
  * @param channelId
  * @param sceneId
+ * @param headers
  * @param userId
  * @returns
  */
-const createOrUpdateInstance = async (
-  app: Application,
-  headers: object,
-  status: InstanceserverStatus,
-  locationId: LocationID,
-  channelId: ChannelID,
-  sceneId?: SceneID,
+const createOrUpdateInstance = async ({
+  app,
+  status,
+  locationId,
+  channelId,
+  sceneId,
+  headers,
+  userId
+}: {
+  app: Application
+  status: InstanceserverStatus
+  locationId: LocationID
+  channelId: ChannelID
+  sceneId?: SceneID
+  headers: object
   userId?: UserID
-) => {
+}) => {
   const instanceServerState = getState(InstanceServerState)
   const serverState = getState(ServerState)
 
@@ -390,8 +428,8 @@ const createOrUpdateInstance = async (
 
   if (isReady || isNeedingNewServer) {
     instanceStarted = true
-    await initializeInstance(app, headers, status, locationId, channelId, userId)
-    await loadEngine(app, sceneId)
+    await initializeInstance({ app, status, locationId, channelId, headers, userId })
+    await loadEngine({ app, sceneId, headers })
   } else {
     try {
       if (!getState(InstanceServerState).ready)
@@ -422,7 +460,7 @@ const createOrUpdateInstance = async (
   }
 }
 
-const shutdownServer = async (app: Application, connection: PrimusConnectionType, instanceId: InstanceID) => {
+const shutdownServer = async (app: Application, instanceId: InstanceID, headers: object) => {
   const instanceServer = getState(InstanceServerState)
   const serverState = getState(ServerState)
 
@@ -436,16 +474,21 @@ const shutdownServer = async (app: Application, connection: PrimusConnectionType
       {
         ended: true
       },
-      { headers: connection.headers }
+      { headers }
     )
     if (instanceServer.instance.locationId) {
       const channel = (await app.service(channelPath).find({
         query: {
           instanceId: instanceServer.instance.id,
           $limit: 1
-        }
+        },
+        headers
       })) as Paginated<ChannelType>
-      await app.service(channelPath).remove(channel.data[0].id)
+      try {
+        await app.service(channelPath).remove(channel.data[0].id)
+      } catch (err) {
+        //If something else has removed the channel between lookup and now, just ignore the error.
+      }
     }
   } catch (err) {
     logger.error(err)
@@ -477,12 +520,19 @@ const getActiveUsersCount = (app: Application, userToIgnore: UserType) => {
   return activeUsers.length
 }
 
-const handleUserDisconnect = async (
-  app: Application,
-  connection: PrimusConnectionType,
-  user: UserType,
+const handleUserDisconnect = async ({
+  app,
+  connection,
+  user,
+  instanceId,
+  headers
+}: {
+  app: Application
+  connection: PrimusConnectionType
+  user: UserType
   instanceId: InstanceID
-) => {
+  headers: object
+}) => {
   const instanceServerState = getState(InstanceServerState)
 
   try {
@@ -492,7 +542,7 @@ const handleUserDisconnect = async (
       {
         currentUsers: activeUsersCount
       },
-      { headers: connection.headers }
+      { headers }
     )
   } catch (err) {
     logger.info('Failed to patch instance user count, likely because it was destroyed.')
@@ -522,7 +572,7 @@ const handleUserDisconnect = async (
   // 0 if the serer was just starting when someone connected and disconnected)
   if (Object.keys(network.peers).length <= 1) {
     logger.info('Shutting down instance server as there are no users present.')
-    await shutdownServer(app, connection, instanceId)
+    await shutdownServer(app, instanceId, connection.headers)
   }
 }
 
@@ -644,14 +694,22 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   const isResult = await serverState.agonesSDK.getGameServer()
   const status = isResult.status as InstanceserverStatus
 
-  await createOrUpdateInstance(app, connection.headers, status, locationId, channelId, sceneID, userId)
+  await createOrUpdateInstance({
+    app,
+    status,
+    locationId,
+    channelId,
+    sceneId: sceneID,
+    headers: connection.headers,
+    userId
+  })
 
   if (instanceServerState.instance) {
     connection.instanceId = instanceServerState.instance.id
     app.channel(`instanceIds/${instanceServerState.instance.id}`).join(connection)
   }
 
-  await handleUserAttendance(app, userId)
+  await handleUserAttendance(app, userId, connection.headers)
 }
 
 const onDisconnection = (app: Application) => async (connection: PrimusConnectionType) => {
@@ -677,7 +735,7 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
   const identityProvider = authResult[identityProviderPath] as IdentityProviderType
   if (identityProvider != null && identityProvider.id != null) {
     const userId = identityProvider.userId
-    const user = await app.service(userPath).get(userId)
+    const user = await app.service(userPath).get(userId, { headers: connection.headers })
     const instanceId = !config.kubernetes.enabled ? connection.instanceId : instanceServerState.instance?.id
     let instance
     logger.info('On disconnect, instanceId: ' + instanceId)
@@ -701,7 +759,13 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
     }
     logger.info('instanceId %s instance %o', instanceId, instance)
     if (instanceId != null && instance != null) {
-      await handleUserDisconnect(app, connection, user, instanceId)
+      await handleUserDisconnect({
+        app,
+        connection,
+        user,
+        instanceId,
+        headers: connection.headers
+      })
     }
   }
 }
@@ -737,7 +801,14 @@ export default (app: Application): void => {
       return
     }
 
-    createOrUpdateInstance(app, params.headers, status, locationId, null!, sceneId)
+    await createOrUpdateInstance({
+      app,
+      status,
+      locationId,
+      channelId: null!,
+      headers: params.headers,
+      sceneId
+    })
   })
 
   const kickCreatedListener = async (data: UserKickType) => {
