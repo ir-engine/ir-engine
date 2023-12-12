@@ -135,7 +135,6 @@ const execute = () => {
       continue
     }
     const rigComponent = getComponent(entity, AvatarRigComponent)
-    console.log(rigComponent.rawRig)
     for (const boneName of VRMHumanBoneList) {
       const rawBone = rigComponent.rawRig[boneName]?.node
       if (!rawBone) continue
