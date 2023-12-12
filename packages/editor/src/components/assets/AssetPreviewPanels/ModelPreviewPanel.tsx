@@ -28,10 +28,7 @@ import React, { useEffect, useRef } from 'react'
 import ResizeObserver from 'resize-observer-polyfill'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import {
-  loadModelForPreview,
-  resetAnimationLogic
-} from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
+import { setupSceneForPreview } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
@@ -39,6 +36,7 @@ import { InfiniteGridHelper } from '@etherealengine/engine/src/scene/classes/Inf
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { useHookstate } from '@etherealengine/hyperflux'
 
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import styles from '../styles.module.scss'
 
 export const ModelPreviewPanel = (props) => {
@@ -83,24 +81,10 @@ export const ModelPreviewPanel = (props) => {
   }, [])
 
   useEffect(() => {
-    const loadModel = async () => {
-      try {
-        resetAnimationLogic(entity.value)
-        const model = await loadModelForPreview(entity.value, url)
-        if (model) {
-          model.name = 'avatar'
-          const result = scene.value.getObjectByName(model.name)
-          if (result) scene.value.remove(result)
-          scene.value.add(model)
-        }
-        loading.set(false)
-      } catch (err) {
-        loading.set(false)
-        error.set(err.message)
-      }
-    }
-
-    loadModel()
+    //add to the threejs scene for previewing
+    AssetLoader.loadAsync(url).then((avatar) => {
+      scene.value.add(setupSceneForPreview(avatar))
+    })
 
     return () => {
       const sceneVal = scene.value

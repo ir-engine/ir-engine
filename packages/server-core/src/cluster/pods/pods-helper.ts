@@ -166,7 +166,7 @@ export const getPodsData = async (
   }
 }
 
-const getGameserversData = async (labelSelector: string, id: string, label: string, app: Application) => {
+const getGameserversData = async (labelSelector: string, id: string, label: string) => {
   let gameservers: ServerPodInfoType[] = []
 
   try {
