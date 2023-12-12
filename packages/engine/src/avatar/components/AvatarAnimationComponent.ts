@@ -40,8 +40,6 @@ import {
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
@@ -53,6 +51,7 @@ import {
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { ModelComponent } from '../../scene/components/ModelComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -150,6 +149,7 @@ export const AvatarRigComponent = defineComponent({
     const rigComponent = useComponent(entity, AvatarRigComponent)
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
     const visible = useOptionalComponent(entity, VisibleComponent)
+    const modelComponent = useOptionalComponent(entity, ModelComponent)
 
     useEffect(() => {
       if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
@@ -183,15 +183,22 @@ export const AvatarRigComponent = defineComponent({
     }, [visible, debugEnabled, pending, rigComponent.normalizedRig])
 
     useEffect(() => {
+      if (!modelComponent?.asset?.value) return
+      setComponent(entity, AvatarRigComponent, {
+        vrm: modelComponent.asset.value as VRM,
+        avatarURL: modelComponent.src.value
+      })
+    }, [modelComponent?.asset])
+
+    useEffect(() => {
       if (!rigComponent.value || !rigComponent.value.vrm || !rigComponent.value.avatarURL) return
       setupAvatarForUser(entity, rigComponent.value.vrm, rigComponent.value.avatarURL!)
-      if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
     }, [rigComponent.vrm])
 
     const manager = useHookstate(getMutableState(AnimationState))
 
     useEffect(() => {
-      if (!manager.loadedAnimations.value) return
+      if (!manager.loadedAnimations.value || !rigComponent?.vrm?.value) return
       retargetAvatarAnimations(entity)
     }, [manager.loadedAnimations, rigComponent.vrm])
 

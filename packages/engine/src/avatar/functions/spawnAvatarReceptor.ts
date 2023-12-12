@@ -56,7 +56,7 @@ import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
@@ -121,6 +121,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, ShadowComponent)
   setComponent(entity, GrabberComponent)
+  setComponent(entity, AvatarRigComponent)
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {

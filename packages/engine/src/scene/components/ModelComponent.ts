@@ -31,8 +31,10 @@ import { NO_PROXY, getMutableState, getState, none } from '@etherealengine/hyper
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
+import { isAvaturn } from '../../avatar/functions/avatarFunctions'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -144,9 +146,13 @@ function ModelReactor() {
       return
     }
 
+    /** @todo this is a hack */
+    const override = !isAvaturn(model.src) ? undefined : AssetType.glB
+
     AssetLoader.load(
       modelComponent.src.value,
       {
+        forceAssetType: override,
         ignoreDisposeGeometry: modelComponent.generateBVH.value,
         uuid: uuid.value
       },

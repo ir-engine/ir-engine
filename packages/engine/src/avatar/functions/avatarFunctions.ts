@@ -30,9 +30,6 @@ import { AnimationClip, AnimationMixer, Box3, Object3D, Vector3 } from 'three'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/getEnvironment'
-import { iOS } from '../../common/functions/isMobile'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   getComponent,
@@ -41,25 +38,23 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import iterateObject3D from '../../scene/util/iterateObject3D'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
-import { XRState } from '../../xr/XRState'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { CameraComponent } from '../../camera/components/CameraComponent'
+import { isClient } from '../../common/functions/getEnvironment'
+import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { SceneState } from '../../ecs/classes/Scene'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { ModelComponent } from '../../scene/components/ModelComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { generateEntityJsonFromObject } from '../../scene/functions/loadGLTFModel'
-import { EntityJsonType, SceneID } from '../../schemas/projects/scene.schema'
+import { SceneID } from '../../schemas/projects/scene.schema'
+import { XRState } from '../../xr/XRState'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { locomotionAnimation, optionalAnimations } from '../animation/Util'
@@ -104,52 +99,16 @@ export const isAvaturn = (url: string) => {
 }
 
 /**tries to load avatar model asset if an avatar is not already pending */
-export const loadAvatarModelAsset = (
-  entity: Entity,
-  avatarURL: string,
-  loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
-) => {
+export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {
   if (!avatarURL) return
   //check if the url to the file is an avaturn url to infer the file type
   const pendingComponent = getOptionalComponent(entity, AvatarPendingComponent)
   if (pendingComponent && pendingComponent.url === avatarURL) return
 
-  const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
-
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
   if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
 
-  AssetLoader.loadAsync(avatarURL, undefined, undefined, override).then(async (loadedAsset) => {
-    setComponent(entity, AvatarRigComponent, { vrm: loadedAsset, avatarURL })
-
-    try {
-      /** Upload to gpu immediately */
-      await EngineRenderer.instance?.renderer.compileAsync(
-        loadedAsset.scene,
-        getComponent(Engine.instance.cameraEntity, CameraComponent),
-        Engine.instance.scene
-      )
-    } catch (err) {
-      console.error('Failed to compile avatar model', err)
-    }
-
-    removeComponent(entity, AvatarPendingComponent)
-    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
-
-    if (isClient && loadingEffect) {
-      const effectEntity = createEntity()
-      setComponent(effectEntity, SpawnEffectComponent, {
-        sourceEntity: entity,
-        opacityMultiplier: 1
-      })
-
-      const avatarHeight = getComponent(entity, AvatarComponent).avatarHeight
-
-      setComponent(entity, AvatarDissolveComponent, {
-        height: avatarHeight
-      })
-    }
-  })
+  setComponent(entity, ModelComponent, { src: avatarURL })
 }
 
 export const unloadAvatarForUser = async (entity: Entity, avatarURL: string) => {
@@ -168,32 +127,6 @@ export const setupAvatarForUser = (entity: Entity, model: VRM, avatarURL: string
 
   computeTransformMatrix(entity)
 
-  const entityJson = {} as Record<EntityUUID, EntityJsonType>
-
-  iterateObject3D(model.scene, (obj) => {
-    if (!obj) return
-    if (obj === model.scene && !obj.name) obj.name = avatarURL
-    obj.frustumCulled = false
-    const uuid = obj.uuid as EntityUUID
-    const eJson = generateEntityJsonFromObject(entity, obj)
-    entityJson[uuid] = eJson
-  })
-
-  // To ensure the scene is unique, we concatenate the avatarURL and userID
-  const sceneID = (avatarURL + getComponent(entity, UUIDComponent)) as SceneID
-
-  SceneState.loadScene(sceneID, {
-    scene: {
-      entities: entityJson,
-      root: model.scene.uuid as EntityUUID,
-      version: 0
-    },
-    scenePath: sceneID,
-    name: '',
-    project: '',
-    thumbnailUrl: ''
-  })
-
   const animationState = getState(AnimationState)
   //set global states if they are not already set
   if (!animationState.loadedAnimations[locomotionAnimation]) loadLocomotionAnimations()
@@ -203,6 +136,28 @@ export const setupAvatarForUser = (entity: Entity, model: VRM, avatarURL: string
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
   avatar.model = model.scene
+
+  const loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
+
+  removeComponent(entity, AvatarPendingComponent)
+  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
+
+  if (isClient && loadingEffect) {
+    const effectEntity = createEntity()
+    setComponent(effectEntity, SpawnEffectComponent, {
+      sourceEntity: entity,
+      opacityMultiplier: 1
+    })
+
+    const avatarHeight = getComponent(entity, AvatarComponent).avatarHeight
+    setComponent(entity, AvatarDissolveComponent, {
+      height: avatarHeight
+    })
+  }
+
+  removeComponent(entity, AvatarPendingComponent)
+
+  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
 }
 
 export const retargetAvatarAnimations = (entity: Entity) => {
