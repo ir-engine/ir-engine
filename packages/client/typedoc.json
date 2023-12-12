@@ -1,0 +1,12 @@
+{
+    "entryPoints": ["./src"],
+    "entryPointStrategy": "expand",
+    "tsconfig": "./tsconfig.json",
+    "exclude": ["**/**.js", "**/{node_modules,dist,tests}/**", "./{public,scripts}/**"],
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "excludeInternal": true,
+    //"excludeNotDocumented": true,
+    "readme": "none",
+    "skipErrorChecking": true
+}

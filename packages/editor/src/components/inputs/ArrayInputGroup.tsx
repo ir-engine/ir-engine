@@ -37,6 +37,7 @@ export interface ArrayInputGroupProp {
   label?: any
   values: string[]
   onChange?: (values: string[]) => void
+  onRelease?: (values: string[]) => void
   acceptFileTypes?: any
   acceptDropItems?: any
 }
@@ -46,36 +47,14 @@ export interface ArrayInputGroupState {
   values: string[]
 }
 
-const onChangeSize = (textSize: string, values: string[], onChange?: any) => {
-  // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
-  const valuesCopy = [...values] as string[]
-  const preCount = valuesCopy.length
-  const count = parseInt(textSize)
-  if (isNaN(count) || preCount === count) return
-  if (preCount > count) {
-    valuesCopy.splice(count)
-  } else {
-    for (let i = 0; i < count - preCount; i++) {
-      valuesCopy.push('')
-    }
-  }
-  onChange?.(valuesCopy)
-}
-
-const onChangeText = (text: string, index: number, values: string[], onChange?: any) => {
-  // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
-  const valuesCopy = [...values]
-  valuesCopy[index] = text
-  onChange?.(valuesCopy)
-}
-
 const ArrayInputGroup = ({
   prefix,
   label,
   values,
   onChange,
   acceptFileTypes,
-  acceptDropItems
+  acceptDropItems,
+  ...rest
 }: ArrayInputGroupProp) => {
   const addInput = (count = 1) => {
     const valuesCopy = [...values]
@@ -114,6 +93,7 @@ const ArrayInputGroup = ({
             }}
             acceptFileTypes={acceptFileTypes}
             acceptDropItems={acceptDropItems}
+            {...rest}
           />
           <IconButton
             disableRipple
@@ -140,6 +120,7 @@ const ArrayInputGroup = ({
                 onChange={(value) => onChangeText(value, index + 1)}
                 acceptFileTypes={acceptFileTypes}
                 acceptDropItems={acceptDropItems}
+                {...rest}
               />
               <IconButton
                 disableRipple

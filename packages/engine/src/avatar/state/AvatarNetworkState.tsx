@@ -49,7 +49,7 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AvatarID, AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
 import { userAvatarPath } from '../../schemas/user/user-avatar.schema'
-import { loadAvatarForUser, unloadAvatarForUser } from '../functions/avatarFunctions'
+import { loadAvatarModelAsset, unloadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from './AvatarNetworkActions'
 
@@ -131,7 +131,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
   }, [entityUUID])
 
   useEffect(() => {
-    if (!state.avatarID.value) return
+    if (!isClient || !state.avatarID.value) return
 
     let aborted = false
 
@@ -164,13 +164,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
 
     const avatarDetails = state.userAvatarDetails.get(NO_PROXY)
 
-    loadAvatarForUser(entity, url).catch((e) => {
-      console.error('Failed to load avatar for user', e, avatarDetails)
-      if (entityUUID === (Engine.instance.userID as any)) {
-        AvatarState.selectRandomAvatar()
-      }
-    })
-
+    loadAvatarModelAsset(entity, url)
     return () => {
       unloadAvatarForUser(entity, url)
     }

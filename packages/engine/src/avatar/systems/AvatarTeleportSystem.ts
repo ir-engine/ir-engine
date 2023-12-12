@@ -160,7 +160,7 @@ const execute = () => {
     fadeBackInAccumulator += getState(EngineState).deltaSeconds
     if (fadeBackInAccumulator > 0.25) {
       fadeBackInAccumulator = -1
-      teleportAvatar(Engine.instance.localClientEntity, guideCursor.position)
+      teleportAvatar(Engine.instance.localClientEntity, getComponent(guideCursorEntity, TransformComponent).position)
       dispatchAction(CameraActions.fadeToBlack({ in: false }))
       dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
       dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
@@ -234,7 +234,7 @@ const execute = () => {
     guideline.geometry.attributes.position.needsUpdate = true
     if (canTeleport) {
       // Place the cursor near the end of the line
-      guideCursor.position.copy(currentVertexWorld)
+      getComponent(guideCursorEntity, TransformComponent).position.copy(currentVertexWorld)
       guideCursor.visible = true
       lineMaterial.color = white
     } else {
@@ -271,7 +271,6 @@ const reactor = () => {
     guideline.name = 'teleport-guideline'
 
     const guidelineEntity = createEntity()
-    setComponent(guidelineEntity, TransformComponent)
     addObjectToGroup(guidelineEntity, guideline)
     setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
 
@@ -285,7 +284,6 @@ const reactor = () => {
     guideCursor.frustumCulled = false
 
     const guideCursorEntity = createEntity()
-    setComponent(guideCursorEntity, TransformComponent)
     addObjectToGroup(guideCursorEntity, guideCursor)
     setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
 

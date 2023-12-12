@@ -33,6 +33,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
+import { ReferenceSpaceTransformSystem } from '../transform/TransformModule'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
@@ -272,8 +273,17 @@ const execute = () => {
   )
 }
 
-export const XRCameraSystem = defineSystem({
-  uuid: 'ee.engine.XRCameraSystem',
+export const XRCameraInputSystem = defineSystem({
+  uuid: 'ee.engine.XRCameraInputSystem',
   insert: { with: XRSystem },
   execute
+})
+
+/**
+ * 2 - Update XR camera positions based on world origin and viewer pose
+ */
+export const XRCameraUpdateSystem = defineSystem({
+  uuid: 'ee.engine.XRCameraUpdateSystem',
+  insert: { after: ReferenceSpaceTransformSystem },
+  execute: updateXRCamera
 })

@@ -135,10 +135,9 @@ const execute = () => {
       continue
     }
     const rigComponent = getComponent(entity, AvatarRigComponent)
-
     for (const boneName of VRMHumanBoneList) {
-      const localbone = rigComponent.localRig[boneName]?.node
-      if (!localbone) continue
+      const rawBone = rigComponent.rawRig[boneName]?.node
+      if (!rawBone) continue
       if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
         if (
           boneName == VRMHumanBoneName.LeftUpperLeg ||
@@ -158,7 +157,7 @@ const execute = () => {
       ) {
         MotionCaptureRigComponent.rig[boneName].w[entity] === 1
       }
-      localbone.quaternion.set(
+      rawBone.quaternion.set(
         MotionCaptureRigComponent.rig[boneName].x[entity],
         MotionCaptureRigComponent.rig[boneName].y[entity],
         MotionCaptureRigComponent.rig[boneName].z[entity],
@@ -167,11 +166,11 @@ const execute = () => {
 
       if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
       if (MotionCaptureRigComponent.solvingLowerBody[entity])
-        localbone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
-      localbone.scale.set(1, 1, 1)
+        rawBone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
+      rawBone.scale.set(1, 1, 1)
     }
 
-    const hipBone = rigComponent.localRig.hips.node
+    const hipBone = rigComponent.rawRig.hips.node
     if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
       hipBone.position.set(
         MotionCaptureRigComponent.hipPosition.x[entity],
@@ -181,7 +180,7 @@ const execute = () => {
       hipBone.updateMatrixWorld(true)
     }
 
-    const worldHipsParent = rigComponent.rig.hips.node.parent
+    const worldHipsParent = rigComponent.rawRig.hips.node.parent
     if (worldHipsParent)
       if (MotionCaptureRigComponent.solvingLowerBody[entity])
         worldHipsParent.position.setY(
@@ -212,7 +211,7 @@ const reactor = () => {
 
 export const MotionCaptureSystem = defineSystem({
   uuid: 'ee.engine.MotionCaptureSystem',
-  insert: { with: AnimationSystem },
+  insert: { after: AnimationSystem },
   execute,
   reactor
 })

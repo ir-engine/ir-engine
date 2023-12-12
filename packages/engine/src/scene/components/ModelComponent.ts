@@ -53,7 +53,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { addError } from '../functions/ErrorFunctions'
+import { addError, removeError } from '../functions/ErrorFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
@@ -119,7 +119,7 @@ export const ModelComponent = defineComponent({
       setComponent(entity, SceneAssetPendingTagComponent)
   },
 
-  errors: ['LOADING_ERROR', 'INVALID_URL'],
+  errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
   reactor: ModelReactor
 })
@@ -152,6 +152,10 @@ function ModelReactor() {
       },
       (loadedAsset) => {
         if (aborted) return
+        if (typeof loadedAsset !== 'object') {
+          addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
+          return
+        }
         modelComponent.asset.set(loadedAsset)
       },
       (onprogress) => {
@@ -163,9 +167,10 @@ function ModelReactor() {
           }
         })
       },
-      (err) => {
+      (err: Error) => {
         if (aborted) return
         console.error(err)
+        addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
         removeComponent(entity, SceneAssetPendingTagComponent)
       }
     )
@@ -178,6 +183,8 @@ function ModelReactor() {
     const model = modelComponent.get(NO_PROXY)!
     const asset = model.asset as GLTF | null
     if (!asset) return
+    removeError(entity, ModelComponent, 'INVALID_SOURCE')
+    removeError(entity, ModelComponent, 'LOADING_ERROR')
     const fileExtension = model.src.split('.').pop()?.toLowerCase()
     asset.scene.animations = asset.animations
     asset.scene.userData.src = model.src

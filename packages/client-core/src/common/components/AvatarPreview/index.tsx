@@ -29,22 +29,18 @@ import { useTranslation } from 'react-i18next'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import {
-  loadAvatarForPreview,
-  resetAnimationLogic,
-  validate
-} from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
+import { resetAnimationLogic } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { SxProps, Theme } from '@mui/material/styles'
 
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import styles from './index.module.scss'
 
+import { setupSceneForPreview } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
 interface Props {
   fill?: boolean
   avatarUrl?: string
@@ -76,24 +72,18 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
 
     setAvatarLoading(true)
     resetAnimationLogic(entity.value)
-    const avatar = await loadAvatarForPreview(entity.value, avatarUrl)
+    AssetLoader.loadAsync(avatarUrl).then((avatar) => {
+      const loadedAvatar = setupSceneForPreview(avatar)
+      scene.value.add(loadedAvatar)
+      loadedAvatar.name = 'avatar'
+      loadedAvatar.rotateY(Math.PI)
+      setAvatarLoading(false)
+      onAvatarLoaded && onAvatarLoaded()
 
-    if (!avatar) return
-
-    avatar.name = 'avatar'
-    scene.value.add(avatar)
-
-    const error = validate(avatar, renderer.value, scene.value, camera.value)
-    onAvatarError && onAvatarError(error)
-
-    const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
-    if (avatarRigComponent) {
-      avatarRigComponent.rig.head.node.getWorldPosition(camera.value.position)
-      camera.value.position.y += 0.2
-      camera.value.position.z = 0.6
-    }
-    setAvatarLoading(false)
-    onAvatarLoaded && onAvatarLoaded()
+      loadedAvatar.getWorldPosition(camera.value.position)
+      camera.value.position.y += 1.8
+      camera.value.position.z = 1
+    })
   }
 
   return (
