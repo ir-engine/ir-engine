@@ -209,7 +209,7 @@ const execute = () => {
       rig.hips.node.position.sub(hipsForward)
 
       // convert to local space
-      rig.hips.node.position.applyMatrix4(mat4.copy(transform.matrix).invert())
+      rig.hips.node.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
 
       //calculate head look direction and apply to head bone
       //look direction should be set outside of the xr switch

@@ -28,7 +28,7 @@ import { V_010 } from '../../common/constants/MathConstants'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
@@ -85,7 +85,7 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   }
 
   for (const [key, foot] of Object.entries(feet)) {
-    const ikTransform = getComponent(foot, LocalTransformComponent)
+    const ikTransform = getComponent(foot, TransformComponent)
     if (ikTransform.position.x + ikTransform.position.y + ikTransform.position.z == 0) {
       ikTransform.position.copy(calculateFootOffset())
       continue

@@ -68,7 +68,7 @@ export const computeTransformMatrix = (entity: Entity) => {
   const entityTree = getOptionalComponent(entity, EntityTreeComponent)
   const parentEntity = entityTree?.parentEntity
   if (parentEntity) {
-    const parentTransform = getComponent(entityTree.parentEntity!, TransformComponent)
+    const parentTransform = getComponent(parentEntity, TransformComponent)
     if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
   } else {
     transform.matrixWorld.copy(transform.matrix)

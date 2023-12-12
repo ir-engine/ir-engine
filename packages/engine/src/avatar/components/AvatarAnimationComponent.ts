@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBoneList, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import {
   AnimationAction,
@@ -40,7 +40,6 @@ import {
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -59,7 +58,7 @@ import { VisibleComponent, setVisibleComponent } from '../../scene/components/Vi
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
-import { PoseSchema, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
 import { AvatarComponent } from './AvatarComponent'
@@ -98,10 +97,6 @@ export const AvatarAnimationComponent = defineComponent({
 
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
-
-  schema: {
-    rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, PoseSchema]))
-  },
 
   onInit: (entity) => {
     return {
@@ -146,6 +141,7 @@ export const AvatarRigComponent = defineComponent({
     if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
     if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
+    if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
   },
 
   reactor: function () {
@@ -191,19 +187,6 @@ export const AvatarRigComponent = defineComponent({
       setupAvatarForUser(entity, rigComponent.value.vrm, rigComponent.value.avatarURL!)
       if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
     }, [rigComponent.vrm])
-
-    /**
-     * Proxify the rig bones with the bitecs store
-     */
-    useEffect(() => {
-      const rig = rigComponent.normalizedRig.value
-      if (!rig) return
-      for (const [boneName, bone] of Object.entries(rig)) {
-        if (!bone) continue
-        proxifyVector3(AvatarRigComponent.rig[boneName].position, entity, bone.node.position)
-        proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity, bone.node.quaternion)
-      }
-    }, [rigComponent.normalizedRig])
 
     const manager = useHookstate(getMutableState(AnimationState))
 

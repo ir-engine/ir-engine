@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
 import { cloneDeep } from 'lodash'
-import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Box3, Object3D, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -288,42 +288,6 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   box.expandByObject(model).getSize(tempVec3ForHeight)
   box.getCenter(tempVec3ForCenter)
   resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
-}
-
-/**
- * Creates an empty skinned mesh using list of bones to build skeleton structure
- * @returns SkinnedMesh
- */
-export function makeSkinnedMeshFromBoneData(bonesData) {
-  const bones: Bone[] = []
-  bonesData.forEach((data) => {
-    const bone = new Bone()
-    bone.name = data.name
-    bone.position.fromArray(data.position)
-    bone.quaternion.fromArray(data.quaternion)
-    bone.scale.setScalar(1)
-    bones.push(bone)
-  })
-
-  bonesData.forEach((data, index) => {
-    if (data.parentIndex > -1) {
-      bones[data.parentIndex].add(bones[index])
-    }
-  })
-
-  // we assume that root bone is the first one
-  const hipBone = bones[0] as Bone & { entity: Entity }
-  hipBone.updateWorldMatrix(false, true)
-
-  const group = new Group()
-  group.name = 'skinned-mesh-group'
-  const skinnedMesh = new SkinnedMesh()
-  const skeleton = new Skeleton(bones)
-  skinnedMesh.bind(skeleton)
-  group.add(skinnedMesh)
-  group.add(hipBone)
-
-  return group
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {

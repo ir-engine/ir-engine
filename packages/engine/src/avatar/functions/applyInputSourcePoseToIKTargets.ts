@@ -32,7 +32,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHand, XRLeftHandComponent, XRRightHandComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRControlsState, XRState } from '../../xr/XRState'
 import { BoneStructure } from '../AvatarBoneMatching'
@@ -300,7 +300,7 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
   /** Head */
   if (isCameraAttachedToAvatar && ikTargetHead) {
     const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const ikTransform = getComponent(ikTargetHead, LocalTransformComponent)
+    const ikTransform = getComponent(ikTargetHead, TransformComponent)
     ikTransform.position.copy(cameraTransform.position)
     ikTransform.rotation.copy(cameraTransform.rotation)
     AvatarIKTargetComponent.blendWeight[ikTargetHead] = 1
@@ -328,7 +328,7 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
     const entity = handedness === 'right' ? ikTargetRightHand : ikTargetLeftHand
     const XRHandComponent = handedness === 'right' ? XRRightHandComponent : XRLeftHandComponent
     if (entity) {
-      const ikTransform = getComponent(entity, LocalTransformComponent)
+      const ikTransform = getComponent(entity, TransformComponent)
       const hand = inputSourceComponent.source.hand as XRHand | undefined
       /** detect hand joint pose support */
       if (hand && xrFrame.fillPoses && xrFrame.getJointPose) {

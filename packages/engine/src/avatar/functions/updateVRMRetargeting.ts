@@ -28,6 +28,7 @@ import { Object3D, Quaternion, Vector3 } from 'three'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { BoneComponent } from '../components/BoneComponent'
 
 export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
@@ -40,7 +41,6 @@ export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
     if (boneNode != null) {
       const rigBoneNode = humanoid.getBoneNode(boneName)!
 
-      delete TransformComponent.dirtyTransforms[rigBoneNode.entity]
       delete TransformComponent.dirtyTransforms[rigBoneNode.entity]
 
       const parentWorldRotation = humanoid._parentWorldRotations[boneName]!
@@ -66,7 +66,7 @@ export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
         const parentBoneNode = getComponent(parentEntity, BoneComponent)
         if (!parentBoneNode) continue
 
-        parentBoneNode.updateWorldMatrix(true, false)
+        computeTransformMatrix(parentEntity)
         const parentWorldMatrix = parentBoneNode.matrixWorld
         const localPosition = boneWorldPosition.applyMatrix4(parentWorldMatrix.invert())
         boneNode.position.copy(localPosition)
