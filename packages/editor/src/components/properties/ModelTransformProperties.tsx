@@ -129,23 +129,28 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
       transforming.set(true)
       const modelSrc = modelState.src.value
       const specifiedTextureSize = transformParms.maxTextureSize.value
+      const specifiedDst = transformParms.dst.value
       const textureSizes: Array<number> = isBatchCompress.value ? [2048, 1024, 512] : [specifiedTextureSize]
       for (let i = 0; i < textureSizes.length; i++) {
         const size = textureSizes[i]
+        const suffix = isBatchCompress.value ? `-transformed-LOD_${i}.glb` : '-transformed.glb'
+        const nuPath = modelSrc.replace(/\.glb$/, suffix)
+        const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
         transformParms.maxTextureSize.set(size)
+        transformParms.dst.set(fileName)
         if (isClientside.value) {
           await clientSideTransformModel(transformParms.value)
         } else {
           await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
         }
-        const suffix = isBatchCompress.value ? size.toString() + `-transformed-LOD_${i}.glb` : '-transformed.glb'
-        const nuPath = modelSrc.replace(/\.glb$/, suffix)
         transformHistory.set([modelSrc, ...transformHistory.value])
-        const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
         await FileBrowserService.fetchFiles(directoryToRefresh)
-        onChangeModel(nuPath)
+        if (!isBatchCompress.value) {
+          onChangeModel(nuPath)
+        }
       }
       transformParms.maxTextureSize.set(specifiedTextureSize)
+      transformParms.dst.set(specifiedDst)
       transforming.set(false)
     },
     [transformParms]
