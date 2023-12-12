@@ -122,7 +122,11 @@ async function validateAuthParams(context: HookContext<IdentityProviderService>)
     throw new BadRequest('userId not found')
   }
 
-  context.existingUser = await context.app.service(userPath).get(userId)
+  try {
+    context.existingUser = await context.app.service(userPath).get(userId)
+  } catch (err) {
+    //
+  }
 }
 
 async function addIdentityProviderType(context: HookContext<IdentityProviderService>) {

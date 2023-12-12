@@ -79,7 +79,7 @@ export const writeProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
 export const writePropIfChanged = (v: ViewCursor, prop: TypedArray, entity: Entity, ignoredChanged: boolean) => {
   const { shadowMap } = v
 
-  const shadow = shadowMap.get(prop)! || (shadowMap.set(prop, prop.slice().fill(0)) && shadowMap.get(prop))!
+  const shadow = shadowMap.get(prop) || (shadowMap.set(prop, prop.slice().fill(0)) && shadowMap.get(prop))!
 
   const changed = shadow[entity] !== prop[entity] || ignoredChanged
 
