@@ -40,7 +40,7 @@ const minSeatedAngle = 1.25, //radians
 let poseHoldTimer = 0
 
 export const evaluatePose = (entity: Entity) => {
-  const rig = getComponent(entity, AvatarRigComponent).rig
+  const rig = getComponent(entity, AvatarRigComponent).normalizedRig
   const deltaSeconds = getState(EngineState).deltaSeconds
   const pose = getMutableComponent(entity, MotionCapturePoseComponent)
   if (!MotionCaptureRigComponent.solvingLowerBody[entity]) return 'none'
