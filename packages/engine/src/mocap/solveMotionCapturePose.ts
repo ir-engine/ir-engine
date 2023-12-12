@@ -737,9 +737,6 @@ export const solveHead = (
 
   headRotation.multiply(rotate90degreesAroundXAxis)
 
-  rig.rawRig[VRMHumanBoneName.Neck]!.node.getWorldQuaternion(parentRotation)
-  headRotation.premultiply(parentRotation.invert())
-
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].x[entity] = headRotation.x
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].y[entity] = headRotation.y
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].z[entity] = headRotation.z
