@@ -45,8 +45,8 @@ const ikTargetToPlayer = new Vector3()
 const offset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 const quat = new Quaternion()
 let currentStep = ikTargets.leftFoot
-const speedMultiplier = 80
-const minSpeed = 2.5
+const speedMultiplier = 120
+const minSpeed = 5
 
 //step threshold should be a function of leg length
 //walk threshold to determine when to move the feet back into standing position, should be

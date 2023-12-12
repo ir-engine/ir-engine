@@ -141,7 +141,8 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         name="Source Paths"
         prefix="Content"
         values={media.resources.value}
-        onChange={commitProperty(MediaComponent, 'resources')}
+        onChange={updateProperty(MediaComponent, 'resources')}
+        onRelease={commitProperty(MediaComponent, 'resources')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={AllFileTypes}
         acceptDropItems={SupportedFileTypes}
