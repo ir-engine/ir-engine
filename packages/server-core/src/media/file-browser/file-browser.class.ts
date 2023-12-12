@@ -185,18 +185,7 @@ export class FileBrowserService
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
 
-    let oldNamePath = data.oldNamePath
-    let newNamePath = data.newNamePath
-
-    if (!oldNamePath && !newNamePath) {
-      oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
-      newNamePath = path.join(projectsRootFolder, _newPath, fileName)
-    }
-
-    await Promise.all([
-      storageProvider.createInvalidation([oldNamePath]),
-      storageProvider.createInvalidation([newNamePath])
-    ])
+    await Promise.all([storageProvider.createInvalidation([_oldPath]), storageProvider.createInvalidation([_newPath])])
 
     return result
   }
@@ -284,11 +273,9 @@ export class FileBrowserService
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
     await storageProvider.createInvalidation([key])
 
-    const filePath = path.join(projectsRootFolder, key)
-
     const staticResource = (await this.app.service(staticResourcePath).find({
       query: {
-        key: filePath,
+        key: key,
         $limit: 1
       }
     })) as Paginated<StaticResourceType>
