@@ -26,7 +26,9 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
+import { ScopeType } from './scope.schema'
 
 export const scopeTypePath = 'scope-type'
 
@@ -35,25 +37,25 @@ export const scopeTypeMethods = ['find', 'get'] as const
 // Main data model schema
 export const scopeTypeSchema = Type.Object(
   {
-    type: Type.String(),
+    type: TypedString<ScopeType>(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
   { $id: 'ScopeType', additionalProperties: false }
 )
-export type ScopeTypeType = Static<typeof scopeTypeSchema>
+export interface ScopeTypeType extends Static<typeof scopeTypeSchema> {}
 
 // Schema for creating new entries
 export const scopeTypeDataSchema = Type.Pick(scopeTypeSchema, ['type'], {
   $id: 'ScopeTypeData'
 })
-export type ScopeTypeData = Static<typeof scopeTypeDataSchema>
+export interface ScopeTypeData extends Static<typeof scopeTypeDataSchema> {}
 
 // Schema for updating existing entries
 export const scopeTypePatchSchema = Type.Partial(scopeTypeSchema, {
   $id: 'ScopeTypePatch'
 })
-export type ScopeTypePatch = Static<typeof scopeTypePatchSchema>
+export interface ScopeTypePatch extends Static<typeof scopeTypePatchSchema> {}
 
 // Schema for allowed query properties
 export const scopeTypeQueryProperties = Type.Pick(scopeTypeSchema, ['type'])
@@ -65,7 +67,7 @@ export const scopeTypeQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type ScopeTypeQuery = Static<typeof scopeTypeQuerySchema>
+export interface ScopeTypeQuery extends Static<typeof scopeTypeQuerySchema> {}
 
 export const scopeTypeValidator = getValidator(scopeTypeSchema, dataValidator)
 export const scopeTypeDataValidator = getValidator(scopeTypeDataSchema, dataValidator)

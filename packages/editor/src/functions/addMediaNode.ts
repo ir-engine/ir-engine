@@ -32,7 +32,7 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
-import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { ComponentJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -44,9 +44,9 @@ import { EditorControlFunctions } from './EditorControlFunctions'
  */
 export async function addMediaNode(
   url: string,
-  parent: Entity | null = null,
-  before: Entity | null = null,
-  extraComponentJson: ComponentJson[] = []
+  parent?: Entity,
+  before?: Entity,
+  extraComponentJson: ComponentJsonType[] = []
 ) {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)

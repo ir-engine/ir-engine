@@ -42,9 +42,10 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { UserData, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { AvatarID, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { UserData, UserID, UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
@@ -54,22 +55,20 @@ import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
 import styles from '../../styles/admin.module.scss'
 
-const SCOPE_PAGE_LIMIT = 100
-
 export enum UserDrawerMode {
   Create,
   ViewEdit
 }
 
-interface Props {
+export interface UserDrawerProps {
   open: boolean
   mode: UserDrawerMode
   selectedUser?: UserType
   onClose: () => void
 }
 
-const defaultState = {
-  id: '',
+export const defaultState = {
+  id: '' as UserID,
   name: '',
   avatar: '',
   isGuest: true,
@@ -81,7 +80,113 @@ const defaultState = {
   }
 }
 
-const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
+export const LinkedProviders = (props: { selectedUser?: UserType }) => {
+  const { t } = useTranslation()
+  const { selectedUser } = props
+  const nonGuestLinkedIP = selectedUser?.identityProviders?.filter((ip) => ip.type !== 'guest')
+  const discordIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'discord')
+  const googleIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'google')
+  const facebookIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'facebook')
+  const twitterIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'twitter')
+  const linkedinIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'linkedin')
+  const githubIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'github')
+  const emailIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'email')
+  const smsIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'sms')
+
+  return (
+    <>
+      {nonGuestLinkedIP && nonGuestLinkedIP.length > 0 && (
+        <Grid container spacing={1} sx={{ marginTop: 2, marginBottom: 4 }}>
+          <Grid item md={12}>
+            <Typography variant="body1">{t('admin:components.user.linkedAccounts')}</Typography>
+          </Grid>
+          {discordIp && (
+            <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Tooltip title={t('admin:components.user.discord')} arrow>
+                <DiscordIcon width="20px" height="20px" viewBox="0 0 40 40" />
+              </Tooltip>
+              <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                {discordIp.accountIdentifier!}
+              </Typography>
+            </Grid>
+          )}
+          {googleIp && (
+            <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Tooltip title={t('admin:components.user.google')} arrow>
+                <GoogleIcon width="20px" height="20px" viewBox="0 0 40 40" />
+              </Tooltip>
+              <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                {googleIp.accountIdentifier!}
+              </Typography>
+            </Grid>
+          )}
+          {facebookIp && (
+            <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Tooltip title={t('admin:components.user.facebook')} arrow>
+                <Icon type="Facebook" width="20px" height="20px" viewBox="0 0 40 40" />
+              </Tooltip>
+              <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                {facebookIp.accountIdentifier!}
+              </Typography>
+            </Grid>
+          )}
+          {twitterIp && (
+            <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Tooltip title={t('admin:components.user.twitter')} arrow>
+                <Icon type="Twitter" width="20px" height="20px" viewBox="0 0 40 40" />
+              </Tooltip>
+              <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                {twitterIp.accountIdentifier!}
+              </Typography>
+            </Grid>
+          )}
+          {linkedinIp && (
+            <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Tooltip title={t('admin:components.user.linkedIn')} arrow>
+                <LinkedInIcon width="20px" height="20px" viewBox="0 0 40 40" />
+              </Tooltip>
+              <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                {linkedinIp.accountIdentifier!}
+              </Typography>
+            </Grid>
+          )}
+          {githubIp && (
+            <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Tooltip title={t('admin:components.user.github')} arrow>
+                <Icon type="GitHub" width="20px" height="20px" />
+              </Tooltip>
+              <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                {githubIp.accountIdentifier!}
+              </Typography>
+            </Grid>
+          )}
+          {emailIp && (
+            <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Tooltip title={t('admin:components.user.email')} arrow>
+                <Icon type="Email" width="20px" height="20px" />
+              </Tooltip>
+              <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                {emailIp.accountIdentifier!}
+              </Typography>
+            </Grid>
+          )}
+          {smsIp && (
+            <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Tooltip title={t('admin:components.user.sms')} arrow>
+                <Icon type="Phone" width="20px" height="20px" />
+              </Tooltip>
+              <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                {smsIp.accountIdentifier!}
+              </Typography>
+            </Grid>
+          )}
+        </Grid>
+      )}
+    </>
+  )
+}
+
+const UserDrawer = createHookableFunction(({ open, mode, selectedUser, onClose }: UserDrawerProps) => {
   const { t } = useTranslation()
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
@@ -93,7 +198,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   }).data
   const scopeTypes = useFind(scopeTypePath, {
     query: {
-      $limit: SCOPE_PAGE_LIMIT /** @todo - this should not be paginated */
+      paginate: false
     }
   }).data
   const userMutation = useMutation(userPath)
@@ -109,16 +214,6 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     label: el.name,
     value: el.id
   }))
-
-  const nonGuestLinkedIP = selectedUser?.identityProviders?.filter((ip) => ip.type !== 'guest')
-  const discordIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'discord')
-  const googleIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'google')
-  const facebookIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'facebook')
-  const twitterIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'twitter')
-  const linkedinIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'linkedin')
-  const githubIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'github')
-  const emailIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'email')
-  const smsIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'sms')
 
   if (selectedUser) {
     for (const scope of selectedUser.scopes || []) {
@@ -147,9 +242,9 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     if (selectedUser) {
       state.set({
         ...defaultState,
-        id: selectedUser.id,
-        name: selectedUser.name || '',
-        avatar: selectedUser.avatarId || '',
+        id: selectedUser.id as UserID,
+        name: selectedUser.name || ('' as UserName),
+        avatar: selectedUser.avatarId || ('' as AvatarID),
         isGuest: selectedUser.isGuest,
         scopes: selectedUser.scopes?.map((el) => ({ type: el.type })) || []
       })
@@ -189,8 +284,8 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
 
   const handleSubmit = async () => {
     const data: UserData = {
-      name: state.name.value,
-      avatarId: state.avatar.value,
+      name: state.name.value as UserName,
+      avatarId: state.avatar.value as AvatarID,
       isGuest: state.isGuest.value,
       scopes: state.scopes.get(NO_PROXY)
     }
@@ -228,7 +323,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
         <InputText name="id" label={t('admin:components.user.id')} value={state.id.value} disabled />
 
         <InputText
-          name="name"
+          name={'name' as UserName}
           label={t('admin:components.user.name')}
           value={state.name.value}
           error={state.formErrors.name.value}
@@ -264,93 +359,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           />
         )}
 
-        {nonGuestLinkedIP && nonGuestLinkedIP.length > 0 && (
-          <Grid container spacing={1} sx={{ marginTop: 2, marginBottom: 4 }}>
-            <Grid item md={12}>
-              <Typography variant="body1">{t('admin:components.user.linkedAccounts')}</Typography>
-            </Grid>
-            {discordIp && (
-              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Tooltip title={t('admin:components.user.discord')} arrow>
-                  <DiscordIcon width="20px" height="20px" viewBox="0 0 40 40" />
-                </Tooltip>
-                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-                  {discordIp.accountIdentifier!}
-                </Typography>
-              </Grid>
-            )}
-            {googleIp && (
-              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Tooltip title={t('admin:components.user.google')} arrow>
-                  <GoogleIcon width="20px" height="20px" viewBox="0 0 40 40" />
-                </Tooltip>
-                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-                  {googleIp.accountIdentifier!}
-                </Typography>
-              </Grid>
-            )}
-            {facebookIp && (
-              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Tooltip title={t('admin:components.user.facebook')} arrow>
-                  <Icon type="Facebook" width="20px" height="20px" viewBox="0 0 40 40" />
-                </Tooltip>
-                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-                  {facebookIp.accountIdentifier!}
-                </Typography>
-              </Grid>
-            )}
-            {twitterIp && (
-              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Tooltip title={t('admin:components.user.twitter')} arrow>
-                  <Icon type="Twitter" width="20px" height="20px" viewBox="0 0 40 40" />
-                </Tooltip>
-                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-                  {twitterIp.accountIdentifier!}
-                </Typography>
-              </Grid>
-            )}
-            {linkedinIp && (
-              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Tooltip title={t('admin:components.user.linkedIn')} arrow>
-                  <LinkedInIcon width="20px" height="20px" viewBox="0 0 40 40" />
-                </Tooltip>
-                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-                  {linkedinIp.accountIdentifier!}
-                </Typography>
-              </Grid>
-            )}
-            {githubIp && (
-              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Tooltip title={t('admin:components.user.github')} arrow>
-                  <Icon type="GitHub" width="20px" height="20px" />
-                </Tooltip>
-                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-                  {githubIp.accountIdentifier!}
-                </Typography>
-              </Grid>
-            )}
-            {emailIp && (
-              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Tooltip title={t('admin:components.user.email')} arrow>
-                  <Icon type="Email" width="20px" height="20px" />
-                </Tooltip>
-                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-                  {emailIp.accountIdentifier!}
-                </Typography>
-              </Grid>
-            )}
-            {smsIp && (
-              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Tooltip title={t('admin:components.user.sms')} arrow>
-                  <Icon type="Phone" width="20px" height="20px" />
-                </Tooltip>
-                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-                  {smsIp.accountIdentifier!}
-                </Typography>
-              </Grid>
-            )}
-          </Grid>
-        )}
+        <LinkedProviders selectedUser={selectedUser} />
 
         {viewMode && (
           <AutoComplete
@@ -398,6 +407,6 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       </Container>
     </DrawerView>
   )
-}
+})
 
 export default UserDrawer

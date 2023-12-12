@@ -31,6 +31,7 @@ import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState
 import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { defineState, getMutableState, getState, State, useState } from '@etherealengine/hyperflux'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
@@ -41,7 +42,7 @@ type InstanceState = {
   ipAddress: string
   port: string
   channelId: ChannelID
-  roomCode: string
+  roomCode: RoomCode
 }
 
 //State

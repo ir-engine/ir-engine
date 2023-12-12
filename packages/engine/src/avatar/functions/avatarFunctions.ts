@@ -38,15 +38,14 @@ import {
   Vector3
 } from 'three'
 
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { iOS } from '../../common/functions/isMobile'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -63,14 +62,10 @@ import { XRState } from '../../xr/XRState'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
+import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import avatarBoneMatching, {
-  BoneNames,
-  findSkinnedMeshes,
-  getAllBones,
-  recursiveHipsLookup
-} from '../AvatarBoneMatching'
-import { defaultBonesData } from '../DefaultSkeletonBones'
+import { Engine } from '../../ecs/classes/Engine'
+import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -91,12 +86,18 @@ export const locomotionPack = 'locomotion'
 export const parseAvatarModelAsset = (model: any) => {
   const scene = model.scene ?? model // FBX files does not have 'scene' property
   if (!scene) return
-
-  const vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as any
+  const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as any
 
   if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
 
   return vrm as VRM
+}
+
+export const isAvaturn = (url: string) => {
+  const fileExtensionRegex = /\.[0-9a-z]+$/i
+  const avaturnUrl = config.client.avaturnAPI
+  if (avaturnUrl && !fileExtensionRegex.test(url)) return url.startsWith(avaturnUrl)
+  else return false
 }
 
 export const loadAvatarModelAsset = async (avatarURL: string) => {
@@ -106,7 +107,12 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   //   )
   //   sourceRig = parseAvatarModelAsset(sourceVRM)!.humanoid.normalizedHumanBones
   // }
-  const model = await AssetLoader.loadAsync(avatarURL)
+
+  //check if the url to the file has a file extension, if not, assume it's a glb
+
+  const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
+
+  const model = await AssetLoader.loadAsync(avatarURL, undefined, undefined, override)
   return parseAvatarModelAsset(model)
 }
 
@@ -119,10 +125,10 @@ export const loadAvatarForUser = async (
     throw new Error('Avatar model already loading')
 
   if (loadingEffect) {
-    if (hasComponent(entity, AvatarControllerComponent)) {
-      getComponent(entity, AvatarControllerComponent).movementEnabled = false
-    }
+    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
   }
+
+  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(false)
 
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
   const parent = (await loadAvatarModelAsset(avatarURL)) as VRM
@@ -140,7 +146,7 @@ export const loadAvatarForUser = async (
     const avatar = getComponent(entity, AvatarComponent)
     const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(entity, avatar?.model)
     const effectEntity = createEntity()
-    addComponent(effectEntity, AvatarEffectComponent, {
+    setComponent(effectEntity, AvatarEffectComponent, {
       sourceEntity: entity,
       opacityMultiplier: 1,
       dissolveMaterials: dissolveMaterials as ShaderMaterial[],
@@ -148,7 +154,9 @@ export const loadAvatarForUser = async (
     })
   }
 
-  dispatchAction(EngineActions.avatarModelChanged({ entity }))
+  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
+
+  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
 }
 
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
@@ -173,7 +181,6 @@ export const createIKAnimator = async (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const animations = await getAnimations()
   const manager = getState(AnimationState)
-  const avatar = getComponent(entity, AvatarComponent)
 
   for (let i = 0; i < animations!.length; i++) {
     animations[i] = retargetMixamoAnimation(
@@ -185,7 +192,7 @@ export const createIKAnimator = async (entity: Entity) => {
 
   setComponent(entity, AnimationComponent, {
     animations: clone(animations),
-    mixer: new AnimationMixer(rigComponent.localRig.hips.node.parent!)
+    mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBones.hips.node.parent!)
   })
 }
 
@@ -213,16 +220,14 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   removeComponent(entity, AvatarRigComponent)
 
-  const rig = model.humanoid?.normalizedHumanBones
-
   const skinnedMeshes = findSkinnedMeshes(model.scene)
   const hips = recursiveHipsLookup(model.scene)
 
   const targetBones = getAllBones(hips)
 
   setComponent(entity, AvatarRigComponent, {
-    rig,
-    localRig: cloneDeep(rig), //cloneDeep(sourceRig),
+    normalizedRig: model.humanoid.normalizedHumanBones,
+    rawRig: model.humanoid.rawHumanBones,
     targetBones,
     skinnedMeshes,
     vrm: model
@@ -262,15 +267,6 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
 }
 
 /**
- * Creates an empty skinned mesh with the default skeleton attached.
- * The skeleton created is compatible with default animation tracks
- * @returns SkinnedMesh
- */
-export function makeDefaultSkinnedMesh() {
-  return makeSkinnedMeshFromBoneData(defaultBonesData)
-}
-
-/**
  * Creates an empty skinned mesh using list of bones to build skeleton structure
  * @returns SkinnedMesh
  */
@@ -292,7 +288,7 @@ export function makeSkinnedMeshFromBoneData(bonesData) {
   })
 
   // we assume that root bone is the first one
-  const hipBone = bones[0]
+  const hipBone = bones[0] as Bone & { entity: Entity }
   hipBone.updateWorldMatrix(false, true)
 
   const group = new Group()
@@ -306,10 +302,10 @@ export function makeSkinnedMeshFromBoneData(bonesData) {
   return group
 }
 
-export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
+export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
   const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
-  if (!avatarRigComponent) return false
-  const bone = avatarRigComponent.rig[boneName.toLowerCase()] as VRMHumanBone
+  if (!avatarRigComponent || !avatarRigComponent.normalizedRig) return false
+  const bone = avatarRigComponent.normalizedRig[boneName] as VRMHumanBone
   if (!bone) return false
   const el = bone.node.matrixWorld.elements
   position.set(el[12], el[13], el[14])

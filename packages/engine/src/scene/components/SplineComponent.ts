@@ -70,10 +70,6 @@ export const SplineComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    // removeObjectFromGroup(entity, component.value.wrapper)
-  },
-
   onSet: (entity, component, json) => {
     if (!json) return
     json.elements && component.elements.set(json.elements)

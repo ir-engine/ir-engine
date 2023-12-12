@@ -37,21 +37,21 @@ import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/f
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
 import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { useTranslation } from 'react-i18next'
-import { EditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const PlayModeTool = () => {
   const { t } = useTranslation()
 
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+  const isEditing = useHookstate(getMutableState(EngineState).isEditing)
   const authState = useHookstate(getMutableState(AuthState))
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
 
@@ -65,8 +65,10 @@ const PlayModeTool = () => {
       removeComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
       removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
-      getMutableState(EditorHelperState).isPlayModeEnabled.set(false)
+      getMutableState(EngineState).isEditing.set(true)
       graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.stop({ entity })))
+
+      SceneState.applyCurrentSnapshot(getState(SceneState).activeScene!)
       // stop all behave graph logic
     } else {
       const avatarDetails = authState.user.avatar.value
@@ -80,7 +82,7 @@ const PlayModeTool = () => {
           name: authState.user.name.value
         })
 
-      getMutableState(EditorHelperState).isPlayModeEnabled.set(true)
+      getMutableState(EngineState).isEditing.set(false)
       // run all behave graph logic
       graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.execute({ entity })))
     }
@@ -90,26 +92,18 @@ const PlayModeTool = () => {
     <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="preview">
       <InfoTooltip
         title={
-          editorHelperState.isPlayModeEnabled.value
-            ? t('editor:toolbar.command.lbl-stopPreview')
-            : t('editor:toolbar.command.lbl-playPreview')
+          isEditing.value ? t('editor:toolbar.command.lbl-playPreview') : t('editor:toolbar.command.lbl-stopPreview')
         }
         info={
-          editorHelperState.isPlayModeEnabled.value
-            ? t('editor:toolbar.command.info-stopPreview')
-            : t('editor:toolbar.command.info-playPreview')
+          isEditing.value ? t('editor:toolbar.command.info-playPreview') : t('editor:toolbar.command.info-stopPreview')
         }
       >
         <button
           disabled={!sceneLoaded}
           onClick={onTogglePlayMode}
-          className={styles.toolButton + ' ' + (editorHelperState.isPlayModeEnabled.value ? styles.selected : '')}
+          className={styles.toolButton + ' ' + (isEditing.value ? '' : styles.selected)}
         >
-          {editorHelperState.isPlayModeEnabled.value ? (
-            <PauseIcon fontSize="small" />
-          ) : (
-            <PlayArrowIcon fontSize="small" />
-          )}
+          {isEditing.value ? <PlayArrowIcon fontSize="small" /> : <PauseIcon fontSize="small" />}
         </button>
       </InfoTooltip>
     </div>

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
@@ -41,11 +41,12 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { AvatarID, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { debounce } from 'lodash'
+import { LoadingCircle } from '../../../../components/LoadingCircle'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -57,10 +58,12 @@ const AvatarMenu = () => {
   const { t } = useTranslation()
   const authState = useHookstate(getMutableState(AuthState))
   const userId = authState.user?.id?.value
-  const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as EntityUUID)
+  const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as AvatarID)
+  const avatarLoading = useHookstate(false)
+  const isUserReady = useHookstate(getMutableState(EngineState).userReady)
 
   const page = useHookstate(0)
-  const selectedAvatarId = useHookstate('')
+  const selectedAvatarId = useHookstate('' as AvatarID)
   const search = useHookstate({ local: '', query: '' })
 
   const avatarsData = useFind(avatarPath, {
@@ -82,7 +85,8 @@ const AvatarMenu = () => {
         AvatarState.updateUserAvatarId(selectedAvatarId.value)
       }
     }
-    selectedAvatarId.set('')
+    selectedAvatarId.set('' as AvatarID)
+    avatarLoading.set(true)
   }
 
   const handleSearch = async (searchString: string) => {
@@ -91,25 +95,43 @@ const AvatarMenu = () => {
     if (searchTimeoutCancelRef.current) {
       searchTimeoutCancelRef.current()
     }
-    searchTimeoutCancelRef.current = debounce(() => search.query.set(searchString), 1000).cancel
+
+    const debouncedSearchQuery = debounce(() => {
+      search.query.set(searchString)
+    }, 500)
+
+    debouncedSearchQuery()
+
+    searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
   }
+
+  useEffect(() => {
+    if (avatarLoading.value && isUserReady.value) {
+      avatarLoading.set(false)
+      PopupMenuServices.showPopupMenu()
+    }
+  }, [isUserReady, avatarLoading])
 
   return (
     <Menu
       open
       showBackButton
       actions={
-        <Box display="flex" width="100%">
-          <Button
-            disabled={!currentAvatar || currentAvatar.id === userAvatarId.value}
-            startIcon={<Icon type="Check" />}
-            size="medium"
-            type="gradientRounded"
-            title={t('user:avatar.confirm')}
-            onClick={handleConfirmAvatar}
-          >
-            {t('user:avatar.confirm')}
-          </Button>
+        <Box display="flex" width="100%" justifyContent="center">
+          {avatarLoading.value ? (
+            <LoadingCircle />
+          ) : (
+            <Button
+              disabled={!currentAvatar || currentAvatar.id === userAvatarId.value}
+              startIcon={<Icon type="Check" />}
+              size="medium"
+              type="gradientRounded"
+              title={t('user:avatar.confirm')}
+              onClick={handleConfirmAvatar}
+            >
+              {t('user:avatar.confirm')}
+            </Button>
+          )}
         </Box>
       }
       title={t('user:avatar.titleSelectAvatar')}

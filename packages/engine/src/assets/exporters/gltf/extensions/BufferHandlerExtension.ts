@@ -24,14 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { sha3_256 } from 'js-sha3'
-import { Event, LoaderUtils, MathUtils, Mesh, Object3D } from 'three'
+import { LoaderUtils, MathUtils, Mesh, Object3D } from 'three'
 import matches, { Validator } from 'ts-matches'
 
-import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineAction, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import config from '@etherealengine/common/src/config'
+import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { AssetLoader } from '../../../classes/AssetLoader'
-import { getProjectName, getRelativeURI, modelResourcesPath } from '../../../functions/pathResolver'
+import { modelResourcesPath } from '../../../functions/pathResolver'
+import { UploadRequestState } from '../../../state/UploadRequestState'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -72,11 +75,13 @@ export default class BufferHandlerExtension extends ExporterExtension implements
     this.comparisonCanvas = document.createElement('canvas')
   }
 
-  beforeParse(input: Object3D<Event> | Object3D<Event>[]) {
+  beforeParse(input: Object3D | Object3D[]) {
     const writer = this.writer
     if (writer.options.embedImages) return
-    this.projectName = getProjectName(writer.options.path!)
-    this.modelName = getRelativeURI(writer.options.path!)
+    // this.projectName = getProjectName(writer.options.path!)
+    // this.modelName = getRelativeURI(writer.options.path!)
+    this.projectName = writer.options.projectName ?? ''
+    this.modelName = writer.options.relativePath ?? ''
     this.resourceURI = writer.options.resourceURI ?? null
     const inputs = Array.isArray(input) ? input : [input]
     inputs.forEach((input) =>
@@ -135,15 +140,18 @@ export default class BufferHandlerExtension extends ExporterExtension implements
     }
     this.writer.pending.push(
       bufferPromise.then(() => {
-        const saveParms: BufferJson & { buffer: ArrayBuffer } = {
-          name,
-          byteLength: buffer.byteLength,
-          uri,
-          buffer
-        }
+        const projectSpaceModelName = this.resourceURI
+          ? LoaderUtils.resolveURL(uri, LoaderUtils.extractUrlBase(modelName))
+          : modelName
+        const finalURI = this.resourceURI ? projectSpaceModelName.replace(/^assets\//, '') : uri
         imageDef.uri = uri
         imageDef.mimeType = `image/${AssetLoader.getAssetType(uri)}`
-        dispatchAction(BufferHandlerExtension.saveBuffer({ saveParms, projectName, modelName }))
+        const blob = new Blob([buffer])
+        const file = new File([blob], finalURI)
+        const uploadRequestState = getMutableState(UploadRequestState)
+        const queue = uploadRequestState.queue.get(NO_PROXY)
+        const nuQueue = [...queue, { file, projectName }]
+        uploadRequestState.queue.set(nuQueue)
       })
     )
   }
@@ -158,6 +166,15 @@ export default class BufferHandlerExtension extends ExporterExtension implements
     const options = writer.options
 
     if (!options?.binary) {
+      const images = writer.json.images || []
+      // const basePath = LoaderUtils.extractUrlBase(writer.options.path!)
+      const basePath = LoaderUtils.extractUrlBase(
+        pathJoin(config.client.fileServer, 'projects', writer.options.projectName!, writer.options.relativePath!)
+      )
+      //make uris relative to model src
+      for (const image of images) {
+        image.uri = image.uri.replace(basePath, '')
+      }
       writer.buffers.map((buffer, index) => {
         const hash = sha3_256.create()
         const view = new DataView(buffer)
@@ -175,20 +192,14 @@ export default class BufferHandlerExtension extends ExporterExtension implements
           uri
         }
         json.buffers[index] = bufferDef
-
-        const saveParms = {
-          ...bufferDef,
-          uri: this.resourceURI ? projectSpaceModelName.replace(/^assets\//, '') : uri,
-          buffer: buffers[index]
-        }
         if (!this.bufferCache[name]) {
-          dispatchAction(
-            BufferHandlerExtension.saveBuffer({
-              projectName,
-              modelName: projectSpaceModelName,
-              saveParms
-            })
-          )
+          const finalURI = this.resourceURI ? projectSpaceModelName.replace(/^assets\//, '') : uri
+          const blob = new Blob([buffers[index]])
+          const file = new File([blob], finalURI)
+          const uploadRequestState = getMutableState(UploadRequestState)
+          const queue = uploadRequestState.queue.get(NO_PROXY)
+          const nuQueue = [...queue, { file, projectName }]
+          uploadRequestState.queue.set(nuQueue)
           this.bufferCache[name] = uri
         } else {
           bufferDef.uri = this.bufferCache[name]

@@ -42,7 +42,7 @@ export const recordingSchemaType = Type.Object(
   },
   { $id: 'RecordingSchema', additionalProperties: false }
 )
-export type RecordingSchemaType = Static<typeof recordingSchemaType>
+export interface RecordingSchemaType extends Static<typeof recordingSchemaType> {}
 
 // Main data model schema
 export const recordingSchema = Type.Object(
@@ -62,9 +62,9 @@ export const recordingSchema = Type.Object(
   },
   { $id: 'Recording', additionalProperties: false }
 )
-export type RecordingType = Static<typeof recordingSchema>
+export interface RecordingType extends Static<typeof recordingSchema> {}
 
-export type RecordingDatabaseType = Omit<RecordingType, 'schema'> & {
+export interface RecordingDatabaseType extends Omit<RecordingType, 'schema'> {
   schema: string
 }
 
@@ -72,13 +72,13 @@ export type RecordingDatabaseType = Omit<RecordingType, 'schema'> & {
 export const recordingDataSchema = Type.Partial(recordingSchema, {
   $id: 'RecordingData'
 })
-export type RecordingData = Static<typeof recordingDataSchema>
+export interface RecordingData extends Static<typeof recordingDataSchema> {}
 
 // Schema for updating existing entries
 export const recordingPatchSchema = Type.Partial(recordingSchema, {
   $id: 'RecordingPatch'
 })
-export type RecordingPatch = Static<typeof recordingPatchSchema>
+export interface RecordingPatch extends Static<typeof recordingPatchSchema> {}
 
 // Schema for allowed query properties
 export const recordingQueryProperties = Type.Pick(recordingSchema, ['id', 'userId'])
@@ -95,7 +95,7 @@ export const recordingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type RecordingQuery = Static<typeof recordingQuerySchema>
+export interface RecordingQuery extends Static<typeof recordingQuerySchema> {}
 
 export const recordingSchemaValidator = getValidator(recordingSchemaType, dataValidator)
 export const recordingValidator = getValidator(recordingSchema, dataValidator)

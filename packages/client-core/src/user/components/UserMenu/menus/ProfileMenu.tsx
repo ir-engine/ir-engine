@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // import * as polyfill from 'credential-handler-polyfill'
+import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
@@ -40,7 +41,7 @@ import { TwitterIcon } from '@etherealengine/client-core/src/common/components/I
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -50,10 +51,12 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { authenticationSettingPath } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../services/AuthService'
+import { useUserHasAccessHook } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -80,6 +83,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const showDeleteAccount = useHookstate(false)
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
+  const loginLink = useHookstate('')
 
   const authSetting = useFind(authenticationSettingPath).data.at(0)
   const clientSetting = useFind(clientSettingPath).data.at(0)
@@ -88,8 +92,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const apiKey = selfUser.apiKey?.token?.value
   const isGuest = selfUser.isGuest.value
 
-  const hasAdminAccess =
-    selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
+  const hasAdminAccess = useUserHasAccessHook('admin:admin')
   const avatarThumbnail = useUserAvatarThumbnail(userId)
 
   useEffect(() => {
@@ -173,7 +176,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }
 
   const handleUpdateUsername = () => {
-    const name = username.value.trim()
+    const name = username.value.trim() as UserName
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
       // @ts-ignore
@@ -301,6 +304,10 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     AuthService.updateApiKey()
   }
 
+  const createLoginLink = () => {
+    AuthService.createLoginToken().then((token) => loginLink.set(`${config.client.serverUrl}/login/${token.token}`))
+  }
+
   const getConnectText = () => {
     if (authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.connectPhoneEmail')
@@ -371,6 +378,12 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               </Text>
             )}
 
+            {!selfUser?.isGuest.value && (
+              <Text mt={1} variant="body2" onClick={() => createLoginLink()}>
+                {t('user:usermenu.profile.createLoginLink')}
+              </Text>
+            )}
+
             <Text id="show-user-id" mt={1} variant="body2" onClick={() => showUserId.set(!showUserId.value)}>
               {showUserId.value ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
             </Text>
@@ -410,9 +423,9 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         </Box>
 
         <InputText
-          name="username"
+          name={'username' as UserName}
           label={t('user:usermenu.profile.lbl-username')}
-          value={username.value || ''}
+          value={username.value || ('' as UserName)}
           error={errorUsername.value}
           sx={{ mt: 4 }}
           endIcon={<Icon type="Check" />}
@@ -455,6 +468,29 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               })
             }}
           />
+        )}
+
+        {loginLink.value.length > 0 && (
+          <div>
+            <InputText
+              label={t('user:usermenu.profile.loginLink')}
+              value={loginLink.value}
+              sx={{ mt: 2 }}
+              endIcon={<Icon type="ContentCopy" />}
+              startIcon={<Icon type="Refresh" />}
+              startIconTitle={t('user:usermenu.profile.createLoginLink')}
+              onStartIconClick={createLoginLink}
+              onEndIconClick={() => {
+                navigator.clipboard.writeText(loginLink.value)
+                NotificationService.dispatchNotify(t('user:usermenu.profile.loginLinkCopied'), {
+                  variant: 'success'
+                })
+              }}
+            />
+            <div className={styles.QRContainer}>
+              <QRCodeSVG height={176} width={200} value={loginLink.value} />
+            </div>
+          </div>
         )}
 
         {!hideLogin && (
@@ -638,7 +674,13 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
             )}
           </>
         )}
-        <div className={styles.center}>
+        <div
+          className={styles.center}
+          style={{
+            fontFamily: 'var(--lato)',
+            fontSize: '12px'
+          }}
+        >
           <a href={clientSetting?.privacyPolicy}>{t('user:usermenu.profile.privacyPolicy')}</a>
         </div>
       </Box>

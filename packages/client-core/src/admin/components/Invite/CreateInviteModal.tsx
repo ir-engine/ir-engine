@@ -47,10 +47,10 @@ import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
@@ -78,7 +78,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const makeAdmin = useHookstate(false)
   const oneTimeUse = useHookstate(true)
   const locationId = useHookstate('')
-  const instanceId = useHookstate('')
+  const instanceId = useHookstate('' as InstanceID)
   const userInviteCode = useHookstate('')
   const spawnPointUUID = useHookstate('')
   const setSpawn = useHookstate(false)
@@ -89,7 +89,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
 
   const adminInstances = useFind(instancePath).data
   const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
-  const adminLocations = useFind(locationPath).data
+  const adminLocations = useFind(locationPath, { query: { action: 'admin' } }).data
 
   const adminSceneState = useHookstate(getMutableState(AdminSceneState))
   const spawnPoints = adminSceneState.singleScene?.scene?.entities.value
@@ -144,8 +144,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
     locationId.set(e.target.value)
     const location = adminLocations.find((location) => location.id === e.target.value)
     if (location && location.sceneId) {
-      const sceneName = location.sceneId.split('/')
-      AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
+      AdminSceneService.fetchAdminScene(location.sceneId)
     }
   }
 
@@ -155,8 +154,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
     if (instance) {
       const location = adminLocations.find((location) => location.id === instance.locationId)
       if (location) {
-        const sceneName = location.sceneId.split('/')
-        AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
+        AdminSceneService.fetchAdminScene(location.sceneId)
       }
     }
   }
@@ -181,7 +179,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         targetObjectId = inviteType === INVITE_TYPE_TAB_MAP[1] ? locationId.value : targetObjectId
         targetObjectId = inviteType === INVITE_TYPE_TAB_MAP[2] ? instanceId.value : targetObjectId
 
-        let inviteCode = ''
+        let inviteCode = '' as InviteCode
         const sendData = {
           inviteType,
           identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
@@ -189,11 +187,11 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
           makeAdmin: makeAdmin.value,
           deleteOnUse: oneTimeUse.value
         } as InviteData
-        if (target.length === 8) inviteCode = target
+        if (target.length === 8) inviteCode = target as InviteCode
         else sendData.token = target
         if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
           sendData.spawnType = 'inviteCode'
-          sendData.spawnDetails = { inviteCode: userInviteCode.value }
+          sendData.spawnDetails = { inviteCode: userInviteCode.value as InviteCode }
         } else if (setSpawn.value && spawnTypeTab.value === 1 && spawnPointUUID.value) {
           sendData.spawnType = 'spawnPoint'
           sendData.spawnDetails = { spawnPoint: spawnPointUUID.value }
@@ -204,7 +202,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
           sendData.endTime = toDateTimeSql(endTime.value?.toDate())
         }
         await InviteService.sendInvite(sendData, inviteCode)
-        instanceId.set('')
+        instanceId.set('' as InstanceID)
         locationId.set('')
         textValue.set('')
         makeAdmin.set(false)
@@ -397,7 +395,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
               )}
               {setSpawn.value && spawnTypeTab.value === 0 && (
                 <InputSelect
-                  name="user"
+                  name={'user' as UserName}
                   className={classNames({
                     [styles.maxWidth90]: true,
                     [styles.inputField]: true

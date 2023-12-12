@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Forbidden } from '@feathersjs/errors'
 import { NullableId, Paginated, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import appRootPath from 'app-root-path'
-import fs from 'fs'
 import path from 'path/posix'
 
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import {
   FileBrowserContentType,
   FileBrowserPatch,
@@ -41,7 +40,7 @@ import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projec
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
+import { getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -50,8 +49,21 @@ import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface FileBrowserParams extends KnexAdapterParams {}
+export interface FileBrowserParams extends KnexAdapterParams {
+  nestingDirectory?: string
+}
+
+const checkDirectoryInsideNesting = (directory: string, nestingDirectory?: string) => {
+  if (!nestingDirectory) {
+    if (/recordings/.test(directory)) nestingDirectory = 'recordings'
+    else nestingDirectory = 'projects'
+  }
+  const isInsideNestingDirectoryRegex = new RegExp(`^\/?(${nestingDirectory})`, 'g')
+
+  if (!isInsideNestingDirectoryRegex.test(directory)) {
+    throw new Error(`Not allowed to access "${directory}"`)
+  }
+}
 
 /**
  * A class for File Browser service
@@ -73,21 +85,24 @@ export class FileBrowserService
 
   /**
    * Returns the metadata for a single file or directory
-   * @param params
    */
-  async get(key: string, params?: FileBrowserParams) {
+  async get(key: string, params?: FileBrowserParams & { query: { getNestingDirectory?: boolean } }) {
+    if (params?.query?.getNestingDirectory) {
+      return params.nestingDirectory || 'projects'
+    }
+
     if (!key) return false
     const storageProvider = getStorageProvider()
     const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
+
+    checkDirectoryInsideNesting(directory, params?.nestingDirectory)
+
     const exists = await storageProvider.doesExist(file, directory)
     return exists
   }
 
   /**
    * Return the metadata for each file in a directory
-   * @param directory
-   * @param params
-   * @returns
    */
   async find(params?: FileBrowserParams) {
     if (!params) params = {}
@@ -99,10 +114,11 @@ export class FileBrowserService
     const limit = $limit ? $limit : 100
 
     const storageProvider = getStorageProvider()
-    const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
-    if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
-    if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
-      throw new Forbidden('Not allowed to access that directory')
+    const isAdmin = params.user && (await checkScope(params.user, 'admin', 'admin'))
+    if (directory[0] === '/') directory = directory.slice(1)
+
+    checkDirectoryInsideNesting(directory, params.nestingDirectory)
+
     let result = await storageProvider.listFolderContent(directory)
     const total = result.length
 
@@ -139,13 +155,12 @@ export class FileBrowserService
 
   /**
    * Create a directory
-   * @param directory: string
-   * @param params
-   * @returns
    */
   async create(directory: string, params?: FileBrowserParams) {
     const storageProvider = getStorageProvider(params?.query?.storageProviderName)
-    if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
+    if (directory[0] === '/') directory = directory.slice(1)
+
+    checkDirectoryInsideNesting(directory, params?.nestingDirectory)
 
     const parentPath = path.dirname(directory)
     const key = await getIncrementalName(path.basename(directory), parentPath, storageProvider, true)
@@ -156,17 +171,11 @@ export class FileBrowserService
 
     await storageProvider.createInvalidation([key])
 
-    fs.mkdirSync(path.join(projectsRootFolder, parentPath, key))
-
     return result
   }
 
   /**
    * Move content from one path to another
-   * @param id
-   * @param data
-   * @param params
-   * @returns
    */
   async update(id: NullableId, data: FileBrowserUpdate, params?: FileBrowserParams) {
     const storageProviderName = data.storageProviderName
@@ -187,20 +196,11 @@ export class FileBrowserService
       storageProvider.createInvalidation([newNamePath])
     ])
 
-    if (data.isCopy) {
-      copyRecursiveSync(oldNamePath, newNamePath)
-    } else {
-      fs.renameSync(oldNamePath, newNamePath)
-    }
-
     return result
   }
 
   /**
    * Upload file
-   * @param id
-   * @param data
-   * @param params
    */
   async patch(id: NullableId, data: FileBrowserPatch, params?: FileBrowserParams) {
     const storageProviderName = data.storageProviderName
@@ -209,6 +209,9 @@ export class FileBrowserService
     const name = processFileName(data.fileName)
 
     const reducedPath = data.path[0] === '/' ? data.path.substring(1) : data.path
+
+    checkDirectoryInsideNesting(reducedPath, params?.nestingDirectory)
+
     const reducedPathSplit = reducedPath.split('/')
     const project = reducedPathSplit.length > 0 && reducedPathSplit[0] === 'projects' ? reducedPathSplit[1] : undefined
     const key = path.join(reducedPath, name)
@@ -232,7 +235,7 @@ export class FileBrowserService
       hash,
       mimeType: data.contentType,
       $limit: 1
-    } as any
+    } as Record<string, unknown>
     if (project) query.project = project
     const existingResource = (await this.app.service(staticResourcePath).find({
       query
@@ -243,6 +246,7 @@ export class FileBrowserService
       await this.app.service(staticResourcePath).patch(
         resource.id,
         {
+          key,
           url
         },
         { isInternal: true }
@@ -262,36 +266,24 @@ export class FileBrowserService
       await storageProvider.createInvalidation([key])
     }
 
-    const filePath = path.join(projectsRootFolder, key)
-    const parentDirPath = path.dirname(filePath)
-
-    if (!fs.existsSync(parentDirPath)) fs.mkdirSync(parentDirPath, { recursive: true })
-    fs.writeFileSync(filePath, data.body)
-
     return url
   }
 
   /**
    * Remove a directory
-   * @param key
-   * @param params
-   * @returns
    */
   async remove(key: string, params?: FileBrowserParams) {
     const storageProviderName = params?.query?.storageProviderName
     if (storageProviderName) delete params.query?.storageProviderName
+
+    checkDirectoryInsideNesting(key, params?.nestingDirectory)
+
     const storageProvider = getStorageProvider(storageProviderName)
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
     await storageProvider.createInvalidation([key])
 
     const filePath = path.join(projectsRootFolder, key)
-
-    if (fs.lstatSync(filePath).isDirectory()) {
-      fs.rmSync(filePath, { force: true, recursive: true })
-    } else {
-      fs.unlinkSync(filePath)
-    }
 
     const staticResource = (await this.app.service(staticResourcePath).find({
       query: {

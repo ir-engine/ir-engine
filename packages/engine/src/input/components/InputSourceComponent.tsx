@@ -32,7 +32,6 @@ import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   defineQuery,
-  getComponent,
   getOptionalComponent,
   removeComponent,
   setComponent,
@@ -84,9 +83,9 @@ export const InputSourceComponent = defineComponent({
 
   entitiesByInputSource: new WeakMap<XRInputSource>(),
 
-  captureButtons: (entity: Entity, handedness = handednesses) => {
+  captureButtons: (targetEntity: Entity, handedness = handednesses) => {
     const state = getMutableState(InputSourceCaptureState)
-    for (const hand of handedness) state.buttons[hand].set(entity)
+    for (const hand of handedness) state.buttons[hand].set(targetEntity)
   },
 
   releaseButtons: (handedness = handednesses) => {
@@ -94,14 +93,30 @@ export const InputSourceComponent = defineComponent({
     for (const hand of handedness) state.buttons[hand].set(UndefinedEntity)
   },
 
-  captureAxes: (entity: Entity, handedness = handednesses) => {
+  captureAxes: (targetEntity: Entity, handedness = handednesses) => {
     const state = getMutableState(InputSourceCaptureState)
-    for (const hand of handedness) state.axes[hand].set(entity)
+    for (const hand of handedness) state.axes[hand].set(targetEntity)
   },
 
   releaseAxes: (handedness = handednesses) => {
     const state = getMutableState(InputSourceCaptureState)
     for (const hand of handedness) state.axes[hand].set(UndefinedEntity)
+  },
+
+  capture: (targetEntity: Entity, handedness = handednesses) => {
+    const state = getMutableState(InputSourceCaptureState)
+    for (const hand of handedness) {
+      state.axes[hand].set(targetEntity)
+      state.buttons[hand].set(targetEntity)
+    }
+  },
+
+  release: (handedness = handednesses) => {
+    const state = getMutableState(InputSourceCaptureState)
+    for (const hand of handedness) {
+      state.axes[hand].set(UndefinedEntity)
+      state.buttons[hand].set(UndefinedEntity)
+    }
   },
 
   isAssignedButtons: (targetEntity: Entity) => {
@@ -115,11 +130,12 @@ export const InputSourceComponent = defineComponent({
   isAssignedAxes: (targetEntity: Entity) => {
     const sourceEntities = getOptionalComponent(targetEntity, InputComponent)?.inputSources
     return !!sourceEntities?.find((sourceEntity) => {
-      const inputSourceComponent = getComponent(sourceEntity, InputSourceComponent)
-      return inputSourceComponent.assignedAxesEntity === targetEntity
+      const inputSourceComponent = getOptionalComponent(sourceEntity, InputSourceComponent)
+      return inputSourceComponent?.assignedAxesEntity === targetEntity
     })
   },
 
+  /** @deprecated */
   nonCapturedInputSourceQuery: () => {
     return nonCapturedInputSourceQuery()
   },

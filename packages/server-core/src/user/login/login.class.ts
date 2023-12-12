@@ -34,7 +34,6 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import makeInitialAdmin from '../../util/make-initial-admin'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LoginParams extends KnexAdapterParams {}
 
 /**
@@ -52,7 +51,7 @@ export class LoginService implements ServiceInterface {
    *
    * @param id of specific login detail
    * @param params
-   * @returns {@token}
+   * @returns {token}
    */
   async get(id: Id, params?: LoginParams) {
     try {
@@ -78,7 +77,7 @@ export class LoginService implements ServiceInterface {
         logger.info('Login Token has expired')
         return { error: 'Login link has expired' }
       }
-      const identityProvider = await this.app.service(identityProviderPath)._get(result.data[0].identityProviderId)
+      const identityProvider = await this.app.service(identityProviderPath).get(result.data[0].identityProviderId)
       await makeInitialAdmin(this.app, identityProvider.userId)
       const apiKey = (await this.app.service(userApiKeyPath).find({
         query: {

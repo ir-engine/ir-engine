@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NotFound } from '@feathersjs/errors'
 import { Engine } from '../../ecs/classes/Engine'
-import { ScopeType, scopePath } from '../../schemas/scope/scope.schema'
+import { ScopeTypeInterface, scopePath } from '../../schemas/scope/scope.schema'
 import { UserType } from '../../schemas/user/user.schema'
 
 export const checkScope = async (user: UserType, currentType: string, scopeToVerify: string) => {
@@ -34,9 +33,11 @@ export const checkScope = async (user: UserType, currentType: string, scopeToVer
       userId: user.id,
       paginate: false
     }
-  })) as any as ScopeType[]
+  })) as any as ScopeTypeInterface[]
 
-  if (!scopes || scopes.length === 0) throw new NotFound('No scope available for the current user.')
+  if (!scopes || scopes.length === 0) {
+    return false
+  }
 
   const currentScopes = scopes.reduce<string[]>((result, sc) => {
     if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])

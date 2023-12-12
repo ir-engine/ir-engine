@@ -61,12 +61,17 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { GroupAddOutlined as PlaceHolderIcon } from '@mui/icons-material'
 import { IconButton, PopoverPosition } from '@mui/material'
 
+import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
-import { LoadVolumeComponent } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
+import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
+import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
+import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { Vector3 } from 'three'
+import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -92,8 +97,15 @@ type SceneElementListItemType = {
 
 export const ComponentShelfCategories: Record<string, Component[]> = {
   Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
-  'Scene Composition': [GroundPlaneComponent, GroupComponent, ColliderComponent, LoadVolumeComponent],
-  Interaction: [SpawnPointComponent, PortalComponent, LinkComponent],
+  'Scene Composition': [
+    PrimitiveGeometryComponent,
+    GroundPlaneComponent,
+    GroupComponent,
+    ColliderComponent,
+    VariantComponent,
+    SceneDynamicLoadTagComponent
+  ],
+  Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
   Lighting: [
     AmbientLightComponent,
     PointLightComponent,
@@ -101,15 +113,15 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     DirectionalLightComponent,
     HemisphereLightComponent
   ],
-  FX: [ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
+  FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
   Scripting: [SystemComponent, BehaveGraphComponent],
   Misc: [
-    VariantComponent,
     EnvMapBakeComponent,
     ScenePreviewCameraComponent,
     SkyboxComponent,
     SplineTrackComponent,
-    SplineComponent
+    SplineComponent,
+    TextComponent
   ]
 }
 
@@ -189,12 +201,13 @@ export function ElementList() {
     setAnchorPosition(undefined)
   }
 
-  const searchBarState = useState('')
+  const searchBarState = useState<string>('')
 
   const validElements = useState(ComponentShelfCategories)
 
   useEffect(() => {
     const result: Record<string, Component[]> = {}
+    console.log('searchBarState', searchBarState, searchBarState.value)
     if (searchBarState.value === '') {
       validElements.set(ComponentShelfCategories)
     } else {
@@ -226,7 +239,7 @@ export function ElementList() {
             )}
             {items.map((item) => (
               <SceneElementListItem
-                key={item.jsonID}
+                key={item.jsonID || item.name}
                 item={{
                   componentJsonID: item.jsonID!,
                   label: startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase()),

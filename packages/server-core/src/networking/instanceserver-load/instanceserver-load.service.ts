@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { LocationID } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { Application } from '../../../declarations'
 import hooks from './instanceserver-load.hooks'
 
@@ -34,7 +36,19 @@ declare module '@etherealengine/common/declarations' {
 
 export default (app: Application): void => {
   app.use('instanceserver-load', {
-    patch: ({ id, ipAddress, podName, locationId, sceneId }) => {
+    patch: ({
+      id,
+      ipAddress,
+      podName,
+      locationId,
+      sceneId
+    }: {
+      id
+      ipAddress
+      podName
+      locationId: LocationID
+      sceneId: SceneID
+    }) => {
       return { id, ipAddress, podName, locationId, sceneId }
     }
   })

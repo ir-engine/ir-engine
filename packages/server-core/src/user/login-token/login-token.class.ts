@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   LoginTokenData,
@@ -33,9 +33,6 @@ import {
   LoginTokenType
 } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 
-import { KnexAdapterParams } from '@feathersjs/knex'
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LoginTokenParams extends KnexAdapterParams<LoginTokenQuery> {}
 
 /**

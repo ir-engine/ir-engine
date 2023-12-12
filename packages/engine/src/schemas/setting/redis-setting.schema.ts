@@ -47,19 +47,19 @@ export const redisSettingSchema = Type.Object(
   },
   { $id: 'RedisSetting', additionalProperties: false }
 )
-export type RedisSettingType = Static<typeof redisSettingSchema>
+export interface RedisSettingType extends Static<typeof redisSettingSchema> {}
 
 // Schema for creating new entries
 export const redisSettingDataSchema = Type.Pick(redisSettingSchema, ['enabled', 'address', 'port', 'password'], {
   $id: 'RedisSettingData'
 })
-export type RedisSettingData = Static<typeof redisSettingDataSchema>
+export interface RedisSettingData extends Static<typeof redisSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const redisSettingPatchSchema = Type.Partial(redisSettingSchema, {
   $id: 'RedisSettingPatch'
 })
-export type RedisSettingPatch = Static<typeof redisSettingPatchSchema>
+export interface RedisSettingPatch extends Static<typeof redisSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const redisSettingQueryProperties = Type.Pick(redisSettingSchema, [
@@ -77,7 +77,7 @@ export const redisSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type RedisSettingQuery = Static<typeof redisSettingQuerySchema>
+export interface RedisSettingQuery extends Static<typeof redisSettingQuerySchema> {}
 
 export const redisSettingValidator = getValidator(redisSettingSchema, dataValidator)
 export const redisSettingDataValidator = getValidator(redisSettingDataSchema, dataValidator)

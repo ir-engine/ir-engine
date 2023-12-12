@@ -32,7 +32,6 @@ import { VolumetricComponent } from '@etherealengine/engine/src/scene/components
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
 import VideocamIcon from '@mui/icons-material/Videocam'
-
 import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
@@ -41,7 +40,7 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 const PlayModeOptions = [
   {
@@ -74,9 +73,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const volumetricComponent = useComponent(props.entity, VolumetricComponent)
 
   const toggle = () => {
-    commitProperties(VolumetricComponent, {
-      paused: !volumetricComponent.paused.value
-    })
+    volumetricComponent.paused.set(!volumetricComponent.paused.value)
   }
 
   return (
@@ -93,13 +90,13 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
 
       <InputGroup
-        name="Auto Play"
-        label={t('editor:properties.media.lbl-paused')}
-        info={t('editor:properties.media.info-paused')}
+        name="Autoplay"
+        label={t('editor:properties.media.lbl-autoplay')}
+        info={t('editor:properties.media.info-autoplay')}
       >
         <BooleanInput
-          value={volumetricComponent.paused.value}
-          onChange={commitProperty(VolumetricComponent, 'paused')}
+          onChange={commitProperty(VolumetricComponent, 'autoplay')}
+          value={volumetricComponent.autoplay.value}
         />
       </InputGroup>
 
@@ -118,7 +115,8 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         name="Source Paths"
         prefix="Content"
         values={volumetricComponent.paths.value}
-        onChange={commitProperty(VolumetricComponent, 'paths')}
+        onChange={updateProperty(VolumetricComponent, 'paths')}
+        onRelease={commitProperty(VolumetricComponent, 'paths')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={VolumetricFileTypes}
         acceptDropItems={ItemTypes.Volumetrics}
@@ -133,7 +131,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         />
         {volumetricComponent.paths && volumetricComponent.paths.length > 0 && volumetricComponent.paths[0] && (
           <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
-            {volumetricComponent.paused
+            {volumetricComponent.paused.value
               ? t('editor:properties.media.playtitle')
               : t('editor:properties.media.pausetitle')}
           </Button>

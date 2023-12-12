@@ -47,6 +47,7 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -58,10 +59,9 @@ import {
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraComponent } from '../components/CameraComponent'
-import { FollowCameraComponent, coneDebugHelpers, debugRays } from '../components/FollowCameraComponent'
+import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { CameraFadeBlackEffectSystem } from './CameraFadeBlackEffectSystem'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
@@ -157,18 +157,6 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
     if (hits[0] && hits[0].distance < maxDistance) {
       maxDistance = hits[0].distance
-    }
-
-    if (debugRays) {
-      const helper = coneDebugHelpers[i]
-      helper.setDirection(rayDir)
-      helper.position.copy(target)
-
-      if (hits[0]) {
-        helper.setColor('red')
-      } else {
-        helper.setColor('green')
-      }
     }
   })
 
@@ -289,6 +277,7 @@ const execute = () => {
   for (const action of cameraSpawnActions()) cameraSpawnReceptor(action)
 
   for (const action of spectateUserActions()) {
+    getMutableState(EngineState).userReady.set(true)
     const cameraEntity = Engine.instance.cameraEntity
     if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserID })
     else
@@ -347,7 +336,7 @@ const reactor = () => {
 
 export const CameraSystem = defineSystem({
   uuid: 'ee.engine.CameraSystem',
+  insert: { with: AnimationSystemGroup },
   execute,
-  reactor,
-  subSystems: [CameraFadeBlackEffectSystem]
+  reactor
 })

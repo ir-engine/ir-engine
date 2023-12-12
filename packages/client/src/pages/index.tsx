@@ -76,7 +76,17 @@ export const HomePage = (): any => {
         </MetaTags>
         <div className="main-background">
           <div className="img-container">
-            {clientSetting?.appBackground && <img src={clientSetting.appBackground} alt="" crossOrigin="anonymous" />}
+            {clientSetting?.appBackground && (
+              <img
+                style={{
+                  height: 'auto',
+                  maxWidth: '100%'
+                }}
+                src={clientSetting.appBackground}
+                alt=""
+                crossOrigin="anonymous"
+              />
+            )}
           </div>
         </div>
         <nav className="navbar">
@@ -94,7 +104,7 @@ export const HomePage = (): any => {
                 <span>{clientSetting.appDescription}</span>
               </Trans>
             )}
-            {Boolean(clientSetting.homepageLinkButtonEnabled) && (
+            {Boolean(clientSetting?.homepageLinkButtonEnabled) && (
               <Button
                 className={styles.gradientButton + ' ' + styles.forceVaporwave}
                 autoFocus
@@ -126,7 +136,14 @@ export const HomePage = (): any => {
             {clientSetting?.appSocialLinks?.length > 0 &&
               clientSetting.appSocialLinks.map((social, index) => (
                 <a key={index} target="_blank" className="icon" href={social.link}>
-                  <img src={social.icon} alt="" />
+                  <img
+                    style={{
+                      height: 'auto',
+                      maxWidth: '100%'
+                    }}
+                    src={social.icon}
+                    alt=""
+                  />
                 </a>
               ))}
           </div>

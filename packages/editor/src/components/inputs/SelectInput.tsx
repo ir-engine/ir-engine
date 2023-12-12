@@ -37,6 +37,7 @@ interface SelectInputProp<T> {
   value: T | string
   options: Array<{ label: string; value: T; info?: string }>
   onChange?: (value: T | string) => void
+  onRelease?: (value: T | string) => void
   placeholder?: string
   disabled?: boolean
   creatable?: boolean
@@ -48,6 +49,7 @@ export function SelectInput<T extends string | ReadonlyArray<string> | number | 
   value,
   options,
   onChange,
+  onRelease,
   placeholder = 'Select...',
   disabled,
   creatable,
@@ -58,6 +60,10 @@ export function SelectInput<T extends string | ReadonlyArray<string> | number | 
 
   const handleChange = (event: SelectChangeEvent<T>) => {
     onChange?.(event.target.value)
+  }
+
+  const handleBlur = () => {
+    if (onRelease) onRelease(value)
   }
 
   const onValueChanged = (event, label, ...args) => {
@@ -107,6 +113,7 @@ export function SelectInput<T extends string | ReadonlyArray<string> | number | 
         id="select"
         value={value}
         onChange={handleChange}
+        onBlur={handleBlur}
         placeholder={placeholder}
         size="small"
         classes={{

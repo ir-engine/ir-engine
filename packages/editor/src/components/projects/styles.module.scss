@@ -52,9 +52,14 @@
 .projectPage {
   width: 100%;
   display: flex;
+  flex-direction: column;
+  flex: 1;
+  font-family: var(--lato);
+  font-size: 12px;
   background-color: var(--mainBackground);
   pointer-events: auto;
   max-height: 100%;
+  color: var(--textColor);
 }
 
 .projectPageContainer {
@@ -86,6 +91,7 @@
 
       h2 {
         font-size: 24px;
+        font-weight: normal;
       }
 
       .buttonContainer {
@@ -193,8 +199,12 @@
           }
 
           h3 {
+            margin:0;
+            padding:0;
             line-height: 30px;
             margin-left: -5px;
+            font-size:100%;
+            font-weight:normal;
           }
         }
 
@@ -206,6 +216,16 @@
 
         .expansionDetail {
           padding: 8px 0;
+
+          ul{
+            margin: 0;
+            padding: 0;
+          }
+
+          h3{
+            margin:0;
+            padding:0;
+          }
         }
       }
 
@@ -339,6 +359,7 @@
       text-align: center;
       margin-top: 10px;
       color: var(--textColor);
+      font-weight: normal;
     }
 
     button {
@@ -422,6 +443,8 @@
   .errorMessage {
     color: var(--red);
     margin: 5px 2px;
+    font-size: 100%;
+    font-weight: normal;
   }
 
   .secondaryText {
@@ -558,7 +581,7 @@
 }
 
 .deleteDialog {
-  background: var(--popupBackground);
+  background: var(--dockBackground);
   color: var(--textColor);
   width: 300px;
 
@@ -571,8 +594,6 @@
       height: 35px !important;
       width: 85px !important;
       font-size: 14px !important;
-      background: transparent !important;
-      color: var(--blue) !important;
 
       &:hover,
       &:focus-visible {
@@ -623,3 +644,4 @@
   background-color: var(--popupBackground) !important;
   color: var(--textColor) !important;
 }
+

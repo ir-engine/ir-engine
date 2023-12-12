@@ -30,13 +30,13 @@ import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHoo
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem, disableSystem, startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 
 const initialize3D = () => {
-  const camera = new PerspectiveCamera(60, 1, 0.25, 200)
+  const camera = new PerspectiveCamera(60, 1, 0.25, 100000)
   camera.position.set(0, 1.75, 0.5)
   camera.layers.set(ObjectLayers.Panel)
 
@@ -65,7 +65,7 @@ const initialize3D = () => {
   const controls = getOrbitControls(camera, renderer.domElement)
 
   controls.minDistance = 0.1
-  controls.maxDistance = 100
+  controls.maxDistance = 10000
   controls.target.set(0, 1.65, 0)
   controls.update()
   const entity = createEntity()
@@ -99,6 +99,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
 
     const AvatarSelectRenderSystem = defineSystem({
       uuid: 'ee.client.AvatarSelectRenderSystem-' + i++,
+      insert: { after: PresentationSystemGroup },
       execute: () => {
         // only render if this menu is open
         if (!!panel.current && state.renderer.value) {
@@ -108,10 +109,8 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       }
     })
 
-    startSystem(AvatarSelectRenderSystem, { after: PresentationSystemGroup })
-
     return () => {
-      disableSystem(AvatarSelectRenderSystem)
+      destroySystem(AvatarSelectRenderSystem)
       // todo - do we need to remove the system defintion?
       removeEntity(state.entity.value)
       window.removeEventListener('resize', resize)

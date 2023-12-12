@@ -37,6 +37,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import {
@@ -206,7 +207,9 @@ const updateTransformFromComputedTransform = (entity: Entity) => {
 export const updateGroupChildren = (entity: Entity) => {
   const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
   // drop down one level and update children
+
   for (const root of group) {
+    if (root.isProxified) continue
     for (const obj of root.children) {
       obj.updateMatrixWorld()
       obj.matrixWorldNeedsUpdate = false
@@ -280,7 +283,7 @@ const filterAwakeCleanRigidbodies = (entity: Entity) =>
 
 const filterSleepingRigidbodies = (entity: Entity) => getComponent(entity, RigidBodyComponent).body.isSleeping()
 
-let sortedTransformEntities = [] as Entity[]
+const sortedTransformEntities = [] as Entity[]
 
 /** override Skeleton.update, as it is called inside  */
 const skeletonUpdate = Skeleton.prototype.update
@@ -306,7 +309,7 @@ const execute = () => {
   const engineState = getState(EngineState)
   const xrFrame = getState(XRState).xrFrame
 
-  let needsSorting = engineState.transformsNeedSorting
+  let needsSorting = TransformComponent.transformsNeedSorting
 
   for (const entity of transformQuery.enter()) {
     sortedTransformEntities.push(entity)
@@ -324,7 +327,7 @@ const execute = () => {
     for (const entity of sortedTransformEntities) updateTransformDepth(entity)
     for (const entity of sortedTransformEntities) updateOriginChildEntities(entity)
     insertionSort(sortedTransformEntities, compareReferenceDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
-    getMutableState(EngineState).transformsNeedSorting.set(false)
+    TransformComponent.transformsNeedSorting = false
   }
 
   /**
@@ -343,7 +346,7 @@ const execute = () => {
   for (const entity of awakeCleanRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty
-  for (const entity of transformQuery()) {
+  for (const entity of sortedTransformEntities) {
     const makeDirty =
       TransformComponent.dirtyTransforms[entity] ||
       TransformComponent.dirtyTransforms[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||
@@ -443,6 +446,7 @@ const reactor = () => {
 
 export const TransformSystem = defineSystem({
   uuid: 'ee.engine.TransformSystem',
+  insert: { after: AnimationSystemGroup },
   execute,
   reactor
 })

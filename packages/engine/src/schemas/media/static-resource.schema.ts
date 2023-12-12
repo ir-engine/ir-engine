@@ -60,9 +60,9 @@ export const staticResourceSchema = Type.Object(
   },
   { $id: 'StaticResource', additionalProperties: false }
 )
-export type StaticResourceType = Static<typeof staticResourceSchema>
+export interface StaticResourceType extends Static<typeof staticResourceSchema> {}
 
-export type StaticResourceDatabaseType = Omit<StaticResourceType, 'metadata' | 'tags' | 'stats'> & {
+export interface StaticResourceDatabaseType extends Omit<StaticResourceType, 'metadata' | 'tags' | 'stats'> {
   metadata: string
   tags: string
   stats: string
@@ -70,13 +70,13 @@ export type StaticResourceDatabaseType = Omit<StaticResourceType, 'metadata' | '
 
 // Schema for creating new entries
 export const staticResourceDataSchema = Type.Partial(staticResourceSchema, { $id: 'StaticResourceData' })
-export type StaticResourceData = Static<typeof staticResourceDataSchema>
+export interface StaticResourceData extends Static<typeof staticResourceDataSchema> {}
 
 // Schema for updating existing entries
 export const staticResourcePatchSchema = Type.Partial(staticResourceSchema, {
   $id: 'StaticResourcePatch'
 })
-export type StaticResourcePatch = Static<typeof staticResourcePatchSchema>
+export interface StaticResourcePatch extends Static<typeof staticResourcePatchSchema> {}
 
 // Schema for allowed query properties
 export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
@@ -110,7 +110,7 @@ export const staticResourceQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type StaticResourceQuery = Static<typeof staticResourceQuerySchema>
+export interface StaticResourceQuery extends Static<typeof staticResourceQuerySchema> {}
 
 export const staticResourceValidator = getValidator(staticResourceSchema, dataValidator)
 export const staticResourceDataValidator = getValidator(staticResourceDataSchema, dataValidator)

@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { defineState } from '@etherealengine/hyperflux'
 
 export const EditorCameraState = defineState({
   name: 'EditorCameraState',
   initial: {
     zoomDelta: 0,
-    focusedObjects: [] as EntityOrObjectUUID[],
+    focusedObjects: [] as Entity[],
     isPanning: false,
     cursorDeltaX: 0,
     cursorDeltaY: 0,

@@ -32,8 +32,9 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import TableComponent from '../../common/Table'
 import { InstanceData, instanceColumns } from '../../common/variables/instance'
 import styles from '../../styles/admin.module.scss'
@@ -44,13 +45,11 @@ interface Props {
   search: string
 }
 
-const INSTANCE_PAGE_LIMIT = 100
-
 const InstanceTable = ({ className, search }: Props) => {
   const { t } = useTranslation()
   const refetch = useHookstate(false)
   const openConfirm = useHookstate(false)
-  const instanceId = useHookstate('')
+  const instanceId = useHookstate('' as InstanceID)
   const instanceName = useHookstate('')
   const instanceAdmin = useHookstate<InstanceType | undefined>(undefined)
   const openInstanceDrawer = useHookstate(false)
@@ -59,10 +58,12 @@ const InstanceTable = ({ className, search }: Props) => {
     query: {
       $sort: { createdAt: 1 },
       $limit: 20,
-      action: 'admin',
-      search
+      action: 'admin'
     }
   })
+
+  useSearch(instancesQuery, { search }, search)
+
   const removeInstance = useMutation(instancePath).remove
 
   const submitRemoveInstance = async () => {
@@ -106,7 +107,7 @@ const InstanceTable = ({ className, search }: Props) => {
     id: string,
     ipAddress: string,
     currentUsers: number,
-    channelId: string,
+    channelId: ChannelID,
     podName: string,
     location?: LocationType
   ): InstanceData => {
@@ -126,7 +127,7 @@ const InstanceTable = ({ className, search }: Props) => {
           <Button
             className={styles.actionStyle}
             onClick={() => {
-              instanceId.set(id)
+              instanceId.set(id as InstanceID)
               instanceName.set(ipAddress)
               openConfirm.set(true)
             }}
@@ -144,7 +145,7 @@ const InstanceTable = ({ className, search }: Props) => {
       el.id,
       el.ipAddress || '',
       el.currentUsers,
-      el.channelId || '',
+      el.channelId || ('' as ChannelID),
       el.podName || '',
       el.location as LocationType
     )

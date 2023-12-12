@@ -23,10 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
-import { useEffect } from 'react'
-
-import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import {
   SnapMode,
   SnapModeType,
@@ -34,18 +30,18 @@ import {
   TransformModeType,
   TransformPivot,
   TransformPivotType,
-  TransformSpace
+  TransformSpace,
+  TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { defineState, getMutableState, startReactor, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 export const EditorHelperState = defineState({
   name: 'EditorHelperState',
   initial: () => ({
-    isPlayModeEnabled: false,
     isFlyModeEnabled: false,
-    transformMode: TransformMode.Translate as TransformModeType,
-    transformModeOnCancel: TransformMode.Translate as TransformModeType,
-    transformSpace: TransformSpace.World as TransformSpace,
+    transformMode: TransformMode.translate as TransformModeType,
+    transformModeOnCancel: TransformMode.translate as TransformModeType,
+    transformSpace: TransformSpace.world as TransformSpaceType,
     transformPivot: TransformPivot.Selection as TransformPivotType,
     snapMode: SnapMode.Grid as SnapModeType,
     translationSnap: 0.5,
@@ -61,15 +57,5 @@ export const EditorHelperState = defineState({
       'scaleSnap',
       'isGenerateThumbnailsEnabled'
     ])
-    /** @todo move this to EditorHelperServiceSystem when the receptor is moved over */
-    startReactor(() => {
-      const state = useHookstate(getMutableState(EditorHelperState))
-
-      useEffect(() => {
-        InfiniteGridHelper.instance?.setSize(state.translationSnap.value)
-      }, [state.translationSnap])
-
-      return null!
-    })
   }
 })

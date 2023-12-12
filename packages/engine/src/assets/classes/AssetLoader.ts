@@ -48,6 +48,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { isClient } from '../../common/functions/getEnvironment'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
+import { iOS } from '../../common/functions/isMobile'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -62,7 +63,6 @@ import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsE
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
-import { XRELoader } from './XRELoader'
 
 // import { instanceGLTF } from '../functions/transformGLTF'
 
@@ -187,7 +187,6 @@ const handleLODs = (asset: Object3D): Object3D => {
  */
 const getAssetType = (assetFileName: string): AssetType => {
   assetFileName = assetFileName.toLowerCase()
-  if (assetFileName.endsWith('.xre.gltf')) return AssetType.XRE
   const suffix = assetFileName.split('.').pop()
   switch (suffix) {
     case 'gltf':
@@ -237,18 +236,15 @@ const getAssetType = (assetFileName: string): AssetType => {
  */
 const getAssetClass = (assetFileName: string): AssetClass => {
   assetFileName = assetFileName.toLowerCase()
-
-  if (/\.xre\.gltf$/.test(assetFileName)) {
-    return AssetClass.Asset
-  } else if (/\.(?:gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
+  if (/\.(gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
     return AssetClass.Model
-  } else if (/\.png|jpg|jpeg|tga|ktx2|dds$/.test(assetFileName)) {
+  } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
     return AssetClass.Image
-  } else if (/\.mp4|avi|webm|mkv|mov|m3u8|mpd$/.test(assetFileName)) {
+  } else if (/\.(mp4|avi|webm|mkv|mov|m3u8|mpd)$/.test(assetFileName)) {
     return AssetClass.Video
-  } else if (/\.mp3|ogg|m4a|flac|wav$/.test(assetFileName)) {
+  } else if (/\.(mp3|ogg|m4a|flac|wav)$/.test(assetFileName)) {
     return AssetClass.Audio
-  } else if (/\.drcs|uvol|manifest$/.test(assetFileName)) {
+  } else if (/\.(drcs|uvol|manifest)$/.test(assetFileName)) {
     return AssetClass.Volumetric
   } else {
     return AssetClass.Unknown
@@ -274,7 +270,6 @@ const textureLoader = () => new TextureLoader()
 const fileLoader = () => new FileLoader()
 const audioLoader = () => new AudioLoader()
 const tgaLoader = () => new TGALoader()
-const xreLoader = () => new XRELoader(fileLoader())
 const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
   load: (src, onLoad) => {
@@ -296,8 +291,6 @@ const usdzLoader = () => new USDZLoader()
 
 export const getLoader = (assetType: AssetType) => {
   switch (assetType) {
-    case AssetType.XRE:
-      return xreLoader()
     case AssetType.KTX2:
       return ktx2Loader()
     case AssetType.DDS:
@@ -369,24 +362,60 @@ type LoadingArgs = {
   assetRoot?: Entity
 }
 
-const load = (
+const load = async (
   _url: string,
   args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {}
+  onError = (event: ErrorEvent | Error) => {},
+  assetTypeOverride: AssetType = null!
 ) => {
   if (!_url) {
     onError(new Error('URL is empty'))
     return
   }
-  const url = getAbsolutePath(_url)
+  let url = getAbsolutePath(_url)
 
-  const assetType = AssetLoader.getAssetType(url)
+  const assetType = assetTypeOverride ? assetTypeOverride : AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
-  if (args.assetRoot && (loader as XRELoader).isXRELoader) {
-    ;(loader as XRELoader).rootNode = args.assetRoot
+  if (iOS && (assetType === AssetType.PNG || assetType === AssetType.JPEG)) {
+    const img = new Image()
+    img.crossOrigin = 'anonymous' //browser will yell without this
+    img.src = url
+    await img.decode() //new way to wait for image to load
+    // Initialize the canvas and it's size
+    const canvas = document.createElement('canvas') //dead dom elements? Remove after Three loads them
+    const ctx = canvas.getContext('2d')
+
+    // Set width and height
+    const originalWidth = img.width
+    const originalHeight = img.height
+
+    let resizingFactor = 1
+    if (originalWidth >= originalHeight) {
+      if (originalWidth > 1024) {
+        resizingFactor = 1024 / originalWidth
+      }
+    } else {
+      if (originalHeight > 1024) {
+        resizingFactor = 1024 / originalHeight
+      }
+    }
+
+    const canvasWidth = originalWidth * resizingFactor
+    const canvasHeight = originalHeight * resizingFactor
+
+    canvas.width = canvasWidth
+    canvas.height = canvasHeight
+
+    // Draw image and export to a data-uri
+    ctx?.drawImage(img, 0, 0, canvasWidth, canvasHeight)
+    const dataURI = canvas.toDataURL()
+
+    // Do something with the result, like overwrite original
+    url = dataURI
   }
+
   const callback = assetLoadCallback(url, args, assetType, onLoad)
 
   try {
@@ -396,9 +425,14 @@ const load = (
   }
 }
 
-const loadAsync = async (url: string, args: LoadingArgs = {}, onProgress = (request: ProgressEvent) => {}) => {
+const loadAsync = async (
+  url: string,
+  args: LoadingArgs = {},
+  onProgress = (request: ProgressEvent) => {},
+  assetTypeOverride: AssetType = null!
+) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, args, resolve, onProgress, reject)
+    load(url, args, resolve, onProgress, reject, assetTypeOverride)
   })
 }
 

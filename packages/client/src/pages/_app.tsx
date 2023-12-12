@@ -25,29 +25,23 @@ Ethereal Engine. All Rights Reserved.
 
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
-import {
-  NotificationAction,
-  NotificationActions
-} from '@etherealengine/client-core/src/common/services/NotificationService'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
-import { theme } from '@etherealengine/client-core/src/theme'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
-import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import '@etherealengine/client-core/src/util/GlobalStyle.css'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
-import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
+import { StyledEngineProvider, Theme } from '@mui/material/styles'
 
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { useTranslation } from 'react-i18next'
 import RouterComp from '../route/public'
 import { ThemeContextProvider } from '../themes/themeContext'
 
@@ -60,86 +54,60 @@ declare module '@mui/styles/defaultTheme' {
 const AppPage = ({ route }: { route: string }) => {
   const notistackRef = useRef<SnackbarProvider>()
   const authState = useHookstate(getMutableState(AuthState))
+  const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
   const selfUser = authState.user
-  const [projectComponents, setProjectComponents] = useState<Array<any>>([])
-  const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-  const projectState = useHookstate(getMutableState(ProjectState))
+  const [projectComponents, setProjectComponents] = useState<Array<any> | null>(null)
+  const notificationstate = useHookstate(getMutableState(NotificationState))
+  const { t } = useTranslation()
 
-  const initApp = useCallback(() => {
+  useEffect(() => {
+    AuthService.doLoginAuto()
     initGA()
     logPageView()
   }, [])
 
   useEffect(() => {
-    const receptor = (action): any => {
-      // @ts-ignore
-      matches(action).when(NotificationAction.notify.matches, (action) => {
-        AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
-        notistackRef.current?.enqueueSnackbar(action.message, {
-          variant: action.options.variant,
-          action: NotificationActions[action.options.actionType ?? 'default']
-        })
-      })
-    }
-    addActionReceptor(receptor)
+    notificationstate.snackbar.set(notistackRef.current)
+  }, [notistackRef.current])
 
-    return () => {
-      removeActionReceptor(receptor)
-    }
-  }, [])
-
-  useEffect(initApp, [])
-
-  // useEffect(() => {
-  //   chapiWalletPolyfill
-  //     .loadOnce()
-  //     .then(() => console.log('CHAPI wallet polyfill loaded.'))
-  //     .catch((e) => console.error('Error loading polyfill:', e))
-  // }, [])
+  NotificationState.useNotifications()
 
   useEffect(() => {
-    if (selfUser?.id.value && projectState.updateNeeded.value) {
-      ProjectService.fetchProjects()
-      if (!fetchedProjectComponents) {
-        setFetchedProjectComponents(true)
-        Engine.instance.api
-          .service(projectsPath)
-          .find()
-          .then((projects) => {
-            loadWebappInjection(projects).then((result) => {
-              setProjectComponents(result)
-            })
-          })
-      }
-    }
-  }, [selfUser, projectState.updateNeeded.value])
+    if (!isLoggedIn.value || projectComponents) return
+    loadWebappInjection().then((result) => {
+      setProjectComponents(result)
+    })
+  }, [isLoggedIn])
 
   useEffect(() => {
     Engine.instance.userID = selfUser.id.value
   }, [selfUser.id])
 
+  if (!isLoggedIn.value) {
+    return <LoadingCircle message={t('common:loader.authenticating')} />
+  }
+
   return (
     <>
       <ThemeContextProvider>
         <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={theme}>
-            <SnackbarProvider
-              ref={notistackRef as any}
-              maxSnack={7}
-              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-              action={defaultAction}
-            >
-              <GlobalStyle />
-              <div style={{ pointerEvents: 'auto' }}>
-                <InviteToast />
-                <Debug />
-              </div>
-              <RouterComp route={route} />
-              {projectComponents.map((Component, i) => (
-                <Component key={i} />
-              ))}
-            </SnackbarProvider>
-          </ThemeProvider>
+          <SnackbarProvider
+            ref={notistackRef as any}
+            maxSnack={7}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            action={defaultAction}
+            style={{
+              fontFamily: 'var(--lato)',
+              fontSize: '12px'
+            }}
+          >
+            <div style={{ pointerEvents: 'auto' }}>
+              <InviteToast />
+              <Debug />
+            </div>
+            {projectComponents && <RouterComp route={route} />}
+            {projectComponents?.map((Component, i) => <Component key={i} />)}
+          </SnackbarProvider>
         </StyledEngineProvider>
       </ThemeContextProvider>
     </>

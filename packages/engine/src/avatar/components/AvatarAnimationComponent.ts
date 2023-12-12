@@ -41,21 +41,23 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { PoseSchema } from '../../transform/components/TransformComponent'
+import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import { PoseSchema, TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -100,13 +102,12 @@ export const AvatarRigComponent = defineComponent({
   onInit: (entity) => {
     return {
       /** Holds all the bones */
-      rig: null! as VRMHumanBones,
-      /** Read-only bones in bind pose */
-      localRig: null! as VRMHumanBones,
+      normalizedRig: null! as VRMHumanBones,
+      rawRig: null! as VRMHumanBones,
       /** the target */
       targetBones: null! as Record<VRMHumanBoneName, Bone>,
 
-      helper: null as SkeletonHelper | null,
+      helperEntity: null as Entity | null,
       /** The length of the torso in a t-pose, from the hip joint to the head joint */
       torsoLength: 0,
       /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
@@ -134,8 +135,8 @@ export const AvatarRigComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (matches.object.test(json.rig)) component.rig.set(json.rig)
-    if (matches.object.test(json.localRig)) component.localRig.set(json.localRig)
+    if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
+    if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
     if (matches.object.test(json.targetBones)) component.targetBones.set(json.targetBones)
     if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
     if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
@@ -147,12 +148,6 @@ export const AvatarRigComponent = defineComponent({
     if (matches.string.test(json.ikOverride)) component.ikOverride.set(json.ikOverride)
   },
 
-  onRemove: (entity, component) => {
-    if (component.helper.value) {
-      removeObjectFromGroup(entity, component.helper.value)
-    }
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
@@ -161,26 +156,35 @@ export const AvatarRigComponent = defineComponent({
     const visible = useOptionalComponent(entity, VisibleComponent)
 
     useEffect(() => {
-      if (
-        visible?.value &&
-        debugEnabled.value &&
-        !rigComponent.helper.value &&
-        !pending?.value &&
-        rigComponent.value.rig?.hips?.node
-      ) {
-        const helper = new SkeletonHelper(rigComponent.value.targetBones.hips.parent!)
-        helper.frustumCulled = false
-        helper.name = `target-rig-helper-${entity}`
-        setObjectLayers(helper, ObjectLayers.AvatarHelper)
-        Engine.instance.scene.add(helper)
-        rigComponent.helper.set(helper)
-      }
+      if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
+        return
 
-      if ((!visible?.value || !debugEnabled.value || pending?.value) && rigComponent.helper.value) {
-        rigComponent.helper.value.removeFromParent()
-        rigComponent.helper.set(none)
+      const helper = new SkeletonHelper(rigComponent.value.vrm.scene)
+      helper.frustumCulled = false
+      helper.name = `target-rig-helper-${entity}`
+      setObjectLayers(helper, ObjectLayers.AvatarHelper)
+
+      const helperEntity = createEntity()
+      setVisibleComponent(helperEntity, true)
+      addObjectToGroup(helperEntity, helper)
+      rigComponent.helperEntity.set(helperEntity)
+      setComponent(helperEntity, NameComponent, helper.name)
+
+      setComputedTransformComponent(helperEntity, entity, () => {
+        const helperTransform = getComponent(helperEntity, TransformComponent)
+        const avatarTransform = getComponent(entity, TransformComponent)
+        helperTransform.position.copy(avatarTransform.position)
+        helperTransform.rotation.copy(avatarTransform.rotation)
+
+        // this updates the bone helper lines
+        helper.updateMatrixWorld(true)
+      })
+
+      return () => {
+        removeEntity(helperEntity)
+        rigComponent.helperEntity.set(none)
       }
-    }, [visible, debugEnabled, pending])
+    }, [visible, debugEnabled, pending, rigComponent.normalizedRig])
 
     useEffect(() => {
       if (!rigComponent.value || !rigComponent.value.vrm) return
@@ -192,14 +196,14 @@ export const AvatarRigComponent = defineComponent({
      * Proxify the rig bones with the bitecs store
      */
     useEffect(() => {
-      const rig = rigComponent.rig.value
+      const rig = rigComponent.normalizedRig.value
       if (!rig) return
       for (const [boneName, bone] of Object.entries(rig)) {
         if (!bone) continue
         proxifyVector3(AvatarRigComponent.rig[boneName].position, entity, bone.node.position)
         proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity, bone.node.quaternion)
       }
-    }, [rigComponent.rig])
+    }, [rigComponent.normalizedRig])
 
     return null
   }
@@ -211,12 +215,12 @@ export const retargetIkUtility = (entity: Entity, bindTracks: KeyframeTrack[], h
   const foot = new Vector3()
 
   const rig = getComponent(entity, AvatarRigComponent)
-  if (!rig.rig.hips?.node) return
+  if (!rig.normalizedRig.hips?.node) return
 
   const avatarComponent = getComponent(entity, AvatarComponent)
   const scaleMultiplier = height / avatarComponent.avatarHeight
 
-  offset.y = rig.localRig.rightFoot.node.getWorldPosition(foot).y * 2 * scaleMultiplier - 0.05
+  offset.y = rig.normalizedRig.rightFoot.node.getWorldPosition(foot).y * 2 * scaleMultiplier - 0.05
 
   const direction = rig.flipped ? -1 : 1
 
@@ -237,53 +241,53 @@ export const retargetIkUtility = (entity: Entity, bindTracks: KeyframeTrack[], h
       case 'leftFootTarget':
       case 'headTarget':
         bonePos.copy(
-          rig.localRig[key.replace('Target', '')].node.matrixWorld.multiply(
+          rig.normalizedRig[key.replace('Target', '')].node.matrixWorld.multiply(
             new Matrix4()
-              .setPosition(rig.localRig[key].node.getWorldDirection(new Vector3()))
+              .setPosition(rig.normalizedRig[key].node.getWorldDirection(new Vector3()))
               .multiplyScalar(direction * -1)
           )
         )
         break
       case 'rightElbowHint':
         bonePos.copy(
-          rig.localRig.rightLowerArm.node.matrixWorld.multiply(
+          rig.normalizedRig.rightLowerArm.node.matrixWorld.multiply(
             new Matrix4()
-              .setPosition(rig.localRig.rightLowerArm.node.getWorldDirection(new Vector3()))
+              .setPosition(rig.normalizedRig.rightLowerArm.node.getWorldDirection(new Vector3()))
               .multiplyScalar(direction * -1)
           )
         )
         break
       case 'leftElbowHint':
         bonePos.copy(
-          rig.localRig.leftLowerArm.node.matrixWorld.multiply(
+          rig.normalizedRig.leftLowerArm.node.matrixWorld.multiply(
             new Matrix4()
-              .setPosition(rig.localRig.leftLowerArm.node.getWorldDirection(new Vector3()))
+              .setPosition(rig.normalizedRig.leftLowerArm.node.getWorldDirection(new Vector3()))
               .multiplyScalar(direction * -1)
           )
         )
         break
       case 'rightKneeHint':
         bonePos.copy(
-          rig.localRig.rightLowerLeg.node.matrixWorld.multiply(
+          rig.normalizedRig.rightLowerLeg.node.matrixWorld.multiply(
             new Matrix4().setPosition(
-              rig.localRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
+              rig.normalizedRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
             )
           )
         )
         break
       case 'leftKneeHint':
         bonePos.copy(
-          rig.localRig.leftLowerLeg.node.matrixWorld.multiply(
+          rig.normalizedRig.leftLowerLeg.node.matrixWorld.multiply(
             new Matrix4().setPosition(
-              rig.localRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
+              rig.normalizedRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
             )
           )
         )
         break
       case 'headHint':
-        bonePos.copy(rig.localRig.head.node.matrixWorld)
+        bonePos.copy(rig.normalizedRig.head.node.matrixWorld)
       case 'hipsTarget':
-        bonePos.copy(rig.localRig.hips.node.matrixWorld)
+        bonePos.copy(rig.normalizedRig.hips.node.matrixWorld)
     }
     const pos = new Vector3()
     bonePos.decompose(pos, new Quaternion(), new Vector3())

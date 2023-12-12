@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineAction, defineState } from '@etherealengine/hyperflux'
 
-import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
+import { matches } from '../../common/functions/MatchesUtils'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
@@ -36,82 +36,50 @@ export const EngineState = defineState({
     frameTime: Date.now(),
     simulationTime: Date.now(),
 
+    userReady: false,
+
     deltaSeconds: 0,
     elapsedSeconds: 0,
 
     physicsSubsteps: 1,
 
-    /** @deprecated */
-    isEngineInitialized: false,
     sceneLoading: false,
     sceneLoaded: false,
     loadingProgress: 0,
-    connectedWorld: false,
-    isTeleporting: false,
     spectating: false,
     avatarLoadingEffect: true,
     /**
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
      */
-    shareLink: '',
-    shareTitle: '',
     publicPath: '',
-    transformsNeedSorting: true,
     isBot: false,
+    /** @deprecated use isEditing instead */
     isEditor: false,
+    isEditing: false,
     systemPerformanceProfilingEnabled: false
   })
 })
 
-export function EngineEventReceptor(a) {
-  const s = getMutableState(EngineState)
-  matches(a)
-    .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
-    .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
-    .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoading: false, sceneLoaded: true }))
-    .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
-    .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
-}
-
 export class EngineActions {
-  static setTeleporting = defineAction({
-    type: 'xre.engine.Engine.SET_TELEPORTING' as const,
-    isTeleporting: matches.boolean
-  })
-
-  /** @deprecated */
-  static initializeEngine = defineAction({
-    type: 'xre.engine.Engine.INITIALIZED_ENGINE' as const,
-    initialised: matches.boolean
-  })
-
   /** @deprecated */
   static sceneLoaded = defineAction({
-    type: 'xre.engine.Engine.SCENE_LOADED' as const
-  })
-
-  /** @deprecated */
-  static sceneUnloaded = defineAction({
-    type: 'xre.engine.Engine.SCENE_UNLOADED' as const
+    type: 'ee.engine.Engine.SCENE_LOADED' as const
   })
 
   static spectateUser = defineAction({
-    type: 'xre.engine.Engine.SPECTATE_USER' as const,
+    type: 'ee.engine.Engine.SPECTATE_USER' as const,
     user: matches.string.optional()
   })
 
   static exitSpectate = defineAction({
-    type: 'xre.engine.Engine.EXIT_SPECTATE' as const
+    type: 'ee.engine.Engine.EXIT_SPECTATE' as const
   })
 
-  static interactedWithObject = defineAction({
-    type: 'xre.engine.Engine.INTERACTED_WITH_OBJECT' as const,
-    targetEntity: matchesEntity.optional(),
-    handedness: matches.string as Validator<unknown, XRHandedness>
-  })
-
-  static avatarModelChanged = defineAction({
-    type: 'xre.engine.Engine.AVATAR_MODEL_CHANGED' as const,
-    entity: matchesEntity
+  static notification = defineAction({
+    type: 'ee.engine.Engine.ERROR' as const,
+    text: matches.string,
+    variant: matches.literals('default', 'error', 'success', 'warning', 'info') // from notistack
+    /** @todo add more action types in NotificationService */
+    // actionType: matches.literal('default')
   })
 }

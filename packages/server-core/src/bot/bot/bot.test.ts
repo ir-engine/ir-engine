@@ -31,8 +31,14 @@ import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schem
 
 import { BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import {
+  LocationID,
+  LocationType,
+  RoomCode,
+  locationPath
+} from '@etherealengine/engine/src/schemas/social/location.schema'
+import { UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -58,7 +64,7 @@ describe('bot.service', () => {
       {
         name: 'test-bot-location-' + v1(),
         slugifiedName: '',
-        sceneId: 'test-bot-scene-id-' + v1(),
+        sceneId: ('test-bot-scene-id-' + v1()) as SceneID,
         maxUsersPerInstance: 30,
         locationSetting: {
           id: '',
@@ -67,7 +73,7 @@ describe('bot.service', () => {
           videoEnabled: true,
           faceStreamingEnabled: false,
           screenSharingEnabled: false,
-          locationId: '',
+          locationId: '' as LocationID,
           createdAt: '',
           updatedAt: ''
         },
@@ -79,11 +85,11 @@ describe('bot.service', () => {
 
     testInstance = await app
       .service(instancePath)
-      .create({ locationId: testLocation.id, roomCode: '', currentUsers: 0 })
+      .create({ locationId: testLocation.id as LocationID, roomCode: '' as RoomCode, currentUsers: 0 })
   })
 
   before(async () => {
-    const name = 'test-bot-user-name-' + v1()
+    const name = ('test-bot-user-name-' + v1()) as UserName
     const avatarName = 'test-bot-avatar-name-' + v1()
 
     const avatar = await app.service(avatarPath).create({
@@ -107,7 +113,7 @@ describe('bot.service', () => {
       userId: testUser.id,
       botCommands: [],
       description,
-      locationId: testLocation.id
+      locationId: testLocation.id as LocationID
     })
 
     assert.ok(testBot.id)
@@ -133,7 +139,7 @@ describe('bot.service', () => {
       userId: testUser.id,
       botCommands,
       description,
-      locationId: testLocation.id
+      locationId: testLocation.id as LocationID
     })
 
     assert.ok(createdBot.id)

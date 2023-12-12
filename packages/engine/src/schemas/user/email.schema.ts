@@ -38,6 +38,6 @@ export const emailDataSchema = Type.Object(
   },
   { $id: 'EmailData', additionalProperties: false }
 )
-export type EmailData = Static<typeof emailDataSchema>
+export interface EmailData extends Static<typeof emailDataSchema> {}
 
 export const emailDataValidator = getValidator(emailDataSchema, dataValidator)

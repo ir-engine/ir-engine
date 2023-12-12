@@ -39,13 +39,14 @@ import {
   Vector3
 } from 'three'
 
-import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraActions } from '../../camera/CameraState'
 import { easeOutCubic, normalizeRange } from '../../common/functions/MathFunctions'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -54,10 +55,11 @@ import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ReferenceSpace, XRAction, XRState, getCameraMode } from '../../xr/XRState'
+import { ReferenceSpace, XRAction, XRControlsState, XRState } from '../../xr/XRState'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
+import { AvatarAnimationSystem } from './AvatarAnimationSystem'
 
 // Guideline parabola function
 const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity: Vector3): Vector3 => {
@@ -122,46 +124,13 @@ const stopGuidelineAtVertex = (vertex: Vector3, line: Float32Array, startIndex: 
 
 const AvatarTeleportSystemState = defineState({
   name: 'AvatarTeleportSystemState',
-  initial: () => {
-    const lineGeometry = new BufferGeometry()
-    lineGeometryVertices.fill(0)
-    lineGeometryColors.fill(0.5)
-    lineGeometry.setAttribute('position', new BufferAttribute(lineGeometryVertices, 3))
-    lineGeometry.setAttribute('color', new BufferAttribute(lineGeometryColors, 3))
-    const lineMaterial = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
-    const guideline = new Line(lineGeometry, lineMaterial)
-    guideline.frustumCulled = false
-    guideline.name = 'teleport-guideline'
-
-    const guidelineEntity = createEntity()
-    setComponent(guidelineEntity, TransformComponent)
-    addObjectToGroup(guidelineEntity, guideline)
-    setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
-
-    // The guide cursor at the end of the line
-    const guideCursorGeometry = new RingGeometry(0.45, 0.5, 32)
-    guideCursorGeometry.name = 'teleport-guide-cursor'
-    guideCursorGeometry.rotateX(-Math.PI / 2)
-    guideCursorGeometry.translate(0, 0.01, 0)
-    const guideCursorMaterial = new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide, transparent: true })
-    const guideCursor = new Mesh(guideCursorGeometry, guideCursorMaterial)
-    guideCursor.frustumCulled = false
-
-    const guideCursorEntity = createEntity()
-    setComponent(guideCursorEntity, TransformComponent)
-    addObjectToGroup(guideCursorEntity, guideCursor)
-    setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
-
-    const transition = createTransitionState(0.5)
-
-    return {
-      guideCursor,
-      transition,
-      guideline,
-      guidelineEntity,
-      guideCursorEntity,
-      lineMaterial
-    }
+  initial: {} as {
+    guideCursor: Mesh<BufferGeometry, MeshBasicMaterial>
+    transition: ReturnType<typeof createTransitionState>
+    guideline: Line<BufferGeometry, LineBasicMaterial>
+    guidelineEntity: Entity
+    guideCursorEntity: Entity
+    lineMaterial: LineBasicMaterial
   }
 })
 
@@ -177,21 +146,23 @@ let fadeBackInAccumulator = -1
 let visibleSegments = 2
 
 const execute = () => {
-  if (getCameraMode() !== 'attached') return
+  const { isCameraAttachedToAvatar } = getState(XRControlsState)
+  if (!isCameraAttachedToAvatar) return
 
   const { guideCursor, transition, guideline, guidelineEntity, guideCursorEntity, lineMaterial } =
     getState(AvatarTeleportSystemState)
 
+  if (!guidelineEntity) return
+
   if (fadeBackInAccumulator >= 0) {
-    /** @todo fix camera fade transition shader - for now just teleport instantly */
-    // fadeBackInAccumulator += getState(EngineState).deltaSeconds
-    // if (fadeBackInAccumulator > 0.25) {
-    fadeBackInAccumulator = -1
-    teleportAvatar(Engine.instance.localClientEntity, guideCursor.position)
-    dispatchAction(CameraActions.fadeToBlack({ in: false }))
-    dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
-    dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
-    // }
+    fadeBackInAccumulator += getState(EngineState).deltaSeconds
+    if (fadeBackInAccumulator > 0.25) {
+      fadeBackInAccumulator = -1
+      teleportAvatar(Engine.instance.localClientEntity, getComponent(guideCursorEntity, TransformComponent).position)
+      dispatchAction(CameraActions.fadeToBlack({ in: false }))
+      dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
+      dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
+    }
   }
   for (const entity of avatarTeleportQuery.exit()) {
     visibleSegments = 1
@@ -259,7 +230,7 @@ const execute = () => {
     guideline.geometry.attributes.position.needsUpdate = true
     if (canTeleport) {
       // Place the cursor near the end of the line
-      guideCursor.position.copy(currentVertexWorld)
+      getComponent(guideCursorEntity, TransformComponent).position.copy(currentVertexWorld)
       guideCursor.visible = true
       lineMaterial.color = white
     } else {
@@ -281,26 +252,60 @@ const execute = () => {
 }
 
 const reactor = () => {
+  const cameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
   useEffect(() => {
+    if (!cameraAttachedToAvatar.value) return
+
+    const lineGeometry = new BufferGeometry()
+    lineGeometryVertices.fill(0)
+    lineGeometryColors.fill(0.5)
+    lineGeometry.setAttribute('position', new BufferAttribute(lineGeometryVertices, 3))
+    lineGeometry.setAttribute('color', new BufferAttribute(lineGeometryColors, 3))
+    const lineMaterial = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
+    const guideline = new Line(lineGeometry, lineMaterial)
+    guideline.frustumCulled = false
+    guideline.name = 'teleport-guideline'
+
+    const guidelineEntity = createEntity()
+    addObjectToGroup(guidelineEntity, guideline)
+    setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
+
+    // The guide cursor at the end of the line
+    const guideCursorGeometry = new RingGeometry(0.45, 0.5, 32)
+    guideCursorGeometry.name = 'teleport-guide-cursor'
+    guideCursorGeometry.rotateX(-Math.PI / 2)
+    guideCursorGeometry.translate(0, 0.01, 0)
+    const guideCursorMaterial = new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide, transparent: true })
+    const guideCursor = new Mesh(guideCursorGeometry, guideCursorMaterial)
+    guideCursor.frustumCulled = false
+
+    const guideCursorEntity = createEntity()
+    addObjectToGroup(guideCursorEntity, guideCursor)
+    setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
+
+    const transition = createTransitionState(0.5)
+
+    getMutableState(AvatarTeleportSystemState).set({
+      guideCursor,
+      transition,
+      guideline,
+      guidelineEntity,
+      guideCursorEntity,
+      lineMaterial
+    })
+
     return () => {
-      const { guidelineEntity, guideCursorEntity } = getState(AvatarTeleportSystemState)
       removeEntity(guidelineEntity)
       removeEntity(guideCursorEntity)
-      getMutableState(AvatarTeleportSystemState).set({
-        guideCursor: null!,
-        transition: null!,
-        guideline: null!,
-        guidelineEntity: null!,
-        guideCursorEntity: null!,
-        lineMaterial: null!
-      })
+      getMutableState(AvatarTeleportSystemState).set({} as any)
     }
-  }, [])
+  }, [cameraAttachedToAvatar])
   return null
 }
 
 export const AvatarTeleportSystem = defineSystem({
   uuid: 'ee.engine.AvatarTeleportSystem',
+  insert: { after: AvatarAnimationSystem },
   execute,
   reactor
 })

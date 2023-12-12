@@ -29,13 +29,17 @@ import { CameraHelper, PerspectiveCamera } from 'three'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup } from './GroupComponent'
+import { NameComponent } from './NameComponent'
+import { setVisibleComponent } from './VisibleComponent'
 
 export const ScenePreviewCameraComponent = defineComponent({
   name: 'EE_scenePreviewCamera',
@@ -46,13 +50,8 @@ export const ScenePreviewCameraComponent = defineComponent({
 
     return {
       camera,
-      helper: null as CameraHelper | null
+      helperEntity: null as Entity | null
     }
-  },
-
-  onRemove: (entity, component) => {
-    component.camera.value.removeFromParent()
-    if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
   toJSON: () => {
@@ -80,17 +79,21 @@ export const ScenePreviewCameraComponent = defineComponent({
     }, [previewCameraTransform])
 
     useEffect(() => {
-      if (debugEnabled.value && !previewCamera.helper.value) {
-        const helper = new CameraHelper(previewCamera.camera.value)
-        helper.name = `scene-preview-helper-${entity}`
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(entity, helper)
-        previewCamera.helper.set(helper)
-      }
+      if (!debugEnabled.value) return
 
-      if (!debugEnabled.value && previewCamera.helper.value) {
-        removeObjectFromGroup(entity, previewCamera.helper.value)
-        previewCamera.helper.set(none)
+      const helper = new CameraHelper(previewCamera.camera.value)
+      helper.name = `scene-preview-helper-${entity}`
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      const helperEntity = createEntity()
+      addObjectToGroup(helperEntity, helper)
+      setComponent(helperEntity, NameComponent, helper.name)
+      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+      setVisibleComponent(helperEntity, true)
+      previewCamera.helperEntity.set(helperEntity)
+
+      return () => {
+        removeEntity(helperEntity)
+        previewCamera.helperEntity.set(none)
       }
     }, [debugEnabled])
 

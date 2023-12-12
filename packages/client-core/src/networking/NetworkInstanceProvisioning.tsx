@@ -44,6 +44,8 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { Groups } from '@mui/icons-material'
 
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { LocationID, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
 import { connectToNetwork } from '../transports/SocketWebRTCClientFunctions'
@@ -79,26 +81,27 @@ export const WorldInstanceProvisioning = () => {
       !Object.values(locationInstances).find((instance) => instance.locationId.value === currentLocation.id?.value)
     ) {
       const search = window.location.search
-      let instanceId
-      let roomCode
+      let instanceId = '' as InstanceID
+      let roomCode = '' as RoomCode
 
       if (search != null) {
         if (networkConfigState.instanceID.value)
-          instanceId = new URL(window.location.href).searchParams.get('instanceId')
-        if (networkConfigState.roomID.value) roomCode = new URL(window.location.href).searchParams.get('roomCode')
+          instanceId = new URL(window.location.href).searchParams.get('instanceId') as InstanceID
+        if (networkConfigState.roomID.value)
+          roomCode = new URL(window.location.href).searchParams.get('roomCode') as RoomCode
       }
 
       if (!networkConfigState.instanceID.value && networkConfigState.roomID.value) {
         LocationInstanceConnectionService.provisionExistingServerByRoomCode(
-          currentLocation.id.value,
-          roomCode,
-          currentLocation.sceneId.value
+          currentLocation.id.value as LocationID,
+          roomCode as RoomCode,
+          currentLocation.sceneId.value as SceneID
         )
       } else {
         LocationInstanceConnectionService.provisionServer(
-          currentLocation.id.value,
+          currentLocation.id.value as LocationID,
           instanceId || undefined,
-          currentLocation.sceneId.value,
+          currentLocation.sceneId.value as SceneID,
           roomCode || undefined
         )
       }

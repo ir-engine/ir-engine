@@ -52,7 +52,6 @@ export const channelSchema = Type.Object(
         format: 'uuid'
       })
     ),
-    updateNeeded: Type.Boolean(),
     channelUsers: Type.Array(Type.Ref(channelUserSchema)),
     messages: Type.Array(Type.Ref(messageSchema)),
     createdAt: Type.String({ format: 'date-time' }),
@@ -60,7 +59,7 @@ export const channelSchema = Type.Object(
   },
   { $id: 'Channel', additionalProperties: false }
 )
-export type ChannelType = Static<typeof channelSchema>
+export interface ChannelType extends Static<typeof channelSchema> {}
 
 // Schema for creating new entries
 export const channelDataProperties = Type.Partial(channelSchema)
@@ -83,16 +82,16 @@ export const channelDataSchema = Type.Intersect(
     additionalProperties: false
   }
 )
-export type ChannelData = Static<typeof channelDataSchema>
+export interface ChannelData extends Static<typeof channelDataSchema> {}
 
 // Schema for updating existing entries
 export const channelPatchSchema = Type.Partial(channelSchema, {
   $id: 'ChannelPatch'
 })
-export type ChannelPatch = Static<typeof channelPatchSchema>
+export interface ChannelPatch extends Static<typeof channelPatchSchema> {}
 
 // Schema for allowed query properties
-export const channelQueryProperties = Type.Pick(channelSchema, ['id', 'name', 'instanceId', 'updateNeeded'])
+export const channelQueryProperties = Type.Pick(channelSchema, ['id', 'name', 'instanceId'])
 export const channelQuerySchema = Type.Intersect(
   [
     querySyntax(channelQueryProperties, {
@@ -111,7 +110,7 @@ export const channelQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type ChannelQuery = Static<typeof channelQuerySchema>
+export interface ChannelQuery extends Static<typeof channelQuerySchema> {}
 
 export const channelValidator = getValidator(channelSchema, dataValidator)
 export const channelDataValidator = getValidator(channelDataSchema, dataValidator)

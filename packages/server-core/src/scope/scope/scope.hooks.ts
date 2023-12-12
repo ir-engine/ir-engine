@@ -28,9 +28,8 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   ScopeData,
-  ScopeType,
+  ScopeTypeInterface,
   scopeDataValidator,
-  scopePatchValidator,
   scopePath,
   scopeQueryValidator
 } from '@etherealengine/engine/src/schemas/scope/scope.schema'
@@ -39,14 +38,8 @@ import { HookContext } from '../../../declarations'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
 import verifyScopeAllowingSelf from '../../hooks/verify-scope-allowing-self'
-import {
-  scopeDataResolver,
-  scopeExternalResolver,
-  scopePatchResolver,
-  scopeQueryResolver,
-  scopeResolver
-} from '../../scope/scope/scope.resolvers'
 import { ScopeService } from './scope.class'
+import { scopeDataResolver, scopeExternalResolver, scopeQueryResolver, scopeResolver } from './scope.resolvers'
 
 /**
  * Check and maintain existing scopes
@@ -63,7 +56,7 @@ const checkExistingScopes = async (context: HookContext<ScopeService>) => {
   const oldScopes = (await context.app.service(scopePath).find({
     query: { userId: data[0].userId },
     paginate: false
-  })) as any as ScopeType[]
+  })) as any as ScopeTypeInterface[]
 
   const existingData: ScopeData[] = []
   const createData: ScopeData[] = []
@@ -92,7 +85,7 @@ const checkExistingScopes = async (context: HookContext<ScopeService>) => {
  */
 const addExistingScopes = async (context: HookContext<ScopeService>) => {
   if (context.existingData?.length > 0) {
-    let result = (Array.isArray(context.result) ? context.result : [context.result]) as ScopeType[]
+    let result = (Array.isArray(context.result) ? context.result : [context.result]) as ScopeTypeInterface[]
     result = [...result, ...context.existingData]
     context.result = result
   }
@@ -104,21 +97,17 @@ export default {
   },
   before: {
     all: [() => schemaHooks.validateQuery(scopeQueryValidator), schemaHooks.resolveQuery(scopeQueryResolver)],
-    find: [enableClientPagination(), iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
+    find: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read')), enableClientPagination()],
     get: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
+      iff(isProvider('external'), verifyScope('user', 'write'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(scopeDataValidator),
       schemaHooks.resolveData(scopeDataResolver),
       checkExistingScopes
     ],
     update: [disallow()],
-    patch: [
-      disallow(),
-      () => schemaHooks.validateData(scopePatchValidator),
-      schemaHooks.resolveData(scopePatchResolver)
-    ],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write'))]
+    patch: [disallow()],
+    remove: [iff(isProvider('external'), verifyScope('user', 'write'), verifyScope('admin', 'admin'))]
   },
 
   after: {

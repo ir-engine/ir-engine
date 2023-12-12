@@ -5,6 +5,7 @@ module.exports = {
   root: true,
   ignorePatterns: ['packages/server/upload', 'packages/server/upload_test', '**/*.js', 'packages/projects/projects/**'],
   rules: {
+    '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-non-null-asserted-optional-chain': 'warn',

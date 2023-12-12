@@ -47,20 +47,19 @@ export const helmSettingSchema = Type.Object(
   },
   { $id: 'HelmSetting', additionalProperties: false }
 )
-export type HelmSettingType = Static<typeof helmSettingSchema>
+export interface HelmSettingType extends Static<typeof helmSettingSchema> {}
 
-export type HelmSettingDatabaseType = HelmSettingType
 // Schema for creating new entries
 export const helmSettingDataSchema = Type.Pick(helmSettingSchema, ['main', 'builder'], {
   $id: 'HelmSettingData'
 })
-export type HelmSettingData = Static<typeof helmSettingDataSchema>
+export interface HelmSettingData extends Static<typeof helmSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const helmSettingPatchSchema = Type.Partial(helmSettingSchema, {
   $id: 'HelmSettingPatch'
 })
-export type HelmSettingPatch = Static<typeof helmSettingPatchSchema>
+export interface HelmSettingPatch extends Static<typeof helmSettingPatchSchema> {}
 
 // Schema for allowed query properties
 export const helmSettingQueryProperties = Type.Pick(helmSettingSchema, ['id'])
@@ -72,7 +71,7 @@ export const helmSettingQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type HelmSettingQuery = Static<typeof helmSettingQuerySchema>
+export interface HelmSettingQuery extends Static<typeof helmSettingQuerySchema> {}
 
 export const helmSettingValidator = getValidator(helmSettingSchema, dataValidator)
 export const helmSettingDataValidator = getValidator(helmSettingDataSchema, dataValidator)

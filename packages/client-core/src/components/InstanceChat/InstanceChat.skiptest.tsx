@@ -32,6 +32,8 @@ import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { MessageID } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { InstanceChat } from '.'
 import { createDOM } from '../../../tests/createDOM'
 import { createMockAPI } from '../../../tests/createMockAPI'
@@ -60,9 +62,9 @@ describe('Instance Chat Component', () => {
         id: 'id',
         messages: [
           {
-            id: 'message id',
+            id: 'message id' as MessageID,
             senderId: 'senderId' as UserID,
-            channelId: 'channelId',
+            channelId: 'channelId' as ChannelID,
             text: 'message text'
           }
         ]

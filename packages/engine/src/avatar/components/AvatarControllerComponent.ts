@@ -28,7 +28,8 @@ import { Vector3 } from 'three'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const AvatarControllerComponent = defineComponent({
   name: 'AvatarControllerComponent',
@@ -39,7 +40,7 @@ export const AvatarControllerComponent = defineComponent({
       cameraEntity: Engine.instance.cameraEntity,
       controller: null! as KinematicCharacterController,
       bodyCollider: null! as Collider,
-      movementEnabled: true,
+      movementCaptured: [] as Array<Entity>,
       isJumping: false,
       isWalking: false,
       isInAir: false,
@@ -64,7 +65,7 @@ export const AvatarControllerComponent = defineComponent({
     if (matches.number.test(json.cameraEntity)) component.cameraEntity.set(json.cameraEntity)
     if (matches.object.test(json.controller)) component.controller.set(json.controller as KinematicCharacterController)
     if (matches.object.test(json.bodyCollider)) component.bodyCollider.set(json.bodyCollider as Collider)
-    if (matches.boolean.test(json.movementEnabled)) component.movementEnabled.set(json.movementEnabled)
+    if (matches.array.test(json.movementCaptured)) component.movementCaptured.set(json.movementCaptured)
     if (matches.boolean.test(json.isJumping)) component.isJumping.set(json.isJumping)
     if (matches.boolean.test(json.isWalking)) component.isWalking.set(json.isWalking)
     if (matches.boolean.test(json.isInAir)) component.isInAir.set(json.isInAir)
@@ -73,5 +74,17 @@ export const AvatarControllerComponent = defineComponent({
     if (matches.object.test(json.gamepadLocalInput)) component.gamepadLocalInput.set(json.gamepadLocalInput)
     if (matches.object.test(json.gamepadWorldMovement)) component.gamepadWorldMovement.set(json.gamepadWorldMovement)
     if (matches.number.test(json.speedVelocity)) component.speedVelocity.set(json.speedVelocity)
+  },
+
+  captureMovement(capturedEntity: Entity, entity: Entity): void {
+    const component = getComponent(capturedEntity, AvatarControllerComponent)
+    if (component.movementCaptured.indexOf(entity) !== -1) return
+    component.movementCaptured.push(entity)
+  },
+
+  releaseMovement(capturedEntity: Entity, entity: Entity): void {
+    const component = getComponent(capturedEntity, AvatarControllerComponent)
+    const index = component.movementCaptured.indexOf(entity)
+    if (index !== -1) component.movementCaptured.splice(index, 1)
   }
 })

@@ -194,7 +194,11 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
   }, [props.entity])
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.collider.description')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.collider.name')}
+      description={t('editor:properties.collider.description')}
+    >
       <InputGroup name="Type" label={t('editor:properties.collider.lbl-type')}>
         <SelectInput
           options={bodyTypeOptions}
@@ -207,6 +211,12 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
           options={shapeTypeOptions}
           value={colliderComponent.shapeType.value}
           onChange={commitProperty(ColliderComponent, 'shapeType')}
+        />
+      </InputGroup>
+      <InputGroup name="Remove Mesh" label={t('editor:properties.collider.lbl-removeMesh')}>
+        <BooleanInput
+          value={colliderComponent.removeMesh.value}
+          onChange={updateProperty(ColliderComponent, 'removeMesh')}
         />
       </InputGroup>
       <InputGroup name="Trigger" label={t('editor:properties.collider.lbl-isTrigger')}>

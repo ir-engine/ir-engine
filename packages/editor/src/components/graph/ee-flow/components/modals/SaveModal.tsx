@@ -32,9 +32,7 @@ import { useComponent } from '@etherealengine/engine/src/ecs/functions/Component
 import { getMutableState } from '@etherealengine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import { SelectionState } from '../../../../../services/SelectionServices'
-import GraphInput from '../../../../inputs/GraphInput'
 import { uploadGraphFilefromJson } from '../../../../properties/BehaveGraphNodeEditor'
-import { updateProperty } from '../../../../properties/Util'
 import { NodeSpecGenerator } from '../../hooks/useNodeSpecGenerator'
 import { flowToBehave } from '../../transformers/flowToBehave'
 import { Modal } from './Modal'
@@ -84,21 +82,17 @@ export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, spe
       open={open}
       onClose={onClose}
     >
-      <textarea ref={ref} defaultValue={jsonString}></textarea>
-      <GraphInput
-        value={behaveGraphComponent.filepath.value}
-        onChange={updateProperty(BehaveGraphComponent, 'filepath')}
-        {...{
-          style: {
-            fontSize: '0.875rem',
-            border: '1px solid var(--border)',
-            width: '100%',
-            padding: '0.75rem',
-            height: '1rem',
-            marginTop: '.3rem'
-          }
+      <textarea
+        ref={ref}
+        style={{
+          border: '1px solid #cbd5e0',
+          width: '100%',
+          padding: '0.5rem',
+          height: '8rem',
+          margin: 0
         }}
-      />
+        defaultValue={jsonString}
+      ></textarea>
     </Modal>
   )
 }

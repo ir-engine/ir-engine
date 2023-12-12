@@ -48,7 +48,7 @@ export const matchTicketAssignmentSchema = Type.Object(
   },
   { $id: 'MatchTicketAssignment', additionalProperties: false }
 )
-export type MatchTicketAssignmentType = Static<typeof matchTicketAssignmentSchema>
+export interface MatchTicketAssignmentType extends Static<typeof matchTicketAssignmentSchema> {}
 
 // Schema for allowed query properties
 export const matchTicketAssignmentQueryProperties = Type.Pick(matchTicketAssignmentSchema, ['connection', 'extensions'])
@@ -60,7 +60,7 @@ export const matchTicketAssignmentQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type MatchTicketAssignmentQuery = Static<typeof matchTicketAssignmentQuerySchema>
+export interface MatchTicketAssignmentQuery extends Static<typeof matchTicketAssignmentQuerySchema> {}
 
 export const matchTicketAssignmentValidator = getValidator(matchTicketAssignmentSchema, dataValidator)
 export const matchTicketAssignmentQueryValidator = getValidator(matchTicketAssignmentQuerySchema, queryValidator)

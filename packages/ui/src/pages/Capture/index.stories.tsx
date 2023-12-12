@@ -31,31 +31,14 @@ import React, { useEffect, useRef, useState } from 'react'
 
 // import { useLocation, useNavigate } from 'react-router-dom'
 
-import {
-  NotificationAction,
-  NotificationActions
-} from '@etherealengine/client-core/src/common/services/NotificationService'
+import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { useLoadLocationScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
-import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
-import { AudioEffectPlayer, MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import {
-  addActionReceptor,
-  dispatchAction,
-  getMutableState,
-  removeActionReceptor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import Component from './index'
@@ -63,27 +46,14 @@ import Component from './index'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import 'daisyui/dist/full.css'
 import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
 
-const startCaptureSystems = () => {
-  startSystem(MotionCaptureSystem, { with: InputSystemGroup })
-  startSystem(MediaSystem, { before: PresentationSystemGroup })
-  startSystems([ClientNetworkingSystem], { after: PresentationSystemGroup })
-}
-
 const initializeEngineForRecorder = async () => {
-  // if (getMutableState(EngineState).isEngineInitialized.value) return
-
   // const projects = API.instance.client.service(projectsPath).find()
-
-  startCaptureSystems()
   // await loadEngineInjection(await projects)
-
-  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
   dispatchAction(EngineActions.sceneLoaded({}))
 }
 
@@ -99,43 +69,24 @@ const decorators = [
     const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
     const projectState = useHookstate(getMutableState(ProjectState))
 
-    useEffect(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const receptor = (action): any => {
-        // @ts-ignore
-        matches(action).when(NotificationAction.notify.matches, (action) => {
-          AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
-          notistackRef.current?.enqueueSnackbar(action.message, {
-            variant: action.options.variant,
-            action: NotificationActions[action.options.actionType ?? 'default']
-          })
-        })
-      }
-      addActionReceptor(receptor)
+    const notificationstate = useHookstate(getMutableState(NotificationState))
 
-      return () => {
-        removeActionReceptor(receptor)
-      }
-    }, [])
+    NotificationState.useNotifications()
+
+    useEffect(() => {
+      notificationstate.snackbar.set(notistackRef.current)
+    }, [notistackRef.current])
 
     useEffect(() => {
       if (selfUser?.id.value && projectState.updateNeeded.value) {
         ProjectService.fetchProjects()
         if (!fetchedProjectComponents) {
           setFetchedProjectComponents(true)
-          // @ts-ignore
-          Engine.instance.api
-            // @ts-ignore
-            .service(projectsPath)
-            // @ts-ignore
-            .find()
-            .then((projects) => {
-              loadEngineInjection(projects).then((result) => {
-                LocationState.setLocationName(locationName)
-                initializeEngineForRecorder()
-                setProjectComponents(result)
-              })
-            })
+          loadEngineInjection().then((result) => {
+            LocationState.setLocationName(locationName)
+            initializeEngineForRecorder()
+            setProjectComponents(result)
+          })
         }
       }
     }, [selfUser, projectState.updateNeeded.value])
@@ -163,9 +114,6 @@ const decorators = [
     }, [])
 
     AuthService.useAPIListeners()
-    SceneService.useAPIListeners()
-
-    useLoadLocationScene()
 
     const locationName = 'default'
 

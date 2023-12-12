@@ -67,15 +67,19 @@ const Header = (props: { mode: State<'playback' | 'capture'> }) => {
             <span className="mr-1">{user?.name?.value}</span>
             <div className="avatar">
               <div className="w-8 rounded-full">
-                {avatarDetails.thumbnailResource?.url ? (
-                  <img src={avatarDetails.thumbnailResource?.url} crossOrigin="anonymous" className="w-auto h-8" />
+                {avatarDetails?.thumbnailResource?.url ? (
+                  <img
+                    src={avatarDetails.thumbnailResource?.url}
+                    crossOrigin="anonymous"
+                    className="max-w-full w-auto h-8"
+                  />
                 ) : (
                   <UserCircleIcon className="w-8 h-8" />
                 )}
               </div>
             </div>
           </label>
-          <ul tabIndex={0} className="menu dropdown-content p-2 shadow bg-base-100 rounded-box w-52 mt-4">
+          <ul tabIndex={0} className="list-none menu dropdown-content p-2 shadow bg-base-100 rounded-box w-52 mt-4">
             <li>
               <a href="/" target="_blank">
                 Sign in

@@ -1,0 +1,70 @@
+name: Bug report
+description: Create a report to help us improve
+title: "[Bug]: "
+labels:
+  - bug
+  - triage
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for using Ethereal Engine! Let's figure out the problem.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version or commit of EE are you running?
+      value: 0f27df2(1.5.0)
+    validations:
+      required: true
+  - type: checkboxes
+    id: os
+    attributes:
+      label: Operating Systems
+      description: What operating system were you using?
+      options:
+        - label: macOS
+        - label: Windows
+        - label: Linux
+        - label: Android
+        - label: IOS
+  - type: input
+    id: browser
+    attributes:
+      label: Browser (if applicable)
+      description: What browser did this occur on? (including version number)
+    validations:
+      required: false
+  - type: textarea
+    id: expectation
+    attributes:
+      label: What is supposed happened?
+      description: Please clearly describe what you expect, including any screenshots
+        that may be helpful.
+      value: Not applicable
+    validations:
+      required: true
+  - type: textarea
+    id: reality
+    attributes:
+      label: What happened?
+      description: Please clearly describe the issue you are facing, including any
+        screenshots that may be helpful.
+      value: Not applicable
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Info
+      description: Please add any relevant information
+    validations:
+      required: false

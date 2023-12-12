@@ -23,67 +23,53 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
+import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
 
 import 'rc-dock/dist/rc-dock.css'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { useTranslation } from 'react-i18next'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { gltfToSceneJson, sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
+import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import { useDrop } from 'react-dnd'
-import { Vector2, Vector3 } from 'three'
-import { ItemTypes } from '../constants/AssetTypes'
-import { EditorControlFunctions } from '../functions/EditorControlFunctions'
-import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
-import { loadProjectScene } from '../functions/projectFunctions'
-import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
-import { getCursorSpawnPosition } from '../functions/screenSpaceFunctions'
+import { t } from 'i18next'
+import { inputFileWithAddToScene } from '../functions/assetFunctions'
+import { onNewScene, saveScene, setSceneInState } from '../functions/sceneFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorHistoryState } from '../services/EditorHistory'
+import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
-import { AppContext } from './Search/context'
 import AssetDropZone from './assets/AssetDropZone'
-import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
-import ScenesPanel from './assets/ScenesPanel'
+import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
+import { ScenePanelTab } from './assets/ScenesPanel'
 import { ControlText } from './controlText/ControlText'
-import ConfirmDialog from './dialogs/ConfirmDialog'
+import { DialogState } from './dialogs/DialogState'
 import ErrorDialog from './dialogs/ErrorDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
 import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
 import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
-import ElementList, { SceneElementType } from './element/ElementList'
-import GraphPanel from './graph/GraphPanel'
-import { GraphPanelTitle } from './graph/GraphPanelTitle'
-import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
-import { HierarchyPanelTitle } from './hierarchy/HierarchyPanelTitle'
-import { DialogContext } from './hooks/useDialog'
-import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
-import MaterialLibraryPanel from './materials/MaterialLibraryPanel'
-import { MaterialLibraryPanelTitle } from './materials/MaterialLibraryPanelTitle'
-import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
-import { PropertiesPanelTitle } from './properties/PropertiesPanelTitle'
+import ElementList from './element/ElementList'
+import { GraphPanelTab } from './graph/GraphPanel'
+import { HierarchyPanelTab } from './hierarchy/HierarchyPanel'
+import { MaterialLibraryPanelTab } from './materials/MaterialLibraryPanel'
+import { ViewportPanelTab } from './panels/ViewportPanel'
+import { PropertiesPanelTab } from './properties/PropertiesPanel'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
 
@@ -92,7 +78,7 @@ const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 /**
  *component used as dock container.
  */
-export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
+export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
     '--dividerAlpha': dividerAlpha
   }
@@ -100,49 +86,6 @@ export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
   return (
     <div id={id} className="dock-container" style={dockContainerStyles as React.CSSProperties}>
       {children}
-    </div>
-  )
-}
-
-const ViewportDnD = () => {
-  const [{ isDragging, isOver }, dropRef] = useDrop({
-    accept: [ItemTypes.Component],
-    collect: (monitor) => ({
-      isDragging: monitor.getItem() !== null && monitor.canDrop(),
-      isOver: monitor.isOver()
-    }),
-    drop(item: SceneElementType, monitor) {
-      const vec3 = new Vector3()
-      getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
-      EditorControlFunctions.createObjectFromSceneElement([
-        { name: item!.componentJsonID },
-        { name: LocalTransformComponent.jsonID, props: { position: vec3 } }
-      ])
-    }
-  })
-
-  return (
-    <div
-      id="viewport-panel"
-      ref={dropRef}
-      style={{
-        pointerEvents: isDragging ? 'all' : 'none',
-        border: isDragging && isOver ? '5px solid white' : 'none',
-        width: '100%',
-        height: '100%'
-      }}
-    />
-  )
-}
-const ViewPortPanelContent = () => {
-  const { t } = useTranslation()
-  const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
-  return sceneName ? (
-    <ViewportDnD />
-  ) : (
-    <div className={styles.bgImageBlock}>
-      <img src="/static/etherealengine.png" alt="" />
-      <h2>{t('editor:selectSceneMsg')}</h2>
     </div>
   )
 }
@@ -181,43 +124,293 @@ const SceneLoadingProgress = () => {
 }
 
 /**
+ * Scene Event Handlers
+ */
+
+const onEditorError = (error) => {
+  logger.error(error)
+  if (error['aborted']) {
+    DialogState.setDialog(null)
+    return
+  }
+
+  DialogState.setDialog(
+    <ErrorDialog
+      title={error.title || t('editor:error')}
+      message={error.message || t('editor:errorMsg')}
+      error={error}
+    />
+  )
+}
+
+const onCloseProject = () => {
+  const editorState = getMutableState(EditorState)
+  editorState.sceneModified.set(false)
+  editorState.projectName.set(null)
+  editorState.sceneID.set(null)
+  editorState.sceneName.set(null)
+  RouterState.navigate('/studio')
+
+  const parsed = new URL(window.location.href)
+  const query = parsed.searchParams
+
+  query.delete('project')
+  query.delete('scenePath')
+
+  parsed.search = query.toString()
+  if (typeof history.pushState !== 'undefined') {
+    window.history.replaceState({}, '', parsed.toString())
+  }
+}
+
+const onSaveAs = async () => {
+  const { projectName, sceneName } = getState(EditorState)
+  const editorState = getMutableState(EditorState)
+  const sceneLoaded = getState(EngineState).sceneLoaded
+
+  // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
+  if (!sceneLoaded) {
+    DialogState.setDialog(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
+    return
+  }
+
+  const abortController = new AbortController()
+  try {
+    if (sceneName || editorState.sceneModified.value) {
+      const blob = await takeScreenshot(512, 320, 'ktx2')
+      const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
+      const result: { name: string } | void = await new Promise((resolve) => {
+        DialogState.setDialog(
+          <SaveNewSceneDialog
+            thumbnailUrl={URL.createObjectURL(blob!)}
+            initialName={Engine.instance.scene.name}
+            onConfirm={resolve}
+            onCancel={resolve}
+          />
+        )
+      })
+      DialogState.setDialog(null)
+      if (result?.name && projectName) {
+        await saveScene(projectName, result.name, file, abortController.signal)
+        editorState.sceneModified.set(false)
+        const newSceneData = await Engine.instance.api
+          .service(scenePath)
+          .get(null, { query: { project: projectName, name: result.name, metadataOnly: true } })
+        setSceneInState(newSceneData.scenePath)
+      }
+    }
+  } catch (error) {
+    logger.error(error)
+    DialogState.setDialog(
+      <ErrorDialog title={t('editor:savingError')} message={error?.message || t('editor:savingErrorMsg')} />
+    )
+  }
+}
+
+const onImportAsset = async () => {
+  const { projectName } = getState(EditorState)
+
+  if (projectName) await inputFileWithAddToScene({ projectName })
+}
+
+const onSaveScene = async () => {
+  const { projectName, sceneName } = getState(EditorState)
+  const { sceneModified } = getState(EditorState)
+  const { sceneLoaded } = getState(EngineState)
+  console.log('onSaveScene')
+
+  // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
+  if (!sceneLoaded) {
+    DialogState.setDialog(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
+    return
+  }
+
+  if (!sceneName) {
+    if (sceneModified) {
+      onSaveAs()
+    }
+    return
+  }
+
+  const result = (await new Promise((resolve) => {
+    DialogState.setDialog(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
+  })) as any
+
+  if (!result) {
+    DialogState.setDialog(null)
+    return
+  }
+
+  const abortController = new AbortController()
+
+  DialogState.setDialog(
+    <ProgressDialog
+      message={t('editor:saving')}
+      cancelable={true}
+      onCancel={() => {
+        abortController.abort()
+        DialogState.setDialog(null)
+      }}
+    />
+  )
+
+  // Wait for 5ms so that the ProgressDialog shows up.
+  await new Promise((resolve) => setTimeout(resolve, 5))
+
+  try {
+    if (projectName) {
+      const isGenerateThumbnailsEnabled = getState(EditorHelperState).isGenerateThumbnailsEnabled
+      if (isGenerateThumbnailsEnabled) {
+        const blob = await takeScreenshot(512, 320, 'ktx2')
+        const file = new File([blob!], sceneName + '.thumbnail.ktx2')
+
+        await uploadSceneBakeToServer()
+        await saveScene(projectName, sceneName, file, abortController.signal)
+      } else {
+        await saveScene(projectName, sceneName, null, abortController.signal)
+      }
+    }
+
+    getMutableState(EditorState).sceneModified.set(false)
+
+    DialogState.setDialog(null)
+  } catch (error) {
+    logger.error(error)
+
+    DialogState.setDialog(
+      <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
+    )
+  }
+}
+
+const generateToolbarMenu = () => {
+  return [
+    {
+      name: t('editor:menubar.newScene'),
+      action: onNewScene
+    },
+    {
+      name: t('editor:menubar.saveScene'),
+      hotkey: `${cmdOrCtrlString}+s`,
+      action: onSaveScene
+    },
+    {
+      name: t('editor:menubar.saveAs'),
+      action: onSaveAs
+    },
+    {
+      name: t('editor:menubar.importAsset'),
+      action: onImportAsset
+    },
+    {
+      name: t('editor:menubar.quit'),
+      action: onCloseProject
+    }
+  ]
+}
+
+const toolbarMenu = generateToolbarMenu()
+
+//const defaultLayout: LayoutData = useHookstate(getMutableState(EditorState).panelLayout).value
+
+const defaultLayout: LayoutData = {
+  dockbox: {
+    mode: 'horizontal' as DockMode,
+    children: [
+      {
+        mode: 'vertical' as DockMode,
+        size: 2,
+        children: [
+          {
+            tabs: [ScenePanelTab, ProjectBrowserPanelTab]
+          }
+        ]
+      },
+      {
+        mode: 'vertical' as DockMode,
+        size: 8,
+        children: [
+          {
+            id: '+5',
+            tabs: [ViewportPanelTab],
+            size: 1
+          }
+        ]
+      },
+      {
+        mode: 'vertical' as DockMode,
+        size: 2,
+        children: [
+          {
+            tabs: [HierarchyPanelTab, MaterialLibraryPanelTab]
+          },
+          {
+            tabs: [PropertiesPanelTab, GraphPanelTab]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+const tabs = [
+  HierarchyPanelTab,
+  PropertiesPanelTab,
+  GraphPanelTab,
+  MaterialLibraryPanelTab,
+  ViewportPanelTab,
+  ProjectBrowserPanelTab,
+  ScenePanelTab
+]
+
+/**
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
-  const editorState = useHookstate(getMutableState(EditorState))
-  const projectName = editorState.projectName
-  const sceneName = editorState.sceneName
+  const { sceneName, projectName, sceneID, sceneModified } = useHookstate(getMutableState(EditorState))
   const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
+  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
 
-  const sceneLoading = sceneName.value && !sceneLoaded.value
+  const sceneLoading = sceneID.value && !sceneLoaded.value
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
-  const [searchElement, setSearchElement] = React.useState('')
-  const [searchHierarchy, setSearchHierarchy] = React.useState('')
-
-  const { t } = useTranslation()
-  const [DialogComponent, setDialogComponent] = useState<JSX.Element | null>(null)
-  const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
+  const dialogComponent = useHookstate(getMutableState(DialogState).dialog).value
   const dockPanelRef = useRef<DockLayout>(null)
+
+  const panelMenu = tabs.map((tab) => {
+    return {
+      name: tab.title,
+      action: () => {
+        const currentLayout = dockPanelRef?.current?.getLayout()
+        if (!currentLayout) return
+        if (dockPanelRef.current!.find(tab.id!)) {
+          return
+        }
+        //todo: add support for multiple instances of a panel type
+        // let panelId = panel.id!
+        // while (dockPanelRef.current!.find(panelId)) {
+        //   if (/\d+$/.test(panelId)) {
+        //     panelId = panelId.replace(/\d+$/, (match) => {
+        //       return (parseInt(match) + 1).toString()
+        //     })
+        //   } else {
+        //     panelId += '1'
+        //   }
+        // }
+        // panel.id = panelId
+        const targetId = tab.parent!.id! ?? currentLayout.dockbox.children[0].id
+        const targetPanel = dockPanelRef.current!.find(targetId) as PanelData
+        targetPanel.tabs.push(tab)
+        dockPanelRef?.current?.loadLayout(currentLayout)
+      }
+    }
+  })
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
 
-  const importScene = async (sceneFile: SceneJson) => {
-    try {
-      loadProjectScene({
-        project: projectName.value!,
-        scene: sceneFile,
-        thumbnailUrl: null!,
-        name: ''
-      })
-    } catch (error) {
-      logger.error(error)
-    }
-  }
-
   useEffect(() => {
-    if (!editorState.sceneModified.value) return
+    if (!sceneModified.value) return
     const onBeforeUnload = (e) => {
       alert('You have unsaved changes. Please save before leaving.')
       e.preventDefault()
@@ -229,270 +422,19 @@ const EditorContainer = () => {
     return () => {
       window.removeEventListener('beforeunload', onBeforeUnload)
     }
-  }, [editorState.sceneModified])
+  }, [sceneModified])
 
   useEffect(() => {
-    if (sceneName.value) {
-      logger.info(`Loading scene ${sceneName.value} via given url`)
-      loadScene(sceneName.value)
-    }
-  }, [sceneName])
-
-  const reRouteToLoadScene = async (newSceneName: string) => {
-    if (sceneName.value === newSceneName) return
-    if (!projectName.value || !newSceneName) return
-    RouterState.navigate(`/studio/${projectName.value}/${newSceneName}`)
-  }
-
-  const loadScene = async (sceneName: string) => {
-    try {
-      if (!projectName.value) {
-        return
-      }
-      const project = await getScene(projectName.value, sceneName, false)
-
-      if (!project.scene) {
-        return
-      }
-      loadProjectScene(project)
-    } catch (error) {
-      logger.error(error)
-    }
-  }
-
-  const onNewScene = async () => {
-    if (!projectName.value) return
-
-    try {
-      const sceneData = await createNewScene(projectName.value)
-      if (!sceneData) return
-
-      reRouteToLoadScene(sceneData.name)
-    } catch (error) {
-      logger.error(error)
-    }
-  }
-
-  /**
-   * Scene Event Handlers
-   */
-
-  const onEditorError = (error) => {
-    logger.error(error)
-    if (error['aborted']) {
-      setDialogComponent(null)
-      return
-    }
-
-    setDialogComponent(
-      <ErrorDialog
-        title={error.title || t('editor:error')}
-        message={error.message || t('editor:errorMsg')}
-        error={error}
-      />
-    )
-  }
-
-  const onCloseProject = () => {
-    editorState.sceneModified.set(false)
-    editorState.projectName.set(null)
-    editorState.sceneName.set(null)
-    EditorHistoryState.unloadScene()
-    RouterState.navigate('/studio')
-  }
-
-  const onSaveAs = async () => {
-    const sceneLoaded = getState(EngineState).sceneLoaded
-
-    // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!sceneLoaded) {
-      setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
-      return
-    }
-
-    const abortController = new AbortController()
-    try {
-      if (sceneName.value || editorState.sceneModified.value) {
-        const blob = await takeScreenshot(512, 320, 'ktx2')
-        const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
-        const result: { name: string } | void = await new Promise((resolve) => {
-          setDialogComponent(
-            <SaveNewSceneDialog
-              thumbnailUrl={URL.createObjectURL(blob!)}
-              initialName={Engine.instance.scene.name}
-              onConfirm={resolve}
-              onCancel={resolve}
-            />
-          )
-        })
-        if (result?.name && projectName.value) {
-          await saveScene(projectName.value, result.name, file, abortController.signal)
-          editorState.sceneModified.set(false)
-        }
-      }
-      setDialogComponent(null)
-    } catch (error) {
-      logger.error(error)
-      setDialogComponent(
-        <ErrorDialog title={t('editor:savingError')} message={error?.message || t('editor:savingErrorMsg')} />
-      )
-    }
-    setToggleRefetchScenes(!toggleRefetchScenes)
-  }
-
-  const onImportAsset = async () => {
-    const el = document.createElement('input')
-    el.type = 'file'
-    el.multiple = true
-    el.accept =
-      '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
-    el.style.display = 'none'
-    el.onchange = async () => {
-      const pName = projectName.value
-      if (el.files && el.files.length > 0 && pName) {
-        const fList = el.files
-        const files = [...Array(el.files.length).keys()].map((i) => fList[i])
-        const nuUrl = (await Promise.all(uploadProjectFiles(pName, files, true).promises)).map((url) => url[0])
-
-        //process zipped files
-        const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
-        const extractPromises = [...zipFiles.map((zipped) => extractZip(zipped))]
-        Promise.all(extractPromises).then(() => {
-          logger.info('extraction complete')
-        })
-      }
-    }
-    el.click()
-    el.remove()
-  }
-
-  const onImportScene = async () => {
-    const confirm = await new Promise((resolve) => {
-      setDialogComponent(
-        <ConfirmDialog
-          title={t('editor:importLegacy')}
-          message={t('editor:importLegacyMsg')}
-          confirmLabel="Yes, Continue"
-          onConfirm={() => resolve(true)}
-          onCancel={() => resolve(false)}
-        />
-      )
-    })
-    setDialogComponent(null)
-    if (!confirm) return
-    const el = document.createElement('input')
-    el.type = 'file'
-    el.accept = '.gltf'
-    el.style.display = 'none'
-    el.onchange = () => {
-      if (el.files && el.files.length > 0) {
-        const fileReader: any = new FileReader()
-        fileReader.onload = () => {
-          const json = JSON.parse(fileReader.result)
-          importScene(gltfToSceneJson(json))
-        }
-        fileReader.readAsText(el.files[0])
-      }
-    }
-    el.click()
-    el.remove()
-  }
-
-  const onExportScene = async () => {
-    const projectFile = await sceneToGLTF([Engine.instance.scene as any])
-    const projectJson = JSON.stringify(projectFile)
-    const projectBlob = new Blob([projectJson])
-    const el = document.createElement('a')
-    const fileName = Engine.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
-    el.download = fileName + '.xre.gltf'
-    el.href = URL.createObjectURL(projectBlob)
-    document.body.appendChild(el)
-    el.click()
-    document.body.removeChild(el)
-  }
-
-  const onSaveScene = async () => {
-    console.log('onSaveScene')
-
-    // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!sceneLoaded.value) {
-      setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
-      return
-    }
-
-    if (!sceneName.value) {
-      if (editorState.sceneModified.value) {
-        onSaveAs()
-      }
-      return
-    }
-
-    const result = (await new Promise((resolve) => {
-      setDialogComponent(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
-    })) as any
-
-    if (!result) {
-      setDialogComponent(null)
-      return
-    }
-
-    const abortController = new AbortController()
-
-    setDialogComponent(
-      <ProgressDialog
-        message={t('editor:saving')}
-        cancelable={true}
-        onCancel={() => {
-          abortController.abort()
-          setDialogComponent(null)
-        }}
-      />
-    )
-
-    // Wait for 5ms so that the ProgressDialog shows up.
-    await new Promise((resolve) => setTimeout(resolve, 5))
-
-    try {
-      if (projectName.value) {
-        if (result) {
-          const blob = await takeScreenshot(512, 320, 'ktx2')
-          const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
-
-          await uploadSceneBakeToServer()
-          await saveScene(projectName.value, sceneName.value, file, abortController.signal)
-        } else {
-          await saveScene(projectName.value, sceneName.value, null, abortController.signal)
-        }
-      }
-
-      editorState.sceneModified.set(false)
-
-      setDialogComponent(null)
-    } catch (error) {
-      logger.error(error)
-
-      setDialogComponent(
-        <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
-      )
-    }
-    setToggleRefetchScenes(!toggleRefetchScenes)
-  }
+    if (!sceneID.value) return
+    return SceneServices.setCurrentScene(sceneID.value)
+  }, [sceneID])
 
   useEffect(() => {
-    dockPanelRef.current &&
-      dockPanelRef.current.updateTab('scenePanel', {
-        id: 'scenePanel',
-        title: (
-          <PanelDragContainer>
-            <PanelIcon as={Inventory2Icon} size={12} />
-            <PanelTitle>Scenes</PanelTitle>
-          </PanelDragContainer>
-        ),
-        content: (
-          <ScenesPanel newScene={onNewScene} toggleRefetchScenes={toggleRefetchScenes} loadScene={reRouteToLoadScene} />
-        )
-      })
-  }, [toggleRefetchScenes])
+    if (!activeScene.value) return
+    const scene = getState(SceneState).scenes[activeScene.value]
+    sceneName.set(scene.metadata.name)
+    projectName.set(scene.metadata.project)
+  }, [activeScene])
 
   useEffect(() => {
     if (!dockPanelRef.current) return
@@ -506,176 +448,37 @@ const EditorContainer = () => {
     }
   }, [errorState])
 
-  const generateToolbarMenu = () => {
-    return [
-      {
-        name: t('editor:menubar.newScene'),
-        action: onNewScene
-      },
-      {
-        name: t('editor:menubar.saveScene'),
-        hotkey: `${cmdOrCtrlString}+s`,
-        action: onSaveScene
-      },
-      {
-        name: t('editor:menubar.saveAs'),
-        action: onSaveAs
-      },
-      {
-        name: t('editor:menubar.importAsset'),
-        action: onImportAsset
-      },
-      {
-        name: t('editor:menubar.importScene'),
-        action: onImportScene
-      },
-      {
-        name: t('editor:menubar.exportScene'),
-        action: onExportScene
-      },
-      {
-        name: t('editor:menubar.quit'),
-        action: onCloseProject
-      }
-    ]
-  }
-
-  const toolbarMenu = generateToolbarMenu()
-
-  const defaultLayout: LayoutData = {
-    dockbox: {
-      mode: 'horizontal' as DockMode,
-      children: [
-        {
-          mode: 'vertical' as DockMode,
-          size: 2,
-          children: [
-            {
-              tabs: [
-                {
-                  id: 'scenePanel',
-                  title: (
-                    <PanelDragContainer>
-                      <PanelIcon as={Inventory2Icon} size={12} />
-                      <PanelTitle>Scenes</PanelTitle>
-                    </PanelDragContainer>
-                  ),
-                  content: (
-                    <ScenesPanel
-                      newScene={onNewScene}
-                      toggleRefetchScenes={toggleRefetchScenes}
-                      loadScene={reRouteToLoadScene}
-                    />
-                  )
-                },
-                {
-                  id: 'filesPanel',
-                  title: (
-                    <PanelDragContainer>
-                      <PanelIcon as={Inventory2Icon} size={12} />
-                      <PanelTitle>Files</PanelTitle>
-                    </PanelDragContainer>
-                  ),
-                  content: <ProjectBrowserPanel />
-                }
-              ]
-            }
-          ]
-        },
-        {
-          mode: 'vertical' as DockMode,
-          size: 8,
-          children: [
-            {
-              id: '+5',
-              tabs: [
-                {
-                  id: 'viewPanel',
-                  title: 'Viewport',
-                  content: <ViewPortPanelContent />
-                }
-              ],
-              size: 1
-            }
-          ]
-        },
-        {
-          mode: 'vertical' as DockMode,
-          size: 2,
-          children: [
-            {
-              tabs: [
-                {
-                  id: 'hierarchyPanel',
-                  title: <HierarchyPanelTitle />,
-                  content: (
-                    <HierarchyPanelContainer
-                      setSearchElement={setSearchElement}
-                      setSearchHierarchy={setSearchHierarchy}
-                    />
-                  )
-                },
-                {
-                  id: 'materialLibraryPanel',
-                  title: <MaterialLibraryPanelTitle />,
-                  content: <MaterialLibraryPanel />
-                }
-              ]
-            },
-            {
-              tabs: [
-                {
-                  id: 'propertiesPanel',
-                  title: <PropertiesPanelTitle />,
-                  content: <PropertiesPanelContainer />
-                },
-                {
-                  id: 'graphPanel',
-                  title: <GraphPanelTitle />,
-                  content: <GraphPanel />
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  }
   return (
     <>
       <div
         id="editor-container"
         className={styles.editorContainer}
-        style={sceneName.value ? { background: 'transparent' } : {}}
+        style={sceneID.value ? { background: 'transparent' } : {}}
       >
-        <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
-          <DndWrapper id="editor-container">
-            <DragLayer />
-            <ToolBar menu={toolbarMenu} />
-            <ElementList />
-            <ControlText />
-            {sceneLoading && <SceneLoadingProgress />}
-            <div className={styles.workspaceContainer}>
-              <AssetDropZone />
-              <AppContext.Provider value={{ searchElement, searchHierarchy }}>
-                <DockContainer>
-                  <DockLayout
-                    ref={dockPanelRef}
-                    defaultLayout={defaultLayout}
-                    style={{ position: 'absolute', left: 5, top: 55, right: 130, bottom: 5 }}
-                  />
-                </DockContainer>
-              </AppContext.Provider>
-            </div>
-            <Dialog
-              open={!!DialogComponent}
-              onClose={() => setDialogComponent(null)}
-              classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
-            >
-              {DialogComponent}
-            </Dialog>
-          </DndWrapper>
-        </DialogContext.Provider>
+        <DndWrapper id="editor-container">
+          <DragLayer />
+          <ToolBar menu={toolbarMenu} panels={panelMenu} />
+          <ElementList />
+          <ControlText />
+          {sceneLoading && <SceneLoadingProgress />}
+          <div className={styles.workspaceContainer}>
+            <AssetDropZone />
+            <DockContainer>
+              <DockLayout
+                ref={dockPanelRef}
+                defaultLayout={defaultLayout}
+                style={{ position: 'absolute', left: 5, top: 55, right: 130, bottom: 5 }}
+              />
+            </DockContainer>
+          </div>
+          <Dialog
+            open={!!dialogComponent}
+            onClose={() => DialogState.setDialog(null)}
+            classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
+          >
+            {getState(DialogState).dialog}
+          </Dialog>
+        </DndWrapper>
       </div>
     </>
   )

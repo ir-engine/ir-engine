@@ -23,18 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   scopeTypeDataValidator,
-  scopeTypePatchValidator,
   scopeTypeQueryValidator
 } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import {
   scopeTypeDataResolver,
   scopeTypeExternalResolver,
-  scopeTypePatchResolver,
   scopeTypeQueryResolver,
   scopeTypeResolver
 } from './scope-type.resolvers'
@@ -46,7 +45,7 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(scopeTypeQueryValidator), schemaHooks.resolveQuery(scopeTypeQueryResolver)],
-    find: [],
+    find: [iff(isProvider('external'), enableClientPagination())],
     get: [],
     create: [
       disallow('external'),
@@ -54,11 +53,7 @@ export default {
       schemaHooks.resolveData(scopeTypeDataResolver)
     ],
     update: [disallow()],
-    patch: [
-      disallow(),
-      () => schemaHooks.validateData(scopeTypePatchValidator),
-      schemaHooks.resolveData(scopeTypePatchResolver)
-    ],
+    patch: [disallow()],
     remove: [disallow('external')]
   },
 

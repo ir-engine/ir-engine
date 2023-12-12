@@ -30,7 +30,7 @@ import {
   InstanceAttendanceType,
   instanceAttendancePath
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { SceneUpdate, sceneMethods, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneID, SceneUpdate, sceneMethods, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { ServerMode, ServerState } from '../../ServerState'
 import { SceneService } from './scene.class'
@@ -56,10 +56,10 @@ export default (app: Application): void => {
   service.hooks(hooks)
 
   if (getState(ServerState).serverMode === ServerMode.API)
-    service.publish('updated', async (data, context) => {
+    service.publish('updated', async (data) => {
       const updatedScene = data as SceneUpdate
       const instanceActive = await app.service(instanceActivePath).find({
-        query: { sceneId: updatedScene.id }
+        query: { sceneId: updatedScene.id as SceneID }
       })
 
       const instanceAttendances = (await app.service(instanceAttendancePath).find({

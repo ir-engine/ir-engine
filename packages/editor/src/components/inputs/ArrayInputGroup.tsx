@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/Delete'
 import IconButton from '@mui/material/IconButton'
 import React from 'react'
 import styles from './ArrayInputGroup.module.scss'
@@ -37,6 +37,7 @@ export interface ArrayInputGroupProp {
   label?: any
   values: string[]
   onChange?: (values: string[]) => void
+  onRelease?: (values: string[]) => void
   acceptFileTypes?: any
   acceptDropItems?: any
 }
@@ -52,7 +53,8 @@ const ArrayInputGroup = ({
   values,
   onChange,
   acceptFileTypes,
-  acceptDropItems
+  acceptDropItems,
+  ...rest
 }: ArrayInputGroupProp) => {
   const addInput = (count = 1) => {
     const valuesCopy = [...values]
@@ -91,6 +93,7 @@ const ArrayInputGroup = ({
             }}
             acceptFileTypes={acceptFileTypes}
             acceptDropItems={acceptDropItems}
+            {...rest}
           />
           <IconButton
             disableRipple
@@ -105,7 +108,7 @@ const ArrayInputGroup = ({
               padding: 0
             }}
           >
-            <AddIcon sx={{ color: 'primary.contrastText' }} />
+            <AddIcon sx={{ color: 'var(--textColor)' }} />
           </IconButton>
         </InputGroup>
         {values &&
@@ -117,6 +120,7 @@ const ArrayInputGroup = ({
                 onChange={(value) => onChangeText(value, index + 1)}
                 acceptFileTypes={acceptFileTypes}
                 acceptDropItems={acceptDropItems}
+                {...rest}
               />
               <IconButton
                 disableRipple
@@ -125,7 +129,7 @@ const ArrayInputGroup = ({
                 }}
                 onClick={() => deleteInput(index + 1)}
               >
-                <DeleteIcon sx={{ color: 'primary.contrastText' }} />
+                <Icon type="Delete" style={{ color: 'var(--textColor)' }} />
               </IconButton>
             </InputGroup>
           ))}

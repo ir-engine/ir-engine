@@ -96,15 +96,29 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
           width: '100%',
           padding: '0.5rem',
           height: '8rem',
-          verticalAlign: 'top'
+          verticalAlign: 'top',
+          margin: 0
         }}
         placeholder="Paste JSON here"
         value={value}
         onChange={(e) => setValue(e.currentTarget.value)}
       ></textarea>
-      <div style={{ padding: '1rem', textAlign: 'center' }}>or</div>
-
-      <select onChange={(e) => setSelected(e.target.value)} value={selected}>
+      <div style={{ padding: '1rem', textAlign: 'center', color: '#4a5568' }}>or</div>
+      <select
+        style={{
+          backgroundColor: '#f7fafc',
+          border: '1px solid #cbd5e0',
+          color: '#1a202c',
+          fontSize: '14px',
+          borderRadius: '0.25rem',
+          display: 'block',
+          width: '100%',
+          padding: '0.75rem',
+          margin: 0
+        }}
+        onChange={(e) => setSelected(e.target.value)}
+        value={selected}
+      >
         <option disabled value="">
           Select a graph
         </option>

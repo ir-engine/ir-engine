@@ -26,13 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Mesh, MeshBasicMaterial, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineQuery,
@@ -40,13 +41,13 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
-import { InteractState } from '../../interaction/systems/InteractiveSystem'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
@@ -57,7 +58,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent, Object3DWithEntity } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -95,16 +96,27 @@ export const addClientInputListeners = () => {
   canvas.addEventListener('contextmenu', preventDefault)
 
   const addInputSource = (source: XRInputSource) => {
-    if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
-      removeComponent(emulatedInputSourceEntity, InputSourceComponent)
+    // we don't want to override our custom thumbpad input source for mobile AR
+    if (
+      session?.interactionMode === 'screen-space' &&
+      (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze')
+    ) {
+      return
     }
     const entity = createEntity()
     setComponent(entity, InputSourceComponent, { source })
+    setComponent(entity, EntityTreeComponent, {
+      parentEntity: session?.interactionMode === 'world-space' ? Engine.instance.originEntity : null
+    })
+    setComponent(entity, LocalTransformComponent)
     setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
   }
 
-  const removeInputSource = (source: XRInputSource) =>
-    removeEntity(InputSourceComponent.entitiesByInputSource.get(source))
+  const removeInputSource = (source: XRInputSource) => {
+    const entity = InputSourceComponent.entitiesByInputSource.get(source)
+    if (!entity) return
+    removeEntity(entity)
+  }
 
   const session = xrState.session
 
@@ -147,7 +159,9 @@ export const addClientInputListeners = () => {
     const code = event.code
     const down = event.type === 'keydown'
 
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
+
     const buttonState = inputSourceComponent.buttons as ButtonStateMap
 
     if (down) buttonState[code] = createInitialButtonState()
@@ -196,7 +210,9 @@ export const addClientInputListeners = () => {
     if (event.button === 1) button = MouseButton.AuxiliaryClick
     else if (event.button === 2) button = MouseButton.SecondaryClick
 
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
+
     const state = inputSourceComponent.buttons as ButtonStateMap
 
     if (down) state[button] = createInitialButtonState()
@@ -233,7 +249,8 @@ export const addClientInputListeners = () => {
       return
     }
 
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
 
     const index = stick === 'LeftStick' ? 0 : 2
 
@@ -245,17 +262,6 @@ export const addClientInputListeners = () => {
     axes[index + 1] = value.y
   }
   document.addEventListener('touchstickmove', handleTouchDirectionalPad)
-
-  /** @deprecated */
-  const handleTouchGampadButton = () => {
-    dispatchAction(
-      EngineActions.interactedWithObject({
-        targetEntity: getState(InteractState).available[0],
-        handedness: 'none'
-      })
-    )
-  }
-  document.addEventListener('touchgamepadbuttondown', handleTouchGampadButton)
 
   /**
    * AR uses the `select` event as taps on the screen for mobile AR sessions
@@ -352,7 +358,6 @@ export const addClientInputListeners = () => {
     canvas.removeEventListener('touchend', handleMouseClick)
 
     document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
-    document.removeEventListener('touchgamepadbuttondown', handleTouchGampadButton)
 
     session?.removeEventListener('selectstart', onXRSelectStart)
     session?.removeEventListener('selectend', onXRSelectEnd)
@@ -365,12 +370,12 @@ export function updateGamepadInput(eid: Entity) {
   const buttons = inputSource.buttons as ButtonStateMap
 
   // log buttons
-  if (source.gamepad) {
-    for (let i = 0; i < source.gamepad.buttons.length; i++) {
-      const button = source.gamepad.buttons[i]
-      if (button.pressed) console.log('button ' + i + ' pressed: ' + button.pressed)
-    }
-  }
+  // if (source.gamepad) {
+  //   for (let i = 0; i < source.gamepad.buttons.length; i++) {
+  //     const button = source.gamepad.buttons[i]
+  //     if (button.pressed) console.log('button ' + i + ' pressed: ' + button.pressed)
+  //   }
+  // }
 
   if (!source.gamepad) return
   const gamepadButtons = source.gamepad.buttons
@@ -415,6 +420,8 @@ const raycaster = new Raycaster()
 const bboxHitTarget = new Vector3()
 
 const execute = () => {
+  if (!isClient) return null
+
   const pointerState = getState(InputState).pointerState
   const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
   pointerScreenRaycaster.setFromCamera(
@@ -448,9 +455,9 @@ const execute = () => {
 
   for (const sourceEid of inputSources()) {
     const sourceTransform = getComponent(sourceEid, TransformComponent)
-    const source = getMutableComponent(sourceEid, InputSourceComponent)
+    const { source } = getComponent(sourceEid, InputSourceComponent)
 
-    if (!xrFrame && source.source.targetRayMode.value === 'screen') {
+    if (!xrFrame && source.targetRayMode === 'screen') {
       const ray = pointerScreenRaycaster.ray
 
       TransformComponent.position.x[sourceEid] = ray.origin.x
@@ -465,6 +472,19 @@ const execute = () => {
       TransformComponent.rotation.z[sourceEid] = rayRotation.z
       TransformComponent.rotation.w[sourceEid] = rayRotation.w
       TransformComponent.dirtyTransforms[sourceEid] = true
+    }
+
+    if (xrFrame && source.targetRayMode === 'tracked-pointer') {
+      const transform = getComponent(sourceEid, LocalTransformComponent)
+
+      const referenceSpace = ReferenceSpace.localFloor
+      if (xrFrame && referenceSpace) {
+        const pose = xrFrame.getPose(source.targetRaySpace, referenceSpace)
+        if (pose) {
+          transform.position.copy(pose.transform.position as any as Vector3)
+          transform.rotation.copy(pose.transform.orientation as any as Quaternion)
+        }
+      }
     }
 
     const capturedButtons = hasComponent(sourceEid, InputSourceButtonsCapturedComponent)
@@ -492,8 +512,10 @@ const execute = () => {
         if (hits.length && hits[0].distance < hitDistance) {
           const object = hits[0].object
           const parentObject = Object3DUtils.findAncestor(object, (obj) => obj.parent === Engine.instance.scene)
-          assignedInputEntity = parentObject.entity
-          hitDistance = hits[0].distance
+          if (parentObject.entity) {
+            assignedInputEntity = parentObject.entity
+            hitDistance = hits[0].distance
+          }
         }
       } else {
         // 1st heuristic is XRUI
@@ -537,8 +559,9 @@ const execute = () => {
         }
       }
 
-      if (!capturedButtons) source.assignedButtonEntity.set(assignedInputEntity)
-      if (!capturedAxes) source.assignedAxesEntity.set(assignedInputEntity)
+      const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
+      if (!capturedButtons) sourceState.assignedButtonEntity.set(assignedInputEntity)
+      if (!capturedAxes) sourceState.assignedAxesEntity.set(assignedInputEntity)
     }
 
     updateGamepadInput(sourceEid)
@@ -546,6 +569,8 @@ const execute = () => {
 }
 
 const reactor = () => {
+  if (!isClient) return null
+
   const xrState = useHookstate(getMutableState(XRState))
 
   useEffect(addClientInputListeners, [xrState.session])
@@ -555,6 +580,7 @@ const reactor = () => {
 
 export const ClientInputSystem = defineSystem({
   uuid: 'ee.engine.input.ClientInputSystem',
+  insert: { with: InputSystemGroup },
   execute,
   reactor
 })

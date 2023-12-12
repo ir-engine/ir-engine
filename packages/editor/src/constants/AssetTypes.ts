@@ -53,8 +53,7 @@ export const ItemTypes = {
   Videos: [AssetType.MP4, AssetType.M3U8, 'video/mp4', AssetType.MKV],
   Volumetrics: ['manifest'],
   Text: [AssetType.PlainText, 'txt'],
-  ECS: [AssetType.XRE, 'scene.json'],
-  Graph: ['json'],
+  ECS: ['scene.json'],
   Node: 'Node',
   Material: 'Material',
   Component: 'Component'

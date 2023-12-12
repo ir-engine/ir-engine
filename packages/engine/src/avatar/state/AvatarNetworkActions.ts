@@ -28,6 +28,7 @@ import matches from 'ts-matches'
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { AvatarID } from '../../schemas/user/avatar.schema'
 import { matchesIkTarget } from '../animation/Util'
 
 export class AvatarNetworkAction {
@@ -50,7 +51,7 @@ export class AvatarNetworkAction {
   static setAvatarID = defineAction({
     type: 'ee.engine.avatar.SET_AVATAR_ID',
     entityUUID: matchesEntityUUID,
-    avatarID: matches.string,
+    avatarID: matches.string as any as AvatarID,
     $cache: {
       removePrevious: true
     },
@@ -63,7 +64,7 @@ export class AvatarNetworkAction {
     name: matchesIkTarget,
     blendWeight: matches.number,
     $cache: {
-      removePrevious: true
+      removePrevious: false
     },
     $topic: NetworkTopics.world
   })

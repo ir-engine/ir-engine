@@ -118,17 +118,24 @@ export const GroundPlaneComponent = defineComponent({
       const physicsWorld = getState(PhysicsState).physicsWorld
       Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
 
-      if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
+      removeComponent(entity, SceneAssetPendingTagComponent)
 
       return () => {
         Physics.removeRigidBody(entity, physicsWorld)
-        removeObjectFromGroup(entity, component.mesh.value)
+        removeObjectFromGroup(entity, mesh)
       }
     }, [])
 
     useEffect(() => {
       if (component.mesh.value) component.mesh.value.material.color.set(component.color.value)
     }, [component.color])
+
+    useEffect(() => {
+      if (component.mesh.value)
+        component.mesh.value.material = component.visible.value
+          ? new MeshLambertMaterial({ color: component.color.value })
+          : new ShadowMaterial({ opacity: 0.5 })
+    }, [component.visible])
 
     return null
   }

@@ -23,19 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { addActionReceptor } from '@etherealengine/hyperflux'
-
 import * as bitecs from 'bitecs'
 
 import { BoxGeometry, Mesh, MeshNormalMaterial } from 'three'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { Timer } from './common/functions/Timer'
+import { isClient } from './common/functions/getEnvironment'
 import { Engine } from './ecs/classes/Engine'
-import { EngineEventReceptor } from './ecs/classes/EngineState'
 import { getComponent, setComponent } from './ecs/functions/ComponentFunctions'
-import { executeSystems, startCoreSystems } from './ecs/functions/EngineFunctions'
+import { executeSystems } from './ecs/functions/EngineFunctions'
 import { createEntity } from './ecs/functions/EntityFunctions'
-import { EntityTreeComponent, initializeSceneEntity } from './ecs/functions/EntityTree'
+import { EntityTreeComponent } from './ecs/functions/EntityTree'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { addObjectToGroup } from './scene/components/GroupComponent'
 import { NameComponent } from './scene/components/NameComponent'
@@ -43,6 +41,9 @@ import { VisibleComponent } from './scene/components/VisibleComponent'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { setObjectLayers } from './scene/functions/setObjectLayers'
 import { TransformComponent } from './transform/components/TransformComponent'
+
+// core module
+import '@etherealengine/engine/src/ecs/ECSModule'
 
 /**
  * Creates a new instance of the engine and engine renderer. This initializes all properties and state for the engine,
@@ -84,10 +85,6 @@ export const createEngine = () => {
   camera.matrixAutoUpdate = false
   camera.matrixWorldAutoUpdate = false
 
-  initializeSceneEntity()
-
-  EngineRenderer.instance = new EngineRenderer()
-  addActionReceptor(EngineEventReceptor)
-  startCoreSystems()
+  if (isClient) EngineRenderer.instance = new EngineRenderer()
   Engine.instance.engineTimer = Timer(executeSystems)
 }

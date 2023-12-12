@@ -41,16 +41,17 @@ import { defineState, getMutableState, getState, useHookstate } from '@ethereale
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
+import { isClient } from '../common/functions/getEnvironment'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { EffectMapType, defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
 import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
-import { RenderInfoSystem } from './RenderInfoSystem'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 import { updateShadowMap } from './functions/RenderSettingsFunction'
@@ -92,6 +93,8 @@ export class EngineRenderer {
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
 
   renderer: WebGLRenderer = null!
+  /** used to optimize proxified threejs objects during render time, see loadGLTFModel and https://github.com/EtherealEngine/etherealengine/issues/9308 */
+  rendering = false
   effectComposer: EffectComposerWithSchema = null!
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
@@ -141,8 +144,6 @@ export class EngineRenderer {
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options)
     this.renderer = renderer
-    // @ts-ignore
-    this.renderer.useLegacyLights = false //true
     this.renderer.outputColorSpace = SRGBColorSpace
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
@@ -208,37 +209,40 @@ export class EngineRenderer {
 
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 
+    const canvasParent = document.getElementById('engine-renderer-canvas')?.parentElement
+    if (!canvasParent) return
+
     /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
     if (xrFrame) {
       // Assume camera.layers is source of truth for all xr cameras
       xrCamera.layers.mask = camera.layers.mask
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
+      this.rendering = true
       this.renderer.render(Engine.instance.scene, camera)
+      this.rendering = false
     } else {
       const state = getState(RendererState)
       const engineState = getState(EngineState)
-      if (!engineState.isEditor && state.automatic && engineState.connectedWorld) this.changeQualityLevel()
+      if (!engineState.isEditor && state.automatic) this.changeQualityLevel()
       if (this.needsResize) {
         const curPixelRatio = this.renderer.getPixelRatio()
         const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
 
         if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
 
-        const canvasParent = document.getElementById('engine-renderer-canvas')?.parentElement
-        if (canvasParent) {
-          const width = canvasParent.clientWidth
-          const height = canvasParent.clientHeight
+        const width = canvasParent.clientWidth
+        const height = canvasParent.clientHeight
 
-          if (camera.isPerspectiveCamera) {
-            camera.aspect = width / height
-            camera.updateProjectionMatrix()
-          }
-
-          state.qualityLevel > 0 && state.csm?.updateFrustums()
-          // Effect composer calls renderer.setSize internally
-          this.effectComposer.setSize(width, height, true)
+        if (camera.isPerspectiveCamera) {
+          camera.aspect = width / height
+          camera.updateProjectionMatrix()
         }
+
+        state.qualityLevel > 0 && state.csm?.updateFrustums()
+        // Effect composer calls renderer.setSize internally
+        this.effectComposer.setSize(width, height, true)
+
         this.needsResize = false
       }
 
@@ -246,7 +250,9 @@ export class EngineRenderer {
        * Editor should always use post processing, even if no postprocessing schema is in the scene,
        *   it still uses post processing for effects such as outline.
        */
+      this.rendering = true
       this.effectComposer.render(delta)
+      this.rendering = false
     }
   }
 
@@ -295,6 +301,7 @@ export const PostProcessingSettingsState = defineState({
 })
 
 const execute = () => {
+  if (!EngineRenderer.instance) return
   const deltaSeconds = getState(EngineState).deltaSeconds
   EngineRenderer.instance.execute(deltaSeconds)
 }
@@ -363,7 +370,7 @@ const reactor = () => {
 
 export const WebGLRendererSystem = defineSystem({
   uuid: 'ee.engine.WebGLRendererSystem',
+  insert: { with: PresentationSystemGroup },
   execute,
-  reactor,
-  postSystems: [RenderInfoSystem]
+  reactor: isClient ? reactor : undefined
 })

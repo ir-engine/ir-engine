@@ -39,7 +39,6 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkState } from '../../networking/NetworkState'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -48,20 +47,20 @@ import { XRAction } from '../../xr/XRState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { respawnAvatar } from '../functions/respawnAvatar'
+import { AvatarInputSystem } from './AvatarInputSystem'
 
-const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
 const controllerQuery = defineQuery([AvatarControllerComponent])
 const sessionChangedActions = defineActionQueue(XRAction.sessionChanged.matches)
 
 const execute = () => {
   for (const action of sessionChangedActions()) {
     if (action.active) {
-      for (const avatarEntity of localControllerQuery()) {
+      for (const avatarEntity of controllerQuery()) {
         const controller = getComponent(avatarEntity, AvatarControllerComponent)
         removeComponent(controller.cameraEntity, FollowCameraComponent)
       }
     } else {
-      for (const avatarEntity of localControllerQuery()) {
+      for (const avatarEntity of controllerQuery()) {
         const controller = getComponent(avatarEntity, AvatarControllerComponent)
         const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
         setComponent(controller.cameraEntity, FollowCameraComponent, {
@@ -73,7 +72,7 @@ const execute = () => {
     }
   }
 
-  for (const avatarEntity of localControllerQuery.enter()) {
+  for (const avatarEntity of controllerQuery.enter()) {
     const controller = getComponent(avatarEntity, AvatarControllerComponent)
 
     const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
@@ -99,7 +98,7 @@ const execute = () => {
   if (hasComponent(controlledEntity, AvatarControllerComponent)) {
     const controller = getComponent(controlledEntity, AvatarControllerComponent)
 
-    if (controller.movementEnabled) {
+    if (!controller.movementCaptured.length) {
       /** Support multiple peers controlling the same avatar by detecting movement and overriding network authority.
        *    @todo we may want to make this an networked action, rather than lazily removing the NetworkObjectAuthorityTag
        *    if detecting input on the other user #7263
@@ -129,5 +128,6 @@ const execute = () => {
 
 export const AvatarControllerSystem = defineSystem({
   uuid: 'ee.engine.AvatarControllerSystem',
+  insert: { after: AvatarInputSystem },
   execute
 })

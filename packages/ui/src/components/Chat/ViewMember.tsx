@@ -26,16 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { MdDelete } from 'react-icons/md'
 
+import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import UserIcon from './assets/user.svg'
 
 export const ViewMember = () => {
-  const Members: { name: string }[] = [
-    { name: 'John Laouireen' },
-    { name: 'John Laouireen' },
-    { name: 'John Laouireen' },
-    { name: 'John Laouireen' },
-    { name: 'John Laouireen' },
-    { name: 'John Laouireen' }
+  const Members: { name: UserName }[] = [
+    { name: 'John Laouireen' as UserName },
+    { name: 'John Laouireen' as UserName },
+    { name: 'John Laouireen' as UserName },
+    { name: 'John Laouireen' as UserName },
+    { name: 'John Laouireen' as UserName },
+    { name: 'John Laouireen' as UserName }
   ]
 
   return (
@@ -49,11 +50,11 @@ export const ViewMember = () => {
           return (
             <div className="rounded-[10px] bg-[#15171B] w-[350px] h-[45px] flex flex-wrap">
               <div className="rounded-full ml-4 my-2 bg-[#26282B] w-[30px] h-[30px] justify-between">
-                <img className="w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src={UserIcon} />
+                <img className="max-w-full w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src={UserIcon} />
               </div>
               <p className="text-[12px] w-[220px] ml-3 font-bold text-white mt-3.5">{item.name}</p>
               <div className="rounded-full  my-2 bg-[#26282B] w-[30px] h-[30px] justify-between">
-                <button className=" w-[40px] ">
+                <button className="m-0 w-[40px] ">
                   <MdDelete className="w-[22px] h-[30px] mx-1 fill-[#DD3333] overflow-hidden" />
                 </button>
               </div>

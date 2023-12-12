@@ -38,8 +38,8 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'
+import { UserID, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -63,7 +63,7 @@ interface Props {
 
 interface DisplayedUserInterface {
   id: UserID
-  name: string
+  name: UserName
   relationType?: 'friend' | 'requested' | 'blocking' | 'pending' | 'blocked'
 }
 
@@ -122,7 +122,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
 
   const handleOpenChat = (id: string) => {
     if (selectedTab.value === 'messages') {
-      PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: id })
+      PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: id as ChannelID })
     } else {
       const channelWithFriend = privateChannels.find(
         (channel) =>
@@ -153,7 +153,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     displayList.push(
       ...privateChannels.map((channel) => ({
         id: channel.id.toString() as UserID,
-        name: getChannelName(channel),
+        name: getChannelName(channel) as UserName,
         relationType: 'friend' as const
       }))
     )

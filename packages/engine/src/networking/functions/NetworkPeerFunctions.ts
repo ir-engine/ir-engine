@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Validator } from 'ts-matches'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { dispatchAction, getMutableState, none } from '@etherealengine/hyperflux'
 import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
@@ -71,7 +71,7 @@ function createPeer(
   }
 
   const worldState = getMutableState(WorldState)
-  worldState.userNames[userID].set(name)
+  worldState.userNames[userID].set(name as UserName)
 }
 
 function destroyPeer(network: Network, peerID: PeerID) {

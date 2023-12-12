@@ -115,7 +115,6 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
 
 const addFileToStorageProvider = async (file: Buffer, mimeType: string, key: string) => {
   logger.info(`Uploading ${key} to storage provider`)
-  console.log(file, mimeType, key)
   const provider = getStorageProvider()
   try {
     await provider.createInvalidation([key])
@@ -143,7 +142,11 @@ export type UploadAssetArgs = {
 }
 
 export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
-  console.log('uploadAsset', args)
+  logger.info('uploadAsset', {
+    project: args.project,
+    name: args.name,
+    path: args.path
+  })
   const { hash } = await getFileMetadata({
     file: args.file,
     name: args.file.originalname
@@ -174,15 +177,14 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
   if (typeof data.args === 'string') data.args = JSON.parse(data.args)
   const files = params.files
   if (data.type === 'user-avatar-upload') {
-    return await uploadAvatarStaticResource(
-      app,
-      {
-        avatar: files[0].buffer as Buffer,
-        thumbnail: files[1].buffer as Buffer,
-        ...(data.args as AvatarUploadArgsType)
-      },
-      params
-    )
+    const callData = {
+      avatar: files[0].buffer as Buffer,
+      thumbnail: files[1].buffer as Buffer,
+      ...(data.args as AvatarUploadArgsType)
+    } as any
+    if (data.path) callData.path = data.path
+
+    return await uploadAvatarStaticResource(app, callData, params)
   } else if (data.type === 'admin-file-upload') {
     if (!(await verifyScope('admin', 'admin')({ app, params } as any))) throw new Error('Unauthorized')
 
@@ -227,7 +229,9 @@ export const addAssetAsStaticResource = async (
   file: UploadFile,
   args: AdminAssetUploadArgumentsType
 ): Promise<StaticResourceType> => {
-  console.log('addAssetAsStaticResource', file, args)
+  logger.info('addAssetAsStaticResource %o', args)
+  // console.log(file)
+
   const provider = getStorageProvider()
 
   const isFromOrigin = isFromOriginURL(args.path)
@@ -299,8 +303,8 @@ export default (app: Application): void => {
         before: [
           multipartMiddleware.any(),
           async (ctx, next) => {
-            const files = ctx.request.files
             if (ctx?.feathers && ctx.method !== 'GET') {
+              ctx.feathers.headers = ctx.headers
               ;(ctx as any).feathers.files = (ctx as any).request.files.media
                 ? (ctx as any).request.files.media
                 : ctx.request.files

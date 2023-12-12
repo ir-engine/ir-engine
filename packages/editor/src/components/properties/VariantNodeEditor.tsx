@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -47,14 +47,6 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
   const entity = props.entity
   const variantComponent = useComponent(entity, VariantComponent)
 
-  const onChangeLevelProperty = useCallback(
-    (level: State<any>, property: string) => {
-      return (value) => {
-        level[property].set(value)
-      }
-    },
-    [entity]
-  )
   return (
     <NodeEditor
       name={t('editor:properties.variant.name')}
@@ -75,14 +67,18 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
           />
         </InputGroup>
         <Button
-          onClick={commitProperty(
-            VariantComponent,
-            `levels.${variantComponent.levels.length}` as any,
-            {
-              src: '',
-              metadata: {}
-            } as any
-          )}
+          onClick={() =>
+            commitProperties(
+              VariantComponent,
+              {
+                [`levels.${variantComponent.levels.length}`]: {
+                  src: '',
+                  metadata: {}
+                }
+              },
+              [entity]
+            )
+          }
         >
           Add Variant
         </Button>
@@ -107,7 +103,8 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                           onChange={commitProperty(VariantComponent, `levels.${index}.metadata.device` as any)}
                           options={[
                             { value: 'MOBILE', label: t('editor:properties.variant.device-mobile') },
-                            { value: 'DESKTOP', label: t('editor:properties.variant.device-desktop') }
+                            { value: 'DESKTOP', label: t('editor:properties.variant.device-desktop') },
+                            { value: 'XR', label: t('editor:properties.variant.device-xr') }
                           ]}
                         />
                       </InputGroup>
@@ -132,9 +129,11 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                 </div>
                 <div className="flex justify-end">
                   <Button
-                    onClick={commitProperties(VariantComponent, {
-                      levels: JSON.parse(JSON.stringify(variantComponent.levels.value.filter((_, i) => i !== index)))
-                    })}
+                    onClick={() =>
+                      commitProperties(VariantComponent, {
+                        levels: JSON.parse(JSON.stringify(variantComponent.levels.value.filter((_, i) => i !== index)))
+                      })
+                    }
                   >
                     Remove
                   </Button>

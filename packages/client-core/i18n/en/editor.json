@@ -79,8 +79,6 @@
       "rotateRight": "Rotate Right",
       "cancelPlacement": "Cancel Placement",
       "placeDuplicate": "Place Duplicate",
-      "cancelGrab": "Cancel Grab",
-      "grab": "Grab",
       "deselectAll": "Deselect All"
     },
     "state": {
@@ -104,7 +102,8 @@
       "description": "Transform Gizmo",
       "translate": "[T] Translate",
       "rotate": "[R] Rotate",
-      "scale": "[S] Scale"
+      "scale": "[Y] Scale",
+      "combined": "[U] Combined Transform"
     },
     "transformSpace": {
       "description": "Sets your transform control to be oriented to the object(selection) or world",
@@ -115,7 +114,7 @@
       "lbl-toggleTransformSpace": "[Z] Toggle Transform Space"
     },
     "transformPivot": {
-      "toggleTransformPivot" : "[X] Toggle Transform Pivot",
+      "toggleTransformPivot": "[X] Toggle Transform Pivot",
       "lbl-selection": "Selection",
       "info-selection": "The center pivot of the final asset you selected in the sequence.",
       "lbl-center": "Center",
@@ -150,15 +149,15 @@
       "users": "Users",
       "user": "User"
     },
-    "render-settings":{
+    "render-settings": {
       "lbl": "Render Settings",
       "info": "How you view materials in the Engine",
-      "lbl-usePostProcessing":"Use Post Processing",
-      "info-usePostProcessing":"Enables post processing",
-      "lbl-shadowMapResolution":"Shadow Map Resolution",
-      "info-shadowMapResolution":"Set shadowmap resolution",
-      "lbl-renderMode":"Render Mode",
-      "info-renderMode":"Choose render mode"
+      "lbl-usePostProcessing": "Use Post Processing",
+      "info-usePostProcessing": "Enables post processing",
+      "lbl-shadowMapResolution": "Shadow Map Resolution",
+      "info-shadowMapResolution": "Set shadowmap resolution",
+      "lbl-renderMode": "Render Mode",
+      "info-renderMode": "Choose render mode"
     },
     "grid": {
       "info-toggleGridVisibility": "Toggle Grid Visibility",
@@ -183,7 +182,7 @@
   },
   "properties": {
     "title": "Properties",
-    "info": "Propeties let you access and edit detailed information about objects in your scene.",
+    "info": "Propeties let you access and edit detailed information about objects in the scene.",
     "lbl-visible": "Visible",
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",
@@ -209,6 +208,7 @@
       "lbl-exportOptions": "Export Options",
       "lbl-export": "Export Prefab",
       "lbl-load": "Load Into Scene",
+      "lbl-loadOptions": "Load Options",
       "lbl-unload": "Unload",
       "lbl-reload": "Reload"
     },
@@ -226,6 +226,8 @@
       "pausetitle": "Pause",
       "resettitle": "Reset",
       "lbl-controls": "controls",
+      "lbl-paused": "Paused",
+      "info-paused": "Toggle media playback",
       "info-controls": "Toggle the visibility of the media controls.",
       "lbl-autoplay": "Autoplay",
       "info-autoplay": "Toggle whether this video autoplays",
@@ -235,6 +237,26 @@
       "lbl-isMusic": "Is Music",
       "lbl-size": "Size",
       "seektime": "Start Time"
+    },
+    "mesh": {
+      "name": "Mesh",
+      "description": "A mesh is a collection of vertices, edges, and faces that describe the shape of a 3D object.",
+      "geometryEditor": "Geometry Editor",
+      "materialEditor": "Material Editor",
+      "material": {
+        "name": "Name",
+        "source": "Source",
+        "type": "Type:",
+        "path": "Path:",
+        "prototype": "Prototype",
+        "loading": "Loading...",
+        "addPlugin": "Add Plugin",
+        "plugin": "Plugin"
+      },
+      "materialProperties": {
+        "title": "Material",
+        "info": "Access and edit detailed information about materials in the scene."
+      }
     },
     "audio": {
       "name": "Positional Audio",
@@ -259,8 +281,12 @@
       "error-url": "Error Loading From URL"
     },
     "collider": {
+      "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
-      "lbl-isTrigger": "Trigger"
+      "lbl-isTrigger": "Trigger",
+      "lbl-removeMesh": "Remove Mesh",
+      "lbl-shape": "Shape",
+      "lbl-type": "Body Type"
     },
     "camera": {
       "name": "Camera",
@@ -295,8 +321,8 @@
       "name": "Ground Plane",
       "description": "A flat ground plane that extends into the distance.",
       "lbl-color": "Color",
-      "lbl-receiveShadow": "Receive Shadow",
-      "lbl-generateNavmesh": "Generate Navmesh"
+      "lbl-visible": "Visible",
+      "info-visible": "Toggle the visibility of the ground plane. Setting to false will still allow shadows to be received, rather than setting the entity visibility."
     },
     "loopAnimation": {
       "title": "Loop Animation",
@@ -322,7 +348,7 @@
     "map": {
       "description": "3D geospatial map of e.g. a city."
     },
-    "shadow":{
+    "shadow": {
       "name": "Shadows",
       "description": "Shadow properties for the model",
       "lbl-castShadow": "Cast Shadow",
@@ -334,6 +360,7 @@
       "lbl-usingGPUInstancingFlag": "Use GPU Instancing",
       "lbl-modelurl": "Model Url",
       "lbl-envmapUrl": "Environment Map Url",
+      "lbl-exportType": "File Extension",
       "lbl-textureOverride": "Override Texture",
       "lbl-materialOverride": "Material Overrides",
       "error-url": "Error Loading From URL",
@@ -403,7 +430,8 @@
         "label": "Level of Detail",
         "serialize": "Serialize",
         "generate": "Generate LODs"
-      }
+      },
+      "lbl-export": "Export Settings"
     },
     "materialAssignment": {
       "lbl-materialID": "Material",
@@ -493,7 +521,14 @@
       "mesh": "Particle Mesh",
       "blending": "Blending",
       "transparent": "Transparent",
-      "world-space": "Use World Space"
+      "world-space": "Use World Space",
+      "burst": {
+        "time": "Burst Time",
+        "count": "Burst Count",
+        "cycle": "Burst Cycle",
+        "interval": "Burst Interval",
+        "probability": "Burst Probability"
+      }
     },
     "clouds": {
       "name": "Cloud",
@@ -566,7 +601,7 @@
       "lbl-reload": "Restage",
       "lbl-options": "Options",
       "samplingMode": "Sampling Mode",
-      "sampling": { 
+      "sampling": {
         "properties": "Sampling Properties",
         "heightMap": "Height Map",
         "heightMapStrength": "Height Map Strength",
@@ -687,8 +722,7 @@
       "title": "link Component",
       "lbl-url": "Link URL",
       "lbl-navigateScene": "Scene navigation",
-      "lbl-projname": "Project Name",
-      "lbl-scenename": "Scene Name",
+      "lbl-locaiton": "Location Name",
       "description": "Adds an interactable that opens links or navigates scene"
     },
     "spotLight": {
@@ -704,7 +738,8 @@
       "title": "Transform",
       "lbl-position": "Position",
       "lbl-rotation": "Rotation",
-      "lbl-scale": "Scale"
+      "lbl-scale": "Scale",
+      "lbl-useGlobalTransform": "Use Global Transform"
     },
     "triggerVolume": {
       "description": "Sets a property on the target object on enter and leave.",
@@ -754,6 +789,21 @@
       "lbl-args": "Args",
       "error-url": "Error Loading Script From URL"
     },
+    "primitiveGeometry": {
+      "name": "Primitive Geometry",
+      "description": "3D models of Basic Geometry shapes",
+      "lbl-geometryType": "Geometry Type",
+      "lbl-box": "Box",
+      "lbl-sphere": "Sphere",
+      "lbl-cylinder": "Cylinder",
+      "lbl-capsule": "Capsule",
+      "lbl-plane": "Plane",
+      "lbl-circle": "Circle",
+      "lbl-ring": "Ring",
+      "lbl-torus": "Torus",
+      "lbl-polyhedron": "Polyhedron",
+      "lbl-torusknot": "Torus Knot"
+    },
     "portal": {
       "lbl-portal": "Linked Portal",
       "lbl-redirect": "Use Page Redirect",
@@ -790,7 +840,46 @@
     "mountPoint": {
       "name": "Mount point",
       "description": "An object with a pose to define interactable behaviors.",
-      "lbl-type": "Type"
+      "lbl-type": "Type",
+      "lbl-dismount": "Dismount point, offsets this transform"
+    },
+    "text": {
+      "textGroup": "Text",
+      "textOpacity": "opacity",
+      "textWidth": "width",
+      "textIndent": "indent",
+      "textAlign": "align",
+      "textWrap": "wrap",
+      "textAnchor": "anchor",
+      "textDepthOffset": "depthOffset",
+      "textCurveRadius": "curveRadius",
+      "letterSpacing": "letterSpacing",
+      "lineHeightGroup": "lineHeight",
+      "lineHeight": "height",
+      "textDirection": "direction",
+      "fontGroup": "Font",
+      "fontFamily": "family",
+      "fontSize": "size",
+      "fontColor": "color",
+      "fontMaterial": "material",
+      "outlineGroup": "Outline",
+      "outlineColor": "color",
+      "outlineOpacity": "opacity",
+      "outlineWidth": "width",
+      "outlineBlur": "blur",
+      "outlineOffset": "offset",
+      "strokeGroup": "Stroke",
+      "strokeColor": "color",
+      "strokeOpacity": "opacity",
+      "strokeWidth": "width",
+      "advancedActive": "Show Advanced",
+      "advancedGroup": "Advanced",
+      "clippingActive": "clip.active",
+      "clippingMin": "clip.min",
+      "clippingMax": "clip.max",
+      "glyphResolution": "glyph.resolution",
+      "glyphDetail": "glyph.detail",
+      "gpuAccelerated": "GPU Accelerated"
     }
   },
   "projects": {
@@ -822,31 +911,35 @@
       "openInNewTab": "Open URL in New Tab",
       "deleteAsset": "Delete Asset",
       "tooltip": {
-        "EE_model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
-        "EE_volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
-        "EE_video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
-        "EE_positionalAudio": "Import audio clips, .mp3, .flac, .ogg, .wav, .m4a",
-        "EE_image": "Imports an image into the scene",
-        "GroundPlaneComponent": "Create collision ground plane.",
-        "GroupComponent": "Collection of models or assets.",
-        "ColliderComponent": "Creates a collision ball, cuboid, capsule, or cylinder to be manually placement.",
-        "SpawnPointComponent": "A point where people will appear when they enter your scene.",
-        "PortalComponent": "A portal to teleport a player to a port in a different location.",
-        "AmbientLightComponent": "A combination of direct and indirect light, provides general lighting to all assets.",
-        "PointLightComponent": "A light which emits in all directions from a single point.",
-        "SpotLightComponent": "Creates a light that shines in a specific direction.",
-        "DirectionalLightComponent": "Creates a light that emits evenly in a single direction.",
-        "HemisphereLightComponent": "A light which illuminates the scene from directly overhead.",
-        "EE_ParticleSystem": "Creates a particle emitter.",
-        "SystemComponent": "Inserts code into the scene by creating a new Entity Component System based on the provided .ts file",
-        "EE_behaveGraph": "Customizes state and behavior of entities through a node graph connection.",
-        "EnvMapBakeComponent": "Add Env Mapbake to your scene.",
-        "EE_scenePreviewCamera": "A preview camera which generates a scene thumbnail and the starting position.",
-        "SkyboxComponent": "Sets the area outside your map (skybox) with a specific sky type.",
-        "SplineTrackComponent": "Creates a spline track.",
-        "SplineComponent": "Create and customize curves.",
-        "EnvmapComponent": "Add environment map to your scene",
-        "PostProcessingComponent":"Add postprocessing effects to your scene"
+        "gltf-model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
+        "volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
+        "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
+        "variant": "Add model variant for level of detail",
+        "audio": "Import audio clips, .mp3, .flac, .ogg, .wav, .m4a",
+        "image": "Imports an image into the scene",
+        "ground-plane": "Create collision ground plane.",
+        "group": "Collection of models or assets.",
+        "collider": "Creates a collision ball, cuboid, capsule, or cylinder to be manually placement.",
+        "spawn-point": "A point where people will appear when they enter your scene.",
+        "portal": "A portal to teleport a player to a port in a different location.",
+        "ambient-light": "A combination of direct and indirect light, provides general lighting to all assets.",
+        "point-light": "A light which emits in all directions from a single point.",
+        "spot-light": "Creates a light that shines in a specific direction.",
+        "directional-light": "Creates a light that emits evenly in a single direction.",
+        "hemisphere-light": "A light which illuminates the scene from directly overhead.",
+        "particle-system": "Creates a particle emitter.",
+        "system": "Inserts code into the scene by creating a new Entity Component System based on the provided .ts file",
+        "BehaveGraph": "Customizes state and behavior of entities through a node graph connection.",
+        "envmapbake": "Add Env Mapbake to your scene.",
+        "scene-preview-camera": "A preview camera which generates a scene thumbnail and the starting position.",
+        "skybox": "Sets the area outside your map (skybox) with a specific sky type.",
+        "spline-track": "Creates a spline track.",
+        "spline": "Create and customize curves.",
+        "envmap": "Add environment map to your scene",
+        "postprocessing": "Add postprocessing effects to your scene",
+        "primitive-geometry": "Add basic Geometry to the scene",
+        "link": "Add clickable Link to entity to route to different webpage",
+        "dynamic-load": "Load entities dynamically"
       }
     },
     "filebrowser": {
@@ -862,6 +955,7 @@
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
+      "uploadAsset": "Upload Asset",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
@@ -881,7 +975,7 @@
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
-    "isseus": "Issues:"
+    "issues": "Issues"
   },
   "materialLibrary": {
     "lbl": "Material Library",
@@ -898,6 +992,7 @@
     "title": "Editor",
     "lbl-confirm": "Ok",
     "lbl-cancel": "Cancel",
+    "sure-confirm": "Are you sure?",
     "exportProject": {
       "title": "Export Project",
       "lbl-confirm": "Export Project",
@@ -957,7 +1052,10 @@
       "msg": "You can file a <1>GitHub Issue</1> or e-mail us for support at <3>{{mail}}</3>",
       "discord": "You can also find us on <1>Discord</1>"
     },
-    "confirmContentDelete": "Do you want to delete",
+    "delete": {
+      "confirm-content": "Do you want to delete {{content}}?",
+      "not-allowed-local-dev": "To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead."
+    },
     "file": "file",
     "folder": "folder"
   },
