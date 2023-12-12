@@ -119,6 +119,7 @@ export const loadAvatarModelAsset = (
   const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
 
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
+  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
 
   AssetLoader.loadAsync(avatarURL, undefined, undefined, override).then((loadedAsset) => {
     setComponent(entity, AvatarRigComponent, { vrm: loadedAsset })
