@@ -232,8 +232,13 @@ const onSaveScene = async () => {
     return
   }
 
+  const [ktx2Blob, thumbnailBlob] = await takeScreenshot(512, 320)
+  const file = new File([ktx2Blob!], sceneName + '.thumbnail.ktx2')
+
   const result = (await new Promise((resolve) => {
-    DialogState.setDialog(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
+    DialogState.setDialog(
+      <SaveSceneDialog onConfirm={resolve} onCancel={resolve} thumbnailUrl={URL.createObjectURL(thumbnailBlob!)} />
+    )
   })) as any
 
   if (!result) {
@@ -261,9 +266,6 @@ const onSaveScene = async () => {
     if (projectName) {
       const isGenerateThumbnailsEnabled = getState(EditorHelperState).isGenerateThumbnailsEnabled
       if (isGenerateThumbnailsEnabled) {
-        const [ktx2Blob] = await takeScreenshot(512, 320)
-        const file = new File([ktx2Blob!], sceneName + '.thumbnail.ktx2')
-
         await uploadSceneBakeToServer()
         await saveScene(projectName, sceneName, file, abortController.signal)
       } else {
