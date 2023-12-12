@@ -79,6 +79,8 @@ export const syncWithProjects = {
   },
   addFile: (filePath: string, body: any) => {
     if (isDev) {
+      const pathWithoutFile = path.dirname(syncWithProjects._getPath(filePath))
+      if (!fs.existsSync(pathWithoutFile)) fs.mkdirSync(pathWithoutFile, { recursive: true })
       fs.writeFileSync(syncWithProjects._getPath(filePath), body)
     }
   },

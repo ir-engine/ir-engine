@@ -198,9 +198,10 @@ export class SceneService
 
     if (isDev) {
       const projectPathLocal = path.resolve(appRootPath.path, localDirectory)
+      const defaultProjectPath = path.resolve(appRootPath.path, 'packages/projects/projects/default-project/')
       for (const ext of sceneAssetFiles) {
         fs.copyFileSync(
-          path.resolve(appRootPath.path, `${localDirectory}default${ext}`),
+          path.resolve(path.join(defaultProjectPath, 'default') + ext),
           path.resolve(path.join(projectPathLocal, newSceneName) + ext)
         )
       }
