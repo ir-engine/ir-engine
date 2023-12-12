@@ -46,19 +46,19 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import styles from './styles.module.scss'
 
 const renderEntityTreeRoots = () => {
-  return {
-    ...Object.values(getState(SceneState).scenes)
+  return Object.fromEntries(
+    Object.values(getState(SceneState).scenes)
       .map((scene, i) => {
         const root = scene.snapshots[scene.index].data.root
         const entity = UUIDComponent.entitiesByUUID[root]
-        if (!entity || !entityExists(entity)) return null
-        return {
-          [`${i} - ${getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent)}`]:
-            renderEntityTree(entity)
-        }
+        if (!entity || !entityExists(entity)) return []
+        return [
+          `${i} - ${getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent)}`,
+          renderEntityTree(entity)
+        ]
       })
-      .filter((exists) => !!exists)
-  }
+      .filter(([exists]) => !!exists)
+  )
 }
 
 const renderEntityTree = (entity: Entity) => {
@@ -139,18 +139,12 @@ export const EntityDebug = () => {
   return (
     <>
       <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.entityTree')}</h1>
-        <JSONTree
-          data={entityTree.value}
-          postprocessValue={(v: any) => v?.value ?? v}
-          shouldExpandNodeInitially={(keyPath, data: any, level) =>
-            !!data.components && !!data.children && typeof data.entity === 'number'
-          }
-        />
+        <h1>{t('common:debug.scenes')}</h1>
+        <JSONTree data={entityTree.value} postprocessValue={(v: any) => v?.value ?? v} />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entities')}</h1>
-        <JSONTree data={namedEntities.get(NO_PROXY)} />
+        <JSONTree data={namedEntities.get(NO_PROXY)} shouldExpandNodeInitially={() => false} />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.erroredEntities')}</h1>
