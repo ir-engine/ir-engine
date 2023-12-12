@@ -213,6 +213,10 @@ const updateInviteCode = async (context: HookContext<UserService>) => {
 const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
   const data: UserType[] = Array.isArray(context['actualData']) ? context['actualData'] : [context['actualData']]
 
+  if (data.length === 1 && !data[0].id) {
+    data[0].id = context.id as UserID
+  }
+
   for (const item of data) {
     if (item?.avatarId) {
       const existingUserAvatar = await context.app.service(userAvatarPath).find({
@@ -341,6 +345,7 @@ export default createSkippableHooks(
         iff(isProvider('external'), restrictUserPatch),
         () => schemaHooks.validateData(userPatchValidator),
         schemaHooks.resolveData(userPatchResolver),
+        persistData,
         disallowNonId,
         removeUserScopes,
         addUserScopes(false),
