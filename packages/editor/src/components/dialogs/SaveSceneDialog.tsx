@@ -36,12 +36,16 @@ import Dialog from './Dialog'
 
 /**
  * SaveSceneDialog used to show dialog when to save scene.
- *
- * @param       {function} onConfirm
- * @param       {function} onCancel
- * @constructor
  */
-export function SaveSceneDialog({ onConfirm, onCancel }) {
+export function SaveSceneDialog({
+  onConfirm,
+  onCancel,
+  thumbnailUrl
+}: {
+  onConfirm: (val: boolean) => void
+  onCancel: (val?: boolean) => void
+  thumbnailUrl: string
+}) {
   const { t } = useTranslation()
   const state = useHookstate(getMutableState(EditorHelperState).isGenerateThumbnailsEnabled)
 
@@ -83,10 +87,31 @@ export function SaveSceneDialog({ onConfirm, onCancel }) {
       onCancel={onCancelCallback}
       confirmLabel={t('editor:dialog.saveScene.lbl-confirm')}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', margin: '10px' }}>
-        <BooleanInput value={state.value} onChange={onChangeGenerateThumbnails} />
-        <label style={{ marginLeft: '10px' }}>{t('editor:dialog.saveScene.lbl-thumbnail')}</label>
-      </Box>
+      <div style={{ width: '100%' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            margin: '10px'
+          }}
+        >
+          <img
+            src={thumbnailUrl}
+            alt=""
+            crossOrigin="anonymous"
+            style={{
+              borderRadius: '6px',
+              marginBottom: '10px'
+            }}
+            height={160}
+            width={256}
+          />
+          <BooleanInput value={state.value} onChange={onChangeGenerateThumbnails} />
+          <label style={{ marginLeft: '10px' }}>{t('editor:dialog.saveScene.lbl-thumbnail')}</label>
+        </Box>
+      </div>
     </Dialog>
   )
 }
