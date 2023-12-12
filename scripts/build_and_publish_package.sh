@@ -10,14 +10,30 @@ START_TIME=$5
 REGION=$6
 NODE_ENV=$7
 PRIVATE_ECR=$8
+DOCR_API_TOKEN=$9
+DOCR_REGISTRY=${10}
+CLOUD_PROVIDER=${11}
 
-if [ $PRIVATE_ECR == "true" ]
+
+if [ $CLOUD_PROVIDER == "do" ]
 then
-  aws ecr get-login-password --region $REGION | docker login -u AWS --password-stdin $ECR_URL
-  aws ecr describe-repositories --repository-names $REPO_NAME-$PACKAGE --region $REGION || aws ecr create-repository --repository-name $REPO_NAME-$PACKAGE --region $REGION
+  docker login -u $DOCR_API_TOKEN -p $DOCR_API_TOKEN $DOCR_REGISTRY
+  docker inspect $REPO_NAME-$PACKAGE > /dev/null 2>&1
+  if [ $? != 0 ]; then
+    echo "Repository '$REPO_NAME-$PACKAGE' already exists."
+  else
+    echo "Repository '$REPO_NAME-$PACKAGE' does not exist. Creating..."
+    docker image push $REPO_NAME-$PACKAGE
+  fi
 else
-  aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
-  aws ecr-public describe-repositories --repository-names $REPO_NAME-$PACKAGE --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-$PACKAGE --region us-east-1
+  if [ $PRIVATE_ECR == "true" ]
+  then
+    aws ecr get-login-password --region $REGION | docker login -u AWS --password-stdin $ECR_URL
+    aws ecr describe-repositories --repository-names $REPO_NAME-$PACKAGE --region $REGION || aws ecr create-repository --repository-name $REPO_NAME-$PACKAGE --region $REGION
+  else
+    aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
+    aws ecr-public describe-repositories --repository-names $REPO_NAME-$PACKAGE --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-$PACKAGE --region us-east-1
+  
 fi
 
 #echo "PRUNED"
