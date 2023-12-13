@@ -88,6 +88,16 @@ export default function CompressionPanel({
 
     const props = fileProperties.value
     compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
+
+    const compressor = fileConsistsOfContentType(fileProperties.value, 'model') ? compressModel : compressImage
+    await compressor()
+    await onRefreshDirectory()
+
+    compressionLoading.set(false)
+    openCompress.set(false)
+  }
+
+  const compressImage = async () => {
     const ktx2Encoder = new KTX2Encoder()
 
     const img = await new Promise<HTMLImageElement>((resolve) => {
@@ -117,6 +127,7 @@ export default function CompressionPanel({
       uastcZstandard: compressProperties.uastcZstandard.value
     })
 
+    const props = fileProperties.value
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
     const path = props.key.replace(/(.*\/).*/, '$1')
 
@@ -127,10 +138,10 @@ export default function CompressionPanel({
       path,
       contentType: file.type
     }).promise
-    await onRefreshDirectory()
+  }
 
-    compressionLoading.set(false)
-    openCompress.set(false)
+  const compressModel = async () => {
+    // TODO
   }
 
   return (
