@@ -79,11 +79,10 @@ describe('SceneLoadingSystem', () => {
 
     // init
     const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-
     const tag = <Reactor />
 
     // render
-    const { rerender } = render(tag)
+    const { rerender, unmount } = render(tag)
 
     // load scene
     SceneState.loadScene('scene 1' as SceneID, sceneJSON_1)
@@ -93,6 +92,9 @@ describe('SceneLoadingSystem', () => {
 
     // assertions
     assert.notEqual(UUIDComponent.entitiesByUUID['root'], undefined)
+
+    // unmount to cleanup
+    unmount()
   })
 
   afterEach(() => {
