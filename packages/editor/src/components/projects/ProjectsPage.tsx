@@ -72,6 +72,7 @@ import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
 import { EditPermissionsDialog } from './EditPermissionsDialog'
+
 import styles from './styles.module.scss'
 
 const logger = multiLogger.child({ component: 'editor:ProjectsPage' })
@@ -142,7 +143,16 @@ const OfficialProjectData = [
   // },
 ]
 
-const CommunityProjectData = [] as any
+const CommunityProjectData = [
+  {
+    id: '1570ae14-889a-11ec-886e-b126f7590682',
+    name: 'ee-ethereal-game',
+    repositoryPath: 'https://github.com/etherealengine/ee-ethereal-game',
+    thumbnail: 'https://media.githubusercontent.com/media/EtherealEngine/ee-ethereal-village/dev/thumbnail.png',
+    description: 'A test game',
+    needsRebuild: true
+  }
+] as any
 
 const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summary: string }>) => {
   return (
@@ -175,7 +185,7 @@ const ProjectsPage = () => {
   const query = useHookstate('')
   const filterAnchorEl = useHookstate<any>(null)
   const projectAnchorEl = useHookstate<any>(null)
-  const filter = useHookstate({ installed: false, official: true, community: true })
+  const filter = useHookstate({ installed: true, official: true, community: true })
   const isCreateDialogOpen = useHookstate(false)
   const isDeleteDialogOpen = useHookstate(false)
   const updatingProject = useHookstate(false)
@@ -201,13 +211,16 @@ const ProjectsPage = () => {
     Engine.instance.api.service(projectPath).on('patched', () => fetchInstalledProjects())
   }, [])
 
-  const fetchInstalledProjects = async () => {
+  const fetchInstalledProjects = async (query?: string) => {
     loading.set(true)
     try {
       const data = await getProjects()
-      installedProjects.set(data.sort(sortAlphabetical) ?? [])
+      const filteredData = query ? data.filter((p) => p.name.includes(query)) : data
+
       if (activeProject.value)
         activeProject.set(data.find((item) => item.id === activeProject.value?.id) as ProjectType | null)
+
+      installedProjects.set((filteredData.sort(sortAlphabetical) as ProjectType[]) ?? [])
     } catch (error) {
       logger.error(error)
       error.set(error)
@@ -224,7 +237,6 @@ const ProjectsPage = () => {
           : OfficialProjectData
       ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
 
-      console.log(OfficialProjectData, installedProjects, data)
       officialProjects.set((data.sort(sortAlphabetical) as ProjectType[]) ?? [])
     } catch (error) {
       logger.error(error)
@@ -241,8 +253,8 @@ const ProjectsPage = () => {
           ? CommunityProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
           : CommunityProjectData
       ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
-
       communityProjects.set(data.sort(sortAlphabetical) ?? [])
+      console.log('DEBUG 2', data, communityProjects, filter.value)
     } catch (error) {
       logger.error(error)
       error.set(error)
@@ -362,10 +374,8 @@ const ProjectsPage = () => {
 
   const handleSearch = (e) => {
     query.set(e.target.value)
-
-    if (filter.value.installed) {
-      // todo
-    }
+    // debounce these calls?
+    if (filter.value.installed) fetchInstalledProjects(e.target.value)
     if (filter.value.official) fetchOfficialProjects(e.target.value)
     if (filter.value.community) fetchCommunityProjects(e.target.value)
   }
@@ -448,7 +458,6 @@ const ProjectsPage = () => {
    *
    */
   if (!authUser?.accessToken.value || authUser.accessToken.value.length === 0 || !user?.id.value) return <></>
-
   return (
     <main className={styles.projectPage}>
       <style>
@@ -556,7 +565,7 @@ const ProjectsPage = () => {
                 {renderProjectList(officialProjects.value)}
               </ProjectExpansionList>
             )}
-            {(!query.value || (!query.value && filter.value.community && communityProjects.value.length > 0)) && (
+            {(!query.value || (query.value && filter.value.community && communityProjects.value.length > 0)) && (
               <ProjectExpansionList
                 id={t(`editor.projects.community`)}
                 summary={`${t('editor.projects.community')} (${communityProjects.value.length})`}
