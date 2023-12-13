@@ -31,6 +31,8 @@ import assert from 'assert'
 import React from 'react'
 import { destroyEngine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -38,20 +40,11 @@ import { SceneDataType, SceneID, SceneJsonType } from '../../schemas/projects/sc
 import { UUIDComponent } from '../components/UUIDComponent'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
 
-const sceneJSON_1 = {
-  scene: {
-    entities: {
-      root: {
-        name: 'Root',
-        components: []
-      }
-    },
-    root: 'root' as EntityUUID,
-    version: 0
-  } as SceneJsonType
-} as SceneDataType
-
-const sceneJSON_2 = {
+const testScene = {
+  name: '',
+  thumbnailUrl: '',
+  project: '',
+  scenePath: 'test' as SceneID,
   scene: {
     entities: {
       root: {
@@ -64,42 +57,49 @@ const sceneJSON_2 = {
         parent: 'root'
       },
       child_1: {
-        name: 'Child 0',
+        name: 'Child 1',
         components: [],
         parent: 'child_0'
       },
       child_2: {
-        name: 'Child 0',
+        name: 'Child 2',
         components: [],
         parent: 'child_1'
       },
       child_3: {
-        name: 'Child 0',
+        name: 'Child 3',
         components: [],
         parent: 'child_2'
       },
       child_4: {
-        name: 'Child 0',
+        name: 'Child 4',
         components: [],
         parent: 'child_3'
       },
       child_5: {
-        name: 'Child 0',
+        name: 'Child 5',
         components: [],
         parent: 'child_4'
+      },
+      child_2_1: {
+        name: 'Child 2 _ 1',
+        components: [],
+        parent: 'child_2'
       }
     },
     root: 'root' as EntityUUID,
     version: 0
   } as SceneJsonType
 } as SceneDataType
+const testID = 'test' as SceneID
 
 describe('SceneLoadingSystem', () => {
   beforeEach(() => {
     createEngine()
   })
 
-  it('test reactor', async () => {
+  it('will load entities', async () => {
+    getMutableState(SceneState).activeScene.set(testID)
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
     // init
@@ -110,15 +110,45 @@ describe('SceneLoadingSystem', () => {
     const { rerender, unmount } = render(tag)
 
     // load scene
-    SceneState.loadScene('scene 2' as SceneID, sceneJSON_2)
-
+    SceneState.loadScene('test' as SceneID, testScene)
     // force re-render
     await act(() => rerender(tag))
 
     // assertions
-    console.log(UUIDComponent.entitiesByUUID)
-    assert.notEqual(UUIDComponent.entitiesByUUID['root'], undefined)
+    const rootEntity = SceneState.getRootEntity(testID)
+    assert(rootEntity)
+    assert.equal(hasComponent(rootEntity, EntityTreeComponent), true)
+    assert.equal(getComponent(rootEntity, EntityTreeComponent).parentEntity, null)
 
+    const child1Entity = UUIDComponent.entitiesByUUID['child_1']
+    assert(child1Entity)
+    assert.equal(hasComponent(child1Entity, EntityTreeComponent), true)
+    assert.equal(getComponent(child1Entity, EntityTreeComponent).parentEntity, rootEntity)
+
+    const child2Entity = UUIDComponent.entitiesByUUID['child_2']
+    assert(child2Entity)
+    assert.equal(hasComponent(child2Entity, EntityTreeComponent), true)
+    assert.equal(getComponent(child2Entity, EntityTreeComponent).parentEntity, child1Entity)
+
+    const child3Entity = UUIDComponent.entitiesByUUID['child_3']
+    assert(child3Entity)
+    assert.equal(hasComponent(child3Entity, EntityTreeComponent), true)
+    assert.equal(getComponent(child3Entity, EntityTreeComponent).parentEntity, child2Entity)
+
+    const child4Entity = UUIDComponent.entitiesByUUID['child_4']
+    assert(child4Entity)
+    assert.equal(hasComponent(child4Entity, EntityTreeComponent), true)
+    assert.equal(getComponent(child4Entity, EntityTreeComponent).parentEntity, child3Entity)
+
+    const child5Entity = UUIDComponent.entitiesByUUID['child_5']
+    assert(child5Entity)
+    assert.equal(hasComponent(child5Entity, EntityTreeComponent), true)
+    assert.equal(getComponent(child5Entity, EntityTreeComponent).parentEntity, child4Entity)
+
+    const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+    assert(child2_1Entity)
+    assert.equal(hasComponent(child2_1Entity, EntityTreeComponent), true)
+    assert.equal(getComponent(child2_1Entity, EntityTreeComponent).parentEntity, child2Entity)
     // check all entites are loaded correctly
     // check if data in the manual json matches scene data
 
@@ -126,6 +156,56 @@ describe('SceneLoadingSystem', () => {
     unmount()
   })
 
+  it('will load entities data', async () => {
+    getMutableState(SceneState).activeScene.set(testID)
+    getMutableState(PhysicsState).physicsWorld.set({} as any)
+
+    // init
+    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+    const tag = <Reactor />
+
+    // render
+    const { rerender, unmount } = render(tag)
+
+    // load scene
+    SceneState.loadScene('test' as SceneID, testScene)
+    // force re-render
+    await act(() => rerender(tag))
+
+    // assertions
+    const rootEntity = SceneState.getRootEntity(testID)
+    assert(rootEntity)
+    assert.equal(hasComponent(rootEntity, EntityTreeComponent), true)
+    assert.equal(getComponent(rootEntity, EntityTreeComponent).parentEntity, null)
+
+    // check all entites are loaded correctly
+    // check if data in the manual json matches scene data
+
+    // unmount to cleanup
+    unmount()
+  })
+  it('will not load dynamic entity', async () => {
+    // set to location mode
+    // load scene
+    // create dynamic entity
+    // load dynamic entity
+    // check for failure to load
+  })
+  it('will load dynamic entity', async () => {
+    // set to studio mode
+    // load scene
+    // create dynamic entity
+    // load dynamic entity
+    // check for success to load
+  })
+  it('will load sub-scene', async () => {
+    // load scene with model component
+    // check for success of model component
+    // check for model component children
+  })
+  it('test reactor', async () => {
+    // init
+  })
   afterEach(() => {
     return destroyEngine()
   })
