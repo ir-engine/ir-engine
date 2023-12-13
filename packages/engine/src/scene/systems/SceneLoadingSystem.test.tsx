@@ -25,14 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
+import { getMutableState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { destroyEngine } from '../../ecs/classes/Engine'
-import { UndefinedEntity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
 import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
-import { SceneDataType, SceneJsonType } from '../../schemas/projects/scene.schema'
+import { PhysicsState } from '../../physics/state/PhysicsState'
+import { SceneDataType, SceneID, SceneJsonType } from '../../schemas/projects/scene.schema'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
 
@@ -73,17 +75,24 @@ describe('SceneLoadingSystem', () => {
   })
 
   it('test reactor', async () => {
+    getMutableState(PhysicsState).physicsWorld.set({} as any)
+
     // init
     const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    console.log(Reactor)
+
+    const tag = <Reactor />
 
     // render
-    const { rerender } = render(<Reactor />)
-    console.log('rerender')
-    await act(() => rerender(<Reactor />))
+    const { rerender } = render(tag)
+
+    // load scene
+    SceneState.loadScene('scene 1' as SceneID, sceneJSON_1)
+
+    // force re-render
+    await act(() => rerender(tag))
 
     // assertions
-    assert.notEqual(UUIDComponent.entitiesByUUID['some UUID'], UndefinedEntity)
+    assert.notEqual(UUIDComponent.entitiesByUUID['root'], undefined)
   })
 
   afterEach(() => {
