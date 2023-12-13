@@ -146,7 +146,7 @@ export const InviteService = {
 
     try {
       const existingInviteResult = (await Engine.instance.api.service(invitePath).find({
-        query: data
+        query: { ...data, action: 'sent' }
       })) as Paginated<InviteType>
 
       let inviteResult

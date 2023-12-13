@@ -239,7 +239,7 @@ export function ElementList() {
             )}
             {items.map((item) => (
               <SceneElementListItem
-                key={item.jsonID}
+                key={item.jsonID || item.name}
                 item={{
                   componentJsonID: item.jsonID!,
                   label: startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase()),

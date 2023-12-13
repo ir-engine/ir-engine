@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
-import { clone, cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash'
 import {
   AnimationClip,
   AnimationMixer,
@@ -64,9 +64,9 @@ import { AnimationState } from '../AnimationManager'
 import config from '@etherealengine/common/src/config'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { Engine } from '../../ecs/classes/Engine'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
+import { locomotionAnimation, optionalAnimations } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -81,84 +81,70 @@ import { retargetMixamoAnimation } from './retargetMixamoRig'
 const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
 
-export const locomotionPack = 'locomotion'
+export const getPreloaded = () => {
+  return ['sitting']
+}
 
-export const parseAvatarModelAsset = (model: any) => {
-  const scene = model.scene ?? model // FBX files does not have 'scene' property
-  if (!scene) return
+/** Checks if the asset is a VRM. If not, attempt to use
+ *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
+export const autoconvertMixamoAvatar = (model: any) => {
+  const scene = model.scene ?? model // FBX assets do not have 'scene' property
+  if (!scene) return null
+
   const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as any
 
   if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
 
-  return vrm as VRM
+  return vrm
 }
 
 export const isAvaturn = (url: string) => {
   const fileExtensionRegex = /\.[0-9a-z]+$/i
   const avaturnUrl = config.client.avaturnAPI
   if (avaturnUrl && !fileExtensionRegex.test(url)) return url.startsWith(avaturnUrl)
-  else return false
+  return false
 }
 
-export const loadAvatarModelAsset = async (avatarURL: string) => {
-  // if (!sourceRig) {
-  //   const sourceVRM = await AssetLoader.loadAsync(
-  //     `${config.client.fileServer}/projects/default-project/assets/animations/mocap_skeleton.vrm`
-  //   )
-  //   sourceRig = parseAvatarModelAsset(sourceVRM)!.humanoid.normalizedHumanBones
-  // }
-
-  //check if the url to the file has a file extension, if not, assume it's a glb
-
-  const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
-
-  const model = await AssetLoader.loadAsync(avatarURL, undefined, undefined, override)
-  return parseAvatarModelAsset(model)
-}
-
-export const loadAvatarForUser = async (
+/**tries to load avatar model asset if an avatar is not already pending */
+export const loadAvatarModelAsset = (
   entity: Entity,
   avatarURL: string,
   loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 ) => {
-  if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
-    throw new Error('Avatar model already loading')
+  if (!avatarURL) return
+  //check if the url to the file is an avaturn url to infer the file type
+  const pendingComponent = getOptionalComponent(entity, AvatarPendingComponent)
+  if (pendingComponent && pendingComponent.url === avatarURL) return
 
-  if (loadingEffect) {
-    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
-  }
-
-  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(false)
+  const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
 
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
-  const parent = (await loadAvatarModelAsset(avatarURL)) as VRM
+  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
 
-  /** hack a cancellable promise - check if the url we start with is the one we end up with */
-  if (!hasComponent(entity, AvatarPendingComponent) || getComponent(entity, AvatarPendingComponent).url !== avatarURL)
-    throw new Error('Avatar model changed while loading')
+  AssetLoader.loadAsync(avatarURL, undefined, undefined, override).then((loadedAsset) => {
+    setComponent(entity, AvatarRigComponent, { vrm: autoconvertMixamoAvatar(loadedAsset) })
+    removeComponent(entity, AvatarPendingComponent)
+    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
 
-  removeComponent(entity, AvatarPendingComponent)
-
-  if (!parent) throw new Error('Avatar model not found')
-  setupAvatarForUser(entity, parent)
-
-  if (isClient && loadingEffect) {
-    const avatar = getComponent(entity, AvatarComponent)
-    const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(entity, avatar?.model)
-    const effectEntity = createEntity()
-    setComponent(effectEntity, AvatarEffectComponent, {
-      sourceEntity: entity,
-      opacityMultiplier: 1,
-      dissolveMaterials: dissolveMaterials as ShaderMaterial[],
-      originMaterials: avatarMaterials as MaterialMap[]
-    })
-  }
-
-  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
-
-  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
+    /**this is awaiting refactor from PR #9369, ideally this logic is not in the async callback
+     * and instead in a reactor that listens for the avatar vrm being set
+     */
+    if (isClient && loadingEffect) {
+      const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(loadedAsset.scene)
+      const effectEntity = createEntity()
+      setComponent(effectEntity, AvatarEffectComponent, {
+        sourceEntity: entity,
+        opacityMultiplier: 1,
+        dissolveMaterials: dissolveMaterials as ShaderMaterial[],
+        originMaterials: avatarMaterials as MaterialMap[]
+      })
+    }
+  })
 }
 
+/**Kicks off avatar animation loading and setup. Called after an avatar's model asset is
+ * successfully loaded.
+ */
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   const avatar = getComponent(entity, AvatarComponent)
   if (avatar && avatar.model) removeObjectFromGroup(entity, avatar.model)
@@ -171,56 +157,78 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 
   computeTransformMatrix(entity)
   setupAvatarHeight(entity, model.scene)
-  createIKAnimator(entity)
+
+  const animationState = getState(AnimationState)
+  //set global states if they are not already set
+  if (!animationState.loadedAnimations[locomotionAnimation]) loadLocomotionAnimations()
+  /**todo: crawl scene to only load necessary optional animations */
+  if (!animationState.loadedAnimations[optionalAnimations.seated])
+    loadAnimationArray([optionalAnimations.seated], 'optional')
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
   avatar.model = model.scene
 }
 
-export const createIKAnimator = async (entity: Entity) => {
+export const retargetAvatarAnimations = (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
-  const animations = await getAnimations()
   const manager = getState(AnimationState)
-
-  for (let i = 0; i < animations!.length; i++) {
-    animations[i] = retargetMixamoAnimation(
-      animations[i],
-      manager.loadedAnimations[locomotionPack]?.scene!,
-      rigComponent.vrm
-    )
+  const animations = [] as AnimationClip[]
+  for (const key in manager.loadedAnimations) {
+    for (const animation of manager.loadedAnimations[key].animations)
+      animations.push(
+        retargetMixamoAnimation(cloneDeep(animation), manager.loadedAnimations[key].scene, rigComponent.vrm)
+      )
   }
-
   setComponent(entity, AnimationComponent, {
-    animations: clone(animations),
-    mixer: new AnimationMixer(rigComponent.localRig.hips.node.parent!)
+    animations: animations,
+    mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBones.hips.node.parent!)
   })
 }
 
-export const getAnimations = async () => {
+export const loadLocomotionAnimations = () => {
   const manager = getMutableState(AnimationState)
-  if (!manager.loadedAnimations.value[locomotionPack]) {
-    //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
-    const asset = (await AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionPack}.glb`
-    )) as GLTF
 
-    manager.loadedAnimations[locomotionPack].set(asset)
+  //preload locomotion animations
+  AssetLoader.loadAsync(
+    `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionAnimation}.glb`
+  ).then((locomotionAsset: GLTF) => {
+    manager.loadedAnimations[locomotionAnimation].set(locomotionAsset)
+    //update avatar speed from root motion
+    // todo: refactor this for direct translation from root motion
+    setAvatarSpeedFromRootMotion()
+  })
+}
+
+export const loadAnimationArray = (animations: string[], subDir: string) => {
+  const manager = getMutableState(AnimationState)
+
+  for (let i = 0; i < animations.length; i++) {
+    AssetLoader.loadAsync(
+      `${config.client.fileServer}/projects/default-project/assets/animations/${subDir}/${animations[i]}.fbx`
+    ).then((loadedEmotes: GLTF) => {
+      manager.loadedAnimations[animations[i]].set(loadedEmotes)
+      //fbx files need animations reassignment to maintain consistency with GLTF
+      loadedEmotes.animations = loadedEmotes.scene.animations
+      loadedEmotes.animations[0].name = animations[i]
+    })
   }
+}
 
-  const run = manager.loadedAnimations.value[locomotionPack].animations[4] ?? [new AnimationClip()]
-  const walk = manager.loadedAnimations.value[locomotionPack].animations[6] ?? [new AnimationClip()]
-  const movement = getState(AvatarMovementSettingsState)
-  if (run) movement.runSpeed = getRootSpeed(run) * 0.01
-  if (walk) movement.walkSpeed = getRootSpeed(walk) * 0.01
-
-  return cloneDeep(manager.loadedAnimations[locomotionPack].value?.animations) ?? [new AnimationClip()]
+/**todo: stop using global state for avatar speed
+ * in future this will be derrived from the actual root motion of a
+ * given avatar's locomotion animations
+ */
+export const setAvatarSpeedFromRootMotion = () => {
+  const manager = getState(AnimationState)
+  const run = manager.loadedAnimations[locomotionAnimation].animations[4] ?? [new AnimationClip()]
+  const walk = manager.loadedAnimations[locomotionAnimation].animations[6] ?? [new AnimationClip()]
+  const movement = getMutableState(AvatarMovementSettingsState)
+  if (run) movement.runSpeed.set(getRootSpeed(run) * 0.01)
+  if (walk) movement.walkSpeed.set(getRootSpeed(walk) * 0.01)
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  removeComponent(entity, AvatarRigComponent)
-
-  const rig = model.humanoid?.normalizedHumanBones
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
   const hips = recursiveHipsLookup(model.scene)
@@ -228,11 +236,10 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const targetBones = getAllBones(hips)
 
   setComponent(entity, AvatarRigComponent, {
-    rig,
-    localRig: cloneDeep(rig), //cloneDeep(sourceRig),
+    normalizedRig: model.humanoid.normalizedHumanBones,
+    rawRig: model.humanoid.rawHumanBones,
     targetBones,
-    skinnedMeshes,
-    vrm: model
+    skinnedMeshes
   })
 
   avatarAnimationComponent.rootYRatio = 1
@@ -240,7 +247,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   return model
 }
 
-export const setupAvatarMaterials = (entity, root) => {
+export const setupAvatarMaterials = (root) => {
   const materialList: Array<MaterialMap> = []
   const dissolveMatList: Array<ShaderMaterial> = []
   setObjectLayers(root, ObjectLayers.Avatar)
@@ -306,8 +313,8 @@ export function makeSkinnedMeshFromBoneData(bonesData) {
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
   const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
-  if (!avatarRigComponent || !avatarRigComponent.rig) return false
-  const bone = avatarRigComponent.rig[boneName] as VRMHumanBone
+  if (!avatarRigComponent || !avatarRigComponent.normalizedRig) return false
+  const bone = avatarRigComponent.normalizedRig[boneName] as VRMHumanBone
   if (!bone) return false
   const el = bone.node.matrixWorld.elements
   position.set(el[12], el[13], el[14])
