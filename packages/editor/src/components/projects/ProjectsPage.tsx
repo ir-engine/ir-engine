@@ -143,16 +143,7 @@ const OfficialProjectData = [
   // },
 ]
 
-const CommunityProjectData = [
-  {
-    id: '1570ae14-889a-11ec-886e-b126f7590682',
-    name: 'ee-ethereal-game',
-    repositoryPath: 'https://github.com/etherealengine/ee-ethereal-game',
-    thumbnail: 'https://media.githubusercontent.com/media/EtherealEngine/ee-ethereal-village/dev/thumbnail.png',
-    description: 'A test game',
-    needsRebuild: true
-  }
-] as any
+const CommunityProjectData = [] as any
 
 const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summary: string }>) => {
   return (
