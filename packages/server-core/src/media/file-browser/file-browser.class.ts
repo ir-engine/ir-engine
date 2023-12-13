@@ -196,6 +196,9 @@ export class FileBrowserService
 
     await Promise.all([storageProvider.createInvalidation([_oldPath]), storageProvider.createInvalidation([_newPath])])
 
+    const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
+    const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
+
     if (isDev) {
       if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
       else fs.renameSync(oldNamePath, newNamePath)
