@@ -313,6 +313,7 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
   const project = (await app.service(projectPath).find({
     query: {
       $limit: 1,
+      action: 'admin',
       name: projectName
     }
   })) as Paginated<ProjectType>
@@ -490,6 +491,7 @@ export const checkProjectDestinationMatch = async (
   if (!existingProject) {
     const projectExists = (await app.service(projectPath).find({
       query: {
+        action: 'admin',
         name: {
           $like: sourceContent.name
         },
@@ -1212,6 +1214,7 @@ export async function getDirectoryArchiveJobBody(
 export const createOrUpdateProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
   const projectData = (await app.service(projectPath).find({
     query: {
+      action: 'admin',
       name: projectName,
       $limit: 1
     }
@@ -1268,6 +1271,7 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
   let commitSHA
   const projectData = (await app.service(projectPath).find({
     query: {
+      action: 'admin',
       name: projectName,
       $limit: 1
     }
@@ -1413,6 +1417,7 @@ export const updateProject = async (
     return (
       (await app.service(projectPath).find({
         query: {
+          action: 'admin',
           name: 'default-project',
           $limit: 1
         }
@@ -1438,6 +1443,7 @@ export const updateProject = async (
 
   const projectResult = (await app.service(projectPath).find({
     query: {
+      action: 'admin',
       name: projectName
     }
   })) as Paginated<ProjectType>
@@ -1496,6 +1502,7 @@ export const updateProject = async (
   // when we have successfully re-installed the project, remove the database entry if it already exists
   const existingProjectResult = (await app.service(projectPath).find({
     query: {
+      action: 'admin',
       name: {
         $like: projectName
       }
