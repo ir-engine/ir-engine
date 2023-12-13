@@ -3,6 +3,7 @@ import { InstancedMesh, Material, Object3D, Vector3 } from 'three'
 import { DistanceFromCameraComponent } from '@etherealengine/engine/src/transform/components/DistanceComponents'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { pathResolver } from '../../../assets/functions/pathResolver'
 import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
 import { isMobile } from '../../../common/functions/isMobile'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -54,9 +55,9 @@ export function setModelVariant(entity: Entity) {
     const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
     //set model src to mobile variant src
     const deviceVariant = variantComponent.levels.find((level) => level.value.metadata['device'] === targetDevice)
-    deviceVariant &&
-      modelComponent.src.value !== deviceVariant.src.value &&
-      modelComponent.src.set(deviceVariant.src.value)
+    const modelRelativePath = pathResolver().exec(modelComponent.src.value)?.[2]
+    const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src.value)?.[2] : ''
+    deviceVariant && modelRelativePath !== deviceRelativePath && modelComponent.src.set(deviceVariant.src.value)
   } else if (variantComponent.heuristic.value === 'DISTANCE') {
     const distance = DistanceFromCameraComponent.squaredDistance[entity]
     for (let i = 0; i < variantComponent.levels.length; i++) {
