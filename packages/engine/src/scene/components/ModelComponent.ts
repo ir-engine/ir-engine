@@ -26,10 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Object3D, Scene } from 'three'
 
-import { NO_PROXY, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { VRM } from '@pixiv/three-vrm'
-import { Not } from 'bitecs'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
@@ -39,6 +38,7 @@ import { isAvaturn } from '../../avatar/functions/avatarFunctions'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
@@ -79,6 +79,8 @@ function clearMaterials(src: string) {
     }
   }
 }
+
+const entitiesInModelHierarchy = {} as Record<Entity, Entity[]>
 
 export const ModelComponent = defineComponent({
   name: 'Model Component',
@@ -124,7 +126,11 @@ export const ModelComponent = defineComponent({
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
-  reactor: ModelReactor
+  reactor: ModelReactor,
+
+  /** Tracks all child entities loaded by this model */
+  entitiesInModelHierarchyState: createState(entitiesInModelHierarchy),
+  entitiesInModelHierarchy: entitiesInModelHierarchy as Readonly<typeof entitiesInModelHierarchy>
 })
 
 function ModelReactor() {
@@ -237,35 +243,40 @@ function ModelReactor() {
     }
   }, [modelComponent.scene])
 
-  const childNonSkinnedMeshQuery = useQuery([SourceComponent, MeshComponent, Not(SkinnedMeshComponent)])
+  const childQuery = useQuery([SourceComponent])
   useEffect(() => {
     const modelSceneID = getModelSceneID(entity)
-    for (const childEntity of childNonSkinnedMeshQuery) {
-      if (getComponent(childEntity, SourceComponent) !== modelSceneID) continue
+    ModelComponent.entitiesInModelHierarchyState[entity].set(
+      childQuery.filter((e) => getComponent(e, SourceComponent) === modelSceneID)
+    )
+  }, [childQuery])
+
+  const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
+
+  useEffect(() => {
+    for (const childEntity of childEntities.value) {
+      if (!hasComponent(childEntity, MeshComponent) || hasComponent(entity, SkinnedMeshComponent)) continue
       if (modelComponent.generateBVH.value) generateMeshBVH(getComponent(childEntity, MeshComponent))
     }
-  }, [childNonSkinnedMeshQuery, modelComponent.generateBVH])
+  }, [childEntities, modelComponent.generateBVH])
 
-  const childMeshQuery = useQuery([SourceComponent, MeshComponent])
   const shadowComponent = useOptionalComponent(entity, ShadowComponent)
   useEffect(() => {
-    const modelSceneID = getModelSceneID(entity)
-    for (const childEntity of childMeshQuery) {
-      if (getComponent(childEntity, SourceComponent) !== modelSceneID) continue
+    for (const childEntity of childEntities.value) {
+      if (!hasComponent(childEntity, MeshComponent)) continue
       if (shadowComponent) setComponent(childEntity, ShadowComponent, serializeComponent(entity, ShadowComponent))
       else removeComponent(childEntity, ShadowComponent)
     }
-  }, [childMeshQuery, shadowComponent])
+  }, [childEntities, shadowComponent])
 
   const envmapComponent = useOptionalComponent(entity, EnvmapComponent)
   useEffect(() => {
-    const modelSceneID = getModelSceneID(entity)
-    for (const childEntity of childMeshQuery) {
-      if (getComponent(childEntity, SourceComponent) !== modelSceneID) continue
+    for (const childEntity of childEntities.value) {
+      if (!hasComponent(childEntity, MeshComponent)) continue
       if (envmapComponent) setComponent(childEntity, EnvmapComponent, serializeComponent(entity, EnvmapComponent))
       else removeComponent(childEntity, EnvmapComponent)
     }
-  }, [childMeshQuery, envmapComponent])
+  }, [childEntities, envmapComponent])
 
   useEffect(() => {
     if (!modelComponent.scene.value) return
@@ -274,4 +285,23 @@ function ModelReactor() {
   }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
 
   return null
+}
+
+/**
+ * Returns true if the entity is a mesh not a part of a model, or a model
+ * @param entity
+ * @returns
+ */
+export const useMeshOrModel = (entity: Entity) => {
+  const meshComponent = useOptionalComponent(entity, MeshComponent)
+  const modelComponent = useOptionalComponent(entity, ModelComponent)
+  const sourceComponent = useOptionalComponent(entity, SourceComponent)
+  const isEntityHierarchyOrMesh = (!sourceComponent && !!meshComponent) || !!modelComponent
+  return isEntityHierarchyOrMesh
+}
+
+export const useContainsMesh = (entity: Entity) => {
+  const meshComponent = useOptionalComponent(entity, MeshComponent)
+  const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
+  return !!meshComponent || !!childEntities.value?.find((e: Entity) => getComponent(e, MeshComponent))
 }

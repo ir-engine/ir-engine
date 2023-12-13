@@ -29,13 +29,14 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   Component,
   getComponent,
-  getOptionalComponent
+  getOptionalComponent,
+  hasComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import { getEntityComponents } from 'bitecs'
 import React from 'react'
@@ -53,7 +54,7 @@ const renderEntityTreeRoots = () => {
         const entity = UUIDComponent.entitiesByUUID[root]
         if (!entity || !entityExists(entity)) return []
         return [
-          `${i} - ${getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent)}`,
+          `${entity} - ${getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent)}`,
           renderEntityTree(entity)
         ]
       })
@@ -89,27 +90,37 @@ const renderEntityComponents = (entity: Entity) => {
   )
 }
 
-const renderAllEntities = () => {
+const renderAllEntities = (filter: string) => {
   return {
     ...Object.fromEntries(
       [...Engine.instance.entityQuery().entries()]
         .map(([key, eid]) => {
-          try {
-            return [
-              '(eid:' +
-                eid +
-                ') ' +
-                (getOptionalComponent(eid, NameComponent) ?? getOptionalComponent(eid, UUIDComponent) ?? ''),
-              renderEntityComponents(eid)
-            ]
-          } catch (e) {
+          if (!entityExists(eid)) return null!
+          if (
+            filter !== '' &&
+            (!hasComponent(eid, NameComponent) ||
+              getOptionalComponent(eid, NameComponent)?.toLowerCase().indexOf(filter.toLowerCase()) === -1)
+          )
             return null!
-          }
+          return [
+            `${key} - ${getOptionalComponent(eid, NameComponent) ?? getOptionalComponent(eid, UUIDComponent) ?? ''}`,
+            renderEntityComponents(eid)
+          ]
         })
         .filter((exists) => !!exists)
     )
   }
 }
+
+const EntitySearchState = defineState({
+  name: 'EntitySearchState',
+  initial: {
+    search: ''
+  },
+  onCreate: (store, state) => {
+    syncStateWithLocalStorage(EntitySearchState, ['search'])
+  }
+})
 
 export const EntityDebug = () => {
   useHookstate(getMutableState(EngineState).frameTime).value
@@ -118,6 +129,7 @@ export const EntityDebug = () => {
   const namedEntities = useHookstate({})
   const erroredComponents = useHookstate([] as any[])
   const entityTree = useHookstate({} as any)
+  const entitySearch = useHookstate(getMutableState(EntitySearchState).search)
 
   erroredComponents.set(
     [...Engine.instance.store.activeReactors.values()]
@@ -133,7 +145,7 @@ export const EntityDebug = () => {
       })
       .flat()
   )
-  namedEntities.set(renderAllEntities())
+  namedEntities.set(renderAllEntities(entitySearch.value))
   entityTree.set(renderEntityTreeRoots())
 
   return (
@@ -144,7 +156,13 @@ export const EntityDebug = () => {
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entities')}</h1>
-        <JSONTree data={namedEntities.get(NO_PROXY)} shouldExpandNodeInitially={() => false} />
+        <input
+          type="text"
+          placeholder="Search..."
+          value={entitySearch.value}
+          onChange={(e) => entitySearch.set(e.target.value)}
+        />
+        <JSONTree data={namedEntities.get(NO_PROXY)} />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.erroredEntities')}</h1>

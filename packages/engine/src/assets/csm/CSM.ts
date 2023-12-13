@@ -365,8 +365,6 @@ export class CSM {
 
       light.target.matrix.compose(light.target.position, light.target.quaternion, light.target.scale)
       light.target.matrixWorld.copy(light.target.matrix)
-
-      light.target.updateMatrixWorld(true)
     }
   }
 
