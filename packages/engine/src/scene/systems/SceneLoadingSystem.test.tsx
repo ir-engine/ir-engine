@@ -29,7 +29,8 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
-import { destroyEngine } from '../../ecs/classes/Engine'
+import { EventDispatcher } from '../../common/classes/EventDispatcher'
+import { Engine, destroyEngine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
@@ -37,6 +38,7 @@ import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneDataType, SceneID, SceneJsonType } from '../../schemas/projects/scene.schema'
+import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
 
@@ -83,7 +85,20 @@ const testScene = {
       },
       child_2_1: {
         name: 'Child 2 _ 1',
-        components: [],
+        components: [
+          {
+            name: 'fog',
+            props: {
+              type: 'linear',
+              color: '#FFFFFF',
+              density: 0.005,
+              near: 1,
+              far: 1000,
+              timeScale: 1,
+              height: 0.05
+            }
+          }
+        ],
         parent: 'child_2'
       }
     },
@@ -96,6 +111,19 @@ const testID = 'test' as SceneID
 describe('SceneLoadingSystem', () => {
   beforeEach(() => {
     createEngine()
+    const eventDispatcher = new EventDispatcher()
+    ;(Engine.instance.api as any) = {
+      service: () => {
+        return {
+          on: (serviceName, cb) => {
+            eventDispatcher.addEventListener(serviceName, cb)
+          },
+          off: (serviceName, cb) => {
+            eventDispatcher.removeEventListener(serviceName, cb)
+          }
+        }
+      }
+    }
   })
 
   it('will load entities', async () => {
@@ -106,49 +134,115 @@ describe('SceneLoadingSystem', () => {
     const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
     const tag = <Reactor />
 
+    SceneState.loadScene(testID, testScene)
+
     // render
     const { rerender, unmount } = render(tag)
 
     // load scene
-    SceneState.loadScene('test' as SceneID, testScene)
     // force re-render
     await act(() => rerender(tag))
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
-    assert(rootEntity)
-    assert.equal(hasComponent(rootEntity, EntityTreeComponent), true)
-    assert.equal(getComponent(rootEntity, EntityTreeComponent).parentEntity, null)
+    assert(rootEntity, 'root entity not found')
+    assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
+    assert.equal(
+      getComponent(rootEntity, EntityTreeComponent).parentEntity,
+      null,
+      'root entity does not have parentEntity'
+    )
+
+    const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+    assert(child0Entity, 'child_0 entity not found')
+    assert.equal(
+      hasComponent(child0Entity, EntityTreeComponent),
+      true,
+      'child_0 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child0Entity, EntityTreeComponent).parentEntity,
+      rootEntity,
+      'child_0 entity does not have parentEntity as root entity'
+    )
 
     const child1Entity = UUIDComponent.entitiesByUUID['child_1']
-    assert(child1Entity)
-    assert.equal(hasComponent(child1Entity, EntityTreeComponent), true)
-    assert.equal(getComponent(child1Entity, EntityTreeComponent).parentEntity, rootEntity)
+    assert(child1Entity, 'child_1 entity not found')
+    assert.equal(
+      hasComponent(child1Entity, EntityTreeComponent),
+      true,
+      'child_1 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child1Entity, EntityTreeComponent).parentEntity,
+      child0Entity,
+      'child_1 entity does not have parentEntity as child_0 entity'
+    )
 
     const child2Entity = UUIDComponent.entitiesByUUID['child_2']
-    assert(child2Entity)
-    assert.equal(hasComponent(child2Entity, EntityTreeComponent), true)
-    assert.equal(getComponent(child2Entity, EntityTreeComponent).parentEntity, child1Entity)
+    assert(child2Entity, 'child_2 entity not found')
+    assert.equal(
+      hasComponent(child2Entity, EntityTreeComponent),
+      true,
+      'child_2 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child2Entity, EntityTreeComponent).parentEntity,
+      child1Entity,
+      'child_2 entity does not have parentEntity as child_1 entity'
+    )
 
     const child3Entity = UUIDComponent.entitiesByUUID['child_3']
-    assert(child3Entity)
-    assert.equal(hasComponent(child3Entity, EntityTreeComponent), true)
-    assert.equal(getComponent(child3Entity, EntityTreeComponent).parentEntity, child2Entity)
+    assert(child3Entity, 'child_3 entity not found')
+    assert.equal(
+      hasComponent(child3Entity, EntityTreeComponent),
+      true,
+      'child_3 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child3Entity, EntityTreeComponent).parentEntity,
+      child2Entity,
+      'child_3 entity does not have parentEntity as child_2 entity'
+    )
 
     const child4Entity = UUIDComponent.entitiesByUUID['child_4']
-    assert(child4Entity)
-    assert.equal(hasComponent(child4Entity, EntityTreeComponent), true)
-    assert.equal(getComponent(child4Entity, EntityTreeComponent).parentEntity, child3Entity)
+    assert(child4Entity, 'child_4 entity not found')
+    assert.equal(
+      hasComponent(child4Entity, EntityTreeComponent),
+      true,
+      'child_4 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child4Entity, EntityTreeComponent).parentEntity,
+      child3Entity,
+      'child_4 entity does not have parentEntity as child_3 entity'
+    )
 
     const child5Entity = UUIDComponent.entitiesByUUID['child_5']
-    assert(child5Entity)
-    assert.equal(hasComponent(child5Entity, EntityTreeComponent), true)
-    assert.equal(getComponent(child5Entity, EntityTreeComponent).parentEntity, child4Entity)
+    assert(child5Entity, 'child_5 entity not found')
+    assert.equal(
+      hasComponent(child5Entity, EntityTreeComponent),
+      true,
+      'child_5 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child5Entity, EntityTreeComponent).parentEntity,
+      child4Entity,
+      'child_5 entity does not have parentEntity as child_4 entity'
+    )
 
     const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
-    assert(child2_1Entity)
-    assert.equal(hasComponent(child2_1Entity, EntityTreeComponent), true)
-    assert.equal(getComponent(child2_1Entity, EntityTreeComponent).parentEntity, child2Entity)
+    assert(child2_1Entity, 'child_2_1 entity not found')
+    assert.equal(
+      hasComponent(child2_1Entity, EntityTreeComponent),
+      true,
+      'child_2_1 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child2_1Entity, EntityTreeComponent).parentEntity,
+      child2Entity,
+      'child_2_1 entity does not have parentEntity as child_2 entity'
+    )
     // check all entites are loaded correctly
     // check if data in the manual json matches scene data
 
@@ -163,12 +257,12 @@ describe('SceneLoadingSystem', () => {
     // init
     const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
     const tag = <Reactor />
+    SceneState.loadScene(testID, testScene)
 
     // render
     const { rerender, unmount } = render(tag)
 
     // load scene
-    SceneState.loadScene('test' as SceneID, testScene)
     // force re-render
     await act(() => rerender(tag))
 
@@ -178,8 +272,12 @@ describe('SceneLoadingSystem', () => {
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true)
     assert.equal(getComponent(rootEntity, EntityTreeComponent).parentEntity, null)
 
-    // check all entites are loaded correctly
-    // check if data in the manual json matches scene data
+    const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+    assert(child2_1Entity)
+    assert.equal(hasComponent(child2_1Entity, EntityTreeComponent), true)
+    assert.equal(hasComponent(child2_1Entity, FogSettingsComponent), true)
+    const fog = getComponent(child2_1Entity, FogSettingsComponent)
+    assert.deepStrictEqual(fog, testScene.scene.entities['child_2_1'].components[0].props)
 
     // unmount to cleanup
     unmount()
