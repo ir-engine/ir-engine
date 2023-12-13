@@ -10,15 +10,9 @@ START_TIME=$5
 REGION=$6
 NODE_ENV=$7
 PRIVATE_ECR=$8
+DOCR_REGISTRY=$9
 
-if [ $PRIVATE_ECR == "true" ]
-then
-  aws ecr get-login-password --region $REGION | docker login -u AWS --password-stdin $ECR_URL
-  aws ecr describe-repositories --repository-names $REPO_NAME-$PACKAGE --region $REGION || aws ecr create-repository --repository-name $REPO_NAME-$PACKAGE --region $REGION
-else
-  aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
-  aws ecr-public describe-repositories --repository-names $REPO_NAME-$PACKAGE --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-$PACKAGE --region us-east-1
-fi
+doctl registry login --expiry-seconds 1800
 
 #echo "PRUNED"
 #docker buildx version
@@ -35,13 +29,13 @@ then
   docker buildx build \
     --builder etherealengine-$PACKAGE \
     --push \
-    -t $ECR_URL/$REPO_NAME-$PACKAGE:${TAG}__${START_TIME} \
-    -t $ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE \
+    -t $DOCR_REGISTRY/$REPO_NAME-$PACKAGE:${TAG}__${START_TIME} \
+    -t $DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_$STAGE \
     -t ${LABEL}-$PACKAGE:${TAG} \
     -f dockerfiles/$PACKAGE/Dockerfile-$DOCKERFILE \
-    --cache-to type=registry,mode=max,image-manifest=true,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
-    --cache-from type=registry,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
-    --build-arg ECR_URL=$ECR_URL \
+    --cache-to type=registry,mode=max,image-manifest=true,ref=$DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
+    --cache-from type=registry,ref=$DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
+    --build-arg ECR_URL=$DOCR_REGISTRY \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
     --build-arg NODE_ENV=$NODE_ENV \
@@ -71,7 +65,6 @@ then
     --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST \
     --build-arg VITE_INSTANCESERVER_PORT=$VITE_INSTANCESERVER_PORT \
     --build-arg VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD \
-    --build-arg VITE_SOURCEMAPS=$VITE_SOURCEMAPS \
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
@@ -81,9 +74,9 @@ then
   docker buildx build \
     --builder etherealengine-$PACKAGE \
     -f dockerfiles/$PACKAGE/Dockerfile-$DOCKERFILE \
-    --cache-to type=registry,mode=max,image-manifest=true,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
-    --cache-from type=registry,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
-    --build-arg ECR_URL=$ECR_URL \
+    --cache-to type=registry,mode=max,image-manifest=true,ref=$DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
+    --cache-from type=registry,ref=$DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
+    --build-arg ECR_URL=$DOCR_REGISTRY \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
     --build-arg NODE_ENV=$NODE_ENV \
@@ -113,7 +106,6 @@ then
     --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST \
     --build-arg VITE_INSTANCESERVER_PORT=$VITE_INSTANCESERVER_PORT \
     --build-arg VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD \
-    --build-arg VITE_SOURCEMAPS=$VITE_SOURCEMAPS \
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
@@ -122,12 +114,12 @@ else
   docker buildx build \
     --builder etherealengine-$PACKAGE \
     --push \
-    -t $ECR_URL/$REPO_NAME-$PACKAGE:${TAG}__${START_TIME} \
-    -t $ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE \
+    -t $DOCR_REGISTRY/$REPO_NAME-$PACKAGE:${TAG}__${START_TIME} \
+    -t $DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_$STAGE \
     -f dockerfiles/$PACKAGE/Dockerfile-$DOCKERFILE \
-    --cache-to type=registry,mode=max,image-manifest=true,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
-    --cache-from type=registry,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
-    --build-arg ECR_URL=$ECR_URL \
+    --cache-to type=registry,mode=max,image-manifest=true,ref=$DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
+    --cache-from type=registry,ref=$DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
+    --build-arg ECR_URL=$DOCR_REGISTRY \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
     --build-arg NODE_ENV=$NODE_ENV \
@@ -157,13 +149,13 @@ else
     --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST \
     --build-arg VITE_INSTANCESERVER_PORT=$VITE_INSTANCESERVER_PORT \
     --build-arg VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD \
-    --build-arg VITE_SOURCEMAPS=$VITE_SOURCEMAPS \
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
     --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
 fi
 
+# The following scripts will need to be updated for DOCR but are not critical for the functionality of EE on DO.
 if [ $PRIVATE_ECR == "true" ]
 then
   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-$PACKAGE --region $REGION --service $PACKAGE --releaseName $STAGE
