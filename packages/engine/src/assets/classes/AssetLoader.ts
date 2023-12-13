@@ -331,11 +331,13 @@ const assetLoadCallback =
         asset = { scene: asset }
       } else if (assetType === AssetType.VRM) {
         asset = asset.userData.vrm
+        asset.userData = { flipped: true }
       }
 
       if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
       if (asset.scene.userData) asset.scene.userData.type = assetType
       if (asset.userData) asset.userData.type = assetType
+      else asset.userData = { type: assetType }
 
       AssetLoader.processModelAsset(asset.scene, args)
       if (notGLTF) {

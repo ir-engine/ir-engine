@@ -48,7 +48,6 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CallbackComponent, StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { autoconvertMixamoAvatar } from '../functions/avatarFunctions'
 import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
 
@@ -207,12 +206,7 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (!modelComponent?.scene?.value) return
       const model = getComponent(entity, ModelComponent)
-      if (loopAnimationComponent.hasAvatarAnimations.value && !(model.asset as VRM)?.humanoid) {
-        const vrm = autoconvertMixamoAvatar(model.scene)
-        if (vrm) {
-          modelComponent.asset.set(vrm)
-        }
-      } else if (model.asset instanceof VRM) {
+      if (model.asset instanceof VRM) {
         loopAnimationComponent.hasAvatarAnimations.set(true)
       }
 

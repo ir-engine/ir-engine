@@ -33,6 +33,7 @@ import { Not } from 'bitecs'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import avatarBoneMatching from '../../avatar/AvatarBoneMatching'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { isAvaturn } from '../../avatar/functions/avatarFunctions'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -162,7 +163,8 @@ function ModelReactor() {
           addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
           return
         }
-        modelComponent.asset.set(loadedAsset)
+        const boneMatchedAsset = avatarBoneMatching(loadedAsset)
+        modelComponent.asset.set(boneMatchedAsset)
       },
       (onprogress) => {
         if (aborted) return
@@ -191,14 +193,12 @@ function ModelReactor() {
     if (!asset) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    const fileExtension = model.src.split('.').pop()?.toLowerCase()
     asset.scene.animations = asset.animations
     asset.scene.userData.src = model.src
     asset.scene.userData.sceneID = getModelSceneID(entity)
     asset.scene.userData.type === 'glb' && delete asset.scene.userData.type
     if (asset instanceof VRM) asset.humanoid.autoUpdateHumanBones = false
-    if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
-    modelComponent.scene.set(asset.scene as any)
+    modelComponent.scene.set(asset.scene)
   }, [modelComponent.asset])
 
   // update scene

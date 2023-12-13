@@ -184,15 +184,17 @@ export const AvatarRigComponent = defineComponent({
 
     useEffect(() => {
       if (!modelComponent?.asset?.value) return
+      const model = getComponent(entity, ModelComponent)
       setComponent(entity, AvatarRigComponent, {
-        vrm: modelComponent.asset.value as VRM,
-        avatarURL: modelComponent.src.value
+        vrm: model.asset as VRM,
+        avatarURL: model.src
       })
     }, [modelComponent?.asset])
 
     useEffect(() => {
       if (!rigComponent.value || !rigComponent.value.vrm || !rigComponent.value.avatarURL) return
-      setupAvatarForUser(entity, rigComponent.value.vrm, rigComponent.value.avatarURL!)
+      const rig = getComponent(entity, AvatarRigComponent)
+      setupAvatarForUser(entity, rig.vrm, rig.avatarURL!)
     }, [rigComponent.vrm])
 
     const manager = useHookstate(getMutableState(AnimationState))

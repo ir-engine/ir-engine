@@ -55,7 +55,7 @@ import { ModelComponent } from '../../scene/components/ModelComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { SceneID } from '../../schemas/projects/scene.schema'
 import { XRState } from '../../xr/XRState'
-import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
+import { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { locomotionAnimation, optionalAnimations } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -72,23 +72,17 @@ import { retargetMixamoAnimation } from './retargetMixamoRig'
 const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
 
-export const getPreloaded = () => {
-  return ['sitting']
+declare module '@pixiv/three-vrm/types/VRM' {
+  export interface VRM {
+    userData: {
+      flipped: boolean
+      useAPose: boolean
+    }
+  }
 }
 
-/** Checks if the asset is a VRM. If not, attempt to use
- *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
-export const autoconvertMixamoAvatar = (model: any) => {
-  const scene = model.scene ?? model // FBX assets do not have 'scene' property
-  if (!scene) return null
-
-  const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as any
-
-  if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
-
-  vrm.humanoid.autoUpdateHumanBones = false
-
-  return vrm
+export const getPreloaded = () => {
+  return ['sitting']
 }
 
 export const isAvaturn = (url: string) => {
