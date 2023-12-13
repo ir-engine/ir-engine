@@ -1,18 +1,14 @@
-import { EngineRenderer } from "../../src/renderer/WebGLRendererSystem";
+import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
+import { EngineRenderer } from '../../src/renderer/WebGLRendererSystem'
+import { MockEventListener } from './MockEventListener'
 
-export class MockEngineRenderer extends EngineRenderer
-{
-  static instance: EngineRenderer;
+export class MockEngineRenderer extends EngineRenderer {
+  static instance: EngineRenderer
 
-  constructor(options?: {})
-  {
+  constructor() {
     super()
-    if(options)
-    {
-      const jsdom = require('jsdom');
-      const { JSDOM } = jsdom;
-    }
-    
-    EngineRenderer.instance = this;
+    this.renderer = {
+      domElement: new MockEventListener()
+    } as unknown as WebGLRenderer
   }
 }
