@@ -25,9 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
+import { act, render } from '@testing-library/react'
+import assert from 'assert'
+import React from 'react'
 import { destroyEngine } from '../../ecs/classes/Engine'
+import { UndefinedEntity } from '../../ecs/classes/Entity'
+import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { SceneDataType, SceneJsonType } from '../../schemas/projects/scene.schema'
+import { UUIDComponent } from '../components/UUIDComponent'
+import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const sceneJSON_1 = {
   scene: {
@@ -65,54 +72,19 @@ describe('SceneLoadingSystem', () => {
     createEngine()
   })
 
-  // describe('updateSceneFromJSON', () => {
-  //   it('will load root entity', async () => {
-  //     /** Load First Test Scene */
-  //     const sceneState = getMutableState(SceneState)
-  //     sceneState.sceneData.set(sceneJSON_1)
+  it('test reactor', async () => {
+    // init
+    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+    console.log(Reactor)
 
-  //     await updateSceneFromJSON()
+    // render
+    const { rerender } = render(<Reactor />)
+    console.log('rerender')
+    await act(() => rerender(<Reactor />))
 
-  //     const rootEntity = UUIDComponent.entitiesByUUID['root']
-  //     assert(rootEntity)
-  //     assert(hasComponent(rootEntity, EntityTreeComponent))
-  //     assert(EntityTreeComponent.roots[rootEntity])
-  //     assert.equal(getComponent(rootEntity, EntityTreeComponent).parentEntity, null)
-  //     assert.equal(getComponent(rootEntity, NameComponent), 'Root')
-  //   })
-
-  //   it('will load child entity', async () => {
-  //     const sceneState = getMutableState(SceneState)
-  //     sceneState.sceneData.set(sceneJSON_1)
-
-  //     await updateSceneFromJSON()
-
-  //     sceneState.sceneData.set(sceneJSON_2)
-  //     await updateSceneFromJSON()
-
-  //     const rootEntity = UUIDComponent.entitiesByUUID['root']
-  //     const childEntity = UUIDComponent.entitiesByUUID['child_0']
-  //     assert(childEntity)
-  //     assert(hasComponent(childEntity, EntityTreeComponent))
-  //     assert.equal(getComponent(childEntity, EntityTreeComponent).parentEntity, rootEntity)
-  //     assert.equal(getComponent(childEntity, NameComponent), 'Child 0')
-  //   })
-
-  //   it('will unload child entity', async () => {
-  //     const sceneState = getMutableState(SceneState)
-  //     sceneState.sceneData.set(sceneJSON_2)
-
-  //     await updateSceneFromJSON()
-
-  //     sceneState.sceneData.set(sceneJSON_1)
-  //     await updateSceneFromJSON()
-
-  //     const rootEntity = UUIDComponent.entitiesByUUID['root']
-  //     const childEntity = UUIDComponent.entitiesByUUID['child_0']
-  //     assert(rootEntity)
-  //     assert.equal(childEntity, undefined)
-  //   })
-  // })
+    // assertions
+    assert.notEqual(UUIDComponent.entitiesByUUID['some UUID'], UndefinedEntity)
+  })
 
   afterEach(() => {
     return destroyEngine()
