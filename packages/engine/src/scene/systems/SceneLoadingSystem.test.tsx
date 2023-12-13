@@ -268,16 +268,32 @@ describe('SceneLoadingSystem', () => {
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
-    assert(rootEntity)
-    assert.equal(hasComponent(rootEntity, EntityTreeComponent), true)
-    assert.equal(getComponent(rootEntity, EntityTreeComponent).parentEntity, null)
+    assert(rootEntity, 'root entity not found')
+    assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
+    assert.equal(
+      getComponent(rootEntity, EntityTreeComponent).parentEntity,
+      null,
+      'root entity does not have parentEntity'
+    )
 
     const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
-    assert(child2_1Entity)
-    assert.equal(hasComponent(child2_1Entity, EntityTreeComponent), true)
-    assert.equal(hasComponent(child2_1Entity, FogSettingsComponent), true)
+    assert(child2_1Entity, 'child_2_1 entity not found')
+    assert.equal(
+      hasComponent(child2_1Entity, EntityTreeComponent),
+      true,
+      'child_2_1 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      hasComponent(child2_1Entity, FogSettingsComponent),
+      true,
+      'child_2_1 entity does not have FogSettingsComponent'
+    )
     const fog = getComponent(child2_1Entity, FogSettingsComponent)
-    assert.deepStrictEqual(fog, testScene.scene.entities['child_2_1'].components[0].props)
+    assert.deepStrictEqual(
+      fog,
+      testScene.scene.entities['child_2_1'].components[0].props,
+      'fog component does not match'
+    )
 
     // unmount to cleanup
     unmount()
