@@ -62,6 +62,31 @@ const sceneJSON_2 = {
         name: 'Child 0',
         components: [],
         parent: 'root'
+      },
+      child_1: {
+        name: 'Child 0',
+        components: [],
+        parent: 'child_0'
+      },
+      child_2: {
+        name: 'Child 0',
+        components: [],
+        parent: 'child_1'
+      },
+      child_3: {
+        name: 'Child 0',
+        components: [],
+        parent: 'child_2'
+      },
+      child_4: {
+        name: 'Child 0',
+        components: [],
+        parent: 'child_3'
+      },
+      child_5: {
+        name: 'Child 0',
+        components: [],
+        parent: 'child_4'
       }
     },
     root: 'root' as EntityUUID,
@@ -85,13 +110,17 @@ describe('SceneLoadingSystem', () => {
     const { rerender, unmount } = render(tag)
 
     // load scene
-    SceneState.loadScene('scene 1' as SceneID, sceneJSON_1)
+    SceneState.loadScene('scene 2' as SceneID, sceneJSON_2)
 
     // force re-render
     await act(() => rerender(tag))
 
     // assertions
+    console.log(UUIDComponent.entitiesByUUID)
     assert.notEqual(UUIDComponent.entitiesByUUID['root'], undefined)
+
+    // check all entites are loaded correctly
+    // check if data in the manual json matches scene data
 
     // unmount to cleanup
     unmount()
