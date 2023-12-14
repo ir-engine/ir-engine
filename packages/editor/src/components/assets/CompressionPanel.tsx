@@ -175,6 +175,7 @@ export default function CompressionPanel({
       open={openCompress.value}
       onClose={() => openCompress.set(false)}
       showCloseButton={true}
+      maxWidth={'lg'}
       header={fileProperties.value.name}
       actions={
         <>
