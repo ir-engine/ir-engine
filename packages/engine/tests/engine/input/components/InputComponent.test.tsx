@@ -25,32 +25,38 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { destroyEngine } from '../../../../src/ecs/classes/Engine'
-import { defineQuery } from '../../../../src/ecs/functions/ComponentFunctions'
-import { SystemDefinitions } from '../../../../src/ecs/functions/SystemFunctions'
+import { Engine, destroyEngine } from '../../../../src/ecs/classes/Engine'
+import { defineQuery, getComponent, setComponent } from '../../../../src/ecs/functions/ComponentFunctions'
 import { createEngine } from '../../../../src/initializeEngine'
-import { ButtonCleanupSystem } from '../../../../src/input/systems/ButtonCleanupSystem'
+import { InputComponent } from '../../../../src/input/components/InputComponent'
 import { loadEmptyScene } from '../../../util/loadEmptyScene'
 
-describe('ButtonCleanupSystem', () => {
+describe('InputComponent', () => {
   beforeEach(() => {
     createEngine()
     loadEmptyScene()
   })
 
   it('should be queryable', () => {
-    const buttonCleanupQuery = defineQuery([ButtonCleanupSystem])
-    assert(buttonCleanupQuery)
-    assert(buttonCleanupQuery._enterQuery)
-    assert(buttonCleanupQuery._exitQuery)
-    assert(buttonCleanupQuery._query)
+    const inputComponent = defineQuery([InputComponent])
+    assert(inputComponent)
+    assert(inputComponent._enterQuery)
+    assert(inputComponent._exitQuery)
+    assert(inputComponent._query)
   })
 
-  it('test button cleanup system', () => {
-    const system = SystemDefinitions.get(ButtonCleanupSystem)!
-    const execute = system.execute
-    assert(typeof execute === 'function')
-    assert(execute() === undefined)
+  it('test input component', () => {
+    const entity = Engine.instance.originEntity
+
+    const json = { highlight: true, grow: true }
+    setComponent(entity, InputComponent, json)
+    const inputComponent = getComponent(entity, InputComponent)
+
+    assert(inputComponent.grow === json.grow)
+    assert(inputComponent.highlight === json.highlight)
+
+    inputComponent.inputSources.push(entity)
+    assert(inputComponent.inputSources.length === 1)
   })
 
   afterEach(() => {

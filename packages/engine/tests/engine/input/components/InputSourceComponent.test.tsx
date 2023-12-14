@@ -65,45 +65,42 @@ describe('InputSourceComponent', () => {
 
     assert(hasComponent(entity, InputSourceComponent))
 
+    const hands = ['left', 'right', 'none']
     const inputSourceComponent = getComponent(entity, InputSourceComponent)
     assert(inputSourceComponent !== undefined)
 
     const state = getMutableState(InputSourceCaptureState)
     InputSourceComponent.captureButtons(entity)
-    assert(state.buttons['left'].get() === entity)
-    assert(state.buttons['right'].get() === entity)
-    assert(state.buttons['none'].get() === entity)
+    hands.forEach((hand) => {
+      assert(state.buttons[hand].get() === entity)
+    })
 
     InputSourceComponent.releaseButtons()
-    assert(state.buttons['left'].get() === 0)
-    assert(state.buttons['right'].get() === 0)
-    assert(state.buttons['none'].get() === 0)
+    hands.forEach((hand) => {
+      assert(state.buttons[hand].get() === 0)
+    })
 
     InputSourceComponent.captureAxes(entity)
-    assert(state.axes['left'].get() === entity)
-    assert(state.axes['right'].get() === entity)
-    assert(state.axes['none'].get() === entity)
+    hands.forEach((hand) => {
+      assert(state.axes[hand].get() === entity)
+    })
 
     InputSourceComponent.releaseAxes()
-    assert(state.axes['left'].get() === 0)
-    assert(state.axes['right'].get() === 0)
-    assert(state.axes['none'].get() === 0)
+    hands.forEach((hand) => {
+      assert(state.axes[hand].get() === 0)
+    })
 
     InputSourceComponent.capture(entity)
-    assert(state.buttons['left'].get() === entity)
-    assert(state.buttons['right'].get() === entity)
-    assert(state.buttons['none'].get() === entity)
-    assert(state.axes['left'].get() === entity)
-    assert(state.axes['right'].get() === entity)
-    assert(state.axes['none'].get() === entity)
+    hands.forEach((hand) => {
+      assert(state.buttons[hand].get() === entity)
+      assert(state.axes[hand].get() === entity)
+    })
 
     InputSourceComponent.release()
-    assert(state.buttons['left'].get() === 0)
-    assert(state.buttons['right'].get() === 0)
-    assert(state.buttons['none'].get() === 0)
-    assert(state.axes['left'].get() === 0)
-    assert(state.axes['right'].get() === 0)
-    assert(state.axes['none'].get() === 0)
+    hands.forEach((hand) => {
+      assert(state.buttons[hand].get() === 0)
+      assert(state.axes[hand].get() === 0)
+    })
 
     let isAssignedButtons = InputSourceComponent.isAssignedButtons(entity)
     let isAssignedAxes = InputSourceComponent.isAssignedAxes(entity)
