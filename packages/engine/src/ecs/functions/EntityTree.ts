@@ -34,7 +34,7 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
-  getOptionalMutableComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -89,28 +89,29 @@ export const EntityTreeComponent = defineComponent({
       setComponent(entity, UUIDComponent, json.uuid)
 
     if (component.parentEntity.value) {
-      const parent = getOptionalMutableComponent(component.parentEntity.value, EntityTreeComponent)
+      if (!hasComponent(component.parentEntity.value, EntityTreeComponent))
+        setComponent(component.parentEntity.value, EntityTreeComponent)
 
-      if (parent) {
-        const prevChildIndex = parent?.children.value.indexOf(entity)
-        const isDifferentIndex = typeof json.childIndex === 'number' ? prevChildIndex !== json.childIndex : false
+      const parent = getMutableComponent(component.parentEntity.value, EntityTreeComponent)
 
-        if (isDifferentIndex && prevChildIndex !== -1) {
+      const prevChildIndex = parent?.children.value.indexOf(entity)
+      const isDifferentIndex = typeof json.childIndex === 'number' ? prevChildIndex !== json.childIndex : false
+
+      if (isDifferentIndex && prevChildIndex !== -1) {
+        parent.children.set((prevChildren) => [
+          ...prevChildren.slice(0, prevChildIndex),
+          ...prevChildren.slice(prevChildIndex + 1)
+        ])
+      }
+
+      if (isDifferentIndex || prevChildIndex === -1) {
+        if (typeof json.childIndex !== 'undefined')
           parent.children.set((prevChildren) => [
-            ...prevChildren.slice(0, prevChildIndex),
-            ...prevChildren.slice(prevChildIndex + 1)
+            ...prevChildren.slice(0, json.childIndex),
+            entity,
+            ...prevChildren.slice(json.childIndex)
           ])
-        }
-
-        if (isDifferentIndex || prevChildIndex === -1) {
-          if (typeof json.childIndex !== 'undefined')
-            parent.children.set((prevChildren) => [
-              ...prevChildren.slice(0, json.childIndex),
-              entity,
-              ...prevChildren.slice(json.childIndex)
-            ])
-          else parent.children.set([...parent.children.value, entity])
-        }
+        else parent.children.set([...parent.children.value, entity])
       }
     }
   },
@@ -231,12 +232,16 @@ export function iterateEntityNode<R>(
         idx += 1
         snubChildren &&
           frontier.push(
-            getComponent(item, EntityTreeComponent).children?.filter((x) => hasComponent(x, EntityTreeComponent)) ?? []
+            getOptionalComponent(item, EntityTreeComponent)?.children?.filter((x) =>
+              hasComponent(x, EntityTreeComponent)
+            ) ?? []
           )
       }
       !snubChildren &&
         frontier.push(
-          getComponent(item, EntityTreeComponent).children?.filter((x) => hasComponent(x, EntityTreeComponent)) ?? []
+          getOptionalComponent(item, EntityTreeComponent)?.children?.filter((x) =>
+            hasComponent(x, EntityTreeComponent)
+          ) ?? []
         )
     }
   }

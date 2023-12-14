@@ -29,21 +29,12 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import {
-  defineActionQueue,
-  defineState,
-  dispatchAction,
-  getState,
-  none,
-  receiveActions
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, dispatchAction, none, receiveActions } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { SceneState } from '../../ecs/classes/Scene'
 import { getMutableComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -75,16 +66,6 @@ export const EntityNetworkState = defineState({
           ownerId: action.$from,
           authorityPeerID: action.$peer,
           networkId: action.networkId
-        })
-
-        setComponent(entity, TransformComponent)
-        const sceneState = getState(SceneState)
-        if (!sceneState.activeScene) {
-          throw new Error('Trying to spawn an object with no active scene')
-        }
-
-        setComponent(entity, EntityTreeComponent, {
-          parentEntity: SceneState.getRootEntity(getState(SceneState).activeScene!)
         })
 
         const spawnPosition = new Vector3()

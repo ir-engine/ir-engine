@@ -66,16 +66,18 @@ const renderEntityTree = (entity: Entity) => {
   const node = getComponent(entity, EntityTreeComponent)
   return {
     components: renderEntityComponents(entity),
-    children: {
-      ...node.children.reduce(
-        (r, child) =>
-          Object.assign(r, {
-            [`${child} - ${getComponent(child, NameComponent) ?? getComponent(child, UUIDComponent)}`]:
-              renderEntityTree(child)
-          }),
-        {}
-      )
-    }
+    children: node
+      ? {
+          ...node.children.reduce(
+            (r, child) =>
+              Object.assign(r, {
+                [`${child} - ${getComponent(child, NameComponent) ?? getComponent(child, UUIDComponent)}`]:
+                  renderEntityTree(child)
+              }),
+            {}
+          )
+        }
+      : {}
   }
 }
 
@@ -94,18 +96,20 @@ const renderAllEntities = (filter: string) => {
   return {
     ...Object.fromEntries(
       [...Engine.instance.entityQuery().entries()]
-        .map(([key, eid]) => {
+        .map(([, eid]) => {
           if (!entityExists(eid)) return null!
+
+          const label = `${eid} - ${
+            getOptionalComponent(eid, NameComponent) ?? getOptionalComponent(eid, UUIDComponent) ?? ''
+          }`
+
           if (
             filter !== '' &&
-            (!hasComponent(eid, NameComponent) ||
-              getOptionalComponent(eid, NameComponent)?.toLowerCase().indexOf(filter.toLowerCase()) === -1)
+            (!hasComponent(eid, NameComponent) || label.toLowerCase().indexOf(filter.toLowerCase()) === -1)
           )
             return null!
-          return [
-            `${key} - ${getOptionalComponent(eid, NameComponent) ?? getOptionalComponent(eid, UUIDComponent) ?? ''}`,
-            renderEntityComponents(eid)
-          ]
+
+          return [label, renderEntityComponents(eid)]
         })
         .filter((exists) => !!exists)
     )
