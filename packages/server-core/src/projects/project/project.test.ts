@@ -35,18 +35,15 @@ import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 
-const newProjectName = 'ProjectTest_test_project_name'
+const newProjectName = 'ProjectTest_test_project_name_' + Math.round(Math.random() * 1000)
 
 const params = { isInternal: true } as any
 
 const cleanup = async (app: Application) => {
   const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
   deleteFolderRecursive(projectDir)
-  try {
-    await app.service(projectPath).remove(null, { query: { name: newProjectName } })
-  } catch (e) {
-    //
-  }
+  const removingProjects = await app.service(projectPath).find({ query: { name: newProjectName } })
+  if (removingProjects.data.length) await app.service(projectPath).remove(removingProjects.data[0].id)
 }
 
 /**
@@ -63,51 +60,44 @@ describe('project.test', () => {
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
+  })
+  after(async () => {
     await cleanup(app)
+    await destroyEngine()
   })
-  after(() => {
-    return destroyEngine()
-  })
+  describe('create', () => {
+    it('should add new project', async () => {
+      await app.service(projectPath).create(
+        {
+          name: newProjectName
+        },
+        params
+      )
 
-  describe("'project' service'", () => {
-    describe('create', () => {
-      it('should add new project', async function () {
+      let findParams = { ...params, query: { name: newProjectName } }
+      const project = (await app.service(projectPath).find(findParams)) as Paginated<ProjectType>
+      assert.strictEqual(project.data[0].name, newProjectName)
+    })
+
+    it('should not add new project with same name as existing project', () => {
+      assert.rejects(async () => {
         await app.service(projectPath).create(
           {
             name: newProjectName
           },
           params
         )
-
-        let findParams = { ...params, query: { name: newProjectName } }
-        const project = (await app.service(projectPath).find(findParams)) as Paginated<ProjectType>
-        assert.strictEqual(project.data[0].name, newProjectName)
-      })
-
-      it('should not add new project with same name as existing project', function () {
-        assert.rejects(async () => {
-          await app.service(projectPath).create(
-            {
-              name: newProjectName
-            },
-            params
-          )
-        })
       })
     })
+  })
 
-    describe('remove', () => {
-      it('should remove project', async function () {
-        let findParams = { ...params, query: { name: newProjectName } }
-        const projectData = (await app.service(projectPath).find(findParams)) as Paginated<ProjectType>
-        await app.service(projectPath).remove(projectData.data[0].id, params)
-        const project = (await app.service(projectPath).find(findParams)) as Paginated<ProjectType>
-        assert.strictEqual(project.data.length, 0)
-      })
-    })
-
-    after(async () => {
-      await cleanup(app)
+  describe('remove', () => {
+    it('should remove project', async function () {
+      let findParams = { ...params, query: { name: newProjectName } }
+      const projectData = (await app.service(projectPath).find(findParams)) as Paginated<ProjectType>
+      await app.service(projectPath).remove(projectData.data[0].id, params)
+      const project = (await app.service(projectPath).find(findParams)) as Paginated<ProjectType>
+      assert.strictEqual(project.data.length, 0)
     })
   })
 })
