@@ -76,7 +76,7 @@ class SplineBase extends Object3D {
 ////////////////////////////////////////////////////////////////////////////////////////
 
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
+import { setObjectLayers } from '../functions/ObjectLayers'
 
 const ARC_SEGMENTS = 200
 const _point = new Vector3()

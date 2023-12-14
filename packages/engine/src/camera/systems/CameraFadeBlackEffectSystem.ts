@@ -40,7 +40,7 @@ import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { setObjectLayers } from '../../scene/functions/ObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent

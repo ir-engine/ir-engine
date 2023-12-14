@@ -23,18 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { Object3D } from 'three'
-
-import { Engine } from '../../ecs/classes/Engine'
 import { ObjectLayers } from '../constants/ObjectLayers'
 
-export function updateWorldObjectLayers(object: Object3D) {
+export const ObjectLayerState = defineState({
+  name: 'ee.engine.scene.ObjectLayerState',
+  initial: () => ({}) as Record<number, Set<Object3D>>
+})
+
+function _updateObjectLayerState(object: Object3D) {
   for (const layerKey of Object.keys(ObjectLayers)) {
     const layer = ObjectLayers[layerKey]
     const hasLayer = object.layers.isEnabled(layer)
-    Engine.instance.objectLayerList[layer] = Engine.instance.objectLayerList[layer] || new Set()
-    if (hasLayer) Engine.instance.objectLayerList[layer].add(object)
-    else Engine.instance.objectLayerList[layer].delete(object)
+    const layerState = getMutableState(ObjectLayerState)
+    layerState[layer].set((s) => s || new Set())
+    if (hasLayer) layerState[layer].value.add(object)
+    else layerState[layer].value.delete(object)
   }
 }
 
@@ -45,12 +50,12 @@ export function setObjectLayers(object: Object3D, ...layers: number[]) {
       obj.layers.enable(layer)
     }
   })
-  updateWorldObjectLayers(object)
+  _updateObjectLayerState(object)
 }
 
 export function enableObjectLayer(object: Object3D, layer: number, enable: boolean) {
   object.traverse((obj: Object3D) => {
     enable ? obj.layers.enable(layer) : obj.layers.disable(layer)
   })
-  updateWorldObjectLayers(object)
+  _updateObjectLayerState(object)
 }

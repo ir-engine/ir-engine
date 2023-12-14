@@ -44,7 +44,7 @@ import {
 } from '../../scene/components/GroupComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { setObjectLayers } from '../../scene/functions/ObjectLayers'
 
 const visualizers = [] as MeshBVHVisualizer[]
 

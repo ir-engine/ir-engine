@@ -50,7 +50,7 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GeometryTypeEnum } from '../constants/GeometryTypeEnum'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
+import { setObjectLayers } from '../functions/ObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const PrimitiveGeometryComponent = defineComponent({

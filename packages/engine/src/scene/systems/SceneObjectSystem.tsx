@@ -37,7 +37,7 @@ import {
   Texture
 } from 'three'
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -148,6 +148,14 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
   const renderState = getMutableState(RendererState)
   const forceBasicMaterials = useHookstate(renderState.forceBasicMaterials)
   const csm = useHookstate(renderState.csm)
+  const scene = useMutableState(EngineState).scene
+
+  useEffect(() => {
+    scene.value.add(obj)
+    return () => {
+      scene.value.remove(obj)
+    }
+  }, [])
 
   useEffect(() => {
     const source = hasComponent(entity, ModelComponent)

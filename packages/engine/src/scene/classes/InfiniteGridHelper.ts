@@ -50,11 +50,11 @@ import { createEntity, removeEntity, useEntityContext } from '../../ecs/function
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
 import { setVisibleComponent } from '../components/VisibleComponent'
 import LogarithmicDepthBufferMaterialChunk from '../functions/LogarithmicDepthBufferMaterialChunk'
+import { setObjectLayers } from '../functions/ObjectLayers'
 
 /**
  * Original Author: Fyrestar

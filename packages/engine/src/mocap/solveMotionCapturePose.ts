@@ -64,7 +64,7 @@ import { GroupComponent, addObjectToGroup } from '../scene/components/GroupCompo
 import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../scene/functions/setObjectLayers'
+import { setObjectLayers } from '../scene/functions/ObjectLayers'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 

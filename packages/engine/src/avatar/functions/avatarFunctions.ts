@@ -55,7 +55,7 @@ import {
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { setObjectLayers } from '../../scene/functions/ObjectLayers'
 import iterateObject3D from '../../scene/util/iterateObject3D'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'

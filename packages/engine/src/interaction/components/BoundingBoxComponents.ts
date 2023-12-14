@@ -43,7 +43,7 @@ import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupCo
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { setObjectLayers } from '../../scene/functions/ObjectLayers'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',

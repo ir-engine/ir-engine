@@ -52,7 +52,7 @@ import {
   worldposReplace
 } from '../classes/BPCEMShader'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
+import { setObjectLayers } from '../functions/ObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 import { GroupComponent, addObjectToGroup } from './GroupComponent'

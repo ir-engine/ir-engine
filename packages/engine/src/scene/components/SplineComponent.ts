@@ -44,7 +44,7 @@ import { useEffect } from 'react'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
+import { setObjectLayers } from '../functions/ObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 const ARC_SEGMENTS = 200

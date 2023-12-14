@@ -47,7 +47,7 @@ import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupCo
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { setObjectLayers } from '../../scene/functions/ObjectLayers'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { CSM } from './CSM'
 

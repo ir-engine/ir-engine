@@ -34,7 +34,7 @@ import {
 } from 'three'
 
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
+import { setObjectLayers } from '../functions/ObjectLayers'
 
 export default class EditorDirectionalLightHelper extends Object3D {
   color: ColorRepresentation

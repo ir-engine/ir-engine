@@ -53,7 +53,7 @@ import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import iterateObject3D from '../util/iterateObject3D'
-import { enableObjectLayer } from './setObjectLayers'
+import { enableObjectLayer } from './ObjectLayers'
 
 //isProxified: used to check if an object is proxified
 declare module 'three/src/core/Object3D' {

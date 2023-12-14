@@ -41,7 +41,7 @@ import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/
 import { AudioNodeGroups, MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { setObjectLayers } from '../../scene/functions/ObjectLayers'
 
 export interface PositionalAudioInterface {
   refDistance: number

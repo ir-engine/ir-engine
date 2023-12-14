@@ -49,7 +49,7 @@ import { createTransitionState } from '../../xrui/functions/createTransitionStat
 import { SceneLoadingSystem } from '../SceneModule'
 import { PortalEffect } from '../classes/PortalEffect'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
+import { setObjectLayers } from '../functions/ObjectLayers'
 import { GroupComponent, addObjectToGroup } from './GroupComponent'
 import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'
 import { VisibleComponent } from './VisibleComponent'

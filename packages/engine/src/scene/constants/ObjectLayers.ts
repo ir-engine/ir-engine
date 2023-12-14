@@ -35,4 +35,4 @@ export const ObjectLayers = {
   NodeHelper: 8 as const,
   Panel: 9 as const,
   TransformGizmo: 10 as const
-}
+} as Record<string, number>
