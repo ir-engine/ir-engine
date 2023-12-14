@@ -136,8 +136,8 @@ const execute = () => {
     }
     const rigComponent = getComponent(entity, AvatarRigComponent)
     for (const boneName of VRMHumanBoneList) {
-      const rawBone = rigComponent.rawRig[boneName]?.node
-      if (!rawBone) continue
+      const normalizedBone = rigComponent.vrm.humanoid.normalizedHumanBones[boneName]?.node
+      if (!normalizedBone) continue
       if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
         if (
           boneName == VRMHumanBoneName.LeftUpperLeg ||
@@ -157,20 +157,23 @@ const execute = () => {
       ) {
         MotionCaptureRigComponent.rig[boneName].w[entity] === 1
       }
-      rawBone.quaternion.set(
-        MotionCaptureRigComponent.rig[boneName].x[entity],
-        MotionCaptureRigComponent.rig[boneName].y[entity],
-        MotionCaptureRigComponent.rig[boneName].z[entity],
-        MotionCaptureRigComponent.rig[boneName].w[entity]
-      )
+
+      normalizedBone.quaternion
+        .set(
+          MotionCaptureRigComponent.rig[boneName].x[entity],
+          MotionCaptureRigComponent.rig[boneName].y[entity],
+          MotionCaptureRigComponent.rig[boneName].z[entity],
+          MotionCaptureRigComponent.rig[boneName].w[entity]
+        )
+        .normalize()
 
       if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
       if (MotionCaptureRigComponent.solvingLowerBody[entity])
-        rawBone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
-      rawBone.scale.set(1, 1, 1)
+        normalizedBone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
+      normalizedBone.scale.set(1, 1, 1)
     }
 
-    const hipBone = rigComponent.rawRig.hips.node
+    const hipBone = rigComponent.normalizedRig.hips.node
     if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
       hipBone.position.set(
         MotionCaptureRigComponent.hipPosition.x[entity],
@@ -180,7 +183,7 @@ const execute = () => {
       hipBone.updateMatrixWorld(true)
     }
 
-    const worldHipsParent = rigComponent.rawRig.hips.node.parent
+    const worldHipsParent = rigComponent.normalizedRig.hips.node.parent
     if (worldHipsParent)
       if (MotionCaptureRigComponent.solvingLowerBody[entity])
         worldHipsParent.position.setY(
