@@ -390,6 +390,7 @@ const ProjectTable = ({ className }: Props) => {
       )}
 
       <ConfirmDialog
+        processing={processing}
         open={confirm.open}
         description={confirm.description}
         onClose={handleCloseConfirmation}

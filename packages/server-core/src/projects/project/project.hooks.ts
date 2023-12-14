@@ -170,7 +170,10 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
       })
 
       const matchingAllowedRepos = (await context.app.service(projectPath).find({
-        query: { repositoryPath: { $in: repositoryPaths } },
+        query: {
+          action: 'admin',
+          repositoryPath: { $in: repositoryPaths }
+        },
         paginate: false
       })) as ProjectType[]
 
@@ -526,6 +529,7 @@ const updateProjectJob = async (context: HookContext) => {
       await jobFinishedPromise
       const result = (await context.app.service(projectPath).find({
         query: {
+          action: 'admin',
           name: {
             $like: projectName
           }
