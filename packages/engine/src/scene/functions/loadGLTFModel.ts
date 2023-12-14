@@ -282,29 +282,24 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     })
   }
 
-  // check if this object is part of a collider group
-  const inColliderGroup =
-    obj.parent?.userData && Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
-  if (!inColliderGroup) {
-    const mesh = obj as Mesh
-    mesh.isMesh && setComponent(objEntity, MeshComponent, mesh)
+  const mesh = obj as Mesh
+  mesh.isMesh && setComponent(objEntity, MeshComponent, mesh)
 
-    //check if mesh is instanced. If so, add InstancingComponent
-    const instancedMesh = obj as InstancedMesh
-    instancedMesh.isInstancedMesh &&
-      setComponent(objEntity, InstancingComponent, {
-        instanceMatrix: instancedMesh.instanceMatrix
-      })
+  //check if mesh is instanced. If so, add InstancingComponent
+  const instancedMesh = obj as InstancedMesh
+  instancedMesh.isInstancedMesh &&
+    setComponent(objEntity, InstancingComponent, {
+      instanceMatrix: instancedMesh.instanceMatrix
+    })
 
-    const bone = obj as Bone
-    bone.isBone && setComponent(objEntity, BoneComponent, bone)
+  const bone = obj as Bone
+  bone.isBone && setComponent(objEntity, BoneComponent, bone)
 
-    const skinnedMesh = obj as SkinnedMesh
-    skinnedMesh.isSkinnedMesh && setComponent(objEntity, SkinnedMeshComponent, skinnedMesh)
+  const skinnedMesh = obj as SkinnedMesh
+  skinnedMesh.isSkinnedMesh && setComponent(objEntity, SkinnedMeshComponent, skinnedMesh)
 
-    if (obj.userData['componentJson']) {
-      eJson.components.push(...obj.userData['componentJson'])
-    }
+  if (obj.userData['componentJson']) {
+    eJson.components.push(...obj.userData['componentJson'])
   }
 
   return eJson

@@ -27,7 +27,7 @@ import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { NO_PROXY, getState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import matches from 'ts-matches'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -52,6 +52,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { GroupComponent } from './GroupComponent'
+import { ModelComponent } from './ModelComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 
@@ -161,6 +162,7 @@ export const ColliderComponent = defineComponent({
     const colliderComponent = useComponent(entity, ColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
+    const modelHierarchy = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
     useEffect(() => {
       removeComponent(entity, SceneAssetPendingTagComponent)
@@ -263,7 +265,7 @@ export const ColliderComponent = defineComponent({
         rigidbody.body.setRotation(transformComponent.rotation.value, true)
         rigidbody.scale.copy(transformComponent.scale.value)
       }
-    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length])
+    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, modelHierarchy])
 
     return null
   }

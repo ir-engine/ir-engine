@@ -249,7 +249,7 @@ function ModelReactor() {
     ModelComponent.entitiesInModelHierarchyState[entity].set(
       childQuery.filter((e) => getComponent(e, SourceComponent) === modelSceneID)
     )
-  }, [childQuery])
+  }, [JSON.stringify(childQuery)])
 
   const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
