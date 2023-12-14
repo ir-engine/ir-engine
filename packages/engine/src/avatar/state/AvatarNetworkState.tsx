@@ -26,15 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import {
-  NO_PROXY,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  none,
-  useHookstate,
-  useState
-} from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import { Paginated } from '@feathersjs/feathers'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -46,7 +38,7 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AvatarID, AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
 import { userAvatarPath } from '../../schemas/user/user-avatar.schema'
-import { loadAvatarForUser } from '../functions/avatarFunctions'
+import { loadAvatarModelAsset } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from './AvatarNetworkActions'
 
@@ -105,7 +97,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
   // }, [])
 
   useEffect(() => {
-    if (!state.avatarID.value) return
+    if (!isClient || !state.avatarID.value) return
 
     let aborted = false
 
@@ -136,15 +128,8 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     const entity = UUIDComponent.entitiesByUUID[entityUUID]
     if (!entity || !entityExists(entity)) return
 
-    const avatarDetails = state.userAvatarDetails.get(NO_PROXY)
-
     spawnAvatarReceptor(entityUUID)
-    loadAvatarForUser(entity, url).catch((e) => {
-      console.error('Failed to load avatar for user', e, avatarDetails)
-      if (entityUUID === (Engine.instance.userID as any)) {
-        AvatarState.selectRandomAvatar()
-      }
-    })
+    loadAvatarModelAsset(entity, url)
   }, [state.userAvatarDetails])
 
   return null

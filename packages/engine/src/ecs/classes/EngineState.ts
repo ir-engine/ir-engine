@@ -27,7 +27,7 @@ import { defineAction, defineState } from '@etherealengine/hyperflux'
 
 import { BoxGeometry, Group, Mesh, MeshNormalMaterial, Scene, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
+import { matches } from '../../common/functions/MatchesUtils'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
@@ -134,12 +134,6 @@ export class EngineActions {
 
   static exitSpectate = defineAction({
     type: 'ee.engine.Engine.EXIT_SPECTATE' as const
-  })
-
-  static interactedWithObject = defineAction({
-    type: 'ee.engine.Engine.INTERACTED_WITH_OBJECT' as const,
-    targetEntity: matchesEntity.optional(),
-    handedness: matches.string as Validator<unknown, XRHandedness>
   })
 
   static notification = defineAction({

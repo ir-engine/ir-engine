@@ -160,7 +160,6 @@ export const SplineTrackComponent = defineComponent({
         // update local transform for target
         const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
         if (!parentEntity) return
-        console.log({ parentEntity })
         const parentTransform = getComponent(parentEntity, TransformComponent)
         const localTransformComponent = getComponent(entity, LocalTransformComponent)
         localTransformComponent.matrix

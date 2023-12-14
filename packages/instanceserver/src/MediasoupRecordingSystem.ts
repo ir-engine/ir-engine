@@ -43,12 +43,9 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+import { recordingResourceUploadPath } from '@etherealengine/engine/src/schemas/recording/recording-resource-upload.schema'
 import { RecordingID, RecordingSchemaType } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getMutableState, none } from '@etherealengine/hyperflux'
-import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
-import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { PassThrough } from 'stream'
 import { startFFMPEG } from './FFMPEG'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -212,43 +209,9 @@ type onUploadPartArgs = {
   hash: string
 }
 
-export const uploadMediaStaticResource = async (props: onUploadPartArgs) => {
-  const api = Engine.instance.api
-
-  const storageProvider = getStorageProvider()
-
-  const uploadPromise = storageProvider.putObject({
-    Key: props.key,
-    Body: props.body,
-    ContentType: props.mimeType
-  })
-
-  const url = getCachedURL(props.key, storageProvider.cacheDomain)
-
-  const staticResource = await api.service(staticResourcePath).create(
-    {
-      hash: props.hash,
-      key: props.key,
-      url,
-      mimeType: props.mimeType
-    },
-    { isInternal: true }
-  )
-
-  const recordingResource = await api.service(recordingResourcePath).create({
-    recordingId: props.recordingID,
-    staticResourceId: staticResource.id
-  })
-
-  await uploadPromise
-
-  await api.service(recordingResourcePath).patch(recordingResource.id, {
-    updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
-  })
-}
-
 // todo - refactor to be in a reactor such that we can record media tracks that are started after the recording is
 export const startMediaRecording = async (recordingID: RecordingID, schema: RecordingSchemaType['peers']) => {
+  const api = Engine.instance.api
   const network = NetworkState.mediaNetwork as SocketWebRTCServerNetwork
 
   const mediaStreams = {} as Record<PeerID, { [mediaType: string]: MediaTrackPair }>
@@ -295,15 +258,18 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
       .update(format)
       .digest('hex')
 
-    return uploadMediaStaticResource({
-      recordingID,
-      key,
-      body: stream,
-      mimeType: format,
-      hash
-    }).then(() => {
-      logger.info('Uploaded media file' + key)
-    })
+    return api
+      .service(recordingResourceUploadPath)
+      .create({
+        recordingID,
+        key,
+        body: stream,
+        mimeType: format,
+        hash
+      })
+      .then(() => {
+        logger.info('Uploaded media file' + key)
+      })
   })
 
   logger.info('media recording started')

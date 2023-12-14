@@ -67,6 +67,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
@@ -164,6 +165,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const openConfirm = useHookstate(false)
   const contentToDeletePath = useHookstate('')
 
+  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
+
   const fileState = useHookstate(getMutableState(FileBrowserState))
   const filesValue = fileState.files.attach(Downgraded).value
   const { skip, total, retrieving } = fileState.value
@@ -191,7 +194,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   useEffect(() => {
     refreshDirectory()
-  }, [selectedDirectory])
+  }, [selectedDirectory, activeScene])
 
   useEffect(() => {
     FileBrowserService.getNestingDirectory().then((directory) => nestingDirectory.set(directory))
@@ -596,7 +599,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       )}
       <ConfirmDialog
         open={openConfirm.value}
-        description={`${t('editor:dialog.confirmContentDelete')} ${contentToDeletePath.value.split('/').at(-1)} ?`}
+        description={t('editor:dialog.delete.confirm-content', {
+          content: contentToDeletePath.value.split('/').at(-1)
+        })}
         onClose={handleConfirmClose}
         onSubmit={deleteContent}
       />

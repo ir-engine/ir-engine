@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { builderInfoPath } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
@@ -79,9 +79,12 @@ export const ProjectState = defineState({
 export const ProjectService = {
   fetchProjects: async () => {
     try {
-      const projects = (await API.instance.client
-        .service(projectPath)
-        .find({ query: { allowed: true } })) as Paginated<ProjectType>
+      const projects = (await API.instance.client.service(projectPath).find({
+        query: {
+          action: 'admin',
+          allowed: true
+        }
+      })) as Paginated<ProjectType>
       getMutableState(ProjectState).merge({
         updateNeeded: false,
         projects: projects.data
@@ -196,6 +199,12 @@ export const ProjectService = {
     }
   },
   useAPIListeners: () => {
+    const updateNeeded = useHookstate(getMutableState(ProjectState).updateNeeded)
+
+    useEffect(() => {
+      if (updateNeeded.value) ProjectService.fetchProjects()
+    }, [updateNeeded])
+
     useEffect(() => {
       // TODO #7254
       // API.instance.client.service(projectBuildPath).on('patched', (params) => {})

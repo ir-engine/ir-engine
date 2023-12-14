@@ -32,7 +32,6 @@ import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/Common
 import { AvatarID, avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
-import { isAssetFromDomain } from '../../media/static-resource/static-resource-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { addAssetAsStaticResource } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
@@ -132,7 +131,6 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
             ]
           }
         })) as Paginated<AvatarType>
-        console.log({ existingAvatar })
 
         let selectedAvatar: AvatarType
         if (existingAvatar && existingAvatar.data.length > 0) {
@@ -170,11 +168,10 @@ export const uploadAvatarStaticResource = async (
   data: AvatarUploadArguments,
   params?: AvatarParams
 ) => {
-  console.log('uploadAvatarStaticResource', data)
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
 
-  const staticResourceKey = `static-resources/avatar/${data.isPublic ? 'public' : params?.user!.id}/`
-  const isFromDomain = !!data.path && isAssetFromDomain(data.path)
+  const staticResourceKey = `avatars/${data.isPublic ? 'public' : params?.user!.id}/`
+  const isFromDomain = !!data.path
   const path = isFromDomain ? data.path! : staticResourceKey
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
@@ -215,14 +212,10 @@ export const uploadAvatarStaticResource = async (
 
   if (data.avatarId) {
     try {
-      await app.service(avatarPath).patch(
-        data.avatarId,
-        {
-          modelResourceId: modelResource.id,
-          thumbnailResourceId: thumbnailResource.id
-        },
-        params
-      )
+      await app.service(avatarPath).patch(data.avatarId, {
+        modelResourceId: modelResource.id,
+        thumbnailResourceId: thumbnailResource.id
+      })
     } catch (err) {
       console.log(err)
     }

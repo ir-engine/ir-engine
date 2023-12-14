@@ -50,13 +50,6 @@ export class AvatarNetworkAction {
     $topic: NetworkTopics.world
   })
 
-  static setAvatarXrTracking = defineAction({
-    type: 'ee.engine.avatar.SET_AVATAR_XR_TRACKING',
-    active: matches.boolean,
-    entityUUID: matchesEntityUUID,
-    $topic: NetworkTopics.world
-  })
-
   static setAvatarID = defineAction({
     type: 'ee.engine.avatar.SET_AVATAR_ID',
     entityUUID: matchesEntityUUID,

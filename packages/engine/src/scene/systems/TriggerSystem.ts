@@ -34,14 +34,13 @@ import { CallbackComponent } from '../components/CallbackComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 
-export const triggerEnter = (entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
+export const triggerEnter = (entity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
+  const triggerEntity = hit.shapeSelf.isSensor() ? entity : otherEntity
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
   if (!Array.isArray(triggerComponent.triggers)) return
   for (const trigger of triggerComponent.triggers) {
     if (trigger.target && !UUIDComponent.entitiesByUUID[trigger.target]) return
-
     const targetEntity = trigger.target ? UUIDComponent.entitiesByUUID[trigger.target] : triggerEntity
-
     if (targetEntity && trigger.onEnter) {
       const callbacks = getComponent(targetEntity, CallbackComponent)
       callbacks.get(trigger.onEnter)?.(triggerEntity)
@@ -49,14 +48,13 @@ export const triggerEnter = (entity: Entity, triggerEntity: Entity, hit: Collide
   }
 }
 
-export const triggerExit = (entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
+export const triggerExit = (entity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
+  const triggerEntity = hit.shapeSelf.isSensor() ? entity : otherEntity
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
   if (!Array.isArray(triggerComponent.triggers)) return
   for (const trigger of triggerComponent.triggers) {
-    if (!trigger?.onExit) return
     if (trigger.target && !UUIDComponent.entitiesByUUID[trigger.target]) return
     const targetEntity = trigger.target ? UUIDComponent.entitiesByUUID[trigger.target] : triggerEntity
-
     if (targetEntity && trigger.onExit) {
       const callbacks = getComponent(targetEntity, CallbackComponent)
       callbacks.get(trigger.onExit)?.(triggerEntity)
@@ -64,7 +62,7 @@ export const triggerExit = (entity: Entity, triggerEntity: Entity, hit: Collider
   }
 }
 
-const collisionQuery = defineQuery([CollisionComponent])
+const collisionQuery = defineQuery([ColliderComponent, CollisionComponent])
 
 const execute = () => {
   for (const entity of collisionQuery()) {

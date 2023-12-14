@@ -23,19 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
-import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import '@etherealengine/engine/src/EngineModule'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import '../EditorModule'
 import EditorContainer from '../components/EditorContainer'
 import { EditorState } from '../services/EditorServices'
+import { ProjectPage } from './ProjectPage'
 
 export const useStudioEditor = () => {
   const [engineReady, setEngineReady] = useState(false)
@@ -52,14 +56,36 @@ export const useStudioEditor = () => {
 }
 
 export const EditorPage = () => {
-  const params = useParams()
+  const [params] = useSearchParams()
   const projectState = useHookstate(getMutableState(ProjectState))
-  const editorState = useHookstate(getMutableState(EditorState))
+  const { sceneID, projectName } = useHookstate(getMutableState(EditorState))
+
+  ProjectService.useAPIListeners()
 
   useEffect(() => {
-    const { projectName } = params
-    getMutableState(EditorState).merge({ projectName: projectName ?? null })
+    const sceneInParams = params.get('scenePath')
+    if (sceneInParams) sceneID.set(sceneInParams as SceneID)
+    const projectNameInParams = params.get('project')
+    if (projectNameInParams) projectName.set(projectNameInParams as SceneID)
   }, [params])
 
-  return <>{projectState.projects.value.length && editorState.projectName.value && <EditorContainer />}</>
+  useEffect(() => {
+    if (!sceneID.value) return
+
+    const parsed = new URL(window.location.href)
+    const query = parsed.searchParams
+
+    query.set('scenePath', sceneID.value)
+
+    parsed.search = query.toString()
+    if (typeof history.pushState !== 'undefined') {
+      window.history.replaceState({}, '', parsed.toString())
+    }
+  }, [sceneID])
+
+  if (!projectState.projects.value.length) return <LoadingCircle message={t('common:loader.loadingEditor')} />
+
+  if (!sceneID.value && !projectName.value) return <ProjectPage />
+
+  return <EditorContainer />
 }

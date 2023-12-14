@@ -94,7 +94,7 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   const transition = InteractableTransitions.get(entity)!
   getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Hips, vec3)
   const distance = vec3.distanceToSquared(transform.position)
-  const inRange = distance < 5
+  const inRange = distance < getState(InteractState).maxDistance
   if (transition.state === 'OUT' && inRange) {
     transition.setState('IN')
   }

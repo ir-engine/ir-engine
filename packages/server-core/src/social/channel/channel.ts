@@ -29,7 +29,7 @@ import { ChannelType, channelMethods, channelPath } from '@etherealengine/engine
 
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Application } from '../../../declarations'
+import { Application, HookContext } from '../../../declarations'
 import { ChannelService } from './channel.class'
 import channelDocs from './channel.docs'
 import hooks from './channel.hooks'
@@ -61,13 +61,14 @@ export default (app: Application): void => {
 
   const onCRUD =
     (app: Application) =>
-    async (data: ChannelType): Promise<any> => {
+    async (data: ChannelType, context: HookContext): Promise<any> => {
       const channelUsers = (await app.service(channelUserPath).find({
         query: {
           channelId: data.id
         },
+        headers: context.params.headers,
         paginate: false
-      })) as ChannelUserType[]
+      })) as unknown as ChannelUserType[]
 
       const userIds = channelUsers.map((channelUser) => {
         return channelUser.userId

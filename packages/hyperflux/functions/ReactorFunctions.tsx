@@ -82,8 +82,9 @@ export type ReactorRoot = {
   fiber: any
   Reactor: React.FC
   isRunning: State<boolean>
-  error: State<Error | null>
   suspended: State<boolean>
+  errors: State<Error[]>
+  promise: Promise<void>
   cleanupFunctions: Set<() => void>
   run: (force?: boolean) => Promise<void>
   stop: () => Promise<void>
@@ -98,7 +99,7 @@ export function useReactorRootContext(): ReactorRoot {
 export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactNode; reactorRoot: ReactorRoot }>(
   function error(props, error?: Error) {
     if (error) {
-      props.reactorRoot.error.set(error)
+      props.reactorRoot.errors.merge([error])
       return null
     } else {
       return <React.Fragment>{props.children}</React.Fragment>
@@ -118,7 +119,10 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
-  const onRecoverableError = (err) => console.error(err)
+  const onRecoverableError = (err) => {
+    console.error(err, reactorRoot)
+    reactorRoot.errors.merge([err])
+  }
 
   const fiberRoot = ReactorReconciler.createContainer(
     {},
@@ -151,7 +155,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     fiber: fiberRoot,
     Reactor,
     isRunning: createHookstate(false),
-    error: createHookstate(null as Error | null),
+    errors: createHookstate([] as Error[]),
     suspended: createHookstate(false),
     run() {
       if (reactorRoot.isRunning.value) return Promise.resolve()

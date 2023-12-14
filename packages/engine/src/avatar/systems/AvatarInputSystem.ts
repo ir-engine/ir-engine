@@ -27,13 +27,12 @@ import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
@@ -47,10 +46,9 @@ import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { StandardGamepadButton, XRStandardGamepadButton } from '../../input/state/ButtonState'
+import { StandardGamepadButton } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
 import { ClientInputSystem } from '../../input/systems/ClientInputSystem'
-import { InteractState } from '../../interaction/systems/InteractiveSystem'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -64,6 +62,8 @@ import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
 import { translateAndRotateAvatar } from '.././functions/moveAvatar'
 import { AvatarAxesControlScheme, AvatarInputSettingsState } from '.././state/AvatarInputSettingsState'
+import { applyInputSourcePoseToIKTargets } from '../functions/applyInputSourcePoseToIKTargets'
+import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
 const _quat = new Quaternion()
 
@@ -137,15 +137,6 @@ const onShiftLeft = () => {
   controller.isWalking.set(!controller.isWalking.value)
 }
 
-const onInteract = (handedness: XRHandedness = 'none') => {
-  dispatchAction(
-    EngineActions.interactedWithObject({
-      targetEntity: getState(InteractState).available[0],
-      handedness
-    })
-  )
-}
-
 const onKeyP = () => {
   getMutableState(RendererState).physicsDebug.set(!getMutableState(RendererState).physicsDebug.value)
 }
@@ -212,6 +203,11 @@ const execute = () => {
   const { localClientEntity } = Engine.instance
   if (!localClientEntity) return
 
+  applyInputSourcePoseToIKTargets(localClientEntity)
+
+  const { deltaSeconds } = getState(EngineState)
+  setIkFootTarget(localClientEntity, deltaSeconds)
+
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
@@ -245,21 +241,6 @@ const execute = () => {
     }
   }
 
-  /** @todo until we have something more sophisticated, allow interaction input even when interactables are captured */
-  for (const inputSourceEntity of inputSourceQuery()) {
-    const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
-
-    const buttons = inputSource.buttons
-
-    const standardGamepad =
-      inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === ''
-
-    if (buttons.KeyE?.down) onInteract()
-
-    if (standardGamepad && buttons[StandardGamepadButton.ButtonY]?.down) {
-      onInteract()
-    }
-  }
   let inputEntities: Entity[] = nonCapturedInputSourceEntities
   if (inputEntities.length === 0) {
     inputEntities = inputSourceQuery().filter((entity) => {
@@ -274,12 +255,8 @@ const execute = () => {
 
     const standardGamepad =
       inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === ''
-    const xrStandardGamepad = inputSource.source.gamepad?.mapping === 'xr-standard'
 
     if (buttons.ShiftLeft?.down) onShiftLeft()
-    if (xrStandardGamepad) {
-      if (buttons[XRStandardGamepadButton.Trigger]?.down) onInteract(inputSource.source.handedness)
-    }
 
     const gamepadJump = standardGamepad && buttons[StandardGamepadButton.ButtonA]?.down
 

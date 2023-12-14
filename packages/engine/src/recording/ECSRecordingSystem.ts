@@ -465,9 +465,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     if (!createMediaRecording) return dispatchError('Media recording not available', action.$peer, action.$topic)
 
     try {
-      const mediaRecorder = await createMediaRecording(recording.id, schema.peers)
-
-      activeRecording.mediaChannelRecorder = mediaRecorder
+      activeRecording.mediaChannelRecorder = await createMediaRecording(recording.id, schema.peers)
 
       dispatchAction(
         ECSRecordingActions.recordingStarted({
@@ -536,7 +534,6 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const api = Engine.instance.api
 
   const recording = await api.service(recordingPath).get(action.recordingID, { isInternal: true })
-  console.log(recording)
 
   let schema = recording.schema
 
@@ -564,10 +561,6 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     (resource) =>
       !resource.key.includes('entities-') &&
       resource.key.substring(resource.key.length - 3, resource.key.length) === '.ee'
-  )
-
-  const mediaFiles = recording.resources.filter(
-    (resource) => resource.key.substring(resource.key.length - 3, resource.key.length) !== '.ee'
   )
 
   const entityChunks = (await Promise.all(

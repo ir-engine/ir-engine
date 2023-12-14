@@ -130,7 +130,6 @@ export const SceneState = defineState({
       snapshots: [{ data, selectedEntities: [] }],
       index: 0
     })
-    getMutableState(SceneState).activeScene.set(sceneID)
   },
 
   unloadScene: (sceneID: SceneID) => {
@@ -220,16 +219,17 @@ export const SceneState = defineState({
 })
 
 export const SceneServices = {
-  setCurrentScene: (projectName: string, sceneName: string) => {
+  setCurrentScene: (sceneID: SceneID) => {
     Engine.instance.api
       .service(scenePath)
-      .get(null, { query: { project: projectName, name: sceneName } })
+      .get(null, { query: { sceneKey: sceneID } })
       .then((sceneData) => {
-        SceneState.loadScene(`${projectName}/${sceneName}` as SceneID, sceneData)
+        SceneState.loadScene(sceneID, sceneData)
+        getMutableState(SceneState).activeScene.set(sceneID)
       })
 
     return () => {
-      SceneState.unloadScene(`${projectName}/${sceneName}` as SceneID)
+      SceneState.unloadScene(sceneID)
     }
   }
 }

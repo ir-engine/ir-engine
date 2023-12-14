@@ -23,6 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+/**
+ * @fileoverview
+ * @todo Write the `fileoverview` for `ComponentFunctions.ts`
+ */
+
 import { Subscribable, subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
 // tslint:disable:ordered-imports
@@ -38,7 +43,6 @@ import { HyperFlux, ReactorRoot, defineActionQueue, startReactor } from '@ethere
 import {
   hookstate,
   NO_PROXY,
-  none,
   ReceptorMap,
   State,
   useHookstate
@@ -48,24 +52,47 @@ import { Entity, UndefinedEntity } from '../classes/Entity'
 import { EntityContext, useEntityContext } from './EntityFunctions'
 import { defineSystem } from './SystemFunctions'
 import { InputSystemGroup } from './SystemGroups'
+import { ComponentTypeToTypedArray } from '@gltf-transform/core'
 
+/**
+ * @description `@internal`
+ * Shorthand for the logger that will be used throughout this file.
+ * Contains a multiLogger.child, that uses a component ID referencing the purpose of this file.
+ */
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
-export const INITIAL_COMPONENT_SIZE = config.client.appEnv === 'test' ? 100000 : 5000 // TODO set to 0 after next bitECS update
-bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
+/**
+ * @description
+ * Initial Max amount of entries that buffers for a Component type will contain.
+ * - `100_000` for 'test' client environment
+ * - `5_000` otherwise
+ */
+export const INITIAL_COMPONENT_SIZE =
+  config.client.appEnv === 'test' ? 100000 : 5000 /** @todo set to 0 after next bitECS update */
+bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE) // Send the INITIAL_COMPONENT_SIZE value to bitECS as its DefaultSize
 
 export const ComponentMap = new Map<string, Component<any, any, any>>()
 export const ComponentJSONIDMap = new Map<string, Component<any, any, any>>() // <jsonID, Component>
 globalThis.ComponentMap = ComponentMap
 globalThis.ComponentJSONIDMap = ComponentJSONIDMap
 
+//::::: Helper and Validation generic types ::::://
+/** @private Type that will become a [Typescript.Partial](https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype) if T is extending an object, but will be just T otherwise. */
 type PartialIfObject<T> = T extends object ? Partial<T> : T
-
+/** @private Type used to validate that the type returned by {@link Component.onInit} is not a {@link State} object. */
 type OnInitValidateNotState<T> = T extends State<any, object | unknown> ? 'onInit must not return a State object' : T
-
-type SomeStringLiteral = 'a' | 'b' | 'c' // just a dummy string literal union
+/** @private Just a dummy string literal union */
+type SomeStringLiteral = 'a' | 'b' | 'c'
+/** @private Type that will be a `string` when T is an extension of `string`, but will be a dummy string union otherwise. */
 type StringLiteral<T> = string extends T ? SomeStringLiteral : string
 
+/**
+ * @description
+ * Data used to create a Component with {@link defineComponent}.
+ * @why
+ * This type exists so that some of the properties of {@link Component}s are optional when defining them, but required during normal use.
+ * See [Typescript.Partial](https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype) for a reference of what Partials are.
+ */
 export interface ComponentPartial<
   ComponentType = any,
   Schema extends bitECS.ISchema = Record<string, any>,
@@ -74,17 +101,61 @@ export interface ComponentPartial<
   ErrorTypes = never,
   Receptors = ReceptorMap
 > {
+  /** @description Human readable label for the component. Displayed in the editor and debugging tools. */
   name: string
+  /** @description Internal ID used to reference this component in JSON data. */
   jsonID?: string
+  /** @description A Component's Schema is the shape of its runtime data. */
   schema?: Schema
+  /**
+   * @description Called once when the component is added to an entity (ie: initialized).
+   * @param this `@internal` The component partial itself.
+   * @param entity The {@link Entity} to which this Component is being assigned.
+   * @returns The schema (aka shape) of the component's runtime data.
+   */
   onInit?: (this: SoAComponentType<Schema>, entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
+  /**
+   * @description
+   * Serializer function called when the component is saved to a snapshot or scene file.
+   * Its logic must convert the component's runtime data into a JSON object.
+   * @param entity The {@link Entity} to which this Component is assigned.
+   * @param component The Component's global data (aka {@link State}).
+   */
   toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
+  /**
+   * @description
+   * Called when the component's data is updated via the {@link setComponent} function.
+   * This is where deserialization logic should happen.
+   * @param entity The {@link Entity} to which this Component is assigned.
+   * @param component The Component's global data (aka {@link State}).
+   * @param json The JSON object that contains this component's serialized data.
+   */
   onSet?: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
+  /** @todo Explain ComponentPartial.onRemove(...) */
   onRemove?: (entity: Entity, component: State<ComponentType>) => void | Promise<void>
+  /**
+   * @summary Defines the {@link React.FC} async logic of the {@link Component} type.
+   * @notes Any side-effects that depend on the component's data should be defined here.
+   * @description
+   * {@link React}'s `Function Component` of the resulting ECS {@link Component} type.
+   * `@todo` Explain what reactive is in this context
+   * `@todo` Explain this function
+   */
   reactor?: React.FC
+  /**
+   * @todo Explain ComponentPartial.errors[]
+   */
   errors?: ErrorTypes[]
   receptors?: Receptors
 }
+
+/**
+ * @description
+ * Defines the shape that all Engine's ECS Components will have.
+ *
+ * See {@link ComponentType} for the `type` version of this interface.
+ * See {@link ComponentPartial} to find the data required to define a new Component with {@link defineComponent}.
+ */
 export interface Component<
   ComponentType = any,
   Schema extends bitECS.ISchema = Record<string, any>,
@@ -112,12 +183,50 @@ export interface Component<
   errors: ErrorTypes[]
 }
 
+/** @todo Describe this type */
 export type SoAComponentType<S extends bitECS.ISchema> = bitECS.ComponentType<S>
+/** @description Generic `type` for all Engine's ECS {@link Component}s. All of its fields are required to not be `null`. */
 export type ComponentType<C extends Component> = NonNullable<C['valueMap'][keyof C['valueMap']]>
+/** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by the its serialization function {@link Component.toJSON}. */
 export type SerializedComponentType<C extends Component> = ReturnType<C['toJSON']>
+/** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by its {@link Component.onSet} function. */
 export type SetComponentType<C extends Component> = Parameters<C['onSet']>[2]
-export type ComponentErrorsType<C extends Component> = C['errors'][number]
+/** @description Generic `type` for {@link Component}s, that takes the shape of the type used by its {@link Component.errors} field. */
+export type ComponentErrorsType<C extends Component> =
+  C['errors'][number] /** @todo What is C[...][number] doing here? */
 
+/**
+ * @description
+ * Defines a new Component type.
+ * Takes a {@link ComponentPartial}, fills in all of the missing information, and returns a complete {@link Component} type containing all of the required fields.
+ * @param def Parameters required to initialize a Component, as seen at {@link ComponentPartial}
+ * @returns A new fully setup Component type, with all data and callbacks required for it to be used by the engine.
+ * @example
+ * ```ts
+ * export const MyComponent = defineComponent({
+ *   name: 'MyComponent',
+ *   schema: {
+ *     id: Types.ui32
+ *   },
+ *   onInit: (entity) => {
+ *     return {
+ *       myProp: 'My Value'
+ *     }
+ *   },
+ *   toJSON: (entity, component) => {
+ *     return {
+ *       myProp: component.myProp.value
+ *     }
+ *   },
+ *   onSet: (entity, component, json) => {
+ *     if (typeof json?.myProp === 'string') component.myProp.set(json.myProp)
+ *   },
+ *   onRemove: (entity, component) => {},
+ *   reactor: undefined,
+ *   errors: []
+ * })
+ * ```
+ */
 export const defineComponent = <
   ComponentType = true,
   Schema extends bitECS.ISchema = Record<string, any>,
@@ -172,27 +281,6 @@ export const defineComponent = <
   return ExternalComponentReactor as typeof Component & { _TYPE: ComponentType } & typeof ExternalComponentReactor
 }
 
-/**
- * @deprecated use `defineComponent`
- */
-export const createMappedComponent = <
-  ComponentType = object | unknown,
-  Schema extends bitECS.ISchema = Record<string, any>
->(
-  name: string,
-  schema?: Schema
-) => {
-  const Component = defineComponent<ComponentType, Schema, ComponentType, unknown>({
-    name,
-    schema,
-    onSet: (entity, component, json: any) => {
-      Component.stateMap[entity]!.set(json ?? true)
-    },
-    toJSON: (entity, component) => component.value as any
-  })
-  return Component
-}
-
 export const getOptionalMutableComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
@@ -202,25 +290,15 @@ export const getOptionalMutableComponent = <ComponentType>(
   return undefined
 }
 
-/**
- * @deprecated use `getOptionalMutableComponent`
- */
-export const getOptionalComponentState = getOptionalMutableComponent
-
 export const getMutableComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
 ): State<ComponentType, Subscribable> => {
   const componentState = getOptionalMutableComponent(entity, component)!
-  // TODO: uncomment the following after enabling es-lint no-unnecessary-condition rule
+  /** @todo: uncomment the following after enabling es-lint no-unnecessary-condition rule */
   // if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
   return componentState
 }
-
-/**
- * @deprecated use `getMutableComponent`
- */
-export const getComponentState = getMutableComponent
 
 export const getOptionalComponent = <ComponentType>(
   entity: Entity,
@@ -237,14 +315,16 @@ export const getComponent = <ComponentType>(
 }
 
 /**
- * Set a component on an entity. If the component already exists, it will be overwritten.
- * Unlike calling ``removeComponent`` followed by addComponent, entry queue will not be rerun.
+ * @description
+ * Assigns the given component to the given entity, and returns the component.
+ * @notes
+ * - If the component already exists, it will be overwritten.
+ * - Unlike calling {@link removeComponent} followed by {@link addComponent}, the entry queue will not be rerun.
  *
- * @param entity
- * @param Component
- * @param args
- *
- * @returns the component
+ * @param entity The entity to which the Component will be attached.
+ * @param Component The Component that will be attached.
+ * @param args `@todo` Explain what `setComponent(   args)` is
+ * @returns The component that was attached.
  */
 export const setComponent = <C extends Component>(
   entity: Entity,
@@ -285,10 +365,11 @@ export const setComponent = <C extends Component>(
         return React.createElement(
           EntityContext.Provider,
           { value: entity },
-          React.createElement(Component.reactor || (() => null), {})
+          React.createElement(Component.reactor!, {})
         )
       }) as ReactorRoot
       root['entity'] = entity
+      root['component'] = Component.name
       Component.reactorMap.set(entity, root)
     }
 
@@ -327,7 +408,8 @@ export const setComponent = <C extends Component>(
 }
 
 /**
- * Experimental API
+ * @experimental
+ * @description `@todo` Explain how `updateComponent` works.
  */
 export const updateComponent = <C extends Component>(
   entity: Entity,
@@ -366,12 +448,9 @@ export const updateComponent = <C extends Component>(
 }
 
 /**
- * Like `setComponent`, but throws an error if the component already exists.
- * @param entity
- * @param Component
- * @param args
- * @returns
- * @deprecated - use setComponent instead
+ * @deprecated Use {@link setComponent} instead
+ * @description Like {@link setComponent}, but errors if the component already exists.
+ * @throws Error when the component exists: {@link Error}
  */
 export const addComponent = <C extends Component>(
   entity: Entity,
@@ -382,14 +461,33 @@ export const addComponent = <C extends Component>(
   setComponent(entity, Component, args)
 }
 
+/**
+ * @description Checks if the given {@link Entity} contains the given {@link Component}.
+ * @param entity The Entity to check.
+ * @param component The Component to check.
+ * @returns True when the Component is contained in the Entity.
+ */
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
   return component.existenceMap[entity] ?? false
 }
 
+/**
+ * @description Returns a {@link Component} by getting it from the given {@link Entity}, or adding if it does not already exists.
+ * @param entity The Entity to get/add the component from/to.
+ * @param component The Component to get/add.
+ * @param args `@todo` Explain what `getOrAddComponent(  args)` is.
+ * @returns The requested Component, independent of whether it existed or was added.
+ */
 export const getOrAddComponent = <C extends Component>(entity: Entity, component: C, args?: SetComponentType<C>) => {
   return hasComponent(entity, component) ? getComponent(entity, component) : addComponent(entity, component, args)
 }
 
+/**
+ * @async
+ * @description Removes the given {@link Component} from the given {@link Entity} asynchronously.
+ * @param entity The Entity to remove the component from.
+ * @param component The Component to remove.
+ */
 export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
   component.existenceMapState[entity].set(false)
@@ -406,13 +504,18 @@ export const removeComponent = async <C extends Component>(entity: Entity, compo
   // NOTE: we may need to perform cleanup after a timeout here in case there
   // are other reactors also referencing this state in their cleanup functions
   if (!hasComponent(entity, component)) {
-    component.stateMap[entity]?.set(none)
-    // Can not get the full destroy to function without widespread errors in our core systems
-    //component.stateMap[entity]?.destroy
-    //delete component.stateMap[entity]
+    // reset the stateMap (do not use `none` here, as we don't want the state to become a promise)
+    component.stateMap[entity]?.set(undefined)
   }
 }
 
+/**
+ * @description
+ * Initializes a temporary Component of the same type that the given Component, using its {@link Component.onInit} function, and returns its serialized JSON data.
+ * @notes The temporary Component won't be inserted into the ECS system, and its data will be GC'ed at the end of this function.
+ * @param component The desired Component.
+ * @returns JSON object containing the requested data.
+ */
 export const componentJsonDefaults = <C extends Component>(component: C) => {
   const initial = component.onInit(UndefinedEntity)
   const pseudoState: Record<string, { value: any; get: () => any }> = {}
@@ -425,11 +528,21 @@ export const componentJsonDefaults = <C extends Component>(component: C) => {
   return component.toJSON(UndefinedEntity, pseudoState as any)
 }
 
+/**
+ * @description Returns a array of all {@link Component}s associated with the given {@link Entity}.
+ * @param entity The desired Entity.
+ * @returns An array containing all of the Entity's associated components.
+ */
 export const getAllComponents = (entity: Entity): Component[] => {
   if (!bitECS.entityExists(HyperFlux.store, entity)) return []
   return bitECS.getEntityComponents(HyperFlux.store, entity) as Component[]
 }
 
+/**
+ * @description Returns an {@link Object} containing the data of all {@link Component}s of the given {@link Entity}.
+ * @param entity The desired Entity.
+ * @returns An {@link Object} where each component of the given {@link Entity} has its own field.
+ */
 export const getAllComponentData = (entity: Entity): { [name: string]: ComponentType<any> } => {
   return Object.fromEntries(getAllComponents(entity).map((C) => [C.name, getComponent(entity, C)]))
 }
@@ -513,37 +626,3 @@ globalThis.EE_getAllComponentData = getAllComponentData
 globalThis.EE_addComponent = addComponent
 globalThis.EE_setComponent = setComponent
 globalThis.EE_removeComponent = removeComponent
-
-/** Template **
-
-export const MyComponent = defineComponent({
-  name: 'MyComponent',
-
-  schema: {
-    id: Types.ui32
-  },
-
-  onInit: (entity) => {
-    return {
-      myProp: 'My Value'
-    }
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      myProp: component.myProp.value
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (typeof json?.myProp === 'string') component.myProp.set(json.myProp)
-  },
-
-  onRemove: (entity, component) => {},
-
-  reactor: undefined,
-
-  errors: []
-})
-
-** */
