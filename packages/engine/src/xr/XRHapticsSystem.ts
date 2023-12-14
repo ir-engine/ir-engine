@@ -33,13 +33,15 @@ import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { XRAction } from './XRState'
 
 /** haptic typings are currently incomplete */
-type Haptic = {
-  type: 'vibration'
-  /**
-   * @param value A double representing the intensity of the pulse. This can vary depending on the hardware type, but generally takes a value between 0.0 (no intensity) and 1.0 (full intensity).
-   * @param duration A double representing the duration of the pulse, in milliseconds.
-   */
-  pulse: (value: number, duration: number) => void
+
+declare global {
+  interface GamepadHapticActuator {
+    /**
+     * @param value A double representing the intensity of the pulse. This can vary depending on the hardware type, but generally takes a value between 0.0 (no intensity) and 1.0 (full intensity).
+     * @param duration A double representing the duration of the pulse, in milliseconds.
+     */
+    pulse: (value: number, duration: number) => void
+  }
 }
 
 const inputSourceQuery = defineQuery([InputSourceComponent])
@@ -54,7 +56,7 @@ const execute = () => {
         inputSourceComponent.source.handedness === action.handedness &&
         inputSourceComponent.source.gamepad?.hapticActuators?.length
       ) {
-        ;(inputSourceComponent.source.gamepad.hapticActuators[0] as Haptic).pulse(action.value, action.duration)
+        inputSourceComponent.source.gamepad.hapticActuators[0].pulse(action.value, action.duration)
       }
     }
   }

@@ -161,5 +161,3 @@ export const EntityNetworkStateSystem = defineSystem({
   },
   insert: { with: SimulationSystemGroup }
 })
-
-EntityNetworkState.receptors.onSpawnObject.beforeHooks.push((action) => {})
