@@ -419,7 +419,6 @@ describe('SceneLoadingSystem', () => {
     // unmount to cleanup
     unmount()
   })
-
   it('will load correct data', async () => {
     getMutableState(SceneState).activeScene.set(testID)
     getMutableState(PhysicsState).physicsWorld.set({} as any)
@@ -530,12 +529,6 @@ describe('SceneLoadingSystem', () => {
     unmount()
   })
   it('will load dynamic entity in studio', async () => {
-    // set to studio mode
-    // load scene
-    // create dynamic entity
-    // load dynamic entity
-    // check for success to load
-
     getMutableState(SceneState).activeScene.set(testID)
     getMutableState(PhysicsState).physicsWorld.set({} as any)
     getMutableState(EngineState).isEditor.set(true)
@@ -674,7 +667,6 @@ describe('SceneLoadingSystem', () => {
     )
     unmount()
   })
-
   it('will load sub-scene from model component', async () => {
     getMutableState(SceneState).activeScene.set(testID)
     getMutableState(PhysicsState).physicsWorld.set({} as any)
@@ -725,8 +717,7 @@ describe('SceneLoadingSystem', () => {
     // check for model component children //not loading
     unmount()
   })
-
-  it('will asset sceneAssetPendingTagQuery', async () => {
+  it('will have sceneAssetPendingTagQuery when loading', async () => {
     getMutableState(SceneState).activeScene.set(testID)
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
