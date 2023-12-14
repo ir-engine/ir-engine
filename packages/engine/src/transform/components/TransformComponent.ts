@@ -84,23 +84,6 @@ export const TransformComponent = defineComponent({
     if (json?.position) component.position.value.copy(json.position)
     if (rotation) component.rotation.value.copy(rotation)
     if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
-
-    /** @todo the rest of this onSet is necessary until #9193 */
-
-    // component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
-
-    // /** Update local transform */
-    // const entityTree = getOptionalComponent(entity, EntityTreeComponent)
-    // if (entityTree?.parentEntity) {
-    //   const parentEntity = entityTree.parentEntity
-    //   const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
-    //   if (parentTransform) {
-    //     component.matrixWorld.value.copy(parentTransform.matrix).invert().multiply(component.matrix.value)
-    //     return
-    //   }
-    // }
-
-    // component.matrixWorld.value.copy(component.matrix.value)
   },
 
   onRemove: (entity) => {
@@ -109,27 +92,27 @@ export const TransformComponent = defineComponent({
 
   getWorldPosition: (entity: Entity, vec3: Vector3) => {
     const transform = getComponent(entity, TransformComponent)
-    vec3.x = transform.matrix.elements[12]
-    vec3.y = transform.matrix.elements[13]
-    vec3.z = transform.matrix.elements[14]
+    vec3.x = transform.matrixWorld.elements[12]
+    vec3.y = transform.matrixWorld.elements[13]
+    vec3.z = transform.matrixWorld.elements[14]
     return vec3
   },
 
   // this method is essentially equivalent to Matrix4.decompose
   getWorldRotation: (entity: Entity, quaternion: Quaternion) => {
     const transform = getComponent(entity, TransformComponent)
-    const te = transform.matrix.elements
+    const te = transform.matrixWorld.elements
 
     let sx = _v1.set(te[0], te[1], te[2]).length()
     const sy = _v1.set(te[4], te[5], te[6]).length()
     const sz = _v1.set(te[8], te[9], te[10]).length()
 
     // if determine is negative, we need to invert one scale
-    const det = transform.matrix.determinant()
+    const det = transform.matrixWorld.determinant()
     if (det < 0) sx = -sx
 
     // scale the rotation part
-    _m1.copy(transform.matrix)
+    _m1.copy(transform.matrixWorld)
 
     const invSX = 1 / sx
     const invSY = 1 / sy
@@ -154,14 +137,14 @@ export const TransformComponent = defineComponent({
 
   getWorldScale: (entity: Entity, vec3: Vector3) => {
     const transform = getComponent(entity, TransformComponent)
-    const te = transform.matrix.elements
+    const te = transform.matrixWorld.elements
 
     let sx = _v1.set(te[0], te[1], te[2]).length()
     const sy = _v1.set(te[4], te[5], te[6]).length()
     const sz = _v1.set(te[8], te[9], te[10]).length()
 
     // if determine is negative, we need to invert one scale
-    const det = transform.matrix.determinant()
+    const det = transform.matrixWorld.determinant()
     if (det < 0) sx = -sx
 
     vec3.x = sx

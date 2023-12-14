@@ -216,21 +216,20 @@ export function grabberQueryAll(grabberEntity: Entity) {
 const vec3 = new Vector3()
 
 export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
-  const transform = getComponent(xrui.entity, TransformComponent)
-  if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
-  const grabbableTransform = getComponent(entity, TransformComponent).position
-  transform.position.copy(grabbableTransform)
+  const xruiTransform = getComponent(xrui.entity, TransformComponent)
+  if (!xruiTransform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
+  TransformComponent.getWorldPosition(entity, xruiTransform.position)
 
   if (hasComponent(xrui.entity, VisibleComponent)) {
     const boundingBox = getComponent(entity, BoundingBoxComponent)
     if (boundingBox) {
       const boundingBoxHeight = boundingBox.box.max.y - boundingBox.box.min.y
-      transform.position.y += boundingBoxHeight * 2
+      xruiTransform.position.y += boundingBoxHeight * 2
     } else {
-      transform.position.y += 0.5
+      xruiTransform.position.y += 0.5
     }
     const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    transform.rotation.copy(cameraTransform.rotation)
+    xruiTransform.rotation.copy(cameraTransform.rotation)
   }
 
   const transition = InteractableTransitions.get(entity)!
@@ -241,9 +240,9 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       removeComponent(xrui.entity, VisibleComponent)
     }
   } else {
-    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Hips, vec3)
-    const distance = vec3.distanceToSquared(transform.position)
-    const inRange = distance < 5
+    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Chest, vec3)
+    const distance = vec3.distanceToSquared(xruiTransform.position)
+    const inRange = distance < getState(InteractState).maxDistance
     if (transition.state === 'OUT' && inRange) {
       transition.setState('IN')
       setComponent(xrui.entity, VisibleComponent)

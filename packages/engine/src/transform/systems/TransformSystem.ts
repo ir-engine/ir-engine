@@ -42,6 +42,7 @@ import { BoundingBoxComponent, updateBoundingBox } from '../../interaction/compo
 import { NetworkState } from '../../networking/NetworkState'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { TransformSerialization } from '../TransformSerialization'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -54,6 +55,7 @@ import { TransformComponent, composeMatrix } from '../components/TransformCompon
 
 const transformQuery = defineQuery([TransformComponent])
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
+const groupQuery = defineQuery([GroupComponent, VisibleComponent])
 
 const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 
@@ -177,8 +179,10 @@ export const updateGroupChildren = (entity: Entity) => {
   }
 }
 
+const _tempDistSqrVec3 = new Vector3()
+
 const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) => {
-  return getComponent(entity, TransformComponent).position.distanceToSquared(targetPosition)
+  return TransformComponent.getWorldPosition(entity, _tempDistSqrVec3).distanceToSquared(targetPosition)
 }
 
 const _frustum = new Frustum()
@@ -291,8 +295,9 @@ const execute = () => {
   const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
-  // const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirtyOrAnimatingAndVisible)
-  // for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
+  // XRUI is the only non ecs hierarchy with support still - see https://github.com/EtherealEngine/etherealengine/issues/8519
+  const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirty)
+  for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
 
   if (!xrFrame) {
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
@@ -328,7 +333,7 @@ const execute = () => {
     FrustumCullCameraComponent.isCulled[entity] = cull ? 0 : 1
   }
   if (localClientEntity) {
-    const localClientPosition = getOptionalComponent(localClientEntity, TransformComponent)?.position
+    const localClientPosition = TransformComponent.getWorldPosition(localClientEntity, vec3)
     if (localClientPosition) {
       for (const entity of distanceFromLocalClientQuery())
         DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(
@@ -338,6 +343,8 @@ const execute = () => {
     }
   }
 }
+
+const vec3 = new Vector3()
 
 const reactor = () => {
   useEffect(() => {
