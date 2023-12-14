@@ -23,7 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export class MockXRInputSource extends XRInputSource {
+export class MockXRInputSource {
+  handedness: XRHandedness
+  targetRayMode: XRTargetRayMode
+  targetRaySpace: XRSpace
+  gripSpace?: XRSpace | undefined
+  gamepad?: Gamepad | undefined
+  profiles: string[]
+  hand?: XRHand | undefined
+
   constructor(options: {
     handedness: XRHandedness
     targetRayMode: XRTargetRayMode
@@ -33,11 +41,10 @@ export class MockXRInputSource extends XRInputSource {
     profiles: string[]
     hand?: XRHand | undefined
   }) {
-    super()
     for (const key in options) {
       this[key] = options[key]
     }
   }
 }
 
-export class MockXRSpace extends XRSpace {}
+export class MockXRSpace {}
