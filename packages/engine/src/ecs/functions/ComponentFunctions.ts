@@ -41,11 +41,19 @@ import { HookableFunction } from '@etherealengine/common/src/utils/createHookabl
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { ReactorRoot, startReactor } from '@etherealengine/hyperflux'
-import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
+import {
+  hookstate,
+  NO_PROXY,
+  none,
+  State,
+  StateMethodsDestroy,
+  useHookstate
+} from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
 import { Entity, UndefinedEntity } from '../classes/Entity'
 import { EntityContext } from './EntityFunctions'
+import { ComponentTypeToTypedArray } from '@gltf-transform/core'
 
 /**
  * @description `@internal`
@@ -450,10 +458,8 @@ export const removeComponent = async <C extends Component>(entity: Entity, compo
   // NOTE: we may need to perform cleanup after a timeout here in case there
   // are other reactors also referencing this state in their cleanup functions
   if (!hasComponent(entity, component)) {
-    component.stateMap[entity]?.set(none)
-    // Can not get the full destroy to function without widespread errors in our core systems
-    //component.stateMap[entity]?.destroy
-    //delete component.stateMap[entity]
+    // reset the stateMap (do not use `none` here, as we don't want the state to become a promise)
+    component.stateMap[entity]?.set(undefined)
   }
 }
 

@@ -173,6 +173,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
       )
       //make uris relative to model src
       for (const image of images) {
+        if (!image.uri) continue
         image.uri = image.uri.replace(basePath, '')
       }
       writer.buffers.map((buffer, index) => {

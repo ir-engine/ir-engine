@@ -29,6 +29,7 @@ import { EEECSExporterExtension } from '../exporters/gltf/extensions/EEECSExport
 import EEMaterialExporterExtension from '../exporters/gltf/extensions/EEMaterialExporterExtension'
 import GPUInstancingExporterExtension from '../exporters/gltf/extensions/GPUInstancingExporterExtension'
 import ResourceIDExtension from '../exporters/gltf/extensions/ResourceIDExtension'
+import SourceHandlerExtension from '../exporters/gltf/extensions/SourceHandlerExtension'
 import { GLTFExporter, GLTFWriter } from '../exporters/gltf/GLTFExporter'
 
 export default function createGLTFExporter() {
@@ -38,7 +39,8 @@ export default function createGLTFExporter() {
     GPUInstancingExporterExtension,
     EEMaterialExporterExtension,
     EEECSExporterExtension,
-    ResourceIDExtension
+    ResourceIDExtension,
+    SourceHandlerExtension
     //ImageProcessingExtension
   ]
   extensions.forEach((extension) => exporter.register((writer) => new extension(writer)))
