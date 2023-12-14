@@ -41,7 +41,9 @@ import { getComponent, hasComponent, setComponent } from '../../ecs/functions/Co
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { MeshComponent } from '../../scene/components/MeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
@@ -206,6 +208,7 @@ describe('Physics', () => {
     mesh.translateX(10)
     mesh.rotateX(3.1415918)
     addObjectToGroup(entity, mesh)
+    setComponent(entity, MeshComponent, mesh)
 
     const collisionGroup = 0x0001
     const collisionMask = 0x0003
@@ -262,8 +265,10 @@ describe('Physics', () => {
     const physicsWorld = getState(PhysicsState).physicsWorld
 
     const entity = createEntity()
+    setComponent(entity, TransformComponent, { position: new Vector3(10, 0, 0) })
+    computeTransformMatrix(entity)
 
-    const rigidBodyDesc = RigidBodyDesc.dynamic().setTranslation(10, 0, 0)
+    const rigidBodyDesc = RigidBodyDesc.dynamic()
     const colliderDesc = ColliderDesc.cylinder(5, 5).setCollisionGroups(
       getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default)
     )
