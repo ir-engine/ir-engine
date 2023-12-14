@@ -115,6 +115,26 @@ const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds } = getState(EngineState)
 
+  /** Calculate avatar locomotion animations outside of priority queue */
+
+  for (const entity of avatarComponentQuery()) {
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+    const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+    if (rigidbodyComponent.body.isEnabled()) {
+      // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
+      avatarAnimationComponent.locomotion.x = 0
+      avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
+      // lerp animated forward animation to smoothly animate to a stop
+      avatarAnimationComponent.locomotion.z = MathUtils.lerp(
+        avatarAnimationComponent.locomotion.z || 0,
+        _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
+        10 * getState(EngineState).deltaSeconds
+      )
+    } else {
+      avatarAnimationComponent.locomotion.setScalar(0)
+    }
+  }
+
   /**
    * 1 - Sort & apply avatar priority queue
    */
@@ -149,21 +169,6 @@ const execute = () => {
 
     rigComponent.vrm.update(deltaTime)
 
-    const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-    if (rigidbodyComponent.body.isEnabled()) {
-      // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
-      avatarAnimationComponent.locomotion.x = 0
-      avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
-      // lerp animated forward animation to smoothly animate to a stop
-      avatarAnimationComponent.locomotion.z = MathUtils.lerp(
-        avatarAnimationComponent.locomotion.z || 0,
-        _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
-        10 * deltaTime
-      )
-    } else {
-      avatarAnimationComponent.locomotion.setScalar(0)
-    }
-
     const uuid = getComponent(entity, UUIDComponent)
 
     const leftFoot = UUIDComponent.entitiesByUUID[uuid + ikTargets.leftFoot]
@@ -187,6 +192,7 @@ const execute = () => {
 
     const transform = getComponent(entity, TransformComponent)
 
+    const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
       rig.hips.node.position.set(
