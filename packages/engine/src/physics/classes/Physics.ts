@@ -208,7 +208,7 @@ function createColliderDesc(
     }
   }
 
-  const scale = mesh.getWorldScale(new Vector3())
+  const scale = TransformComponent.getWorldScale(entity, new Vector3())
 
   if (mesh.geometry?.type === 'BoxGeometry') {
     scale.multiplyScalar(0.5)
