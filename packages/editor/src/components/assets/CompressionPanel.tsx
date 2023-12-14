@@ -46,6 +46,14 @@ import SelectInput from '../inputs/SelectInput'
 import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
+import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
+import {
+  DefaultModelTransformParameters,
+  ModelTransformParameters
+} from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { transformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
+import GLTFTransformProperties from '../properties/GLTFTransformProperties'
+
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
 const UASTCFlagOptions = [
@@ -82,6 +90,12 @@ export default function CompressionPanel({
 }) {
   const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const compressionLoading = useHookstate(false)
+
+  const transformParms = useHookstate<ModelTransformParameters>({
+    ...DefaultModelTransformParameters,
+    src: fileProperties.url.value,
+    modelFormat: fileProperties.url.value.endsWith('.gltf') ? 'gltf' : 'glb'
+  })
 
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
@@ -141,7 +155,17 @@ export default function CompressionPanel({
   }
 
   const compressModel = async () => {
-    // TODO
+    const modelSrc = fileProperties.url.value
+    const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
+
+    const textureSizes = [2048, 1024, 512]
+    for (let i = 0; i < textureSizes.length; i++) {
+      const size = textureSizes[i]
+      transformParms.maxTextureSize.set(size)
+      transformParms.dst.set(fileName + '_transformed.glb')
+      await transformModel(transformParms.value)
+    }
+    await FileBrowserService.fetchFiles(directoryToRefresh)
   }
 
   return (
@@ -162,7 +186,16 @@ export default function CompressionPanel({
         </>
       }
     >
-      {fileConsistsOfContentType(fileProperties.value, 'model') && <div>Model compression UI goes here.</div>}
+      <InputGroup name="fileType" label={fileProperties.value?.isFolder ? 'Directory' : 'File'}>
+        <Typography variant="body2">{t('editor:properties.model.transform.compress') as string}</Typography>
+      </InputGroup>
+
+      {fileConsistsOfContentType(fileProperties.value, 'model') && (
+        <GLTFTransformProperties
+          transformParms={transformParms}
+          onChange={(transformParms: ModelTransformParameters) => {}}
+        />
+      )}
 
       {fileConsistsOfContentType(fileProperties.value, 'image') && (
         <div>
@@ -265,10 +298,6 @@ export default function CompressionPanel({
           )}
         </div>
       )}
-
-      <InputGroup name="fileType" label={fileProperties.value?.isFolder ? 'Directory' : 'File'}>
-        <Typography variant="body2">{t('editor:properties.model.transform.compress') as string}</Typography>
-      </InputGroup>
     </Menu>
   )
 }
