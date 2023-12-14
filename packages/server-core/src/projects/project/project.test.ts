@@ -67,8 +67,8 @@ describe('project.test', () => {
     await app.setup()
   })
   before(async () => {
-    const name = ('test-bot-user-name-' + v1()) as UserName
-    const avatarName = 'test-bot-avatar-name-' + v1()
+    const name = ('test-project-user-name-' + v1()) as UserName
+    const avatarName = 'test-project-avatar-name-' + v1()
 
     const avatar = await app.service(avatarPath).create({
       name: avatarName
