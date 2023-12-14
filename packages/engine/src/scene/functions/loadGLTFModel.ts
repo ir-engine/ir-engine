@@ -248,19 +248,19 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
         throw new Error('Cannot set children of proxified object')
       }
     },
-    removeFromParent: {
-      value: () => {
-        if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-          setComponent(objEntity, EntityTreeComponent, {
-            parentEntity: null
-          })
-        }
-      }
-    },
     isProxified: {
       value: true
     }
   })
+
+  obj.removeFromParent = () => {
+    if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
+      setComponent(objEntity, EntityTreeComponent, {
+        parentEntity: null
+      })
+    }
+    return obj
+  }
 
   const findColliderData = (obj: Object3D) => {
     if (Object.keys(obj.userData).find((key) => key.startsWith('xrengine.collider'))) {

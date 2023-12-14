@@ -199,7 +199,7 @@ function ModelReactor() {
     if (!asset) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    asset.scene.animations = asset.animations
+    if (asset.animations) asset.scene.animations = asset.animations
     asset.scene.userData.src = model.src
     asset.scene.userData.sceneID = getModelSceneID(entity)
     asset.scene.userData.type === 'glb' && delete asset.scene.userData.type
