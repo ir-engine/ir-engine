@@ -32,7 +32,10 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { AttachmentPointComponent } from '@etherealengine/engine/src/scene/components/AttachmentPointComponent'
+import {
+  AttachmentPointData,
+  ObjectGridSnapComponent
+} from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformSystem, computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
@@ -40,7 +43,14 @@ import { Quaternion, Vector3 } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 let lastExecutionTime = 0
-const interval = 100
+const interval = 1000
+
+function flipAround(rotation: Quaternion) {
+  const localYAxis = new Vector3(1, 0, 0)
+  localYAxis.applyQuaternion(rotation)
+  return new Quaternion().setFromAxisAngle(localYAxis, Math.PI)
+}
+
 const execute = () => {
   //only execute if attachment point snap is enabled
   const helperState = getState(EditorHelperState)
@@ -50,7 +60,7 @@ const execute = () => {
   const now = Date.now()
   if (now - lastExecutionTime < interval) return
   lastExecutionTime = now
-  const attachmentPointQuery = defineQuery([AttachmentPointComponent])
+  const attachmentPointQuery = defineQuery([ObjectGridSnapComponent])
 
   //calculate select entity
   const selectionState = getMutableState(SelectionState) //access the list of currently selected entities
@@ -58,56 +68,79 @@ const execute = () => {
     return iterateEntityNode(
       entity,
       (e) => e,
-      (e) => hasComponent(e, AttachmentPointComponent)
+      (e) => hasComponent(e, ObjectGridSnapComponent)
     )
   })
   let shortestDistance = Infinity
+  let srcPosition: Vector3 | null = null
+  let srcRotation: Quaternion | null = null
   let dstPosition: Vector3 | null = null
   let dstRotation: Quaternion | null = null
-  let node: Entity | null = null
+  let srcAttachmentPoint: AttachmentPointData | null = null
+  let dstAttachmentPoint: AttachmentPointData | null = null
+  let srcSnapEntity: Entity | null = null
+  let dstSnapEntity: Entity | null = null
 
   const threshold = 1
   //loop to caculate the distance
-  for (const selectedAttachmentPoint of selectedAttachmentPoints) {
-    //find the select attacment point in select ararry
-    //const selectedTransform = getComponent(selectedAttachmentPoint, TransformComponent)
-    const selectChildEntity = getComponent(selectedAttachmentPoint, EntityTreeComponent).children
-    //only process select attachment point not parent entity
-    if (selectChildEntity.length != 0) continue
-    //const selectTransform = getComponent(selectParententity, TransformComponent)
-    const selectTransform = getComponent(selectedAttachmentPoint, TransformComponent)
-    for (const entity of attachmentPointQuery()) {
-      if (selectedAttachmentPoints.includes(entity)) continue
+  for (const selectedObjSnapEntity of selectedAttachmentPoints) {
+    const selectedSnapComponent = getComponent(selectedObjSnapEntity, ObjectGridSnapComponent)
+    const selectTransform = getComponent(selectedObjSnapEntity, TransformComponent)
+    for (const selectedAttachmentPoint of selectedSnapComponent.attachmentPoints) {
+      //const selectTransform = getComponent(selectParententity, TransformComponent)
+      const srcWorldspacePosition = selectedAttachmentPoint.position.clone().applyMatrix4(selectTransform.matrix)
+      for (const candidateDstSnapEntity of attachmentPointQuery()) {
+        if (selectedAttachmentPoints.includes(candidateDstSnapEntity)) continue
 
-      if (selectedAttachmentPoints.length == 1) {
-        const childPoints = getComponent(
-          getComponent(selectedAttachmentPoints as unknown as Entity, EntityTreeComponent).parentEntity as Entity,
-          EntityTreeComponent
-        ).children
-        if (childPoints.includes(entity)) continue
-      }
-      if (getComponent(entity, EntityTreeComponent).children.length != 0) continue
+        //if selected attachment point
+        const dstSnapTransform = getComponent(candidateDstSnapEntity, TransformComponent)
+        const attachmentPoints = getComponent(candidateDstSnapEntity, ObjectGridSnapComponent).attachmentPoints
+        //loop through all attachment points
+        for (const attachmentPoint of attachmentPoints) {
+          const attachmentPointWorldSpacePosition = attachmentPoint.position
+            .clone()
+            .applyMatrix4(dstSnapTransform.matrix)
+          const srcWorldspaceRotation = selectTransform.rotation.clone().multiply(selectedAttachmentPoint.rotation)
+          const attachmentPointWorldSpaceRotation = dstSnapTransform.rotation.clone().multiply(attachmentPoint.rotation)
+          const distance = srcWorldspacePosition.distanceTo(attachmentPointWorldSpacePosition)
+          //store the attachment point transform and selected attachment point
+          if (distance < shortestDistance) {
+            shortestDistance = distance
 
-      //if selected attachment point
-      const transform = getComponent(entity, TransformComponent)
-      const distance = transform.position.distanceTo(selectTransform.position)
-      //store the attachment point transform and selected attachment point
-      if (distance < shortestDistance) {
-        shortestDistance = distance
-        dstPosition = transform.position
-        dstRotation = transform.rotation
-        node = selectedAttachmentPoint
+            srcAttachmentPoint = selectedAttachmentPoint
+            srcPosition = srcWorldspacePosition
+            srcRotation = srcWorldspaceRotation
+            dstAttachmentPoint = attachmentPoint
+            dstPosition = attachmentPointWorldSpacePosition
+            dstRotation = attachmentPointWorldSpaceRotation
+            srcSnapEntity = selectedObjSnapEntity
+            dstSnapEntity = candidateDstSnapEntity
+          }
+        }
       }
     }
   }
   //snap two object according two closest attachment points
   // if (shortestDistance < threshold && closestPosition && closestRotation && node && shortestDistance!=0) {
-  if (shortestDistance < threshold && dstPosition && dstRotation && node && shortestDistance != 0) {
-    const selectParententityFinal = getComponent(node, EntityTreeComponent).parentEntity
-    const srcPointTransform = getComponent(node, TransformComponent)
+  if (
+    shortestDistance < threshold &&
+    srcPosition &&
+    srcRotation &&
+    dstPosition &&
+    dstRotation &&
+    srcSnapEntity &&
+    shortestDistance != 0
+  ) {
+    let selectParententityFinal = srcSnapEntity
+    while (!selectionState.selectedEntities.value.includes(selectParententityFinal)) {
+      const parent = getComponent(selectParententityFinal, EntityTreeComponent).parentEntity
+      if (!parent) break
+      selectParententityFinal = parent
+    }
+    const srcPointTransform = getComponent(srcSnapEntity, TransformComponent)
     if (selectParententityFinal) {
       const parentTransform = getComponent(selectParententityFinal, TransformComponent)
-      const q1 = srcPointTransform.rotation.clone()
+      const q1 = srcRotation.clone()
       const q2 = dstRotation.clone()
 
       // Compute the alignment quaternion
@@ -115,19 +148,18 @@ const execute = () => {
 
       // Apply this combined rotation to the parent's rotation
       const initialRotation = alignment.multiply(parentTransform.rotation.clone())
-
-      const localYAxis = new Vector3(0, 1, 0)
-      localYAxis.applyQuaternion(initialRotation)
-      const flipAround = new Quaternion().setFromAxisAngle(localYAxis, Math.PI)
-
+      const flipRotation = flipAround(initialRotation)
       // Apply the flip to the parent's rotation
-      const rotation = flipAround.multiply(initialRotation)
+      const rotation = flipRotation.multiply(initialRotation)
 
       setComponent(selectParententityFinal, TransformComponent, {
         rotation
       })
-      computeTransformMatrix(node)
-      const position = parentTransform.position.clone().add(dstPosition.clone().sub(srcPointTransform.position))
+      computeTransformMatrix(srcSnapEntity)
+      const nuSrcPosition = srcAttachmentPoint!.position.clone().applyMatrix4(srcPointTransform.matrix)
+      const dstPointTransform = getComponent(dstSnapEntity!, TransformComponent)
+      const nuDstPosition = dstAttachmentPoint!.position.clone().applyMatrix4(dstPointTransform.matrix)
+      const position = parentTransform.position.clone().add(nuDstPosition.clone().sub(nuSrcPosition))
       setComponent(selectParententityFinal, TransformComponent, {
         position
       })
