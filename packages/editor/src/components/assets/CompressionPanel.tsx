@@ -162,7 +162,8 @@ export default function CompressionPanel({
     for (let i = 0; i < textureSizes.length; i++) {
       const size = textureSizes[i]
       transformParms.maxTextureSize.set(size)
-      transformParms.dst.set(fileName + '_transformed.glb')
+      const nuPath = `${fileName}_LOD_${i}.glb`
+      transformParms.dst.set(nuPath)
       await transformModel(transformParms.value)
     }
     await FileBrowserService.fetchFiles(directoryToRefresh)
