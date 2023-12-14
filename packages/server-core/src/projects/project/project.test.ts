@@ -108,7 +108,8 @@ describe('project.test', () => {
       const project = (await app
         .service(projectPath)
         .find({ query: { name: newProjectName }, ...getParams() })) as Paginated<ProjectType>
-      assert.strictEqual(project.data[0].name, newProjectName)
+      assert.equal(project.total, 1)
+      assert.equal(project.data[0].name, newProjectName)
     })
 
     it('should not add new project with same name as existing project', () => {
@@ -123,6 +124,19 @@ describe('project.test', () => {
     })
   })
 
+  describe('patch', () => {
+    it('should change the project data', async () => {
+      const projectId = (await app.service(projectPath).find({ query: { name: newProjectName }, ...getParams() }))
+        .data[0].id
+
+      const randomUpdateType = `test-update-type-${Math.round(Math.random() * 1000)}`
+      const patchedProject = await app.service(projectPath).patch(projectId, { updateType: randomUpdateType })
+
+      assert.equal(patchedProject.name, newProjectName)
+      assert.equal(patchedProject.updateType, randomUpdateType)
+    })
+  })
+
   describe('remove', () => {
     it('should remove project', async function () {
       const projectData = (await app
@@ -132,7 +146,7 @@ describe('project.test', () => {
       const project = (await app
         .service(projectPath)
         .find({ query: { name: newProjectName }, ...getParams() })) as Paginated<ProjectType>
-      assert.strictEqual(project.data.length, 0)
+      assert.equal(project.data.length, 0)
     })
   })
 })
