@@ -156,7 +156,8 @@ export default function CompressionPanel({
 
   const compressModel = async () => {
     const modelSrc = fileProperties.url.value
-    const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
+    const [_, directoryToRefresh, originalFileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
+    const fileName = originalFileName.replaceAll(/\.[^\.]+$/g, '')
 
     const textureSizes = [2048, 1024, 512]
     for (let i = 0; i < textureSizes.length; i++) {
