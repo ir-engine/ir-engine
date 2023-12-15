@@ -152,6 +152,26 @@ const execute = () => {
       // Apply the flip to the parent's rotation
       const rotation = flipRotation.multiply(initialRotation)
 
+      // currentOrientation from the selectParententityFinal's TransformComponent
+      const currentOrientation = getComponent(selectParententityFinal, TransformComponent).rotation
+
+      // desiredOrientation from the calculated rotation constant
+      const desiredOrientation = rotation
+
+      // Determine the colinear axis (assuming Y-axis, modify as needed)
+      const colinearAxis = new Vector3(0, 1, 0)
+      colinearAxis.applyQuaternion(rotation)
+
+      // Calculate the angle difference between currentOrientation and desiredOrientation
+      const angleDifference = currentOrientation.angleTo(desiredOrientation) // This calculates the angle in radians
+
+      // Compute minimal rotation around the colinear axis
+      const minimalRotationAngle = Math.round(angleDifference / (Math.PI / 2)) * (Math.PI / 2) // Round to nearest PI/2
+
+      // Apply the minimal rotation
+      const minimalRotation = new Quaternion().setFromAxisAngle(colinearAxis, minimalRotationAngle)
+      const finalRotation = minimalRotation.multiply(rotation)
+
       setComponent(selectParententityFinal, TransformComponent, {
         rotation
       })

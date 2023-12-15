@@ -57,14 +57,14 @@ export const ObjectGridSnapComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      density: 3 as number,
+      density: 1 as number,
       bbox: new Box3(),
       attachmentPoints: [] as AttachmentPointData[]
     }
   },
   onSet: (entity, component, json) => {
     if (!json) return
-    if (typeof json.density === 'number') component.density.set(json.density)
+    //if (typeof json.density === 'number') component.density.set(json.density)
     if (typeof json.bbox === 'object' && json.bbox.isBox3) component.bbox.set(json.bbox)
     if (typeof json.attachmentPoints === 'object' && Array.isArray(json.attachmentPoints))
       component.attachmentPoints.set(json.attachmentPoints)
@@ -223,7 +223,7 @@ export const ObjectGridSnapComponent = defineComponent({
               break
             case 'bottom':
               position = new Vector3(x, bboxMin.y, z)
-              rotation = new Quaternion().setFromEuler(new Euler(0, 0, Math.PI))
+              rotation = new Quaternion().setFromEuler(new Euler(Math.PI, 0, 0))
               break
             case 'left':
               position = new Vector3(bboxMin.x, x, z)
@@ -249,7 +249,7 @@ export const ObjectGridSnapComponent = defineComponent({
         }
         if (density === 1) {
           const x = minI + sizeI / 2
-          const z = bboxMin.z + sizeJ / 2
+          const z = minJ + sizeJ / 2
           const helper = generateHelper(color)
           addWorldObjectToGroup(entity, helper)
           const { position, rotation } = generatePositionAndRotation(x, z)
