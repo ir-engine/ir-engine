@@ -48,6 +48,7 @@ export function registerMaterials(root: Object3D, type: SourceType = SourceType.
 }
 
 export default class RegisterMaterialsExtension extends ImporterExtension implements GLTFLoaderPlugin {
+  name = 'EE_RegisterMaterialsExtension'
   async afterRoot(result: GLTF) {
     const parser = this.parser
     registerMaterials(result.scene, SourceType.MODEL, parser.options.url)

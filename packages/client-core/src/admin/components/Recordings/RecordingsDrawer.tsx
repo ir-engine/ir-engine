@@ -73,6 +73,7 @@ const RecordingFilesDrawer = ({ open, onClose, selectedRecordingId }: Props) => 
                   selectedFile={selectedRecordingId}
                   onSelectionChanged={onSelectionChanged}
                   folderName="recordings"
+                  nestingDirectory={selectedRecordingId}
                 />
               )}
             </Box>

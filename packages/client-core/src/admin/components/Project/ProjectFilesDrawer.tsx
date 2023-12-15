@@ -66,6 +66,7 @@ const ProjectFilesDrawer = ({ open, selectedProject, onClose }: Props) => {
               disableDnD
               selectedFile={selectedProject.name}
               onSelectionChanged={onSelectionChanged}
+              nestingDirectory={selectedProject.name}
             />
           </Box>
           <Box sx={{ flexGrow: 1 }}>

@@ -65,6 +65,7 @@ cli.main(async () => {
     await app.setup()
     const autoUpdateProjects = (await app.service(projectPath).find({
       query: {
+        action: 'admin',
         $or: [
           {
             updateType: 'commit'
