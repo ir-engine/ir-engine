@@ -134,11 +134,13 @@ export const updateAppConfig = async (): Promise<void> => {
     .select()
     .from<AwsSettingDatabaseType>(awsSettingPath)
     .then(([dbAws]) => {
-      const dbAwsConfig = awsDbToSchema(dbAws)
-      if (dbAwsConfig) {
-        appConfig.aws = {
-          ...appConfig.aws,
-          ...dbAwsConfig
+      if (dbAws) {
+        const dbAwsConfig = awsDbToSchema(dbAws)
+        if (dbAwsConfig) {
+          appConfig.aws = {
+            ...appConfig.aws,
+            ...dbAwsConfig
+          }
         }
       }
     })

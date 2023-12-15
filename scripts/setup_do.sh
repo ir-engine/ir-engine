@@ -5,7 +5,7 @@ set -x
 if [[ -z $(which doctl) ]]; then
   curl -OL https://github.com/digitalocean/doctl/releases/download/v1.100.0/doctl-1.100.0-linux-amd64.tar.gz
   tar xf doctl-1.100.0-linux-amd64.tar.gz
-  sudo mv doctl /usr/local/bin
+  mv doctl /usr/local/bin
 fi
 
 set +x

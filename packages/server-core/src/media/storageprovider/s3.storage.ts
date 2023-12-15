@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   CloudFrontClient,
   CreateFunctionCommand,
+  CreateFunctionCommandOutput,
   CreateInvalidationCommand,
   DescribeFunctionCommand,
   FunctionRuntime,
@@ -34,8 +35,10 @@ import {
   ListFunctionsCommand,
   ListFunctionsCommandInput,
   PublishFunctionCommand,
+  PublishFunctionCommandOutput,
   UpdateDistributionCommand,
-  UpdateFunctionCommand
+  UpdateFunctionCommand,
+  UpdateFunctionCommandOutput
 } from '@aws-sdk/client-cloudfront'
 import {
   AbortMultipartUploadCommand,
@@ -494,7 +497,7 @@ export class S3Provider implements StorageProviderInterface {
     )
   }
 
-  async createFunction(functionName: string, routes: string[]) {
+  async createFunction(functionName: string, routes: string[]): Promise<CreateFunctionCommandOutput | undefined> {
     const code = this.getFunctionCode(routes)
     const params = {
       Name: functionName,
@@ -543,7 +546,7 @@ export class S3Provider implements StorageProviderInterface {
     }
   }
 
-  async publishFunction(functionName: string) {
+  async publishFunction(functionName: string): Promise<PublishFunctionCommandOutput | undefined> {
     const functionDetailsParams = {
       Name: functionName
     }
@@ -557,7 +560,7 @@ export class S3Provider implements StorageProviderInterface {
     return await this.cloudfront.send(command)
   }
 
-  async updateFunction(functionName: string, routes: string[]) {
+  async updateFunction(functionName: string, routes: string[]): Promise<UpdateFunctionCommandOutput | undefined> {
     const code = this.getFunctionCode(routes)
     const functionDetailsParams = {
       Name: functionName
