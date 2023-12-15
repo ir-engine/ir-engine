@@ -52,6 +52,8 @@ import { SittingComponent } from '../../scene/components/SittingComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 
+import { AnimationState } from '../../avatar/AnimationManager'
+import { loadAnimationArray } from '../../avatar/functions/avatarFunctions'
 import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
@@ -151,6 +153,9 @@ const execute = () => {
     })
     if (isClient) {
       addInteractableUI(entity, createInteractUI(entity, mountPointInteractMessages[mountPoint.type]))
+      const animationState = getState(AnimationState)
+      if (!animationState.loadedAnimations[optionalAnimations.seated])
+        loadAnimationArray([optionalAnimations.seated], 'optional')
     }
   }
 

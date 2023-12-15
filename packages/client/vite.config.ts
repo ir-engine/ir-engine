@@ -27,15 +27,14 @@ import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
-import { isArray, mergeWith } from 'lodash'
+import lodash from 'lodash'
 import path from 'path'
 import { UserConfig, defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import OptimizationPersist from 'vite-plugin-optimize-persist'
-import PkgConfig from 'vite-plugin-package-config'
 import svgr from 'vite-plugin-svgr'
+const { isArray, mergeWith } = lodash
 
 import manifest from './manifest.default.json'
 import PWA from './pwa.config'
@@ -43,6 +42,7 @@ import { getClientSetting } from './scripts/getClientSettings'
 import { getCoilSetting } from './scripts/getCoilSettings'
 
 const parseModuleName = (moduleName: string) => {
+  if (moduleName.includes('pixiv')) console.log(moduleName)
   // // chunk medisoup-client
   if (moduleName.includes('medisoup')) {
     return `vendor_medisoup-client_${moduleName.toString().split('client/lib/')[1].split('/')[0].toString()}`
@@ -80,12 +80,10 @@ const parseModuleName = (moduleName: string) => {
   }
   // chunk @pixiv vrm
   if (moduleName.includes('@pixiv')) {
-    if (moduleName.includes('@pixiv')) {
-      if (moduleName.includes('@pixiv/three-vrm')) {
-        return `vendor_@pixiv_three-vrm_${moduleName.toString().split('three-vrm')[1].split('/')[0].toString()}`
-      }
-      return `vendor_@pixiv_${moduleName.toString().split('@pixiv/')[1].split('/')[0].toString()}`
+    if (moduleName.includes('@pixiv/three-vrm')) {
+      return `vendor_@pixiv_three-vrm_${moduleName.toString().split('three-vrm')[1].split('/')[0].toString()}`
     }
+    return `vendor_@pixiv_${moduleName.toString().split('@pixiv/')[1].split('/')[0].toString()}`
   }
   // chunk three
   if (moduleName.includes('three')) {
@@ -126,8 +124,10 @@ const merge = (src, dest) =>
   })
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-require('ts-node').register({
-  project: './tsconfig.json'
+import('ts-node').then((tsnode) => {
+  tsnode.register({
+    project: './tsconfig.json'
+  })
 })
 
 const getProjectConfigExtensions = async (config: UserConfig) => {
@@ -283,8 +283,6 @@ export default defineConfig(async () => {
     },
     plugins: [
       svgr(),
-      PkgConfig(), // must be in front of optimizationPersist
-      OptimizationPersist(),
       nodePolyfills(),
       mediapipe_workaround(),
       process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
@@ -325,8 +323,8 @@ export default defineConfig(async () => {
     },
     build: {
       target: 'esnext',
-      sourcemap: 'inline',
-      minify: 'esbuild',
+      sourcemap: process.env.VITE_SOURCEMAPS === 'true' ? 'inline' : false,
+      minify: 'terser',
       dynamicImportVarsOptions: {
         warnOnError: true
       },

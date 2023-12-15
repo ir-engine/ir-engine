@@ -32,21 +32,19 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import {
-  ArrowRightRounded,
-  Check,
-  Clear,
-  Delete,
-  Download,
-  DownloadDone,
-  FilterList,
-  Group,
-  Link,
-  LinkOff,
-  Search,
-  Settings,
-  Upload
-} from '@mui/icons-material'
+import ArrowRightRounded from '@mui/icons-material/ArrowRightRounded'
+import Check from '@mui/icons-material/Check'
+import Clear from '@mui/icons-material/Clear'
+import Delete from '@mui/icons-material/Delete'
+import Download from '@mui/icons-material/Download'
+import DownloadDone from '@mui/icons-material/DownloadDone'
+import FilterList from '@mui/icons-material/FilterList'
+import Group from '@mui/icons-material/Group'
+import Link from '@mui/icons-material/Link'
+import LinkOff from '@mui/icons-material/LinkOff'
+import Search from '@mui/icons-material/Search'
+import Settings from '@mui/icons-material/Settings'
+import Upload from '@mui/icons-material/Upload'
 import {
   Accordion,
   AccordionDetails,
