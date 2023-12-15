@@ -195,7 +195,10 @@ const execute = () => {
       else worldHipsParent.position.setY(0)
 
     // rotate hips 180 degrees
-    if ((rigComponent.vrm as any).userData?.flipped) hipBone.quaternion.setFromAxisAngle(V_010, Math.PI)
+    const userData = (rigComponent.vrm as any).userData
+    if (userData.flipped) {
+      hipBone.quaternion.premultiply(rotate180YQuaternion)
+    }
   }
 }
 

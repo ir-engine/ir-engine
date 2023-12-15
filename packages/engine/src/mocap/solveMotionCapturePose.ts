@@ -295,10 +295,11 @@ export function solveMotionCapturePose(
     landmarks[POSE_LANDMARKS.RIGHT_SHOULDER],
     landmarks[POSE_LANDMARKS.RIGHT_ELBOW],
     landmarks[POSE_LANDMARKS.RIGHT_WRIST],
-    new Vector3(!userData.flipped ? -1 : 1, 0, 0),
+    new Vector3(userData.flipped ? 1 : -1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.LeftUpperArm,
-    VRMHumanBoneName.LeftLowerArm
+    VRMHumanBoneName.LeftLowerArm,
+    !userData.flipped
   )
   solveLimb(
     entity,
@@ -306,10 +307,11 @@ export function solveMotionCapturePose(
     landmarks[POSE_LANDMARKS.LEFT_SHOULDER],
     landmarks[POSE_LANDMARKS.LEFT_ELBOW],
     landmarks[POSE_LANDMARKS.LEFT_WRIST],
-    new Vector3(!userData.flipped ? 1 : -1, 0, 0),
+    new Vector3(userData.flipped ? -1 : 1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.RightUpperArm,
-    VRMHumanBoneName.RightLowerArm
+    VRMHumanBoneName.RightLowerArm,
+    !userData.flipped
   )
   if (estimatingLowerBody) {
     calculateGroundedFeet(landmarks)
@@ -322,7 +324,8 @@ export function solveMotionCapturePose(
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.LeftUpperLeg,
-      VRMHumanBoneName.LeftLowerLeg
+      VRMHumanBoneName.LeftLowerLeg,
+      !userData.flipped
     )
     solveLimb(
       entity,
@@ -333,7 +336,8 @@ export function solveMotionCapturePose(
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.RightUpperLeg,
-      VRMHumanBoneName.RightLowerLeg
+      VRMHumanBoneName.RightLowerLeg,
+      !userData.flipped
     )
     /**todo: figure out why we get bad foot quaternions when using solveFoot */
     //solveFoot(
@@ -405,6 +409,7 @@ export function solveMotionCapturePose(
 const threshhold = 0.6
 
 const vec3 = new Vector3()
+const quat = new Quaternion()
 
 /**
  * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
@@ -537,11 +542,10 @@ export const solveLimb = (
   axis: Vector3,
   parentTargetBoneName: VRMHumanBoneName,
   startTargetBoneName: VRMHumanBoneName,
-  midTargetBoneName: VRMHumanBoneName
+  midTargetBoneName: VRMHumanBoneName,
+  needsFlipping = false
 ) => {
   if (!start || !mid || !end) return
-
-  // if (start.visibility! < threshhold || mid.visibility! < threshhold || end.visibility! < threshhold) return
 
   const rig = getComponent(entity, AvatarRigComponent)
 
@@ -551,12 +555,23 @@ export const solveLimb = (
   const midPoint = new Vector3(mid.x, lowestWorldY - mid.y, mid.z)
   const endPoint = new Vector3(end.x, lowestWorldY - end.y, end.z)
 
-  // get quaternion that represents the rotation of the shoulders or hips
+  quat.identity()
 
-  const startQuaternion = new Quaternion().setFromUnitVectors(axis, vec3.subVectors(startPoint, midPoint).normalize())
+  // optional base quaternion calculation for flipping, start with start-to-mid quaternion
+  vec3.subVectors(startPoint, midPoint).normalize()
+  if (needsFlipping) {
+    quat.setFromAxisAngle(vec3, Math.PI)
+  }
 
-  // get quaternion that represents the rotation of the elbow or knee
-  const midQuaternion = new Quaternion().setFromUnitVectors(axis, vec3.subVectors(midPoint, endPoint).normalize())
+  const startQuaternion = quat.clone().multiply(new Quaternion().setFromUnitVectors(axis, vec3))
+
+  //now calculate flip for mid-to-end quaternion
+  vec3.subVectors(midPoint, endPoint).normalize()
+  if (needsFlipping) {
+    quat.setFromAxisAngle(vec3, Math.PI)
+  }
+
+  const midQuaternion = quat.clone().multiply(new Quaternion().setFromUnitVectors(axis, vec3))
 
   // convert to local space
   const startLocal = new Quaternion().copy(startQuaternion).premultiply(parentQuaternion.clone().invert())
@@ -578,36 +593,22 @@ export const resetLimb = (
   startTargetBoneName: VRMHumanBoneName,
   midTargetBoneName: VRMHumanBoneName
 ) => {
-  // if (start.visibility! < threshhold || mid.visibility! < threshhold || end.visibility! < threshhold) return
-  const rig = getComponent(entity, AvatarRigComponent)
-
   MotionCaptureRigComponent.rig[startTargetBoneName].x[entity] = 0
   MotionCaptureRigComponent.rig[startTargetBoneName].y[entity] = 0
   MotionCaptureRigComponent.rig[startTargetBoneName].z[entity] = 0
   MotionCaptureRigComponent.rig[startTargetBoneName].w[entity] = 1
 
-  rig.normalizedRig[startTargetBoneName]?.node.quaternion.identity()
-
   MotionCaptureRigComponent.rig[midTargetBoneName].x[entity] = 0
   MotionCaptureRigComponent.rig[midTargetBoneName].y[entity] = 0
   MotionCaptureRigComponent.rig[midTargetBoneName].z[entity] = 0
   MotionCaptureRigComponent.rig[midTargetBoneName].w[entity] = 1
-
-  rig.normalizedRig[midTargetBoneName]?.node.quaternion.identity()
-
-  rig.normalizedRig[startTargetBoneName]!.node.updateWorldMatrix(false, false)
-  rig.normalizedRig[midTargetBoneName]!.node.updateWorldMatrix(false, false)
 }
 
 export const resetBone = (entity: Entity, boneName: VRMHumanBoneName) => {
-  const rig = getComponent(entity, AvatarRigComponent)
-
   MotionCaptureRigComponent.rig[boneName].x[entity] = 0
   MotionCaptureRigComponent.rig[boneName].y[entity] = 0
   MotionCaptureRigComponent.rig[boneName].z[entity] = 0
   MotionCaptureRigComponent.rig[boneName].w[entity] = 1
-
-  rig.normalizedRig[boneName]?.node.quaternion.identity()
 }
 
 export const solveHand = (
@@ -621,8 +622,6 @@ export const solveHand = (
   extentTargetBoneName: VRMHumanBoneName
 ) => {
   if (!extent || !ref1 || !ref2) return
-
-  // if (extent.visibility! < threshhold || ref1.visibility! < threshhold || ref2.visibility! < threshhold) return
 
   const rig = getComponent(entity, AvatarRigComponent)
 
