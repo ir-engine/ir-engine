@@ -48,6 +48,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { isClient } from '../../common/functions/getEnvironment'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
+import { iOS } from '../../common/functions/isMobile'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -235,18 +236,15 @@ const getAssetType = (assetFileName: string): AssetType => {
  */
 const getAssetClass = (assetFileName: string): AssetClass => {
   assetFileName = assetFileName.toLowerCase()
-
-  if (/\.xre\.gltf$/.test(assetFileName)) {
-    return AssetClass.Asset
-  } else if (/\.(?:gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
+  if (/\.(gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
     return AssetClass.Model
-  } else if (/\.png|jpg|jpeg|tga|ktx2|dds$/.test(assetFileName)) {
+  } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
     return AssetClass.Image
-  } else if (/\.mp4|avi|webm|mkv|mov|m3u8|mpd$/.test(assetFileName)) {
+  } else if (/\.(mp4|avi|webm|mkv|mov|m3u8|mpd)$/.test(assetFileName)) {
     return AssetClass.Video
-  } else if (/\.mp3|ogg|m4a|flac|wav$/.test(assetFileName)) {
+  } else if (/\.(mp3|ogg|m4a|flac|wav)$/.test(assetFileName)) {
     return AssetClass.Audio
-  } else if (/\.drcs|uvol|manifest$/.test(assetFileName)) {
+  } else if (/\.(drcs|uvol|manifest)$/.test(assetFileName)) {
     return AssetClass.Volumetric
   } else {
     return AssetClass.Unknown
@@ -364,7 +362,7 @@ type LoadingArgs = {
   assetRoot?: Entity
 }
 
-const load = (
+const load = async (
   _url: string,
   args: LoadingArgs,
   onLoad = (response: any) => {},
@@ -376,10 +374,47 @@ const load = (
     onError(new Error('URL is empty'))
     return
   }
-  const url = getAbsolutePath(_url)
+  let url = getAbsolutePath(_url)
 
   const assetType = assetTypeOverride ? assetTypeOverride : AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
+  if (iOS && (assetType === AssetType.PNG || assetType === AssetType.JPEG)) {
+    const img = new Image()
+    img.crossOrigin = 'anonymous' //browser will yell without this
+    img.src = url
+    await img.decode() //new way to wait for image to load
+    // Initialize the canvas and it's size
+    const canvas = document.createElement('canvas') //dead dom elements? Remove after Three loads them
+    const ctx = canvas.getContext('2d')
+
+    // Set width and height
+    const originalWidth = img.width
+    const originalHeight = img.height
+
+    let resizingFactor = 1
+    if (originalWidth >= originalHeight) {
+      if (originalWidth > 1024) {
+        resizingFactor = 1024 / originalWidth
+      }
+    } else {
+      if (originalHeight > 1024) {
+        resizingFactor = 1024 / originalHeight
+      }
+    }
+
+    const canvasWidth = originalWidth * resizingFactor
+    const canvasHeight = originalHeight * resizingFactor
+
+    canvas.width = canvasWidth
+    canvas.height = canvasHeight
+
+    // Draw image and export to a data-uri
+    ctx?.drawImage(img, 0, 0, canvasWidth, canvasHeight)
+    const dataURI = canvas.toDataURL()
+
+    // Do something with the result, like overwrite original
+    url = dataURI
+  }
 
   const callback = assetLoadCallback(url, args, assetType, onLoad)
 

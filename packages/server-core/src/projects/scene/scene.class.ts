@@ -47,12 +47,12 @@ import {
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { cleanString } from '../../util/cleanString'
 import { ProjectParams } from '../project/project.class'
 import { getSceneData } from './scene-helper'
-const NEW_SCENE_NAME = 'New-Scene'
 
-const sceneAssetFiles = ['.scene.json', '.thumbnail.ktx2', '.envmap.ktx2']
+const DEFAULT_DIRECTORY = 'packages/projects/default-project'
+const NEW_SCENE_NAME = 'New-Scene'
+const SCENE_ASSET_FILES = ['.scene.json', '.thumbnail.ktx2', '.envmap.ktx2']
 
 export interface SceneParams extends Params<SceneQuery> {
   paginate?: false
@@ -180,7 +180,7 @@ export class SceneService
     }
 
     await Promise.all(
-      sceneAssetFiles.map((ext) =>
+      SCENE_ASSET_FILES.map((ext) =>
         storageProvider.moveObject(
           `default${ext}`,
           `${newSceneName}${ext}`,
@@ -191,18 +191,18 @@ export class SceneService
       )
     )
     try {
-      await storageProvider.createInvalidation(sceneAssetFiles.map((asset) => `${directory}${newSceneName}${asset}`))
+      await storageProvider.createInvalidation(SCENE_ASSET_FILES.map((asset) => `${directory}${newSceneName}${asset}`))
     } catch (e) {
       logger.error(e)
-      logger.info(sceneAssetFiles)
+      logger.info(SCENE_ASSET_FILES)
     }
 
     if (isDev) {
       const projectPathLocal = path.resolve(appRootPath.path, localDirectory)
-      for (const ext of sceneAssetFiles) {
+      for (const ext of SCENE_ASSET_FILES) {
         fs.copyFileSync(
-          path.resolve(appRootPath.path, `${localDirectory}default${ext}`),
-          path.resolve(projectPathLocal + newSceneName + ext)
+          path.resolve(appRootPath.path, `${DEFAULT_DIRECTORY}/default${ext}`),
+          path.resolve(projectPathLocal + '/' + newSceneName + ext)
         )
       }
     }
@@ -220,7 +220,7 @@ export class SceneService
     const directory = data.directory!
     const localDirectory = data.localDirectory!
 
-    for (const ext of sceneAssetFiles) {
+    for (const ext of SCENE_ASSET_FILES) {
       const oldSceneJsonName = `${oldSceneName}${ext}`
       const newSceneJsonName = `${newSceneName}${ext}`
 
@@ -236,7 +236,7 @@ export class SceneService
     }
 
     if (isDev) {
-      for (const ext of sceneAssetFiles) {
+      for (const ext of SCENE_ASSET_FILES) {
         const oldSceneJsonPath = path.resolve(appRootPath.path, `${localDirectory}${oldSceneName}${ext}`)
         if (fs.existsSync(oldSceneJsonPath)) {
           const newSceneJsonPath = path.resolve(appRootPath.path, `${localDirectory}${newSceneName}${ext}`)
@@ -280,10 +280,10 @@ export class SceneService
       }
 
       try {
-        await storageProvider.createInvalidation(sceneAssetFiles.map((asset) => `${directory}${name}${asset}`))
+        await storageProvider.createInvalidation(SCENE_ASSET_FILES.map((asset) => `${directory}${name}${asset}`))
       } catch (e) {
         logger.error(e)
-        logger.info(sceneAssetFiles)
+        logger.info(SCENE_ASSET_FILES)
       }
 
       if (isDev) {
@@ -315,30 +315,27 @@ export class SceneService
   }
 
   async remove(id: NullableId, params?: SceneParams) {
-    const projectName = params?.query?.project
     const sceneName = params?.query?.name
     const storageProviderName = params?.query?.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
 
-    const name = cleanString(sceneName!.toString())
-
     const directory = params!.query!.directory!.toString()!
     const localDirectory = params!.query!.localDirectory!.toString()!
 
-    for (const ext of sceneAssetFiles) {
-      const assetFilePath = path.resolve(appRootPath.path, `${localDirectory}/${name}${ext}`)
+    for (const ext of SCENE_ASSET_FILES) {
+      const assetFilePath = path.resolve(appRootPath.path, `${localDirectory}/${sceneName}${ext}`)
       if (fs.existsSync(assetFilePath)) {
         fs.rmSync(path.resolve(assetFilePath))
       }
     }
 
-    await storageProvider.deleteResources(sceneAssetFiles.map((ext) => `${directory}${name}${ext}`))
+    await storageProvider.deleteResources(SCENE_ASSET_FILES.map((ext) => `${directory}${sceneName}${ext}`))
 
     try {
-      await storageProvider.createInvalidation(sceneAssetFiles.map((asset) => `${directory}${sceneName}${asset}`))
+      await storageProvider.createInvalidation(SCENE_ASSET_FILES.map((asset) => `${directory}${sceneName}${asset}`))
     } catch (e) {
       logger.error(e)
-      logger.info(sceneAssetFiles)
+      logger.info(SCENE_ASSET_FILES)
     }
   }
 }

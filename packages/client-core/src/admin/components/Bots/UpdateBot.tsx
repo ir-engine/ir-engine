@@ -70,7 +70,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
   const instanceQuery = useFind(instancePath)
   const instancesData = instanceQuery.data
 
-  const locationQuery = useFind(locationPath)
+  const locationQuery = useFind(locationPath, { query: { action: 'admin' } })
   const locationData = locationQuery.data
 
   const updateBot = useMutation(botPath).patch

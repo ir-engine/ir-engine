@@ -107,6 +107,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
     id: el.id,
     name: el.name as string,
     user: (el.user?.name as UserName) || ('' as UserName),
+    isPublic: el.isPublic ? t('admin:components.common.yes') : t('admin:components.common.no'),
     thumbnail: (
       <img
         style={{ maxHeight: '50px' }}

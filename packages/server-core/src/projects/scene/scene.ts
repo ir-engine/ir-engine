@@ -56,7 +56,7 @@ export default (app: Application): void => {
   service.hooks(hooks)
 
   if (getState(ServerState).serverMode === ServerMode.API)
-    service.publish('updated', async (data, context) => {
+    service.publish('updated', async (data) => {
       const updatedScene = data as SceneUpdate
       const instanceActive = await app.service(instanceActivePath).find({
         query: { sceneId: updatedScene.id as SceneID }

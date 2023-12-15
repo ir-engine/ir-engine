@@ -76,13 +76,14 @@ const sortByLocationName = async (context: HookContext<InstanceService>) => {
  */
 const addLocationSearchToQuery = async (context: HookContext<InstanceService>) => {
   const { action, search } = context.params.query || {}
-  const foundLocations = search
-    ? ((await context.app.service(locationPath)._find({
-        query: { name: { $like: `%${search}%` } },
-        paginate: false
-      })) as any as LocationType[])
-    : []
+  if (!search) return
 
+  const foundLocations = (await context.app.service(locationPath)._find({
+    query: { name: { $like: `%${search}%` } },
+    paginate: false
+  })) as any as LocationType[]
+
+  /** @TODO we should add a filter property to filter ended instances */
   context.params.query = {
     ...context.params.query,
     ended: false,

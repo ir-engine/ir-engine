@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '../ecs/functions/ComponentFunctions'
+export const recordingResourceUploadPath = 'recording-resource-upload'
 
-export const XRRigComponent = defineComponent({
-  name: 'XRRigComponent',
-  onInit: () => true
-})
+export const recordingResourceUploadMethods = ['create'] as const

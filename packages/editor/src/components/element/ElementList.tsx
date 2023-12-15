@@ -70,6 +70,7 @@ import { MountPointComponent } from '@etherealengine/engine/src/scene/components
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
+import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { Vector3 } from 'three'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -122,7 +123,14 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     PostProcessingComponent
   ],
   Scripting: [SystemComponent, BehaveGraphComponent],
-  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, SplineTrackComponent, SplineComponent]
+  Misc: [
+    EnvMapBakeComponent,
+    ScenePreviewCameraComponent,
+    SkyboxComponent,
+    SplineTrackComponent,
+    SplineComponent,
+    TextComponent
+  ]
 }
 
 const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementListItemType) => {
@@ -239,7 +247,7 @@ export function ElementList() {
             )}
             {items.map((item) => (
               <SceneElementListItem
-                key={item.jsonID}
+                key={item.jsonID || item.name}
                 item={{
                   componentJsonID: item.jsonID!,
                   label: startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase()),

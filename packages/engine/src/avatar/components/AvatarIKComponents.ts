@@ -26,9 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import matches from 'ts-matches'
+import { Types } from 'bitecs'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  useComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -43,16 +48,16 @@ export const AvatarHeadDecapComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
 
-    const headDecap = useOptionalComponent(entity, AvatarHeadDecapComponent)
+    const headDecap = useComponent(entity, AvatarHeadDecapComponent)
     const rig = useOptionalComponent(entity, AvatarRigComponent)
 
     useEffect(() => {
-      if (!rig?.value?.vrm?.humanoid?.rawHumanBones?.head?.node || !headDecap?.value) return
+      if (!rig?.value?.rawRig?.head?.node || !headDecap?.value) return
 
-      rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(EPSILON)
+      rig.value.rawRig.head.node.scale.setScalar(EPSILON)
 
       return () => {
-        rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(1)
+        rig.value.rawRig.head.node.scale.setScalar(1)
       }
     }, [headDecap, rig])
 
@@ -68,14 +73,7 @@ export type AvatarIKTargetsType = {
 
 export const AvatarIKTargetComponent = defineComponent({
   name: 'AvatarIKTargetComponent',
-
-  onInit(entity) {
-    return { blendWeight: 0 }
-  },
-
-  onSet(entity, component, json) {
-    if (json && matches.number.test(json?.blendWeight)) component.blendWeight.set(json.blendWeight)
-  }
+  schema: { blendWeight: Types.f64 }
 })
 
 /**
@@ -100,19 +98,19 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   switch (hand) {
     case 'left':
       return {
-        position: rig.rig.leftHand.node.getWorldPosition(vec3),
-        rotation: rig.rig.leftHand.node.getWorldQuaternion(quat)
+        position: rig.normalizedRig.leftHand.node.getWorldPosition(vec3),
+        rotation: rig.normalizedRig.leftHand.node.getWorldQuaternion(quat)
       }
     case 'right':
       return {
-        position: rig.rig.rightHand.node.getWorldPosition(vec3),
-        rotation: rig.rig.rightHand.node.getWorldQuaternion(quat)
+        position: rig.normalizedRig.rightHand.node.getWorldPosition(vec3),
+        rotation: rig.normalizedRig.rightHand.node.getWorldQuaternion(quat)
       }
     default:
     case 'none':
       return {
-        position: rig.rig.head.node.getWorldPosition(vec3),
-        rotation: rig.rig.head.node.getWorldQuaternion(quat)
+        position: rig.normalizedRig.head.node.getWorldPosition(vec3),
+        rotation: rig.normalizedRig.head.node.getWorldQuaternion(quat)
       }
   }
 }

@@ -81,6 +81,7 @@ import { ShadowComponent } from '@etherealengine/engine/src/scene/components/Sha
 
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
+import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
@@ -106,6 +107,7 @@ import { SplineNodeEditor } from '../components/properties/SplineNodeEditor'
 import { SplineTrackNodeEditor } from '../components/properties/SplineTrackNodeEditor'
 import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
+import TextNodeEditor from '../components/properties/TextNodeEditor'
 import { EditorComponentType } from '../components/properties/Util'
 import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
@@ -156,3 +158,4 @@ EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
 EntityNodeEditor.set(SplineTrackComponent, SplineTrackNodeEditor)
 EntityNodeEditor.set(BehaveGraphComponent, BehaveGraphNodeEditor)
 EntityNodeEditor.set(LinkComponent, LinkNodeEditor)
+EntityNodeEditor.set(TextComponent, TextNodeEditor)

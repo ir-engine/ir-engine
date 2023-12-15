@@ -27,7 +27,7 @@ import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
@@ -59,6 +59,8 @@ export const EditorPage = () => {
   const [params] = useSearchParams()
   const projectState = useHookstate(getMutableState(ProjectState))
   const { sceneID, projectName } = useHookstate(getMutableState(EditorState))
+
+  ProjectService.useAPIListeners()
 
   useEffect(() => {
     const sceneInParams = params.get('scenePath')

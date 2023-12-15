@@ -65,7 +65,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
    *
    * @param id of specific accept invite
    * @param params query which contain passcode
-   * @returns {@Object} contains single invite
+   * @returns {Object} contains single invite
    */
 
   async get(id: Id, params?: AcceptInviteParams) {

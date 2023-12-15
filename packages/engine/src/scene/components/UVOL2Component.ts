@@ -44,6 +44,7 @@ import {
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
+import { isMobile } from '../../common/functions/isMobile'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
@@ -57,12 +58,16 @@ import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { isMobileXRHeadset } from '../../xr/XRState'
+import { PlayMode } from '../constants/PlayMode'
 import {
+  ASTCTextureTarget,
   AudioFileFormat,
   DRACOTarget,
   FORMAT_TO_EXTENSION,
   GLBTarget,
   GeometryFormat,
+  KTX2TextureTarget,
   PlayerManifest,
   TextureFormat,
   TextureType,
@@ -105,19 +110,39 @@ export const calculatePriority = (manifest: PlayerManifest) => {
 
   const textureTypes = Object.keys(manifest.texture)
   for (let i = 0; i < textureTypes.length; i++) {
-    const textureType = textureTypes[i]
-    const currentTextureTargets = Object.keys(manifest.texture[textureType].targets)
-    currentTextureTargets.sort((a, b) => {
-      const aData = manifest.texture[textureType].targets[a]
-      const bData = manifest.texture[textureType].targets[b]
+    const textureType = textureTypes[i] as TextureType
+    const currentTextureTargets = Object.keys(manifest.texture[textureType]!.targets)
+    const supportedTextures = [] as string[]
+    currentTextureTargets.forEach((target) => {
+      const targetData = manifest.texture[textureType]!.targets[target]
+      if (isMobile || isMobileXRHeadset) {
+        if (targetData.format === 'astc/ktx2') {
+          supportedTextures.push(target)
+        }
+      } else {
+        // Desktop
+        if (targetData.format === 'ktx2') {
+          supportedTextures.push(target)
+        }
+      }
+    })
+    if (supportedTextures.length === 0) {
+      // No supported textures, fallback to all textures
+      supportedTextures.push(...currentTextureTargets)
+    }
+
+    supportedTextures.sort((a, b) => {
+      type TextureTargetType = KTX2TextureTarget | ASTCTextureTarget
+      const aData = manifest.texture[textureType]!.targets[a] as TextureTargetType
+      const bData = manifest.texture[textureType]!.targets[b] as TextureTargetType
       const aPixelPerSec = aData.frameRate * aData.settings.resolution.width * aData.settings.resolution.height
       const bPixelPerSec = bData.frameRate * bData.settings.resolution.width * bData.settings.resolution.height
       return aPixelPerSec - bPixelPerSec
     })
-    currentTextureTargets.forEach((target, index) => {
-      manifest.texture[textureType].targets[target].priority = index
+    supportedTextures.forEach((target, index) => {
+      manifest.texture[textureType]!.targets[target].priority = index
     })
-    textureTargets[textureType] = currentTextureTargets
+    textureTargets[textureType] = supportedTextures
   }
 
   return [manifest, geometryTargets, textureTargets] as [PlayerManifest, string[], typeof textureTargets]
@@ -163,7 +188,6 @@ export const UVOL2Component = defineComponent({
   onInit: (entity) => {
     return {
       canPlay: false,
-      playbackStartTime: 0,
       manifestPath: '',
       data: {} as PlayerManifest,
       hasAudio: false,
@@ -311,9 +335,10 @@ function UVOL2Reactor() {
 
   const geometryBuffer = useMemo(() => new Map<string, Mesh | BufferGeometry | KeyframeAttribute>(), [])
   const textureBuffer = useMemo(() => new Map<string, CompressedTexture>(), [])
-  const maxBufferHealth = 7 // seconds
-  const minBufferToPlay = 2 // seconds
-  const bufferThreshold = 3 // seconds. If buffer health is less than this, fetch new data
+
+  let maxBufferHealth = 7 // seconds
+  let minBufferToPlay = 2 // seconds
+  let bufferThreshold = 3 // seconds. If buffer health is less than this, fetch new data
   const repeat = useMemo(() => new Vector2(1, 1), [])
   const offset = useMemo(() => new Vector2(0, 0), [])
 
@@ -440,6 +465,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     []
   )
   const currentTime = useRef(0) // in seconds
+  const playbackStartTime = useRef(0) // timestamp
 
   useEffect(() => {
     if (volumetric.useLoadingEffect.value) {
@@ -452,8 +478,30 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     component.data.set(sortedManifest)
     component.geometryTargets.set(sortedGeometryTargets)
     component.textureTargets.set(sortedTextureTargets)
-    const textureTypes = Object.keys(sortedManifest.texture)
+    const textureTypes = Object.keys(sortedManifest.texture) as TextureType[]
     component.textureTypes.set(textureTypes as TextureType[])
+
+    if (component.data.geometry.targets[sortedGeometryTargets[0]].totalSize) {
+      const geometryBitrate =
+        component.data.geometry.targets[sortedGeometryTargets[0]].totalSize.value / component.data.duration.value
+      const textureBitrate = textureTypes.reduce((prev, textureType) => {
+        const target = sortedTextureTargets[textureType][0]
+        const targetData = component.data.value.texture[textureType]!.targets[target]
+        return prev + targetData.totalSize / component.data.duration.value
+      }, 0)
+      const totalBitrate = geometryBitrate + textureBitrate
+      if (totalBitrate <= 5 * 1024 * 1024) {
+        // 5MB
+        maxBufferHealth = 15 // seconds
+        minBufferToPlay = 5 // seconds
+        bufferThreshold = 6 // seconds.
+      } else if (totalBitrate <= 10 * 1024 * 1024) {
+        // 5-10MB
+        maxBufferHealth = 10 // seconds
+        minBufferToPlay = 2 // seconds
+        bufferThreshold = 5 // seconds.
+      }
+    }
 
     const shadow = getMutableComponent(entity, ShadowComponent)
     if (sortedManifest.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
@@ -837,7 +885,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       }
       return
     }
-    component.playbackStartTime.set(Date.now())
+    playbackStartTime.current = Date.now()
     volumetric.startTime.set(currentTime.current)
     geometryBufferHealth.current -= currentTime.current
     component.textureTypes.value.forEach((textureType) => {
@@ -914,6 +962,13 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
        * Disposing should be done only on keyframeA
        * Because, keyframeA will use the previous buffer of keyframeB in the next frame.
        */
+      mesh.geometry.attributes[name] = attribute
+      mesh.geometry.attributes[name].needsUpdate = true
+      return
+    } else if (
+      (name === 'keyframeA' || name === 'keyframeANormal') &&
+      component.data.deletePreviousBuffers.value === false
+    ) {
       mesh.geometry.attributes[name] = attribute
       mesh.geometry.attributes[name].needsUpdate = true
       return
@@ -1043,7 +1098,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       }
     }
     const oldTexture = textureBuffer.get(oldTextureKey)
-    if (oldTexture) {
+    if (oldTexture && component.data.deletePreviousBuffers.value !== false) {
       oldTexture.dispose()
       textureBuffer.delete(oldTextureKey)
     }
@@ -1149,11 +1204,16 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (component.data.value.audio) {
       currentTime.current = audio.currentTime
     } else {
-      currentTime.current = volumetric.startTime.value + (Date.now() - component.playbackStartTime.value) / 1000
+      currentTime.current = volumetric.startTime.value + (Date.now() - playbackStartTime.current) / 1000
     }
     if (currentTime.current > component.data.value.duration || audio.ended) {
-      volumetric.ended.set(true)
-      return
+      if (component.data.deletePreviousBuffers.value === false && volumetric.playMode.value === PlayMode.loop) {
+        currentTime.current = 0
+        playbackStartTime.current = Date.now()
+      } else {
+        volumetric.ended.set(true)
+        return
+      }
     }
 
     updateGeometry(currentTime.current)

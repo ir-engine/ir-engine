@@ -47,9 +47,6 @@ export default (currentType: string, scopeToVerify: string) => {
       if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])
       return result
     }, [])
-    if (!currentScopes.includes(scopeToVerify)) {
-      return false
-    }
-    return true
+    return currentScopes.includes(scopeToVerify)
   }
 }
