@@ -156,15 +156,13 @@ const execute = () => {
   for (const action of registerWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
     setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: widgetMenuUI.entity })
-    setComponent(widget.ui.entity, TransformComponent)
   }
   for (const action of unregisterWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
-    removeComponent(widget.ui.entity, TransformComponent)
+    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: null })
     if (typeof widget.cleanup === 'function') widget.cleanup()
   }
 
-  const transform = getComponent(widgetMenuUI.entity, TransformComponent)
   const activeInputSourceEntity = inputSources.find(
     (entity) => getComponent(entity, InputSourceComponent).source.handedness === widgetState.handedness
   )
@@ -178,7 +176,7 @@ const execute = () => {
     if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
       removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
       setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-      setComponent(widgetMenuUI.entity, TransformComponent)
+      setComponent(widgetMenuUI.entity, TransformComponent, { scale: new Vector3().setScalar(1) })
     }
 
     const transform = getComponent(widgetMenuUI.entity, TransformComponent)
@@ -192,8 +190,7 @@ const execute = () => {
     }
   } else {
     if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
-      removeComponent(widgetMenuUI.entity, EntityTreeComponent)
-      removeComponent(widgetMenuUI.entity, TransformComponent)
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
       setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.cameraEntity, () =>
         ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, 0.1)
       )

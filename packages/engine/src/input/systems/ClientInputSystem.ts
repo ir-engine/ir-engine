@@ -59,6 +59,7 @@ import { GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -419,6 +420,8 @@ const inputRay = new Ray()
 const raycaster = new Raycaster()
 const bboxHitTarget = new Vector3()
 
+const quat = new Quaternion()
+
 const execute = () => {
   if (!isClient) return null
 
@@ -483,6 +486,7 @@ const execute = () => {
         if (pose) {
           transform.position.copy(pose.transform.position as any as Vector3)
           transform.rotation.copy(pose.transform.orientation as any as Quaternion)
+          computeTransformMatrix(sourceEid)
         }
       }
     }
@@ -494,8 +498,9 @@ const execute = () => {
       let assignedInputEntity = UndefinedEntity as Entity
       let hitDistance = Infinity
 
-      inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceTransform.rotation)
-      inputRaycast.origin.copy(sourceTransform.position).addScaledVector(inputRaycast.direction, -0.01)
+      const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
+      inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
+      TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
       inputRaycast.excludeRigidBody = getOptionalComponent(Engine.instance.localClientEntity, RigidBodyComponent)?.body
       inputRay.set(inputRaycast.origin, inputRaycast.direction)
 
@@ -526,8 +531,10 @@ const execute = () => {
             (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
           )
             continue
-          assignedInputEntity = eid
-          hitDistance = layerHit.intersection.distance
+          if (layerHit.intersection.distance < hitDistance) {
+            assignedInputEntity = eid
+            hitDistance = layerHit.intersection.distance
+          }
           break
         }
 

@@ -85,11 +85,11 @@ export const PointerComponent = defineComponent({
       const pointer = pointerComponentState.pointer.value
       if (cursor) {
         cursor.material.opacity = alpha
-        cursor.visible = alpha > 0
+        cursor.material.visible = alpha > 0
       }
       if (pointer) {
         pointer.material.opacity = alpha
-        pointer.visible = alpha > 0
+        pointer.material.visible = alpha > 0
       }
     })
 
@@ -153,7 +153,7 @@ const createPointer = (inputSource: XRInputSource): PointerObject => {
 
 const createUICursor = () => {
   const geometry = new SphereGeometry(0.01, 16, 16)
-  const material = new MeshBasicMaterial({ color: 0xffffff })
+  const material = new MeshBasicMaterial({ color: 0xffffff, opacity: 0 })
   return new Mesh(geometry, material)
 }
 
