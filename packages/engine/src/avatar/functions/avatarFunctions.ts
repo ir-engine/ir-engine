@@ -181,7 +181,7 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   }
   setComponent(entity, AnimationComponent, {
     animations: animations,
-    mixer: new AnimationMixer(new Object3D())
+    mixer: new AnimationMixer(rigComponent.normalizedRig.hips.node)
   })
 }
 
