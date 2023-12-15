@@ -170,7 +170,6 @@ const execute = () => {
       if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
       if (MotionCaptureRigComponent.solvingLowerBody[entity])
         normalizedBone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
-      normalizedBone.scale.set(1, 1, 1)
     }
 
     const hipBone = rigComponent.normalizedRig.hips.node
@@ -196,7 +195,7 @@ const execute = () => {
       else worldHipsParent.position.setY(0)
 
     // rotate hips 180 degrees
-    hipBone.quaternion.premultiply(rotate180YQuaternion)
+    if ((rigComponent.vrm as any).userData?.flipped) hipBone.quaternion.setFromAxisAngle(V_010, Math.PI)
   }
 }
 
