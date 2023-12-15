@@ -28,7 +28,6 @@ import { NO_PROXY } from '@etherealengine/hyperflux'
 
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import {
   defineComponent,
@@ -117,8 +116,6 @@ export const EntityTreeComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    if (entity === Engine.instance.originEntity) return
-
     if (component.parentEntity.value && entityExists(component.parentEntity.value)) {
       const parent = getMutableComponent(component.parentEntity.value, EntityTreeComponent)
       if (parent) {
