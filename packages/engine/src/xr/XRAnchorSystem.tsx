@@ -85,19 +85,19 @@ export const updateHitTest = (entity: Entity) => {
   const parentEntity = Engine.instance.originEntity
   setComponent(entity, EntityTreeComponent, { parentEntity })
 
-  const localTransform = getComponent(entity, TransformComponent)
-  localTransform.position.copy(pose.transform.position as any)
-  localTransform.rotation.copy(pose.transform.orientation as any)
+  const transform = getComponent(entity, TransformComponent)
+  transform.position.copy(pose.transform.position as any)
+  transform.rotation.copy(pose.transform.orientation as any)
 }
 
 export const updateAnchor = (entity: Entity) => {
   const xrFrame = getState(XRState).xrFrame!
   const anchor = getComponent(entity, XRAnchorComponent).anchor
-  const localTransform = getComponent(entity, TransformComponent)
+  const transform = getComponent(entity, TransformComponent)
   const pose = ReferenceSpace.localFloor && xrFrame.getPose(anchor.anchorSpace, ReferenceSpace.localFloor)
   if (pose) {
-    localTransform.position.copy(pose.transform.position as any)
-    localTransform.rotation.copy(pose.transform.orientation as any)
+    transform.position.copy(pose.transform.position as any)
+    transform.rotation.copy(pose.transform.orientation as any)
   }
 }
 
@@ -116,7 +116,7 @@ const maxDollhouseScale = 0.2
 const minDollhouseDist = 0.01
 const maxDollhouseDist = 1
 
-const getTargetWorldSize = (localTransform: ComponentType<typeof TransformComponent>) => {
+const getTargetWorldSize = (transform: ComponentType<typeof TransformComponent>) => {
   const xrState = getState(XRState)
   const placing = xrState.scenePlacementMode === 'placing'
   if (!placing) return xrState.sceneScale
@@ -127,9 +127,9 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof TransformCompon
   const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
   if (!viewerPose) return 1
 
-  const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(localTransform.rotation)
+  const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(transform.rotation)
   const dist = _plane
-    .setFromNormalAndCoplanarPoint(upDir, localTransform.position)
+    .setFromNormalAndCoplanarPoint(upDir, transform.position)
     .distanceToPoint(viewerPose.transform.position as any)
 
   /**
@@ -152,13 +152,13 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof TransformCompon
 
 export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   // assumes local transform is relative to origin
-  const localTransform = getComponent(scenePlacementEntity, TransformComponent)
+  const transform = getComponent(scenePlacementEntity, TransformComponent)
 
   const xrState = getState(XRState)
   const xrFrame = xrState.xrFrame
   const xrSession = xrState.session
 
-  if (!localTransform || !xrFrame || !xrSession) return
+  if (!transform || !xrFrame || !xrSession) return
 
   const deltaSeconds = getState(EngineState).deltaSeconds
   const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
@@ -166,7 +166,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   const sceneScaleAutoMode = xrState.sceneScaleAutoMode
 
   if (sceneScaleAutoMode) {
-    const targetScale = getTargetWorldSize(localTransform)
+    const targetScale = getTargetWorldSize(transform)
     getMutableState(XRState).sceneScaleTarget.set(targetScale)
   }
 
@@ -176,9 +176,9 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
     getMutableState(XRState).sceneScale.set(newScale > 0.9 ? 1 : newScale)
   }
 
-  xrState.scenePosition.copy(localTransform.position)
+  xrState.scenePosition.copy(transform.position)
   xrState.sceneRotation.multiplyQuaternions(
-    localTransform.rotation,
+    transform.rotation,
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset)
   )
 }

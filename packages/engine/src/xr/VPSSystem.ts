@@ -44,9 +44,9 @@ const execute = () => {
       const anchor = getMutableComponent(entity, PersistentAnchorComponent)
       if (anchor.name.value === action.name) {
         anchor.active.set(true)
-        const localTransform = getComponent(entity, TransformComponent)
-        localTransform.position.copy(action.position)
-        localTransform.rotation.copy(action.rotation)
+        const transform = getComponent(entity, TransformComponent)
+        transform.position.copy(action.position)
+        transform.rotation.copy(action.rotation)
       }
     }
   }
@@ -55,9 +55,9 @@ const execute = () => {
     for (const entity of anchors) {
       const anchor = getMutableComponent(entity, PersistentAnchorComponent)
       if (anchor.name.value === action.name) {
-        const localTransform = getComponent(entity, TransformComponent)
-        localTransform.position.copy(action.position)
-        localTransform.rotation.copy(action.rotation)
+        const transform = getComponent(entity, TransformComponent)
+        transform.position.copy(action.position)
+        transform.rotation.copy(action.rotation)
       }
     }
   }
