@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   staticResourceDataValidator,
@@ -79,7 +79,11 @@ export default {
       () => schemaHooks.validateQuery(staticResourceQueryValidator),
       schemaHooks.resolveQuery(staticResourceQueryResolver)
     ],
-    find: [iff(isProvider('external'), verifyScope('static_resource', 'read')), collectAnalytics()],
+    find: [
+      iff(isProvider('external'), verifyScope('static_resource', 'read')),
+      discardQuery('action'),
+      collectAnalytics()
+    ],
     get: [disallow('external')],
     create: [
       iff(isProvider('external'), verifyScope('static_resource', 'write')),
