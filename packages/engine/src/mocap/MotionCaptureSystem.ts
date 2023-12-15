@@ -128,11 +128,13 @@ const execute = () => {
 
   for (const entity of motionCaptureQuery()) {
     const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
+    const rigComponent = getComponent(entity, AvatarRigComponent)
+    const worldHipsParent = rigComponent.normalizedRig.hips.node.parent
     if (!peers) {
       removeComponent(entity, MotionCaptureRigComponent)
+      worldHipsParent?.position.setY(0)
       continue
     }
-    const rigComponent = getComponent(entity, AvatarRigComponent)
     for (const boneName of VRMHumanBoneList) {
       const normalizedBone = rigComponent.vrm.humanoid.normalizedHumanBones[boneName]?.node
       if (!normalizedBone) continue
@@ -180,7 +182,6 @@ const execute = () => {
       hipBone.updateMatrixWorld(true)
     }
 
-    const worldHipsParent = rigComponent.normalizedRig.hips.node.parent
     if (worldHipsParent)
       if (MotionCaptureRigComponent.solvingLowerBody[entity])
         worldHipsParent.position.setY(
