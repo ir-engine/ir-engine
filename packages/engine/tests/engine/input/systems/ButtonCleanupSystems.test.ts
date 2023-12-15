@@ -54,6 +54,6 @@ describe('ButtonCleanupSystem', () => {
   })
 
   afterEach(() => {
-    destroyEngine()
+    return destroyEngine()
   })
 })

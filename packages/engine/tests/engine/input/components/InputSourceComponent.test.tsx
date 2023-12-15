@@ -23,7 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { render } from '@testing-library/react'
 import assert from 'assert'
+import React from 'react'
 
 import { getMutableState } from '@etherealengine/hyperflux'
 import { destroyEngine, Engine } from '../../../../src/ecs/classes/Engine'
@@ -121,7 +123,27 @@ describe('InputSourceComponent', () => {
     assert(isAssignedAxes)
   })
 
+  it('test reactor', () => {
+    const mockXRInputSource = new MockXRInputSource({
+      handedness: 'left',
+      targetRayMode: 'screen',
+      targetRaySpace: new MockXRSpace() as XRSpace,
+      gripSpace: undefined,
+      gamepad: undefined,
+      profiles: ['test'],
+      hand: undefined
+    }) as XRInputSource
+
+    const entity = Engine.instance.originEntity
+
+    setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
+    const Reactor = InputSourceComponent.reactor
+    const { rerender, unmount } = render(<Reactor />)
+
+    unmount()
+  })
+
   afterEach(() => {
-    destroyEngine()
+    return destroyEngine()
   })
 })

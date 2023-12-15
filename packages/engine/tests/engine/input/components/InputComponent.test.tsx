@@ -23,7 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { render } from '@testing-library/react'
 import assert from 'assert'
+import React from 'react'
 
 import { Engine, destroyEngine } from '../../../../src/ecs/classes/Engine'
 import { defineQuery, getComponent, setComponent } from '../../../../src/ecs/functions/ComponentFunctions'
@@ -57,9 +59,14 @@ describe('InputComponent', () => {
 
     inputComponent.inputSources.push(entity)
     assert(inputComponent.inputSources.length === 1)
+
+    const Reactor = InputComponent.reactor
+    const { rerender, unmount } = render(<Reactor />)
+
+    unmount()
   })
 
   afterEach(() => {
-    destroyEngine()
+    return destroyEngine()
   })
 })

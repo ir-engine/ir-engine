@@ -27,6 +27,8 @@ import assert from 'assert'
 import * as bitECS from 'bitecs'
 
 import { getState } from '@etherealengine/hyperflux'
+import { render } from '@testing-library/react'
+import React from 'react'
 import { Engine, destroyEngine } from '../../../../src/ecs/classes/Engine'
 import { Entity } from '../../../../src/ecs/classes/Entity'
 import { hasComponent } from '../../../../src/ecs/functions/ComponentFunctions'
@@ -38,25 +40,30 @@ import { InputState } from '../../../../src/input/state/InputState'
 import { ClientInputSystem, addClientInputListeners } from '../../../../src/input/systems/ClientInputSystem'
 import { EngineRenderer } from '../../../../src/renderer/WebGLRendererSystem'
 import { NameComponent } from '../../../../src/scene/components/NameComponent'
-import { MockDocument } from '../../../util/MockDocument'
 import { MockEngineRenderer } from '../../../util/MockEngineRenderer'
 import { mockEvent } from '../../../util/MockEvent'
 import { MockEventListener } from '../../../util/MockEventListener'
 import { MockNavigator } from '../../../util/MockNavigator'
-import { MockWindow } from '../../../util/MockWindow'
 import { loadEmptyScene } from '../../../util/loadEmptyScene'
 
 describe('addClientInputListeners', () => {
   beforeEach(() => {
     createEngine()
-    EngineRenderer.instance = new MockEngineRenderer()
-    globalThis.document = new MockDocument() as unknown as Document
-    globalThis.navigator = new MockNavigator() as unknown as Navigator
-    globalThis.window = new MockWindow() as unknown as Window & typeof globalThis
     loadEmptyScene()
   })
 
   it('should add client input listeners', () => {
+    EngineRenderer.instance = new MockEngineRenderer()
+
+    const mockDocEvents = new MockEventListener()
+    const mockWinEvents = new MockEventListener()
+
+    globalThis.document.addEventListener = mockDocEvents.addEventListener as any
+    globalThis.document.removeEventListener = mockDocEvents.removeEventListener as any
+    globalThis.window.addEventListener = mockWinEvents.addEventListener as any
+    globalThis.window.removeEventListener = mockWinEvents.removeEventListener as any
+    globalThis.navigator = new MockNavigator() as any
+
     const cleanup = addClientInputListeners()
 
     assert(typeof cleanup === 'function')
@@ -68,15 +75,13 @@ describe('addClientInputListeners', () => {
       listener(mockEvent)
     })
 
-    const mockDoc = globalThis.document as unknown as MockEventListener
-    assert(mockDoc.listeners.length > 1, 'Callbacks were added to document')
-    mockDoc.listeners.forEach((listener) => {
+    assert(mockDocEvents.listeners.length > 1, 'Callbacks were added to document')
+    mockDocEvents.listeners.forEach((listener) => {
       listener(mockEvent)
     })
 
-    const mockWindow = globalThis.window as unknown as MockEventListener
-    assert(mockWindow.listeners.length > 1, 'Callbacks were added to window')
-    mockWindow.listeners.forEach((listener) => {
+    assert(mockWinEvents.listeners.length > 1, 'Callbacks were added to window')
+    mockWinEvents.listeners.forEach((listener) => {
       listener(mockEvent)
     })
 
@@ -92,12 +97,12 @@ describe('addClientInputListeners', () => {
 
     cleanup()
     assert(mockDomElm.listeners.length === 0, 'Callbacks were removed from canvas')
-    assert(mockDoc.listeners.length === 0, 'Callbacks were removed from document')
-    assert(mockWindow.listeners.length === 0, 'Callbacks were removed from window')
+    assert(mockDocEvents.listeners.length === 0, 'Callbacks were removed from document')
+    assert(mockWinEvents.listeners.length === 0, 'Callbacks were removed from window')
   })
 
   afterEach(() => {
-    destroyEngine()
+    return destroyEngine()
   })
 })
 
@@ -107,13 +112,12 @@ describe('client input system reactor', () => {
   })
 
   it('test client input system reactor', async () => {
-    const reactor = SystemDefinitions.get(ClientInputSystem)!.reactor!
-
-    assert(typeof reactor === 'function')
-    assert(reactor({}) === null)
+    const Reactor = SystemDefinitions.get(ClientInputSystem)!.reactor!
+    const { rerender, unmount } = render(<Reactor />)
+    unmount()
   })
 
   afterEach(() => {
-    destroyEngine()
+    return destroyEngine()
   })
 })
