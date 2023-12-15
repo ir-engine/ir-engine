@@ -30,6 +30,7 @@ import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 
 export type TransformComponentType = {
   position: Vector3
@@ -154,9 +155,66 @@ export const TransformComponent = defineComponent({
     return vec3
   },
 
+  /**
+   * Updates the matrixWorld property of the transform component
+   * @param entity
+   */
+  updateFromWorldMatrix: (entity: Entity) => {
+    const transform = getComponent(entity, TransformComponent)
+    const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
+    if (parentEntity) {
+      const parentTransform = getComponent(parentEntity, TransformComponent)
+      mat4.copy(parentTransform.matrixWorld).invert()
+      transform.matrix.multiplyMatrices(mat4, transform.matrixWorld)
+    } else {
+      transform.matrix.copy(transform.matrixWorld)
+    }
+    decomposeMatrix(entity)
+    TransformComponent.dirtyTransforms[entity] = false
+  },
+
+  /**
+   * Updates the position aspect of the matrixWorld property of the transform component
+   * @param entity
+   * @param position
+   */
+  setWorldPosition: (entity: Entity, position: Vector3) => {
+    const transform = getComponent(entity, TransformComponent)
+    transform.matrixWorld.elements[12] = position.x
+    transform.matrixWorld.elements[13] = position.y
+    transform.matrixWorld.elements[14] = position.z
+  },
+
+  /**
+   * Updates the rotation aspect of the matrixWorld property of the transform component
+   * @param entity
+   * @param quaternion
+   */
+  setWorldRotation: (entity: Entity, quaternion: Quaternion) => {
+    const transform = getComponent(entity, TransformComponent)
+    transform.matrixWorld.decompose(vec3, quat, vec3_2)
+    transform.matrixWorld.compose(vec3, quaternion, vec3_2)
+  },
+
+  /**
+   * Updates the scale aspect of the matrixWorld property of the transform component
+   * @param entity
+   * @param scale
+   */
+  setWorldScale: (entity: Entity, scale: Vector3) => {
+    const transform = getComponent(entity, TransformComponent)
+    transform.matrixWorld.decompose(vec3, quat, vec3_2)
+    transform.matrixWorld.compose(vec3, quat, scale)
+  },
+
   dirtyTransforms: {} as Record<Entity, boolean>,
   transformsNeedSorting: false
 })
+
+const vec3 = new Vector3()
+const vec3_2 = new Vector3()
+const quat = new Quaternion()
+const mat4 = new Matrix4()
 
 const _v1 = new Vector3()
 const _m1 = new Matrix4()
