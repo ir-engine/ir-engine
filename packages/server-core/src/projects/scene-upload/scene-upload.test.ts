@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
 import { SceneJsonType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
@@ -67,6 +68,8 @@ describe('scene-upload.test', () => {
 
     testUserApiKey = await app.service(userApiKeyPath).create({ userId: testUser.id })
   })
+
+  after(() => destroyEngine())
 
   it('should upload a new scene', async () => {
     const sceneName = `test-scene-name-${v1()}`
