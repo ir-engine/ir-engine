@@ -28,6 +28,7 @@ import React from 'react'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 
+import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
@@ -43,13 +44,16 @@ export const SDFEditor: EditorComponentType = (props) => {
   const sdfComponent = useComponent(props.entity, SDFComponent).value as any
 
   return (
-    <NodeEditor {...props} name={'SDF'} description={'Raymarching'}>
-      <InputGroup name="SDF">
+    <NodeEditor {...props} name={'SDF'} description={'Raymarching--'}>
+      <InputGroup name="SDF" label={'color of object'}>
         <ColorInput
           value={sdfComponent.color.value}
-          onChange={updateProperty(sdfComponent, 'color')}
-          onRelease={commitProperty(sdfComponent, 'color')}
+          onChange={updateProperty(SDFComponent, 'color')}
+          onRelease={commitProperty(SDFComponent, 'color')}
         />
+      </InputGroup>
+      <InputGroup name="Add Pass" label={'add pass to postprocess'}>
+        <BooleanInput value={sdfComponent.enable} onChange={commitProperty(SDFComponent, 'enable')} />
       </InputGroup>
     </NodeEditor>
   )

@@ -39,6 +39,7 @@ import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { ShaderPass } from 'postprocessing'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -50,7 +51,6 @@ import { RendererState } from '../RendererState'
 import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 import { SDFShader } from '../effects/SDFShader.js'
 import { changeRenderMode } from './changeRenderMode'
-
 export const configureEffectComposer = (
   remove?: boolean,
   camera: PerspectiveCamera = getComponent(Engine.instance.cameraEntity, CameraComponent)
@@ -113,10 +113,14 @@ export const configureEffectComposer = (
     resolutionScale: 0.5
   })
 
-  //composer.addPass(depthDownsamplingPass)
-  const SDFPass = new ShaderPass(SDFShader.shader)
-  composer.addPass(SDFPass)
-
+  const SDFSetting = getState(SDFComponent.SDFStateSettingsState)
+  //const SDFSetting = useHookstate(SDFComponent.SDFState)
+  if (!SDFSetting.enabled) {
+    const SDFPass = new ShaderPass(SDFShader.shader)
+    // SDFPass.fullscreenMaterial.blending = AdditiveBlending
+    // SDFPass.fullscreenMaterial.transparent = true;
+    composer.addPass(SDFPass)
+  }
   const velocityDepthNormalPass = new VelocityDepthNormalPass(scene, camera)
   let useVelocityDepthNormalPass = false
   let useDepthDownsamplingPass = false
