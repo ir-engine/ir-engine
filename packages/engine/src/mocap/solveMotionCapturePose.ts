@@ -288,7 +288,7 @@ export function solveMotionCapturePose(
 
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
   const estimatingLowerBody = shouldEstimateLowerBody(landmarks)
-  solveSpine(entity, lowestWorldY, landmarks)
+  solveSpine(entity, lowestWorldY, landmarks, userData.flipped)
   solveLimb(
     entity,
     lowestWorldY,
@@ -417,8 +417,9 @@ const quat = new Quaternion()
 
 const spineRotation = new Quaternion(),
   shoulderRotation = new Quaternion(),
-  hipCenter = new Vector3()
-export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLandmarkList) => {
+  hipCenter = new Vector3(),
+  rotate180YQuaternion = new Quaternion().setFromAxisAngle(V_010, Math.PI)
+export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLandmarkList, needsFlipping = false) => {
   const trackingLowerBody = MotionCaptureRigComponent.solvingLowerBody[entity]
   const rig = getComponent(entity, AvatarRigComponent)
 
@@ -507,30 +508,22 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
     }
   }
 
+  if (needsFlipping) hipWorldQuaterion.premultiply(rotate180YQuaternion)
+
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipWorldQuaterion.x
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity] = hipWorldQuaterion.y
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity] = hipWorldQuaterion.z
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity] = hipWorldQuaterion.w
-
-  rig[VRMHumanBoneName.Hips]?.node.quaternion.copy(hipWorldQuaterion)
 
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].x[entity] = spineRotation.x
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].y[entity] = spineRotation.y
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].z[entity] = spineRotation.z
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].w[entity] = spineRotation.w
 
-  rig.normalizedRig[VRMHumanBoneName.Spine]?.node.quaternion.copy(spineRotation)
-
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].x[entity] = shoulderRotation.x
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].y[entity] = shoulderRotation.y
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].z[entity] = shoulderRotation.z
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].w[entity] = shoulderRotation.w
-
-  rig.normalizedRig[VRMHumanBoneName.Chest]?.node.quaternion.copy(shoulderRotation)
-
-  rig.normalizedRig[VRMHumanBoneName.Hips]!.node.updateWorldMatrix(false, false)
-  rig.normalizedRig[VRMHumanBoneName.Spine]!.node.updateWorldMatrix(false, false)
-  rig.normalizedRig[VRMHumanBoneName.Chest]!.node.updateWorldMatrix(false, false)
 }
 
 export const solveLimb = (
