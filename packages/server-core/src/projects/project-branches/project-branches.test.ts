@@ -82,7 +82,6 @@ describe('project-branches.test', () => {
   after(() => destroyEngine())
 
   it('should get the project branches', async () => {
-    // fixtures.mock('api.github.com/get-repository')
     nock('https://api.github.com')
       .get(/\/repos.*/)
       .reply(200, getGithubRepositories())
