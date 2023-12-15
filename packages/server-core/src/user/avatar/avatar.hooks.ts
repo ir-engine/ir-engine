@@ -193,15 +193,7 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
       id: {
         $ne: context.id?.toString() as AvatarID
       },
-      $or: [
-        {
-          isPublic: true
-        },
-        {
-          isPublic: false,
-          userId: context.params.user?.id
-        }
-      ],
+      isPublic: true,
       $limit: 1000
     },
     paginate: false
