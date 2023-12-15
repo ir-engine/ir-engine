@@ -180,7 +180,7 @@ const onKeyC = () => {
 
 const lastLookDelta = new Vector2()
 let lastMouseMoved = false
-const INPUT_CAPTURE_DELAY = 0.2
+const INPUT_CAPTURE_DELAY = 0.02
 let accumulator = 0
 
 const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })

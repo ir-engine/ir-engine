@@ -78,6 +78,7 @@ export interface GeometryTarget {
    * @default 0
    */
   priority?: number
+  totalSize: number
 }
 
 export interface DracoEncodeOptions {
@@ -229,6 +230,7 @@ export interface TextureTarget {
    * @default 0
    */
   priority?: number
+  totalSize: number
 }
 
 export interface KTX2EncodeOptions {
