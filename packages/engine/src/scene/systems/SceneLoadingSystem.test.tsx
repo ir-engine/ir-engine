@@ -29,10 +29,11 @@ import { applyIncomingActions, dispatchAction, getMutableState, getState } from 
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
+import { EditorControlFunctions } from '../../../../editor/src/functions/EditorControlFunctions'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
 import { Engine, destroyEngine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { SceneSnapshotAction, SceneState } from '../../ecs/classes/Scene'
+import { SceneSnapshotAction, SceneSnapshotSystem, SceneState } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
@@ -48,6 +49,7 @@ import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
 
+const modelLink = ''
 const testScene = {
   name: '',
   thumbnailUrl: '',
@@ -86,8 +88,8 @@ const testScene = {
           {
             name: 'gltf-model',
             props: {
-              src: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Avocado/glTF-Binary/Avocado.glb',
-              generateBVH: true,
+              src: modelLink,
+              generateBVH: false,
               avoidCameraOcclusion: false
             }
           }
@@ -279,7 +281,7 @@ describe('SceneLoadingSystem', () => {
   beforeEach(() => {
     createEngine()
     Engine.instance.userID = 'user' as UserID
-
+    Engine.instance.store.defaultDispatchDelay = () => 0
     const eventDispatcher = new EventDispatcher()
     ;(Engine.instance.api as any) = {
       service: () => {
@@ -672,17 +674,17 @@ describe('SceneLoadingSystem', () => {
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
     // init
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
+    const LoadReactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+    const loadTag = <LoadReactor />
 
     SceneState.loadScene(testID, testScene)
 
     // render
-    const { rerender, unmount } = render(tag)
+    const { rerender: loadScene, unmount: unmountSceneLoader } = render(loadTag)
 
     // load scene
     // force re-render
-    await act(() => rerender(tag))
+    await act(() => loadScene(loadTag))
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
@@ -697,6 +699,7 @@ describe('SceneLoadingSystem', () => {
 
     const child0Entity = UUIDComponent.entitiesByUUID['child_0']
     assert(child0Entity, 'child_0 entity not found')
+
     assert.equal(
       hasComponent(child0Entity, EntityTreeComponent),
       true,
@@ -710,12 +713,10 @@ describe('SceneLoadingSystem', () => {
     // check for success of model component
 
     assert.equal(hasComponent(child0Entity, ModelComponent), true, 'child_0 entity does not have ModelComponent')
-
-    await act(() => rerender(tag))
-    const tree = getComponent(child0Entity, EntityTreeComponent)
-
+    const model = getComponent(child0Entity, ModelComponent)
+    assert.equal(model.src, modelLink, 'model link is different')
     // check for model component children //not loading
-    unmount()
+    unmountSceneLoader()
   })
   it('will have sceneAssetPendingTagQuery when loading', async () => {
     getMutableState(SceneState).activeScene.set(testID)
@@ -735,7 +736,7 @@ describe('SceneLoadingSystem', () => {
     // force re-render
 
     const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent]).enter
-
+    // will capture the sceneAssetPendingTag for the model component
     const inLoadingEntities = sceneAssetPendingTagQuery()
 
     assert(inLoadingEntities.length > 0, 'no sceneAssetPendingTag found when loading')
@@ -876,6 +877,8 @@ describe('Snapshots', () => {
   beforeEach(() => {
     createEngine()
     getMutableState(EngineState).isEditing.set(true)
+    getMutableState(EngineState).isEditor.set(false)
+    Engine.instance.store.defaultDispatchDelay = () => 0
 
     Engine.instance.userID = 'user' as UserID
 
@@ -1016,14 +1019,23 @@ describe('Snapshots', () => {
     // unmount to cleanup
 
     const expectedSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    console.log(expectedSnapshot)
+    const visibleJson = {
+      name: 'visible',
+      props: {}
+    }
+    const root = expectedSnapshot.data.entities['root']
+    root.components.push(visibleJson)
 
-    expectedSnapshot.selectedEntities = [getComponent(child0Entity, UUIDComponent)] // forced change
+    expectedSnapshot.data.entities['root'] = root
 
     dispatchAction(SceneSnapshotAction.createSnapshot(expectedSnapshot))
+
     applyIncomingActions()
 
+    SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+
     const actualSnapShot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
-    console.log(actualSnapShot, expectedSnapshot)
     assert.deepStrictEqual(actualSnapShot, expectedSnapshot, 'Snapshots do not match')
 
     unmountSceneLoader()
@@ -1036,67 +1048,6 @@ describe('Snapshots', () => {
     // init
     const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
     const tag = <Reactor />
-    SceneState.loadScene(testID, testScene)
-
-    // render
-    const { rerender, unmount } = render(tag)
-
-    // load scene
-    // force re-render
-    await act(() => rerender(tag))
-
-    // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
-    assert(rootEntity, 'root entity not found')
-    assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
-    assert.equal(
-      getComponent(rootEntity, EntityTreeComponent).parentEntity,
-      null,
-      'root entity does not have parentEntity'
-    )
-
-    const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
-    assert(child2_1Entity, 'child_2_1 entity not found')
-    assert.equal(
-      hasComponent(child2_1Entity, EntityTreeComponent),
-      true,
-      'child_2_1 entity does not have EntityTreeComponent'
-    )
-    assert.equal(
-      hasComponent(child2_1Entity, FogSettingsComponent),
-      true,
-      'child_2_1 entity does not have FogSettingsComponent'
-    )
-    const fog = getComponent(child2_1Entity, FogSettingsComponent)
-    const originalfogData = testScene.scene.entities['child_2_1'].components.filter(
-      (component) => component.name === 'fog'
-    )[0]
-    assert.deepStrictEqual(fog, originalfogData.props, 'fog component does not match')
-
-    // unmount to cleanup
-    unmount()
-  })
-  it('redo snapshot', async () => {
-    // wont load unless we simulate the avatar and its distance from the dynamic entity
-    getMutableState(SceneState).activeScene.set(testID)
-    getMutableState(PhysicsState).physicsWorld.set({} as any)
-    // its easier to just add the component to the scene and remove it at the end
-    const dynamicLoadJson = {
-      name: 'dynamic-load',
-      props: {
-        mode: 'distance',
-        distance: 2,
-        loaded: false
-      }
-    }
-
-    testScene.scene.entities['child_0'].components.push(dynamicLoadJson)
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
-
-    // load scene
-
-    // init
     SceneState.loadScene(testID, testScene)
 
     // render
@@ -1129,17 +1080,254 @@ describe('Snapshots', () => {
       'child_0 entity does not have parentEntity as root entity'
     )
 
-    // check for failure to load
     const child1Entity = UUIDComponent.entitiesByUUID['child_1']
-    assert.equal(child1Entity, undefined, 'child_1 entity found')
-    testScene.scene.entities['child_0'].components = testScene.scene.entities['child_0'].components.filter(
-      (component) => component.name !== 'dynamic-load'
+    assert(child1Entity, 'child_1 entity not found')
+    assert.equal(
+      hasComponent(child1Entity, EntityTreeComponent),
+      true,
+      'child_1 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child1Entity, EntityTreeComponent).parentEntity,
+      child0Entity,
+      'child_1 entity does not have parentEntity as child_0 entity'
     )
 
+    const child2Entity = UUIDComponent.entitiesByUUID['child_2']
+    assert(child2Entity, 'child_2 entity not found')
+    assert.equal(
+      hasComponent(child2Entity, EntityTreeComponent),
+      true,
+      'child_2 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child2Entity, EntityTreeComponent).parentEntity,
+      child1Entity,
+      'child_2 entity does not have parentEntity as child_1 entity'
+    )
+
+    const child3Entity = UUIDComponent.entitiesByUUID['child_3']
+    assert(child3Entity, 'child_3 entity not found')
+    assert.equal(
+      hasComponent(child3Entity, EntityTreeComponent),
+      true,
+      'child_3 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child3Entity, EntityTreeComponent).parentEntity,
+      child2Entity,
+      'child_3 entity does not have parentEntity as child_2 entity'
+    )
+
+    const child4Entity = UUIDComponent.entitiesByUUID['child_4']
+    assert(child4Entity, 'child_4 entity not found')
+    assert.equal(
+      hasComponent(child4Entity, EntityTreeComponent),
+      true,
+      'child_4 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child4Entity, EntityTreeComponent).parentEntity,
+      child3Entity,
+      'child_4 entity does not have parentEntity as child_3 entity'
+    )
+
+    const child5Entity = UUIDComponent.entitiesByUUID['child_5']
+    assert(child5Entity, 'child_5 entity not found')
+    assert.equal(
+      hasComponent(child5Entity, EntityTreeComponent),
+      true,
+      'child_5 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child5Entity, EntityTreeComponent).parentEntity,
+      child4Entity,
+      'child_5 entity does not have parentEntity as child_4 entity'
+    )
+
+    const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+    assert(child2_1Entity, 'child_2_1 entity not found')
+    assert.equal(
+      hasComponent(child2_1Entity, EntityTreeComponent),
+      true,
+      'child_2_1 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child2_1Entity, EntityTreeComponent).parentEntity,
+      child2Entity,
+      'child_2_1 entity does not have parentEntity as child_2 entity'
+    )
+    const oldSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    EditorControlFunctions.removeObject([child2_1Entity])
+    applyIncomingActions()
+    SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+    await act(() => rerender(tag)) // reload scene after snapshot
+
+    assert.equal(UUIDComponent.entitiesByUUID['child_2_1'], undefined, 'snapshot unchanged,  entity was not deleted')
+
+    dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
+    applyIncomingActions()
+    SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+
+    // wait again
+    const undoSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+
+    assert.deepStrictEqual(oldSnap, undoSnap, 'Snapshots do not match')
+    // unmount to cleanup
+    unmount()
+  })
+
+  it('redo snapshot', async () => {
+    // wont load unless we simulate the avatar and its distance from the dynamic entity
+    getMutableState(SceneState).activeScene.set(testID)
+    getMutableState(PhysicsState).physicsWorld.set({} as any)
+
+    // init
+    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+    const tag = <Reactor />
+    SceneState.loadScene(testID, testScene)
+
+    // render
+    const { rerender, unmount } = render(tag)
+
+    // load scene
+    // force re-render
+    await act(() => rerender(tag))
+
+    // assertions
+    const rootEntity = SceneState.getRootEntity(testID)
+    assert(rootEntity, 'root entity not found')
+    assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
+    assert.equal(
+      getComponent(rootEntity, EntityTreeComponent).parentEntity,
+      null,
+      'root entity does not have parentEntity'
+    )
+
+    const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+    assert(child0Entity, 'child_0 entity not found')
+    assert.equal(
+      hasComponent(child0Entity, EntityTreeComponent),
+      true,
+      'child_0 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child0Entity, EntityTreeComponent).parentEntity,
+      rootEntity,
+      'child_0 entity does not have parentEntity as root entity'
+    )
+
+    const child1Entity = UUIDComponent.entitiesByUUID['child_1']
+    assert(child1Entity, 'child_1 entity not found')
+    assert.equal(
+      hasComponent(child1Entity, EntityTreeComponent),
+      true,
+      'child_1 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child1Entity, EntityTreeComponent).parentEntity,
+      child0Entity,
+      'child_1 entity does not have parentEntity as child_0 entity'
+    )
+
+    const child2Entity = UUIDComponent.entitiesByUUID['child_2']
+    assert(child2Entity, 'child_2 entity not found')
+    assert.equal(
+      hasComponent(child2Entity, EntityTreeComponent),
+      true,
+      'child_2 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child2Entity, EntityTreeComponent).parentEntity,
+      child1Entity,
+      'child_2 entity does not have parentEntity as child_1 entity'
+    )
+
+    const child3Entity = UUIDComponent.entitiesByUUID['child_3']
+    assert(child3Entity, 'child_3 entity not found')
+    assert.equal(
+      hasComponent(child3Entity, EntityTreeComponent),
+      true,
+      'child_3 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child3Entity, EntityTreeComponent).parentEntity,
+      child2Entity,
+      'child_3 entity does not have parentEntity as child_2 entity'
+    )
+
+    const child4Entity = UUIDComponent.entitiesByUUID['child_4']
+    assert(child4Entity, 'child_4 entity not found')
+    assert.equal(
+      hasComponent(child4Entity, EntityTreeComponent),
+      true,
+      'child_4 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child4Entity, EntityTreeComponent).parentEntity,
+      child3Entity,
+      'child_4 entity does not have parentEntity as child_3 entity'
+    )
+
+    const child5Entity = UUIDComponent.entitiesByUUID['child_5']
+    assert(child5Entity, 'child_5 entity not found')
+    assert.equal(
+      hasComponent(child5Entity, EntityTreeComponent),
+      true,
+      'child_5 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child5Entity, EntityTreeComponent).parentEntity,
+      child4Entity,
+      'child_5 entity does not have parentEntity as child_4 entity'
+    )
+
+    const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+    assert(child2_1Entity, 'child_2_1 entity not found')
+    assert.equal(
+      hasComponent(child2_1Entity, EntityTreeComponent),
+      true,
+      'child_2_1 entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(child2_1Entity, EntityTreeComponent).parentEntity,
+      child2Entity,
+      'child_2_1 entity does not have parentEntity as child_2 entity'
+    )
+
+    const oldSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    EditorControlFunctions.removeObject([child2_1Entity])
+    applyIncomingActions()
+    SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+    await act(() => rerender(tag)) // reload scene after snapshot
+
+    // wait somehow
+    const newSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+
+    assert.equal(UUIDComponent.entitiesByUUID['child_2_1'], undefined, 'snapshot unchanged entity not deleted')
+
+    dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
+    applyIncomingActions()
+    SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+
+    // wait again
+    const undoSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    assert.deepStrictEqual(oldSnap, undoSnap, 'undo Snapshots do not match')
+
+    dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID: getState(SceneState).activeScene! }))
+    applyIncomingActions()
+    SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+
+    const redoSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+
+    assert.deepStrictEqual(newSnap, redoSnap, 'redo Snapshots do not match')
+
+    // unmount to cleanup
     unmount()
   })
   afterEach(() => {
     getMutableState(EngineState).isEditing.set(false)
+    getMutableState(EngineState).isEditor.set(false)
 
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = undefined
     return destroyEngine()

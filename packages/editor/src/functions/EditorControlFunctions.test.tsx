@@ -38,11 +38,15 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { SystemDefinitions } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
-import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
-import { loadEmptyScene } from '../../../engine/tests/util/loadEmptyScene'
+import { SceneLoadingSystem } from '@etherealengine/engine/src/scene/SceneModule'
+import { loadEmptyScene } from '@etherealengine/engine/tests/util/loadEmptyScene'
+import { applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
+import React from 'react'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 class TempProp {
@@ -88,21 +92,24 @@ function getRandomValues(): TestComponentType {
   }
 }
 /** @todo rewrite all these tests */
-describe.skip('EditorControlFunctions', () => {
+describe('EditorControlFunctions', () => {
   describe('modifyProperty', () => {
     let nodes: Entity[]
-
+    const LoadReactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+    const loadTag = <LoadReactor />
     beforeEach(() => {
       createEngine()
       loadEmptyScene()
-
+      getMutableState(PhysicsState).physicsWorld.set({} as any)
+      // init
       Engine.instance.store.defaultDispatchDelay = () => 0
 
-      const rootNode = SceneState.getRootEntity(getState(SceneState).activeScene!)
+      const rootEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
+
       nodes = [createEntity(), createEntity()]
 
       for (let i = 0; i < 2; i++) {
-        setComponent(nodes[i], EntityTreeComponent, { parentEntity: rootNode })
+        setComponent(nodes[i], EntityTreeComponent, { parentEntity: rootEntity })
         addComponent(nodes[i], TestComponent, getRandomValues())
       }
     })
@@ -111,10 +118,15 @@ describe.skip('EditorControlFunctions', () => {
       return destroyEngine()
     })
 
-    it('will execute the command', () => {
+    it('will execute the command', async () => {
+      // load scene
+      // force re-render
+      // assertions
       const prop = getRandomValues()
+      console.log('HELLO')
       EditorControlFunctions.modifyProperty(nodes, TestComponent, prop)
       applyIncomingActions()
+      console.log('HELLO')
       for (const node of nodes) {
         if (typeof node === 'string') return
         const component = getComponent(node, TestComponent)
