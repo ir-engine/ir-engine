@@ -41,8 +41,10 @@ import { addDataChannelHandler, removeDataChannelHandler } from '../networking/s
 
 import { getState } from '@etherealengine/hyperflux'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { Quaternion } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AnimationSystem } from '../avatar/systems/AnimationSystem'
+import { V_010 } from '../common/constants/MathConstants'
 import { lerp } from '../common/functions/MathLerpFunctions'
 import { isClient } from '../common/functions/getEnvironment'
 import { EngineState } from '../ecs/classes/EngineState'
@@ -104,6 +106,8 @@ const timeSeriesMocapData = new Map<
 >()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
+const flipRotation = new Quaternion().setFromAxisAngle(V_010, Math.PI)
+
 const execute = () => {
   // for now, it is unnecessary to compute anything on the server
   if (!isClient) return
@@ -139,6 +143,7 @@ const execute = () => {
       const normalizedBone = rigComponent.vrm.humanoid.normalizedHumanBones[boneName]?.node
       if (!normalizedBone) continue
       if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
+        /**todo lower body solve logic should be on a per limb basis */
         if (
           boneName == VRMHumanBoneName.LeftUpperLeg ||
           boneName == VRMHumanBoneName.RightUpperLeg ||
@@ -179,7 +184,6 @@ const execute = () => {
         MotionCaptureRigComponent.hipPosition.y[entity],
         MotionCaptureRigComponent.hipPosition.z[entity]
       )
-      hipBone.updateMatrixWorld(true)
     }
 
     if (worldHipsParent)
