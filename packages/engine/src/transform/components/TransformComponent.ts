@@ -87,6 +87,14 @@ export const TransformComponent = defineComponent({
     if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
   },
 
+  toJSON: (entity, component) => {
+    return {
+      position: component.position.value,
+      rotation: component.rotation.value,
+      scale: component.scale.value
+    }
+  },
+
   onRemove: (entity) => {
     delete TransformComponent.dirtyTransforms[entity]
   },
