@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Noise } from 'noisejs'
 import { useEffect } from 'react'
-import { DataTexture, IUniform, LinearFilter, RedFormat, RepeatWrapping, Uniform, UnsignedByteType } from 'three'
+import { DataTexture, IUniform, Uniform } from 'three'
 
 import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
@@ -35,6 +34,7 @@ import { defineSystem } from '../../../../ecs/functions/SystemFunctions'
 import { SceneLoadingSystem } from '../../../../scene/systems/SceneLoadingSystem'
 import { MaterialPluginType } from '../../components/MaterialPluginComponent'
 import { SourceType } from '../../components/MaterialSource'
+import { generateNoiseTexture } from '../../functions/generateNoiseTexture'
 import { MaterialLibraryState } from '../../MaterialLibrary'
 
 export type NoiseOffsetParameters = {
@@ -140,40 +140,7 @@ const reactor = () => {
     const plugin = noiseOffset.get(NO_PROXY)
     time = plugin.parameters['time']
     // Create new Perlin noise instance
-    const noise = new Noise(Math.random())
-
-    // Set texture size
-    const textureSize: number = plugin.parameters['textureSize'] // Adjust as needed
-
-    // Create a data array to store the noise values
-    const size = textureSize * textureSize * textureSize
-    const data = new Uint8Array(4 * size)
-
-    // Fill the data array with noise values
-    for (let k = 0; k < textureSize; k++) {
-      for (let j = 0; j < textureSize; j++) {
-        for (let i = 0; i < textureSize; i++) {
-          // Compute a single noise value between 0 and 255
-          let value = noise.perlin3(i / textureSize, j / textureSize, k / textureSize)
-          value = (value + 1) / 2 // remap from -1, 1 to 0, 1
-          value *= 255
-
-          const index = 4 * (i + j * textureSize + k * textureSize * textureSize)
-          data[index] = data[index + 1] = data[index + 2] = value
-          data[index + 3] = 255 // alpha channel
-        }
-      }
-    }
-
-    // Create a js data texture
-    const noiseTexture = new DataTexture(data, textureSize, textureSize * textureSize)
-    noiseTexture.format = RedFormat
-    noiseTexture.type = UnsignedByteType
-    noiseTexture.wrapS = noiseTexture.wrapT = RepeatWrapping
-    noiseTexture.minFilter = LinearFilter
-    noiseTexture.magFilter = LinearFilter
-    noiseTexture.unpackAlignment = 1
-    noiseTexture.needsUpdate = true
+    const noiseTexture = generateNoiseTexture(plugin.parameters.textureSize)
     noiseOffset.parameters['noiseTexture'].set(noiseTexture)
   }, [noiseOffset])
 

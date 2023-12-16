@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   BlendFunction,
   DepthDownsamplingPass,
+  DepthPass,
   EffectComposer,
   EffectPass,
   NormalPass,
@@ -35,7 +36,7 @@ import {
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 'three'
+import { DepthTexture, NearestFilter, PerspectiveCamera, RGBAFormat, UnsignedShortType, WebGLRenderTarget } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -49,7 +50,7 @@ import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/Pos
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
 import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
-import { SDFShader } from '../effects/SDFShader.js'
+import { SDFShader } from '../effects/SDFShader'
 import { changeRenderMode } from './changeRenderMode'
 export const configureEffectComposer = (
   remove?: boolean,
@@ -108,6 +109,22 @@ export const configureEffectComposer = (
     })
   })
 
+  const depthRenderTarget = new WebGLRenderTarget(window.innerWidth, window.innerHeight)
+  depthRenderTarget.texture.minFilter = NearestFilter
+  depthRenderTarget.texture.magFilter = NearestFilter
+  depthRenderTarget.texture.generateMipmaps = false
+  depthRenderTarget.stencilBuffer = false
+  depthRenderTarget.depthBuffer = true
+  depthRenderTarget.depthTexture = new DepthTexture(window.innerWidth, window.innerHeight)
+  depthRenderTarget.depthTexture.type = UnsignedShortType
+
+  const depthPass = new DepthPass(scene, camera, {
+    renderTarget: depthRenderTarget
+  })
+
+  composer.addPass(depthPass)
+  SDFShader.shader.uniforms.uDepth.value = depthRenderTarget.depthTexture
+
   const depthDownsamplingPass = new DepthDownsamplingPass({
     normalBuffer: normalPass.texture,
     resolutionScale: 0.5
@@ -115,8 +132,8 @@ export const configureEffectComposer = (
 
   const SDFSetting = getState(SDFComponent.SDFStateSettingsState)
   //const SDFSetting = useHookstate(SDFComponent.SDFState)
-  if (!SDFSetting.enabled) {
-    const SDFPass = new ShaderPass(SDFShader.shader)
+  if (SDFSetting.enabled) {
+    const SDFPass = new ShaderPass(SDFShader.shader, 'inputBuffer')
     // SDFPass.fullscreenMaterial.blending = AdditiveBlending
     // SDFPass.fullscreenMaterial.transparent = true;
     composer.addPass(SDFPass)
@@ -187,7 +204,7 @@ export const configureEffectComposer = (
       }
 
     composer.EffectPass = new EffectPass(camera, ...effects)
-    //composer.addPass(composer.EffectPass)
+    composer.addPass(composer.EffectPass)
   }
   if (getState(EngineState).isEditor) changeRenderMode()
 }

@@ -31,6 +31,7 @@ import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFCom
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
+import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
@@ -41,7 +42,7 @@ import { EditorComponentType, commitProperty, updateProperty } from './Util'
  * @type {[component class]}
  */
 export const SDFEditor: EditorComponentType = (props) => {
-  const sdfComponent = useComponent(props.entity, SDFComponent).value as any
+  const sdfComponent = useComponent(props.entity, SDFComponent)
 
   return (
     <NodeEditor {...props} name={'SDF'} description={'Raymarching--'}>
@@ -52,8 +53,11 @@ export const SDFEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SDFComponent, 'color')}
         />
       </InputGroup>
+      <InputGroup name="Scale" label={'scale of object'}>
+        <Vector3Input value={sdfComponent.scale.value} onChange={updateProperty(SDFComponent, 'scale')} />
+      </InputGroup>
       <InputGroup name="Add Pass" label={'add pass to postprocess'}>
-        <BooleanInput value={sdfComponent.enable} onChange={commitProperty(SDFComponent, 'enable')} />
+        <BooleanInput value={sdfComponent.enable.value} onChange={commitProperty(SDFComponent, 'enable')} />
       </InputGroup>
     </NodeEditor>
   )

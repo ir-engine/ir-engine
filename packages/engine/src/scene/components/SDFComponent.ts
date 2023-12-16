@@ -30,16 +30,19 @@ import {
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { createState, defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Color, Vector3 } from 'three'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { CameraSystem } from '../../camera/systems/CameraSystem'
 import { Engine } from '../../ecs/classes/Engine'
+import { UndefinedEntity } from '../../ecs/classes/Entity'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { SDFShader } from '../../renderer/effects/SDFShader'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { setCallback } from './CallbackComponent'
 import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
+
 export const SDFComponent = defineComponent({
   name: 'SDFComponent',
   jsonID: 'SDF',
@@ -47,6 +50,7 @@ export const SDFComponent = defineComponent({
   onInit: (entity) => {
     return {
       color: new Color(0xffffff),
+      scale: new Vector3(0.25, 0.001, 0.25),
       enable: false
     }
   },
@@ -54,6 +58,9 @@ export const SDFComponent = defineComponent({
     if (!json) return
     if (json.color?.isColor) {
       component.color.set(json.color)
+    }
+    if (json.scale?.isVector3) {
+      component.scale.set(json.scale)
     }
     if (typeof json.enable == 'boolean') {
       component.enable.set(json.enable)
@@ -63,14 +70,11 @@ export const SDFComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       color: component.color.value,
+      scale: component.scale.value,
       enable: component.enable.value
     }
   },
 
-  SDFState: createState({
-    enabled: false,
-    color: new Color(0xf3ffff)
-  }),
   SDFStateSettingsState: defineState({
     name: 'SDFSettingsState',
     initial: {
@@ -81,25 +85,33 @@ export const SDFComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const sdfComponent = useComponent(entity, SDFComponent)
-    const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
+    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+    const cameraPosition = cameraTransform.position
     const shader = SDFShader.shader
+    const cameraComponent = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    let updater = UndefinedEntity
 
-    const updater = createEntity()
-    setCallback(updater, UpdatableCallback, (dt) => {
-      shader.uniforms.uTime.value += dt * 0.005
-    })
-
-    setComponent(updater, UpdatableComponent, true)
+    useEffect(() => {
+      updater = createEntity()
+      setCallback(updater, UpdatableCallback, (dt) => {
+        shader.uniforms.uTime.value += dt * 0.1
+      })
+      setComponent(updater, UpdatableComponent, true)
+    }, [])
 
     useExecute(
       () => {
         shader.uniforms.cameraPos.value = cameraPosition
+        shader.uniforms.cameraMatrix.value = cameraTransform.matrix
+        shader.uniforms.fov.value = cameraComponent.fov
+        shader.uniforms.aspectRatio.value = cameraComponent.aspect
       },
       { after: CameraSystem }
     )
 
     useEffect(() => {
-      getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(sdfComponent.enable.value)
+      if (getState(SDFComponent.SDFStateSettingsState).enabled !== sdfComponent.enable.value)
+        getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(sdfComponent.enable.value)
     }, [sdfComponent.enable])
 
     useEffect(() => {
@@ -109,6 +121,11 @@ export const SDFComponent = defineComponent({
         sdfComponent.color.value.b
       )
     }, [sdfComponent.color])
+
+    useEffect(() => {
+      shader.uniforms.scale.value = sdfComponent.scale.value
+    }, [sdfComponent.scale])
+
     return null
   }
 })
