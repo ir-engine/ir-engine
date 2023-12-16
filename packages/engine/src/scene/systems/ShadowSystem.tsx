@@ -393,7 +393,7 @@ const reactor = () => {
       ) : (
         <QueryReactor Components={[ShadowComponent]} ChildEntityReactor={DropShadowReactor} />
       )}
-      <GroupQueryReactor GroupChildReactor={ShadowMeshReactor} Components={[MeshComponent, ShadowComponent]} />
+      <GroupQueryReactor GroupChildReactor={ShadowMeshReactor} Components={[ShadowComponent]} />
     </>
   )
 }
