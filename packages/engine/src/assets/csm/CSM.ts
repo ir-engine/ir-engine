@@ -168,6 +168,7 @@ export class CSM {
       for (let i = 0; i < this.cascades; i++) {
         const light = sourceLight.clone()
         light.castShadow = true
+        light.frustumCulled = false
 
         const entity = createEntity()
         addObjectToGroup(entity, light)
@@ -195,6 +196,7 @@ export class CSM {
       light.shadow.camera.near = this.lightNear
       light.shadow.camera.far = this.lightFar
       light.shadow.bias = this.shadowBias
+      light.frustumCulled = false
 
       const entity = createEntity()
       addObjectToGroup(entity, light)
