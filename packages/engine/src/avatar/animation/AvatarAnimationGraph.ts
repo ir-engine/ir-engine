@@ -119,12 +119,13 @@ export const loadAndPlayAvatarAnimation = (entity: Entity, filePath: string, cli
       switch (fileType) {
         case 'fbx':
           animationsAsset.scene.animations[0].name = clipName ?? stateName
+          animationsAsset.animations = animationsAsset.animations ?? animationsAsset.scene.animations
           break
         case 'glb':
           //if it's a glb, set the scene's animations to the asset's animations
           //this lets us assume they are in the same location for both fbx and glb files
           animationsAsset.animations[0].name = clipName ?? stateName
-          animationsAsset.scene.animations = animationsAsset.animations
+          animationsAsset.animations = animationsAsset.scene.animations
           break
       }
       animationState.loadedAnimations[stateName] = animationsAsset
