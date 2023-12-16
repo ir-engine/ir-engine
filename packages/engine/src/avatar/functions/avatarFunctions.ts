@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
-import { cloneDeep } from 'lodash'
 import { AnimationClip, AnimationMixer, Box3, Object3D, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
@@ -77,6 +76,7 @@ declare module '@pixiv/three-vrm/types/VRM' {
     userData: {
       flipped: boolean
       useAPose: boolean
+      retargeted?: boolean
     }
   }
 }
@@ -160,9 +160,7 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   const animations = [] as AnimationClip[]
   for (const key in manager.loadedAnimations) {
     for (const animation of manager.loadedAnimations[key].animations)
-      animations.push(
-        retargetMixamoAnimation(cloneDeep(animation), manager.loadedAnimations[key].scene, rigComponent.vrm)
-      )
+      animations.push(retargetMixamoAnimation(animation, manager.loadedAnimations[key].scene, rigComponent.vrm))
   }
   setComponent(entity, AnimationComponent, {
     animations: animations,
