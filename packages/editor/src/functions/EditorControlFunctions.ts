@@ -140,6 +140,7 @@ const modifyProperty = <C extends Component<any, any>>(
   }
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
+    console.log('sceneID', sceneID, entities)
     const newSnapshot = SceneState.cloneCurrentSnapshot(sceneID as SceneID)
 
     for (const entity of entities) {

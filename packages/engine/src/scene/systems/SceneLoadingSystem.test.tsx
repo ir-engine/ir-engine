@@ -877,7 +877,7 @@ describe('Snapshots', () => {
   beforeEach(() => {
     createEngine()
     getMutableState(EngineState).isEditing.set(true)
-    getMutableState(EngineState).isEditor.set(false)
+    getMutableState(EngineState).isEditor.set(true)
     Engine.instance.store.defaultDispatchDelay = () => 0
 
     Engine.instance.userID = 'user' as UserID
