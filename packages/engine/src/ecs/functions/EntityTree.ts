@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { NO_PROXY, none } from '@etherealengine/hyperflux'
 
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -72,9 +72,11 @@ export const EntityTreeComponent = defineComponent({
       throw new Error('Entity cannot be its own parent: ' + entity)
     }
 
+    const currentParentEntity = component.parentEntity.value
+
     // If a previous parentEntity, remove this entity from its children
-    if (component.parentEntity.value && component.parentEntity.value !== json.parentEntity) {
-      const oldParent = getMutableComponent(component.parentEntity.value, EntityTreeComponent)
+    if (currentParentEntity && currentParentEntity !== json.parentEntity) {
+      const oldParent = getMutableComponent(currentParentEntity, EntityTreeComponent)
       const parentChildIndex = oldParent.children.value.findIndex((child) => child === entity)
       const children = oldParent.children.get(NO_PROXY)
       oldParent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
@@ -84,20 +86,23 @@ export const EntityTreeComponent = defineComponent({
     if (typeof json.parentEntity !== 'undefined') {
       component.parentEntity.set(json.parentEntity)
     }
+
+    const parentEntity = component.parentEntity.value
+
     if (matchesEntityUUID.test(json?.uuid) && !hasComponent(entity, UUIDComponent))
       setComponent(entity, UUIDComponent, json.uuid)
 
-    if (component.parentEntity.value) {
-      if (!hasComponent(component.parentEntity.value, EntityTreeComponent))
-        setComponent(component.parentEntity.value, EntityTreeComponent)
+    if (parentEntity) {
+      if (!hasComponent(parentEntity, EntityTreeComponent)) setComponent(parentEntity, EntityTreeComponent)
 
-      const parent = getMutableComponent(component.parentEntity.value, EntityTreeComponent)
+      const parentState = getMutableComponent(parentEntity, EntityTreeComponent)
+      const parent = getComponent(parentEntity, EntityTreeComponent)
 
-      const prevChildIndex = parent?.children.value.indexOf(entity)
+      const prevChildIndex = parent.children.indexOf(entity)
       const isDifferentIndex = typeof json.childIndex === 'number' ? prevChildIndex !== json.childIndex : false
 
       if (isDifferentIndex && prevChildIndex !== -1) {
-        parent.children.set((prevChildren) => [
+        parentState.children.set((prevChildren) => [
           ...prevChildren.slice(0, prevChildIndex),
           ...prevChildren.slice(prevChildIndex + 1)
         ])
@@ -105,23 +110,24 @@ export const EntityTreeComponent = defineComponent({
 
       if (isDifferentIndex || prevChildIndex === -1) {
         if (typeof json.childIndex !== 'undefined')
-          parent.children.set((prevChildren) => [
+          parentState.children.set((prevChildren) => [
             ...prevChildren.slice(0, json.childIndex),
             entity,
             ...prevChildren.slice(json.childIndex)
           ])
-        else parent.children.set([...parent.children.value, entity])
+        else parentState.children.set([...parent.children, entity])
       }
     }
   },
 
   onRemove: (entity, component) => {
-    if (component.parentEntity.value && entityExists(component.parentEntity.value)) {
-      const parent = getMutableComponent(component.parentEntity.value, EntityTreeComponent)
-      if (parent) {
-        const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
-        const children = parent.children.get(NO_PROXY)
-        parent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
+    const parentEntity = component.parentEntity.value
+    if (parentEntity && entityExists(parentEntity)) {
+      if (hasComponent(parentEntity, EntityTreeComponent)) {
+        const parentState = getMutableComponent(parentEntity, EntityTreeComponent)
+        const parent = getComponent(parentEntity, EntityTreeComponent)
+        const parentChildIndex = parent.children.findIndex((child) => child === entity)
+        if (parentChildIndex > -1) parentState.children[parentChildIndex].set(none)
       }
     }
   }

@@ -212,10 +212,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
       scale: obj.scale.clone()
     }
   })
-  setComponent(objEntity, EntityTreeComponent, {
-    parentEntity: parentEntity,
-    uuid
-  })
+
   addObjectToGroup(objEntity, obj)
   setComponent(objEntity, GLTFLoadedComponent, ['entity'])
 

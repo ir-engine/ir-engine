@@ -329,6 +329,8 @@ export const setComponent = <C extends Component>(
       Component.stateMap[entity] = hookstate(value, subscribable())
     } else Component.stateMap[entity]!.set(value)
 
+    Component.valueMap[entity] = value
+
     bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
 
     const state = Component.stateMap[entity]!
@@ -353,12 +355,11 @@ export const setComponent = <C extends Component>(
       Component.reactorMap.set(entity, root)
     }
   }
-  startTransition(() => {
-    Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
-    Component.valueMap[entity] = Component.stateMap[entity]!.get(NO_PROXY)
-    const root = Component.reactorMap.get(entity)
-    if (!root?.isRunning) root?.run()
-  })
+  // startTransition(() => {
+  Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
+  const root = Component.reactorMap.get(entity)
+  if (!root?.isRunning) root?.run()
+  // })
 }
 
 /**

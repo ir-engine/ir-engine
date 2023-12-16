@@ -72,6 +72,8 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object
     leftArm.quaternion.copy(leftArmOffset)
   }
 
+  mixamoScene.updateWorldMatrix(true, true)
+
   const motionHipsHeight = hips!.position.y
   const vrmHipsY = vrm.humanoid.getNormalizedBoneNode('hips')!.getWorldPosition(_vec3).y
   const vrmRootY = vrm.scene.getWorldPosition(_vec3).y
@@ -86,8 +88,6 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object
     const vrmBoneName = mixamoVRMRigMap[mixamoRigName]
     const vrmNodeName = vrm.humanoid?.getNormalizedBoneNode(vrmBoneName)?.name
     const mixamoRigNode = mixamoScene.getObjectByName(mixamoRigName)!
-
-    mixamoScene.updateWorldMatrix(true, true)
 
     if (vrmNodeName != null) {
       const propertyName = trackSplitted[1]
