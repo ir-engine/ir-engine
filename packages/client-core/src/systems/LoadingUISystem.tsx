@@ -46,7 +46,7 @@ import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendere
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
+import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/ObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent

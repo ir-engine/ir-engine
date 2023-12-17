@@ -52,6 +52,7 @@ import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { ObjectLayerState } from '../../scene/functions/ObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
@@ -128,7 +129,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   camRayCastClock.start()
 
-  const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
+  const sceneObjects = Array.from(getState(ObjectLayerState)[ObjectLayers.Camera] || [])
 
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)

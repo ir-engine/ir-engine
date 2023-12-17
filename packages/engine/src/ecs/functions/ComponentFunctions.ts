@@ -237,7 +237,7 @@ export const defineComponent = <
 >(
   def: ComponentPartial<ComponentType, Schema, JSON, SetJSON, Error> & ComponentExtras
 ) => {
-  const Component = bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) as ComponentExtras &
+  const Component = (def.schema ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}) as ComponentExtras &
     SoAComponentType<Schema> &
     Component<ComponentType, Schema, JSON, SetJSON, Error>
   Component.isComponent = true

@@ -60,7 +60,7 @@ export const AvatarUIContextMenuService = {
   }
 }
 
-const AvatarContextMenu = () => {
+function AvatarContextMenu() {
   const detailState = useHookstate(getMutableState(AvatarUIContextMenuState))
   const friendState = useHookstate(getMutableState(FriendState))
   const authState = useHookstate(getMutableState(AuthState))

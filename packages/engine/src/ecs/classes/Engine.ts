@@ -32,7 +32,6 @@ import '../../patchEngineNode'
 import '../utils/threejsPatches'
 
 import type { FeathersApplication } from '@feathersjs/feathers'
-import { Object3D } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
@@ -75,12 +74,6 @@ export class Engine {
   get scene() {
     return getState(EngineState).scene
   }
-
-  /**
-   * Map of object lists by layer
-   * (automatically updated by the SceneObjectSystem)
-   */
-  objectLayerList = {} as { [layer: number]: Set<Object3D> }
 
   /**
    * The xr origin reference space entity

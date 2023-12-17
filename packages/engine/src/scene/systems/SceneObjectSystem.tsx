@@ -39,7 +39,6 @@ import {
 
 import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
@@ -57,6 +56,7 @@ import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
+import { ObjectLayerState } from '../functions/ObjectLayers'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import iterateObject3D from '../util/iterateObject3D'
 
@@ -162,8 +162,8 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
       ? getModelSceneID(entity)
       : getComponent(entity, SourceComponent)
     return () => {
-      const layers = Object.values(Engine.instance.objectLayerList)
-      for (const layer of layers) {
+      const layers = getState(ObjectLayerState)
+      for (const layer of Object.values(layers)) {
         if (layer.has(obj)) layer.delete(obj)
       }
       if (obj.isProxified) {

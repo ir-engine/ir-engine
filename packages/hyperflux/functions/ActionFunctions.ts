@@ -353,7 +353,7 @@ function addOutgoingTopicIfNecessary(topic: string) {
     HyperFlux.store.actions.outgoing[topic] = {
       queue: [],
       history: [],
-      historyUUIDs: new Set()
+      forwardedUUIDs: new Set()
     }
   }
 }
