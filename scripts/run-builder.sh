@@ -27,12 +27,12 @@ rm package.json
 mv package.jsonmoved package.json
 npm run prepare-database >prepare-database-build-logs.txt 2>prepare-database-build-error.txt || npm run record-build-error -- --service=prepare-database
 test -s prepare-database-build-error.txt && npm run record-build-error -- --service=prepare-database
-cd packages/client && npx cross-env node --loader ts-node/esm scripts/create-env-production.ts >buildenv-build-logs.txt 2>buildenv-build-error.txt || npm run record-build-error -- --service=buildenv
-test -s buildenv-build-error.txt && npm run record-build-error -- --service=buildenv
+cd packages/client && npx cross-env node --loader ts-node/esm scripts/create-env-production.ts >buildenv-build-logs.txt 2>buildenv-build-error.txt || cd ../.. && npm run record-build-error -- --service=buildenv
+test -s buildenv-build-error.txt && cd ../.. && npm run record-build-error -- --service=buildenv
 if [ -n "$TWA_LINK" ]
 then
   npx cross-env node --loader ts-node/esm scripts/populate-assetlinks.ts >populate-assetlinks-build-logs.txt >populate-assetlinks-build-logs.txt 2>populate-assetlinks-build-error.txt || npm run record-build-error -- --service=populate-assetlinks
-test -s populate-assetlinks-build-error.txt && npm run record-build-error -- --service=populate-assetlinks
+test -s populate-assetlinks-build-error.txt && cd ../.. && npm run record-build-error -- --service=populate-assetlinks
 fi
 cd ../..
 bash ./scripts/cleanup_builder.sh $DOCKER_LABEL
