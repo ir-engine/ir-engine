@@ -70,8 +70,6 @@ import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
 const grey = new Color(0.5, 0.5, 0.5)
 
-let prevLandmarks: NormalizedLandmarkList
-
 const rightFootHistory = [] as number[]
 const leftFootHistory = [] as number[]
 const feetIndices = { rightFoot: 0, leftFoot: 1 }
@@ -247,13 +245,14 @@ const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], threshold = 0.
     threshhold
   return hipsVisibility && feetVisibility
 }
-
+let prevWorldLandmarks: NormalizedLandmarkList
+let prevScreenLandmarks: NormalizedLandmarkList
 export function solveMotionCapturePose(
   entity: Entity,
   newLandmarks?: NormalizedLandmarkList,
   newScreenlandmarks?: NormalizedLandmarkList
 ) {
-  const keyframeInterpolation = (newLandmarks: NormalizedLandmarkList) => {
+  const keyframeInterpolation = (newLandmarks: NormalizedLandmarkList, prevLandmarks: NormalizedLandmarkList) => {
     const filteredLandmarks = [] as NormalizedLandmarkList
     for (let i = 0; i < newLandmarks.length; i++) {
       const visibility = ((newLandmarks[i].visibility ?? 0) + (prevLandmarks[i].visibility ?? 0)) / 2
@@ -278,12 +277,15 @@ export function solveMotionCapturePose(
 
   const avatarDebug = getState(RendererState).avatarDebug
 
-  if (!prevLandmarks) prevLandmarks = newLandmarks.map((landmark) => ({ ...landmark }))
+  /**@todo instead of filtering both sets of landmarks create a single mixed world/screen landmark array for filtering */
+  if (!prevWorldLandmarks) prevWorldLandmarks = newLandmarks.map((landmark) => ({ ...landmark }))
+  if (!prevScreenLandmarks) prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
 
-  const worldLandmarks = keyframeInterpolation(newLandmarks)
-  const screenLandmarks = keyframeInterpolation(newScreenlandmarks)
+  const worldLandmarks = keyframeInterpolation(newLandmarks, prevWorldLandmarks)
+  const screenLandmarks = keyframeInterpolation(newScreenlandmarks, prevScreenLandmarks)
 
-  prevLandmarks = worldLandmarks
+  prevWorldLandmarks = worldLandmarks
+  prevScreenLandmarks = screenLandmarks
 
   drawDebug(newLandmarks, avatarDebug)
   drawDebugScreen(newScreenlandmarks, !!newScreenlandmarks && avatarDebug)
@@ -323,9 +325,9 @@ export function solveMotionCapturePose(
     solveLimb(
       entity,
       lowestWorldY,
-      worldLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
-      worldLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
-      worldLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
+      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
+      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.LeftUpperLeg,
@@ -335,9 +337,9 @@ export function solveMotionCapturePose(
     solveLimb(
       entity,
       lowestWorldY,
-      worldLandmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
-      worldLandmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
-      worldLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
+      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
+      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.RightUpperLeg,
