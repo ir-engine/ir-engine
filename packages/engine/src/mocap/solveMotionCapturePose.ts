@@ -255,9 +255,13 @@ export function solveMotionCapturePose(
   const keyframeInterpolation = (newLandmarks: NormalizedLandmarkList, prevLandmarks: NormalizedLandmarkList) => {
     const filteredLandmarks = [] as NormalizedLandmarkList
     for (let i = 0; i < newLandmarks.length; i++) {
+      if (newLandmarks[i].visibility! < 0.1) {
+        filteredLandmarks[i] = prevLandmarks[i]
+        continue
+      }
       const visibility = ((newLandmarks[i].visibility ?? 0) + (prevLandmarks[i].visibility ?? 0)) / 2
       const deltaSeconds = getState(EngineState).deltaSeconds
-      const alpha = smootheLerpAlpha(10, deltaSeconds)
+      const alpha = smootheLerpAlpha(15, deltaSeconds)
       filteredLandmarks[i] = {
         visibility,
         x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, alpha),
@@ -614,6 +618,7 @@ export const solveHand = (
   directionVector.addVectors(ref1Point, ref2Point).multiplyScalar(0.5).sub(startPoint).normalize() // Calculate direction between wrist and center of tip of hand
   const orthogonalVector = plane.normal
   if (needsFlipping) {
+    directionVector.reflect(V_001)
     orthogonalVector.reflect(V_001)
   }
   if (invertAxis) {
