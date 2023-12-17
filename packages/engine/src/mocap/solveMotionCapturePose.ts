@@ -264,7 +264,7 @@ export function solveMotionCapturePose(
 
   if (!prevLandmarks) prevLandmarks = newLandmarks.map((landmark) => ({ ...landmark }))
 
-  const landmarks = newScreenlandmarks.map((landmark, index) => {
+  const landmarks = newLandmarks.map((landmark, index) => {
     // if (!landmark.visibility || landmark.visibility < 0.3) return prevLandmarks[index]
     const prevLandmark = prevLandmarks[index]
     const visibility = ((landmark.visibility ?? 0) + (prevLandmark.visibility ?? 0)) / 2
@@ -440,12 +440,8 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
 
   const legLength = rig.upperLegLength + rig.lowerLegLength * 2
 
-  const hipleft = trackingLowerBody
-    ? new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
-    : new Vector3(0, legLength, 0)
-  const hipright = trackingLowerBody
-    ? new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
-    : new Vector3(0, legLength, 0)
+  const hipleft = new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
+  const hipright = new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
 
   if (trackingLowerBody) {
     for (let i = 0; i < 2; i++) {
@@ -469,13 +465,12 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
 
   hipToShoulderQuaternion.setFromUnitVectors(V_010, vec3)
 
-  //conditionals to make things track across the correct axis in spite of possibly flipped rigs
   getQuaternionFromPointsAlongPlane(
-    shoulderRight,
-    shoulderLeft,
-    hipCenter,
+    hipright,
+    hipleft,
+    shoulderCenter,
     hipToShoulderQuaternion,
-    false,
+    true,
     needsFlipping || (!needsFlipping && trackingLowerBody > 0)
   )
 
@@ -483,8 +478,6 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   const hipPositionAlongPlane = new Vector3(0, -averageHipToLegHeight, 0)
     .applyQuaternion(hipToShoulderQuaternion)
     .add(hipCenter)
-
-  hipPositionAlongPlane.setY(rig.upperLegLength + rig.lowerLegLength + hipPositionAlongPlane.y)
 
   MotionCaptureRigComponent.hipPosition.x[entity] = hipPositionAlongPlane.x
   MotionCaptureRigComponent.hipPosition.y[entity] = hipPositionAlongPlane.y
@@ -499,6 +492,12 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   } else {
     if (leftHip.visibility! + rightHip.visibility! > 1) {
       spineRotation.copy(hipToShoulderQuaternion)
+      console.log(
+        hipToShoulderQuaternion.x,
+        hipToShoulderQuaternion.y,
+        hipToShoulderQuaternion.z,
+        hipToShoulderQuaternion.w
+      )
     } else {
       spineRotation.identity()
       fallbackShoulderQuaternion.setFromUnitVectors(
