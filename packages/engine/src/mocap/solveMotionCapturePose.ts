@@ -131,7 +131,7 @@ const LandmarkNames = Object.fromEntries(
   }).map(([key, value]) => [value, key])
 )
 
-export const drawMocapDebug = (label: string) => {
+const drawMocapDebug = (label: string) => {
   if (!POSE_CONNECTIONS) return () => {}
 
   const debugEntities = {} as Record<string, Entity>
@@ -237,7 +237,7 @@ const drawDebug = drawMocapDebug('Raw')
 const drawDebugScreen = drawMocapDebug('Screen')
 const drawDebugFinal = drawMocapDebug('Final')
 
-export const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], threshold = 0.5) => {
+const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], threshold = 0.5) => {
   const hipsVisibility =
     (landmarks[POSE_LANDMARKS.RIGHT_HIP].visibility! + landmarks[POSE_LANDMARKS.LEFT_HIP].visibility!) * 0.5 >
     threshhold
@@ -253,6 +253,22 @@ export function solveMotionCapturePose(
   newLandmarks?: NormalizedLandmarkList,
   newScreenlandmarks?: NormalizedLandmarkList
 ) {
+  const keyframeInterpolation = (newLandmarks: NormalizedLandmarkList) => {
+    const filteredLandmarks = [] as NormalizedLandmarkList
+    for (let i = 0; i < newLandmarks.length; i++) {
+      const visibility = ((newLandmarks[i].visibility ?? 0) + (prevLandmarks[i].visibility ?? 0)) / 2
+      const deltaSeconds = getState(EngineState).deltaSeconds
+      const alpha = smootheLerpAlpha(10, deltaSeconds)
+      filteredLandmarks[i] = {
+        visibility,
+        x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, alpha),
+        y: MathUtils.lerp(prevLandmarks[i].y, newLandmarks[i].y, alpha),
+        z: MathUtils.lerp(prevLandmarks[i].z, newLandmarks[i].z, alpha)
+      }
+    }
+    return filteredLandmarks
+  }
+
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig || !rig.normalizedRig || !rig.normalizedRig.hips || !rig.normalizedRig.hips.node) {
     return
@@ -264,37 +280,26 @@ export function solveMotionCapturePose(
 
   if (!prevLandmarks) prevLandmarks = newLandmarks.map((landmark) => ({ ...landmark }))
 
-  const landmarks = newLandmarks.map((landmark, index) => {
-    // if (!landmark.visibility || landmark.visibility < 0.3) return prevLandmarks[index]
-    const prevLandmark = prevLandmarks[index]
-    const visibility = ((landmark.visibility ?? 0) + (prevLandmark.visibility ?? 0)) / 2
-    const deltaSeconds = getState(EngineState).deltaSeconds
-    const alpha = smootheLerpAlpha(5 + 20 * visibility, deltaSeconds)
-    return {
-      visibility,
-      x: MathUtils.lerp(prevLandmark.x, landmark.x, alpha),
-      y: MathUtils.lerp(prevLandmark.y, landmark.y, alpha),
-      z: MathUtils.lerp(prevLandmark.z, landmark.z, alpha)
-    }
-  })
+  const worldLandmarks = keyframeInterpolation(newLandmarks)
+  const screenLandmarks = keyframeInterpolation(newScreenlandmarks)
 
-  prevLandmarks = landmarks
+  prevLandmarks = worldLandmarks
 
   drawDebug(newLandmarks, avatarDebug)
   drawDebugScreen(newScreenlandmarks, !!newScreenlandmarks && avatarDebug)
-  drawDebugFinal(landmarks, avatarDebug)
+  drawDebugFinal(worldLandmarks, avatarDebug)
 
   const userData = (rig.vrm as any).userData
 
-  const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
-  const estimatingLowerBody = shouldEstimateLowerBody(landmarks)
-  solveSpine(entity, lowestWorldY, landmarks, !userData.flipped)
+  const lowestWorldY = worldLandmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
+  const estimatingLowerBody = shouldEstimateLowerBody(worldLandmarks)
+  solveSpine(entity, lowestWorldY, worldLandmarks, !userData.flipped)
   solveLimb(
     entity,
     lowestWorldY,
-    landmarks[POSE_LANDMARKS.RIGHT_SHOULDER],
-    landmarks[POSE_LANDMARKS.RIGHT_ELBOW],
-    landmarks[POSE_LANDMARKS.RIGHT_WRIST],
+    worldLandmarks[POSE_LANDMARKS.RIGHT_SHOULDER],
+    worldLandmarks[POSE_LANDMARKS.RIGHT_ELBOW],
+    worldLandmarks[POSE_LANDMARKS.RIGHT_WRIST],
     new Vector3(userData.flipped ? 1 : -1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.LeftUpperArm,
@@ -304,9 +309,9 @@ export function solveMotionCapturePose(
   solveLimb(
     entity,
     lowestWorldY,
-    landmarks[POSE_LANDMARKS.LEFT_SHOULDER],
-    landmarks[POSE_LANDMARKS.LEFT_ELBOW],
-    landmarks[POSE_LANDMARKS.LEFT_WRIST],
+    worldLandmarks[POSE_LANDMARKS.LEFT_SHOULDER],
+    worldLandmarks[POSE_LANDMARKS.LEFT_ELBOW],
+    worldLandmarks[POSE_LANDMARKS.LEFT_WRIST],
     new Vector3(userData.flipped ? -1 : 1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.RightUpperArm,
@@ -314,13 +319,13 @@ export function solveMotionCapturePose(
     !userData.flipped
   )
   if (estimatingLowerBody) {
-    calculateGroundedFeet(landmarks)
+    calculateGroundedFeet(worldLandmarks)
     solveLimb(
       entity,
       lowestWorldY,
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+      worldLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
+      worldLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
+      worldLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.LeftUpperLeg,
@@ -330,9 +335,9 @@ export function solveMotionCapturePose(
     solveLimb(
       entity,
       lowestWorldY,
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+      worldLandmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
+      worldLandmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
+      worldLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.RightUpperLeg,
@@ -371,18 +376,18 @@ export function solveMotionCapturePose(
 
   solveHead(
     entity,
-    landmarks[POSE_LANDMARKS.RIGHT_EAR],
-    landmarks[POSE_LANDMARKS.LEFT_EAR],
-    landmarks[POSE_LANDMARKS.NOSE]
+    screenLandmarks[POSE_LANDMARKS.RIGHT_EAR],
+    screenLandmarks[POSE_LANDMARKS.LEFT_EAR],
+    screenLandmarks[POSE_LANDMARKS.NOSE]
   )
 
   if (!newScreenlandmarks) return
   solveHand(
     entity,
     lowestWorldY,
-    newScreenlandmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
-    newScreenlandmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
-    newScreenlandmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
+    screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
+    screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
+    screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
     !userData.flipped,
     VRMHumanBoneName.RightLowerArm,
     VRMHumanBoneName.RightHand,
@@ -391,9 +396,9 @@ export function solveMotionCapturePose(
   solveHand(
     entity,
     lowestWorldY,
-    newScreenlandmarks![POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
-    newScreenlandmarks![POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
-    newScreenlandmarks![POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
+    screenLandmarks![POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
+    screenLandmarks![POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
+    screenLandmarks![POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
     userData.flipped,
     VRMHumanBoneName.LeftLowerArm,
     VRMHumanBoneName.LeftHand,
@@ -492,12 +497,6 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   } else {
     if (leftHip.visibility! + rightHip.visibility! > 1) {
       spineRotation.copy(hipToShoulderQuaternion)
-      console.log(
-        hipToShoulderQuaternion.x,
-        hipToShoulderQuaternion.y,
-        hipToShoulderQuaternion.z,
-        hipToShoulderQuaternion.w
-      )
     } else {
       spineRotation.identity()
       fallbackShoulderQuaternion.setFromUnitVectors(
