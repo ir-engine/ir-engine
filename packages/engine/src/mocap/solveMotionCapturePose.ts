@@ -57,6 +57,7 @@ import {
 } from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { V_010, V_100 } from '../common/constants/MathConstants'
+import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { RendererState } from '../renderer/RendererState'
@@ -245,8 +246,7 @@ const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], threshold = 0.
     threshhold
   return hipsVisibility && kneesVisibility
 }
-let prevWorldLandmarks: NormalizedLandmarkList
-let prevScreenLandmarks: NormalizedLandmarkList
+
 export function solveMotionCapturePose(
   entity: Entity,
   newLandmarks?: NormalizedLandmarkList,
@@ -281,19 +281,25 @@ export function solveMotionCapturePose(
 
   const avatarDebug = getState(RendererState).avatarDebug
 
+  const mocapComponent = getComponent(entity, MotionCaptureRigComponent)
+
   /**@todo instead of filtering both sets of landmarks create a single mixed world/screen landmark array for filtering */
-  if (!prevWorldLandmarks) prevWorldLandmarks = newLandmarks.map((landmark) => ({ ...landmark }))
-  if (!prevScreenLandmarks) prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
+  if (!mocapComponent.prevWorldLandmarks)
+    mocapComponent.prevWorldLandmarks = newLandmarks.map((landmark) => ({ ...landmark }))
+  if (!mocapComponent.prevScreenLandmarks)
+    mocapComponent.prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
 
-  const worldLandmarks = keyframeInterpolation(newLandmarks, prevWorldLandmarks)
-  const screenLandmarks = keyframeInterpolation(newScreenlandmarks, prevScreenLandmarks)
+  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks)
+  const screenLandmarks = keyframeInterpolation(newScreenlandmarks, mocapComponent.prevScreenLandmarks)
 
-  prevWorldLandmarks = worldLandmarks
-  prevScreenLandmarks = screenLandmarks
+  mocapComponent.prevWorldLandmarks = worldLandmarks
+  mocapComponent.prevScreenLandmarks = screenLandmarks
 
-  drawDebug(newLandmarks, avatarDebug)
-  drawDebugScreen(newScreenlandmarks, !!newScreenlandmarks && avatarDebug)
-  drawDebugFinal(worldLandmarks, avatarDebug)
+  if (entity === Engine.instance.localClientEntity) {
+    drawDebug(newLandmarks, avatarDebug)
+    drawDebugScreen(newScreenlandmarks, !!newScreenlandmarks && avatarDebug)
+    drawDebugFinal(worldLandmarks, avatarDebug)
+  }
 
   const lowestWorldY = worldLandmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
   const estimatingLowerBody = shouldEstimateLowerBody(worldLandmarks)
@@ -381,7 +387,6 @@ export function solveMotionCapturePose(
     screenLandmarks[POSE_LANDMARKS.NOSE]
   )
 
-  if (!newScreenlandmarks) return
   solveHand(
     entity,
     lowestWorldY,
