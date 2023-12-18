@@ -64,6 +64,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
@@ -116,6 +117,7 @@ type FileBrowserContentPanelProps = {
   disableDnD?: boolean
   selectedFile?: string
   folderName?: string
+  nestingDirectory?: string
 }
 
 type DnDFileType = {
@@ -150,7 +152,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const originalPath = `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
   const selectedDirectory = useHookstate(originalPath)
-  const nestingDirectory = useHookstate('projects')
+  const nestingDirectory = useHookstate(props.nestingDirectory || 'projects')
   const fileProperties = useHookstate<FileType | null>(null)
   const isLoading = useHookstate(true)
 
@@ -161,6 +163,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const openConfirm = useHookstate(false)
   const contentToDeletePath = useHookstate('')
+
+  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
 
   const fileState = useHookstate(getMutableState(FileBrowserState))
   const filesValue = fileState.files.attach(Downgraded).value
@@ -189,11 +193,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   useEffect(() => {
     refreshDirectory()
-  }, [selectedDirectory])
-
-  useEffect(() => {
-    FileBrowserService.getNestingDirectory().then((directory) => nestingDirectory.set(directory))
-  }, [])
+  }, [selectedDirectory, activeScene])
 
   const refreshDirectory = async () => {
     await FileBrowserService.fetchFiles(selectedDirectory.value, page)
@@ -354,17 +354,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       }
       changeDirectoryByPath(newPath)
     }
+    let breadcrumbDirectoryFiles = selectedDirectory.value.slice(1, -1).split('/')
 
-    let nestingDirectoryFiles = nestingDirectory.value.split('/')
-    let breadcrumbDirectoryFiles = selectedDirectory.value
-      .slice(1, -1)
-      .split('/')
-      .filter((file, idx) => {
-        if (idx < nestingDirectoryFiles.length && file === nestingDirectoryFiles[idx]) {
-          return false
-        }
-        return true
-      })
+    const nestedIndex = breadcrumbDirectoryFiles.indexOf(nestingDirectory.value)
+
+    breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((file, idx) => {
+      return idx >= nestedIndex
+    })
 
     return (
       <Breadcrumbs

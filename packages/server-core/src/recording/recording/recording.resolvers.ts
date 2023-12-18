@@ -29,7 +29,10 @@ import { v4 } from 'uuid'
 
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+import {
+  recordingResourcePath,
+  RecordingResourceType
+} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import {
   RecordingDatabaseType,
   RecordingID,
@@ -58,12 +61,12 @@ export const recordingDbToSchema = (rawData: RecordingDatabaseType): RecordingTy
 export const recordingResolver = resolve<RecordingType, HookContext>(
   {
     resources: virtual(async (recording, context) => {
-      const recordingResources = await context.app.service(recordingResourcePath).find({
+      const recordingResources = (await context.app.service(recordingResourcePath).find({
         query: {
           recordingId: recording.id
         },
         paginate: false
-      })
+      })) as RecordingResourceType[]
 
       return recordingResources.map((resource) => resource.staticResource)
     }),
@@ -77,7 +80,7 @@ export const recordingResolver = resolve<RecordingType, HookContext>(
   },
   {
     // Convert the raw data into a new structure before running property resolvers
-    converter: async (rawData, context) => {
+    converter: async (rawData) => {
       return recordingDbToSchema(rawData)
     }
   }
@@ -95,7 +98,7 @@ export const recordingDataResolver = resolve<RecordingDatabaseType, HookContext>
   },
   {
     // Convert the raw data into a new structure before running property resolvers
-    converter: async (rawData, context) => {
+    converter: async (rawData) => {
       return {
         ...rawData,
         schema: JSON.stringify(rawData.schema)
@@ -110,7 +113,7 @@ export const recordingPatchResolver = resolve<RecordingType, HookContext>(
   },
   {
     // Convert the raw data into a new structure before running property resolvers
-    converter: async (rawData, context) => {
+    converter: async (rawData) => {
       return {
         ...rawData,
         schema: JSON.stringify(rawData.schema)

@@ -66,7 +66,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   const selectionState = useHookstate(getMutableState(SelectionState))
   const transforming = useHookstate<boolean>(false)
   const transformHistory = useHookstate<string[]>([])
-  const isClientside = useHookstate<boolean>(false)
+  const isClientside = useHookstate<boolean>(true)
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: modelState.src.value,

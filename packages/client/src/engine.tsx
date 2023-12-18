@@ -35,8 +35,14 @@ import { initializeBrowser } from '@etherealengine/engine/src/initializeBrowser'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
 import { pipeLogs } from '@etherealengine/engine/src/common/functions/logger'
 import { initializei18n } from './util'
+
+const initializeLogs = async () => {
+  await waitForClientAuthenticated()
+  pipeLogs(Engine.instance.api)
+}
 
 createEngine()
 getMutableState(EngineState).publicPath.set(
@@ -46,7 +52,7 @@ getMutableState(EngineState).publicPath.set(
 initializei18n()
 initializeBrowser()
 API.createAPI()
-pipeLogs(Engine.instance.api)
+initializeLogs()
 
 export default function ({ children, tailwind = false }) {
   const ref = createRef()

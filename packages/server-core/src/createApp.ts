@@ -240,7 +240,7 @@ export const createFeathersKoaApp = (
   // Store headers across internal service calls
   app.hooks({
     around: {
-      all: [logError, authenticate, persistHeaders]
+      all: [logError, persistHeaders, authenticate]
     }
   })
 

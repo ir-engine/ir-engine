@@ -65,13 +65,14 @@ export class TwitterStrategy extends CustomOAuthStrategy {
   }
 
   async updateEntity(entity: any, profile: any, params: Params): Promise<any> {
-    console.log('updateEntity', entity, profile, params)
     const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
       { accessToken: params?.authentication?.accessToken },
       {}
     )
     if (!entity.userId) {
-      const avatars = (await this.app.service(avatarPath).find({ isInternal: true })) as Paginated<AvatarType>
+      const avatars = (await this.app
+        .service(avatarPath)
+        .find({ isInternal: true, query: { isPublic: true, $limit: 1000 } })) as Paginated<AvatarType>
       const code = (await getFreeInviteCode(this.app)) as InviteCode
       const newUser = await this.app.service(userPath).create({
         name: '' as UserName,

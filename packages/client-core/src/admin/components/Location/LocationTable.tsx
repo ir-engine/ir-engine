@@ -62,6 +62,7 @@ const LocationTable = ({ className, search }: Props) => {
     query: {
       $sort: { name: 1 },
       $limit: 20,
+      action: 'admin',
       $or: [
         {
           name: {

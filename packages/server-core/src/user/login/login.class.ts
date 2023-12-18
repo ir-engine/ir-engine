@@ -51,7 +51,7 @@ export class LoginService implements ServiceInterface {
    *
    * @param id of specific login detail
    * @param params
-   * @returns {@token}
+   * @returns {token}
    */
   async get(id: Id, params?: LoginParams) {
     try {
