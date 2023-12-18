@@ -53,10 +53,10 @@ describe('project-destination-check.test', () => {
   })
 
   before(async () => {
-    const name = ('test-project-commits-user-name-' + v1()) as UserName
+    const name = ('test-project-destination-check-user-name-' + v1()) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-commits-avatar-name-' + v1()
+      name: 'test-project-destination-check-avatar-name-' + v1()
     })
 
     const testUser = await app.service(userPath).create({
