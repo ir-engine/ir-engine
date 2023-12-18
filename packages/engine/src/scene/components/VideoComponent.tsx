@@ -129,7 +129,7 @@ function VideoReactor() {
   const entity = useEntityContext()
   const video = useComponent(entity, VideoComponent)
   const mediaUUID = video.mediaUUID.value
-  const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID] ?? entity
+  const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) ?? entity
 
   useEffect(() => {
     video.videoGroup.value.add(video.videoMesh.value)

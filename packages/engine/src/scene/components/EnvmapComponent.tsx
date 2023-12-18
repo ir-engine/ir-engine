@@ -184,8 +184,7 @@ export const EnvmapComponent = defineComponent({
       }
     }, [component.envmap])
 
-    const entitiesByUUIDState = useHookstate(UUIDComponent.entitiesByUUIDState)
-    const bakeEntity = entitiesByUUIDState[component.envMapSourceEntityUUID.value].value
+    const bakeEntity = UUIDComponent.getEntityByUUID(component.envMapSourceEntityUUID.value)
 
     if (component.type.value !== EnvMapSourceType.Bake) return null
 

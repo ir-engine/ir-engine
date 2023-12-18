@@ -38,8 +38,8 @@ export const triggerEnter = (entity: Entity, otherEntity: Entity, hit: ColliderH
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
   if (!Array.isArray(triggerComponent.triggers)) return
   for (const trigger of triggerComponent.triggers) {
-    if (trigger.target && !UUIDComponent.entitiesByUUID[trigger.target]) return
-    const targetEntity = trigger.target ? UUIDComponent.entitiesByUUID[trigger.target] : triggerEntity
+    if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) return
+    const targetEntity = trigger.target ? UUIDComponent.getEntityByUUID(trigger.target) : triggerEntity
     if (targetEntity && trigger.onEnter) {
       const callbacks = getComponent(targetEntity, CallbackComponent)
       callbacks.get(trigger.onEnter)?.(triggerEntity)
@@ -52,8 +52,8 @@ export const triggerExit = (entity: Entity, otherEntity: Entity, hit: ColliderHi
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
   if (!Array.isArray(triggerComponent.triggers)) return
   for (const trigger of triggerComponent.triggers) {
-    if (trigger.target && !UUIDComponent.entitiesByUUID[trigger.target]) return
-    const targetEntity = trigger.target ? UUIDComponent.entitiesByUUID[trigger.target] : triggerEntity
+    if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) return
+    const targetEntity = trigger.target ? UUIDComponent.getEntityByUUID(trigger.target) : triggerEntity
     if (targetEntity && trigger.onExit) {
       const callbacks = getComponent(targetEntity, CallbackComponent)
       callbacks.get(trigger.onExit)?.(triggerEntity)

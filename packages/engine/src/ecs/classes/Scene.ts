@@ -143,7 +143,7 @@ export const SceneState = defineState({
     if (!getState(SceneState).scenes[sceneID ?? getState(SceneState).activeScene!]) return UndefinedEntity
     const scene = getState(SceneState).scenes[sceneID ?? getState(SceneState).activeScene!]
     const currentSnapshot = scene.snapshots[scene.index].data
-    return UUIDComponent.entitiesByUUID[currentSnapshot.root]
+    return UUIDComponent.getEntityByUUID(currentSnapshot.root)
   },
 
   // Snapshots
@@ -214,7 +214,7 @@ export const SceneState = defineState({
       })
     }
     // if (snapshot.selectedEntities)
-    //   SelectionState.updateSelection(snapshot.selectedEntities.map((uuid) => UUIDComponent.entitiesByUUID[uuid] ?? uuid))
+    //   SelectionState.updateSelection(snapshot.selectedEntities.map((uuid) => UUIDComponent.getEntityByUUID(uuid) ?? uuid))
   }
 })
 

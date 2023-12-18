@@ -90,7 +90,7 @@ export const SplineTrackComponent = defineComponent({
         const { isEditor, deltaSeconds } = getState(EngineState)
         if (isEditor) return
         if (!component.splineEntityUUID.value) return
-        const splineTargetEntity = UUIDComponent.entitiesByUUID[component.splineEntityUUID.value]
+        const splineTargetEntity = UUIDComponent.getEntityByUUID(component.splineEntityUUID.value)
         if (!splineTargetEntity) return
 
         const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
@@ -170,7 +170,7 @@ export const SplineTrackComponent = defineComponent({
 
     useEffect(() => {
       if (!component.splineEntityUUID.value) return
-      const splineTargetEntity = UUIDComponent.entitiesByUUID[component.splineEntityUUID.value]
+      const splineTargetEntity = UUIDComponent.getEntityByUUID(component.splineEntityUUID.value)
       if (!splineTargetEntity) return
       const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
       if (!splineComponent) return

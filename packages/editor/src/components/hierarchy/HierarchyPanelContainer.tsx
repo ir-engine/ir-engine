@@ -94,8 +94,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const [searchHierarchy, setSearchHierarchy] = useState<string>('')
 
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
-  const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
-  const rootEntity = useHookstate(UUIDComponent.entitiesByUUIDState[rootEntityUUID])
+  const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -129,7 +128,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
         )
       )
     )
-  }, [expandedNodes, activeScene, selectionState.selectedEntities, entities])
+  }, [expandedNodes, activeScene, selectionState.selectedEntities])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 

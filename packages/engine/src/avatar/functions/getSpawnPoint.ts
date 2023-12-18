@@ -33,7 +33,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export function getSpawnPoint(spawnPointNodeId: string, userId: UserID): { position: Vector3; rotation: Quaternion } {
-  const entity = UUIDComponent.entitiesByUUID[spawnPointNodeId]
+  const entity = UUIDComponent.getEntityByUUID(spawnPointNodeId)
   if (entity) {
     const spawnTransform = getComponent(entity, TransformComponent)
     const spawnComponent = getComponent(entity, SpawnPointComponent)

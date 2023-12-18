@@ -39,6 +39,7 @@ import {
 
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { V_100 } from '../../common/constants/MathConstants'
 import { matches } from '../../common/functions/MatchesUtils'
@@ -116,7 +117,7 @@ export const PortalComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      linkedPortalId: '',
+      linkedPortalId: '' as EntityUUID,
       location: '',
       effectType: 'None',
       previewType: PortalPreviewTypeSimple as string,
@@ -237,7 +238,7 @@ export const PortalComponent = defineComponent({
       if (!isClient) return
       if (!portalComponent.mesh.value) return
 
-      const linkedPortalExists = UUIDComponent.entitiesByUUID[portalComponent.linkedPortalId.value]
+      const linkedPortalExists = UUIDComponent.getEntityByUUID(portalComponent.linkedPortalId.value)
 
       const applyPortalDetails = (portalDetails: {
         spawnPosition: Vector3

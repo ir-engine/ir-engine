@@ -73,7 +73,7 @@ export const getEntity = makeFunctionNodeDefinition({
   out: { entity: 'entity' },
   exec: ({ read, write, graph }) => {
     const entityUUID = read<EntityUUID>('entity')
-    const entity = UUIDComponent.entitiesByUUID[entityUUID]
+    const entity = UUIDComponent.getEntityByUUID(entityUUID)
     write('entity', entity)
   }
 })
@@ -189,7 +189,7 @@ export const addEntity = makeFlowNodeDefinition({
   initialState: undefined,
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
     const parentEntityUUID = read<string>('parentEntity')
-    const parentEntity: Entity = parentEntityUUID == '' ? null : UUIDComponent.entitiesByUUID[parentEntityUUID]
+    const parentEntity: Entity = parentEntityUUID == '' ? null : UUIDComponent.getEntityByUUID(parentEntityUUID)
     const componentName = read<string>('componentName')
     const entity = addEntityToScene([{ name: ComponentMap.get(componentName)?.jsonID! }], parentEntity)
     const entityName = read<string>('entityName')

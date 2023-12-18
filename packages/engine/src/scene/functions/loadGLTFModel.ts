@@ -40,7 +40,6 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ComponentJsonType, EntityJsonType } from '../../schemas/projects/scene.schema'
@@ -179,10 +178,7 @@ export const parseGLTFModel = (entity: Entity) => {
 
 export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, entityJson?: EntityJsonType) => {
   // create entity outside of scene loading reactor since we need to access it before the reactor is guaranteed to have executed
-  let objEntity = obj.entity
-  if (!objEntity) {
-    objEntity = obj.entity ?? createEntity()
-  }
+  const objEntity = UUIDComponent.getOrCreateEntityByUUID(obj.uuid as EntityUUID)
   const parentEntity = obj.parent ? obj.parent.entity : rootEntity
   const uuid = obj.uuid as EntityUUID
   const name = obj.userData['xrengine.entity'] ?? obj.name

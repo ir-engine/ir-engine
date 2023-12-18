@@ -122,7 +122,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
   }, [])
 
   useEffect(() => {
-    const avatarEntity = UUIDComponent.entitiesByUUID[entityUUID]
+    const avatarEntity = UUIDComponent.getEntityByUUID(entityUUID)
 
     const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
     if (!networkObject) {
@@ -159,7 +159,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     const url = state.userAvatarDetails.value.modelResource?.url
     if (!url) return
 
-    const entity = UUIDComponent.entitiesByUUID[entityUUID]
+    const entity = UUIDComponent.getEntityByUUID(entityUUID)
     if (!entity || !entityExists(entity)) return
 
     const avatarDetails = state.userAvatarDetails.get(NO_PROXY)

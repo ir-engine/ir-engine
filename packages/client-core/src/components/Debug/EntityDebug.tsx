@@ -51,7 +51,7 @@ const renderEntityTreeRoots = () => {
     Object.values(getState(SceneState).scenes)
       .map((scene, i) => {
         const root = scene.snapshots[scene.index].data.root
-        const entity = UUIDComponent.entitiesByUUID[root]
+        const entity = UUIDComponent.getEntityByUUID(root)
         if (!entity || !entityExists(entity)) return []
         return [
           `${entity} - ${getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent)}`,

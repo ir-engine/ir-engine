@@ -277,11 +277,11 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
   const referenceSpace = ReferenceSpace.origin
 
   const uuid = getComponent(localClientEntity, UUIDComponent)
-  const ikTargetLeftHand = UUIDComponent.entitiesByUUID[uuid + ikTargets.leftHand]
-  const ikTargetRightHand = UUIDComponent.entitiesByUUID[uuid + ikTargets.rightHand]
-  const ikTargetHead = UUIDComponent.entitiesByUUID[uuid + ikTargets.head]
-  const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[uuid + ikTargets.leftFoot]
-  const ikTargetRightFoot = UUIDComponent.entitiesByUUID[uuid + ikTargets.rightFoot]
+  const ikTargetLeftHand = UUIDComponent.getEntityByUUID(uuid + ikTargets.leftHand)
+  const ikTargetRightHand = UUIDComponent.getEntityByUUID(uuid + ikTargets.rightHand)
+  const ikTargetHead = UUIDComponent.getEntityByUUID(uuid + ikTargets.head)
+  const ikTargetLeftFoot = UUIDComponent.getEntityByUUID(uuid + ikTargets.leftFoot)
+  const ikTargetRightFoot = UUIDComponent.getEntityByUUID(uuid + ikTargets.rightFoot)
 
   // reset all IK targets
   if (ikTargetHead) AvatarIKTargetComponent.blendWeight[ikTargetHead] = 0

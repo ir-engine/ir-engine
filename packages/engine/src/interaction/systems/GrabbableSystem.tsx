@@ -114,8 +114,8 @@ export const GrabbableState = defineState({
 
 const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(GrabbableState)[entityUUID])
-  const entity = UUIDComponent.entitiesByUUID[entityUUID]
-  const grabberEntity = UUIDComponent.entitiesByUUID[state.grabberUserId.value as EntityUUID]
+  const entity = UUIDComponent.getEntityByUUID(entityUUID)
+  const grabberEntity = UUIDComponent.getEntityByUUID(state.grabberUserId.value as EntityUUID)
   const attachmentPoint = state.attachmentPoint.value
 
   useEffect(() => {

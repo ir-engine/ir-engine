@@ -53,8 +53,8 @@ const minSpeed = 5
 export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   const userID = getComponent(localClientEntity, UUIDComponent)
 
-  const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[userID + ikTargets.leftFoot]
-  const ikTargetRightFoot = UUIDComponent.entitiesByUUID[userID + ikTargets.rightFoot]
+  const ikTargetLeftFoot = UUIDComponent.getEntityByUUID(userID + ikTargets.leftFoot)
+  const ikTargetRightFoot = UUIDComponent.getEntityByUUID(userID + ikTargets.rightFoot)
   if (!ikTargetLeftFoot || !ikTargetRightFoot) return
 
   const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot]
@@ -66,8 +66,8 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   const stepThreshold = rigComponent.upperLegLength + rigComponent.lowerLegLength
 
   const feet = {
-    [ikTargets.rightFoot]: UUIDComponent.entitiesByUUID[userID + ikTargets.rightFoot],
-    [ikTargets.leftFoot]: UUIDComponent.entitiesByUUID[userID + ikTargets.leftFoot]
+    [ikTargets.rightFoot]: UUIDComponent.getEntityByUUID(userID + ikTargets.rightFoot),
+    [ikTargets.leftFoot]: UUIDComponent.getEntityByUUID(userID + ikTargets.leftFoot)
   }
 
   const playerTransform = getComponent(localClientEntity, TransformComponent)

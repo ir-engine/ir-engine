@@ -178,23 +178,23 @@ const execute = () => {
     updateVRMRetargeting(rigComponent.vrm, deltaTime)
 
     const uuid = getComponent(entity, UUIDComponent)
-    const leftFoot = UUIDComponent.entitiesByUUID[uuid + ikTargets.leftFoot]
+    const leftFoot = UUIDComponent.getEntityByUUID(uuid + ikTargets.leftFoot)
     const leftFootTransform = getComponent(leftFoot, TransformComponent)
     const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftFoot]
 
-    const rightFoot = UUIDComponent.entitiesByUUID[uuid + ikTargets.rightFoot]
+    const rightFoot = UUIDComponent.getEntityByUUID(uuid + ikTargets.rightFoot)
     const rightFootTransform = getComponent(rightFoot, TransformComponent)
     const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightFoot]
 
-    const leftHand = UUIDComponent.entitiesByUUID[uuid + ikTargets.leftHand]
+    const leftHand = UUIDComponent.getEntityByUUID(uuid + ikTargets.leftHand)
     const leftHandTransform = getComponent(leftHand, TransformComponent)
     const leftHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftHand]
 
-    const rightHand = UUIDComponent.entitiesByUUID[uuid + ikTargets.rightHand]
+    const rightHand = UUIDComponent.getEntityByUUID(uuid + ikTargets.rightHand)
     const rightHandTransform = getComponent(rightHand, TransformComponent)
     const rightHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightHand]
 
-    const head = UUIDComponent.entitiesByUUID[uuid + ikTargets.head]
+    const head = UUIDComponent.getEntityByUUID(uuid + ikTargets.head)
     const headTargetBlendWeight = AvatarIKTargetComponent.blendWeight[head]
 
     const transform = getComponent(entity, TransformComponent)
