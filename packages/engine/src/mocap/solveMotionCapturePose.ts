@@ -336,7 +336,7 @@ export function solveMotionCapturePose(
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.LeftUpperLeg,
       VRMHumanBoneName.LeftLowerLeg,
-      !userData.flipped
+      false
     )
     solveLimb(
       entity,
@@ -351,24 +351,28 @@ export function solveMotionCapturePose(
       !userData.flipped
     )
     /**todo: figure out why we get bad foot quaternions when using solveFoot */
-    //solveFoot(
-    //  entity,
-    //  lowestWorldY,
-    //  landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
-    //  landmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
-    //  landmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
-    //  VRMHumanBoneName.RightUpperLeg,
-    //  VRMHumanBoneName.RightFoot
-    //)
-    //solveFoot(
-    //  entity,
-    //  lowestWorldY,
-    //  landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
-    //  landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
-    //  landmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
-    //  VRMHumanBoneName.LeftUpperLeg,
-    //  VRMHumanBoneName.LeftFoot
-    //)
+    solveFoot(
+      entity,
+      lowestWorldY,
+      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
+      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
+      VRMHumanBoneName.RightLowerLeg,
+      VRMHumanBoneName.RightFoot,
+      !userData.flipped,
+      feetGrounded[1]
+    )
+    solveFoot(
+      entity,
+      lowestWorldY,
+      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
+      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
+      VRMHumanBoneName.LeftLowerLeg,
+      VRMHumanBoneName.LeftFoot,
+      !userData.flipped,
+      feetGrounded[0]
+    )
 
     //check state, if we are still not set to track lower body, update that
     if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
@@ -652,13 +656,22 @@ export const solveFoot = (
   ref1: NormalizedLandmark,
   ref2: NormalizedLandmark,
   parentTargetBoneName: VRMHumanBoneName,
-  extentTargetBoneName: VRMHumanBoneName
+  extentTargetBoneName: VRMHumanBoneName,
+  needsFlipping = false,
+  grounded = false
 ) => {
   if (!extent || !ref1 || !ref2) return
 
   const rig = getComponent(entity, AvatarRigComponent)
 
   const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
+
+  const targetQuat = new Quaternion()
+  //if(grounded) {
+  //  if(needsFlipping) targetQuat.copy(new Quaternion().setFromAxisAngle(V_010, Math.PI))
+  //  targetQuat.premultiply(parentQuaternion.clone().invert())
+  //  return
+  //}
 
   const startPoint = new Vector3(extent.x, lowestWorldY - extent.y, extent.z)
   const ref1Point = new Vector3(ref1.x, lowestWorldY - ref1.y, ref1.z)
@@ -676,16 +689,14 @@ export const solveFoot = (
   const limbExtentQuaternion = new Quaternion().setFromRotationMatrix(rotationMatrix)
 
   // convert to local space
-  const extentQuaternionLocal = new Quaternion()
-    .copy(limbExtentQuaternion)
-    .premultiply(parentQuaternion.clone().invert())
+  targetQuat.identity().copy(limbExtentQuaternion).premultiply(parentQuaternion.clone().invert())
 
-  MotionCaptureRigComponent.rig[extentTargetBoneName].x[entity] = extentQuaternionLocal.x
-  MotionCaptureRigComponent.rig[extentTargetBoneName].y[entity] = extentQuaternionLocal.y
-  MotionCaptureRigComponent.rig[extentTargetBoneName].z[entity] = extentQuaternionLocal.z
-  MotionCaptureRigComponent.rig[extentTargetBoneName].w[entity] = extentQuaternionLocal.w
+  MotionCaptureRigComponent.rig[extentTargetBoneName].x[entity] = targetQuat.x
+  MotionCaptureRigComponent.rig[extentTargetBoneName].y[entity] = targetQuat.y
+  MotionCaptureRigComponent.rig[extentTargetBoneName].z[entity] = targetQuat.z
+  MotionCaptureRigComponent.rig[extentTargetBoneName].w[entity] = targetQuat.w
 
-  rig.normalizedRig[extentTargetBoneName]?.node.quaternion.copy(extentQuaternionLocal)
+  rig.normalizedRig[extentTargetBoneName]?.node.quaternion.copy(targetQuat)
 
   rig.normalizedRig[extentTargetBoneName]!.node.updateWorldMatrix(false, false)
 }
