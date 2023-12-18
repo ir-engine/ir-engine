@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 
-export default {
+module.exports = {
   plugins: {
     tailwindcss: import('tailwindcss'),
     autoprefixer: import('autoprefixer'),
