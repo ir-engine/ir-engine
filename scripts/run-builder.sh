@@ -31,7 +31,7 @@ cd packages/client && npx cross-env node --loader ts-node/esm scripts/create-env
 test -s buildenv-build-error.txt && npm run record-build-error -- --service=buildenv
 if [ -n "$TWA_LINK" ]
 then
-  npx cross-env node --loader ts-node/esm scripts/populate-assetlinks.ts >populate-assetlinks-build-logs.txt >populate-assetlinks-build-logs.txt 2>populate-assetlinks-build-error.txt || npm run record-build-error -- --service=populate-assetlinks
+  npx cross-env node --loader ts-node/esm scripts/populate-assetlinks.ts >populate-assetlinks-build-logs.txt >populate-assetlinks-build-logs.txt 2>populate-assetlinks-build-error.txt
 test -s populate-assetlinks-build-error.txt && npm run record-build-error -- --service=populate-assetlinks
 fi
 cd ../..
