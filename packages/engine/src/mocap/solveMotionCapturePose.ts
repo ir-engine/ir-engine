@@ -239,11 +239,11 @@ const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], threshold = 0.
   const hipsVisibility =
     (landmarks[POSE_LANDMARKS.RIGHT_HIP].visibility! + landmarks[POSE_LANDMARKS.LEFT_HIP].visibility!) * 0.5 >
     threshhold
-  const feetVisibility =
-    (landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE].visibility! + landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE].visibility!) *
+  const kneesVisibility =
+    (landmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE].visibility! + landmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE].visibility!) *
       0.5 >
     threshhold
-  return hipsVisibility && feetVisibility
+  return hipsVisibility && kneesVisibility
 }
 let prevWorldLandmarks: NormalizedLandmarkList
 let prevScreenLandmarks: NormalizedLandmarkList
@@ -309,8 +309,7 @@ export function solveMotionCapturePose(
     new Vector3(userData.flipped ? 1 : -1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.LeftUpperArm,
-    VRMHumanBoneName.LeftLowerArm,
-    !userData.flipped
+    VRMHumanBoneName.LeftLowerArm
   )
   solveLimb(
     entity,
@@ -321,8 +320,7 @@ export function solveMotionCapturePose(
     new Vector3(userData.flipped ? -1 : 1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.RightUpperArm,
-    VRMHumanBoneName.RightLowerArm,
-    !userData.flipped
+    VRMHumanBoneName.RightLowerArm
   )
   if (estimatingLowerBody) {
     calculateGroundedFeet(worldLandmarks)
@@ -335,8 +333,7 @@ export function solveMotionCapturePose(
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.LeftUpperLeg,
-      VRMHumanBoneName.LeftLowerLeg,
-      !userData.flipped
+      VRMHumanBoneName.LeftLowerLeg
     )
     solveLimb(
       entity,
@@ -347,8 +344,7 @@ export function solveMotionCapturePose(
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.RightUpperLeg,
-      VRMHumanBoneName.RightLowerLeg,
-      !userData.flipped
+      VRMHumanBoneName.RightLowerLeg
     )
     /**todo: figure out why we get bad foot quaternions when using solveFoot */
     //solveFoot(
@@ -536,6 +532,10 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].w[entity] = shoulderRotation.w
 }
 
+const startPoint = new Vector3()
+const midPoint = new Vector3()
+const endPoint = new Vector3()
+
 export const solveLimb = (
   entity: Entity,
   lowestWorldY: number,
@@ -545,36 +545,25 @@ export const solveLimb = (
   axis: Vector3,
   parentTargetBoneName: VRMHumanBoneName,
   startTargetBoneName: VRMHumanBoneName,
-  midTargetBoneName: VRMHumanBoneName,
-  needsFlipping = false
+  midTargetBoneName: VRMHumanBoneName
 ) => {
   if (!start || !mid || !end) return
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
+  const avatarTransform = getComponent(entity, TransformComponent)
 
-  const startPoint = new Vector3(start.x, lowestWorldY - start.y, start.z)
-  const midPoint = new Vector3(mid.x, lowestWorldY - mid.y, mid.z)
-  const endPoint = new Vector3(end.x, lowestWorldY - end.y, end.z)
+  // get parent quaternion relative to avatar
+  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(
+    new Quaternion()
+  ).premultiply(new Quaternion().copy(avatarTransform.rotation).invert())
 
-  quat.identity()
+  startPoint.set(-start.x, lowestWorldY - start.y, -start.z)
+  midPoint.set(-mid.x, lowestWorldY - mid.y, -mid.z)
+  endPoint.set(-end.x, lowestWorldY - end.y, -end.z)
 
-  // optional base quaternion calculation for flipping, start with start-to-mid quaternion
-  vec3.subVectors(startPoint, midPoint).normalize()
-  if (needsFlipping) {
-    quat.setFromAxisAngle(vec3, Math.PI)
-  }
-
-  const startQuaternion = quat.clone().multiply(new Quaternion().setFromUnitVectors(axis, vec3))
-
-  //now calculate flip for mid-to-end quaternion
-  vec3.subVectors(midPoint, endPoint).normalize()
-  if (needsFlipping) {
-    quat.setFromAxisAngle(vec3, Math.PI)
-  }
-
-  const midQuaternion = quat.clone().multiply(new Quaternion().setFromUnitVectors(axis, vec3))
+  const startQuaternion = new Quaternion().setFromUnitVectors(axis, vec3.subVectors(startPoint, midPoint).normalize())
+  const midQuaternion = new Quaternion().setFromUnitVectors(axis, vec3.subVectors(midPoint, endPoint).normalize())
 
   // convert to local space
   const startLocal = new Quaternion().copy(startQuaternion).premultiply(parentQuaternion.clone().invert())
@@ -590,6 +579,9 @@ export const solveLimb = (
   MotionCaptureRigComponent.rig[midTargetBoneName].z[entity] = midLocal.z
   MotionCaptureRigComponent.rig[midTargetBoneName].w[entity] = midLocal.w
 }
+
+const ref1Point = new Vector3()
+const ref2Point = new Vector3()
 
 export const solveHand = (
   entity: Entity,
@@ -608,11 +600,14 @@ export const solveHand = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
+  const avatarTransform = getComponent(entity, TransformComponent)
+  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(
+    new Quaternion()
+  ).premultiply(new Quaternion().copy(avatarTransform.rotation).invert())
 
-  const startPoint = new Vector3(extent.x, lowestWorldY - extent.y, extent.z)
-  const ref1Point = new Vector3(ref1.x, lowestWorldY - ref1.y, ref1.z)
-  const ref2Point = new Vector3(ref2.x, lowestWorldY - ref2.y, ref2.z)
+  startPoint.set(extent.x, lowestWorldY - extent.y, extent.z)
+  ref1Point.set(ref1.x, lowestWorldY - ref1.y, ref1.z)
+  ref2Point.set(ref2.x, lowestWorldY - ref2.y, ref2.z)
 
   plane.setFromCoplanarPoints(ref1Point, ref2Point, startPoint)
   directionVector.addVectors(ref1Point, ref2Point).multiplyScalar(0.5).sub(startPoint).normalize() // Calculate direction between wrist and center of tip of hand
@@ -658,11 +653,14 @@ export const solveFoot = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
+  const avatarTransform = getComponent(entity, TransformComponent)
+  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(
+    new Quaternion()
+  ).premultiply(new Quaternion().copy(avatarTransform.rotation).invert())
 
-  const startPoint = new Vector3(extent.x, lowestWorldY - extent.y, extent.z)
-  const ref1Point = new Vector3(ref1.x, lowestWorldY - ref1.y, ref1.z)
-  const ref2Point = new Vector3(ref2.x, lowestWorldY - ref2.y, ref2.z)
+  startPoint.set(extent.x, lowestWorldY - extent.y, extent.z)
+  ref1Point.set(ref1.x, lowestWorldY - ref1.y, ref1.z)
+  ref2Point.set(ref2.x, lowestWorldY - ref2.y, ref2.z)
 
   plane.setFromCoplanarPoints(ref1Point, ref2Point, startPoint)
 
