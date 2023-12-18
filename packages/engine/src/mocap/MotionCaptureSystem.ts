@@ -39,13 +39,10 @@ import { NormalizedLandmarkList } from '@mediapipe/pose'
 
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
-import { getState } from '@etherealengine/hyperflux'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AnimationSystem } from '../avatar/systems/AnimationSystem'
-import { lerp } from '../common/functions/MathLerpFunctions'
 import { isClient } from '../common/functions/getEnvironment'
-import { EngineState } from '../ecs/classes/EngineState'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkState } from '../networking/NetworkState'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
@@ -168,30 +165,28 @@ const execute = () => {
         )
         .normalize()
 
-      if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
-      if (MotionCaptureRigComponent.solvingLowerBody[entity])
-        normalizedBone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
+      // if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
+      // if (MotionCaptureRigComponent.solvingLowerBody[entity])
+      //   normalizedBone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
     }
 
     const hipBone = rigComponent.normalizedRig.hips.node
-    if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
-      hipBone.position.set(
-        MotionCaptureRigComponent.hipPosition.x[entity],
-        MotionCaptureRigComponent.hipPosition.y[entity],
-        MotionCaptureRigComponent.hipPosition.z[entity]
-      )
-    }
+    hipBone.position.set(
+      MotionCaptureRigComponent.hipPosition.x[entity],
+      MotionCaptureRigComponent.hipPosition.y[entity],
+      MotionCaptureRigComponent.hipPosition.z[entity]
+    )
 
-    if (worldHipsParent)
-      if (MotionCaptureRigComponent.solvingLowerBody[entity])
-        worldHipsParent.position.setY(
-          lerp(
-            worldHipsParent.position.y,
-            MotionCaptureRigComponent.footOffset[entity],
-            getState(EngineState).deltaSeconds * 5
-          )
-        )
-      else worldHipsParent.position.setY(0)
+    // if (worldHipsParent)
+    //   if (MotionCaptureRigComponent.solvingLowerBody[entity])
+    //     worldHipsParent.position.setY(
+    //       lerp(
+    //         worldHipsParent.position.y,
+    //         MotionCaptureRigComponent.footOffset[entity],
+    //         getState(EngineState).deltaSeconds * 5
+    //       )
+    //     )
+    //   else worldHipsParent.position.setY(0)
   }
 }
 

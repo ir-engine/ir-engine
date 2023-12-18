@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AxesHelper, Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -169,17 +169,6 @@ const execute = () => {
 
     rigComponent.vrm.update(deltaTime)
 
-    if (!hipHelper.parent) {
-      Engine.instance.scene.add(hipHelper)
-      Engine.instance.scene.add(shoulderHelper)
-    }
-    rigComponent.rawRig.hips.node.getWorldPosition(hipHelper.position)
-    rigComponent.rawRig.hips.node.getWorldQuaternion(hipHelper.quaternion)
-    rigComponent.rawRig.chest!.node.getWorldPosition(shoulderHelper.position)
-    rigComponent.rawRig.chest!.node.getWorldQuaternion(shoulderHelper.quaternion)
-    hipHelper.updateMatrixWorld(true)
-    shoulderHelper.updateMatrixWorld(true)
-
     const uuid = getComponent(entity, UUIDComponent)
 
     const leftFoot = UUIDComponent.entitiesByUUID[uuid + ikTargets.leftFoot]
@@ -305,9 +294,6 @@ const execute = () => {
     }
   }
 }
-
-const hipHelper = new AxesHelper(1)
-const shoulderHelper = new AxesHelper(1)
 
 const reactor = () => {
   useEffect(() => {

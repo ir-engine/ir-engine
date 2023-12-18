@@ -297,6 +297,7 @@ export function solveMotionCapturePose(
 
   const lowestWorldY = worldLandmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
   const estimatingLowerBody = shouldEstimateLowerBody(worldLandmarks)
+  MotionCaptureRigComponent.solvingLowerBody[entity] = estimatingLowerBody ? 1 : 0
   calculateGroundedFeet(worldLandmarks)
 
   if (entity === Engine.instance.localClientEntity) {
@@ -305,7 +306,8 @@ export function solveMotionCapturePose(
     drawDebugFinal(worldLandmarks, avatarDebug)
   }
 
-  solveSpine(entity, lowestWorldY, worldLandmarks)
+  solveSpine(entity, lowestWorldY, worldLandmarks, estimatingLowerBody)
+
   solveLimb(
     entity,
     lowestWorldY,
@@ -370,15 +372,6 @@ export function solveMotionCapturePose(
     //  VRMHumanBoneName.LeftUpperLeg,
     //  VRMHumanBoneName.LeftFoot
     //)
-
-    //check state, if we are still not set to track lower body, update that
-    if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
-      MotionCaptureRigComponent.solvingLowerBody[entity] = 1
-    }
-  } else {
-    if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
-      MotionCaptureRigComponent.solvingLowerBody[entity] = 0
-    }
   }
 
   solveHead(
@@ -424,8 +417,12 @@ const spineRotation = new Quaternion(),
   hipToShoulderQuaternion = new Quaternion(),
   hipDirection = new Quaternion()
 
-export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLandmarkList) => {
-  const trackingLowerBody = MotionCaptureRigComponent.solvingLowerBody[entity]
+export const solveSpine = (
+  entity: Entity,
+  lowestWorldY: number,
+  landmarks: NormalizedLandmarkList,
+  trackingLowerBody: boolean
+) => {
   const rig = getComponent(entity, AvatarRigComponent)
 
   const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP]
@@ -441,10 +438,6 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   spineRotation.identity()
   shoulderRotation.identity()
 
-  const restLegLeft = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.LeftUpperLeg]!
-  const restLegRight = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.RightUpperLeg]!
-  const averageHipToLegHeight = (restLegLeft.position![1] + restLegRight.position![1]) / 2
-
   const legLength = rig.upperLegLength + rig.lowerLegLength * 2
 
   const hipleft = new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
@@ -459,10 +452,10 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
         MotionCaptureRigComponent.footOffset[entity] = footY
       }
     }
+    hipCenter.copy(hipleft).add(hipright).multiplyScalar(0.5)
   } else {
-    // hipCenter.copy(new Vector3(0, legLength, 0))
+    hipCenter.copy(new Vector3(0, legLength, 0))
   }
-  hipCenter.copy(hipleft).add(hipright).multiplyScalar(0.5)
 
   const shoulderLeft = new Vector3(-rightShoulder.x, lowestWorldY - rightShoulder.y, -rightShoulder.z)
   const shoulderRight = new Vector3(-leftShoulder.x, lowestWorldY - leftShoulder.y, -leftShoulder.z)
@@ -472,14 +465,18 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
 
   const hipWorldQuaterion = getQuaternionFromPointsAlongPlane(hipright, hipleft, shoulderCenter, new Quaternion(), true)
 
-  // multiply the hip normal quaternion by the rotation of the hips around this ne
-  const hipPositionAlongPlane = new Vector3(0, -averageHipToLegHeight, 0)
-    .applyQuaternion(hipToShoulderQuaternion)
-    .add(hipCenter)
+  // const restLegLeft = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.LeftUpperLeg]!
+  // const restLegRight = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.RightUpperLeg]!
+  // const averageHipToLegHeight = (restLegLeft.position![1] + restLegRight.position![1]) / 2
 
-  MotionCaptureRigComponent.hipPosition.x[entity] = hipPositionAlongPlane.x
-  MotionCaptureRigComponent.hipPosition.y[entity] = hipPositionAlongPlane.y
-  MotionCaptureRigComponent.hipPosition.z[entity] = hipPositionAlongPlane.z
+  // multiply the hip normal quaternion by the rotation of the hips around this ne
+  // const hipPositionAlongPlane = new Vector3(0, -averageHipToLegHeight, 0)
+  //   .applyQuaternion(hipToShoulderQuaternion)
+  //   .add(hipCenter)
+
+  MotionCaptureRigComponent.hipPosition.x[entity] = hipCenter.x
+  MotionCaptureRigComponent.hipPosition.y[entity] = hipCenter.y
+  MotionCaptureRigComponent.hipPosition.z[entity] = hipCenter.z
 
   if (trackingLowerBody) {
     hipDirection.setFromUnitVectors(V_100, new Vector3().subVectors(hipright, hipleft).setY(0))
