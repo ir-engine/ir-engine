@@ -28,7 +28,7 @@ npm run prepare-database >prepare-database-build-logs.txt 2>prepare-database-bui
 test -s prepare-database-build-error.txt && npm run record-build-error -- --service=prepare-database
 echo "Executing create production"
 echo "$PWD"
-cd packages/client && npx cross-env ts-node --swc scripts/create-env-production.ts >buildenv-build-logs.txt 2>buildenv-build-error.txt || cd "$HOME/app" && echo "$PWD" && npm run record-build-error -- --service=buildenv
+cd packages/client && npx cross-env ts-node --swc scripts/create-env-production.ts >buildenv-build-logs.txt 2>buildenv-build-error.txt || (cd "$HOME/app" && echo "$PWD" && npm run record-build-error -- --service=buildenv)
 echo "Executing create production 2"
 echo "$PWD"
 test -s buildenv-build-error.txt && npm run record-build-error -- --service=buildenv
