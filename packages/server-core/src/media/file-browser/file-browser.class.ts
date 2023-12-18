@@ -217,7 +217,7 @@ export class FileBrowserService
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
 
-    if (isDev && PROJECT_FILE_REGEX.test(oldNamePath)) {
+    if (isDev && PROJECT_FILE_REGEX.test(_oldPath)) {
       if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
       else fs.renameSync(oldNamePath, newNamePath)
     }
