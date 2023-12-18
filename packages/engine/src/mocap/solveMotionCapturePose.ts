@@ -295,14 +295,16 @@ export function solveMotionCapturePose(
   mocapComponent.prevWorldLandmarks = worldLandmarks
   mocapComponent.prevScreenLandmarks = screenLandmarks
 
+  const lowestWorldY = worldLandmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
+  const estimatingLowerBody = shouldEstimateLowerBody(worldLandmarks)
+  calculateGroundedFeet(worldLandmarks)
+
   if (entity === Engine.instance.localClientEntity) {
     drawDebug(newLandmarks, avatarDebug)
     drawDebugScreen(newScreenlandmarks, !!newScreenlandmarks && avatarDebug)
     drawDebugFinal(worldLandmarks, avatarDebug)
   }
 
-  const lowestWorldY = worldLandmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
-  const estimatingLowerBody = shouldEstimateLowerBody(worldLandmarks)
   solveSpine(entity, lowestWorldY, worldLandmarks)
   solveLimb(
     entity,
@@ -327,7 +329,6 @@ export function solveMotionCapturePose(
     VRMHumanBoneName.RightLowerArm
   )
   if (estimatingLowerBody) {
-    calculateGroundedFeet(worldLandmarks)
     solveLimb(
       entity,
       lowestWorldY,
@@ -667,7 +668,6 @@ const headRotation = new Quaternion()
 const leftEarVec3 = new Vector3()
 const rightEarVec3 = new Vector3()
 const noseVec3 = new Vector3()
-const parentRotation = new Quaternion()
 
 const rotate90degreesAroundXAxis = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2)
 
@@ -679,11 +679,11 @@ export const solveHead = (
 ) => {
   const rig = getComponent(entity, AvatarRigComponent)
 
-  leftEarVec3.set(leftEar.x, -leftEar.y, leftEar.z)
-  rightEarVec3.set(rightEar.x, -rightEar.y, rightEar.z)
-  noseVec3.set(nose.x, -nose.y, nose.z)
+  leftEarVec3.set(-leftEar.x, -leftEar.y, -leftEar.z)
+  rightEarVec3.set(-rightEar.x, -rightEar.y, -rightEar.z)
+  noseVec3.set(-nose.x, -nose.y, -nose.z)
 
-  getQuaternionFromPointsAlongPlane(rightEarVec3, leftEarVec3, noseVec3, headRotation)
+  getQuaternionFromPointsAlongPlane(leftEarVec3, rightEarVec3, noseVec3, headRotation, true)
 
   headRotation.multiply(rotate90degreesAroundXAxis)
 
