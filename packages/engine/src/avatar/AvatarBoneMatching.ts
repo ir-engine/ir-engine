@@ -718,7 +718,7 @@ export default function avatarBoneMatching(model: Object3D): VRM {
   humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
   humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
   //quick dirty tag to disable flipping on mixamo rigs
-  ;(vrm as any).userData = { flipped: false, useAPose: getAPose(_rightHandPos, _rightUpperArmPos) } as any
+  ;(vrm as any).userData = { useAPose: getAPose(_rightHandPos, _rightUpperArmPos) } as any
   return vrm
 }
 

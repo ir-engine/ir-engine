@@ -64,9 +64,6 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object
   const originalLeftArmQuaternion = leftArm.quaternion.clone()
 
   const userData = vrm.userData
-  if (userData.flipped) {
-    hips.quaternion.copy(hipsOffset)
-  }
   if (userData.useAPose) {
     rightArm.quaternion.copy(rightArmOffset)
     leftArm.quaternion.copy(leftArmOffset)
