@@ -28,7 +28,7 @@ CMD ["scripts/strip-engine.sh"]
 
 ENV APP_ENV=production
 
-FROM node:18-buster-slim as runner
+FROM node:21-bookworm-slim as runner
 WORKDIR /app
 
 COPY --from=builder /app ./
