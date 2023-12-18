@@ -54,10 +54,9 @@ describe('project-branches.test', () => {
 
   before(async () => {
     const name = ('test-project-branches-user-name-' + v1()) as UserName
-    const avatarName = 'test-project-branches-avatar-name-' + v1()
 
     const avatar = await app.service(avatarPath).create({
-      name: avatarName
+      name: 'test-project-branches-avatar-name-' + v1()
     })
 
     const testUser = await app.service(userPath).create({
