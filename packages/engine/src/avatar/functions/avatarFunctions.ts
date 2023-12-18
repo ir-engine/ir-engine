@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
-import { cloneDeep } from 'lodash'
 import {
   AnimationClip,
   AnimationMixer,
@@ -80,6 +79,15 @@ import { retargetMixamoAnimation } from './retargetMixamoRig'
 
 const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
+
+declare module '@pixiv/three-vrm/types/VRM' {
+  export interface VRM {
+    userData: {
+      flipped: boolean
+      useAPose: boolean
+    }
+  }
+}
 
 export const getPreloaded = () => {
   return ['sitting']
@@ -175,9 +183,7 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   const animations = [] as AnimationClip[]
   for (const key in manager.loadedAnimations) {
     for (const animation of manager.loadedAnimations[key].animations)
-      animations.push(
-        retargetMixamoAnimation(cloneDeep(animation), manager.loadedAnimations[key].scene, rigComponent.vrm)
-      )
+      animations.push(retargetMixamoAnimation(animation, manager.loadedAnimations[key].scene, rigComponent.vrm))
   }
   setComponent(entity, AnimationComponent, {
     animations: animations,
