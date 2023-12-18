@@ -96,7 +96,7 @@ export const portalColliderValues: SerializedComponentType<typeof ColliderCompon
     {
       onEnter: 'teleport',
       onExit: null,
-      target: ''
+      target: '' as EntityUUID
     }
   ]
 }

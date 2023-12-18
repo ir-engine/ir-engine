@@ -27,6 +27,7 @@ import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
@@ -277,11 +278,11 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
   const referenceSpace = ReferenceSpace.origin
 
   const uuid = getComponent(localClientEntity, UUIDComponent)
-  const ikTargetLeftHand = UUIDComponent.getEntityByUUID(uuid + ikTargets.leftHand)
-  const ikTargetRightHand = UUIDComponent.getEntityByUUID(uuid + ikTargets.rightHand)
-  const ikTargetHead = UUIDComponent.getEntityByUUID(uuid + ikTargets.head)
-  const ikTargetLeftFoot = UUIDComponent.getEntityByUUID(uuid + ikTargets.leftFoot)
-  const ikTargetRightFoot = UUIDComponent.getEntityByUUID(uuid + ikTargets.rightFoot)
+  const ikTargetLeftHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftHand) as EntityUUID)
+  const ikTargetRightHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightHand) as EntityUUID)
+  const ikTargetHead = UUIDComponent.getEntityByUUID((uuid + ikTargets.head) as EntityUUID)
+  const ikTargetLeftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
+  const ikTargetRightFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightFoot) as EntityUUID)
 
   // reset all IK targets
   if (ikTargetHead) AvatarIKTargetComponent.blendWeight[ikTargetHead] = 0

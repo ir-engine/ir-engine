@@ -60,7 +60,7 @@ export const getSpline = makeFunctionNodeDefinition({
   },
   out: { entity: 'entity' },
   exec: ({ read, write }) => {
-    const splineEntityUUID = read<string>('spline')
+    const splineEntityUUID = read<EntityUUID>('spline')
     Assert.mustBeTrue(splineEntityUUID !== '', 'Please select spline entity')
     const splineEntity = UUIDComponent.getEntityByUUID(splineEntityUUID)
     write('entity', splineEntity)

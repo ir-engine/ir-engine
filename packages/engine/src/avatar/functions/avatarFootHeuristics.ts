@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Euler, Quaternion, Vector3 } from 'three'
 import { V_010 } from '../../common/constants/MathConstants'
 import { Entity } from '../../ecs/classes/Entity'
@@ -53,8 +54,8 @@ const minSpeed = 5
 export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   const userID = getComponent(localClientEntity, UUIDComponent)
 
-  const ikTargetLeftFoot = UUIDComponent.getEntityByUUID(userID + ikTargets.leftFoot)
-  const ikTargetRightFoot = UUIDComponent.getEntityByUUID(userID + ikTargets.rightFoot)
+  const ikTargetLeftFoot = UUIDComponent.getEntityByUUID((userID + ikTargets.leftFoot) as EntityUUID)
+  const ikTargetRightFoot = UUIDComponent.getEntityByUUID((userID + ikTargets.rightFoot) as EntityUUID)
   if (!ikTargetLeftFoot || !ikTargetRightFoot) return
 
   const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot]
@@ -66,8 +67,8 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   const stepThreshold = rigComponent.upperLegLength + rigComponent.lowerLegLength
 
   const feet = {
-    [ikTargets.rightFoot]: UUIDComponent.getEntityByUUID(userID + ikTargets.rightFoot),
-    [ikTargets.leftFoot]: UUIDComponent.getEntityByUUID(userID + ikTargets.leftFoot)
+    [ikTargets.rightFoot]: UUIDComponent.getEntityByUUID((userID + ikTargets.rightFoot) as EntityUUID),
+    [ikTargets.leftFoot]: UUIDComponent.getEntityByUUID((userID + ikTargets.leftFoot) as EntityUUID)
   }
 
   const playerTransform = getComponent(localClientEntity, TransformComponent)

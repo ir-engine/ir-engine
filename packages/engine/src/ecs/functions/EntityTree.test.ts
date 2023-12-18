@@ -121,12 +121,12 @@ describe('EntityTreeComponent', () => {
 
     const sceneNode = getComponent(sceneEntity, EntityTreeComponent)
     assert.equal(sceneNode.children.length, 6)
-    assert.equal(sceneNode.children[0], UUIDComponent.getEntityByUUID('child-0'))
-    assert.equal(sceneNode.children[1], UUIDComponent.getEntityByUUID('child-1'))
+    assert.equal(sceneNode.children[0], UUIDComponent.getEntityByUUID('child-0' as EntityUUID))
+    assert.equal(sceneNode.children[1], UUIDComponent.getEntityByUUID('child-1' as EntityUUID))
     assert.equal(sceneNode.children[2], entity)
-    assert.equal(sceneNode.children[3], UUIDComponent.getEntityByUUID('child-2'))
-    assert.equal(sceneNode.children[4], UUIDComponent.getEntityByUUID('child-3'))
-    assert.equal(sceneNode.children[5], UUIDComponent.getEntityByUUID('child-4'))
+    assert.equal(sceneNode.children[3], UUIDComponent.getEntityByUUID('child-2' as EntityUUID))
+    assert.equal(sceneNode.children[4], UUIDComponent.getEntityByUUID('child-3' as EntityUUID))
+    assert.equal(sceneNode.children[5], UUIDComponent.getEntityByUUID('child-4' as EntityUUID))
     assert.equal(sceneNode.parentEntity, null)
   })
 
@@ -139,7 +139,7 @@ describe('EntityTreeComponent', () => {
 
     // UUIDComponent should remain
     assert.equal(getComponent(entity, UUIDComponent), 'test-uuid')
-    assert.equal(UUIDComponent.getEntityByUUID('test-uuid'), entity)
+    assert.equal(UUIDComponent.getEntityByUUID('test-uuid' as EntityUUID), entity)
 
     const parentNode = getComponent(sceneEntity, EntityTreeComponent)
     assert.equal(parentNode.children.length, 0)

@@ -29,6 +29,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import matches from 'ts-matches'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
@@ -90,7 +91,7 @@ export const ColliderComponent = defineComponent({
            *
            * TODO: how do we handle non-scene entities?
            */
-          target: null as null | string | undefined
+          target: null as null | EntityUUID | undefined
         }
       ]
     }

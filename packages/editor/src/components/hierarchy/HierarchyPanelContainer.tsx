@@ -113,7 +113,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   useEffect(() => {
     if (!expandedNodes.value[activeScene.value!]) {
-      expandedNodes.set({ [activeScene.value!]: { [rootEntity.value]: true } })
+      expandedNodes.set({ [activeScene.value!]: { [rootEntity]: true } })
     }
   }, [rootEntity])
 
