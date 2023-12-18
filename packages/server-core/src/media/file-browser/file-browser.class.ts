@@ -199,7 +199,7 @@ export class FileBrowserService
 
     const staticResource = (await this.app.service(staticResourcePath).find({
       query: {
-        key: _oldPath,
+        key: path.join(_oldPath, data.oldName),
         $limit: 1
       }
     })) as Paginated<StaticResourceType>
@@ -208,7 +208,7 @@ export class FileBrowserService
       await this.app.service(staticResourcePath).patch(
         staticResource.data[0].id,
         {
-          key: _newPath
+          key: path.join(_newPath, data.newName)
         },
         { isInternal: true }
       )
@@ -217,7 +217,7 @@ export class FileBrowserService
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
 
-    if (isDev) {
+    if (isDev && PROJECT_FILE_REGEX.test(oldNamePath)) {
       if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
       else fs.renameSync(oldNamePath, newNamePath)
     }
