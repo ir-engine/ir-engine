@@ -107,6 +107,7 @@ export const ResourceService = {
         $limit: limit,
         $skip: skip * RESOURCE_PAGE_LIMIT,
         $or,
+        action: 'admin',
         mimeType: {
           $in: mimeTypes
         }

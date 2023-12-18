@@ -29,7 +29,6 @@ import { dispatchAction, getMutableState, getState, useHookstate } from '@ethere
 
 import { useEffect } from 'react'
 import { defaultAnimationPath, optionalAnimationPath, optionalAnimations } from '../../avatar/animation/Util'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
@@ -52,10 +51,12 @@ import { SittingComponent } from '../../scene/components/SittingComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 
+import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
+import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
@@ -171,12 +172,11 @@ const execute = () => {
     const controller = getComponent(entity, AvatarControllerComponent)
     if (controller.gamepadLocalInput.lengthSq() > 0.01) unmountEntity(entity)
     const mountTransform = getComponent(getComponent(entity, SittingComponent).mountPointEntity, TransformComponent)
-    const avatar = getComponent(entity, AvatarComponent)
-    setComponent(entity, TransformComponent, { rotation: mountTransform.rotation })
-    _vec.copy(mountTransform.position).y -= avatar.avatarHalfHeight * 0.5
-    teleportAvatar(entity, _vec)
+    const rig = getComponent(entity, AvatarRigComponent)
+    _vec.copy(mountTransform.position).y -= rig.normalizedRig.hips.node.position.y - 0.25
+    setComponent(entity, TransformComponent, { rotation: mountTransform.rotation, position: _vec })
 
-    //if (!hasComponent(entity, MotionCaptureRigComponent)) continue
+    if (!hasComponent(entity, MotionCaptureRigComponent)) continue
 
     //Force mocapped avatar to always face the mount point's rotation
     //const hipsQaut = new Quaternion(
