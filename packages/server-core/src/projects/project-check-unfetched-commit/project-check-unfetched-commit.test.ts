@@ -80,7 +80,7 @@ describe('project-check-unfetched-commit.test', () => {
 
   after(() => destroyEngine())
 
-  it('should match source and destination contents with same repos', async () => {
+  it('should get the commit data', async () => {
     nock('https://api.github.com')
       .get(/\/repos.*\/commits\/.*/)
       .reply(200, getRepoCommit())
