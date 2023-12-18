@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "module": "esnext",
+    "module": "CommonJS",
     "strict": false,
     "strictNullChecks": true,
     "strictBindCallApply": true,
@@ -25,8 +25,7 @@
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": true,
-    "outDir": "./lib",
-    "types": ["vite/client"]
+    "outDir": "./lib"
   },
   "exclude": [
     "../projects/projects/**",
