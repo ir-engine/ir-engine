@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
-import { cloneDeep } from 'lodash'
+import { VRM, VRM1Meta, VRMHumanBone, VRMHumanoid } from '@pixiv/three-vrm'
 import {
   AnimationClip,
   AnimationMixer,
@@ -81,6 +80,14 @@ import { retargetMixamoAnimation } from './retargetMixamoRig'
 const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
 
+declare module '@pixiv/three-vrm/types/VRM' {
+  export interface VRM {
+    userData: {
+      useAPose?: boolean
+    }
+  }
+}
+
 export const getPreloaded = () => {
   return ['sitting']
 }
@@ -89,13 +96,31 @@ export const getPreloaded = () => {
  *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
 export const autoconvertMixamoAvatar = (model: any) => {
   const scene = model.scene ?? model // FBX assets do not have 'scene' property
-  if (!scene) return null
+  if (!scene) return null!
 
-  const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as any
+  const isVRM = model instanceof VRM
 
-  if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
+  if (isVRM && model.meta.metaVersion === '1') {
+    if (!model.userData) model.userData = {}
+    return model
+  }
 
-  return vrm
+  if (isVRM && model.meta.metaVersion === '0') {
+    const bones = model.humanoid.rawHumanBones
+    model.humanoid.normalizedHumanBonesRoot.removeFromParent()
+    bones.hips.node.rotateY(Math.PI)
+    const humanoid = new VRMHumanoid(bones)
+    model.scene.add(humanoid.normalizedHumanBonesRoot)
+    const vrm = new VRM({
+      humanoid,
+      scene: model.scene,
+      meta: { name: model.scene.children[0].name } as VRM1Meta
+    })
+    if (!vrm.userData) vrm.userData = {}
+    return vrm
+  }
+
+  return avatarBoneMatching(scene)
 }
 
 export const isAvaturn = (url: string) => {
@@ -175,9 +200,7 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   const animations = [] as AnimationClip[]
   for (const key in manager.loadedAnimations) {
     for (const animation of manager.loadedAnimations[key].animations)
-      animations.push(
-        retargetMixamoAnimation(cloneDeep(animation), manager.loadedAnimations[key].scene, rigComponent.vrm)
-      )
+      animations.push(retargetMixamoAnimation(animation, manager.loadedAnimations[key].scene, rigComponent.vrm))
   }
   setComponent(entity, AnimationComponent, {
     animations: animations,
