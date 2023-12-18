@@ -92,7 +92,7 @@ describe('project-commits.test', () => {
 
     const result = await app
       .service(projectCommitsPath)
-      .get('https://github.com/EtherealEngine/ee-ethereal-village/', getParams())
+      .get('https://github.com/EtherealEngine/ee-ethereal-village', getParams())
 
     assert.ok(result)
     assert.notEqual(result.commits[0], result.commits[1])

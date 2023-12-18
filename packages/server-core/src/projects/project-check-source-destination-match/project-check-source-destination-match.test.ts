@@ -42,13 +42,13 @@ describe('project-check-source-destination-match.test', () => {
   let testUserApiKey: UserApiKeyType
 
   const getTestSourceDestinationUrlQuery1 = () => ({
-    sourceURL: 'https://github.com/EtherealEngine/ee-ethereal-village/',
-    destinationURL: 'https://github.com/EtherealEngine/ee-ethereal-village/'
+    sourceURL: 'https://github.com/EtherealEngine/ee-ethereal-village',
+    destinationURL: 'https://github.com/EtherealEngine/ee-ethereal-village'
   })
 
   const getTestSourceDestinationUrlQuery2 = () => ({
-    sourceURL: 'https://github.com/EtherealEngine/ee-ethereal-village/',
-    destinationURL: 'https://github.com/EtherealEngine/ee-bot/'
+    sourceURL: 'https://github.com/EtherealEngine/ee-ethereal-village',
+    destinationURL: 'https://github.com/EtherealEngine/ee-bot'
   })
 
   const getParams = () => ({

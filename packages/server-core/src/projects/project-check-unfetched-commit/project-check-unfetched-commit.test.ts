@@ -91,7 +91,7 @@ describe('project-check-unfetched-commit.test', () => {
 
     const result = await app
       .service(projectCheckUnfetchedCommitPath)
-      .get('https://github.com/EtherealEngine/ee-ethereal-village/', {
+      .get('https://github.com/EtherealEngine/ee-ethereal-village', {
         query: { selectedSHA },
         ...getParams()
       })
