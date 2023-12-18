@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { projectCheckSourceDestinationMatchPath } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
@@ -125,6 +126,54 @@ describe('project-check-source-destination-match.test', () => {
     assert.ok(result.error)
     assert.ok(result.text)
     assert.ok(!result.sourceProjectMatchesDestination)
+  })
+
+  describe('installed project check', () => {
+    let createdProject: ProjectType
+
+    before(async () => {
+      createdProject = await app.service(projectPath).create({
+        name: 'ee-ethereal-village'
+      })
+    })
+
+    after(async () => {
+      await app.service(projectPath).remove(createdProject.id)
+    })
+
+    it('should check if project is already installed', async () => {
+      nock('https://api.github.com')
+        .get(/\/repos.*\/contents\/.*/)
+        .reply(200, getRepoPackageJson1())
+        .get(/\/repos.*\/contents\/.*/)
+        .reply(200, getRepoXrengineConfig1())
+        .get(/\/repos.*\/contents\/.*/)
+        .reply(200, getRepoPackageJson1())
+
+      const result = await app
+        .service(projectCheckSourceDestinationMatchPath)
+        .find({ query: getTestSourceDestinationUrlQuery1(), ...getParams() }, undefined as any)
+
+      assert.ok(result)
+      assert.ok(result.error)
+    })
+  })
+
+  it('should match if destination package.json is empty', async () => {
+    nock('https://api.github.com')
+      .get(/\/repos.*\/contents\/.*/)
+      .reply(200, getRepoPackageJson1())
+      .get(/\/repos.*\/contents\/.*/)
+      .reply(200, getRepoXrengineConfig1())
+      .get(/\/repos.*\/contents\/.*/)
+      .reply(404)
+
+    const result = await app
+      .service(projectCheckSourceDestinationMatchPath)
+      .find({ query: getTestSourceDestinationUrlQuery1(), ...getParams() }, undefined as any)
+
+    assert.ok(result)
+    assert.equal(result.sourceProjectMatchesDestination, true)
   })
 })
 
