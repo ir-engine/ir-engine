@@ -86,7 +86,7 @@ export const projectResolver = resolve<ProjectType, HookContext>(
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
-      return projectDbToSchema(rawData)
+      return rawData ? projectDbToSchema(rawData) : undefined
     }
   }
 )
