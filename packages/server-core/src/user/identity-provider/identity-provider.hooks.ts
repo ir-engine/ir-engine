@@ -158,6 +158,7 @@ async function createNewUser(context: HookContext<IdentityProviderService>) {
 
   let selectedAvatarId
   while (selectedAvatarId == null) {
+    console.log("Creating new user's avatar")
     const randomId = random(avatars.data.length - 1)
     const selectedAvatar = avatars.data[randomId]
     try {
