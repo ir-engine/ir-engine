@@ -92,11 +92,11 @@ describe('project-check-source-destination-match.test', () => {
 
   it('should match source and destination contents with same repos', async () => {
     nock('https://api.github.com')
-      .get(/\/repos.*/)
+      .get(/\/repos.*\/contents\/.*/)
       .reply(200, getRepoPackageJson1())
-      .get(/\/repos.*/)
+      .get(/\/repos.*\/contents\/.*/)
       .reply(200, getRepoXrengineConfig1())
-      .get(/\/repos.*/)
+      .get(/\/repos.*\/contents\/.*/)
       .reply(200, getRepoPackageJson1())
 
     const result = await app
@@ -110,11 +110,11 @@ describe('project-check-source-destination-match.test', () => {
 
   it('should not match source and destination contents with different repos', async () => {
     nock('https://api.github.com')
-      .get(/\/repos.*/)
+      .get(/\/repos.*\/contents\/.*/)
       .reply(200, getRepoPackageJson1())
-      .get(/\/repos.*/)
+      .get(/\/repos.*\/contents\/.*/)
       .reply(200, getRepoXrengineConfig1())
-      .get(/\/repos.*/)
+      .get(/\/repos.*\/contents\/.*/)
       .reply(200, getRepoPackageJson2())
 
     const result = await app
