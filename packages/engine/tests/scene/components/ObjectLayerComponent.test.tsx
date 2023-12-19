@@ -29,7 +29,7 @@ import React from 'react'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { destroyEngine } from '../../../src/ecs/classes/Engine'
-import { setComponent } from '../../../src/ecs/functions/ComponentFunctions'
+import { getComponent, setComponent } from '../../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../src/initializeEngine'
 import { addObjectToGroup } from '../../../src/scene/components/GroupComponent'
@@ -100,6 +100,34 @@ describe('ObjectLayerComponent', () => {
         assert(mesh.layers.isEnabled(layer))
       }
     }
+
+    unmount()
+  })
+
+  it('Updates objectLayers on group', async () => {
+    const entity = createEntity()
+    const geometry = new BoxGeometry(1, 1, 1)
+    const material = new MeshBasicMaterial({ color: 0xffff00 })
+    const mesh = new Mesh(geometry, material)
+
+    const objectLayers = [2, 3, 4]
+    const nonEnabledObjectLayer = 5
+
+    setComponent(entity, ObjectLayerComponent)
+    const objectLayersComponent = getComponent(entity, ObjectLayerComponent)
+    objectLayersComponent.objectLayers = objectLayers
+    addObjectToGroup(entity, mesh)
+
+    const Reactor = ObjectLayerComponent.reactor
+    const tag = <Reactor />
+    const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
+
+    for (const layer of objectLayers) {
+      assert(mesh.layers.isEnabled(layer))
+    }
+
+    assert(!mesh.layers.isEnabled(nonEnabledObjectLayer))
 
     unmount()
   })

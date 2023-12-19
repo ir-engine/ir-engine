@@ -46,9 +46,9 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
+import { ObjectLayerComponent } from './ObjectLayerComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
 export const SpotLightComponent = defineComponent({
@@ -192,7 +192,7 @@ export const SpotLightComponent = defineComponent({
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
 
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      setComponent(helperEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
 
       light.helperEntity.set(helperEntity)
 

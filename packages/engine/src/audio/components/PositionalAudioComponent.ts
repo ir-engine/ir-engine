@@ -39,9 +39,9 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { AudioNodeGroups, MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
+import { ObjectLayerComponent } from '../../scene/components/ObjectLayerComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 export interface PositionalAudioInterface {
   refDistance: number
@@ -127,8 +127,8 @@ export const PositionalAudioComponent = defineComponent({
         if (audioNodes) {
           const helper = new PositionalAudioHelper(audioNodes)
           helper.name = `positional-audio-helper-${entity}`
-          setObjectLayers(helper, ObjectLayers.NodeHelper)
           addObjectToGroup(entity, helper)
+          setComponent(entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
           audio.helper.set(helper)
         }
       }

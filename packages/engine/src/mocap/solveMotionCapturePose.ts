@@ -62,9 +62,9 @@ import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { RendererState } from '../renderer/RendererState'
 import { GroupComponent, addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
+import { ObjectLayerComponent } from '../scene/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
@@ -163,12 +163,12 @@ const drawMocapDebug = (label: string) => {
       const color = new Color().set(1 - confidence, confidence, 0)
       if (!debugEntities[key]) {
         const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial({ color }))
-        setObjectLayers(mesh, ObjectLayers.AvatarHelper)
         const entity = createEntity()
         debugEntities[key] = entity
         addObjectToGroup(entity, mesh)
         setVisibleComponent(entity, true)
         setComponent(entity, NameComponent, `Mocap Debug ${label} ${LandmarkNames[key]}`)
+        setComponent(entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.AvatarHelper] })
       }
       const entity = debugEntities[key]
       const mesh = getComponent(entity, GroupComponent)[0] as any as Mesh<BufferGeometry, MeshBasicMaterial>
@@ -192,7 +192,7 @@ const drawMocapDebug = (label: string) => {
       addObjectToGroup(lineSegmentEntity, positionLineSegment)
       setVisibleComponent(lineSegmentEntity, true)
       setComponent(lineSegmentEntity, NameComponent, 'Mocap Debug Line Segment ' + label)
-      setObjectLayers(positionLineSegment, ObjectLayers.AvatarHelper)
+      setComponent(lineSegmentEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.AvatarHelper] })
     }
 
     for (let i = 0; i < POSE_CONNECTIONS.length * 2; i += 2) {

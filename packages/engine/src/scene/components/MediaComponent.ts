@@ -53,9 +53,9 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
-import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
+import { ObjectLayerComponent } from './ObjectLayerComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
 const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
@@ -494,7 +494,7 @@ export function MediaReactor() {
     setComponent(helperEntity, NameComponent, helper.name)
     setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
     setVisibleComponent(helperEntity, true)
-    setObjectLayers(helper, ObjectLayers.NodeHelper)
+    setComponent(helperEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
     media.helperEntity.set(helperEntity)
 
     return () => {

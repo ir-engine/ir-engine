@@ -55,9 +55,9 @@ import { createEntity, removeEntity, useEntityContext } from '../../ecs/function
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { ObjectLayerComponent } from '../../scene/components/ObjectLayerComponent'
 import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { PoseSchema, TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
@@ -160,13 +160,13 @@ export const AvatarRigComponent = defineComponent({
       const helper = new SkeletonHelper(rigComponent.value.vrm.scene)
       helper.frustumCulled = false
       helper.name = `target-rig-helper-${entity}`
-      setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
       const helperEntity = createEntity()
       setVisibleComponent(helperEntity, true)
       addObjectToGroup(helperEntity, helper)
       rigComponent.helperEntity.set(helperEntity)
       setComponent(helperEntity, NameComponent, helper.name)
+      setComponent(helperEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.AvatarHelper] })
 
       setComputedTransformComponent(helperEntity, entity, () => {
         const helperTransform = getComponent(helperEntity, TransformComponent)

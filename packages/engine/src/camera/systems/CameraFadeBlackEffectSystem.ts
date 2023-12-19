@@ -38,9 +38,9 @@ import { createEntity, entityExists, removeEntity } from '../../ecs/functions/En
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { ObjectLayerComponent } from '../../scene/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
@@ -116,7 +116,7 @@ const reactor = () => {
     const entity = createEntity()
     setComponent(entity, NameComponent, mesh.name)
     addObjectToGroup(entity, mesh)
-    setObjectLayers(mesh, ObjectLayers.Scene)
+    setComponent(entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.Scene] })
     const transition = createTransitionState(0.25, 'OUT')
 
     getMutableState(CameraFadeBlackEffectSystemState).set({

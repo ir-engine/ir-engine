@@ -52,11 +52,11 @@ import {
   worldposReplace
 } from '../classes/BPCEMShader'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 import { GroupComponent, addObjectToGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
+import { ObjectLayerComponent } from './ObjectLayerComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
 export const EnvMapBakeComponent = defineComponent({
@@ -118,7 +118,7 @@ export const EnvMapBakeComponent = defineComponent({
       setComponent(helperEntity, NameComponent, helper.name)
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      setComponent(helperEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
       bake.helperEntity.set(helperEntity)
 
       return () => {

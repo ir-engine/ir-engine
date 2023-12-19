@@ -41,9 +41,9 @@ import { createEntity, removeEntity, useEntityContext } from '../../ecs/function
 import { RendererState } from '../../renderer/RendererState'
 import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { ObjectLayerComponent } from '../../scene/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
@@ -81,8 +81,8 @@ export const BoundingBoxComponent = defineComponent({
 
       setComponent(helperEntity, VisibleComponent)
 
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
       addObjectToGroup(helperEntity, helper)
+      setComponent(helperEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
       boundingBox.helper.set(helperEntity)
 
       return () => {

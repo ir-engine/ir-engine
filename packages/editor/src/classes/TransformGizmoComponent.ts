@@ -38,10 +38,10 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { ObjectLayerComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { SnapMode, TransformPivot, TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
@@ -92,13 +92,12 @@ export const TransformGizmoComponent = defineComponent({
       // set layers
       const raycaster = gizmoComponent.value.getRaycaster()
       raycaster.layers.set(ObjectLayers.TransformGizmo)
-      setObjectLayers(dummy, ObjectLayers.TransformGizmo)
-      setObjectLayers(gizmoComponent.value, ObjectLayers.TransformGizmo)
 
       // add dummy to entity and gizmo to dummy entity and attach
       addObjectToGroup(entity, dummy)
       gizmoComponent.value.attach(dummy)
       addObjectToGroup(dummyEntity, gizmoComponent.value)
+      setComponent(entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.TransformGizmo] })
       removeComponent(dummyEntity, LocalTransformComponent)
 
       return () => {

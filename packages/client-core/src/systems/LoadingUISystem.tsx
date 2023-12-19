@@ -44,9 +44,10 @@ import {
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { ObjectLayerComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
+import { RenderOrderComponent } from '@etherealengine/engine/src/scene/components/RenderOrderComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
@@ -86,8 +87,8 @@ const LoadingUISystemState = defineState({
       new MeshBasicMaterial({ side: BackSide, transparent: true, depthWrite: true, depthTest: false })
     )
 
-    mesh.renderOrder = 1
-    setObjectLayers(mesh, ObjectLayers.UI)
+    setComponent(ui.entity, RenderOrderComponent, { renderOrder: 1 })
+    setComponent(ui.entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.UI] })
 
     setComputedTransformComponent(meshEntity, Engine.instance.cameraEntity, () => {
       getComponent(meshEntity, TransformComponent).position.copy(

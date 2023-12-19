@@ -63,11 +63,11 @@ import { RendererState } from '../../renderer/RendererState'
 import { portalPath } from '../../schemas/projects/portal.schema'
 import { LocalTransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
+import { ObjectLayerComponent } from './ObjectLayerComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
@@ -199,10 +199,10 @@ export const PortalComponent = defineComponent({
       const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 1, 0x000000)
       helper.name = `portal-helper-${entity}`
 
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
       const helperEntity = createEntity()
 
       addObjectToGroup(helperEntity, helper)
+      setComponent(helperEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
       setComponent(helperEntity, NameComponent, helper.name)
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
@@ -210,7 +210,6 @@ export const PortalComponent = defineComponent({
         new Quaternion().setFromAxisAngle(V_100, Math.PI / 2)
       )
 
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
       portalComponent.helperEntity.set(helperEntity)
 
       return () => {

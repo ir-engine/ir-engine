@@ -36,9 +36,9 @@ import { createEntity, removeEntity, useEntityContext } from '../../ecs/function
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
+import { ObjectLayerComponent } from './ObjectLayerComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
 const GLTF_PATH = '/static/editor/spawn-point.glb'
@@ -84,7 +84,7 @@ export const SpawnPointComponent = defineComponent({
         if (!active) return
         helper.name = `spawn-point-helper-${entity}`
         addObjectToGroup(helperEntity, helper)
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
+        setComponent(helperEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
         setComponent(helperEntity, NameComponent, helper.name)
       })
 
