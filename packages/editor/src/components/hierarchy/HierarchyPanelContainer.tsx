@@ -32,7 +32,11 @@ import { FixedSizeList } from 'react-window'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getComponent, getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  getOptionalComponent,
+  useQuery
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -43,6 +47,7 @@ import { PopoverPosition } from '@mui/material/Popover'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
@@ -93,7 +98,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const [searchHierarchy, setSearchHierarchy] = useState<string>('')
 
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
-  const scene = SceneState.useScene(activeScene.value!).value
+  const uuidQuery = useQuery([UUIDComponent, SceneObjectComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
 
   const MemoTreeNode = useCallback(
@@ -123,7 +128,6 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   useEffect(() => {
     if (!activeScene.value) return
-    console.log('hierarchy panel update')
     setNodes(
       Array.from(
         heirarchyTreeWalker(
@@ -133,7 +137,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
         )
       )
     )
-  }, [expandedNodes, scene, activeScene, selectionState.selectedEntities])
+  }, [expandedNodes, uuidQuery.length, activeScene, selectionState.selectedEntities])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 
