@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { act, render, waitFor } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { EditorControlFunctions } from '../../../../editor/src/functions/EditorControlFunctions'
+import testSceneJson from '../../../tests/assets/SceneLoadingTest.scene.json'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
 import { Engine, destroyEngine } from '../../ecs/classes/Engine'
@@ -48,233 +47,15 @@ import { NameComponent } from '../components/NameComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
 const modelLink = '/packages/projects/default-project/assets/collisioncube.glb'
 const testScene = {
   name: '',
   thumbnailUrl: '',
   project: '',
   scenePath: 'test' as SceneID,
-  scene: {
-    entities: {
-      root: {
-        name: 'Root',
-        components: []
-      },
-      child_0: {
-        name: 'Child 0',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 0,
-                y: 0,
-                z: 0
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          },
-          {
-            name: 'gltf-model',
-            props: {
-              src: modelLink,
-              generateBVH: false,
-              avoidCameraOcclusion: false
-            }
-          }
-        ],
-        parent: 'root'
-      },
-      child_1: {
-        name: 'Child 1',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 1,
-                y: 0,
-                z: 0
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          }
-        ],
-        parent: 'child_0'
-      },
-      child_2: {
-        name: 'Child 2',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 0,
-                y: 1,
-                z: 0
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          }
-        ],
-        parent: 'child_1'
-      },
-      child_3: {
-        name: 'Child 3',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 0,
-                y: 0,
-                z: 1
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          }
-        ],
-        parent: 'child_2'
-      },
-      child_4: {
-        name: 'Child 4',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 2,
-                y: 0,
-                z: 0
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          }
-        ],
-        parent: 'child_3'
-      },
-      child_5: {
-        name: 'Child 5',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 0,
-                y: 2,
-                z: 0
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          }
-        ],
-        parent: 'child_4'
-      },
-      child_2_1: {
-        name: 'Child 2 _ 1',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 0,
-                y: 0,
-                z: 2
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          },
-          {
-            name: 'fog',
-            props: {
-              type: 'linear',
-              color: '#FFFFFF',
-              density: 0.005,
-              near: 1,
-              far: 1000,
-              timeScale: 1,
-              height: 0.05
-            }
-          }
-        ],
-        parent: 'child_2'
-      }
-    },
-    root: 'root' as EntityUUID,
-    version: 0
-  } as SceneJsonType
+  scene: testSceneJson as unknown as SceneJsonType
 } as SceneDataType
 
 const testID = 'test' as SceneID

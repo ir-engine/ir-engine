@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { EventDispatcher } from '@etherealengine/engine/src/common/classes/EventDispatcher'
 import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -44,6 +43,7 @@ import { SceneLoadingSystem } from '@etherealengine/engine/src/scene/SceneModule
 import { SceneDataType, SceneID, SceneJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import testSceneJson from '@etherealengine/engine/tests/assets/SceneLoadingTest.scene.json'
 import { applyIncomingActions, getMutableState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
 import React from 'react'
@@ -55,217 +55,7 @@ const testScene = {
   thumbnailUrl: '',
   project: '',
   scenePath: 'test' as SceneID,
-  scene: {
-    entities: {
-      root: {
-        name: 'Root',
-        components: []
-      },
-      child_0: {
-        name: 'Child 0',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 0,
-                y: 0,
-                z: 0
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          },
-          {
-            name: 'fog',
-            props: {
-              type: 'linear',
-              color: '#FFFFFF',
-              density: 0.005,
-              near: 1,
-              far: 1000,
-              timeScale: 1,
-              height: 0.05
-            }
-          }
-        ],
-        parent: 'root'
-      },
-      child_1: {
-        name: 'Child 1',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 1,
-                y: 0,
-                z: 0
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          }
-        ],
-        parent: 'child_0'
-      },
-      child_2: {
-        name: 'Child 2',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 0,
-                y: 1,
-                z: 0
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          }
-        ],
-        parent: 'child_1'
-      },
-      child_3: {
-        name: 'Child 3',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 0,
-                y: 0,
-                z: 1
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          }
-        ],
-        parent: 'child_2'
-      },
-      child_4: {
-        name: 'Child 4',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 2,
-                y: 0,
-                z: 0
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          }
-        ],
-        parent: 'child_3'
-      },
-      child_5: {
-        name: 'Child 5',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 0,
-                y: 2,
-                z: 0
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          }
-        ],
-        parent: 'child_4'
-      },
-      child_2_1: {
-        name: 'Child 2 _ 1',
-        components: [
-          {
-            name: 'transform',
-            props: {
-              position: {
-                x: 0,
-                y: 0,
-                z: 2
-              },
-              rotation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-              },
-              scale: {
-                x: 1,
-                y: 1,
-                z: 1
-              }
-            }
-          }
-        ],
-        parent: 'child_2'
-      }
-    },
-    root: 'root' as EntityUUID,
-    version: 0
-  } as SceneJsonType
+  scene: testSceneJson as unknown as SceneJsonType
 } as SceneDataType
 const testID = 'test' as SceneID
 
@@ -320,18 +110,17 @@ describe('EditorControlFunctions', () => {
         'root entity does not have parentEntity'
       )
 
-      const child0Entity = UUIDComponent.entitiesByUUID['child_0']
-      assert(child0Entity, 'child_0 entity not found')
+      const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+      assert(child2_1Entity, 'child_0 entity not found')
       assert.equal(
-        hasComponent(child0Entity, EntityTreeComponent),
+        hasComponent(child2_1Entity, EntityTreeComponent),
         true,
         'child_0 entity does not have EntityTreeComponent'
       )
-      assert.equal(hasComponent(child0Entity, FogSettingsComponent), true, 'child_0 entity does not have TestComponent')
       assert.equal(
-        getComponent(child0Entity, EntityTreeComponent).parentEntity,
-        rootEntity,
-        'child_0 entity does not have parentEntity as root entity'
+        hasComponent(child2_1Entity, FogSettingsComponent),
+        true,
+        'child_0 entity does not have FogSettingsComponent'
       )
 
       const prop = {
@@ -344,12 +133,12 @@ describe('EditorControlFunctions', () => {
         height: 0.1
       }
 
-      EditorControlFunctions.modifyProperty([child0Entity], FogSettingsComponent, prop)
+      EditorControlFunctions.modifyProperty([child2_1Entity], FogSettingsComponent, prop)
       applyIncomingActions()
       SystemDefinitions.get(SceneSnapshotSystem)!.execute()
       await act(() => rerender(loadTag)) // reload scene after snapshot
 
-      const newComponent = getComponent(child0Entity, FogSettingsComponent)
+      const newComponent = getComponent(child2_1Entity, FogSettingsComponent)
       assert.deepStrictEqual(newComponent, prop)
 
       unmount()
@@ -388,7 +177,6 @@ describe('EditorControlFunctions', () => {
         true,
         'child_0 entity does not have EntityTreeComponent'
       )
-      assert.equal(hasComponent(child0Entity, FogSettingsComponent), true, 'child_0 entity does not have TestComponent')
       assert.equal(
         getComponent(child0Entity, EntityTreeComponent).parentEntity,
         rootEntity,
@@ -439,7 +227,6 @@ describe('EditorControlFunctions', () => {
         true,
         'child_0 entity does not have EntityTreeComponent'
       )
-      assert.equal(hasComponent(child0Entity, FogSettingsComponent), true, 'child_0 entity does not have TestComponent')
       assert.equal(
         getComponent(child0Entity, EntityTreeComponent).parentEntity,
         rootEntity,
@@ -496,7 +283,6 @@ describe('EditorControlFunctions', () => {
         true,
         'child_0 entity does not have EntityTreeComponent'
       )
-      assert.equal(hasComponent(child0Entity, FogSettingsComponent), true, 'child_0 entity does not have TestComponent')
       assert.equal(
         getComponent(child0Entity, EntityTreeComponent).parentEntity,
         rootEntity,
@@ -577,7 +363,6 @@ describe('EditorControlFunctions', () => {
         true,
         'child_0 entity does not have EntityTreeComponent'
       )
-      assert.equal(hasComponent(child0Entity, FogSettingsComponent), true, 'child_0 entity does not have TestComponent')
       assert.equal(
         getComponent(child0Entity, EntityTreeComponent).parentEntity,
         rootEntity,
@@ -806,7 +591,6 @@ describe('EditorControlFunctions', () => {
         true,
         'child_0 entity does not have EntityTreeComponent'
       )
-      assert.equal(hasComponent(child0Entity, FogSettingsComponent), true, 'child_0 entity does not have TestComponent')
       assert.equal(
         getComponent(child0Entity, EntityTreeComponent).parentEntity,
         rootEntity,
