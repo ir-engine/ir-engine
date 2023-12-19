@@ -88,7 +88,6 @@ export default (app: Application): void => {
         paginate: false
       })) as any as InstanceAttendanceType[]
 
-      console.log('TEST: Starting patched user-avatar', instances)
       const knexClient: Knex = app.get('knexClient')
 
       const layerUsers = await knexClient
@@ -102,7 +101,6 @@ export default (app: Application): void => {
         .select()
         .options({ nestTables: true })
 
-      console.log('TEST: Ending patched user-avatar', layerUsers)
       const targetIds = _.uniq(layerUsers.map((item) => item[userAvatarPath].userId))
 
       return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))

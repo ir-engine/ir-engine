@@ -61,10 +61,8 @@ export default (app: Application): void => {
 
   service.publish('patched', async (data: AvatarType, context) => {
     try {
-      console.log('TEST: patching avatar 1')
       const { params } = context
       let targetIds = [params.user?.id]
-      console.log('TEST: patching avatar 2', targetIds)
       const usersWithAvatar = (
         (await app.service(userAvatarPath).find({
           ...context.params,
@@ -73,7 +71,6 @@ export default (app: Application): void => {
           }
         })) as Paginated<UserAvatarType>
       ).data.map((item) => item.userId)
-      console.log('TEST: patching avatar 3', usersWithAvatar)
       targetIds = targetIds.concat(usersWithAvatar)
       return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {

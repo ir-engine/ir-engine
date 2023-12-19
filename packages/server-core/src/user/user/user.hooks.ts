@@ -219,13 +219,11 @@ const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
 
   for (const item of data) {
     if (item?.avatarId) {
-      console.log('TEST: addUpdateUserAvatar 1', item?.avatarId)
       const existingUserAvatar = await context.app.service(userAvatarPath).find({
         query: {
           userId: item.id
         }
       })
-      console.log('TEST: addUpdateUserAvatar 2', existingUserAvatar)
 
       if (existingUserAvatar.data.length === 0) {
         const userAvatarData = await userAvatarDataResolver.resolve(
@@ -235,15 +233,12 @@ const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
           },
           context
         )
-        console.log('TEST: addUpdateUserAvatar 3', userAvatarData)
         await context.app.service(userAvatarPath).create(userAvatarData)
       } else if (existingUserAvatar.data[0].avatarId !== item.avatarId) {
-        console.log('TEST: addUpdateUserAvatar 4', existingUserAvatar.data[0].id)
         await context.app.service(userAvatarPath).patch(existingUserAvatar.data[0].id, {
           avatarId: item.avatarId
         })
       }
-      console.log('TEST: addUpdateUserAvatar 5')
     }
   }
 }
