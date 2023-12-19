@@ -106,7 +106,6 @@ export const VolumetricComponent = defineComponent({
       paths: component.paths.value,
       useLoadingEffect: component.useLoadingEffect.value,
       autoplay: component.autoplay.value,
-      paused: component.paused.value,
       volume: component.volume.value,
       playMode: component.playMode.value
     }

@@ -329,6 +329,8 @@ function UVOL2Reactor() {
   const component = useComponent(entity, UVOL2Component)
   const shadow = useOptionalComponent(entity, ShadowComponent)
 
+  const engineState = getState(EngineState)
+
   const mediaElement = getMutableComponent(entity, MediaElementComponent).value
   const audioContext = getState(AudioState).audioContext
   const audio = mediaElement.element
@@ -566,7 +568,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
     const oldBufferHealth = geometryBufferHealth.current
-    const startTime = Date.now()
+    const startTime = engineState.elapsedSeconds * 1000
 
     for (let i = startFrame; i <= endFrame; i++) {
       const frameURL = resolvePath(
@@ -601,7 +603,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       })
 
       const playTime = geometryBufferHealth.current - oldBufferHealth
-      const fetchTime = (Date.now() - startTime) / 1000
+      const fetchTime = (engineState.elapsedSeconds * 1000 - startTime) / 1000
       const metric = fetchTime / playTime
       adjustGeometryTarget(metric)
     })
@@ -612,7 +614,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
     const oldBufferHealth = geometryBufferHealth.current
-    const startTime = Date.now()
+    const startTime = engineState.elapsedSeconds * 1000
 
     for (let i = startSegment; i <= endSegment; i++) {
       const segmentURL = resolvePath(
@@ -669,7 +671,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       })
 
       const playTime = geometryBufferHealth.current - oldBufferHealth
-      const fetchTime = (Date.now() - startTime) / 1000
+      const fetchTime = (engineState.elapsedSeconds * 1000 - startTime) / 1000
       const metric = fetchTime / playTime
       adjustGeometryTarget(metric)
       if (extraTime >= 0) {
@@ -771,7 +773,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     const oldBufferHealth = geometryBufferHealth.current
-    const startTime = Date.now()
+    const startTime = engineState.elapsedSeconds * 1000
     const promises: Promise<CompressedTexture>[] = []
 
     for (let i = startFrame; i <= endFrame; i++) {
@@ -808,7 +810,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       })
 
       const playTime = textureBufferHealth[textureType] - oldBufferHealth
-      const fetchTime = (Date.now() - startTime) / 1000
+      const fetchTime = (engineState.elapsedSeconds * 1000 - startTime) / 1000
       const metric = fetchTime / playTime
       adjustTextureTarget(textureType, metric)
     })
@@ -885,7 +887,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       }
       return
     }
-    playbackStartTime.current = Date.now()
+    playbackStartTime.current = engineState.elapsedSeconds * 1000
     volumetric.startTime.set(currentTime.current)
     geometryBufferHealth.current -= currentTime.current
     component.textureTypes.value.forEach((textureType) => {
@@ -1206,12 +1208,13 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (component.data.value.audio) {
       currentTime.current = audio.currentTime
     } else {
-      currentTime.current = volumetric.startTime.value + (Date.now() - playbackStartTime.current) / 1000
+      currentTime.current =
+        volumetric.startTime.value + (engineState.elapsedSeconds * 1000 - playbackStartTime.current) / 1000
     }
     if (currentTime.current > component.data.value.duration || audio.ended) {
       if (component.data.deletePreviousBuffers.value === false && volumetric.playMode.value === PlayMode.loop) {
         currentTime.current = 0
-        playbackStartTime.current = Date.now()
+        playbackStartTime.current = engineState.elapsedSeconds * 1000
       } else {
         volumetric.ended.set(true)
         return
