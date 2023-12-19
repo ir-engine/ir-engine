@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM } from '@pixiv/three-vrm'
-import { cloneDeep } from 'lodash'
 import {
   AnimationClip,
   Euler,
@@ -41,6 +40,11 @@ const hipsOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 const rightArmOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.325, 0, -Math.PI * 0.1))
 const leftArmOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.325, 0, Math.PI * 0.1))
 
+const restRotationInverse = new Quaternion()
+const parentRestWorldRotation = new Quaternion()
+const _quatA = new Quaternion()
+const _vec3 = new Vector3()
+
 /**
  * Retargets mixamo animation to a VRM rig,
  * based upon https://github.com/pixiv/three-vrm/blob/dev/packages/three-vrm-core/examples/humanoidAnimation/loadMixamoAnimation.js
@@ -49,27 +53,23 @@ const leftArmOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.325, 0
 export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object3D, vrm: VRM) {
   const tracks = [] as KeyframeTrack[] // KeyframeTracks compatible with VRM will be added here
 
-  const restRotationInverse = new Quaternion()
-  const parentRestWorldRotation = new Quaternion()
-  const _quatA = new Quaternion()
-  const _vec3 = new Vector3()
-
-  const mixamoRig = cloneDeep(mixamoScene)
-
   // Adjust with reference to hips height.
   // Additional logic present to handle known transform differences
-  const hips = mixamoRig.getObjectByName('mixamorigHips')!
-  const rightArm = mixamoRig.getObjectByName('mixamorigRightArm')!
-  const leftArm = mixamoRig.getObjectByName('mixamorigLeftArm')!
+  const hips = mixamoScene.getObjectByName('mixamorigHips')!
+  const rightArm = mixamoScene.getObjectByName('mixamorigRightArm')!
+  const leftArm = mixamoScene.getObjectByName('mixamorigLeftArm')!
 
-  const userData = (vrm as any).userData
-  if (userData?.flipped) {
-    hips.quaternion.copy(hipsOffset)
-  }
-  if (userData?.useAPose) {
+  const originalHipQuaternion = hips.quaternion.clone()
+  const originalRightArmQuaternion = rightArm.quaternion.clone()
+  const originalLeftArmQuaternion = leftArm.quaternion.clone()
+
+  const userData = vrm.userData
+  if (userData.useAPose) {
     rightArm.quaternion.copy(rightArmOffset)
     leftArm.quaternion.copy(leftArmOffset)
   }
+
+  mixamoScene.updateWorldMatrix(true, true)
 
   const motionHipsHeight = hips!.position.y
   const vrmHipsY = vrm.humanoid.getNormalizedBoneNode('hips')!.getWorldPosition(_vec3).y
@@ -78,14 +78,13 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object
   const hipsPositionScale = vrmHipsHeight / motionHipsHeight
 
   clip.tracks.forEach((track) => {
+    const trackClone = track.clone()
     // Convert each tracks for VRM use, and push to `tracks`
-    const trackSplitted = track.name.split('.')
+    const trackSplitted = trackClone.name.split('.')
     const mixamoRigName = trackSplitted[0]
     const vrmBoneName = mixamoVRMRigMap[mixamoRigName]
     const vrmNodeName = vrm.humanoid?.getNormalizedBoneNode(vrmBoneName)?.name
-    const mixamoRigNode = mixamoRig.getObjectByName(mixamoRigName)!
-
-    mixamoRig.updateWorldMatrix(true, true)
+    const mixamoRigNode = mixamoScene.getObjectByName(mixamoRigName)!
 
     if (vrmNodeName != null) {
       const propertyName = trackSplitted[1]
@@ -94,10 +93,10 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object
       mixamoRigNode.getWorldQuaternion(restRotationInverse).invert()
       mixamoRigNode.parent!.getWorldQuaternion(parentRestWorldRotation)
 
-      if (track instanceof QuaternionKeyframeTrack) {
+      if (trackClone instanceof QuaternionKeyframeTrack) {
         // Retarget rotation of mixamoRig to NormalizedBone.
-        for (let i = 0; i < track.values.length; i += 4) {
-          const flatQuaternion = track.values.slice(i, i + 4)
+        for (let i = 0; i < trackClone.values.length; i += 4) {
+          const flatQuaternion = trackClone.values.slice(i, i + 4)
 
           _quatA.fromArray(flatQuaternion)
 
@@ -106,17 +105,23 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object
           _quatA.toArray(flatQuaternion)
 
           flatQuaternion.forEach((v, index) => {
-            track.values[index + i] = v
+            trackClone.values[index + i] = v
           })
         }
 
-        tracks.push(new QuaternionKeyframeTrack(`${vrmNodeName}.${propertyName}`, track.times, track.values))
-      } else if (track instanceof VectorKeyframeTrack) {
-        const value = track.values.map((v) => v * hipsPositionScale)
-        tracks.push(new VectorKeyframeTrack(`${vrmNodeName}.${propertyName}`, track.times, value))
+        tracks.push(new QuaternionKeyframeTrack(`${vrmNodeName}.${propertyName}`, trackClone.times, trackClone.values))
+      } else if (trackClone instanceof VectorKeyframeTrack) {
+        const value = trackClone.values.map((v) => v * hipsPositionScale)
+        tracks.push(new VectorKeyframeTrack(`${vrmNodeName}.${propertyName}`, trackClone.times, value))
       }
     }
   })
+
+  hips.quaternion.copy(originalHipQuaternion)
+  rightArm.quaternion.copy(originalRightArmQuaternion)
+  leftArm.quaternion.copy(originalLeftArmQuaternion)
+
+  mixamoScene.updateWorldMatrix(true, true)
 
   return new AnimationClip(clip.name, clip.duration, tracks)
 }
