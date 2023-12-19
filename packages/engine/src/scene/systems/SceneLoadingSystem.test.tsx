@@ -419,7 +419,6 @@ describe('SceneLoadingSystem', () => {
     )
     // check all entites are loaded correctly
     // check if data in the manual json matches scene data
-    console.log(UUIDComponent.entitiesByUUID)
     // unmount to cleanup
     unmount()
   })
@@ -665,7 +664,6 @@ describe('SceneLoadingSystem', () => {
       child2Entity,
       'child_2_1 entity does not have parentEntity as child_2 entity'
     )
-    console.log(UUIDComponent.entitiesByUUID)
     testScene.scene.entities['child_0'].components = testScene.scene.entities['child_0'].components.filter(
       (component) => component.name !== 'dynamic-load'
     )
@@ -1064,7 +1062,6 @@ describe('Snapshots', () => {
     // unmount to cleanup
 
     const expectedSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
-    console.log(expectedSnapshot)
     const visibleJson = {
       name: 'visible',
       props: {}

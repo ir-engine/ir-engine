@@ -631,7 +631,6 @@ describe('EditorControlFunctions', () => {
         getComponent(child2_1Entity, EntityTreeComponent).children.length - 1
       ]
 
-      console.log(newChild1, newChild2, newChild3)
       console.log(
         getComponent(newChild1, NameComponent),
         getComponent(newChild2, NameComponent),
