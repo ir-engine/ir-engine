@@ -89,6 +89,8 @@ export const VolumetricComponent = defineComponent({
       useLoadingEffect: true,
       autoplay: true,
       startTime: 0,
+      currentTime: 0,
+      lastUpdatedTime: 0,
       paused: true,
       initialBuffersLoaded: false,
       hasAudio: true,
@@ -122,6 +124,10 @@ export const VolumetricComponent = defineComponent({
 
     if (typeof json.autoplay === 'boolean') {
       component.autoplay.set(json.autoplay)
+    }
+
+    if (typeof json.paused === 'boolean') {
+      component.paused.set(json.paused)
     }
 
     if (typeof json.volume === 'number') {
@@ -195,7 +201,7 @@ export function VolumetricReactor() {
 
     for (let i = 0; i <= pathCount; i++) {
       const path = volumetric.paths.value[nextTrack]
-      const extension = path ? path.split('.').pop() : ''
+      const extension = path ? path.split('.').pop()?.split('?').shift() : ''
       if (path && extension && ACCEPTED_TYPES.includes(extension)) {
         break
       } else {

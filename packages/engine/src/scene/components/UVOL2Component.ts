@@ -336,9 +336,9 @@ function UVOL2Reactor() {
   const geometryBuffer = useMemo(() => new Map<string, Mesh | BufferGeometry | KeyframeAttribute>(), [])
   const textureBuffer = useMemo(() => new Map<string, CompressedTexture>(), [])
 
-  let maxBufferHealth = 7 // seconds
-  let minBufferToPlay = 2 // seconds
-  let bufferThreshold = 3 // seconds. If buffer health is less than this, fetch new data
+  let maxBufferHealth = 14 // seconds
+  let minBufferToPlay = 4 // seconds
+  let bufferThreshold = 6 // seconds. If buffer health is less than this, fetch new data
   const repeat = useMemo(() => new Vector2(1, 1), [])
   const offset = useMemo(() => new Vector2(0, 0), [])
 
@@ -1125,7 +1125,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const updateUniformSolve = (currentTime: number) => {
     const keyframeA = getAttribute('keyframeA', currentTime)
     const keyframeB = getAttribute('keyframeB', currentTime)
-
+    if (keyframeA || keyframeB) {
+      volumetric.lastUpdatedTime.set(currentTime)
+    }
     if (!keyframeA && !keyframeB) {
       return
     } else if (!keyframeA && keyframeB) {
