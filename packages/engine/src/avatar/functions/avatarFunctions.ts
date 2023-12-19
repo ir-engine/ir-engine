@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
+import { VRM, VRM1Meta, VRMHumanBone, VRMHumanoid } from '@pixiv/three-vrm'
 import { AnimationClip, AnimationMixer, Box3, Object3D, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
@@ -54,7 +54,7 @@ import { ModelComponent } from '../../scene/components/ModelComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { SceneID } from '../../schemas/projects/scene.schema'
 import { XRState } from '../../xr/XRState'
-import { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
+import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { locomotionAnimation, optionalAnimations } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -74,8 +74,7 @@ const tempVec3ForCenter = new Vector3()
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
     userData: {
-      flipped: boolean
-      useAPose: boolean
+      useAPose?: boolean
       retargeted?: boolean
     }
   }
@@ -83,6 +82,37 @@ declare module '@pixiv/three-vrm/types/VRM' {
 
 export const getPreloaded = () => {
   return ['sitting']
+}
+
+/** Checks if the asset is a VRM. If not, attempt to use
+ *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
+export const autoconvertMixamoAvatar = (model: any) => {
+  const scene = model.scene ?? model // FBX assets do not have 'scene' property
+  if (!scene) return null!
+
+  const isVRM = model instanceof VRM
+
+  if (isVRM && model.meta.metaVersion === '1') {
+    if (!model.userData) model.userData = {}
+    return model
+  }
+
+  if (isVRM && model.meta.metaVersion === '0') {
+    const bones = model.humanoid.rawHumanBones
+    model.humanoid.normalizedHumanBonesRoot.removeFromParent()
+    bones.hips.node.rotateY(Math.PI)
+    const humanoid = new VRMHumanoid(bones)
+    model.scene.add(humanoid.normalizedHumanBonesRoot)
+    const vrm = new VRM({
+      humanoid,
+      scene: model.scene,
+      meta: { name: model.scene.children[0].name } as VRM1Meta
+    })
+    if (!vrm.userData) vrm.userData = {}
+    return vrm
+  }
+
+  return avatarBoneMatching(scene)
 }
 
 export const isAvaturn = (url: string) => {
@@ -164,7 +194,7 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   }
   setComponent(entity, AnimationComponent, {
     animations: animations,
-    mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBones.hips.node.parent!)
+    mixer: new AnimationMixer(rigComponent.normalizedRig.hips.node)
   })
 }
 

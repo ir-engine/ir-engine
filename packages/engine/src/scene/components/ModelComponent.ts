@@ -32,9 +32,8 @@ import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import avatarBoneMatching from '../../avatar/AvatarBoneMatching'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
-import { isAvaturn } from '../../avatar/functions/avatarFunctions'
+import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -169,7 +168,7 @@ function ModelReactor() {
           addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
           return
         }
-        const boneMatchedAsset = avatarBoneMatching(loadedAsset)
+        const boneMatchedAsset = autoconvertMixamoAvatar(loadedAsset)
         modelComponent.asset.set(boneMatchedAsset)
       },
       (onprogress) => {
@@ -199,11 +198,10 @@ function ModelReactor() {
     if (!asset) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    if (asset.animations) asset.scene.animations = asset.animations
+    asset.scene.animations = asset.animations
     asset.scene.userData.src = model.src
     asset.scene.userData.sceneID = getModelSceneID(entity)
     asset.scene.userData.type === 'glb' && delete asset.scene.userData.type
-    if (asset instanceof VRM) asset.humanoid.autoUpdateHumanBones = false
     modelComponent.scene.set(asset.scene)
   }, [modelComponent.asset])
 

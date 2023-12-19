@@ -29,7 +29,6 @@ import { dispatchAction, getMutableState, getState, receiveActions, useHookstate
 
 import { useEffect } from 'react'
 import { defaultAnimationPath, optionalAnimationPath, optionalAnimations } from '../../avatar/animation/Util'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
@@ -52,10 +51,12 @@ import { SittingComponent } from '../../scene/components/SittingComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 
+import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
+import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
@@ -176,13 +177,13 @@ const execute = () => {
       continue
     }
     const mountTransform = getComponent(getComponent(entity, SittingComponent).mountPointEntity, TransformComponent)
-    mountTransform.matrixWorld.decompose(vec3_0, quat, vec3_1)
-    const avatar = getComponent(entity, AvatarComponent)
-    setComponent(entity, TransformComponent, { rotation: quat })
-    vec3_0.y -= avatar.avatarHalfHeight * 0.5
-    teleportAvatar(entity, vec3_0)
 
-    //if (!hasComponent(entity, MotionCaptureRigComponent)) continue
+    mountTransform.matrixWorld.decompose(vec3_0, quat, vec3_1)
+    const rig = getComponent(entity, AvatarRigComponent)
+    vec3_0.y -= rig.normalizedRig.hips.node.position.y - 0.25
+    setComponent(entity, TransformComponent, { rotation: mountTransform.rotation, position: vec3_0 })
+
+    if (!hasComponent(entity, MotionCaptureRigComponent)) continue
 
     //Force mocapped avatar to always face the mount point's rotation
     //const hipsQaut = new Quaternion(

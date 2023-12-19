@@ -675,6 +675,7 @@ const _rightHandPos = new Vector3(),
 export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
   /** Detect that the model needs bone matching */
   if (asset instanceof VRM) return asset
+
   let isAvatar = false
   let hasSkinnedMesh = false
   asset.scene.traverse((target: SkinnedMesh) => {
@@ -735,7 +736,7 @@ export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
   humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
   humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
   //quick dirty tag to disable flipping on mixamo rigs
-  vrm.userData = { flipped: false, useAPose: getAPose(_rightHandPos, _rightUpperArmPos) } as any
+  vrm.userData = { useAPose: getAPose(_rightHandPos, _rightUpperArmPos) }
   return vrm
 }
 
