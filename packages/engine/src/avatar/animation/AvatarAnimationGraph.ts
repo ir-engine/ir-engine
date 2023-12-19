@@ -38,15 +38,15 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { locomotionPack } from '../functions/avatarFunctions'
 import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
+import { locomotionAnimation } from './Util'
 
 const animationQueue = defineActionQueue(AvatarNetworkAction.setAnimationState.matches)
 
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
   const manager = getState(AnimationState)
-  const clip = AnimationClip.findByName(animations ?? manager.loadedAnimations[locomotionPack]!.animations, name)
+  const clip = AnimationClip.findByName(animations ?? manager.loadedAnimations[locomotionAnimation]!.animations, name)
   return mixer.clipAction(clip)
 }
 
@@ -68,7 +68,7 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
     const graph = getMutableComponent(targetEntity, AvatarAnimationComponent).animationGraph
     graph.fadingOut.set(newAnimation.needsSkip ?? false)
     graph.layer.set(newAnimation.layer ?? 0)
-    loadAvatarAnimation(targetEntity, newAnimation.filePath, newAnimation.clipName!, newAnimation.loop!)
+    loadAndPlayAvatarAnimation(targetEntity, newAnimation.filePath, newAnimation.clipName!, newAnimation.loop!)
   }
 
   for (const entity of avatarEntities) {
@@ -100,9 +100,9 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   }
 }
 
-/**Attempts to get animation by name from animation manager if already loaded, or from
+/**Attempts to play animation by name from animation manager if already loaded, or from
  * default-project/assets/animations if not.*/
-export const loadAvatarAnimation = (entity: Entity, filePath: string, clipName?: string, loop?: boolean) => {
+export const loadAndPlayAvatarAnimation = (entity: Entity, filePath: string, clipName?: string, loop?: boolean) => {
   const animationState = getState(AnimationState)
   //get state name and file type
   const stateName = filePath.split('/').pop()!.split('.')[0]
@@ -119,12 +119,13 @@ export const loadAvatarAnimation = (entity: Entity, filePath: string, clipName?:
       switch (fileType) {
         case 'fbx':
           animationsAsset.scene.animations[0].name = clipName ?? stateName
+          animationsAsset.animations = animationsAsset.animations ?? animationsAsset.scene.animations
           break
         case 'glb':
           //if it's a glb, set the scene's animations to the asset's animations
           //this lets us assume they are in the same location for both fbx and glb files
           animationsAsset.animations[0].name = clipName ?? stateName
-          animationsAsset.scene.animations = animationsAsset.animations
+          animationsAsset.animations = animationsAsset.scene.animations
           break
       }
       animationState.loadedAnimations[stateName] = animationsAsset

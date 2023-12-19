@@ -132,23 +132,32 @@ const modifyProperty = <C extends Component<any, any>>(
 ) => {
   //cancelGrabOrPlacement()
 
-  const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
-
+  const scenes: Record<SceneID, Entity[]> = {}
   for (const entity of entities) {
-    const entityUUID = getComponent(entity, UUIDComponent)
-    const componentData = newSnapshot.data.entities[entityUUID].components.find((c) => c.name === component.jsonID)
-    if (!componentData) continue
-    if (typeof properties === 'string') {
-      componentData.props = properties
-    } else {
-      Object.entries(properties).map(([k, v]) => {
-        const { result, finalProp } = getNestedObject(componentData.props, k)
-        result[finalProp] = v
-      })
-    }
+    const source = getComponent(entity, SourceComponent)
+    scenes[source] ??= []
+    scenes[source].push(entity)
   }
 
-  dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
+  for (const [sceneID, entities] of Object.entries(scenes)) {
+    const newSnapshot = SceneState.cloneCurrentSnapshot(sceneID as SceneID)
+
+    for (const entity of entities) {
+      const entityUUID = getComponent(entity, UUIDComponent)
+      const componentData = newSnapshot.data.entities[entityUUID].components.find((c) => c.name === component.jsonID)
+      if (!componentData) continue
+      if (typeof properties === 'string') {
+        componentData.props = properties
+      } else {
+        Object.entries(properties).map(([k, v]) => {
+          const { result, finalProp } = getNestedObject(componentData.props, k)
+          result[finalProp] = v
+        })
+      }
+    }
+
+    dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
+  }
 }
 
 const modifyObject3d = (nodes: string[], properties: { [_: string]: any }[]) => {

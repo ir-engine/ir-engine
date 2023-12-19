@@ -120,6 +120,7 @@ export const projectQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
+        action: Type.Optional(Type.String()),
         sourceURL: Type.Optional(Type.String()),
         destinationURL: Type.Optional(Type.String()),
         existingProject: Type.Optional(Type.Boolean()),
@@ -132,6 +133,7 @@ export const projectQuerySchema = Type.Intersect(
       { additionalProperties: false }
     )
   ],
+  // Add additional query properties here
   { additionalProperties: false }
 )
 export interface ProjectQuery extends Static<typeof projectQuerySchema> {}

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { defineAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineAction, getMutableState, useState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 
 import { UploadRequestState } from '@etherealengine/engine/src/assets/state/UploadRequestState'
@@ -41,10 +41,12 @@ export const UploadRequestSystem = defineSystem({
   reactor: () => {
     const uploadRequestState = useState(getMutableState(UploadRequestState))
     useEffect(() => {
-      const uploadRequests = uploadRequestState.queue.value
+      const uploadRequests = uploadRequestState.queue.get(NO_PROXY)
       if (uploadRequests.length === 0) return
       const uploadPromises = uploadRequests.map((uploadRequest) => {
-        return uploadProjectFiles(uploadRequest.projectName, [uploadRequest.file], true)
+        return Promise.all(uploadProjectFiles(uploadRequest.projectName, [uploadRequest.file], true).promises).then(
+          uploadRequest.callback
+        )
       })
       uploadRequestState.queue.set([])
     }, [uploadRequestState.queue.length])
