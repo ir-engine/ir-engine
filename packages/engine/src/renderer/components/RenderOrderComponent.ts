@@ -25,32 +25,23 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { NO_PROXY } from '@etherealengine/hyperflux'
-
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-
-interface HasRenderOrder {
-  renderOrder: number
-}
+import { GroupComponent } from '../../scene/components/GroupComponent'
 
 export const RenderOrderComponent = defineComponent({
   name: 'RenderOrderComponent',
 
   onInit(entity) {
     return {
-      renderOrder: 0,
-      renderObject: null as HasRenderOrder | null
+      renderOrder: 0
     }
   },
 
   onSet(entity, component, json) {
     if (!json) return
-    if (json.renderOrder) {
+    if (json.renderOrder !== undefined) {
       component.renderOrder.set(json.renderOrder)
-    }
-    if (json.renderObject && json.renderObject.renderOrder !== undefined) {
-      component.renderObject.set(json.renderObject)
     }
   },
 
@@ -59,11 +50,11 @@ export const RenderOrderComponent = defineComponent({
     const component = useComponent(entity, RenderOrderComponent)
 
     useEffect(() => {
-      const renderObject = component.renderObject.get(NO_PROXY)
-      if (renderObject) {
-        renderObject.renderOrder = component.renderOrder.value
+      const group = getComponent(entity, GroupComponent)
+      for (const object of group) {
+        object.renderOrder = component.renderOrder.value
       }
-    }, [component.renderObject])
+    }, [component.renderOrder])
 
     return null
   }

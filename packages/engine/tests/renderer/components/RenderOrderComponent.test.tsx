@@ -33,6 +33,7 @@ import { setComponent } from '../../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../src/initializeEngine'
 import { RenderOrderComponent } from '../../../src/renderer/components/RenderOrderComponent'
+import { addObjectToGroup } from '../../../src/scene/components/GroupComponent'
 import { loadEmptyScene } from '../../util/loadEmptyScene'
 
 describe('RenderOrderComponent', () => {
@@ -45,7 +46,7 @@ describe('RenderOrderComponent', () => {
     return destroyEngine()
   })
 
-  it('Sets renderOrder on object', async () => {
+  it('Sets renderOrder on group', async () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial({ color: 0xffff00 })
@@ -53,14 +54,66 @@ describe('RenderOrderComponent', () => {
 
     const renderOrder = 2
 
-    setComponent(entity, RenderOrderComponent, { renderObject: mesh, renderOrder: renderOrder })
+    setComponent(entity, RenderOrderComponent, { renderOrder: renderOrder })
+    addObjectToGroup(entity, mesh)
 
     const Reactor = RenderOrderComponent.reactor
     const tag = <Reactor />
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
 
-    assert(mesh.renderOrder === renderOrder, 'Render order is set on mesh object')
+    assert(mesh.renderOrder === renderOrder, 'Render order is set on mesh object in group')
+
+    unmount()
+  })
+
+  it('Sets renderOrder on group multiple', async () => {
+    const meshCount = 10
+
+    const entity = createEntity()
+    const meshes = [] as Mesh[]
+
+    for (let i = 0; i < meshCount; i++) {
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
+      const mesh = new Mesh(geometry, material)
+      meshes.push(mesh)
+      addObjectToGroup(entity, mesh)
+    }
+
+    const renderOrder = 4
+
+    setComponent(entity, RenderOrderComponent, { renderOrder: renderOrder })
+
+    const Reactor = RenderOrderComponent.reactor
+    const tag = <Reactor />
+    const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
+
+    for (const mesh of meshes) {
+      assert(mesh.renderOrder === renderOrder)
+    }
+
+    unmount()
+  })
+
+  it('Sets renderOrder to 0 as default', async () => {
+    const entity = createEntity()
+    const geometry = new BoxGeometry(1, 1, 1)
+    const material = new MeshBasicMaterial({ color: 0xffff00 })
+    const mesh = new Mesh(geometry, material)
+
+    const defaultRenderOrder = 0
+
+    setComponent(entity, RenderOrderComponent)
+    addObjectToGroup(entity, mesh)
+
+    const Reactor = RenderOrderComponent.reactor
+    const tag = <Reactor />
+    const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
+
+    assert(mesh.renderOrder === defaultRenderOrder)
 
     unmount()
   })
