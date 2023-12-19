@@ -335,9 +335,10 @@ function UVOL2Reactor() {
 
   const geometryBuffer = useMemo(() => new Map<string, Mesh | BufferGeometry | KeyframeAttribute>(), [])
   const textureBuffer = useMemo(() => new Map<string, CompressedTexture>(), [])
-  const maxBufferHealth = 7 // seconds
-  const minBufferToPlay = 2 // seconds
-  const bufferThreshold = 3 // seconds. If buffer health is less than this, fetch new data
+
+  let maxBufferHealth = 7 // seconds
+  let minBufferToPlay = 2 // seconds
+  let bufferThreshold = 3 // seconds. If buffer health is less than this, fetch new data
   const repeat = useMemo(() => new Vector2(1, 1), [])
   const offset = useMemo(() => new Vector2(0, 0), [])
 
@@ -477,8 +478,30 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     component.data.set(sortedManifest)
     component.geometryTargets.set(sortedGeometryTargets)
     component.textureTargets.set(sortedTextureTargets)
-    const textureTypes = Object.keys(sortedManifest.texture)
+    const textureTypes = Object.keys(sortedManifest.texture) as TextureType[]
     component.textureTypes.set(textureTypes as TextureType[])
+
+    if (component.data.geometry.targets[sortedGeometryTargets[0]].totalSize) {
+      const geometryBitrate =
+        component.data.geometry.targets[sortedGeometryTargets[0]].totalSize.value / component.data.duration.value
+      const textureBitrate = textureTypes.reduce((prev, textureType) => {
+        const target = sortedTextureTargets[textureType][0]
+        const targetData = component.data.value.texture[textureType]!.targets[target]
+        return prev + targetData.totalSize / component.data.duration.value
+      }, 0)
+      const totalBitrate = geometryBitrate + textureBitrate
+      if (totalBitrate <= 5 * 1024 * 1024) {
+        // 5MB
+        maxBufferHealth = 15 // seconds
+        minBufferToPlay = 5 // seconds
+        bufferThreshold = 6 // seconds.
+      } else if (totalBitrate <= 10 * 1024 * 1024) {
+        // 5-10MB
+        maxBufferHealth = 10 // seconds
+        minBufferToPlay = 2 // seconds
+        bufferThreshold = 5 // seconds.
+      }
+    }
 
     const shadow = getMutableComponent(entity, ShadowComponent)
     if (sortedManifest.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
