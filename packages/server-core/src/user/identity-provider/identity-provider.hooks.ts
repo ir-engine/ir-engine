@@ -167,6 +167,7 @@ async function createNewUser(context: HookContext<IdentityProviderService>) {
       ])
       selectedAvatarId = selectedAvatar.id
     } catch (err) {
+      console.log('error in getting resources')
       avatars.data.splice(randomId, 1)
       if (avatars.data.length < 1) throw new Error('All avatars are missing static resources')
     }
