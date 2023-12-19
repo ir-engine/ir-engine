@@ -4,6 +4,7 @@ set -x
 
 TAG=$1
 CLEAN=$2
+APP_ENV=$3
 
 if [ -z "$SERVER_HOST" ]
 then
@@ -157,30 +158,58 @@ echo "Tag is: $TAG"
 # docker tag $REGISTRY_HOST:32000/root-builder $REGISTRY_HOST:32000/root-builder:$TAG
 # docker push $REGISTRY_HOST:32000/root-builder:$TAG
 
-docker buildx build \
-  --network=host \
-  --cache-to type=inline \
-  -t $REGISTRY_HOST:32000/etherealengine \
-  --build-arg NODE_ENV=$NODE_ENV \
-  --build-arg MYSQL_HOST=$MYSQL_HOST \
-  --build-arg MYSQL_PORT=$MYSQL_PORT \
-  --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD \
-  --build-arg MYSQL_USER=$MYSQL_USER \
-  --build-arg MYSQL_DATABASE=$MYSQL_DATABASE \
-  --build-arg SERVER_HOST=$SERVER_HOST \
-  --build-arg SERVER_PORT=$SERVER_PORT \
-  --build-arg VITE_APP_HOST=$VITE_APP_HOST \
-  --build-arg VITE_SERVER_HOST=$VITE_SERVER_HOST \
-  --build-arg VITE_FILE_SERVER=$VITE_FILE_SERVER \
-  --build-arg VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER \
-  --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST \
-  --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
-  --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
-  --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
-  --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET \
-  --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
-  --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
-
+if [[ "$APP_ENV" == "development" ]]; then
+  docker buildx build \
+    --network=host \
+    --cache-to type=inline \
+    -t $REGISTRY_HOST:32000/etherealengine \
+    -f Dockerfile_Dev \
+    --build-arg NODE_ENV=$NODE_ENV \
+    --build-arg APP_ENV=$APP_ENV \
+    --build-arg MYSQL_HOST=$MYSQL_HOST \
+    --build-arg MYSQL_PORT=$MYSQL_PORT \
+    --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD \
+    --build-arg MYSQL_USER=$MYSQL_USER \
+    --build-arg MYSQL_DATABASE=$MYSQL_DATABASE \
+    --build-arg SERVER_HOST=$SERVER_HOST \
+    --build-arg SERVER_PORT=$SERVER_PORT \
+    --build-arg VITE_APP_HOST=$VITE_APP_HOST \
+    --build-arg VITE_SERVER_HOST=$VITE_SERVER_HOST \
+    --build-arg VITE_FILE_SERVER=$VITE_FILE_SERVER \
+    --build-arg VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER \
+    --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST \
+    --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
+    --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
+    --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
+    --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET \
+    --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
+    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
+else 
+  docker buildx build \
+    --network=host \
+    --cache-to type=inline \
+    -t $REGISTRY_HOST:32000/etherealengine \
+    -f Dockerfile \
+    --build-arg NODE_ENV=$NODE_ENV \
+    --build-arg MYSQL_HOST=$MYSQL_HOST \
+    --build-arg MYSQL_PORT=$MYSQL_PORT \
+    --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD \
+    --build-arg MYSQL_USER=$MYSQL_USER \
+    --build-arg MYSQL_DATABASE=$MYSQL_DATABASE \
+    --build-arg SERVER_HOST=$SERVER_HOST \
+    --build-arg SERVER_PORT=$SERVER_PORT \
+    --build-arg VITE_APP_HOST=$VITE_APP_HOST \
+    --build-arg VITE_SERVER_HOST=$VITE_SERVER_HOST \
+    --build-arg VITE_FILE_SERVER=$VITE_FILE_SERVER \
+    --build-arg VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER \
+    --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST \
+    --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
+    --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
+    --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
+    --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET \
+    --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
+    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
+fi
 docker tag $REGISTRY_HOST:32000/etherealengine $REGISTRY_HOST:32000/etherealengine:$TAG
 docker push $REGISTRY_HOST:32000/etherealengine:$TAG
 
