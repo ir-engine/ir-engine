@@ -158,12 +158,10 @@ export default function CompressionPanel({
 
   const compressModel = async () => {
     const modelSrc = fileProperties.url.value
-    const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
-
     const batchCompressed = isBatchCompress.value
     const clientside = isClientside.value
-
     const textureSizes = batchCompressed ? [2048, 1024, 512] : [transformParms.maxTextureSize.value]
+    const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
 
     const variants = textureSizes.map((maxTextureSize, index) => {
       const suffix = batchCompressed ? `-transformed-LOD_${index}.glb` : '-transformed.glb'
@@ -172,15 +170,13 @@ export default function CompressionPanel({
       return { ...transformParms.get(NO_PROXY), maxTextureSize, dst }
     })
 
-    await Promise.all(
-      variants.map(async (variant) => {
-        if (clientside) {
-          await clientSideTransformModel(variant)
-        } else {
-          await Engine.instance.api.service(modelTransformPath).create(variant)
-        }
-      })
-    )
+    for (const variant of variants) {
+      if (clientside) {
+        await clientSideTransformModel(variant)
+      } else {
+        await Engine.instance.api.service(modelTransformPath).create(variant)
+      }
+    }
     await FileBrowserService.fetchFiles(directoryToRefresh)
   }
 

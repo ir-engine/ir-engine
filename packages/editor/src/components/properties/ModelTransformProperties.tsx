@@ -46,7 +46,7 @@ import { materialsFromSource } from '@etherealengine/engine/src/renderer/materia
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { getMutableState, State } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { getMutableState, NO_PROXY, State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
@@ -128,29 +128,32 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
       const modelSrc = modelState.src.value
-      const specifiedTextureSize = transformParms.maxTextureSize.value
-      const specifiedDst = transformParms.dst.value
-      const textureSizes: Array<number> = isBatchCompress.value ? [2048, 1024, 512] : [specifiedTextureSize]
-      for (let i = 0; i < textureSizes.length; i++) {
-        const size = textureSizes[i]
-        const suffix = isBatchCompress.value ? `-transformed-LOD_${i}.glb` : '-transformed.glb'
-        const nuPath = modelSrc.replace(/\.glb$/, suffix)
-        const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
-        transformParms.maxTextureSize.set(size)
-        transformParms.dst.set(fileName)
-        if (isClientside.value) {
-          await clientSideTransformModel(transformParms.value)
+      const batchCompressed = isBatchCompress.value
+      const clientside = isClientside.value
+      const textureSizes = batchCompressed ? [2048, 1024, 512] : [transformParms.maxTextureSize.value]
+      const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
+      let nuPath: string | null = null
+
+      const variants = textureSizes.map((maxTextureSize, index) => {
+        const suffix = batchCompressed ? `-transformed-LOD_${index}.glb` : '-transformed.glb'
+        nuPath = modelSrc.replace(/(-transformed)?\.glb$/, suffix)
+        const [_, __, dst] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
+        return { ...transformParms.get(NO_PROXY), maxTextureSize, dst }
+      })
+
+      for (const variant of variants) {
+        if (clientside) {
+          await clientSideTransformModel(variant)
         } else {
-          await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
-        }
-        transformHistory.set([modelSrc, ...transformHistory.value])
-        await FileBrowserService.fetchFiles(directoryToRefresh)
-        if (!isBatchCompress.value) {
-          onChangeModel(nuPath)
+          await Engine.instance.api.service(modelTransformPath).create(variant)
         }
       }
-      transformParms.maxTextureSize.set(specifiedTextureSize)
-      transformParms.dst.set(specifiedDst)
+
+      if (!batchCompressed) {
+        onChangeModel(nuPath)
+      }
+      await FileBrowserService.fetchFiles(directoryToRefresh)
+      transformHistory.set([modelSrc, ...transformHistory.value])
       transforming.set(false)
     },
     [transformParms]
