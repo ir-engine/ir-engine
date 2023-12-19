@@ -137,9 +137,7 @@ export const unloadAvatarForUser = async (entity: Entity, avatarURL: string) => 
 /**Kicks off avatar animation loading and setup. Called after an avatar's model asset is
  * successfully loaded.
  */
-export const setupAvatarForUser = (entity: Entity, model: VRM, avatarURL: string) => {
-  const avatar = getComponent(entity, AvatarComponent)
-
+export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   rigAvatarModel(entity)(model)
   setupAvatarHeight(entity, model.scene)
 

@@ -204,7 +204,7 @@ export const AvatarRigComponent = defineComponent({
       if (!rigComponent.value || !rigComponent.value.vrm || !rigComponent.value.avatarURL) return
       const rig = getComponent(entity, AvatarRigComponent)
       try {
-        setupAvatarForUser(entity, rig.vrm, rig.avatarURL!)
+        setupAvatarForUser(entity, rig.vrm)
       } catch (e) {
         console.error('Failed to load avatar', e)
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
@@ -218,7 +218,7 @@ export const AvatarRigComponent = defineComponent({
       try {
         retargetAvatarAnimations(entity)
       } catch (e) {
-        console.error('Failed to load avatar', e)
+        console.error('Failed to retarget avatar animations', e)
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
       }
     }, [manager.loadedAnimations, rigComponent.vrm])
