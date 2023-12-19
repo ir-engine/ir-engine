@@ -35,7 +35,6 @@ import {
   componentJsonDefaults,
   ComponentJSONIDMap,
   getComponent,
-  getOptionalComponent,
   hasComponent,
   serializeComponent,
   SerializedComponentType,
@@ -51,10 +50,7 @@ import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materi
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { TransformSpace, TransformSpaceType } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
@@ -62,14 +58,10 @@ import { SceneObjectComponent } from '@etherealengine/engine/src/scene/component
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ComponentJsonType, SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import {
-  computeLocalTransformMatrix,
-  computeTransformMatrix
-} from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { SelectionState } from '../services/SelectionServices'
 import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
-import { getSpaceMatrix } from './getSpaceMatrix'
 
 const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[], component: C, add: boolean) => {
   const sceneComponentID = component.jsonID
@@ -239,8 +231,8 @@ const createObjectFromSceneElement = (
 
   const entityUUID =
     componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? MathUtils.generateUUID()
-  if (!componentJson.some((comp) => comp.name === LocalTransformComponent.jsonID)) {
-    componentJson.push({ name: LocalTransformComponent.jsonID })
+  if (!componentJson.some((comp) => comp.name === TransformComponent.jsonID)) {
+    componentJson.push({ name: TransformComponent.jsonID })
   }
   const fullComponentJson = [...componentJson, { name: VisibleComponent.jsonID }].map((comp) => ({
     name: comp.name,
@@ -335,12 +327,10 @@ const positionObject = (
     const pos = positions[i] ?? positions[0]
 
     const transform = getComponent(node, TransformComponent)
-    const localTransform = getOptionalComponent(node, LocalTransformComponent) ?? transform
-    const targetComponent = hasComponent(node, LocalTransformComponent) ? LocalTransformComponent : TransformComponent
 
     if (space === TransformSpace.local) {
-      if (addToPosition) localTransform.position.add(pos)
-      else localTransform.position.copy(pos)
+      if (addToPosition) transform.position.add(pos)
+      else transform.position.copy(pos)
     } else {
       const entityTreeComponent = getComponent(node, EntityTreeComponent)
       const parentTransform = entityTreeComponent.parentEntity
@@ -348,16 +338,16 @@ const positionObject = (
         : transform
 
       if (addToPosition) {
-        tempVector.setFromMatrixPosition(transform.matrix)
+        tempVector.setFromMatrixPosition(transform.matrixWorld)
         tempVector.add(pos)
       }
 
-      const _spaceMatrix = space === TransformSpace.world ? parentTransform.matrix : getSpaceMatrix()
+      const _spaceMatrix = parentTransform.matrixWorld
       tempMatrix.copy(_spaceMatrix).invert()
       tempVector.applyMatrix4(tempMatrix)
 
-      localTransform.position.copy(tempVector)
-      updateComponent(node, targetComponent, { position: localTransform.position })
+      transform.position.copy(tempVector)
+      updateComponent(node, TransformComponent, { position: transform.position })
     }
   }
 }
@@ -370,30 +360,29 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space: TransformSpace
     const node = nodes[i]
 
     const transform = getComponent(node, TransformComponent)
-    const localTransform = getComponent(node, LocalTransformComponent) || transform
-    const targetComponent = getComponent(node, LocalTransformComponent) ? TransformComponent : LocalTransformComponent
 
     T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
     if (space === TransformSpace.local) {
-      localTransform.rotation.copy(T_QUAT_1)
+      transform.rotation.copy(T_QUAT_1)
     } else {
       const entityTreeComponent = getComponent(node, EntityTreeComponent)
       const parentTransform = entityTreeComponent.parentEntity
         ? getComponent(entityTreeComponent.parentEntity, TransformComponent)
         : transform
 
-      const _spaceMatrix = space === TransformSpace.world ? parentTransform.matrix : getSpaceMatrix()
+      const _spaceMatrix = parentTransform.matrixWorld
 
       const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
       const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
 
-      updateComponent(node, targetComponent, { rotation: newLocalQuaternion })
-      computeLocalTransformMatrix(node)
+      updateComponent(node, TransformComponent, { rotation: newLocalQuaternion })
       computeTransformMatrix(node)
     }
   }
 }
+
+const mat4 = new Matrix4()
 
 const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: Vector3) => {
   const pivotToOriginMatrix = new Matrix4().makeTranslation(-pivot.x, -pivot.y, -pivot.z)
@@ -402,22 +391,20 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
 
   for (const entity of entities) {
     const transform = getComponent(entity, TransformComponent)
-    const localTransform = getComponent(entity, LocalTransformComponent) || transform
     const entityTreeComponent = getComponent(entity, EntityTreeComponent)
     const parentTransform = entityTreeComponent.parentEntity
       ? getComponent(entityTreeComponent.parentEntity, TransformComponent)
       : transform
-    const targetComponent = hasComponent(entity, LocalTransformComponent) ? LocalTransformComponent : TransformComponent
 
     new Matrix4()
-      .copy(transform.matrix)
+      .copy(transform.matrixWorld)
       .premultiply(pivotToOriginMatrix)
       .premultiply(rotationMatrix)
       .premultiply(originToPivotMatrix)
-      .premultiply(parentTransform.matrixInverse)
-      .decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+      .premultiply(mat4.copy(parentTransform.matrixWorld).invert())
+      .decompose(transform.position, transform.rotation, transform.scale)
 
-    updateComponent(entity, targetComponent, { rotation: localTransform.rotation })
+    updateComponent(entity, TransformComponent, { rotation: transform.rotation })
   }
 }
 
@@ -436,9 +423,7 @@ const scaleObject = (
     const entity = entities[i]
     const scale = scales[i] ?? scales[0]
 
-    const transformComponent = getComponent(entity, LocalTransformComponent) ?? getComponent(entity, TransformComponent)
-
-    const componentType = hasComponent(entity, LocalTransformComponent) ? LocalTransformComponent : TransformComponent
+    const transformComponent = getComponent(entity, TransformComponent)
 
     if (overrideScale) {
       transformComponent.scale.copy(scale)
@@ -452,7 +437,7 @@ const scaleObject = (
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    updateComponent(entity, componentType, { scale: transformComponent.scale })
+    updateComponent(entity, TransformComponent, { scale: transformComponent.scale })
   }
 }
 
@@ -522,7 +507,7 @@ const groupObjects = (entities: Entity[]) => {
     name: 'New Group',
     components: [
       {
-        name: LocalTransformComponent.jsonID,
+        name: TransformComponent.jsonID,
         props: {} // todo figure out where the new position should be
       },
       {
@@ -669,10 +654,10 @@ const commitTransformSave = (entities: Entity[]) => {
     const newSnapshot = SceneState.cloneCurrentSnapshot(sceneID)
     const sceneEntities = scenes[sceneID]
     for (const sceneEntity of sceneEntities) {
-      LocalTransformComponent.stateMap[sceneEntity]!.set(LocalTransformComponent.valueMap[sceneEntity])
+      TransformComponent.stateMap[sceneEntity]!.set(TransformComponent.valueMap[sceneEntity])
       const entityData = newSnapshot.data.entities[getComponent(sceneEntity, UUIDComponent)]
-      const component = entityData.components.find((c) => c.name === LocalTransformComponent.jsonID)!
-      component.props = serializeComponent(sceneEntity, LocalTransformComponent)
+      const component = entityData.components.find((c) => c.name === TransformComponent.jsonID)!
+      component.props = serializeComponent(sceneEntity, TransformComponent)
     }
     dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
   }

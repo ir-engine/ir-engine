@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
-import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
+import { UndefinedEntity } from '../../../../../ecs/classes/Entity'
 import { ImageComponent } from '../../../../../scene/components/ImageComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { ModelComponent } from '../../../../../scene/components/ModelComponent'
@@ -33,7 +33,7 @@ import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { VolumetricComponent } from '../../../../../scene/components/VolumetricComponent'
 import { addEntityToScene } from './entityHelper'
 
-export async function addMediaComponent(url: string, parent?: Entity | null, before?: Entity | null) {
+export async function addMediaComponent(url: string, parent = UndefinedEntity, before = UndefinedEntity) {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
   let newEntity = UndefinedEntity

@@ -44,6 +44,7 @@ import { ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 import {
   hookstate,
   NO_PROXY,
+  NO_PROXY_STEALTH,
   none,
   State,
   StateMethodsDestroy,
@@ -172,8 +173,7 @@ export interface Component<
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: HookableFunction<React.FC>
   reactorMap: Map<Entity, ReactorRoot>
-  existenceMap: Readonly<Record<Entity, boolean>>
-  existenceMapState: State<Record<Entity, boolean>>
+  existenceMapState: Record<Entity, State<boolean> | undefined>
   existenceMapPromiseResolver: Record<Entity, { promise: Promise<void>; resolve: () => void }>
   stateMap: Record<Entity, State<ComponentType, Subscribable> | undefined>
   valueMap: Record<Entity, ComponentType>
@@ -250,8 +250,7 @@ export const defineComponent = <
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
-  Component.existenceMap = {}
-  Component.existenceMapState = hookstate(Component.existenceMap)
+  Component.existenceMapState = {}
   Component.existenceMapPromiseResolver = {}
   Component.stateMap = {}
   Component.valueMap = {}
@@ -269,7 +268,7 @@ export const getOptionalMutableComponent = <ComponentType>(
   component: Component<ComponentType, Record<string, any>, unknown>
 ): State<ComponentType, Subscribable> | undefined => {
   // if (entity === UndefinedEntity) return undefined
-  if (component.existenceMap[entity]) return component.stateMap[entity]
+  if (component.existenceMapState[entity]?.get(NO_PROXY_STEALTH)) return component.stateMap[entity]
   return undefined
 }
 
@@ -322,12 +321,17 @@ export const setComponent = <C extends Component>(
   }
   if (!hasComponent(entity, Component)) {
     const value = Component.onInit(entity)
-    Component.existenceMapState[entity].set(true)
     Component.existenceMapPromiseResolver[entity]?.resolve?.()
 
     if (!Component.stateMap[entity]) {
+      Component.existenceMapState[entity] = hookstate(true)
       Component.stateMap[entity] = hookstate(value, subscribable())
-    } else Component.stateMap[entity]!.set(value)
+    } else {
+      Component.existenceMapState[entity]!.set(true)
+      Component.stateMap[entity]!.set(value)
+    }
+
+    Component.valueMap[entity] = value
 
     bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
 
@@ -353,12 +357,12 @@ export const setComponent = <C extends Component>(
       Component.reactorMap.set(entity, root)
     }
   }
-  startTransition(() => {
-    Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
-    Component.valueMap[entity] = Component.stateMap[entity]!.get(NO_PROXY)
-    const root = Component.reactorMap.get(entity)
-    if (!root?.isRunning) root?.run()
-  })
+  // startTransition(() => {
+  Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
+  Component.valueMap[entity] = Component.stateMap[entity]?.get(NO_PROXY_STEALTH)
+  const root = Component.reactorMap.get(entity)
+  if (!root?.isRunning) root?.run()
+  // })
 }
 
 /**
@@ -374,7 +378,7 @@ export const updateComponent = <C extends Component>(
 
   const comp = getMutableComponent(entity, Component)
   if (!comp) {
-    throw new Error('[updateComponent]: component does not exist')
+    throw new Error('[updateComponent]: component does not exist ' + Component.name)
   }
 
   startTransition(() => {
@@ -422,7 +426,7 @@ export const addComponent = <C extends Component>(
  * @returns True when the Component is contained in the Entity.
  */
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
-  return component.existenceMap[entity] ?? false
+  return component.existenceMapState[entity]?.get(NO_PROXY_STEALTH) ?? false
 }
 
 /**
@@ -444,7 +448,7 @@ export const getOrAddComponent = <C extends Component>(entity: Entity, component
  */
 export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
-  component.existenceMapState[entity].set(false)
+  component.existenceMapState[entity]?.set(false)
   component.existenceMapPromiseResolver[entity]?.resolve?.()
   component.existenceMapPromiseResolver[entity] = _createPromiseResolver()
   component.onRemove(entity, component.stateMap[entity]!)
@@ -670,8 +674,12 @@ export function useComponent<C extends Component<any>>(entity: Entity, Component
  * Use a component in a reactive context (a React component)
  */
 export function useOptionalComponent<C extends Component<any>>(entity: Entity, Component: C) {
+  if (!Component.stateMap[entity]) {
+    //in the case that this is called before a component is set we need a hookstate present for react
+    Component.existenceMapState[entity] = hookstate(false)
+    Component.stateMap[entity] = hookstate(undefined, subscribable())
+  }
   const hasComponent = useHookstate(Component.existenceMapState[entity]).value
-  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined, subscribable()) //in the case that this is called before a component is set we need a hookstate present for react
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return hasComponent ? component : undefined
 }
