@@ -28,7 +28,12 @@ import { Quaternion, Vector3 } from 'three'
 
 import { Types } from 'bitecs'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  useComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -43,16 +48,16 @@ export const AvatarHeadDecapComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
 
-    const headDecap = useOptionalComponent(entity, AvatarHeadDecapComponent)
+    const headDecap = useComponent(entity, AvatarHeadDecapComponent)
     const rig = useOptionalComponent(entity, AvatarRigComponent)
 
     useEffect(() => {
-      if (!rig?.value?.vrm?.humanoid?.rawHumanBones?.head?.node || !headDecap?.value) return
+      if (!rig?.value?.rawRig?.head?.node || !headDecap?.value) return
 
-      rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(EPSILON)
+      rig.value.rawRig.head.node.scale.setScalar(EPSILON)
 
       return () => {
-        rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(1)
+        rig.value.rawRig.head.node.scale.setScalar(1)
       }
     }, [headDecap, rig])
 

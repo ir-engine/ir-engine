@@ -403,6 +403,19 @@ export async function transformModel(args: ModelTransformParameters) {
     return [projectName, fileName]
   }
 
+  const doUpload = async (buffer, uri) => {
+    const [projectName, fileName] = fileUploadPath(uri)
+    const file = new File([buffer], fileName)
+    const uploadRequestState = getMutableState(UploadRequestState)
+    const queue = uploadRequestState.queue.get(NO_PROXY)
+    let resolver
+    const promise = new Promise((resolve) => {
+      resolver = resolve
+    })
+    uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver }])
+    await promise
+  }
+
   const { io } = await ModelTransformLoader()
 
   let initialSrc = args.src
@@ -673,20 +686,12 @@ export async function transformModel(args: ModelTransformParameters) {
   }
   let result
   if (parms.modelFormat === 'glb') {
-    const doUpload = (buffer, uri) => {
-      const [projectName, fileName] = fileUploadPath(uri)
-      const file = new File([buffer], fileName)
-      const uploadRequestState = getMutableState(UploadRequestState)
-      const queue = uploadRequestState.queue.get(NO_PROXY)
-      uploadRequestState.queue.set([...queue, { file, projectName }])
-    }
-
     const data = await io.writeBinary(document)
     let finalPath = args.dst.replace(/\.gltf$/, '.glb')
     if (!finalPath.endsWith('.glb')) {
       finalPath += '.glb'
     }
-    doUpload(data, finalPath)
+    await doUpload(data, finalPath)
 
     /*
     const uploadArgs = {
@@ -786,22 +791,18 @@ export async function transformModel(args: ModelTransformParameters) {
     await Promise.all(Object.entries(resources).map(([uri, data]) => doUpload(uri, data)))
     result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))
     */
-    const doUpload = (buffer, uri) => {
-      const [projectName, fileName] = fileUploadPath(uri)
-      const file = new File([buffer], fileName)
-      const uploadRequestState = getMutableState(UploadRequestState)
-      const queue = uploadRequestState.queue.get(NO_PROXY)
-      uploadRequestState.queue.set([...queue, { file, projectName }])
-    }
-    Object.entries(resources).map(([uri, data]) => {
-      const blob = new Blob([data], { type: fileTypeToMime(uri.split('.').pop()!)! })
-      doUpload(blob, uri)
-    })
+
+    await Promise.all(
+      Object.entries(resources).map(async ([uri, data]) => {
+        const blob = new Blob([data], { type: fileTypeToMime(uri.split('.').pop()!)! })
+        await doUpload(blob, uri)
+      })
+    )
     let finalPath = args.dst.replace(/\.glb$/, '.gltf')
     if (!finalPath.endsWith('.gltf')) {
       finalPath += '.gltf'
     }
-    doUpload(new Blob([JSON.stringify(json)], { type: 'application/json' }), finalPath)
+    await doUpload(new Blob([JSON.stringify(json)], { type: 'application/json' }), finalPath)
 
     console.log('Handled gltf file')
   }
