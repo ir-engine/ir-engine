@@ -151,6 +151,7 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
 }
 
 async function createNewUser(context: HookContext<IdentityProviderService>) {
+  console.log("TEST: Creating new user's Start")
   const isGuest = (context.actualData as IdentityProviderType).type === 'guest'
   const avatars = await context.app
     .service(avatarPath)
@@ -158,7 +159,7 @@ async function createNewUser(context: HookContext<IdentityProviderService>) {
 
   let selectedAvatarId
   while (selectedAvatarId == null) {
-    console.log("Creating new user's avatar")
+    console.log("TEST: Creating new user's avatar")
     const randomId = random(avatars.data.length - 1)
     const selectedAvatar = avatars.data[randomId]
     try {
@@ -172,12 +173,15 @@ async function createNewUser(context: HookContext<IdentityProviderService>) {
       avatars.data.splice(randomId, 1)
       if (avatars.data.length < 1) throw new Error('All avatars are missing static resources')
     }
+    console.log("TEST: Ending new user's avatar")
   }
+  console.log("TEST: Ending new user's Start")
 
   context.existingUser = await context.app.service(userPath).create({
     isGuest,
     avatarId: selectedAvatarId
   })
+  console.log('TEST: existingUser', context.existingUser)
 }
 
 /* (AFTER) CREATE HOOKS */

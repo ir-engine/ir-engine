@@ -52,6 +52,7 @@ import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
   avatarId: virtual(async (user, context) => {
+    console.log('TEST: userResolver 1', user.id)
     const userAvatars = (await context.app.service(userAvatarPath).find({
       query: {
         userId: user.id
@@ -59,6 +60,7 @@ export const userResolver = resolve<UserType, HookContext>({
       paginate: false
     })) as UserAvatarType[]
 
+    console.log('TEST: userResolver 2', userAvatars)
     return userAvatars.length > 0 ? userAvatars[0].avatarId : undefined
   }),
   identityProviders: virtual(async (user, context) => {
