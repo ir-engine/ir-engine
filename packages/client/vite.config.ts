@@ -248,7 +248,7 @@ export default defineConfig(async () => {
 
   const define = {}
   for (const [key, value] of Object.entries(process.env)) {
-    define[`globalThis.process.env['${key}']`] = value
+    define[`globalThis.process.env.${key}`] = JSON.stringify(value)
   }
 
   const returned = {
