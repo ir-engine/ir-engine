@@ -83,7 +83,12 @@ const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
 }
 
 const reactor = () => {
+  const networkConfig = useHookstate(getMutableState(NetworkState).config)
+  const isOnline = networkConfig.world.value || networkConfig.media.value
   const networkIDs = Object.keys(useHookstate(getMutableState(NetworkState).networks).value)
+
+  /** @todo - instead of checking for network config, we should filter NetworkConnectionReactor by networks with a "real" transport */
+  if (!isOnline) return null
 
   return (
     <>

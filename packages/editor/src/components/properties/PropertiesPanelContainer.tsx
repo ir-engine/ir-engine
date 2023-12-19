@@ -121,7 +121,7 @@ export const PropertiesPanelContainer = () => {
     setMultiEdit(selectedEntities.length > 1)
     setEntity(
       lockedNode
-        ? UUIDComponent.entitiesByUUID[lockedNode] ?? lockedNode
+        ? UUIDComponent.getEntityByUUID(lockedNode) ?? lockedNode
         : selectedEntities[selectedEntities.length - 1]
     )
   }, [selectionState.selectedEntities])
