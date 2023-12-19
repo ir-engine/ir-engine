@@ -32,8 +32,8 @@ import { destroyEngine } from '../../../src/ecs/classes/Engine'
 import { setComponent } from '../../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../src/initializeEngine'
-import { RenderOrderComponent } from '../../../src/renderer/components/RenderOrderComponent'
 import { addObjectToGroup } from '../../../src/scene/components/GroupComponent'
+import { RenderOrderComponent } from '../../../src/scene/components/RenderOrderComponent'
 import { loadEmptyScene } from '../../util/loadEmptyScene'
 
 describe('RenderOrderComponent', () => {

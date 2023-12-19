@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 
 import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import { GroupComponent } from './GroupComponent'
 
 export const RenderOrderComponent = defineComponent({
   name: 'RenderOrderComponent',
