@@ -29,7 +29,7 @@ import { GroupComponent } from '../components/GroupComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 
 export default function obj3dFromUuid(uuid: string) {
-  const entity = UUIDComponent.entitiesByUUIDState[uuid].value
+  const entity = UUIDComponent.getEntityByUUID(uuid as any)
   if (!entity) {
     const result = Engine.instance.scene.getObjectByProperty('uuid', uuid)
     if (result) return result

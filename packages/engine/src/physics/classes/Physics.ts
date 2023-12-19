@@ -60,16 +60,12 @@ import {
   addComponent,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { GroupComponent, Object3DWithEntity } from '../../scene/components/GroupComponent'
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { MeshComponent } from '../../scene/components/MeshComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
@@ -96,12 +92,16 @@ function createCollisionEventQueue() {
   return collisionEventQueue
 }
 
+const position = new Vector3()
+const rotation = new Quaternion()
+const scale = new Vector3()
+
 function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc[]) {
-  if (hasComponent(entity, TransformComponent)) {
-    const { position, rotation } = getComponent(entity, TransformComponent)
-    rigidBodyDesc.translation = position
-    rigidBodyDesc.rotation = rotation
-  }
+  getComponent(entity, TransformComponent).matrixWorld.decompose(position, rotation, scale)
+
+  rigidBodyDesc.translation = position
+  rigidBodyDesc.rotation = rotation
+
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
@@ -110,28 +110,24 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.body.bodyType())
   setComponent(entity, RigidBodyTypeTagComponent, true)
 
-  // apply the initial transform if there is one
-  if (hasComponent(entity, TransformComponent)) {
-    const { position, rotation, scale } = getComponent(entity, TransformComponent)
-    rigidBody.body.setTranslation(position, true)
-    rigidBody.body.setRotation(rotation, true)
-    rigidBody.body.setLinvel(V_000, true)
-    rigidBody.body.setAngvel(V_000, true)
-    rigidBody.previousPosition.copy(position)
-    rigidBody.previousRotation.copy(rotation)
-    if (
-      RigidBodyTypeTagComponent === RigidBodyKinematicPositionBasedTagComponent ||
-      RigidBodyTypeTagComponent === RigidBodyKinematicVelocityBasedTagComponent
-    ) {
-      rigidBody.targetKinematicPosition.copy(position)
-      rigidBody.targetKinematicRotation.copy(rotation)
-    }
-    rigidBody.position.copy(position)
-    rigidBody.rotation.copy(rotation)
-    rigidBody.linearVelocity.copy(V_000)
-    rigidBody.angularVelocity.copy(V_000)
-    rigidBody.scale.copy(scale)
+  rigidBody.body.setTranslation(position, true)
+  rigidBody.body.setRotation(rotation, true)
+  rigidBody.body.setLinvel(V_000, true)
+  rigidBody.body.setAngvel(V_000, true)
+  rigidBody.previousPosition.copy(position)
+  rigidBody.previousRotation.copy(rotation)
+  if (
+    RigidBodyTypeTagComponent === RigidBodyKinematicPositionBasedTagComponent ||
+    RigidBodyTypeTagComponent === RigidBodyKinematicVelocityBasedTagComponent
+  ) {
+    rigidBody.targetKinematicPosition.copy(position)
+    rigidBody.targetKinematicRotation.copy(rotation)
   }
+  rigidBody.position.copy(position)
+  rigidBody.rotation.copy(rotation)
+  rigidBody.linearVelocity.copy(V_000)
+  rigidBody.angularVelocity.copy(V_000)
+  rigidBody.scale.copy(scale)
 
   // set entity in userdata for fast look up when required.
   const rigidBodyUserdata = { entity: entity }
@@ -169,11 +165,12 @@ function applyDescToCollider(
 }
 
 function createColliderDesc(
-  mesh: Mesh,
+  entity: Entity,
   colliderDescOptions: ColliderDescOptions,
-  rootObject = mesh,
+  rootEntity: Entity,
   overrideShapeType = false
 ): ColliderDesc | undefined {
+  const mesh = getComponent(entity, MeshComponent)
   // @todo - check this works in all scenes
   // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'BoxGeometry')
   //   colliderDescOptions.shapeType = ShapeType.Cuboid
@@ -211,7 +208,7 @@ function createColliderDesc(
     }
   }
 
-  const scale = mesh.getWorldScale(new Vector3())
+  const scale = TransformComponent.getWorldScale(entity, new Vector3())
 
   if (mesh.geometry?.type === 'BoxGeometry') {
     scale.multiplyScalar(0.5)
@@ -273,19 +270,22 @@ function createColliderDesc(
 
   const positionRelativeToRoot = new Vector3()
   const quaternionRelativeToRoot = new Quaternion()
-  const scaleRelativeToRoot = new Vector3()
+
+  const rootTransform = getComponent(rootEntity, TransformComponent)
 
   // get matrix relative to root
-  if (rootObject !== mesh) {
+  if (rootEntity !== entity) {
     const matrixRelativeToRoot = new Matrix4().copy(mesh.matrixWorld)
-    matrixRelativeToRoot.premultiply(rootObject.matrixWorld.clone().invert())
+    matrixRelativeToRoot.premultiply(rootTransform.matrixWorld.clone().invert())
     matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
   }
+
+  const worldScale = TransformComponent.getWorldScale(rootEntity, new Vector3())
 
   applyDescToCollider(
     colliderDesc,
     colliderDescOptions,
-    positionRelativeToRoot.multiply(rootObject.getWorldScale(new Vector3())),
+    positionRelativeToRoot.multiply(worldScale),
     quaternionRelativeToRoot
   )
 
@@ -298,55 +298,22 @@ function createRigidBodyForGroup(
   colliderDescOptions: ColliderDescOptions,
   overrideShapeType = false
 ): RigidBody {
-  const group = getComponent(entity, GroupComponent) as any as Mesh[] & Object3DWithEntity[]
-  if (!group) return undefined!
-
   const colliderDescs = [] as ColliderDesc[]
   const meshesToRemove = [] as Mesh[]
 
-  // create collider desc using userdata of each child mesh
-  for (const obj of group) {
-    if (obj.entity && hasComponent(obj.entity, TransformComponent)) {
-      computeLocalTransformMatrix(obj.entity)
-      computeTransformMatrix(obj.entity)
+  iterateEntityNode(entity, (child) => {
+    const mesh = getComponent(child, MeshComponent)
+    if (!mesh) return // || ((mesh?.geometry.attributes['position'] as BufferAttribute).array.length ?? 0 === 0)) return
+    if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
+
+    const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
+    const colliderDesc = createColliderDesc(child, args, entity, overrideShapeType)
+
+    if (colliderDesc) {
+      ;(typeof args.removeMesh === 'undefined' || args.removeMesh === true) && meshesToRemove.push(mesh)
+      colliderDescs.push(colliderDesc)
     }
-    obj.traverse((mesh: Mesh) => {
-      if (
-        (!overrideShapeType && (!mesh.userData || mesh.userData.type === 'glb')) ||
-        (!mesh.isMesh &&
-          !mesh.userData.type &&
-          !Object.keys(mesh.userData).some((key) => key.startsWith('xrengine.collider')))
-      )
-        return
-
-      // backwards support for deprecated `type` property
-      if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
-
-      // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['EE_collider'] or something
-      const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
-      const colliderDesc = createColliderDesc(mesh, args, obj, overrideShapeType)
-
-      if (colliderDesc) {
-        ;(typeof args.removeMesh === 'undefined' || args.removeMesh === true) && meshesToRemove.push(mesh)
-        colliderDescs.push(colliderDesc)
-      }
-    })
-  }
-
-  hasComponent(entity, EntityTreeComponent) &&
-    iterateEntityNode(entity, (child) => {
-      const mesh = getComponent(child, MeshComponent)
-      if (!mesh) return // || ((mesh?.geometry.attributes['position'] as BufferAttribute).array.length ?? 0 === 0)) return
-      if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
-
-      const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
-      const colliderDesc = createColliderDesc(mesh, args, mesh, overrideShapeType)
-
-      if (colliderDesc) {
-        ;(typeof args.removeMesh === 'undefined' || args.removeMesh === true) && meshesToRemove.push(mesh)
-        colliderDescs.push(colliderDesc)
-      }
-    })
+  })
 
   const rigidBodyType =
     typeof colliderDescOptions.bodyType === 'string'
@@ -377,8 +344,7 @@ function createRigidBodyForGroup(
 
   if (!getState(EngineState).isEditor)
     for (const mesh of meshesToRemove) {
-      mesh.removeFromParent()
-      mesh.traverse((obj: Mesh<any, any>) => cleanupAllMeshData(obj, { uuid: getComponent(entity, UUIDComponent) }))
+      cleanupAllMeshData(mesh, {})
     }
 
   return body
