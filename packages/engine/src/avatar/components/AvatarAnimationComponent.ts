@@ -45,11 +45,12 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
@@ -58,7 +59,10 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import {
+  ComputedTransformComponent,
+  setComputedTransformComponent
+} from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
@@ -146,6 +150,11 @@ export const AvatarRigComponent = defineComponent({
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
   },
 
+  onRemove: (entity, component) => {
+    // ensure synchronously removed
+    if (component.helperEntity.value) removeComponent(component.helperEntity.value, ComputedTransformComponent)
+  },
+
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
@@ -193,6 +202,7 @@ export const AvatarRigComponent = defineComponent({
         avatarURL: model.src
       })
       return () => {
+        if (!entityExists(entity)) return
         setComponent(entity, AvatarRigComponent, {
           vrm: null!,
           avatarURL: null
