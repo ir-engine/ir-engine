@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
@@ -33,7 +33,7 @@ import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
 } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { State, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
@@ -47,14 +47,15 @@ import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import {
   DefaultModelTransformParameters,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { transformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
+import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
-
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
@@ -90,7 +91,8 @@ export default function CompressionPanel({
 }) {
   const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const compressionLoading = useHookstate(false)
-
+  const isClientside = useHookstate<boolean>(true)
+  const isBatchCompress = useHookstate<boolean>(true)
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: fileProperties.url.value,
@@ -156,19 +158,38 @@ export default function CompressionPanel({
 
   const compressModel = async () => {
     const modelSrc = fileProperties.url.value
-    const [_, directoryToRefresh, originalFileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
-    const fileName = originalFileName.replaceAll(/\.[^\.]+$/g, '')
+    const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
 
-    const textureSizes = [2048, 1024, 512]
-    for (let i = 0; i < textureSizes.length; i++) {
-      const size = textureSizes[i]
-      transformParms.maxTextureSize.set(size)
-      const nuPath = `${fileName}_LOD_${i}.glb`
-      transformParms.dst.set(nuPath)
-      await transformModel(transformParms.value)
-    }
+    const batchCompressed = isBatchCompress.value
+    const clientside = isClientside.value
+
+    const textureSizes = batchCompressed ? [2048, 1024, 512] : [transformParms.maxTextureSize.value]
+
+    const variants = textureSizes.map((maxTextureSize, index) => {
+      const suffix = batchCompressed ? `-transformed-LOD_${index}.glb` : '-transformed.glb'
+      const nuPath = modelSrc.replace(/(-transformed)?\.glb$/, suffix)
+      const [_, __, dst] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
+      return { ...transformParms.get(NO_PROXY), maxTextureSize, dst }
+    })
+
+    await Promise.all(
+      variants.map(async (variant) => {
+        if (clientside) {
+          await clientSideTransformModel(variant)
+        } else {
+          await Engine.instance.api.service(modelTransformPath).create(variant)
+        }
+      })
+    )
     await FileBrowserService.fetchFiles(directoryToRefresh)
   }
+
+  useEffect(() => {
+    const fullSrc = fileProperties.url.value
+    const fileName = fullSrc.split('/').pop()!.split('.').shift()!
+    const dst = `${fileName}-transformed`
+    transformParms.dst.set(dst)
+  }, [fileProperties.url])
 
   return (
     <Menu
@@ -194,10 +215,32 @@ export default function CompressionPanel({
       </InputGroup>
 
       {fileConsistsOfContentType(fileProperties.value, 'model') && (
-        <GLTFTransformProperties
-          transformParms={transformParms}
-          onChange={(transformParms: ModelTransformParameters) => {}}
-        />
+        <>
+          <GLTFTransformProperties
+            transformParms={transformParms}
+            onChange={(transformParms: ModelTransformParameters) => {}}
+          />
+          <InputGroup name="Clientside Transform" label="Clientside Transform">
+            <BooleanInput
+              value={
+                true
+                // isClientside.value
+              }
+              onChange={(val: boolean) => {
+                // isClientside.set(val)
+              }}
+              disabled={true}
+            />
+          </InputGroup>
+          <InputGroup name="Batch Compress" label="Batch Compress">
+            <BooleanInput
+              value={isBatchCompress.value}
+              onChange={(val: boolean) => {
+                isBatchCompress.set(val)
+              }}
+            />
+          </InputGroup>
+        </>
       )}
 
       {fileConsistsOfContentType(fileProperties.value, 'image') && (
