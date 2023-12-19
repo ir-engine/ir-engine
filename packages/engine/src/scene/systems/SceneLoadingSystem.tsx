@@ -217,11 +217,19 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   return (
     <>
       {ready.value &&
-        Object.keys(entities.value).map((entityUUID: EntityUUID) =>
+        Object.entries(entities.value).map(([entityUUID, data]) =>
           entityUUID === rootUUID && isActiveScene ? (
-            <EntitySceneRootLoadReactor key={entityUUID} sceneID={props.sceneID} entityUUID={entityUUID} />
+            <EntitySceneRootLoadReactor
+              key={entityUUID}
+              sceneID={props.sceneID}
+              entityUUID={entityUUID as EntityUUID}
+            />
           ) : (
-            <EntityLoadReactor key={entityUUID} sceneID={props.sceneID} entityUUID={entityUUID} />
+            <EntityLoadReactor
+              key={entityUUID + ' ' + data.parent}
+              sceneID={props.sceneID}
+              entityUUID={entityUUID as EntityUUID}
+            />
           )
         )}
     </>
