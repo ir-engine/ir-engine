@@ -32,10 +32,10 @@ import { ObjectDirection } from '../../common/constants/Axis3D'
 import { V_010, V_100 } from '../../common/constants/MathConstants'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
-  ComponentType,
   defineComponent,
   getComponent,
   getMutableComponent,
+  removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -88,7 +88,7 @@ export const SpawnEffectComponent = defineComponent({
       createPlateEntity(entity)
       createRayEntities(entity)
 
-      tweenInEffect(entity, effectComponent)
+      SpawnEffectComponent.fadeIn(entity)
 
       return () => {
         removeEntity(effectComponent.plateEntity!)
@@ -99,6 +99,45 @@ export const SpawnEffectComponent = defineComponent({
     }, [])
 
     return null
+  },
+
+  fadeIn: (entity: Entity) => {
+    const effectComponent = getComponent(entity, SpawnEffectComponent)
+    setComponent(
+      entity,
+      TweenComponent,
+      new Tween<any>(effectComponent)
+        .to(
+          {
+            opacityMultiplier: 1
+          },
+          1000
+        )
+        .easing(Easing.Exponential.Out)
+        .start()
+        .onComplete(() => {
+          removeComponent(entity, TweenComponent)
+        })
+    )
+  },
+
+  fadeOut: (entity: Entity) => {
+    const effectComponent = getComponent(entity, SpawnEffectComponent)
+    setComponent(
+      entity,
+      TweenComponent,
+      new Tween<any>(effectComponent)
+        .to(
+          {
+            opacityMultiplier: 0
+          },
+          2000
+        )
+        .start()
+        .onComplete(() => {
+          removeEntity(entity)
+        })
+    )
   },
 
   lightMesh: new Mesh(
@@ -155,43 +194,6 @@ const createRayEntities = (entity: Entity) => {
 
     transform.rotation.setFromAxisAngle(V_010, Math.random() * 2 * Math.PI)
   }
-}
-
-const tweenInEffect = (entity: Entity, effectComponent: ComponentType<typeof SpawnEffectComponent>) => {
-  setComponent(
-    entity,
-    TweenComponent,
-    new Tween<any>(effectComponent)
-      .to(
-        {
-          opacityMultiplier: 1
-        },
-        1000
-      )
-      .easing(Easing.Exponential.Out)
-      .start()
-      .onComplete(() => {
-        tweenOutEffect(entity, effectComponent)
-      })
-  )
-}
-
-const tweenOutEffect = (entity: Entity, effectComponent: ComponentType<typeof SpawnEffectComponent>) => {
-  setComponent(
-    entity,
-    TweenComponent,
-    new Tween<any>(effectComponent)
-      .to(
-        {
-          opacityMultiplier: 0
-        },
-        2000
-      )
-      .start()
-      .onComplete(() => {
-        removeEntity(entity)
-      })
-  )
 }
 
 const downwardGroundRaycast = {

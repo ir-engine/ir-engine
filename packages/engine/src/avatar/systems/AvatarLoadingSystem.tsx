@@ -26,16 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { SRGBColorSpace } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import React from 'react'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { QueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AvatarDissolveComponent } from '.././components/AvatarDissolveComponent'
-import { SpawnEffectComponent } from '.././components/SpawnEffectComponent'
+import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
+import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
+import { SpawnEffectComponent } from '../components/SpawnEffectComponent'
 import { AvatarAnimationSystem } from './AvatarAnimationSystem'
 
 const lightScale = (y, r) => {
@@ -81,8 +84,30 @@ const execute = () => {
   }
 }
 
+const AvatarPendingReactor = () => {
+  const entity = useEntityContext()
+
+  useEffect(() => {
+    const effectEntity = createEntity()
+
+    setComponent(effectEntity, SpawnEffectComponent, {
+      sourceEntity: entity,
+      opacityMultiplier: 1
+    })
+
+    return () => {
+      SpawnEffectComponent.fadeOut(effectEntity)
+    }
+  }, [])
+
+  return null
+}
+
 const reactor = () => {
   if (!isClient) return null
+
+  const assetsReady = useHookstate(false)
+
   useEffect(() => {
     SpawnEffectComponent.lightMesh.geometry.computeBoundingSphere()
     SpawnEffectComponent.plateMesh.geometry.computeBoundingSphere()
@@ -99,9 +124,15 @@ const reactor = () => {
       texture.colorSpace = SRGBColorSpace
       texture.needsUpdate = true
       SpawnEffectComponent.plateMesh.material.map = texture
+      assetsReady.set(true)
     })
   }, [])
-  return null
+
+  const loadingEffect = useHookstate(getMutableState(EngineState).avatarLoadingEffect)
+
+  if (!loadingEffect.value || !assetsReady.value) return null
+
+  return <QueryReactor Components={[AvatarPendingComponent]} ChildEntityReactor={AvatarPendingReactor} />
 }
 
 export const AvatarLoadingSystem = defineSystem({

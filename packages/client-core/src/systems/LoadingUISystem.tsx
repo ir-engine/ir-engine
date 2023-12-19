@@ -133,7 +133,6 @@ function LoadingReactor() {
   const loadingState = useHookstate(getMutableState(AppLoadingState))
   const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress)
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
-  const userReady = useHookstate(getMutableState(EngineState).userReady)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const meshEntity = state.meshEntity.value
@@ -147,14 +146,9 @@ function LoadingReactor() {
     if (loadingState.state.value === AppLoadingStates.FAIL && transition.state === 'IN')
       return transition.setState('OUT')
 
-    if (
-      loadingState.state.value === AppLoadingStates.SUCCESS &&
-      transition.state === 'IN' &&
-      userReady.value &&
-      sceneLoaded.value
-    )
+    if (loadingState.state.value === AppLoadingStates.SUCCESS && transition.state === 'IN' && sceneLoaded.value)
       return transition.setState('OUT')
-  }, [loadingState.state, userReady, sceneLoaded])
+  }, [loadingState.state, sceneLoaded])
 
   /** Scene data changes */
   useEffect(() => {

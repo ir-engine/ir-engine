@@ -48,11 +48,7 @@ import { isClient } from '../../common/functions/getEnvironment'
 import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { SceneState } from '../../ecs/classes/Scene'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { SceneID } from '../../schemas/projects/scene.schema'
 import { XRState } from '../../xr/XRState'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
@@ -63,7 +59,6 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
-import { SpawnEffectComponent } from '../components/SpawnEffectComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { resizeAvatar } from './resizeAvatar'
 import { retargetMixamoAnimation } from './retargetMixamoRig'
@@ -136,8 +131,7 @@ export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {
 }
 
 export const unloadAvatarForUser = async (entity: Entity, avatarURL: string) => {
-  const sceneID = (avatarURL + getComponent(entity, UUIDComponent)) as SceneID
-  SceneState.unloadScene(sceneID)
+  setComponent(entity, ModelComponent, { src: '' })
 }
 
 /**Kicks off avatar animation loading and setup. Called after an avatar's model asset is
@@ -159,27 +153,19 @@ export const setupAvatarForUser = (entity: Entity, model: VRM, avatarURL: string
     loadAnimationArray([optionalAnimations.seated], 'optional')
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
-  avatar.model = model.scene
 
   const loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 
   removeComponent(entity, AvatarPendingComponent)
+
   if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
 
   if (isClient && loadingEffect) {
-    const effectEntity = createEntity()
-    setComponent(effectEntity, SpawnEffectComponent, {
-      sourceEntity: entity,
-      opacityMultiplier: 1
-    })
-
     const avatarHeight = getComponent(entity, AvatarComponent).avatarHeight
     setComponent(entity, AvatarDissolveComponent, {
       height: avatarHeight
     })
   }
-
-  removeComponent(entity, AvatarPendingComponent)
 
   if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
 }

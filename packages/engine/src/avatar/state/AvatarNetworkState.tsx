@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import {
-  NO_PROXY,
   defineState,
   dispatchAction,
   getMutableState,
@@ -161,8 +160,6 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
 
     const entity = UUIDComponent.getEntityByUUID(entityUUID)
     if (!entity || !entityExists(entity)) return
-
-    const avatarDetails = state.userAvatarDetails.get(NO_PROXY)
 
     loadAvatarModelAsset(entity, url)
     return () => {

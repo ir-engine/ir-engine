@@ -40,6 +40,7 @@ import {
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
@@ -53,6 +54,7 @@ import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -60,6 +62,7 @@ import { setComputedTransformComponent } from '../../transform/components/Comput
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
+import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -189,19 +192,35 @@ export const AvatarRigComponent = defineComponent({
         vrm: model.asset as VRM,
         avatarURL: model.src
       })
+      return () => {
+        setComponent(entity, AvatarRigComponent, {
+          vrm: null!,
+          avatarURL: null
+        })
+      }
     }, [modelComponent?.asset])
 
     useEffect(() => {
       if (!rigComponent.value || !rigComponent.value.vrm || !rigComponent.value.avatarURL) return
       const rig = getComponent(entity, AvatarRigComponent)
-      setupAvatarForUser(entity, rig.vrm, rig.avatarURL!)
+      try {
+        setupAvatarForUser(entity, rig.vrm, rig.avatarURL!)
+      } catch (e) {
+        console.error('Failed to load avatar', e)
+        if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
+      }
     }, [rigComponent.vrm])
 
     const manager = useHookstate(getMutableState(AnimationState))
 
     useEffect(() => {
       if (!manager.loadedAnimations.value || !rigComponent?.vrm?.value || !rigComponent?.normalizedRig?.value) return
-      retargetAvatarAnimations(entity)
+      try {
+        retargetAvatarAnimations(entity)
+      } catch (e) {
+        console.error('Failed to load avatar', e)
+        if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
+      }
     }, [manager.loadedAnimations, rigComponent.vrm])
 
     return null

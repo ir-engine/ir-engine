@@ -80,8 +80,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, AvatarComponent, {
     avatarHalfHeight: defaultAvatarHalfHeight,
-    avatarHeight: defaultAvatarHeight,
-    model: null
+    avatarHeight: defaultAvatarHeight
   })
 
   const userNames = getState(WorldState).userNames
