@@ -30,23 +30,23 @@ import path from 'path'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
+import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 
-const newProjectName = 'ProjectTest_test_project_name'
-
-const params = { isInternal: true } as any
+const newProjectName = 'ProjectTest_test_project_name_' + Math.round(Math.random() * 1000)
 
 const cleanup = async (app: Application) => {
   const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
   deleteFolderRecursive(projectDir)
-  try {
-    await app.service(projectPath).remove(null, { query: { name: newProjectName } })
-  } catch (e) {
-    //
-  }
+  const removingProjects = await app.service(projectPath).find({ query: { name: newProjectName } })
+  if (removingProjects.data.length) await app.service(projectPath).remove(removingProjects.data[0].id)
 }
 
 /**
@@ -60,54 +60,93 @@ const cleanup = async (app: Application) => {
 
 describe('project.test', () => {
   let app: Application
+  let testUserApiKey: UserApiKeyType
+
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
-    await cleanup(app)
   })
-  after(() => {
-    return destroyEngine()
+  before(async () => {
+    const name = ('test-project-user-name-' + v1()) as UserName
+    const avatarName = 'test-project-avatar-name-' + v1()
+
+    const avatar = await app.service(avatarPath).create({
+      name: avatarName
+    })
+
+    const testUser = await app.service(userPath).create({
+      name,
+      avatarId: avatar.id,
+      isGuest: false,
+      scopes: [{ type: 'editor:write' as ScopeType }]
+    })
+
+    testUserApiKey = await app.service(userApiKeyPath).create({ userId: testUser.id })
   })
 
-  describe("'project' service'", () => {
-    describe('create', () => {
-      it('should add new project', async function () {
+  after(async () => {
+    await cleanup(app)
+    await destroyEngine()
+  })
+
+  const getParams = () => ({
+    provider: 'rest',
+    headers: {
+      authorization: `Bearer ${testUserApiKey.token}`
+    }
+  })
+
+  describe('create', () => {
+    it('should add new project', async () => {
+      await app.service(projectPath).create(
+        {
+          name: newProjectName
+        },
+        getParams()
+      )
+
+      const project = (await app
+        .service(projectPath)
+        .find({ query: { name: newProjectName }, ...getParams() })) as Paginated<ProjectType>
+      assert.equal(project.total, 1)
+      assert.equal(project.data[0].name, newProjectName)
+    })
+
+    it('should not add new project with same name as existing project', () => {
+      assert.rejects(async () => {
         await app.service(projectPath).create(
           {
             name: newProjectName
           },
-          params
+          getParams()
         )
-
-        let findParams = { ...params, query: { name: newProjectName } }
-        const project = (await app.service(projectPath).find(findParams)) as Paginated<ProjectType>
-        assert.strictEqual(project.data[0].name, newProjectName)
-      })
-
-      it('should not add new project with same name as existing project', function () {
-        assert.rejects(async () => {
-          await app.service(projectPath).create(
-            {
-              name: newProjectName
-            },
-            params
-          )
-        })
       })
     })
+  })
 
-    describe('remove', () => {
-      it('should remove project', async function () {
-        let findParams = { ...params, query: { name: newProjectName } }
-        const projectData = (await app.service(projectPath).find(findParams)) as Paginated<ProjectType>
-        await app.service(projectPath).remove(projectData.data[0].id, params)
-        const project = (await app.service(projectPath).find(findParams)) as Paginated<ProjectType>
-        assert.strictEqual(project.data.length, 0)
-      })
+  describe('patch', () => {
+    it('should change the project data', async () => {
+      const projectId = (await app.service(projectPath).find({ query: { name: newProjectName }, ...getParams() }))
+        .data[0].id
+
+      const randomUpdateType = `test-update-type-${Math.round(Math.random() * 1000)}`
+      const patchedProject = await app.service(projectPath).patch(projectId, { updateType: randomUpdateType })
+
+      assert.equal(patchedProject.name, newProjectName)
+      assert.equal(patchedProject.updateType, randomUpdateType)
     })
+  })
 
-    after(async () => {
-      await cleanup(app)
+  describe('remove', () => {
+    it('should remove project', async function () {
+      const projectData = (await app
+        .service(projectPath)
+        .find({ query: { name: newProjectName }, ...getParams() })) as Paginated<ProjectType>
+      await app.service(projectPath).remove(projectData.data[0].id, getParams())
+      const project = (await app
+        .service(projectPath)
+        .find({ query: { name: newProjectName }, ...getParams() })) as Paginated<ProjectType>
+      assert.equal(project.data.length, 0)
     })
   })
 })
