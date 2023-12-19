@@ -31,11 +31,11 @@ import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/
 import styles from '@etherealengine/client-core/src/admin/styles/admin.module.scss'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import config from '@etherealengine/client-core/src/config'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import { PopupMenuState } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import config from '../config'
 
 import { Box, Button } from '@mui/material'
 

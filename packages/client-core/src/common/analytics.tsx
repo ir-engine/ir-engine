@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import ReactGA from 'react-ga4'
-
-import config from '@etherealengine/common/src/config'
+import config from '../config'
 
 export const initGA = () => {
   if (config.client.gaMeasurementId && config.client.gaMeasurementId.length > 0)

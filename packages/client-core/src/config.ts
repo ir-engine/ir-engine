@@ -68,8 +68,8 @@ const client = {
   cors: {
     proxyUrl:
       localBuildOrDev && import.meta.env['VITE_LOCAL_NGINX'] !== 'true'
-        ? `https://${process.env['VITE_SERVER_HOST']}:${process.env['VITE_CORS_SERVER_PORT']}`
-        : `https://${process.env['VITE_SERVER_HOST']}/cors-proxy`,
+        ? `https://${import.meta.env['VITE_SERVER_HOST']}:${import.meta.env['VITE_CORS_SERVER_PORT']}`
+        : `https://${import.meta.env['VITE_SERVER_HOST']}/cors-proxy`,
     serverPort: import.meta.env['VITE_CORS_SERVER_PORT']
   },
   logs: {

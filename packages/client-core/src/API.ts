@@ -30,9 +30,9 @@ import type { FeathersApplication } from '@feathersjs/feathers'
 import Primus from 'primus-client'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
-import config from '@etherealengine/common/src/config'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import config from './config'
 import primusClient from './util/primus-client'
 
 export type FeathersClient = FeathersApplication<ServiceTypes> &
