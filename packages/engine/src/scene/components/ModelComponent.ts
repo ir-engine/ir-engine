@@ -183,12 +183,10 @@ function ModelReactor() {
     if (!asset) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    const fileExtension = model.src.split('.').pop()?.toLowerCase()
     asset.scene.animations = asset.animations
     asset.scene.userData.src = model.src
     asset.scene.userData.sceneID = getModelSceneID(entity)
     asset.scene.userData.type === 'glb' && delete asset.scene.userData.type
-    if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
     modelComponent.scene.set(asset.scene as any)
   }, [modelComponent.asset])
 

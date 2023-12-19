@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NormalizedLandmarkList } from '@mediapipe/pose'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import { defineComponent } from '../ecs/functions/ComponentFunctions'
@@ -31,7 +32,12 @@ import { QuaternionSchema, Vector3Schema } from '../transform/components/Transfo
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',
-  onInit: () => true,
+  onInit: () => {
+    return {
+      prevWorldLandmarks: null as NormalizedLandmarkList | null,
+      prevScreenLandmarks: null as NormalizedLandmarkList | null
+    }
+  },
   schema: {
     rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionSchema])) as Record<
       VRMHumanBoneName,
