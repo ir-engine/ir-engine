@@ -26,10 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import { act, render } from '@testing-library/react'
+import { act, render, waitFor } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { EditorControlFunctions } from '../../../../editor/src/functions/EditorControlFunctions'
+import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
 import { Engine, destroyEngine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -43,13 +44,13 @@ import { SceneDataType, SceneID, SceneJsonType } from '../../schemas/projects/sc
 import { UserID } from '../../schemas/user/user.schema'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { ModelComponent } from '../components/ModelComponent'
+import { NameComponent } from '../components/NameComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
-
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
 
-const modelLink = ''
+const modelLink = '/packages/projects/default-project/assets/collisioncube.glb'
 const testScene = {
   name: '',
   thumbnailUrl: '',
@@ -275,10 +276,11 @@ const testScene = {
     version: 0
   } as SceneJsonType
 } as SceneDataType
-const testID = 'test' as SceneID
 
+const testID = 'test' as SceneID
+overrideFileLoaderLoad()
 describe('SceneLoadingSystem', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     createEngine()
     Engine.instance.userID = 'user' as UserID
     Engine.instance.store.defaultDispatchDelay = () => 0
@@ -713,9 +715,46 @@ describe('SceneLoadingSystem', () => {
     // check for success of model component
 
     assert.equal(hasComponent(child0Entity, ModelComponent), true, 'child_0 entity does not have ModelComponent')
+    // will capture the sceneAssetPendingTag for the model component
     const model = getComponent(child0Entity, ModelComponent)
     assert.equal(model.src, modelLink, 'model link is different')
-    // check for model component children //not loading
+
+    await waitFor(
+      () => {
+        assert(model.scene !== null, `model scene not found ${model.scene}`)
+      },
+      { timeout: 1500, interval: 499 }
+    )
+
+    assert(model.scene !== null, 'model scene not found')
+    const children = getComponent(child0Entity, EntityTreeComponent).children
+    assert(children.length > 2)
+
+    const BoxEntity = children[2]
+    const colliderEntity = children[1]
+
+    assert(BoxEntity, 'root entity not found')
+    assert.equal(hasComponent(BoxEntity, EntityTreeComponent), true, 'Box entity does not have EntityTreeComponent')
+    assert.equal(
+      getComponent(BoxEntity, EntityTreeComponent).parentEntity,
+      child0Entity,
+      'Box entity does not have parentEntity'
+    )
+    assert.equal(getComponent(BoxEntity, NameComponent), 'Box', 'Box entity name is incorrect')
+
+    assert(colliderEntity, 'root entity not found')
+    assert.equal(
+      hasComponent(colliderEntity, EntityTreeComponent),
+      true,
+      'collider entity does not have EntityTreeComponent'
+    )
+    assert.equal(
+      getComponent(colliderEntity, EntityTreeComponent).parentEntity,
+      child0Entity,
+      'collider entity does not have parentEntity'
+    )
+    assert.equal(getComponent(colliderEntity, NameComponent), 'Collider', 'Collider entity name is incorrect')
+
     unmountSceneLoader()
   })
   it('will have sceneAssetPendingTagQuery when loading', async () => {
@@ -738,7 +777,6 @@ describe('SceneLoadingSystem', () => {
     const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent]).enter
     // will capture the sceneAssetPendingTag for the model component
     const inLoadingEntities = sceneAssetPendingTagQuery()
-
     assert(inLoadingEntities.length > 0, 'no sceneAssetPendingTag found when loading')
     //while loading
     for (const entity of inLoadingEntities) {
@@ -747,6 +785,13 @@ describe('SceneLoadingSystem', () => {
           hasComponent(entity, SceneAssetPendingTagComponent),
           true,
           'root entity does not have SceneAssetPendingTagComponent'
+        )
+      }
+      if (hasComponent(entity, ModelComponent)) {
+        assert.equal(
+          hasComponent(entity, SceneAssetPendingTagComponent),
+          true,
+          'entity with model does not have SceneAssetPendingTagComponent'
         )
       }
     }
