@@ -122,6 +122,12 @@ export const SceneState = defineState({
     return snapshots[index.value].data
   },
 
+  useSnapshotIndex(sceneID: SceneID) {
+    const { scenes } = getMutableState(SceneState)
+    const index = useHookstate(scenes[sceneID].index)
+    return index
+  },
+
   loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
     const metadata: SceneMetadataType = sceneData
     const data: SceneJsonType = sceneData.scene
