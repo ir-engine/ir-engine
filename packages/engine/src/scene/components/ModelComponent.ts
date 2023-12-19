@@ -208,7 +208,9 @@ function ModelReactor() {
   // update scene
   useEffect(() => {
     const scene = getComponent(entity, ModelComponent).scene
-    if (!scene) return
+    const asset = getComponent(entity, ModelComponent).asset
+
+    if (!scene || !asset) return
 
     if (EngineRenderer.instance)
       EngineRenderer.instance.renderer
@@ -223,6 +225,8 @@ function ModelReactor() {
 
     const loadedJsonHierarchy = parseGLTFModel(entity)
     const uuid = getModelSceneID(entity)
+    console.log('loadedJsonHierarchy', loadedJsonHierarchy)
+
     SceneState.loadScene(uuid, {
       scene: {
         entities: loadedJsonHierarchy,
