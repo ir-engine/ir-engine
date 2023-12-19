@@ -263,11 +263,11 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
 
 const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
-  const parentEntity = UUIDComponent.getOrCreateEntityByUUID(entityState.value.parent!)
+  const parentEntity = UUIDComponent.useEntityByUUID(entityState.value.parent!)
 
   return (
     <>
-      {
+      {parentEntity ? (
         <ErrorBoundary key={props.entityUUID + ' - ' + parentEntity}>
           <EntityChildLoadReactor
             parentEntity={parentEntity}
@@ -276,7 +276,9 @@ const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) 
             entityJSONState={entityState}
           />
         </ErrorBoundary>
-      }
+      ) : (
+        <></>
+      )}
     </>
   )
 }

@@ -200,7 +200,7 @@ export const AvatarRigComponent = defineComponent({
     const manager = useHookstate(getMutableState(AnimationState))
 
     useEffect(() => {
-      if (!manager.loadedAnimations.value || !rigComponent?.vrm?.value) return
+      if (!manager.loadedAnimations.value || !rigComponent?.vrm?.value || !rigComponent?.normalizedRig?.value) return
       retargetAvatarAnimations(entity)
     }, [manager.loadedAnimations, rigComponent.vrm])
 

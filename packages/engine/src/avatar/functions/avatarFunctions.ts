@@ -86,7 +86,7 @@ export const getPreloaded = () => {
 
 /** Checks if the asset is a VRM. If not, attempt to use
  *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
-export const autoconvertMixamoAvatar = (model: any) => {
+export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
   const scene = model.scene ?? model // FBX assets do not have 'scene' property
   if (!scene) return null!
 
@@ -112,7 +112,7 @@ export const autoconvertMixamoAvatar = (model: any) => {
     return vrm
   }
 
-  return avatarBoneMatching(scene)
+  return avatarBoneMatching(model)
 }
 
 export const isAvaturn = (url: string) => {

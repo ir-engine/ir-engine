@@ -30,8 +30,6 @@ import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 
-const entitiesByUUID = {} as Record<EntityUUID, Entity>
-
 export const UUIDComponent = defineComponent({
   name: 'UUIDComponent',
 

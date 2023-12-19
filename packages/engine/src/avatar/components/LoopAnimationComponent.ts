@@ -132,12 +132,16 @@ export const LoopAnimationComponent = defineComponent({
       }
       animComponent.mixer.time.set(0)
       const assetObject = modelComponent.asset.get(NO_PROXY)
-      const action = animComponent.mixer.value.clipAction(
-        assetObject instanceof VRM ? retargetMixamoAnimation(clip, modelComponent.scene.value, assetObject) : clip
-      )
-      loopAnimationComponent._action.set(action)
-      return () => {
-        action.stop()
+      try {
+        const action = animComponent.mixer.value.clipAction(
+          assetObject instanceof VRM ? retargetMixamoAnimation(clip, modelComponent.scene.value, assetObject) : clip
+        )
+        loopAnimationComponent._action.set(action)
+        return () => {
+          action.stop()
+        }
+      } catch (e) {
+        console.warn('Failed to retarget animation in LoopAnimationComponent', entity, e)
       }
     }, [animComponent?.animations, loopAnimationComponent.activeClipIndex])
 
