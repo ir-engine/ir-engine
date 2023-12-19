@@ -245,7 +245,6 @@ const ProjectsPage = () => {
           : CommunityProjectData
       ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
       communityProjects.set(data.sort(sortAlphabetical) ?? [])
-      console.log('DEBUG 2', data, communityProjects, filter.value)
     } catch (error) {
       logger.error(error)
       error.set(error)
