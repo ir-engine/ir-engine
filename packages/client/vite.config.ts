@@ -246,7 +246,13 @@ export default defineConfig(async () => {
     }
   }
 
+  const define = {}
+  for (const [key, value] of Object.entries(process.env)) {
+    define[`globalThis.process.env['${key}']`] = value
+  }
+
   const returned = {
+    define: define,
     server: {
       proxy: {},
       cors: isDevOrLocal ? false : true,
