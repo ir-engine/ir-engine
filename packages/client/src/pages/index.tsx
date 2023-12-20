@@ -34,8 +34,8 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import { PopupMenuState } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import config from '@etherealengine/common/src/config'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import config from '../config'
 
 import { Box, Button } from '@mui/material'
 
