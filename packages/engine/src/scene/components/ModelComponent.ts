@@ -173,12 +173,13 @@ function ModelReactor() {
       },
       (onprogress) => {
         if (aborted) return
-        SceneAssetPendingTagComponent.loadingProgress.merge({
-          [entity]: {
-            loadedAmount: onprogress.loaded,
-            totalAmount: onprogress.total
-          }
-        })
+        if (hasComponent(entity, SceneAssetPendingTagComponent))
+          SceneAssetPendingTagComponent.loadingProgress.merge({
+            [entity]: {
+              loadedAmount: onprogress.loaded,
+              totalAmount: onprogress.total
+            }
+          })
       },
       (err: Error) => {
         if (aborted) return
@@ -225,7 +226,6 @@ function ModelReactor() {
 
     const loadedJsonHierarchy = parseGLTFModel(entity)
     const uuid = getModelSceneID(entity)
-    console.log('loadedJsonHierarchy', loadedJsonHierarchy)
 
     SceneState.loadScene(uuid, {
       scene: {

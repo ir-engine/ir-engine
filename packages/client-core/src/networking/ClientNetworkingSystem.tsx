@@ -74,9 +74,15 @@ const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
   const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
 
   useEffect(() => {
-    const sendTransport = MediasoupTransportState.getTransport(props.networkID, 'send') as WebRTCTransportExtension
-    const recvTransport = MediasoupTransportState.getTransport(props.networkID, 'recv') as WebRTCTransportExtension
-    networkState.ready.set(!!recvTransport && !!sendTransport)
+    const topic = networkState.topic.value
+    const topicEnabled = getState(NetworkState).config[topic]
+    if (topicEnabled) {
+      const sendTransport = MediasoupTransportState.getTransport(props.networkID, 'send') as WebRTCTransportExtension
+      const recvTransport = MediasoupTransportState.getTransport(props.networkID, 'recv') as WebRTCTransportExtension
+      networkState.ready.set(!!recvTransport && !!sendTransport)
+    } else {
+      networkState.ready.set(true)
+    }
   }, [transportState])
 
   return null
