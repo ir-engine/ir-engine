@@ -35,7 +35,7 @@ import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Button } from '../inputs/Button'
 
 export const FilePropertiesPanel = (props: {
@@ -69,6 +69,11 @@ export const FilePropertiesPanel = (props: {
           fileProperties.value!.path
         )
       }
+      if (tags.value.length > 0) {
+        Engine.instance.api.service(staticResourcePath).patch(id.value, {
+          tags: tags.value
+        })
+      }
       isModified.set(false)
     }
   }, [])
@@ -82,11 +87,12 @@ export const FilePropertiesPanel = (props: {
   )
 
   const tags: State<string[]> = useHookstate([])
-
+  const id: State<string> = useHookstate('')
   useEffect(() => {
     if (!staticResource.promised) {
-      const resources = staticResource.data.value
-      resources[0] && tags.set(JSON.parse(JSON.stringify(resources[0].tags)))
+      const resources = JSON.parse(JSON.stringify(staticResource.data.value[0])) as StaticResourceType
+      resources && tags.set(resources.tags)
+      resources && id.set(resources.id)
     }
   }, [staticResource])
 
