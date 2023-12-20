@@ -28,7 +28,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 const maxBitWidth = 32
-export const ObjectLayerComponents = Array.from({ length: maxBitWidth }, (v, i) => {
+export const ObjectLayerComponents = Array.from({ length: maxBitWidth }, (_, i) => {
   return defineComponent({
     name: `ObjectLayer${i}`,
 
@@ -44,10 +44,11 @@ export const ObjectLayerComponents = Array.from({ length: maxBitWidth }, (v, i) 
 
 export const ObjectLayerComponent = defineComponent({
   name: 'ObjectLayerComponent',
-  schema: { mask: Types.ui32 },
+  schema: { mask: Types.i32 },
 
   onSet(entity, component) {
-    ObjectLayerComponent.enableLayers(entity, 1 | 0)
+    ObjectLayerComponent.mask[entity] = 1 | 0
+    ObjectLayerComponent.setLayer(entity, 1 | 0)
   },
 
   setLayer(entity, layer: number) {
@@ -78,6 +79,17 @@ export const ObjectLayerComponent = defineComponent({
     } else {
       ObjectLayerComponent.enableLayers(entity, layer)
     }
+  },
+
+  setMask(entity, mask: number) {
+    for (let i = 0; i < maxBitWidth; i++) {
+      const isSet = (mask & ((1 << i) | 0)) !== 0
+      if (isSet) {
+        setComponent(entity, ObjectLayerComponents[i])
+      } else {
+        removeComponent(entity, ObjectLayerComponents[i])
+      }
+    }
   }
 })
 
@@ -88,6 +100,10 @@ export class Layer {
 
   get mask() {
     return ObjectLayerComponent.mask[this.entity]
+  }
+
+  set mask(val) {
+    ObjectLayerComponent.setMask(this.entity, val)
   }
 
   set(channel: number) {
@@ -112,6 +128,7 @@ export class Layer {
 
   disableAll() {
     ObjectLayerComponent.disableLayers(this.entity, ...[...Array(maxBitWidth).keys()])
+    ObjectLayerComponent.mask[this.entity] = 0
   }
 
   test(layers: Layer) {

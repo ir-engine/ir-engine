@@ -31,7 +31,7 @@ import { hasComponent, setComponent } from '../../../src/ecs/functions/Component
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../src/initializeEngine'
 import { addObjectToGroup } from '../../../src/scene/components/GroupComponent'
-import { Layer, ObjectLayerComponent } from '../../../src/scene/components/ObjectLayerComponent'
+import { Layer, ObjectLayerComponent, ObjectLayerComponents } from '../../../src/scene/components/ObjectLayerComponent'
 import { loadEmptyScene } from '../../util/loadEmptyScene'
 
 describe('ObjectLayerComponent', () => {
@@ -57,6 +57,8 @@ describe('ObjectLayerComponent', () => {
     mesh.layers.enable(objectLayer)
 
     assert(hasComponent(entity, ObjectLayerComponent))
+    assert(hasComponent(entity, ObjectLayerComponents[objectLayer]))
+    assert(!hasComponent(entity, ObjectLayerComponents[nonEnabledObjectLayer]))
     assert(mesh.layers.isEnabled(objectLayer))
     assert(!mesh.layers.isEnabled(nonEnabledObjectLayer))
   })
@@ -83,6 +85,7 @@ describe('ObjectLayerComponent', () => {
     for (const mesh of meshes) {
       for (const layer of objectLayers) {
         assert(mesh.layers.isEnabled(layer))
+        assert(hasComponent(entity, ObjectLayerComponents[layer]))
       }
     }
   })
@@ -102,15 +105,23 @@ describe('ObjectLayerComponent', () => {
 
     for (const layer of objectLayers) {
       assert(mesh.layers.isEnabled(layer))
+      assert(hasComponent(entity, ObjectLayerComponents[layer]))
     }
 
     assert(!mesh.layers.isEnabled(nonEnabledObjectLayer))
 
-    ObjectLayerComponent.disableLayers(entity, 2, 3)
+    const disableLayers = [2, 3]
+    ObjectLayerComponent.disableLayers(entity, ...disableLayers)
 
-    assert(mesh.layers.isEnabled(4))
-    assert(!mesh.layers.isEnabled(2))
-    assert(!mesh.layers.isEnabled(3))
+    for (const layer of objectLayers) {
+      if (disableLayers.includes(layer)) {
+        assert(!mesh.layers.isEnabled(layer))
+        assert(!hasComponent(entity, ObjectLayerComponents[layer]))
+      } else {
+        assert(mesh.layers.isEnabled(layer))
+        assert(hasComponent(entity, ObjectLayerComponents[layer]))
+      }
+    }
   })
 
   it('Layer object updates correctly', () => {
@@ -139,12 +150,14 @@ describe('ObjectLayerComponent', () => {
     assert(layer.mask === 0)
     for (let i = 0; i < maxLayers; i++) {
       assert(!layer.isEnabled(i))
+      assert(!hasComponent(entity, ObjectLayerComponents[i]))
     }
 
     layer.enableAll()
-    assert(layer.mask.valueOf() === 0xffffffff)
-    for (let i = 0; i < maxLayers; i++) {
+    assert(layer.mask.valueOf() === (0xffffffff | 0))
+    for (let i = 1; i < maxLayers; i++) {
       assert(layer.isEnabled(i))
+      assert(hasComponent(entity, ObjectLayerComponents[i]))
     }
 
     layer.toggle(4)
