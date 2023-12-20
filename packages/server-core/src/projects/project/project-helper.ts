@@ -45,7 +45,7 @@ import { processFileName } from '@etherealengine/common/src/utils/processFileNam
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
@@ -1658,7 +1658,7 @@ export const uploadLocalProjectToProvider = async (
 
   // upload new files to storage provider
   const projectRootPath = path.resolve(projectsRootFolder, projectName)
-  const resourceDBPath = path.join(projectRootPath, 'resources.sql')
+  const resourceDBPath = path.join(projectRootPath, 'resources.json')
   const hasResourceDB = fs.existsSync(resourceDBPath)
 
   const files = getFilesRecursive(projectRootPath)
@@ -1682,23 +1682,21 @@ export const uploadLocalProjectToProvider = async (
 
   if (hasResourceDB) {
     //if we have a resources.sql file, use it to populate static-resource table
-    const promiseExec = promisify(exec)
-    const tableName = `project_${projectName.replaceAll('-', '_')}`
-    const user = process.env.MYSQL_USER
-    const password = process.env.MYSQL_PASSWORD
-    const host = process.env.MYSQL_HOST
+    const manifest: StaticResourceType[] = JSON.parse(fs.readFileSync(resourceDBPath).toString())
 
-    const cmdPrefix = `mysql -h ${host} -u ${user} -p"${password}" etherealengine`
-
-    const runResourceCmd = `${cmdPrefix} < ${resourceDBPath}`
-    const copyIntoStaticResourcesCmd = `${cmdPrefix} -e 'CREATE TABLE IF NOT EXISTS \`${tableName}\` LIKE \`static-resource\`; INSERT IGNORE INTO \`static-resource\` SELECT * FROM \`${tableName}\`;'`
-    const dropTableCmd = `${cmdPrefix} -e "DROP TABLE ${tableName};"`
-
-    await promiseExec(runResourceCmd)
-    await promiseExec(copyIntoStaticResourcesCmd)
-    await promiseExec(dropTableCmd)
-
-    console.log(`Finished populating static-resource table for project ${projectName}`)
+    for (const item of manifest) {
+      const key = `projects/${projectName}${item.key}`
+      const url = getCachedURL(key, cacheDomain)
+      await app.service(staticResourcePath).create({
+        key,
+        project: projectName,
+        hash: item.hash,
+        url,
+        mimeType: item.mimeType,
+        tags: item.tags
+      })
+      logger.info(`Uploaded static resource ${key} from resources.json`)
+    }
   }
 
   for (const file of filtered) {
