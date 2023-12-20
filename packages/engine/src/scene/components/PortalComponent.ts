@@ -64,7 +64,7 @@ import { RendererState } from '../../renderer/RendererState'
 import { portalPath } from '../../schemas/projects/portal.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
+import { enableObjectLayer, setObjectLayers } from '../functions/setObjectLayers'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -223,6 +223,7 @@ export const PortalComponent = defineComponent({
       if (portalComponent.previewType.value !== PortalPreviewTypeSpherical) return
 
       const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: BackSide }))
+      enableObjectLayer(portalMesh, ObjectLayers.Camera, true)
       portalMesh.geometry.translate(0, 1.5, 0)
       portalComponent.mesh.set(portalMesh)
       addObjectToGroup(entity, portalMesh)
