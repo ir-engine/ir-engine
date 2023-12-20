@@ -27,15 +27,11 @@ import { Matrix4 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import {
   compareDistanceToLocalClient,
   DistanceFromLocalClientComponent
 } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InteractState } from '../systems/InteractiveSystem'
 
 const mat4 = new Matrix4()
@@ -55,13 +51,6 @@ const mat4 = new Matrix4()
  */
 
 export const gatherAvailableInteractables = (interactables: Entity[]) => {
-  if (!Engine.instance.localClientEntity) return
-
-  const transform = getComponent(Engine.instance.localClientEntity, TransformComponent)
-  const controller = getComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
-
-  if (!controller || !transform) return
-
   const maxDistance = getState(InteractState).maxDistance
   const maxDistanceSquare = maxDistance * maxDistance
   const availableInteractable = getMutableState(InteractState).available

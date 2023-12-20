@@ -23,27 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
-import { cloneDeep } from 'lodash'
-import {
-  AnimationClip,
-  AnimationMixer,
-  Bone,
-  Box3,
-  Group,
-  Object3D,
-  ShaderMaterial,
-  Skeleton,
-  SkinnedMesh,
-  Vector3
-} from 'three'
+import { VRM, VRM1Meta, VRMHumanBone, VRMHumanoid } from '@pixiv/three-vrm'
+import { AnimationClip, AnimationMixer, Box3, Object3D, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/getEnvironment'
-import { iOS } from '../../common/functions/isMobile'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   getComponent,
@@ -52,18 +37,19 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import iterateObject3D from '../../scene/util/iterateObject3D'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
-import { XRState } from '../../xr/XRState'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
-import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { isClient } from '../../common/functions/getEnvironment'
+import { iOS } from '../../common/functions/isMobile'
+import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
+import { ModelComponent } from '../../scene/components/ModelComponent'
+import { XRState } from '../../xr/XRState'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { locomotionAnimation, optionalAnimations } from '../animation/Util'
@@ -72,7 +58,6 @@ import { AvatarAnimationComponent, AvatarRigComponent } from '../components/Avat
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
-import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { resizeAvatar } from './resizeAvatar'
@@ -81,21 +66,48 @@ import { retargetMixamoAnimation } from './retargetMixamoRig'
 const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
 
+declare module '@pixiv/three-vrm/types/VRM' {
+  export interface VRM {
+    userData: {
+      useAPose?: boolean
+      retargeted?: boolean
+    }
+  }
+}
+
 export const getPreloaded = () => {
   return ['sitting']
 }
 
 /** Checks if the asset is a VRM. If not, attempt to use
  *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
-export const autoconvertMixamoAvatar = (model: any) => {
+export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
   const scene = model.scene ?? model // FBX assets do not have 'scene' property
-  if (!scene) return null
+  if (!scene) return null!
 
-  const vrm = (model instanceof VRM ? model : model.userData?.vrm ?? avatarBoneMatching(scene)) as any
+  const isVRM = model instanceof VRM
 
-  if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
+  if (isVRM && model.meta.metaVersion === '1') {
+    if (!model.userData) model.userData = {}
+    return model
+  }
 
-  return vrm
+  if (isVRM && model.meta.metaVersion === '0') {
+    const bones = model.humanoid.rawHumanBones
+    model.humanoid.normalizedHumanBonesRoot.removeFromParent()
+    bones.hips.node.rotateY(Math.PI)
+    const humanoid = new VRMHumanoid(bones)
+    model.scene.add(humanoid.normalizedHumanBonesRoot)
+    const vrm = new VRM({
+      humanoid,
+      scene: model.scene,
+      meta: { name: model.scene.children[0].name } as VRM1Meta
+    })
+    if (!vrm.userData) vrm.userData = {}
+    return vrm
+  }
+
+  return avatarBoneMatching(model)
 }
 
 export const isAvaturn = (url: string) => {
@@ -106,57 +118,30 @@ export const isAvaturn = (url: string) => {
 }
 
 /**tries to load avatar model asset if an avatar is not already pending */
-export const loadAvatarModelAsset = (
-  entity: Entity,
-  avatarURL: string,
-  loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
-) => {
+export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {
   if (!avatarURL) return
   //check if the url to the file is an avaturn url to infer the file type
   const pendingComponent = getOptionalComponent(entity, AvatarPendingComponent)
   if (pendingComponent && pendingComponent.url === avatarURL) return
 
-  const override = !isAvaturn(avatarURL) ? undefined : AssetType.glB
-
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
   if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
 
-  AssetLoader.loadAsync(avatarURL, undefined, undefined, override).then((loadedAsset) => {
-    setComponent(entity, AvatarRigComponent, { vrm: autoconvertMixamoAvatar(loadedAsset) })
-    removeComponent(entity, AvatarPendingComponent)
-    if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
+  setComponent(entity, ModelComponent, { src: avatarURL })
+}
 
-    /**this is awaiting refactor from PR #9369, ideally this logic is not in the async callback
-     * and instead in a reactor that listens for the avatar vrm being set
-     */
-    if (isClient && loadingEffect) {
-      const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(loadedAsset.scene)
-      const effectEntity = createEntity()
-      setComponent(effectEntity, AvatarEffectComponent, {
-        sourceEntity: entity,
-        opacityMultiplier: 1,
-        dissolveMaterials: dissolveMaterials as ShaderMaterial[],
-        originMaterials: avatarMaterials as MaterialMap[]
-      })
-    }
-  })
+export const unloadAvatarForUser = async (entity: Entity, avatarURL: string) => {
+  setComponent(entity, ModelComponent, { src: '' })
 }
 
 /**Kicks off avatar animation loading and setup. Called after an avatar's model asset is
  * successfully loaded.
  */
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
-  const avatar = getComponent(entity, AvatarComponent)
-  if (avatar && avatar.model) removeObjectFromGroup(entity, avatar.model)
-
   rigAvatarModel(entity)(model)
-  addObjectToGroup(entity, model.scene)
-  iterateObject3D(model.scene, (obj) => {
-    obj && (obj.frustumCulled = false)
-  })
+  setupAvatarHeight(entity, model.scene)
 
   computeTransformMatrix(entity)
-  setupAvatarHeight(entity, model.scene)
 
   const animationState = getState(AnimationState)
   //set global states if they are not already set
@@ -166,7 +151,21 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
     loadAnimationArray([optionalAnimations.seated], 'optional')
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
-  avatar.model = model.scene
+
+  const loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
+
+  removeComponent(entity, AvatarPendingComponent)
+
+  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
+
+  if (isClient && loadingEffect) {
+    const avatarHeight = getComponent(entity, AvatarComponent).avatarHeight
+    setComponent(entity, AvatarDissolveComponent, {
+      height: avatarHeight
+    })
+  }
+
+  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
 }
 
 export const retargetAvatarAnimations = (entity: Entity) => {
@@ -175,13 +174,11 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   const animations = [] as AnimationClip[]
   for (const key in manager.loadedAnimations) {
     for (const animation of manager.loadedAnimations[key].animations)
-      animations.push(
-        retargetMixamoAnimation(cloneDeep(animation), manager.loadedAnimations[key].scene, rigComponent.vrm)
-      )
+      animations.push(retargetMixamoAnimation(animation, manager.loadedAnimations[key].scene, rigComponent.vrm))
   }
   setComponent(entity, AnimationComponent, {
     animations: animations,
-    mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBones.hips.node.parent!)
+    mixer: new AnimationMixer(rigComponent.normalizedRig.hips.node)
   })
 }
 
@@ -247,68 +244,11 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   return model
 }
 
-export const setupAvatarMaterials = (root) => {
-  const materialList: Array<MaterialMap> = []
-  const dissolveMatList: Array<ShaderMaterial> = []
-  setObjectLayers(root, ObjectLayers.Avatar)
-
-  root.traverse((object) => {
-    if (object.isBone) object.visible = false
-    if (object.material && object.material.clone) {
-      const material = object.material
-      materialList.push({
-        id: object.uuid,
-        material: material
-      })
-      object.material = AvatarDissolveComponent.createDissolveMaterial(object)
-      dissolveMatList.push(object.material)
-    }
-  })
-
-  return [dissolveMatList, materialList]
-}
-
 export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   const box = new Box3()
   box.expandByObject(model).getSize(tempVec3ForHeight)
   box.getCenter(tempVec3ForCenter)
   resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
-}
-
-/**
- * Creates an empty skinned mesh using list of bones to build skeleton structure
- * @returns SkinnedMesh
- */
-export function makeSkinnedMeshFromBoneData(bonesData) {
-  const bones: Bone[] = []
-  bonesData.forEach((data) => {
-    const bone = new Bone()
-    bone.name = data.name
-    bone.position.fromArray(data.position)
-    bone.quaternion.fromArray(data.quaternion)
-    bone.scale.setScalar(1)
-    bones.push(bone)
-  })
-
-  bonesData.forEach((data, index) => {
-    if (data.parentIndex > -1) {
-      bones[data.parentIndex].add(bones[index])
-    }
-  })
-
-  // we assume that root bone is the first one
-  const hipBone = bones[0] as Bone & { entity: Entity }
-  hipBone.updateWorldMatrix(false, true)
-
-  const group = new Group()
-  group.name = 'skinned-mesh-group'
-  const skinnedMesh = new SkinnedMesh()
-  const skeleton = new Skeleton(bones)
-  skinnedMesh.bind(skeleton)
-  group.add(skinnedMesh)
-  group.add(hipBone)
-
-  return group
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
