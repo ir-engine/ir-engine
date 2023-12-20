@@ -167,15 +167,16 @@ export class FileBrowserService
 
     const parentPath = path.dirname(directory)
     const key = await getIncrementalName(path.basename(directory), parentPath, storageProvider, true)
+    const keyPath = path.join(parentPath, key)
 
-    const result = await storageProvider.putObject({ Key: path.join(parentPath, key) } as StorageObjectInterface, {
+    const result = await storageProvider.putObject({ Key: keyPath } as StorageObjectInterface, {
       isDirectory: true
     })
 
-    await storageProvider.createInvalidation([key])
+    await storageProvider.createInvalidation([keyPath])
 
     if (isDev && PROJECT_FILE_REGEX.test(directory))
-      fs.mkdirSync(path.resolve(projectsRootFolder, path.join(parentPath, key)), { recursive: true })
+      fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
 
     return result
   }
@@ -194,15 +195,29 @@ export class FileBrowserService
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
 
+    await storageProvider.createInvalidation([_oldPath, _newPath])
+
+    const staticResource = (await this.app.service(staticResourcePath).find({
+      query: {
+        key: path.join(_oldPath, data.oldName),
+        $limit: 1
+      }
+    })) as Paginated<StaticResourceType>
+
+    if (staticResource?.data?.length > 0) {
+      await this.app.service(staticResourcePath).patch(
+        staticResource.data[0].id,
+        {
+          key: path.join(_newPath, data.newName)
+        },
+        { isInternal: true }
+      )
+    }
+
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
 
-    await Promise.all([
-      storageProvider.createInvalidation([oldNamePath]),
-      storageProvider.createInvalidation([newNamePath])
-    ])
-
-    if (isDev) {
+    if (isDev && PROJECT_FILE_REGEX.test(_oldPath)) {
       if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
       else fs.renameSync(oldNamePath, newNamePath)
     }
@@ -301,11 +316,9 @@ export class FileBrowserService
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
     await storageProvider.createInvalidation([key])
 
-    const filePath = path.join(projectsRootFolder, key)
-
     const staticResource = (await this.app.service(staticResourcePath).find({
       query: {
-        key: filePath,
+        key: key,
         $limit: 1
       }
     })) as Paginated<StaticResourceType>
