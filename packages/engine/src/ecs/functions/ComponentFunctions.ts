@@ -405,47 +405,10 @@ export const updateComponent = <C extends Component>(
   })
 }
 
-/**
- * @deprecated Use {@link setComponent} instead
- * @description Like {@link setComponent}, but errors if the component already exists.
- * @throws Error when the component exists: {@link Error}
- */
-export const addComponent = <C extends Component>(
-  entity: Entity,
-  Component: C,
-  args: SetComponentType<C> | undefined = undefined
-) => {
-  if (hasComponent(entity, Component)) throw new Error(`${Component.name} already exists on entity ${entity}`)
-  setComponent(entity, Component, args)
-}
-
-/**
- * @description Checks if the given {@link Entity} contains the given {@link Component}.
- * @param entity The Entity to check.
- * @param component The Component to check.
- * @returns True when the Component is contained in the Entity.
- */
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
   return component.existenceMapState[entity]?.get(NO_PROXY_STEALTH) ?? false
 }
 
-/**
- * @description Returns a {@link Component} by getting it from the given {@link Entity}, or adding if it does not already exists.
- * @param entity The Entity to get/add the component from/to.
- * @param component The Component to get/add.
- * @param args `@todo` Explain what `getOrAddComponent(  args)` is.
- * @returns The requested Component, independent of whether it existed or was added.
- */
-export const getOrAddComponent = <C extends Component>(entity: Entity, component: C, args?: SetComponentType<C>) => {
-  return hasComponent(entity, component) ? getComponent(entity, component) : addComponent(entity, component, args)
-}
-
-/**
- * @async
- * @description Removes the given {@link Component} from the given {@link Entity} asynchronously.
- * @param entity The Entity to remove the component from.
- * @param component The Component to remove.
- */
 export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
   component.existenceMapState[entity]?.set(false)
@@ -689,6 +652,5 @@ export type Query = ReturnType<typeof defineQuery>
 globalThis.EE_getComponent = getComponent
 globalThis.EE_getAllComponents = getAllComponents
 globalThis.EE_getAllComponentData = getAllComponentData
-globalThis.EE_addComponent = addComponent
 globalThis.EE_setComponent = setComponent
 globalThis.EE_removeComponent = removeComponent
