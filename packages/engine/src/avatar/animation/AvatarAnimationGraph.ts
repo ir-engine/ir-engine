@@ -56,7 +56,7 @@ const epsilon = 0.01
 //blend between locomotion and animation overrides
 export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   for (const newAnimation of animationQueue()) {
-    const targetEntity = UUIDComponent.entitiesByUUID[newAnimation.entityUUID]
+    const targetEntity = UUIDComponent.getEntityByUUID(newAnimation.entityUUID)
     if (!hasComponent(targetEntity, AvatarAnimationComponent)) {
       console.warn(
         '[updateAnimationGraph]: AvatarAnimationComponent not found on entity',

@@ -405,7 +405,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
     try {
       const jsonStringified = JSON.stringify(action)
-      //      logger.info('Repeat action %o', action)
+      logger.info('Repeat action %o', action)
     } catch (err) {
       console.log('error in logging action', action)
     }
@@ -424,7 +424,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
     try {
       const jsonStringified = JSON.stringify(action)
-      //      logger.info(`[Action]: ${action.type} %o`, action)
+      logger.info(`[Action]: ${action.type} %o`, action)
     } catch (err) {
       console.log('error in logging action', action)
     }

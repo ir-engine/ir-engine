@@ -44,13 +44,7 @@ import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import {
-  addComponent,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Network } from '../../networking/classes/Network'
@@ -83,7 +77,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     const player = createEntity()
     const item = createEntity()
 
-    addComponent(player, NetworkObjectComponent, {
+    setComponent(player, NetworkObjectComponent, {
       ownerId: Engine.instance.userID,
       authorityPeerID: Engine.instance.peerID,
       networkId: 0 as NetworkId

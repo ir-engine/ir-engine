@@ -23,28 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-import type { WebContainer3D } from '@etherealengine/xrui'
-
+import { Bone } from 'three'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import { XRUIState } from '../XRUIState'
 
-export const XRUIComponent = defineComponent({
-  name: 'XRUIComponent',
+export const BoneComponent = defineComponent({
+  name: 'BoneComponent',
 
-  onInit: (entity) => {
-    return null! as WebContainer3D
-  },
+  onInit: (entity) => null! as Bone,
 
-  onSet: (entity, component, json: WebContainer3D) => {
-    if (typeof json !== 'undefined') {
-      component.set(json)
-      XRUIComponent.valueMap[entity] = json
-      component.value.interactionRays = getState(XRUIState).interactionRays
-    }
-  },
+  onSet: (entity, component, mesh: Bone) => {
+    if (!mesh || !mesh.isBone) throw new Error('BoneComponent: Invalid bone')
 
-  onRemove: (entity, component) => {
-    component.value.destroy()
+    component.set(mesh)
+    BoneComponent.valueMap[entity] = mesh
   }
 })

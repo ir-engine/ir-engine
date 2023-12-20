@@ -40,7 +40,7 @@ import { setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { LocalTransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
   readRotation,
   TransformSerialization,
@@ -84,11 +84,11 @@ describe('DataWriter', () => {
     const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
-    LocalTransformComponent.position.x[entity] = x
-    LocalTransformComponent.position.y[entity] = y
-    LocalTransformComponent.position.z[entity] = z
+    TransformComponent.position.x[entity] = x
+    TransformComponent.position.y[entity] = y
+    TransformComponent.position.z[entity] = z
 
-    const writePosition = writeComponent(LocalTransformComponent.position)
+    const writePosition = writeComponent(TransformComponent.position)
 
     writePosition(writeView, entity)
 
@@ -103,8 +103,8 @@ describe('DataWriter', () => {
 
     sliceViewCursor(writeView)
 
-    LocalTransformComponent.position.x[entity]++
-    LocalTransformComponent.position.z[entity]++
+    TransformComponent.position.x[entity]++
+    TransformComponent.position.z[entity]++
 
     writePosition(writeView, entity)
 
@@ -122,11 +122,11 @@ describe('DataWriter', () => {
     const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
-    LocalTransformComponent.position.x[entity] = x
-    LocalTransformComponent.position.y[entity] = y
-    LocalTransformComponent.position.z[entity] = z
+    TransformComponent.position.x[entity] = x
+    TransformComponent.position.y[entity] = y
+    TransformComponent.position.z[entity] = z
 
-    writeVector3(LocalTransformComponent.position)(writeView, entity)
+    writeVector3(TransformComponent.position)(writeView, entity)
 
     const testView = createViewCursor(writeView.buffer)
 
@@ -139,10 +139,10 @@ describe('DataWriter', () => {
 
     sliceViewCursor(writeView)
 
-    LocalTransformComponent.position.x[entity]++
-    LocalTransformComponent.position.z[entity]++
+    TransformComponent.position.x[entity]++
+    TransformComponent.position.z[entity]++
 
-    writeVector3(LocalTransformComponent.position)(writeView, entity)
+    writeVector3(TransformComponent.position)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
 
@@ -158,9 +158,9 @@ describe('DataWriter', () => {
     const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
-    LocalTransformComponent.position.x[entity] = x
-    LocalTransformComponent.position.y[entity] = y
-    LocalTransformComponent.position.z[entity] = z
+    TransformComponent.position.x[entity] = x
+    TransformComponent.position.y[entity] = y
+    TransformComponent.position.z[entity] = z
 
     writePosition(writeView, entity)
 
@@ -184,23 +184,23 @@ describe('DataWriter', () => {
     let d = Math.sqrt(1 - (a * a + b * b + c * c))
 
     const [x, y, z, w] = [a, b, c, d]
-    LocalTransformComponent.rotation.x[entity] = x
-    LocalTransformComponent.rotation.y[entity] = y
-    LocalTransformComponent.rotation.z[entity] = z
-    LocalTransformComponent.rotation.w[entity] = w
+    TransformComponent.rotation.x[entity] = x
+    TransformComponent.rotation.y[entity] = y
+    TransformComponent.rotation.z[entity] = z
+    TransformComponent.rotation.w[entity] = w
 
-    writeCompressedRotation(LocalTransformComponent.rotation)(writeView, entity)
+    writeCompressedRotation(TransformComponent.rotation)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
-    readCompressedRotation(LocalTransformComponent.rotation)(readView, entity)
+    readCompressedRotation(TransformComponent.rotation)(readView, entity)
 
     strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.y[entity], 3), roundNumberToPlaces(y, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.z[entity], 3), roundNumberToPlaces(z, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.w[entity], 3), roundNumberToPlaces(w, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(y, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(z, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(w, 3))
   })
 
   it('should writeCompressedVector3', () => {
@@ -237,7 +237,7 @@ describe('DataWriter', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    setComponent(entity, LocalTransformComponent, {
+    setComponent(entity, TransformComponent, {
       position: new Vector3().set(posX, posY, posZ),
       rotation: new Quaternion().set(rotX, rotY, rotZ, rotW),
       scale: new Vector3(1, 1, 1)
@@ -263,10 +263,10 @@ describe('DataWriter', () => {
     readRotation(readView, entity)
 
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
   })
 
   // it('should writeXRHands', () => {
@@ -354,16 +354,16 @@ describe('DataWriter', () => {
   //         readRotation(readView, entity)
 
   //         // Round values to 3 decimal places and compare
-  //         strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-  //         strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-  //         strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-  //         strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+  //         strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+  //         strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+  //         strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+  //         strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
   //       })
   //     })
   //   })
   // })
 
-  it('should writeEntity with only LocalTransformComponent', () => {
+  it('should writeEntity with only TransformComponent', () => {
     const writeView = createViewCursor()
     const entity = createEntity()
     const networkId = 999 as NetworkId
@@ -378,7 +378,7 @@ describe('DataWriter', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    setComponent(entity, LocalTransformComponent, {
+    setComponent(entity, TransformComponent, {
       position: new Vector3().set(posX, posY, posZ),
       rotation: new Quaternion().set(rotX, rotY, rotZ, rotW),
       scale: new Vector3(1, 1, 1)
@@ -410,7 +410,7 @@ describe('DataWriter', () => {
     // read owner index
     strictEqual(readUint32(readView), ownerIndex)
 
-    // read writeEntity changeMask (only reading LocalTransformComponent)
+    // read writeEntity changeMask (only reading TransformComponent)
     strictEqual(readUint8(readView), 0b01)
 
     // read writeTransform changeMask
@@ -428,10 +428,10 @@ describe('DataWriter', () => {
     readRotation(readView, entity)
 
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
   })
 
   it('should writeEntities', () => {
@@ -458,7 +458,7 @@ describe('DataWriter', () => {
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
-      setComponent(entity, LocalTransformComponent, {
+      setComponent(entity, TransformComponent, {
         position: new Vector3().set(posX, posY, posZ),
         rotation: new Quaternion().set(rotX, rotY, rotZ, rotW),
         scale: new Vector3(1, 1, 1)
@@ -500,7 +500,7 @@ describe('DataWriter', () => {
       // read owner index
       strictEqual(readUint32(readView), entities[i])
 
-      // read writeEntity changeMask (only reading LocalTransformComponent)
+      // read writeEntity changeMask (only reading TransformComponent)
       strictEqual(readUint8(readView), 0b01)
 
       // read writeTransform changeMask
@@ -518,10 +518,10 @@ describe('DataWriter', () => {
       readRotation(readView, entities[i])
 
       // Round values to 3 decimal places and compare
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.x[entities[i]], 3), roundNumberToPlaces(rotX, 3))
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.y[entities[i]], 3), roundNumberToPlaces(rotY, 3))
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.z[entities[i]], 3), roundNumberToPlaces(rotZ, 3))
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.w[entities[i]], 3), roundNumberToPlaces(rotW, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entities[i]], 3), roundNumberToPlaces(rotX, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entities[i]], 3), roundNumberToPlaces(rotY, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entities[i]], 3), roundNumberToPlaces(rotZ, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entities[i]], 3), roundNumberToPlaces(rotW, 3))
     }
   })
 
@@ -550,7 +550,7 @@ describe('DataWriter', () => {
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
-      setComponent(entity, LocalTransformComponent, {
+      setComponent(entity, TransformComponent, {
         position: new Vector3().set(posX, posY, posZ),
         rotation: new Quaternion().set(rotX, rotY, rotZ, rotW),
         scale: new Vector3(1, 1, 1)
@@ -595,7 +595,7 @@ describe('DataWriter', () => {
       // read owner index
       strictEqual(readUint32(readView), entities[i])
 
-      // read writeEntity changeMask (only reading LocalTransformComponent)
+      // read writeEntity changeMask (only reading TransformComponent)
       strictEqual(readUint8(readView), 0b01)
 
       // read writeTransform changeMask
@@ -613,10 +613,10 @@ describe('DataWriter', () => {
       readRotation(readView, entities[i])
 
       // Round values to 3 decimal places and compare
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.x[entities[i]], 3), roundNumberToPlaces(rotX, 3))
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.y[entities[i]], 3), roundNumberToPlaces(rotY, 3))
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.z[entities[i]], 3), roundNumberToPlaces(rotZ, 3))
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.w[entities[i]], 3), roundNumberToPlaces(rotW, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entities[i]], 3), roundNumberToPlaces(rotX, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entities[i]], 3), roundNumberToPlaces(rotY, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entities[i]], 3), roundNumberToPlaces(rotZ, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entities[i]], 3), roundNumberToPlaces(rotW, 3))
     }
   })
 })

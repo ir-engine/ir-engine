@@ -28,6 +28,7 @@ import { DoubleSide, Group, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture
 
 import { defineState } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { isMobile } from '../../common/functions/isMobile'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { Entity } from '../../ecs/classes/Entity'
@@ -82,7 +83,7 @@ export const VideoComponent = defineComponent({
       side: DoubleSide as Side,
       size: new Vector2(1, 1),
       fit: 'contain' as ContentFitType,
-      mediaUUID: '',
+      mediaUUID: '' as EntityUUID,
       videoGroup,
       videoMesh
     }
@@ -129,7 +130,7 @@ function VideoReactor() {
   const entity = useEntityContext()
   const video = useComponent(entity, VideoComponent)
   const mediaUUID = video.mediaUUID.value
-  const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID] ?? entity
+  const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) ?? entity
 
   useEffect(() => {
     video.videoGroup.value.add(video.videoMesh.value)
