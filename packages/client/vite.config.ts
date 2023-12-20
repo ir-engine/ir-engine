@@ -328,7 +328,7 @@ export default defineConfig(async () => {
     },
     build: {
       target: 'esnext',
-      sourcemap: process.env.VITE_SOURCEMAPS === 'true' ? 'inline' : false,
+      sourcemap: process.env.VITE_SOURCEMAPS === 'true' ? true : false,
       minify: 'terser',
       dynamicImportVarsOptions: {
         warnOnError: true
