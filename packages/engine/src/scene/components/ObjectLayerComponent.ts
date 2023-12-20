@@ -23,25 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { Types } from 'bitecs'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 const maxBitWidth = 32
 export const ObjectLayerComponents = Array.from({ length: maxBitWidth }, (v, i) => {
   return defineComponent({
-    name: `ObjectLayer${i}`
+    name: `ObjectLayer${i}`,
+
+    onSet(entity, component) {
+      ObjectLayerComponent.mask[entity] |= (1 << i) | 0
+    },
+
+    onRemove(entity, component) {
+      ObjectLayerComponent.mask[entity] &= ~((1 << i) | 0)
+    }
   })
 })
 
 export const ObjectLayerComponent = defineComponent({
   name: 'ObjectLayerComponent',
+  schema: { mask: Types.ui32 },
 
-  onInit(entity) {
-    return 1 | 0
+  onSet(entity, component) {
+    ObjectLayerComponent.enableLayers(entity, 1 | 0)
   },
 
-  onSet(entity, component, layer) {
-    if (layer !== undefined) {
-      ObjectLayerComponent.enableLayers(entity, layer)
+  setLayer(entity, layer: number) {
+    for (let i = 0; i < maxBitWidth; i++) {
+      if (i == layer) {
+        setComponent(entity, ObjectLayerComponents[i])
+      } else {
+        removeComponent(entity, ObjectLayerComponents[i])
+      }
     }
   },
 
@@ -55,5 +70,55 @@ export const ObjectLayerComponent = defineComponent({
     for (const layer of layers) {
       removeComponent(entity, ObjectLayerComponents[layer])
     }
+  },
+
+  toggleLayer(entity, layer: number) {
+    if (hasComponent(entity, ObjectLayerComponents[layer])) {
+      ObjectLayerComponent.disableLayers(entity, layer)
+    } else {
+      ObjectLayerComponent.enableLayers(entity, layer)
+    }
   }
 })
+
+export class Layer {
+  constructor(public entity: Entity) {
+    setComponent(entity, ObjectLayerComponent)
+  }
+
+  get mask() {
+    return ObjectLayerComponent.mask[this.entity]
+  }
+
+  set(channel: number) {
+    ObjectLayerComponent.setLayer(this.entity, channel)
+  }
+
+  enable(channel: number) {
+    ObjectLayerComponent.enableLayers(this.entity, channel)
+  }
+
+  enableAll() {
+    ObjectLayerComponent.enableLayers(this.entity, ...[...Array(maxBitWidth).keys()])
+  }
+
+  toggle(channel: number) {
+    ObjectLayerComponent.toggleLayer(this.entity, channel)
+  }
+
+  disable(channel: number) {
+    ObjectLayerComponent.disableLayers(this.entity, channel)
+  }
+
+  disableAll() {
+    ObjectLayerComponent.disableLayers(this.entity, ...[...Array(maxBitWidth).keys()])
+  }
+
+  test(layers: Layer) {
+    return (this.mask & layers.mask) !== 0
+  }
+
+  isEnabled(channel: number) {
+    return (this.mask & ((1 << channel) | 0)) !== 0
+  }
+}

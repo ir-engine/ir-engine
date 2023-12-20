@@ -45,13 +45,13 @@ import {
 
 import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
 import { NO_PROXY, useState } from '@etherealengine/hyperflux'
-import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GeometryTypeEnum } from '../constants/GeometryTypeEnum'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { ObjectLayerComponent } from './ObjectLayerComponent'
 
 export const PrimitiveGeometryComponent = defineComponent({
   name: 'PrimitiveGeometryComponent',
@@ -136,7 +136,7 @@ function GeometryReactor() {
     mesh.value.visible = true
     mesh.value.updateMatrixWorld(true)
     addObjectToGroup(entity, mesh.value)
-    setComponent(entity, ObjectLayerComponent, ObjectLayers.Scene)
+    setObjectLayers(mesh.value, ObjectLayers.Scene)
 
     return () => {
       removeObjectFromGroup(entity, mesh.value)

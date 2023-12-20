@@ -36,9 +36,9 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
-import { ObjectLayerComponent } from './ObjectLayerComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
 export const ScenePreviewCameraComponent = defineComponent({
@@ -85,7 +85,7 @@ export const ScenePreviewCameraComponent = defineComponent({
       helper.name = `scene-preview-helper-${entity}`
       const helperEntity = createEntity()
       addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, ObjectLayerComponent, ObjectLayers.NodeHelper)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
       setComponent(helperEntity, NameComponent, helper.name)
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)

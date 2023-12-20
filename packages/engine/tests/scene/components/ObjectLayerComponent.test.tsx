@@ -27,11 +27,11 @@ import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { destroyEngine } from '../../../src/ecs/classes/Engine'
-import { setComponent } from '../../../src/ecs/functions/ComponentFunctions'
+import { hasComponent, setComponent } from '../../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../src/initializeEngine'
 import { addObjectToGroup } from '../../../src/scene/components/GroupComponent'
-import { ObjectLayerComponent } from '../../../src/scene/components/ObjectLayerComponent'
+import { Layer, ObjectLayerComponent } from '../../../src/scene/components/ObjectLayerComponent'
 import { loadEmptyScene } from '../../util/loadEmptyScene'
 
 describe('ObjectLayerComponent', () => {
@@ -44,7 +44,7 @@ describe('ObjectLayerComponent', () => {
     return destroyEngine()
   })
 
-  it('Sets objectLayers on group', async () => {
+  it('Sets objectLayers on group', () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial({ color: 0xffff00 })
@@ -54,13 +54,14 @@ describe('ObjectLayerComponent', () => {
     const nonEnabledObjectLayer = 5
 
     addObjectToGroup(entity, mesh)
-    setComponent(entity, ObjectLayerComponent, objectLayer)
+    mesh.layers.enable(objectLayer)
 
+    assert(hasComponent(entity, ObjectLayerComponent))
     assert(mesh.layers.isEnabled(objectLayer))
     assert(!mesh.layers.isEnabled(nonEnabledObjectLayer))
   })
 
-  it('Sets objectLayers on group multiple', async () => {
+  it('Sets objectLayers on group multiple', () => {
     const meshCount = 10
 
     const entity = createEntity()
@@ -86,7 +87,7 @@ describe('ObjectLayerComponent', () => {
     }
   })
 
-  it('Updates objectLayers on group', async () => {
+  it('Updates objectLayers on group', () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial({ color: 0xffff00 })
@@ -110,5 +111,57 @@ describe('ObjectLayerComponent', () => {
     assert(mesh.layers.isEnabled(4))
     assert(!mesh.layers.isEnabled(2))
     assert(!mesh.layers.isEnabled(3))
+  })
+
+  it('Layer object updates correctly', () => {
+    const maxLayers = 32
+
+    const entity = createEntity()
+    const layer = new Layer(entity)
+
+    assert(layer.isEnabled(1))
+
+    const enabledLayers = [2, 3, 4]
+
+    for (const enabledLayer of enabledLayers) {
+      layer.enable(enabledLayer)
+      assert(layer.isEnabled(enabledLayer))
+    }
+
+    const disabledLayers = [2, 3, 5]
+    for (const disabledLayer of disabledLayers) {
+      layer.disable(disabledLayer)
+      assert(!layer.isEnabled(disabledLayer))
+    }
+    assert(layer.isEnabled(4))
+
+    layer.disableAll()
+    assert(layer.mask === 0)
+    for (let i = 0; i < maxLayers; i++) {
+      assert(!layer.isEnabled(i))
+    }
+
+    layer.enableAll()
+    assert(layer.mask.valueOf() === 0xffffffff)
+    for (let i = 0; i < maxLayers; i++) {
+      assert(layer.isEnabled(i))
+    }
+
+    layer.toggle(4)
+    assert(!layer.isEnabled(4))
+    layer.toggle(4)
+    assert(layer.isEnabled(4))
+
+    const entity2 = createEntity()
+    const entity3 = createEntity()
+    const layer2 = new Layer(entity2)
+    const layer3 = new Layer(entity3)
+
+    layer2.enable(2)
+    layer2.enable(3)
+    layer2.enable(4)
+    layer3.enable(3)
+
+    assert(layer2.test(layer3))
   })
 })

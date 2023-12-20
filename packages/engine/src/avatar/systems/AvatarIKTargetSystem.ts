@@ -32,9 +32,9 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { ObjectLayerComponent } from '../../scene/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { AvatarMovementSystem } from './AvatarMovementSystem'
@@ -54,7 +54,7 @@ const execute = () => {
 
     const helper = new AxesHelper(0.5)
     addObjectToGroup(entity, helper)
-    setComponent(entity, ObjectLayerComponent, ObjectLayers.Gizmos)
+    setObjectLayers(helper, ObjectLayers.Gizmos)
     setComponent(entity, VisibleComponent)
   }
 }

@@ -43,7 +43,6 @@ import {
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { ObjectLayerComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
 import { RenderOrderComponent } from '@etherealengine/engine/src/scene/components/RenderOrderComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
@@ -60,6 +59,7 @@ import type { WebLayer3D } from '@etherealengine/xrui'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
@@ -87,8 +87,6 @@ const LoadingUISystemState = defineState({
     )
     mesh.frustumCulled = false
 
-    setComponent(ui.entity, RenderOrderComponent, 1)
-    setComponent(ui.entity, ObjectLayerComponent, ObjectLayers.UI)
     setComponent(meshEntity, NameComponent, 'Loading XRUI Mesh')
 
     setComputedTransformComponent(meshEntity, Engine.instance.cameraEntity, () => {
@@ -99,6 +97,8 @@ const LoadingUISystemState = defineState({
 
     setComponent(meshEntity, VisibleComponent)
     addObjectToGroup(meshEntity, mesh)
+    setComponent(ui.entity, RenderOrderComponent, 1)
+    setObjectLayers(mesh, ObjectLayers.UI)
 
     getComponent(meshEntity, TransformComponent).scale.set(-1, 1, -1)
 

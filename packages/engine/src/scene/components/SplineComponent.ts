@@ -41,12 +41,11 @@ import {
 
 import { useEffect } from 'react'
 
-import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { ObjectLayerComponent } from './ObjectLayerComponent'
 
 const ARC_SEGMENTS = 200
 const _point = new Vector3()
@@ -94,7 +93,7 @@ export const SplineComponent = defineComponent({
       line.layers.set(ObjectLayers.NodeHelper)
       line.name = `${entity}-line`
       addObjectToGroup(entity, line)
-      setComponent(entity, ObjectLayerComponent, ObjectLayers.NodeHelper)
+      setObjectLayers(line, ObjectLayers.NodeHelper)
 
       const geometry = new SphereGeometry(0.05, 4, 2)
 

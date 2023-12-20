@@ -55,10 +55,10 @@ import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { ObjectLayerComponent } from '../../scene/components/ObjectLayerComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
@@ -176,7 +176,7 @@ export const AvatarRigComponent = defineComponent({
       addObjectToGroup(helperEntity, helper)
       rigComponent.helperEntity.set(helperEntity)
       setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, ObjectLayerComponent, ObjectLayers.AvatarHelper)
+      setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
       setComputedTransformComponent(helperEntity, entity, () => {
         const helperTransform = getComponent(helperEntity, TransformComponent)

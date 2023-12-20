@@ -37,9 +37,9 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
-import { ObjectLayerComponent } from './ObjectLayerComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
 export const PointLightComponent = defineComponent({
@@ -155,7 +155,7 @@ export const PointLightComponent = defineComponent({
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
 
-      setComponent(helperEntity, ObjectLayerComponent, ObjectLayers.NodeHelper)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
 
       light.helperEntity.set(helperEntity)
 

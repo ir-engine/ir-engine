@@ -36,9 +36,9 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { setObjectLayers } from '../functions/setObjectLayers'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
-import { ObjectLayerComponent } from './ObjectLayerComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
 export const DirectionalLightComponent = defineComponent({
@@ -160,7 +160,7 @@ export const DirectionalLightComponent = defineComponent({
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
 
-      setComponent(helperEntity, ObjectLayerComponent, ObjectLayers.NodeHelper)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
 
       light.helperEntity.set(helperEntity)
 

@@ -49,8 +49,8 @@ import { createTransitionState } from '../../xrui/functions/createTransitionStat
 import { SceneLoadingSystem } from '../SceneModule'
 import { PortalEffect } from '../classes/PortalEffect'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { setObjectLayers } from '../functions/setObjectLayers'
 import { GroupComponent, addObjectToGroup } from './GroupComponent'
-import { ObjectLayerComponent } from './ObjectLayerComponent'
 import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'
 import { VisibleComponent } from './VisibleComponent'
 
@@ -63,7 +63,7 @@ export const HyperspaceTagComponent = defineComponent({
     const hyperspaceEffectEntity = createEntity()
     const hyperspaceEffect = new PortalEffect()
     addObjectToGroup(hyperspaceEffectEntity, hyperspaceEffect)
-    setComponent(hyperspaceEffectEntity, ObjectLayerComponent, ObjectLayers.Portal)
+    setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
 
     AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/galaxyTexture.jpg`).then(
       (texture) => {

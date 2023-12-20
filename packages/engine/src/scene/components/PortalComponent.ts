@@ -64,11 +64,11 @@ import { RendererState } from '../../renderer/RendererState'
 import { portalPath } from '../../schemas/projects/portal.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { setObjectLayers } from '../functions/setObjectLayers'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
-import { ObjectLayerComponent } from './ObjectLayerComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
@@ -203,7 +203,7 @@ export const PortalComponent = defineComponent({
       const helperEntity = createEntity()
 
       addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, ObjectLayerComponent, ObjectLayers.NodeHelper)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
       setComponent(helperEntity, NameComponent, helper.name)
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)

@@ -44,6 +44,7 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Layer } from './ObjectLayerComponent'
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
@@ -78,6 +79,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.matrixWorldAutoUpdate = false
   obj.matrix = transform.matrix
   obj.matrixWorld = transform.matrixWorld
+  obj.layers = new Layer(entity)
 
   Object.assign(obj, {
     updateWorldMatrix: () => {}

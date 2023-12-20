@@ -37,9 +37,9 @@ import { setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, EntityContext } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { ObjectLayerComponent } from '../../scene/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
@@ -76,7 +76,7 @@ export function createXRUI<S extends State<any> | null>(
   root.name = containerElement.id
   root.add(container)
   addObjectToGroup(entity, root)
-  setComponent(entity, ObjectLayerComponent, ObjectLayers.UI)
+  setObjectLayers(container, ObjectLayers.UI)
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, XRUIComponent, container)
   setComponent(entity, VisibleComponent, true)
