@@ -73,6 +73,7 @@ import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
 import { EditPermissionsDialog } from './EditPermissionsDialog'
 
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import styles from './styles.module.scss'
 
 const logger = multiLogger.child({ component: 'editor:ProjectsPage' })

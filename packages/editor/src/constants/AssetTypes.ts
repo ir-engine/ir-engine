@@ -54,6 +54,7 @@ export const ItemTypes = {
   Volumetrics: ['manifest'],
   Text: [AssetType.PlainText, 'txt'],
   ECS: ['scene.json'],
+  Graph: ['graph.json'],
   Node: 'Node',
   Material: 'Material',
   Component: 'Component'
