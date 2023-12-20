@@ -78,7 +78,7 @@ export class WebLayerManager extends WebLayerManagerBase {
         this._compressedTexturePromise.set(textureData.hash, resolve)
         AssetLoader.load(
           ktx2Url,
-          {},
+          { forceAssetType: AssetType.KTX2 },
           (t) => {
             t.wrapS = ClampToEdgeWrapping
             t.wrapT = ClampToEdgeWrapping
@@ -88,8 +88,7 @@ export class WebLayerManager extends WebLayerManagerBase {
             resolve(undefined)
           },
           undefined,
-          () => {},
-          AssetType.KTX2
+          () => {}
         )
       })
     }
