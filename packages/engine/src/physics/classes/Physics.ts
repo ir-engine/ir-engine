@@ -57,7 +57,6 @@ import { V_000 } from '../../common/constants/MathConstants'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   getComponent,
   getOptionalComponent,
   removeComponent,
@@ -396,7 +395,7 @@ function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
   rigidBody.setBodyType(newType, false)
 
   const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody.bodyType())
-  addComponent(entity, newRigidBodyComponent, true)
+  setComponent(entity, newRigidBodyComponent, true)
 }
 
 export type RaycastArgs = {
