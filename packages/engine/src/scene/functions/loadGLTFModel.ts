@@ -43,6 +43,7 @@ import {
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ComponentJsonType, EntityJsonType } from '../../schemas/projects/scene.schema'
+import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -289,7 +290,8 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   bone.isBone && setComponent(objEntity, BoneComponent, bone)
 
   const skinnedMesh = obj as SkinnedMesh
-  skinnedMesh.isSkinnedMesh && setComponent(objEntity, SkinnedMeshComponent, skinnedMesh)
+  if (skinnedMesh.isSkinnedMesh) setComponent(objEntity, SkinnedMeshComponent, skinnedMesh)
+  else setComponent(objEntity, FrustumCullCameraComponent)
 
   if (obj.userData['componentJson']) {
     eJson.components.push(...obj.userData['componentJson'])
