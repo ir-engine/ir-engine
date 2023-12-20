@@ -195,7 +195,7 @@ export class FileBrowserService
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
 
-    await Promise.all([storageProvider.createInvalidation([_oldPath]), storageProvider.createInvalidation([_newPath])])
+    await storageProvider.createInvalidation([_oldPath, _newPath])
 
     const staticResource = (await this.app.service(staticResourcePath).find({
       query: {
