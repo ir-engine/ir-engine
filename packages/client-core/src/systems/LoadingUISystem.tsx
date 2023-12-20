@@ -82,9 +82,11 @@ const LoadingUISystemState = defineState({
     const meshEntity = createEntity()
     const mesh = new Mesh(
       new SphereGeometry(10),
-      new MeshBasicMaterial({ side: BackSide, transparent: true, depthWrite: true, depthTest: false })
+      new MeshBasicMaterial({ side: BackSide, transparent: true, depthWrite: true, depthTest: false, fog: false })
     )
+    mesh.frustumCulled = false
 
+    setComponent(meshEntity, NameComponent, 'Loading XRUI Mesh')
     mesh.renderOrder = 1
     setObjectLayers(mesh, ObjectLayers.UI)
 
@@ -131,7 +133,6 @@ function LoadingReactor() {
   const loadingState = useHookstate(getMutableState(AppLoadingState))
   const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress)
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
-  const userReady = useHookstate(getMutableState(EngineState).userReady)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const meshEntity = state.meshEntity.value
@@ -145,14 +146,9 @@ function LoadingReactor() {
     if (loadingState.state.value === AppLoadingStates.FAIL && transition.state === 'IN')
       return transition.setState('OUT')
 
-    if (
-      loadingState.state.value === AppLoadingStates.SUCCESS &&
-      transition.state === 'IN' &&
-      userReady.value &&
-      sceneLoaded.value
-    )
+    if (loadingState.state.value === AppLoadingStates.SUCCESS && transition.state === 'IN' && sceneLoaded.value)
       return transition.setState('OUT')
-  }, [loadingState.state, userReady, sceneLoaded])
+  }, [loadingState.state, sceneLoaded])
 
   /** Scene data changes */
   useEffect(() => {
@@ -171,6 +167,8 @@ function LoadingReactor() {
         {},
         (texture: Texture | CompressedTexture) => {
           mesh.material.map = texture
+          mesh.material.needsUpdate = true
+          mesh.material.map.needsUpdate = true
           const compressedTexture = texture as CompressedTexture
           if (compressedTexture.isCompressedTexture) {
             try {

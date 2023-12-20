@@ -32,7 +32,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import { animationStates, defaultAnimationPath } from '@etherealengine/engine/src/avatar/animation/Util'
+import { emoteAnimationPath, emoteAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -69,7 +69,7 @@ export const useEmoteMenuHooks = () => {
         />
       ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.wave)
+        onClick: () => playAnimation(emoteAnimations.wave)
       }
     },
     {
@@ -84,7 +84,7 @@ export const useEmoteMenuHooks = () => {
         />
       ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.clap)
+        onClick: () => playAnimation(emoteAnimations.clap)
       }
     },
     {
@@ -99,7 +99,7 @@ export const useEmoteMenuHooks = () => {
         />
       ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.dance1)
+        onClick: () => playAnimation(emoteAnimations.dance1)
       }
     },
     {
@@ -114,7 +114,7 @@ export const useEmoteMenuHooks = () => {
         />
       ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.dance2)
+        onClick: () => playAnimation(emoteAnimations.dance2)
       }
     },
     {
@@ -129,7 +129,7 @@ export const useEmoteMenuHooks = () => {
         />
       ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.dance3)
+        onClick: () => playAnimation(emoteAnimations.dance3)
       }
     },
     {
@@ -144,7 +144,7 @@ export const useEmoteMenuHooks = () => {
         />
       ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.dance4)
+        onClick: () => playAnimation(emoteAnimations.dance4)
       }
     },
     {
@@ -159,7 +159,7 @@ export const useEmoteMenuHooks = () => {
         />
       ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.kiss)
+        onClick: () => playAnimation(emoteAnimations.kiss)
       }
     },
     {
@@ -174,7 +174,7 @@ export const useEmoteMenuHooks = () => {
         />
       ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.cry)
+        onClick: () => playAnimation(emoteAnimations.cry)
       }
     },
     {
@@ -189,7 +189,7 @@ export const useEmoteMenuHooks = () => {
         />
       ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.laugh)
+        onClick: () => playAnimation(emoteAnimations.laugh)
       }
     },
     {
@@ -204,7 +204,7 @@ export const useEmoteMenuHooks = () => {
         />
       ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.defeat)
+        onClick: () => playAnimation(emoteAnimations.defeat)
       }
     }
   ])
@@ -232,11 +232,11 @@ export const useEmoteMenuHooks = () => {
     effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
   }
 
-  const runAnimation = (stateName: string) => {
+  const playAnimation = (stateName: string) => {
     const entity = Engine.instance.localClientEntity
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
-        filePath: defaultAnimationPath + stateName + '.fbx',
+        filePath: emoteAnimationPath + stateName + '.fbx',
         loop: false,
         layer: 0,
         entityUUID: getComponent(entity, UUIDComponent)

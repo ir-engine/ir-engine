@@ -51,7 +51,8 @@ export const ikTargets = {
   leftKneeHint: 'leftKneeHint'
 }
 
-export const animationStates = {
+/** list out all the emote animation file names */
+export const emoteAnimations = {
   dance1: 'dance1',
   dance2: 'dance2',
   dance3: 'dance3',
@@ -62,12 +63,20 @@ export const animationStates = {
   cry: 'cry',
   laugh: 'laugh',
   defeat: 'defeat',
-  locomotion: 'locomotion',
-  falling: 'falling',
+  falling: 'falling'
+}
+
+/** the locomotion animation file name */
+export const locomotionAnimation = 'locomotion'
+
+/** list out all the optionally loaded animations */
+export const optionalAnimations = {
   seated: 'seated'
 }
 
 export const defaultAnimationPath = `${config.client.fileServer}/projects/default-project/assets/animations/`
+export const optionalAnimationPath = `${config.client.fileServer}/projects/default-project/assets/animations/optional/`
+export const emoteAnimationPath = defaultAnimationPath + 'emotes/'
 
 export const matchesIkTarget = matches.some(
   ...Object.keys(ikTargets).map((k: keyof typeof ikTargets) => matches.literal(k))

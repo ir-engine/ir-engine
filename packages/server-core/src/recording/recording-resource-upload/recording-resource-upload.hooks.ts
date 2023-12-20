@@ -23,33 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, ShaderMaterial } from 'three'
+import { disallow } from 'feathers-hooks-common'
+import { SYNC } from 'feathers-sync'
 
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-
-export type MaterialMap = {
-  id: string
-  material: Material
-}
-
-export const AvatarEffectComponent = defineComponent({
-  name: 'AvatarEffectComponent',
-  onInit: (entity) => {
-    return {
-      sourceEntity: null! as Entity,
-      opacityMultiplier: 1,
-      dissolveMaterials: [] as Array<ShaderMaterial>,
-      originMaterials: [] as Array<MaterialMap>
-    }
+export default {
+  before: {
+    all: [],
+    find: [disallow()],
+    get: [disallow()],
+    create: [
+      disallow('external'),
+      (context) => {
+        context[SYNC] = false
+        return context
+      }
+    ],
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (json.sourceEntity) component.sourceEntity.set(json.sourceEntity)
-    if (json.opacityMultiplier) component.opacityMultiplier.set(json.opacityMultiplier)
-    if (json.dissolveMaterials) component.dissolveMaterials.set(json.dissolveMaterials as Array<ShaderMaterial>)
-    if (json.originMaterials) component.originMaterials.set(json.originMaterials as Array<MaterialMap>)
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
   }
-})
+} as any

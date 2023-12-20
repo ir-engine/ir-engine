@@ -30,7 +30,6 @@ import {
   CubeTexture,
   Mesh,
   RGBAFormat,
-  Scene,
   ShaderMaterial,
   UniformsLib,
   UniformsUtils,
@@ -255,7 +254,6 @@ export class Sky {
     }
   ])
 
-  skyScene: Scene
   cubeCamera: CubeCamera
   sky: Mesh<BoxGeometry, ShaderMaterial>
 
@@ -277,14 +275,11 @@ export class Sky {
       })
     )
 
-    this.skyScene = new Scene()
     this.cubeCamera = new CubeCamera(
       1,
       100000,
       new WebGLCubeRenderTarget(512, { format: RGBAFormat, type: UnsignedByteType })
     )
-    this.skyScene.add(this.cubeCamera)
-    this.skyScene.add(this.sky)
     this.sky.name = 'Sky'
 
     this._inclination = 0
@@ -367,7 +362,7 @@ export class Sky {
   }
 
   generateSkyboxTextureCube(renderer: WebGLRenderer): CubeTexture {
-    this.cubeCamera.update(renderer, this.skyScene)
+    this.cubeCamera.update(renderer, this.sky)
     return this.cubeCamera.renderTarget.texture
   }
 
@@ -385,6 +380,7 @@ export class Sky {
   }
 
   dispose() {
-    this.skyScene.traverse(disposeObject3D)
+    disposeObject3D(this.sky)
+    disposeObject3D(this.cubeCamera)
   }
 }

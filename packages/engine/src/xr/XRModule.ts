@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { XR8System } from './8thwall/XR8'
 import { VPSSystem } from './VPSSystem'
 import { XRAnchorSystem } from './XRAnchorSystem'
-import { XRCameraSystem } from './XRCameraSystem'
+import { XRCameraInputSystem, XRCameraUpdateSystem } from './XRCameraSystem'
 import { XRCameraViewSystem } from './XRCameraViewSystem'
 import { XRDetectedMeshSystem } from './XRDetectedMeshSystem'
 import { XRHapticsSystem } from './XRHapticsSystem'
@@ -40,7 +40,8 @@ export {
   XRPersistentAnchorSystem,
   VPSSystem,
   XRAnchorSystem,
-  XRCameraSystem,
+  XRCameraInputSystem,
+  XRCameraUpdateSystem,
   XRCameraViewSystem,
   XRDetectedMeshSystem,
   XRHapticsSystem,

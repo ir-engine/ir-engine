@@ -29,25 +29,16 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import {
-  defineActionQueue,
-  defineState,
-  dispatchAction,
-  getState,
-  none,
-  receiveActions
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, dispatchAction, none, receiveActions } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { SceneState } from '../../ecs/classes/Scene'
 import { getMutableComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export const EntityNetworkState = defineState({
@@ -69,22 +60,11 @@ export const EntityNetworkState = defineState({
     [
       WorldNetworkAction.spawnObject,
       (state, action: typeof WorldNetworkAction.spawnObject.matches._TYPE) => {
-        const entity = UUIDComponent.entitiesByUUID[action.entityUUID] ?? createEntity()
-        setComponent(entity, UUIDComponent, action.entityUUID)
+        const entity = UUIDComponent.getOrCreateEntityByUUID(action.entityUUID)
         setComponent(entity, NetworkObjectComponent, {
           ownerId: action.$from,
           authorityPeerID: action.$peer,
           networkId: action.networkId
-        })
-
-        setComponent(entity, TransformComponent)
-        const sceneState = getState(SceneState)
-        if (!sceneState.activeScene) {
-          throw new Error('Trying to spawn an object with no active scene')
-        }
-
-        setComponent(entity, EntityTreeComponent, {
-          parentEntity: SceneState.getRootEntity(getState(SceneState).activeScene!)
         })
 
         const spawnPosition = new Vector3()
@@ -93,7 +73,7 @@ export const EntityNetworkState = defineState({
         const spawnRotation = new Quaternion()
         if (action.rotation) spawnRotation.copy(action.rotation)
 
-        setComponent(entity, LocalTransformComponent, { position: spawnPosition, rotation: spawnRotation })
+        setComponent(entity, TransformComponent, { position: spawnPosition, rotation: spawnRotation })
 
         state[action.entityUUID].merge({
           ownerId: action.$from,
@@ -122,7 +102,7 @@ export const EntityNetworkState = defineState({
         }
 
         state[action.entityUUID].set(none)
-        const entity = UUIDComponent.entitiesByUUID[action.entityUUID]
+        const entity = UUIDComponent.getEntityByUUID(action.entityUUID)
         if (!entity) return
         removeEntity(entity)
       }

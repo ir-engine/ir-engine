@@ -119,9 +119,9 @@ const restrictUserRemove = async (context: HookContext<UserService>) => {
   if (await checkScope(loggedInUser, 'user', 'write')) {
     const isRemovedUserAdmin =
       (
-        await context.app
-          .service(scopePath)
-          .find({ query: { userId: context.id as UserID, type: 'admin:admin' as ScopeType } })
+        await context.app.service(scopePath).find({
+          query: { userId: context.id as UserID, type: 'admin:admin' as ScopeType }
+        })
       ).total > 0
 
     if (isRemovedUserAdmin && !(await checkScope(loggedInUser, 'admin', 'admin'))) {
@@ -212,6 +212,10 @@ const updateInviteCode = async (context: HookContext<UserService>) => {
  */
 const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
   const data: UserType[] = Array.isArray(context['actualData']) ? context['actualData'] : [context['actualData']]
+
+  if (data.length === 1 && !data[0].id) {
+    data[0].id = context.id as UserID
+  }
 
   for (const item of data) {
     if (item?.avatarId) {
@@ -341,6 +345,7 @@ export default createSkippableHooks(
         iff(isProvider('external'), restrictUserPatch),
         () => schemaHooks.validateData(userPatchValidator),
         schemaHooks.resolveData(userPatchResolver),
+        persistData,
         disallowNonId,
         removeUserScopes,
         addUserScopes(false),

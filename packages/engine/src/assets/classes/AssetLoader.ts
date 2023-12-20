@@ -48,6 +48,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { isClient } from '../../common/functions/getEnvironment'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
+import { iOS } from '../../common/functions/isMobile'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -330,11 +331,13 @@ const assetLoadCallback =
         asset = { scene: asset }
       } else if (assetType === AssetType.VRM) {
         asset = asset.userData.vrm
+        asset.userData = { flipped: true }
       }
 
       if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
       if (asset.scene.userData) asset.scene.userData.type = assetType
       if (asset.userData) asset.userData.type = assetType
+      else asset.userData = { type: assetType }
 
       AssetLoader.processModelAsset(asset.scene, args)
       if (notGLTF) {
@@ -357,26 +360,63 @@ const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineSta
 
 type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
+  forceAssetType?: AssetType
   uuid?: string
   assetRoot?: Entity
 }
 
-const load = (
+const load = async (
   _url: string,
   args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {},
-  assetTypeOverride: AssetType = null!
+  onError = (event: ErrorEvent | Error) => {}
 ) => {
   if (!_url) {
     onError(new Error('URL is empty'))
     return
   }
-  const url = getAbsolutePath(_url)
+  let url = getAbsolutePath(_url)
 
-  const assetType = assetTypeOverride ? assetTypeOverride : AssetLoader.getAssetType(url)
+  const assetType = args.forceAssetType ? args.forceAssetType : AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
+  if (iOS && (assetType === AssetType.PNG || assetType === AssetType.JPEG)) {
+    const img = new Image()
+    img.crossOrigin = 'anonymous' //browser will yell without this
+    img.src = url
+    await img.decode() //new way to wait for image to load
+    // Initialize the canvas and it's size
+    const canvas = document.createElement('canvas') //dead dom elements? Remove after Three loads them
+    const ctx = canvas.getContext('2d')
+
+    // Set width and height
+    const originalWidth = img.width
+    const originalHeight = img.height
+
+    let resizingFactor = 1
+    if (originalWidth >= originalHeight) {
+      if (originalWidth > 1024) {
+        resizingFactor = 1024 / originalWidth
+      }
+    } else {
+      if (originalHeight > 1024) {
+        resizingFactor = 1024 / originalHeight
+      }
+    }
+
+    const canvasWidth = originalWidth * resizingFactor
+    const canvasHeight = originalHeight * resizingFactor
+
+    canvas.width = canvasWidth
+    canvas.height = canvasHeight
+
+    // Draw image and export to a data-uri
+    ctx?.drawImage(img, 0, 0, canvasWidth, canvasHeight)
+    const dataURI = canvas.toDataURL()
+
+    // Do something with the result, like overwrite original
+    url = dataURI
+  }
 
   const callback = assetLoadCallback(url, args, assetType, onLoad)
 
@@ -387,14 +427,9 @@ const load = (
   }
 }
 
-const loadAsync = async (
-  url: string,
-  args: LoadingArgs = {},
-  onProgress = (request: ProgressEvent) => {},
-  assetTypeOverride: AssetType = null!
-) => {
+const loadAsync = async (url: string, args: LoadingArgs = {}, onProgress = (request: ProgressEvent) => {}) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, args, resolve, onProgress, reject, assetTypeOverride)
+    load(url, args, resolve, onProgress, reject)
   })
 }
 

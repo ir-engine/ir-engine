@@ -79,6 +79,7 @@ const ProjectTable = ({ className }: Props) => {
     query: {
       allowed: true,
       $limit: 100,
+      action: 'admin',
       $sort: {
         name: 1
       }
@@ -389,6 +390,7 @@ const ProjectTable = ({ className }: Props) => {
       )}
 
       <ConfirmDialog
+        processing={processing}
         open={confirm.open}
         description={confirm.description}
         onClose={handleCloseConfirmation}

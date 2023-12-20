@@ -1,0 +1,9 @@
+{
+  "entryPoints": ["./packages"],
+  "name": "Ethereal Engine",
+  "entryPointStrategy": "packages",
+  "includeVersion": true,
+  "exclude": ["**/**.js", "**/{node_modules,dist,tests}/**","*/scripts/**","*/projects","*/projects/**","*/taskserver","*/ui","*/xrui","*/server","*/hyperflux","*/editor","*/instanceserver","*/matchmaking"]
+  // Potentially useful for debugging
+  // "logLevel": "Verbose"
+}

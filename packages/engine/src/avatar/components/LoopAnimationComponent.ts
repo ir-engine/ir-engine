@@ -48,7 +48,6 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CallbackComponent, StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { parseAvatarModelAsset } from '../functions/avatarFunctions'
 import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
 
@@ -120,29 +119,31 @@ export const LoopAnimationComponent = defineComponent({
     const entity = useEntityContext()
 
     const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
-
     const modelComponent = useOptionalComponent(entity, ModelComponent)
-
     const animComponent = useOptionalComponent(entity, AnimationComponent)
-
     const lastAnimationPack = useHookstate('')
 
     useEffect(() => {
-      const clip = animComponent?.animations[loopAnimationComponent.activeClipIndex.value].value
-      if (!animComponent || !modelComponent?.scene?.value || !clip) {
+      if (!animComponent?.animations?.value) return
+      const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value]
+      if (!modelComponent?.scene?.value || !clip) {
         loopAnimationComponent._action.set(null)
         return
       }
       animComponent.mixer.time.set(0)
       const assetObject = modelComponent.asset.get(NO_PROXY)
-      const action = animComponent.mixer.value.clipAction(
-        assetObject instanceof VRM ? retargetMixamoAnimation(clip, modelComponent.scene.value, assetObject) : clip
-      )
-      loopAnimationComponent._action.set(action)
-      return () => {
-        void action.stop()
+      try {
+        const action = animComponent.mixer.value.clipAction(
+          assetObject instanceof VRM ? retargetMixamoAnimation(clip, modelComponent.scene.value, assetObject) : clip
+        )
+        loopAnimationComponent._action.set(action)
+        return () => {
+          action.stop()
+        }
+      } catch (e) {
+        console.warn('Failed to retarget animation in LoopAnimationComponent', entity, e)
       }
-    }, [animComponent, loopAnimationComponent.activeClipIndex])
+    }, [animComponent?.animations, loopAnimationComponent.activeClipIndex])
 
     useEffect(() => {
       if (loopAnimationComponent._action.value?.isRunning()) {
@@ -207,14 +208,6 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (!modelComponent?.scene?.value) return
       const model = getComponent(entity, ModelComponent)
-      if (loopAnimationComponent.hasAvatarAnimations.value && !(model.asset as VRM)?.humanoid) {
-        const vrm = parseAvatarModelAsset(model.scene)
-        if (vrm) {
-          modelComponent.asset.set(vrm)
-        }
-      } else if (model.asset instanceof VRM) {
-        loopAnimationComponent.hasAvatarAnimations.set(true)
-      }
 
       if (!hasComponent(entity, AnimationComponent)) {
         setComponent(entity, AnimationComponent, {
@@ -233,12 +226,18 @@ export const LoopAnimationComponent = defineComponent({
       )
         return
 
-      AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
-        if (animComponent.promised) return
-        const animations = model.userData ? model.animations : model.scene.animations
+      let aborted = false
+
+      AssetLoader.loadAsync(loopAnimationComponent.animationPack.value).then((model) => {
+        if (aborted) return
+        const animations = model.animations ?? model.scene.animations
         lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
         animComponent.animations.set(animations)
       })
+
+      return () => {
+        aborted = true
+      }
     }, [animComponent, loopAnimationComponent.animationPack])
 
     return null
