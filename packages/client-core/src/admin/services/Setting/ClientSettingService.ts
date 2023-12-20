@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
+import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
@@ -35,7 +36,6 @@ import {
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import config from '../../../config'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
 const logger = multiLogger.child({ component: 'client-core:ClientSettingService' })

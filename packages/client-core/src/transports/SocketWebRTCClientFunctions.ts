@@ -37,6 +37,7 @@ import {
 import type { EventEmitter } from 'primus'
 import Primus from 'primus-client'
 
+import config from '@etherealengine/common/src/config'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
@@ -110,7 +111,6 @@ import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/function
 import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { LocationID, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { MessageID } from '@etherealengine/engine/src/schemas/social/message.schema'
-import config from '../config'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
