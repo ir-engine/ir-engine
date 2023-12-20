@@ -79,10 +79,7 @@ cli.main(async () => {
         cli.exit(1)
       } else cli.exit(0)
     } else {
-      console.log('buildErrors', buildErrors)
-      console.log('error match', /error/i.test(buildErrors))
-      console.log('fail match', /fail/i.test(buildErrors))
-      if (/error/i.test(buildErrors && !/'errors'/i.test(buildErrors)) || /fail/i.test(buildErrors)) {
+      if ((/error/i.test(buildErrors) && !/'errors'/i.test(buildErrors)) || /fail/i.test(buildErrors)) {
         const combinedLogs = `Task that errored: ${options.service}\n\nError logs:\n\n${buildErrors}\n\nTask logs:\n\n${buildLogs}`
         await knexClient
           .from<BuildStatusType>(buildStatusPath)

@@ -42,7 +42,6 @@ import { getClientSetting } from './scripts/getClientSettings'
 import { getCoilSetting } from './scripts/getCoilSettings'
 
 const parseModuleName = (moduleName: string) => {
-  if (moduleName.includes('pixiv')) console.log(moduleName)
   // // chunk medisoup-client
   if (moduleName.includes('medisoup')) {
     return `vendor_medisoup-client_${moduleName.toString().split('client/lib/')[1].split('/')[0].toString()}`
