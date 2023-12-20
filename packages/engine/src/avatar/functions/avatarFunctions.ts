@@ -127,7 +127,7 @@ export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
   if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
 
-  setComponent(entity, ModelComponent, { src: avatarURL })
+  setComponent(entity, ModelComponent, { src: avatarURL, cameraOcclusion: false })
 }
 
 export const unloadAvatarForUser = async (entity: Entity, avatarURL: string) => {
