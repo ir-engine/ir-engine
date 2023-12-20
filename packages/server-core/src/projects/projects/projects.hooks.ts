@@ -18,6 +18,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { disallow } from 'feathers-hooks-common'
+
 export default {
   around: {
     all: []
@@ -26,11 +28,11 @@ export default {
   before: {
     all: [],
     find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    get: [disallow()],
+    create: [disallow()],
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
   after: {
     all: [],

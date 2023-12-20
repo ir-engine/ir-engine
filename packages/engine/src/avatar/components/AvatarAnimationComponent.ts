@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBoneList, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import {
   AnimationAction,
@@ -40,28 +40,33 @@ import {
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { ModelComponent } from '../../scene/components/ModelComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { ObjectLayerComponent } from '../../scene/components/ObjectLayerComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
-import { PoseSchema, TransformComponent } from '../../transform/components/TransformComponent'
+import {
+  ComputedTransformComponent,
+  setComputedTransformComponent
+} from '../../transform/components/ComputedTransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
+import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -99,10 +104,6 @@ export const AvatarAnimationComponent = defineComponent({
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
 
-  schema: {
-    rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, PoseSchema]))
-  },
-
   onInit: (entity) => {
     return {
       /** Holds all the bones */
@@ -128,7 +129,9 @@ export const AvatarRigComponent = defineComponent({
       /** Cache of the skinned meshes currently on the rig */
       skinnedMeshes: [] as SkinnedMesh[],
       /** The VRM model */
-      vrm: null! as VRM
+      vrm: null! as VRM,
+
+      avatarURL: null as string | null
     }
   },
 
@@ -144,6 +147,12 @@ export const AvatarRigComponent = defineComponent({
     if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
     if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
+    if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
+  },
+
+  onRemove: (entity, component) => {
+    // ensure synchronously removed
+    if (component.helperEntity.value) removeComponent(component.helperEntity.value, ComputedTransformComponent)
   },
 
   reactor: function () {
@@ -152,6 +161,7 @@ export const AvatarRigComponent = defineComponent({
     const rigComponent = useComponent(entity, AvatarRigComponent)
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
     const visible = useOptionalComponent(entity, VisibleComponent)
+    const modelComponent = useOptionalComponent(entity, ModelComponent)
 
     useEffect(() => {
       if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
@@ -185,29 +195,42 @@ export const AvatarRigComponent = defineComponent({
     }, [visible, debugEnabled, pending, rigComponent.normalizedRig])
 
     useEffect(() => {
-      if (!rigComponent.value || !rigComponent.value.vrm) return
-      setupAvatarForUser(entity, rigComponent.value.vrm)
-      if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
-    }, [rigComponent.vrm])
-
-    /**
-     * Proxify the rig bones with the bitecs store
-     */
-    useEffect(() => {
-      const rig = rigComponent.normalizedRig.value
-      if (!rig) return
-      for (const [boneName, bone] of Object.entries(rig)) {
-        if (!bone) continue
-        proxifyVector3(AvatarRigComponent.rig[boneName].position, entity, bone.node.position)
-        proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity, bone.node.quaternion)
+      if (!modelComponent?.asset?.value) return
+      const model = getComponent(entity, ModelComponent)
+      setComponent(entity, AvatarRigComponent, {
+        vrm: model.asset as VRM,
+        avatarURL: model.src
+      })
+      return () => {
+        if (!entityExists(entity)) return
+        setComponent(entity, AvatarRigComponent, {
+          vrm: null!,
+          avatarURL: null
+        })
       }
-    }, [rigComponent.normalizedRig])
+    }, [modelComponent?.asset])
+
+    useEffect(() => {
+      if (!rigComponent.value || !rigComponent.value.vrm || !rigComponent.value.avatarURL) return
+      const rig = getComponent(entity, AvatarRigComponent)
+      try {
+        setupAvatarForUser(entity, rig.vrm)
+      } catch (e) {
+        console.error('Failed to load avatar', e)
+        if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
+      }
+    }, [rigComponent.vrm])
 
     const manager = useHookstate(getMutableState(AnimationState))
 
     useEffect(() => {
-      if (!manager.loadedAnimations.value) return
-      retargetAvatarAnimations(entity)
+      if (!manager.loadedAnimations.value || !rigComponent?.vrm?.value || !rigComponent?.normalizedRig?.value) return
+      try {
+        retargetAvatarAnimations(entity)
+      } catch (e) {
+        console.error('Failed to retarget avatar animations', e)
+        if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
+      }
     }, [manager.loadedAnimations, rigComponent.vrm])
 
     return null

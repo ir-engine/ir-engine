@@ -188,19 +188,18 @@ const removeAvatarResources = async (context: HookContext<AvatarService>) => {
  * @returns
  */
 const updateUserAvatars = async (context: HookContext<AvatarService>) => {
-  const avatars = (await context.app.service(avatarPath).find({
+  const avatars = await context.app.service(avatarPath).find({
     query: {
       id: {
         $ne: context.id?.toString() as AvatarID
       },
       isPublic: true,
       $limit: 1000
-    },
-    paginate: false
-  })) as AvatarType[]
+    }
+  })
 
-  if (avatars.length > 0) {
-    const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.length)]
+  if (avatars.data.length > 0) {
+    const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.data.length)]
     await context.app.service(userAvatarPath).patch(
       null,
       {

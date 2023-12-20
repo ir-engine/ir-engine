@@ -75,17 +75,6 @@ export const DirectionalLightComponent = defineComponent({
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
     if (matches.boolean.test(json.useInCSM)) component.useInCSM.set(json.useInCSM)
-
-    /**
-     * we need to put this here in case the CSM needs to grab the values, which can sometimes happen before the component reactor hooks
-     * @todo find a better way of doing this
-     */
-    component.light.value.color.set(component.color.value)
-    component.light.value.intensity = component.intensity.value
-    component.light.value.castShadow = component.castShadow.value
-    component.light.value.shadow.camera.far = component.cameraFar.value
-    component.light.value.shadow.bias = component.shadowBias.value
-    component.light.value.shadow.radius = component.shadowRadius.value
   },
 
   toJSON: (entity, component) => {

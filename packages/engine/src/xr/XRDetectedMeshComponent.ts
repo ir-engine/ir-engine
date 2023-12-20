@@ -36,7 +36,7 @@ import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/Gro
 import { NameComponent } from '../scene/components/NameComponent'
 import { RenderOrderComponent } from '../scene/components/RenderOrderComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
-import { LocalTransformComponent } from '../transform/components/TransformComponent'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { occlusionMat, placementHelperMaterial, shadowMaterial } from './XRDetectedPlaneComponent'
 import { ReferenceSpace, XRState } from './XRState'
 
@@ -143,19 +143,19 @@ export const XRDetectedMeshComponent = defineComponent({
   updateMeshPose: (entity: Entity, mesh: XRMesh) => {
     const planePose = getState(XRState).xrFrame!.getPose(mesh.meshSpace, ReferenceSpace.localFloor!)!
     if (!planePose) return
-    LocalTransformComponent.position.x[entity] = planePose.transform.position.x
-    LocalTransformComponent.position.y[entity] = planePose.transform.position.y
-    LocalTransformComponent.position.z[entity] = planePose.transform.position.z
-    LocalTransformComponent.rotation.x[entity] = planePose.transform.orientation.x
-    LocalTransformComponent.rotation.y[entity] = planePose.transform.orientation.y
-    LocalTransformComponent.rotation.z[entity] = planePose.transform.orientation.z
-    LocalTransformComponent.rotation.w[entity] = planePose.transform.orientation.w
+    TransformComponent.position.x[entity] = planePose.transform.position.x
+    TransformComponent.position.y[entity] = planePose.transform.position.y
+    TransformComponent.position.z[entity] = planePose.transform.position.z
+    TransformComponent.rotation.x[entity] = planePose.transform.orientation.x
+    TransformComponent.rotation.y[entity] = planePose.transform.orientation.y
+    TransformComponent.rotation.z[entity] = planePose.transform.orientation.z
+    TransformComponent.rotation.w[entity] = planePose.transform.orientation.w
   },
 
   foundMesh: (mesh: XRMesh) => {
     const entity = createEntity()
     setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-    setComponent(entity, LocalTransformComponent)
+    setComponent(entity, TransformComponent)
     setVisibleComponent(entity, true)
     setComponent(entity, XRDetectedMeshComponent)
     setComponent(entity, NameComponent, 'mesh-' + planeId++)

@@ -23,28 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-import type { WebContainer3D } from '@etherealengine/xrui'
-
+import { SkinnedMesh } from 'three'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import { XRUIState } from '../XRUIState'
 
-export const XRUIComponent = defineComponent({
-  name: 'XRUIComponent',
+export const SkinnedMeshComponent = defineComponent({
+  name: 'SkinnedMeshComponent',
 
-  onInit: (entity) => {
-    return null! as WebContainer3D
-  },
+  onInit: (entity) => null! as SkinnedMesh,
 
-  onSet: (entity, component, json: WebContainer3D) => {
-    if (typeof json !== 'undefined') {
-      component.set(json)
-      XRUIComponent.valueMap[entity] = json
-      component.value.interactionRays = getState(XRUIState).interactionRays
-    }
-  },
+  onSet: (entity, component, mesh: SkinnedMesh) => {
+    if (!mesh || !mesh.isSkinnedMesh) throw new Error('SkinnedMeshComponent: Invalid skinned mesh')
 
-  onRemove: (entity, component) => {
-    component.value.destroy()
+    component.set(mesh)
+    SkinnedMeshComponent.valueMap[entity] = mesh
   }
 })

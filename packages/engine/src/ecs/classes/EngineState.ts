@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineAction, defineState } from '@etherealengine/hyperflux'
 
+import { isDev } from '@etherealengine/common/src/config'
 import { matches } from '../../common/functions/MatchesUtils'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
@@ -56,7 +57,7 @@ export const EngineState = defineState({
     /** @deprecated use isEditing instead */
     isEditor: false,
     isEditing: false,
-    systemPerformanceProfilingEnabled: false
+    systemPerformanceProfilingEnabled: isDev
   })
 })
 

@@ -34,7 +34,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
-  addComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -79,16 +78,18 @@ const LoadingUISystemState = defineState({
     const transition = createTransitionState(transitionPeriodSeconds, 'IN')
     const ui = createLoaderDetailView()
     getMutableComponent(ui.entity, InputComponent).grow.set(false)
-    addComponent(ui.entity, NameComponent, 'Loading XRUI')
+    setComponent(ui.entity, NameComponent, 'Loading XRUI')
 
     const meshEntity = createEntity()
     const mesh = new Mesh(
       new SphereGeometry(10),
-      new MeshBasicMaterial({ side: BackSide, transparent: true, depthWrite: true, depthTest: false })
+      new MeshBasicMaterial({ side: BackSide, transparent: true, depthWrite: true, depthTest: false, fog: false })
     )
+    mesh.frustumCulled = false
 
     setComponent(ui.entity, RenderOrderComponent, 1)
     setComponent(ui.entity, ObjectLayerComponent, ObjectLayers.UI)
+    setComponent(meshEntity, NameComponent, 'Loading XRUI Mesh')
 
     setComputedTransformComponent(meshEntity, Engine.instance.cameraEntity, () => {
       getComponent(meshEntity, TransformComponent).position.copy(
@@ -133,7 +134,6 @@ function LoadingReactor() {
   const loadingState = useHookstate(getMutableState(AppLoadingState))
   const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress)
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
-  const userReady = useHookstate(getMutableState(EngineState).userReady)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const meshEntity = state.meshEntity.value
@@ -147,14 +147,9 @@ function LoadingReactor() {
     if (loadingState.state.value === AppLoadingStates.FAIL && transition.state === 'IN')
       return transition.setState('OUT')
 
-    if (
-      loadingState.state.value === AppLoadingStates.SUCCESS &&
-      transition.state === 'IN' &&
-      userReady.value &&
-      sceneLoaded.value
-    )
+    if (loadingState.state.value === AppLoadingStates.SUCCESS && transition.state === 'IN' && sceneLoaded.value)
       return transition.setState('OUT')
-  }, [loadingState.state, userReady, sceneLoaded])
+  }, [loadingState.state, sceneLoaded])
 
   /** Scene data changes */
   useEffect(() => {
@@ -173,6 +168,8 @@ function LoadingReactor() {
         {},
         (texture: Texture | CompressedTexture) => {
           mesh.material.map = texture
+          mesh.material.needsUpdate = true
+          mesh.material.map.needsUpdate = true
           const compressedTexture = texture as CompressedTexture
           if (compressedTexture.isCompressedTexture) {
             try {

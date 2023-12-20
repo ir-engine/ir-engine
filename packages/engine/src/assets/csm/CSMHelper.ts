@@ -48,7 +48,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { ObjectLayerComponent } from '../../scene/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CSM } from './CSM'
 
 export class CSMHelper {
@@ -173,8 +173,8 @@ export class CSMHelper {
       const farVerts = frustum.vertices.far
 
       const cascadeLine = getComponent(cascadeLines[i], GroupComponent)[0] as any as Box3Helper
-      const cascadeLineTransform = getComponent(cascadeLines[i], LocalTransformComponent)
-      const cascadePlane = getComponent(cascadePlanes[i], LocalTransformComponent)
+      const cascadeLineTransform = getComponent(cascadeLines[i], TransformComponent)
+      const cascadePlane = getComponent(cascadePlanes[i], TransformComponent)
       const shadowLine = getComponent(shadowLines[i], GroupComponent)[0] as any as Box3Helper
       const shadowTransform = getComponent(shadowLines[i], TransformComponent)
 

@@ -26,20 +26,22 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Box3, Box3Helper, BufferGeometry, Mesh } from 'three'
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
+import { MeshComponent } from '../../scene/components/MeshComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { ObjectLayerComponent } from '../../scene/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
@@ -57,19 +59,16 @@ export const BoundingBoxComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (matches.array.test(json.box)) component.box.value.copy(json.box)
+    if (matches.object.test(json.box)) component.box.value.copy(json.box)
   },
 
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const boundingBox = useComponent(entity, BoundingBoxComponent)
-    const group = useOptionalComponent(entity, GroupComponent)
 
     useEffect(() => {
-      if (!group?.length) return
-
-      computeBoundingBox(entity)
+      updateBoundingBox(entity)
 
       if (!debugEnabled.value) return
 
@@ -89,60 +88,39 @@ export const BoundingBoxComponent = defineComponent({
         removeEntity(helperEntity)
         boundingBox.helper.set(UndefinedEntity)
       }
-    }, [debugEnabled, group])
+    }, [debugEnabled])
 
     return null
   }
 })
 
-export const updateBoundingBoxAndHelper = (entity: Entity) => {
-  updateBoundingBox(entity)
-
-  const debugEnabled = getState(RendererState).nodeHelperVisibility
-  if (!debugEnabled) return
-
-  const boundingBox = getComponent(entity, BoundingBoxComponent)
-  const helperEntity = boundingBox.helper
-  const helperObject = getComponent(helperEntity, GroupComponent)?.[0] as any as Box3Helper
-  if (!helperObject) return
-
-  helperObject.box.copy(boundingBox.box)
-  helperObject.updateMatrixWorld(true)
-}
-
-export const computeBoundingBox = (entity: Entity) => {
-  const box = getComponent(entity, BoundingBoxComponent).box
-  const group = getComponent(entity, GroupComponent)
-
-  box.makeEmpty()
-
-  for (const obj of group) {
-    obj.traverse(traverseComputeBoundingBox)
-    try {
-      box.expandByObject(obj, true)
-    } catch (e) {
-      console.warn('Error expanding bounding box', e)
-    }
-  }
-}
-
 export const updateBoundingBox = (entity: Entity) => {
   const box = getComponent(entity, BoundingBoxComponent).box
-  const group = getComponent(entity, GroupComponent) as any as Mesh<BufferGeometry>[]
-  box.makeEmpty()
-  for (const obj of group) expandBoxByObject(obj, box, 0)
-}
 
-const traverseComputeBoundingBox = (mesh: Mesh) => {
-  if (mesh.isMesh) {
-    if (mesh.geometry.attributes.position && mesh.geometry.attributes.position.array.length < 3) return //console.warn('Empty mesh geometry', mesh)
-    mesh.geometry.computeBoundingBox()
+  box.makeEmpty()
+
+  const callback = (child: Entity) => {
+    const boundingBox = getOptionalComponent(child, BoundingBoxComponent)
+    if (boundingBox) {
+      const obj = getOptionalComponent(entity, MeshComponent)
+      if (obj) expandBoxByObject(obj, box)
+    }
   }
+
+  iterateEntityNode(entity, callback)
+
+  /** helper has custom logic in updateMatrixWorld */
+  const boundingBox = getComponent(entity, BoundingBoxComponent)
+  const helperEntity = boundingBox.helper
+  if (!helperEntity) return
+
+  const helperObject = getComponent(helperEntity, GroupComponent)?.[0] as any as Box3Helper
+  helperObject.updateMatrixWorld(true)
 }
 
 const _box = new Box3()
 
-const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3, layer: number) => {
+const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
   const geometry = object.geometry
 
   if (geometry) {
@@ -154,12 +132,4 @@ const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3, layer: numbe
     _box.applyMatrix4(object.matrixWorld)
     box.union(_box)
   }
-
-  const children = object.children as Mesh<BufferGeometry>[]
-
-  for (let i = 0, l = children.length; i < l; i++) {
-    expandBoxByObject(children[i], box, i)
-  }
 }
-
-export const BoundingBoxDynamicTag = defineComponent({ name: 'BoundingBoxDynamicTag' })

@@ -81,9 +81,9 @@ function FogGroupReactor({ obj }: GroupReactorProps) {
   useEffect(() => {
     const customShader = fog.type.value === FogType.Brownian || fog.type.value === FogType.Height
     if (customShader) {
-      obj.traverse(addFogShaderPlugin)
+      addFogShaderPlugin(obj as any)
       return () => {
-        obj.traverse(removeFogShaderPlugin)
+        removeFogShaderPlugin(obj as any)
       }
     }
   }, [fog.type])

@@ -35,7 +35,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
   NetworkObjectComponent,
@@ -57,7 +56,7 @@ import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
@@ -66,7 +65,7 @@ export const defaultAvatarHeight = 1.8
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
-  const entity = UUIDComponent.entitiesByUUID[entityUUID]
+  const entity = UUIDComponent.getEntityByUUID(entityUUID)
   if (!entity) return
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
@@ -81,8 +80,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, AvatarComponent, {
     avatarHalfHeight: defaultAvatarHalfHeight,
-    avatarHeight: defaultAvatarHeight,
-    model: null
+    avatarHeight: defaultAvatarHeight
   })
 
   const userNames = getState(WorldState).userNames
@@ -92,8 +90,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, VisibleComponent, true)
 
-  setComponent(entity, BoundingBoxDynamicTag)
-  setComponent(entity, BoundingBoxComponent)
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
 
@@ -124,6 +120,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, ShadowComponent)
   setComponent(entity, GrabberComponent)
+  setComponent(entity, AvatarRigComponent)
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {

@@ -29,7 +29,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { StateMethods } from '@etherealengine/hyperflux'
 
 import DescriptionIcon from '@mui/icons-material/Description'
@@ -165,7 +165,7 @@ export function FileBrowserItem({
   const placeObject = async () => {
     const vec3 = new Vector3()
     getSpawnPositionAtCenter(vec3)
-    addMediaNode(item.url, undefined, undefined, [{ name: LocalTransformComponent.jsonID, props: { position: vec3 } }])
+    addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
 
     handleClose()
   }

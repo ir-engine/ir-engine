@@ -651,7 +651,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
               }
             }
 
-            if (!UUIDComponent.entitiesByUUID[entityID]) {
+            if (!UUIDComponent.getEntityByUUID(entityID)) {
               dispatchAction(
                 AvatarNetworkAction.spawn({
                   $from: entityID,
