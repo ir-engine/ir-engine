@@ -36,7 +36,7 @@ import {
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { DepthTexture, NearestFilter, PerspectiveCamera, RGBAFormat, UnsignedShortType, WebGLRenderTarget } from 'three'
+import { DepthTexture, NearestFilter, PerspectiveCamera, RGBAFormat, UnsignedIntType, WebGLRenderTarget } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -116,13 +116,15 @@ export const configureEffectComposer = (
   depthRenderTarget.stencilBuffer = false
   depthRenderTarget.depthBuffer = true
   depthRenderTarget.depthTexture = new DepthTexture(window.innerWidth, window.innerHeight)
-  depthRenderTarget.depthTexture.type = UnsignedShortType
+  depthRenderTarget.texture.format = RGBAFormat
+  depthRenderTarget.depthTexture.type = UnsignedIntType
 
   const depthPass = new DepthPass(scene, camera, {
     renderTarget: depthRenderTarget
   })
 
   composer.addPass(depthPass)
+
   SDFShader.shader.uniforms.uDepth.value = depthRenderTarget.depthTexture
 
   const depthDownsamplingPass = new DepthDownsamplingPass({
@@ -131,11 +133,8 @@ export const configureEffectComposer = (
   })
 
   const SDFSetting = getState(SDFComponent.SDFStateSettingsState)
-  //const SDFSetting = useHookstate(SDFComponent.SDFState)
-  if (SDFSetting.enabled) {
+  if (!SDFSetting.enabled) {
     const SDFPass = new ShaderPass(SDFShader.shader, 'inputBuffer')
-    // SDFPass.fullscreenMaterial.blending = AdditiveBlending
-    // SDFPass.fullscreenMaterial.transparent = true;
     composer.addPass(SDFPass)
   }
   const velocityDepthNormalPass = new VelocityDepthNormalPass(scene, camera)

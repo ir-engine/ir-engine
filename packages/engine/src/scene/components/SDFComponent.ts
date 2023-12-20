@@ -51,7 +51,11 @@ export const SDFComponent = defineComponent({
     return {
       color: new Color(0xffffff),
       scale: new Vector3(0.25, 0.001, 0.25),
-      enable: false
+      enable: false,
+      fog: false,
+      two: false,
+      torusPosition: new Vector3(0.0, 0.0, 0.0),
+      lightDirection: new Vector3(1.0, 0.5, 1.0)
     }
   },
   onSet: (entity, component, json) => {
@@ -65,20 +69,35 @@ export const SDFComponent = defineComponent({
     if (typeof json.enable == 'boolean') {
       component.enable.set(json.enable)
     }
-    //if (json.enable) component.enable.set(json.enable)
+    if (typeof json.fog == 'boolean') {
+      component.fog.set(json.fog)
+    }
+    if (typeof json.two == 'boolean') {
+      component.two.set(json.two)
+    }
+    if (json.torusPosition?.isVector3) {
+      component.torusPosition.set(json.torusPosition)
+    }
+    if (json.lightDirection?.isVector3) {
+      component.lightDirection.set(json.lightDirection)
+    }
   },
   toJSON: (entity, component) => {
     return {
       color: component.color.value,
       scale: component.scale.value,
-      enable: component.enable.value
+      enable: component.enable.value,
+      fog: component.fog.value,
+      two: component.two.value,
+      torusPosition: component.torusPosition.value,
+      lightDirection: component.lightDirection.value
     }
   },
 
   SDFStateSettingsState: defineState({
     name: 'SDFSettingsState',
     initial: {
-      enabled: true
+      enabled: false
     }
   }),
 
@@ -90,7 +109,7 @@ export const SDFComponent = defineComponent({
     const shader = SDFShader.shader
     const cameraComponent = getComponent(Engine.instance.cameraEntity, CameraComponent)
     let updater = UndefinedEntity
-
+    const sdfTranform = getComponent(entity, TransformComponent)
     useEffect(() => {
       updater = createEntity()
       setCallback(updater, UpdatableCallback, (dt) => {
@@ -105,12 +124,17 @@ export const SDFComponent = defineComponent({
         shader.uniforms.cameraMatrix.value = cameraTransform.matrix
         shader.uniforms.fov.value = cameraComponent.fov
         shader.uniforms.aspectRatio.value = cameraComponent.aspect
+        shader.uniforms.near.value = cameraComponent.near
+        shader.uniforms.far.value = cameraComponent.far
+        if (shader.uniforms.torusPosition.value != sdfTranform.position) {
+          //shader.uniforms.torusPosition.value = sdfTranform.position
+        }
       },
       { after: CameraSystem }
     )
 
     useEffect(() => {
-      if (getState(SDFComponent.SDFStateSettingsState).enabled !== sdfComponent.enable.value)
+      if (getState(SDFComponent.SDFStateSettingsState).enabled != sdfComponent.enable.value)
         getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(sdfComponent.enable.value)
     }, [sdfComponent.enable])
 
@@ -123,8 +147,23 @@ export const SDFComponent = defineComponent({
     }, [sdfComponent.color])
 
     useEffect(() => {
+      shader.uniforms.useFog.value = sdfComponent.fog.value
+    }, [sdfComponent.fog])
+
+    useEffect(() => {
+      shader.uniforms.two.value = sdfComponent.two.value
+    }, [sdfComponent.two])
+
+    useEffect(() => {
       shader.uniforms.scale.value = sdfComponent.scale.value
     }, [sdfComponent.scale])
+
+    useEffect(() => {
+      shader.uniforms.torusPosition.value = sdfComponent.torusPosition.value
+    }, [sdfComponent.torusPosition])
+    useEffect(() => {
+      shader.uniforms.lightDirection.value = sdfComponent.lightDirection.value
+    }, [sdfComponent.lightDirection])
 
     return null
   }
