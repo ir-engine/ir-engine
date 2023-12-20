@@ -23,10 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AnimationMixer, InstancedMesh, Mesh, Object3D } from 'three'
+import { AnimationMixer, Bone, InstancedMesh, Mesh, Object3D, SkinnedMesh } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
+import { BoneComponent } from '../../avatar/components/BoneComponent'
+import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentJSONIDMap,
@@ -37,13 +40,13 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ComponentJsonType, EntityJsonType } from '../../schemas/projects/scene.schema'
-import { LocalTransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroupComponent, Object3DWithEntity, addObjectToGroup } from '../components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
@@ -126,7 +129,6 @@ export const parseObjectComponentsFromGLTF = (
     }
   })
 
-  const entities: Entity[] = []
   const entityJson: Record<EntityUUID, EntityJsonType> = {}
 
   for (const mesh of meshesToProcess) {
@@ -148,144 +150,14 @@ export const parseGLTFModel = (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
   const scene = model.scene!
   scene.updateMatrixWorld(true)
+  computeTransformMatrix(entity)
 
   // always parse components first using old ECS parsing schema
   const entityJson = parseObjectComponentsFromGLTF(entity, scene)
-  const spawnedEntities: Entity[] = []
   // current ECS parsing schema
-  iterateObject3D(scene, (obj) => {
-    // proxify children property of scene root
-    if (obj === scene) {
-      Object.defineProperties(obj, {
-        children: {
-          get() {
-            return hasComponent(entity, EntityTreeComponent)
-              ? getComponent(entity, EntityTreeComponent)
-                  .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length ?? 0 > 0)
-                  .flatMap((child) => getComponent(child, GroupComponent))
-              : []
-          },
-          set(value) {
-            throw new Error('Cannot set children of proxified object')
-          }
-        }
-      })
-      return
-    }
-
-    // create entity outside of scene loading reactor since we need to access it before the reactor is guaranteed to have executed
-    let objEntity = (obj as Object3DWithEntity).entity
-    if (!objEntity) {
-      objEntity = (obj as Object3DWithEntity).entity ?? createEntity()
-      spawnedEntities.push(objEntity)
-    }
-    const parentEntity = (obj.parent as Object3DWithEntity).entity
+  iterateObject3D(scene, (obj: Object3D) => {
     const uuid = obj.uuid as EntityUUID
-    const name = obj.userData['xrengine.entity'] ?? obj.name
-
-    const eJson: EntityJsonType = entityJson[uuid] ?? {
-      name,
-      components: []
-    }
-    eJson.parent = getComponent(parentEntity, UUIDComponent)
-    setComponent(objEntity, SceneObjectComponent)
-    setComponent(objEntity, EntityTreeComponent, {
-      parentEntity,
-      uuid
-    })
-
-    setComponent(objEntity, NameComponent, name)
-    eJson.components.push({
-      name: LocalTransformComponent.jsonID,
-      props: {
-        position: obj.position.clone(),
-        rotation: obj.quaternion.clone(),
-        scale: obj.scale.clone()
-      }
-    })
-    addObjectToGroup(objEntity, obj)
-    setComponent(objEntity, GLTFLoadedComponent, ['entity'])
-    /** Proxy children with EntityTreeComponent if it exists */
-    Object.defineProperties(obj, {
-      parent: {
-        get() {
-          if (EngineRenderer.instance?.rendering) return null
-          if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-            return getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0]
-          }
-          return null
-        },
-        set(value) {
-          throw new Error('Cannot set parent of proxified object')
-        }
-      },
-      children: {
-        get() {
-          if (EngineRenderer.instance?.rendering) return []
-          return hasComponent(objEntity, EntityTreeComponent)
-            ? getComponent(objEntity, EntityTreeComponent)
-                .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length ?? 0 > 0)
-                .flatMap((child) => getComponent(child, GroupComponent))
-            : []
-        },
-        set(value) {
-          throw new Error('Cannot set children of proxified object')
-        }
-      },
-      removeFromParent: {
-        value: () => {
-          if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-            setComponent(objEntity, EntityTreeComponent, {
-              parentEntity: null
-            })
-          }
-        }
-      },
-      isProxified: {
-        get() {
-          return true
-        }
-      }
-    })
-
-    const findColliderData = (obj: Object3D) => {
-      if (Object.keys(obj.userData).find((key) => key.startsWith('xrengine.collider'))) {
-        return true
-      } else if (obj.parent) {
-        return Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
-      }
-      return false
-    }
-    //if we're not using visible component, set visible by default
-    if (
-      !obj.userData['useVisible'] &&
-      //if this object has a collider component attached to it, set visible to false
-      !findColliderData(obj)
-    ) {
-      eJson.components.push({
-        name: VisibleComponent.jsonID,
-        props: true
-      })
-    }
-
-    // check if this object is part of a collider group
-    const inColliderGroup =
-      obj.parent?.userData && Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
-    if (!inColliderGroup) {
-      const mesh = obj as Mesh
-      mesh.isMesh && setComponent(objEntity, MeshComponent, mesh)
-
-      //check if mesh is instanced. If so, add InstancingComponent
-      const instancedMesh = obj as InstancedMesh
-      instancedMesh.isInstancedMesh &&
-        setComponent(objEntity, InstancingComponent, {
-          instanceMatrix: instancedMesh.instanceMatrix
-        })
-
-      if (obj.userData['componentJson']) {
-        eJson.components.push(...obj.userData['componentJson'])
-      }
-    }
+    const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
     entityJson[uuid] = eJson
   })
 
@@ -302,4 +174,126 @@ export const parseGLTFModel = (entity: Entity) => {
   }
 
   return entityJson
+}
+
+export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, entityJson?: EntityJsonType) => {
+  // create entity outside of scene loading reactor since we need to access it before the reactor is guaranteed to have executed
+  const objEntity = UUIDComponent.getOrCreateEntityByUUID(obj.uuid as EntityUUID)
+  const parentEntity = obj.parent ? obj.parent.entity : rootEntity
+  const uuid = obj.uuid as EntityUUID
+  const name = obj.userData['xrengine.entity'] ?? obj.name
+
+  const eJson: EntityJsonType = entityJson ?? {
+    name,
+    components: []
+  }
+  eJson.parent = getComponent(parentEntity, UUIDComponent)
+  setComponent(objEntity, SceneObjectComponent)
+  setComponent(objEntity, EntityTreeComponent, {
+    parentEntity,
+    uuid
+  })
+
+  setComponent(objEntity, NameComponent, name)
+  setComponent(objEntity, TransformComponent, {
+    position: obj.position.clone(),
+    rotation: obj.quaternion.clone(),
+    scale: obj.scale.clone()
+  })
+  eJson.components.push({
+    name: TransformComponent.jsonID,
+    props: {
+      position: obj.position.clone(),
+      rotation: obj.quaternion.clone(),
+      scale: obj.scale.clone()
+    }
+  })
+
+  addObjectToGroup(objEntity, obj)
+  setComponent(objEntity, GLTFLoadedComponent, ['entity'])
+
+  /** Proxy children with EntityTreeComponent if it exists */
+  Object.defineProperties(obj, {
+    parent: {
+      get() {
+        if (EngineRenderer.instance?.rendering) return null
+        if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
+          return (
+            getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
+            Engine.instance.scene
+          )
+        }
+      },
+      set(value) {
+        throw new Error('Cannot set parent of proxified object')
+      }
+    },
+    children: {
+      get() {
+        if (EngineRenderer.instance?.rendering) return []
+        return hasComponent(objEntity, EntityTreeComponent)
+          ? getComponent(objEntity, EntityTreeComponent)
+              .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
+              .flatMap((child) => getComponent(child, GroupComponent))
+          : []
+      },
+      set(value) {
+        throw new Error('Cannot set children of proxified object')
+      }
+    },
+    isProxified: {
+      value: true
+    }
+  })
+
+  obj.removeFromParent = () => {
+    if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
+      setComponent(objEntity, EntityTreeComponent, {
+        parentEntity: null
+      })
+    }
+    return obj
+  }
+
+  const findColliderData = (obj: Object3D) => {
+    if (Object.keys(obj.userData).find((key) => key.startsWith('xrengine.collider'))) {
+      return true
+    } else if (obj.parent) {
+      return Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
+    }
+    return false
+  }
+  //if we're not using visible component, set visible by default
+  if (
+    !obj.userData['useVisible'] &&
+    //if this object has a collider component attached to it, set visible to false
+    !findColliderData(obj)
+  ) {
+    eJson.components.push({
+      name: VisibleComponent.jsonID,
+      props: true
+    })
+  }
+
+  const mesh = obj as Mesh
+  mesh.isMesh && setComponent(objEntity, MeshComponent, mesh)
+
+  //check if mesh is instanced. If so, add InstancingComponent
+  const instancedMesh = obj as InstancedMesh
+  instancedMesh.isInstancedMesh &&
+    setComponent(objEntity, InstancingComponent, {
+      instanceMatrix: instancedMesh.instanceMatrix
+    })
+
+  const bone = obj as Bone
+  bone.isBone && setComponent(objEntity, BoneComponent, bone)
+
+  const skinnedMesh = obj as SkinnedMesh
+  skinnedMesh.isSkinnedMesh && setComponent(objEntity, SkinnedMeshComponent, skinnedMesh)
+
+  if (obj.userData['componentJson']) {
+    eJson.components.push(...obj.userData['componentJson'])
+  }
+
+  return eJson
 }

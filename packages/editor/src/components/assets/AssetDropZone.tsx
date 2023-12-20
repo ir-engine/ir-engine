@@ -28,7 +28,7 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { Vector2, Vector3 } from 'three'
 
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 
@@ -76,18 +76,14 @@ export function AssetDropZone() {
           assets.map((asset) => {
             const vec3 = new Vector3()
             getCursorSpawnPosition(mousePos, vec3)
-            addMediaNode(asset, undefined, undefined, [
-              { name: LocalTransformComponent.jsonID, props: { position: vec3 } }
-            ])
+            addMediaNode(asset, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
           })
         })
       } else {
         // When user drags files from files panel
         const vec3 = new Vector3()
         getCursorSpawnPosition(mousePos, vec3)
-        addMediaNode(item.url, undefined, undefined, [
-          { name: LocalTransformComponent.jsonID, props: { position: vec3 } }
-        ])
+        addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
       }
     },
     collect: (monitor) => ({

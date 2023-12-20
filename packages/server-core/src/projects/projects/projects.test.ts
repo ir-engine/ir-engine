@@ -23,33 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, ShaderMaterial } from 'three'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import assert from 'assert'
+import { Application } from '../../../declarations'
+import { createFeathersKoaApp } from '../../createApp'
 
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+describe('projects.test', () => {
+  let app: Application
 
-export type MaterialMap = {
-  id: string
-  material: Material
-}
+  before(async () => {
+    app = createFeathersKoaApp()
+    await app.setup()
+  })
 
-export const AvatarEffectComponent = defineComponent({
-  name: 'AvatarEffectComponent',
-  onInit: (entity) => {
-    return {
-      sourceEntity: null! as Entity,
-      opacityMultiplier: 1,
-      dissolveMaterials: [] as Array<ShaderMaterial>,
-      originMaterials: [] as Array<MaterialMap>
-    }
-  },
+  after(async () => {
+    await destroyEngine()
+  })
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (json.sourceEntity) component.sourceEntity.set(json.sourceEntity)
-    if (json.opacityMultiplier) component.opacityMultiplier.set(json.opacityMultiplier)
-    if (json.dissolveMaterials) component.dissolveMaterials.set(json.dissolveMaterials as Array<ShaderMaterial>)
-    if (json.originMaterials) component.originMaterials.set(json.originMaterials as Array<MaterialMap>)
-  }
+  it('should find the projects', async () => {
+    const foundProjects = await app.service(projectsPath).find()
+    assert.notEqual(
+      foundProjects.findIndex((project) => project === 'default-project'),
+      -1
+    )
+  })
 })

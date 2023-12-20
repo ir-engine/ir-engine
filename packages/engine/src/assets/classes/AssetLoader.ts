@@ -331,11 +331,13 @@ const assetLoadCallback =
         asset = { scene: asset }
       } else if (assetType === AssetType.VRM) {
         asset = asset.userData.vrm
+        asset.userData = { flipped: true }
       }
 
       if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
       if (asset.scene.userData) asset.scene.userData.type = assetType
       if (asset.userData) asset.userData.type = assetType
+      else asset.userData = { type: assetType }
 
       AssetLoader.processModelAsset(asset.scene, args)
       if (notGLTF) {
@@ -358,6 +360,7 @@ const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineSta
 
 type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
+  forceAssetType?: AssetType
   uuid?: string
   assetRoot?: Entity
 }
@@ -367,8 +370,7 @@ const load = async (
   args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {},
-  assetTypeOverride: AssetType = null!
+  onError = (event: ErrorEvent | Error) => {}
 ) => {
   if (!_url) {
     onError(new Error('URL is empty'))
@@ -376,7 +378,7 @@ const load = async (
   }
   let url = getAbsolutePath(_url)
 
-  const assetType = assetTypeOverride ? assetTypeOverride : AssetLoader.getAssetType(url)
+  const assetType = args.forceAssetType ? args.forceAssetType : AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
   if (iOS && (assetType === AssetType.PNG || assetType === AssetType.JPEG)) {
     const img = new Image()
@@ -425,14 +427,9 @@ const load = async (
   }
 }
 
-const loadAsync = async (
-  url: string,
-  args: LoadingArgs = {},
-  onProgress = (request: ProgressEvent) => {},
-  assetTypeOverride: AssetType = null!
-) => {
+const loadAsync = async (url: string, args: LoadingArgs = {}, onProgress = (request: ProgressEvent) => {}) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, args, resolve, onProgress, reject, assetTypeOverride)
+    load(url, args, resolve, onProgress, reject)
   })
 }
 
