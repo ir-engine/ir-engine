@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Euler, Quaternion, Vector3 } from 'three'
 import { V_010 } from '../../common/constants/MathConstants'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
@@ -53,8 +54,8 @@ const minSpeed = 5
 export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   const userID = getComponent(localClientEntity, UUIDComponent)
 
-  const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[userID + ikTargets.leftFoot]
-  const ikTargetRightFoot = UUIDComponent.entitiesByUUID[userID + ikTargets.rightFoot]
+  const ikTargetLeftFoot = UUIDComponent.getEntityByUUID((userID + ikTargets.leftFoot) as EntityUUID)
+  const ikTargetRightFoot = UUIDComponent.getEntityByUUID((userID + ikTargets.rightFoot) as EntityUUID)
   if (!ikTargetLeftFoot || !ikTargetRightFoot) return
 
   const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot]
@@ -66,8 +67,8 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   const stepThreshold = rigComponent.upperLegLength + rigComponent.lowerLegLength
 
   const feet = {
-    [ikTargets.rightFoot]: UUIDComponent.entitiesByUUID[userID + ikTargets.rightFoot],
-    [ikTargets.leftFoot]: UUIDComponent.entitiesByUUID[userID + ikTargets.leftFoot]
+    [ikTargets.rightFoot]: UUIDComponent.getEntityByUUID((userID + ikTargets.rightFoot) as EntityUUID),
+    [ikTargets.leftFoot]: UUIDComponent.getEntityByUUID((userID + ikTargets.leftFoot) as EntityUUID)
   }
 
   const playerTransform = getComponent(localClientEntity, TransformComponent)
@@ -85,7 +86,7 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   }
 
   for (const [key, foot] of Object.entries(feet)) {
-    const ikTransform = getComponent(foot, LocalTransformComponent)
+    const ikTransform = getComponent(foot, TransformComponent)
     if (ikTransform.position.x + ikTransform.position.y + ikTransform.position.z == 0) {
       ikTransform.position.copy(calculateFootOffset())
       continue

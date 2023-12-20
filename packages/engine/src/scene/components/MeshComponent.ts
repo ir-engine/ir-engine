@@ -25,28 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { Mesh } from 'three'
 
-import { defineComponent, getMutableComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { useHookstate } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { generateMeshBVH } from '../functions/bvhWorkerPool'
+import { defineComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 export const MeshComponent = defineComponent({
   name: 'Mesh Component',
+
   jsonID: 'mesh',
-  onInit: (entity) => new Mesh(),
-  onSet: (entity, component, mesh?: Mesh) => {
-    if (mesh instanceof Mesh) {
-      component.set(mesh)
-      MeshComponent.valueMap[entity] = mesh
-    }
-  },
-  reactor: () => {
-    const entity = useEntityContext()
-    const mesh = useHookstate(getMutableComponent(entity, MeshComponent))
-    useEffect(() => {
-      generateMeshBVH(mesh.value)
-    }, [mesh])
-    return null
+
+  onInit: (entity) => null! as Mesh,
+
+  onSet: (entity, component, mesh: Mesh) => {
+    if (!mesh || !mesh.isMesh) throw new Error('MeshComponent: Invalid mesh')
+
+    component.set(mesh)
+    MeshComponent.valueMap[entity] = mesh
   }
 })

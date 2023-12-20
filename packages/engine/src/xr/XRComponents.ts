@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { matches } from '../common/functions/MatchesUtils'
 import { defineComponent, setComponent, useOptionalComponent } from '../ecs/functions/ComponentFunctions'
@@ -230,10 +230,6 @@ export const XRHitTestComponent = defineComponent({
     component.options.set(data)
   },
 
-  onRemove: (entity, component) => {
-    component.source.value?.cancel()
-  },
-
   reactor: () => {
     const entity = useEntityContext()
 
@@ -243,7 +239,7 @@ export const XRHitTestComponent = defineComponent({
       if (!hitTest) return
 
       const options = hitTest.options.value
-      const xrState = getMutableState(XRState).value
+      const xrState = getState(XRState)
 
       let active = true
 
@@ -312,6 +308,7 @@ export const XRSpaceComponent = defineComponent({
   onSet: (entity, component, space: XRSpace) => {
     component.set(space)
     setComponent(entity, TransformComponent)
+    XRSpaceComponent.valueMap[entity] = space
   }
 })
 

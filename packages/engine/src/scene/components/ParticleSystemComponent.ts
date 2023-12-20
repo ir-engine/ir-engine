@@ -55,6 +55,7 @@ import { createEntity, useEntityContext } from '../../ecs/functions/EntityFuncti
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import getFirstMesh from '../util/meshUtils'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { NameComponent } from './NameComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export const ParticleState = defineState({
@@ -64,6 +65,7 @@ export const ParticleState = defineState({
     const batchRendererEntity = createEntity()
     addObjectToGroup(batchRendererEntity, batchRenderer)
     setComponent(batchRendererEntity, VisibleComponent)
+    setComponent(batchRendererEntity, NameComponent, 'Particle Batched Renderer')
     return {
       batchRenderer,
       batchRendererEntity

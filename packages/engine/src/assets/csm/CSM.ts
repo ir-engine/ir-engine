@@ -168,6 +168,7 @@ export class CSM {
       for (let i = 0; i < this.cascades; i++) {
         const light = sourceLight.clone()
         light.castShadow = true
+        light.frustumCulled = false
 
         const entity = createEntity()
         addObjectToGroup(entity, light)
@@ -195,6 +196,7 @@ export class CSM {
       light.shadow.camera.near = this.lightNear
       light.shadow.camera.far = this.lightFar
       light.shadow.bias = this.shadowBias
+      light.frustumCulled = false
 
       const entity = createEntity()
       addObjectToGroup(entity, light)
@@ -340,7 +342,7 @@ export class CSM {
       _lightOrientationMatrix.lookAt(V_000, this.lightDirection, V_010)
       _lightOrientationMatrixInverse.copy(_lightOrientationMatrix).invert()
 
-      _cameraToLightMatrix.multiplyMatrices(_lightOrientationMatrixInverse, camera.matrix)
+      _cameraToLightMatrix.multiplyMatrices(_lightOrientationMatrixInverse, camera.matrixWorld)
       frustum.toSpace(_cameraToLightMatrix, _lightSpaceFrustum)
 
       const nearVerts = _lightSpaceFrustum.vertices.near
@@ -364,10 +366,7 @@ export class CSM {
       light.target.position.copy(_center).add(this.lightDirection)
 
       light.target.matrix.compose(light.target.position, light.target.quaternion, light.target.scale)
-      light.target.matrix.decompose(light.target.position, light.target.quaternion, light.target.scale)
       light.target.matrixWorld.copy(light.target.matrix)
-
-      light.target.updateMatrixWorld(true)
     }
   }
 

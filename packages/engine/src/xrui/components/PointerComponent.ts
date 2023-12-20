@@ -50,7 +50,7 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { LocalTransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { useAnimationTransition } from '../functions/createTransitionState'
 
 export const PointerComponent = defineComponent({
@@ -85,11 +85,11 @@ export const PointerComponent = defineComponent({
       const pointer = pointerComponentState.pointer.value
       if (cursor) {
         cursor.material.opacity = alpha
-        cursor.visible = alpha > 0
+        cursor.material.visible = alpha > 0
       }
       if (pointer) {
         pointer.material.opacity = alpha
-        pointer.visible = alpha > 0
+        pointer.material.visible = alpha > 0
       }
     })
 
@@ -118,7 +118,7 @@ export const PointerComponent = defineComponent({
     setComponent(entity, PointerComponent, { inputSource })
     setComponent(entity, NameComponent, 'Pointer' + inputSource.handedness)
     setComponent(entity, EntityTreeComponent, { parentEntity: inputSourceEntity })
-    setComponent(entity, LocalTransformComponent)
+    setComponent(entity, TransformComponent)
     setComponent(entity, VisibleComponent)
     PointerComponent.pointers.set(inputSource, entity)
   },
@@ -153,7 +153,7 @@ const createPointer = (inputSource: XRInputSource): PointerObject => {
 
 const createUICursor = () => {
   const geometry = new SphereGeometry(0.01, 16, 16)
-  const material = new MeshBasicMaterial({ color: 0xffffff })
+  const material = new MeshBasicMaterial({ color: 0xffffff, opacity: 0 })
   return new Mesh(geometry, material)
 }
 

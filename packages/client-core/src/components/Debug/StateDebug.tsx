@@ -18,13 +18,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { memo } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import styles from './styles.module.scss'
 
@@ -38,13 +38,19 @@ const labelRenderer = (data: Record<string | number, any>) => {
   }
 }
 
-function ActionsPanel() {
+export function StateDebug() {
+  useHookstate(getMutableState(EngineState).frameTime).value
   const { t } = useTranslation()
-
-  useHookstate(getMutableState(EngineState)).simulationTime.value // re-render the actions data with each simulationTime change
 
   return (
     <>
+      <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.state')}</h1>
+        <JSONTree
+          data={Engine.instance.store.stateMap}
+          postprocessValue={(v: any) => (v?.value && v.get(NO_PROXY)) ?? v}
+        />
+      </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.actionsHistory')}</h1>
         <JSONTree
@@ -64,5 +70,3 @@ function ActionsPanel() {
     </>
   )
 }
-
-export default memo(ActionsPanel)
