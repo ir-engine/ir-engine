@@ -144,12 +144,10 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
 
-    const promises: Promise<any>[] = []
-
     for (const projectName of locallyInstalledProjects) {
       if (!data.find((e) => e.name === projectName)) {
         try {
-          promises.push(this._seedProject(projectName))
+          await this._seedProject(projectName)
         } catch (e) {
           logger.error(e)
         }
@@ -161,10 +159,9 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
       await super._patch(null, { commitSHA, commitDate: toDateTimeSql(commitDate) }, { query: { name: projectName } })
 
-      promises.push(uploadLocalProjectToProvider(this.app, projectName))
+      await uploadLocalProjectToProvider(this.app, projectName)
     }
 
-    await Promise.all(promises)
     await this._callOnLoad()
 
     for (const { name, id } of data) {

@@ -101,6 +101,7 @@
     "multer": "1.4.5-lts.1",
     "mysql": "2.18.1",
     "mysql2": "3.2.0",
+    "mysqldump": "3.2.0",
     "nanoid": "3.3.4",
     "node-fetch": "2.6.9",
     "nodemailer-smtp-transport": "^2.7.4",

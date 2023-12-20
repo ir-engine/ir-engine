@@ -67,6 +67,7 @@ import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
+import { projectResourcesPath } from '../../media/static-resource/project-resource.service'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -1657,6 +1658,9 @@ export const uploadLocalProjectToProvider = async (
 
   // upload new files to storage provider
   const projectRootPath = path.resolve(projectsRootFolder, projectName)
+  const resourceDBPath = path.join(projectRootPath, 'resources.sql')
+  const hasResourceDB = fs.existsSync(resourceDBPath)
+
   const files = getFilesRecursive(projectRootPath)
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
@@ -1675,6 +1679,28 @@ export const uploadLocalProjectToProvider = async (
       }
       return set
     })
+
+  if (hasResourceDB) {
+    //if we have a resources.sql file, use it to populate static-resource table
+    const promiseExec = promisify(exec)
+    const tableName = `project_${projectName.replaceAll('-', '_')}`
+    const user = process.env.MYSQL_USER
+    const password = process.env.MYSQL_PASSWORD
+    const host = process.env.MYSQL_HOST
+
+    const cmdPrefix = `mysql -h ${host} -u ${user} -p"${password}" etherealengine`
+
+    const runResourceCmd = `${cmdPrefix} < ${resourceDBPath}`
+    const copyIntoStaticResourcesCmd = `${cmdPrefix} -e 'CREATE TABLE IF NOT EXISTS \`${tableName}\` LIKE \`static-resource\`; INSERT IGNORE INTO \`static-resource\` SELECT * FROM \`${tableName}\`;'`
+    const dropTableCmd = `${cmdPrefix} -e "DROP TABLE ${tableName};"`
+
+    await promiseExec(runResourceCmd)
+    await promiseExec(copyIntoStaticResourcesCmd)
+    await promiseExec(dropTableCmd)
+
+    console.log(`Finished populating static-resource table for project ${projectName}`)
+  }
+
   for (const file of filtered) {
     try {
       const fileResult = fs.readFileSync(file)
@@ -1690,28 +1716,31 @@ export const uploadLocalProjectToProvider = async (
         },
         { isDirectory: false }
       )
-      const staticResourceClasses = [
-        AssetClass.Audio,
-        AssetClass.Image,
-        AssetClass.Model,
-        AssetClass.Video,
-        AssetClass.Volumetric
-      ]
-      const thisFileClass = AssetLoader.getAssetClass(file)
-      if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
-        const hash = createStaticResourceHash(fileResult, { mimeType: contentType, assetURL: key })
-        if (currentProjectResources.has(resourceKey(key, hash))) {
-          logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
-        } else {
-          await app.service(staticResourcePath).create({
-            key: `projects/${projectName}${filePathRelative}`,
-            project: projectName,
-            hash,
-            url,
-            mimeType: contentType,
-            tags: [thisFileClass]
-          })
-          logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
+      if (!hasResourceDB) {
+        //otherwise, upload the files into static resources individually
+        const staticResourceClasses = [
+          AssetClass.Audio,
+          AssetClass.Image,
+          AssetClass.Model,
+          AssetClass.Video,
+          AssetClass.Volumetric
+        ]
+        const thisFileClass = AssetLoader.getAssetClass(file)
+        if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
+          const hash = createStaticResourceHash(fileResult, { mimeType: contentType, assetURL: key })
+          if (currentProjectResources.has(resourceKey(key, hash))) {
+            logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
+          } else {
+            await app.service(staticResourcePath).create({
+              key: `projects/${projectName}${filePathRelative}`,
+              project: projectName,
+              hash,
+              url,
+              mimeType: contentType,
+              tags: [thisFileClass]
+            })
+            logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
+          }
         }
       }
       results.push(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
@@ -1719,6 +1748,9 @@ export const uploadLocalProjectToProvider = async (
       logger.error(e)
       results.push(null)
     }
+  }
+  if (!hasResourceDB) {
+    await app.service(projectResourcesPath).create({ project: projectName })
   }
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   return results.filter((success) => !!success) as string[]
