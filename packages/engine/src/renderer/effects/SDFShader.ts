@@ -171,7 +171,7 @@ const SDFShader = {
       return torus2(ro, t).x;
     }
     vec3 estimateNormal(vec3 p, vec2 torusParams) {
-      float epsilon = 0.001; // Adjust
+      float epsilon = 0.01; // Adjust
       return normalize(vec3(
         shortestDistanceToTorus(p + vec3(epsilon, 0.0, 0.0), torusParams) - shortestDistanceToTorus(p - vec3(epsilon, 0.0, 0.0), torusParams),
         shortestDistanceToTorus(p + vec3(0.0, epsilon, 0.0), torusParams) - shortestDistanceToTorus(p - vec3(0.0, epsilon, 0.0), torusParams),
@@ -179,7 +179,7 @@ const SDFShader = {
       ));
     }
     vec3 estimateNormal2(vec3 p, vec2 torusParams) {
-      float epsilon = 0.001; // Adjust
+      float epsilon = 0.01; // Adjust
       return normalize(vec3(
         shortestDistanceToTorus2(p + vec3(epsilon, 0.0, 0.0), torusParams) - shortestDistanceToTorus2(p - vec3(epsilon, 0.0, 0.0), torusParams),
         shortestDistanceToTorus2(p + vec3(0.0, epsilon, 0.0), torusParams) - shortestDistanceToTorus2(p - vec3(0.0, epsilon, 0.0), torusParams),
@@ -187,7 +187,7 @@ const SDFShader = {
       ));
     }
     vec3 estimateNormalUnion(vec3 p, vec2 torusParams1, vec2 torusParams2) {
-      float epsilon = 0.001;
+      float epsilon = 0.01;
 
       float dist1 = shortestDistanceToTorus(p, torusParams1);
       float dist2 = shortestDistanceToTorus2(p, torusParams2);  
@@ -205,7 +205,28 @@ const SDFShader = {
     float opUnion(float d1, float d2) {
       return min(d1, d2);
     }
-  
+    vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d ) {
+      return a + b*cos( 6.28318*(c*t+d) );
+    }
+    
+    vec3 spectrum(float n) {
+      return pal( n, vec3(0.5,0.5,0.5),vec3(0.5,0.5,0.5),vec3(1.0,1.0,1.0),vec3(0.0,0.33,0.67) );
+    }
+    
+     
+    
+    vec3 gamma(vec3 color, float g) {
+      return pow(color, vec3(g));
+    }
+    
+    vec3 linearToScreen(vec3 linearRGB) {
+      float GAMMA = 2.2;
+      return gamma(linearRGB, 1.0 / GAMMA);
+    }
+    
+    
+
+
     vec3 rayMarchPhong(vec3 ro, vec3 rd) {
       ro=ro - torusPosition;
       float d = 0.0;
@@ -228,9 +249,30 @@ const SDFShader = {
             }
               // Estimate normal
               vec3 normal = estimateNormal(p, vec2(0.5, 0.2));
-              // if(two){
-              //   normal = estimateNormalUnion(p, vec2(0.5, 0.2), vec2(0.7, 0.3));
-              // }  
+              if(two){
+                normal = estimateNormalUnion(p, vec2(0.5, 0.2), vec2(0.7, 0.3));
+              }  
+              // Iridescent lighting
+
+              vec3 eyeDirection = normalize(ro - p); 
+              vec3 reflection = reflect(rd, normalize(normal));
+              vec3 dome = vec3(0, 1, 0);
+              vec3 nor= normalize(normal);
+              // base layer
+              vec3 perturb = sin(p * 10.);
+              vec3 iridescentColor = spectrum(dot(nor + perturb * .05, eyeDirection) * 2.);
+              // specular
+              float specular2 = clamp(dot(reflection, lightDirection), 0., 1.);
+              specular2 = pow((sin(specular2 * 20. - 3.) * .5 + .5) + .1, 32.) * specular2;
+              specular2 *= .1;
+              specular2 += pow(clamp(dot(reflection, lightDirection), 0., 1.) + .3, 8.) * .1;
+              // shadow
+              float shadow = pow(clamp(dot(nor, dome) * .5 + 1.2, 0., 1.), 3.);
+              iridescentColor = iridescentColor * shadow + specular2;
+
+              // gamma correction
+              //iridescentColor = linearToScreen(iridescentColor);
+
               // Shading
               float cameraDist = length(p - cameraPos);
               float shade = smoothstep(0.0, 5.0, cameraDist);
@@ -257,7 +299,7 @@ const SDFShader = {
               vec3 phongColor = ambientColor + diffuse + specular;
               vec3 finalColor = mix(vec3(0.0), phongColor, shade);
   
-              return finalColor;
+              return finalColor=mix(finalColor, iridescentColor,0.2);
           }
   
           d += dist;
