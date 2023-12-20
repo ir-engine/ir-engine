@@ -136,7 +136,7 @@ function GeometryReactor() {
     mesh.value.visible = true
     mesh.value.updateMatrixWorld(true)
     addObjectToGroup(entity, mesh.value)
-    setComponent(entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.Scene] })
+    setComponent(entity, ObjectLayerComponent, ObjectLayers.Scene)
 
     return () => {
       removeObjectFromGroup(entity, mesh.value)

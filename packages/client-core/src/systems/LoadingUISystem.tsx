@@ -87,8 +87,8 @@ const LoadingUISystemState = defineState({
       new MeshBasicMaterial({ side: BackSide, transparent: true, depthWrite: true, depthTest: false })
     )
 
-    setComponent(ui.entity, RenderOrderComponent, { renderOrder: 1 })
-    setComponent(ui.entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.UI] })
+    setComponent(ui.entity, RenderOrderComponent, 1)
+    setComponent(ui.entity, ObjectLayerComponent, ObjectLayers.UI)
 
     setComputedTransformComponent(meshEntity, Engine.instance.cameraEntity, () => {
       getComponent(meshEntity, TransformComponent).position.copy(

@@ -89,15 +89,13 @@ export const XRDetectedPlaneComponent = defineComponent({
       const shadowMesh = new Mesh(geometry, shadowMaterial)
 
       const occlusionMesh = new Mesh(geometry, occlusionMat)
-      setComponent(entity, RenderOrderComponent, {
-        renderOrder: -1
-      }) /** @todo make a global config for AR occlusion mesh renderOrder */
 
       const placementHelper = new Mesh(geometry, placementHelperMaterial)
       occlusionMesh.add(placementHelper)
 
       addObjectToGroup(entity, shadowMesh)
       addObjectToGroup(entity, occlusionMesh)
+      setComponent(entity, RenderOrderComponent, -1) /** @todo make a global config for AR occlusion mesh renderOrder */
 
       component.shadowMesh.set(shadowMesh)
       component.occlusionMesh.set(occlusionMesh)

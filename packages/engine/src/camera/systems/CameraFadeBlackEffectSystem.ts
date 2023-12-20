@@ -116,8 +116,8 @@ const reactor = () => {
     const entity = createEntity()
     setComponent(entity, NameComponent, mesh.name)
     addObjectToGroup(entity, mesh)
-    setComponent(entity, RenderOrderComponent, { renderOrder: 1 })
-    setComponent(entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.Scene] })
+    setComponent(entity, RenderOrderComponent, 1)
+    setComponent(entity, ObjectLayerComponent, ObjectLayers.Scene)
     const transition = createTransitionState(0.25, 'OUT')
 
     getMutableState(CameraFadeBlackEffectSystemState).set({

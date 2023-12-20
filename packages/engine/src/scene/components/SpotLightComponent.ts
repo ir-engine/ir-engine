@@ -192,7 +192,7 @@ export const SpotLightComponent = defineComponent({
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
 
-      setComponent(helperEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
+      setComponent(helperEntity, ObjectLayerComponent, ObjectLayers.NodeHelper)
 
       light.helperEntity.set(helperEntity)
 

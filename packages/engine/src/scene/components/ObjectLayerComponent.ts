@@ -23,42 +23,97 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
-import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { defineComponent, getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from './GroupComponent'
+
+const maxBitWidth = 32
+
+export const ObjectLayerComponents = [] as any[]
+
+for (let i = 0; i < maxBitWidth; i++) {
+  ObjectLayerComponents.push(
+    defineComponent({
+      name: `ObjectLayer${i}`,
+
+      onInit(entity) {
+        const group = getComponent(entity, GroupComponent)
+        if (group) {
+          for (const object of group) {
+            object.layers.enable(i)
+          }
+        }
+        return i
+      },
+
+      onRemove(entity, component) {
+        const group = getComponent(entity, GroupComponent)
+        if (group) {
+          for (const object of group) {
+            object.layers.disable(i)
+          }
+        }
+      }
+    })
+  )
+}
 
 export const ObjectLayerComponent = defineComponent({
   name: 'ObjectLayerComponent',
 
+  // entitiesBylayer: {} as Record<number, Set<Entity>>,
+
   onInit(entity) {
-    return {
-      objectLayers: [] as number[]
+    return 1 | 0
+  },
+
+  onSet(entity, component, layer) {
+    if (layer !== undefined) {
+      ObjectLayerComponent.enableLayers(entity, layer)
     }
   },
 
-  onSet(entity, component, json) {
-    if (!json) return
-    if (json.objectLayers !== undefined) {
-      component.objectLayers.set(json.objectLayers)
+  enableLayers(entity, ...layers: number[]) {
+    // const component = useComponent(entity, ObjectLayerComponent)
+    // let mask = component.value
+    // for (const layer of layers) {
+    //   if (ObjectLayerComponent.entitiesBylayer[layer] === undefined) {
+    //     ObjectLayerComponent.entitiesBylayer[layer] = new Set()
+    //   }
+    //   ObjectLayerComponent.entitiesBylayer[layer].add(entity)
+    //   mask |= (1 << layer) | 0
+    // }
+    // component.set(mask)
+
+    for (const layer of layers) {
+      setComponent(entity, ObjectLayerComponents[layer])
     }
   },
 
-  reactor() {
-    const entity = useEntityContext()
-    const component = useComponent(entity, ObjectLayerComponent)
+  disableLayers(entity, ...layers: number[]) {
+    // const component = useComponent(entity, ObjectLayerComponent)
+    // let mask = component.value
+    // for (const layer of layers) {
+    //   ObjectLayerComponent[layer].delete(entity)
+    //   mask &= ~((1 << layer) | 0)
+    // }
+    // component.set(mask)
 
-    useEffect(() => {
-      const group = getComponent(entity, GroupComponent)
-      for (const object of group) {
-        object.layers.disableAll()
-        for (const layer of component.objectLayers.value) {
-          object.layers.enable(layer)
-        }
-      }
-    }, [component.objectLayers])
-
-    return null
+    for (const layer of layers) {
+      removeComponent(entity, ObjectLayerComponents[layer])
+    }
   }
+
+  // reactor() {
+  //   const entity = useEntityContext()
+  //   const component = useComponent(entity, ObjectLayerComponent)
+
+  //   useEffect(() => {
+  //     const group = getComponent(entity, GroupComponent)
+  //     for (const object of group) {
+  //       object.layers.mask = component.value
+  //     }
+  //   }, [component])
+
+  //   return null
+  // }
 })

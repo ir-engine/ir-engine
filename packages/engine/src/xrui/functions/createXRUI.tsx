@@ -78,7 +78,7 @@ export function createXRUI<S extends State<any> | null>(
   root.add(container)
   setComponent(entity, TransformComponent)
   addObjectToGroup(entity, root)
-  setComponent(entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.UI] })
+  setComponent(entity, ObjectLayerComponent, ObjectLayers.UI)
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, XRUIComponent, container)
   setComponent(entity, VisibleComponent, true)

@@ -74,7 +74,7 @@ export class CSMHelper {
     addObjectToGroup(frustumLinesEntity, frustumLines)
     setComponent(frustumLinesEntity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
     setComponent(frustumLinesEntity, NameComponent, 'CSM frustum lines')
-    setComponent(frustumLinesEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
+    setComponent(frustumLinesEntity, ObjectLayerComponent, ObjectLayers.NodeHelper)
 
     this.frustumLinesEntity = frustumLinesEntity
   }
@@ -143,7 +143,7 @@ export class CSMHelper {
       addObjectToGroup(cascadeLinesEntity, cascadeLine)
       setComponent(cascadeLinesEntity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
       setComponent(cascadeLinesEntity, NameComponent, 'CSM cascade line ' + cascadeLines.length)
-      setComponent(cascadeLinesEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
+      setComponent(cascadeLinesEntity, ObjectLayerComponent, ObjectLayers.NodeHelper)
       cascadeLines.push(cascadeLinesEntity)
 
       const planeMat = new MeshBasicMaterial({ transparent: true, opacity: 0.1, depthWrite: false, side: DoubleSide })
@@ -153,7 +153,7 @@ export class CSMHelper {
       addObjectToGroup(cascadePlanesEntity, cascadePlane)
       setComponent(cascadePlanesEntity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
       setComponent(cascadePlanesEntity, NameComponent, 'CSM cascade plane ' + cascadeLines.length)
-      setComponent(cascadePlanesEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
+      setComponent(cascadePlanesEntity, ObjectLayerComponent, ObjectLayers.NodeHelper)
       cascadePlanes.push(cascadePlanesEntity)
 
       const shadowLine = new Box3Helper(new Box3(), new Color(0xffff00))
@@ -162,7 +162,7 @@ export class CSMHelper {
       addObjectToGroup(shadowLinesEntity, shadowLine)
       setComponent(shadowLinesEntity, EntityTreeComponent, { parentEntity: null })
       setComponent(shadowLinesEntity, NameComponent, 'CSM shadow line ' + cascadeLines.length)
-      setComponent(shadowLinesEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
+      setComponent(shadowLinesEntity, ObjectLayerComponent, ObjectLayers.NodeHelper)
       shadowLines.push(shadowLinesEntity)
     }
 

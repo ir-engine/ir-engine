@@ -191,7 +191,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   if (!animationState.loadedAnimations[optionalAnimations.seated])
     loadAnimationArray([optionalAnimations.seated], 'optional')
 
-  setComponent(entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.Avatar] })
+  setComponent(entity, ObjectLayerComponent, ObjectLayers.Avatar)
   avatar.model = model.scene
 }
 

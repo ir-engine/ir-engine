@@ -166,7 +166,7 @@ export const AvatarRigComponent = defineComponent({
       addObjectToGroup(helperEntity, helper)
       rigComponent.helperEntity.set(helperEntity)
       setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.AvatarHelper] })
+      setComponent(helperEntity, ObjectLayerComponent, ObjectLayers.AvatarHelper)
 
       setComputedTransformComponent(helperEntity, entity, () => {
         const helperTransform = getComponent(helperEntity, TransformComponent)

@@ -83,9 +83,7 @@ export const XRDetectedMeshComponent = defineComponent({
 
       addObjectToGroup(entity, shadowMesh)
       addObjectToGroup(entity, occlusionMesh)
-      setComponent(entity, RenderOrderComponent, {
-        renderOrder: -1
-      }) /** @todo make a global config for AR occlusion mesh renderOrder */
+      setComponent(entity, RenderOrderComponent, -1) /** @todo make a global config for AR occlusion mesh renderOrder */
 
       component.shadowMesh.set(shadowMesh)
       component.occlusionMesh.set(occlusionMesh)

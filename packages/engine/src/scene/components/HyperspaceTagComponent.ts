@@ -63,7 +63,7 @@ export const HyperspaceTagComponent = defineComponent({
     const hyperspaceEffectEntity = createEntity()
     const hyperspaceEffect = new PortalEffect()
     addObjectToGroup(hyperspaceEffectEntity, hyperspaceEffect)
-    setComponent(hyperspaceEffectEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.Portal] })
+    setComponent(hyperspaceEffectEntity, ObjectLayerComponent, ObjectLayers.Portal)
 
     AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/galaxyTexture.jpg`).then(
       (texture) => {

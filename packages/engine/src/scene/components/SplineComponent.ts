@@ -94,7 +94,7 @@ export const SplineComponent = defineComponent({
       line.layers.set(ObjectLayers.NodeHelper)
       line.name = `${entity}-line`
       addObjectToGroup(entity, line)
-      setComponent(entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
+      setComponent(entity, ObjectLayerComponent, ObjectLayers.NodeHelper)
 
       const geometry = new SphereGeometry(0.05, 4, 2)
 

@@ -84,7 +84,7 @@ export const SpawnPointComponent = defineComponent({
         if (!active) return
         helper.name = `spawn-point-helper-${entity}`
         addObjectToGroup(helperEntity, helper)
-        setComponent(helperEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
+        setComponent(helperEntity, ObjectLayerComponent, ObjectLayers.NodeHelper)
         setComponent(helperEntity, NameComponent, helper.name)
       })
 

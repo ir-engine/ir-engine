@@ -23,13 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import React from 'react'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { destroyEngine } from '../../../src/ecs/classes/Engine'
-import { getComponent, setComponent } from '../../../src/ecs/functions/ComponentFunctions'
+import { setComponent } from '../../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../src/initializeEngine'
 import { addObjectToGroup } from '../../../src/scene/components/GroupComponent'
@@ -52,24 +50,14 @@ describe('ObjectLayerComponent', () => {
     const material = new MeshBasicMaterial({ color: 0xffff00 })
     const mesh = new Mesh(geometry, material)
 
-    const objectLayers = [2, 3, 4]
+    const objectLayer = 2
     const nonEnabledObjectLayer = 5
 
-    setComponent(entity, ObjectLayerComponent, { objectLayers: objectLayers })
     addObjectToGroup(entity, mesh)
+    setComponent(entity, ObjectLayerComponent, objectLayer)
 
-    const Reactor = ObjectLayerComponent.reactor
-    const tag = <Reactor />
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
-
-    for (const layer of objectLayers) {
-      assert(mesh.layers.isEnabled(layer))
-    }
-
+    assert(mesh.layers.isEnabled(objectLayer))
     assert(!mesh.layers.isEnabled(nonEnabledObjectLayer))
-
-    unmount()
   })
 
   it('Sets objectLayers on group multiple', async () => {
@@ -88,20 +76,14 @@ describe('ObjectLayerComponent', () => {
 
     const objectLayers = [5, 6, 7]
 
-    setComponent(entity, ObjectLayerComponent, { objectLayers: objectLayers })
-
-    const Reactor = ObjectLayerComponent.reactor
-    const tag = <Reactor />
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
+    setComponent(entity, ObjectLayerComponent)
+    ObjectLayerComponent.enableLayers(entity, ...objectLayers)
 
     for (const mesh of meshes) {
       for (const layer of objectLayers) {
         assert(mesh.layers.isEnabled(layer))
       }
     }
-
-    unmount()
   })
 
   it('Updates objectLayers on group', async () => {
@@ -113,15 +95,9 @@ describe('ObjectLayerComponent', () => {
     const objectLayers = [2, 3, 4]
     const nonEnabledObjectLayer = 5
 
-    setComponent(entity, ObjectLayerComponent)
-    const objectLayersComponent = getComponent(entity, ObjectLayerComponent)
-    objectLayersComponent.objectLayers = objectLayers
     addObjectToGroup(entity, mesh)
-
-    const Reactor = ObjectLayerComponent.reactor
-    const tag = <Reactor />
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
+    setComponent(entity, ObjectLayerComponent)
+    ObjectLayerComponent.enableLayers(entity, ...objectLayers)
 
     for (const layer of objectLayers) {
       assert(mesh.layers.isEnabled(layer))
@@ -129,6 +105,10 @@ describe('ObjectLayerComponent', () => {
 
     assert(!mesh.layers.isEnabled(nonEnabledObjectLayer))
 
-    unmount()
+    ObjectLayerComponent.disableLayers(entity, 2, 3)
+
+    assert(mesh.layers.isEnabled(4))
+    assert(!mesh.layers.isEnabled(2))
+    assert(!mesh.layers.isEnabled(3))
   })
 })

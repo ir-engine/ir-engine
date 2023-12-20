@@ -168,7 +168,7 @@ const drawMocapDebug = (label: string) => {
         addObjectToGroup(entity, mesh)
         setVisibleComponent(entity, true)
         setComponent(entity, NameComponent, `Mocap Debug ${label} ${LandmarkNames[key]}`)
-        setComponent(entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.AvatarHelper] })
+        setComponent(entity, ObjectLayerComponent, ObjectLayers.AvatarHelper)
       }
       const entity = debugEntities[key]
       const mesh = getComponent(entity, GroupComponent)[0] as any as Mesh<BufferGeometry, MeshBasicMaterial>
@@ -192,7 +192,7 @@ const drawMocapDebug = (label: string) => {
       addObjectToGroup(lineSegmentEntity, positionLineSegment)
       setVisibleComponent(lineSegmentEntity, true)
       setComponent(lineSegmentEntity, NameComponent, 'Mocap Debug Line Segment ' + label)
-      setComponent(lineSegmentEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.AvatarHelper] })
+      setComponent(lineSegmentEntity, ObjectLayerComponent, ObjectLayers.AvatarHelper)
     }
 
     for (let i = 0; i < POSE_CONNECTIONS.length * 2; i += 2) {

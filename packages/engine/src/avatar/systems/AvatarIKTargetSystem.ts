@@ -54,7 +54,7 @@ const execute = () => {
 
     const helper = new AxesHelper(0.5)
     addObjectToGroup(entity, helper)
-    setComponent(entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.Gizmos] })
+    setComponent(entity, ObjectLayerComponent, ObjectLayers.Gizmos)
     setComponent(entity, VisibleComponent)
   }
 }

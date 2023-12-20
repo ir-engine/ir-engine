@@ -128,7 +128,7 @@ export const PositionalAudioComponent = defineComponent({
           const helper = new PositionalAudioHelper(audioNodes)
           helper.name = `positional-audio-helper-${entity}`
           addObjectToGroup(entity, helper)
-          setComponent(entity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
+          setComponent(entity, ObjectLayerComponent, ObjectLayers.NodeHelper)
           audio.helper.set(helper)
         }
       }

@@ -23,9 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import React from 'react'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { destroyEngine } from '../../../src/ecs/classes/Engine'
@@ -54,17 +52,10 @@ describe('RenderOrderComponent', () => {
 
     const renderOrder = 2
 
-    setComponent(entity, RenderOrderComponent, { renderOrder: renderOrder })
     addObjectToGroup(entity, mesh)
-
-    const Reactor = RenderOrderComponent.reactor
-    const tag = <Reactor />
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
+    setComponent(entity, RenderOrderComponent, renderOrder)
 
     assert(mesh.renderOrder === renderOrder, 'Render order is set on mesh object in group')
-
-    unmount()
   })
 
   it('Sets renderOrder on group multiple', async () => {
@@ -83,18 +74,11 @@ describe('RenderOrderComponent', () => {
 
     const renderOrder = 4
 
-    setComponent(entity, RenderOrderComponent, { renderOrder: renderOrder })
-
-    const Reactor = RenderOrderComponent.reactor
-    const tag = <Reactor />
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
+    setComponent(entity, RenderOrderComponent, renderOrder)
 
     for (const mesh of meshes) {
       assert(mesh.renderOrder === renderOrder)
     }
-
-    unmount()
   })
 
   it('Sets renderOrder to 0 as default', async () => {
@@ -105,16 +89,9 @@ describe('RenderOrderComponent', () => {
 
     const defaultRenderOrder = 0
 
-    setComponent(entity, RenderOrderComponent)
     addObjectToGroup(entity, mesh)
-
-    const Reactor = RenderOrderComponent.reactor
-    const tag = <Reactor />
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
+    setComponent(entity, RenderOrderComponent)
 
     assert(mesh.renderOrder === defaultRenderOrder)
-
-    unmount()
   })
 })

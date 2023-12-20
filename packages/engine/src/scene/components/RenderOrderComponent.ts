@@ -23,39 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
-import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from './GroupComponent'
 
 export const RenderOrderComponent = defineComponent({
   name: 'RenderOrderComponent',
 
   onInit(entity) {
-    return {
-      renderOrder: 0
-    }
+    return 0
   },
 
-  onSet(entity, component, json) {
-    if (!json) return
-    if (json.renderOrder !== undefined) {
-      component.renderOrder.set(json.renderOrder)
-    }
-  },
-
-  reactor() {
-    const entity = useEntityContext()
-    const component = useComponent(entity, RenderOrderComponent)
-
-    useEffect(() => {
+  onSet(entity, component, renderOrder) {
+    if (renderOrder !== undefined) {
+      component.set(renderOrder)
       const group = getComponent(entity, GroupComponent)
       for (const object of group) {
-        object.renderOrder = component.renderOrder.value
+        object.renderOrder = component.value
       }
-    }, [component.renderOrder])
-
-    return null
+    }
   }
 })

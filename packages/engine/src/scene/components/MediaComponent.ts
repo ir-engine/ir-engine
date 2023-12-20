@@ -494,7 +494,7 @@ export function MediaReactor() {
     setComponent(helperEntity, NameComponent, helper.name)
     setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
     setVisibleComponent(helperEntity, true)
-    setComponent(helperEntity, ObjectLayerComponent, { objectLayers: [ObjectLayers.NodeHelper] })
+    setComponent(helperEntity, ObjectLayerComponent, ObjectLayers.NodeHelper)
     media.helperEntity.set(helperEntity)
 
     return () => {
