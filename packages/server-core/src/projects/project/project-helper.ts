@@ -1688,14 +1688,12 @@ export const uploadLocalProjectToProvider = async (
 
     for (const item of manifest) {
       if (existingIdSet.has(item.id)) continue
-      const key = `projects/${projectName}${item.key}`
-      const url = getCachedURL(key, cacheDomain)
+      const url = getCachedURL(item.key, cacheDomain)
       await app.service(staticResourcePath).create({
         ...item,
-        key,
         url
       })
-      logger.info(`Uploaded static resource ${key} from resources.json`)
+      logger.info(`Uploaded static resource ${item.key} from resources.json`)
     }
   }
 

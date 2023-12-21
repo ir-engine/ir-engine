@@ -34,7 +34,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Button } from '../inputs/Button'
 
@@ -61,38 +60,39 @@ export const FilePropertiesPanel = (props: {
 
   const onSaveChanges = useCallback(() => {
     if (isModified.value) {
-      if (modifiableProperties.name.value != fileProperties.value!.name) {
-        FileBrowserService.moveContent(
-          fileProperties.value!.name,
-          modifiableProperties.name.value,
-          fileProperties.value!.path,
-          fileProperties.value!.path
-        )
-      }
-      if (tags.value.length > 0) {
-        Engine.instance.api.service(staticResourcePath).patch(id.value, {
-          tags: tags.value
-        })
-      }
+      const key = fileProperties.value!.key
+      Engine.instance.api.service(staticResourcePath).patch(resourceProperties.id.value, {
+        key,
+        tags: resourceProperties.tags.value,
+        licensing: resourceProperties.licensing.value,
+        attribution: resourceProperties.attribution.value
+      })
       isModified.set(false)
     }
   }, [])
 
-  const staticResource = useHookstate(() =>
-    Engine.instance.api.service(staticResourcePath).find({
+  const staticResource = useHookstate(async () => {
+    return await Engine.instance.api.service(staticResourcePath).find({
       query: {
         key: fileProperties.value!.key
       }
     })
-  )
-
-  const tags: State<string[]> = useHookstate([])
-  const id: State<string> = useHookstate('')
+  })
+  const resourceProperties = useHookstate({
+    tags: [] as string[],
+    id: '',
+    attribution: '',
+    licensing: ''
+  })
   useEffect(() => {
-    if (!staticResource.promised) {
-      const resources = JSON.parse(JSON.stringify(staticResource.data.value[0])) as StaticResourceType
-      resources && tags.set(resources.tags)
-      resources && id.set(resources.id)
+    if (!staticResource.promised && staticResource.value.data.length > 0) {
+      const resources = JSON.parse(JSON.stringify(staticResource.value.data[0])) as StaticResourceType
+      if (resources) {
+        resourceProperties.tags.set(resources.tags ?? [])
+        resourceProperties.id.set(resources.id)
+        resourceProperties.attribution.set(resources.attribution ?? '')
+        resourceProperties.licensing.set(resources.licensing ?? '')
+      }
     }
   }, [staticResource])
 
@@ -111,6 +111,7 @@ export const FilePropertiesPanel = (props: {
           label={t('editor:layout.filebrowser.fileProperties.name')}
           onChange={onChange(modifiableProperties.name)}
           value={modifiableProperties.name.value}
+          disabled={true}
         />
         <Grid container spacing={5}>
           <Grid item xs={6}>
@@ -122,26 +123,57 @@ export const FilePropertiesPanel = (props: {
             <Typography className={styles.secondaryText}>{modifiableProperties.size.value}</Typography>
           </Grid>
         </Grid>
-        <Button
-          onClick={() => {
-            tags.set([...tags.value, ''])
-          }}
-        >
-          Add Tag
-        </Button>
-        {tags.value.map((tag, index) => (
-          <InputText
-            key={index}
-            name={`tag${index}`}
-            label={t('editor:layout.filebrowser.fileProperties.tag')}
-            onChange={onChange(tags[index])}
-            value={tags[index].value}
-          />
-        ))}
-        {isModified.value && (
-          <Button onClick={onSaveChanges} style={{ marginTop: '15px' }}>
-            Save Changes
-          </Button>
+        {resourceProperties.id.value && (
+          <>
+            <hr style={{ margin: '16px' }} />
+            <InputText
+              name="attribution"
+              label={t('editor:layout.filebrowser.fileProperties.attribution')}
+              onChange={onChange(resourceProperties.attribution)}
+              value={resourceProperties.attribution.value}
+            />
+            <InputText
+              name="licensing"
+              label={t('editor:layout.filebrowser.fileProperties.licensing')}
+              onChange={onChange(resourceProperties.licensing)}
+              value={resourceProperties.licensing.value}
+            />
+            <Button
+              onClick={() => {
+                resourceProperties.tags.set([...(resourceProperties.tags.value ?? []), ''])
+              }}
+            >
+              {t('editor:layout.filebrowser.fileProperties.addTag')}
+            </Button>
+            <div style={{ marginTop: '16px' }}>
+              {(resourceProperties.tags.value ?? []).map((tag, index) => (
+                <div style={{ display: 'flex', flexDirection: 'row', margin: '0, 16px 0 0' }}>
+                  <InputText
+                    key={index}
+                    name={`tag${index}`}
+                    label={t('editor:layout.filebrowser.fileProperties.tag')}
+                    onChange={onChange(resourceProperties.tags[index])}
+                    value={resourceProperties.tags[index].value}
+                    sx={{ width: '100%', marginRight: '32px' }}
+                  />
+                  <Button
+                    onClick={() => {
+                      resourceProperties.tags.set(resourceProperties.tags.value.filter((_, i) => i !== index))
+                    }}
+                    style={{ width: '16px', height: '16px', margin: '8px 0 0 10px' }}
+                  >
+                    {' '}
+                    x{' '}
+                  </Button>
+                </div>
+              ))}
+            </div>
+            {isModified.value && (
+              <Button onClick={onSaveChanges} style={{ marginTop: '15px' }}>
+                Save Changes
+              </Button>
+            )}
+          </>
         )}
       </form>
     </Dialog>

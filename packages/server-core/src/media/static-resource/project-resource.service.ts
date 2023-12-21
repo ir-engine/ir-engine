@@ -54,6 +54,11 @@ const createProjectResource =
     })
     //wipe URLs from resources
     for (const resource of resources) {
+      for (const field of Object.keys(resource)) {
+        if (resource[field] === null) {
+          delete resource[field]
+        }
+      }
       resource.url = ''
     }
     const storageProvider = getStorageProvider()
