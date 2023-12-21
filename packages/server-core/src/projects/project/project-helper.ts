@@ -1665,7 +1665,7 @@ export const uploadLocalProjectToProvider = async (
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
   const resourceKey = (key, hash) => `${key}#${hash}`
-  const currentProjectResources = await app
+  const { existingContentSet, existingIdSet } = await app
     .service(staticResourcePath)
     .find({
       query: {
@@ -1673,11 +1673,13 @@ export const uploadLocalProjectToProvider = async (
       }
     })
     .then((res) => {
-      const set = new Set<string>()
+      const existingContentSet = new Set<string>()
+      const existingIdSet = new Set<string>()
       for (const item of res.data) {
-        set.add(resourceKey(item.key, item.hash))
+        existingContentSet.add(resourceKey(item.key, item.hash))
+        existingIdSet.add(item.id)
       }
-      return set
+      return { existingContentSet, existingIdSet }
     })
 
   if (hasResourceDB) {
@@ -1685,6 +1687,7 @@ export const uploadLocalProjectToProvider = async (
     const manifest: StaticResourceType[] = JSON.parse(fs.readFileSync(resourceDBPath).toString())
 
     for (const item of manifest) {
+      if (existingIdSet.has(item.id)) continue
       const key = `projects/${projectName}${item.key}`
       const url = getCachedURL(key, cacheDomain)
       await app.service(staticResourcePath).create({
@@ -1723,7 +1726,7 @@ export const uploadLocalProjectToProvider = async (
         const thisFileClass = AssetLoader.getAssetClass(file)
         if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
           const hash = createStaticResourceHash(fileResult, { mimeType: contentType, assetURL: key })
-          if (currentProjectResources.has(resourceKey(key, hash))) {
+          if (existingContentSet.has(resourceKey(key, hash))) {
             logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
           } else {
             await app.service(staticResourcePath).create({
