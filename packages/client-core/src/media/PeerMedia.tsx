@@ -196,7 +196,7 @@ export const PeerMediaChannels = () => {
 
   useEffect(() => {
     const mediaChannelPeers = mediaNetwork?.peers?.keys?.length
-      ? Array.from(mediaNetwork.peers.keys as PeerID[]).filter((peerID) => peerID !== 'server')
+      ? Array.from(mediaNetwork.peers.keys as PeerID[]).filter((peerID) => peerID !== mediaNetwork.value.hostPeerID)
       : [Engine.instance.peerID]
     mediaPeers.set(mediaChannelPeers)
   }, [mediaNetwork?.peers?.keys?.length])
