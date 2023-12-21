@@ -25,9 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { CanvasTexture, ClampToEdgeWrapping, CompressedTexture, LinearMipmapLinearFilter, SRGBColorSpace } from 'three'
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 import { TextureData, TextureHash, WebLayerManagerBase } from '../WebLayerManagerBase'
 import { WebLayer3D } from './WebLayer3D'
 
@@ -41,6 +40,8 @@ export class WebLayerManager extends WebLayerManagerBase {
   static initialize(renderer: THREE.WebGLRenderer) {
     WebLayerManager.instance = new WebLayerManager()
     WebLayerManager.instance.renderer = renderer
+    WebLayerManager.instance.ktx2Loader.setWorkerLimit(2)
+    WebLayerManager.instance.ktx2Loader.detectSupport(renderer)
     WebLayerManager.instance.ktx2Encoder.setWorkerLimit(1)
   }
 
@@ -48,10 +49,12 @@ export class WebLayerManager extends WebLayerManagerBase {
 
   constructor() {
     super()
+    this.ktx2Loader.setTranscoderPath(WebLayerManager.DEFAULT_TRANSCODER_PATH)
   }
 
   renderer!: THREE.WebGLRenderer
   textureEncoding = SRGBColorSpace
+  ktx2Loader = new KTX2Loader()
 
   texturesByHash = new Map<string, ThreeTextureData>()
   // texturesByCharacter = new Map<number, ThreeTextureData>()
@@ -76,9 +79,8 @@ export class WebLayerManager extends WebLayerManagerBase {
     if (!this._compressedTexturePromise.has(textureData.hash)) {
       new Promise((resolve) => {
         this._compressedTexturePromise.set(textureData.hash, resolve)
-        AssetLoader.load(
+        this.ktx2Loader.load(
           ktx2Url,
-          { forceAssetType: AssetType.KTX2 },
           (t) => {
             t.wrapS = ClampToEdgeWrapping
             t.wrapT = ClampToEdgeWrapping
@@ -87,8 +89,8 @@ export class WebLayerManager extends WebLayerManagerBase {
             this.texturesByHash.get(textureData.hash)!.compressedTexture = t
             resolve(undefined)
           },
-          undefined,
-          () => {}
+          () => {},
+          resolve
         )
       })
     }
