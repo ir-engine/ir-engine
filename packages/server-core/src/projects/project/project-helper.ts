@@ -1688,12 +1688,9 @@ export const uploadLocalProjectToProvider = async (
       const key = `projects/${projectName}${item.key}`
       const url = getCachedURL(key, cacheDomain)
       await app.service(staticResourcePath).create({
+        ...item,
         key,
-        project: projectName,
-        hash: item.hash,
-        url,
-        mimeType: item.mimeType,
-        tags: item.tags
+        url
       })
       logger.info(`Uploaded static resource ${key} from resources.json`)
     }

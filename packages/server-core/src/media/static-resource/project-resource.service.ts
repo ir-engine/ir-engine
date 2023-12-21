@@ -52,6 +52,10 @@ const createProjectResource =
       query: { project },
       paginate: false
     })
+    //wipe URLs from resources
+    for (const resource of resources) {
+      resource.url = ''
+    }
     const storageProvider = getStorageProvider()
     const key = `projects/${project}/resources.json`
     await storageProvider.putObject({
