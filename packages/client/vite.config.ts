@@ -234,7 +234,9 @@ export default defineConfig(async () => {
 
   resetSWFiles()
 
-  const isDevOrLocal = process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
+  const isDevOrLocal =
+    process.env.FORCE_DEV_LOCAL_FALSE !== 'true' &&
+    (!(process.env.APP_ENV === 'development') || process.env.VITE_LOCAL_BUILD === 'true')
 
   let base = `https://${process.env['APP_HOST'] ? process.env['APP_HOST'] : process.env['VITE_APP_HOST']}/`
 
@@ -258,7 +260,7 @@ export default defineConfig(async () => {
               overlay: false
             }
           : false,
-      host: process.env['VITE_APP_HOST'],
+      host: true,
       port: process.env['VITE_APP_PORT'],
       headers: {
         'Origin-Agent-Cluster': '?1'

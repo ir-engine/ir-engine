@@ -27,7 +27,8 @@ Ethereal Engine. All Rights Reserved.
  * Config settings (for client and isomorphic engine usage).
  */
 const localBuildOrDev =
-  globalThis.process.env['APP_ENV'] === 'development' || globalThis.process.env['VITE_LOCAL_BUILD'] === 'true'
+  globalThis.process.env['FORCE_DEV_LOCAL_FALSE'] !== 'true' &&
+  (!(globalThis.process.env['APP_ENV'] === 'development') || globalThis.process.env['VITE_LOCAL_BUILD'] === 'true')
 
 export function validateEmail(email: string): boolean {
   return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)
