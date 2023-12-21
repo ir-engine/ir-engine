@@ -36,8 +36,9 @@ import {
   VRMParameters
 } from '@pixiv/three-vrm'
 import { cloneDeep } from 'lodash'
-import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Bone, Group, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
+import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 import { Object3DUtils } from '../common/functions/Object3DUtils'
 
 export type BoneNames =
@@ -671,7 +672,22 @@ export function getAPose(rightHand: Vector3, _rightUpperArmPos: Vector3): boolea
 
 const _rightHandPos = new Vector3(),
   _rightUpperArmPos = new Vector3()
-export default function avatarBoneMatching(model: Object3D): VRM {
+export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
+  /** Detect that the model needs bone matching */
+  if (asset instanceof VRM) return asset
+
+  let isAvatar = false
+  let hasSkinnedMesh = false
+  asset.scene.traverse((target: SkinnedMesh) => {
+    //see if we find hips
+    const name = target.name.toLowerCase()
+    if (name.includes('hip') || name.includes('root')) {
+      isAvatar = true
+    }
+    if (target.isSkinnedMesh) hasSkinnedMesh = true
+  })
+  if (!isAvatar || !hasSkinnedMesh) return asset
+
   const bones = {} as VRMHumanBones
   //use hips name as a standard to determine what to do with the mixamo prefix
   let needsMixamoPrefix = false
@@ -679,7 +695,7 @@ export default function avatarBoneMatching(model: Object3D): VRM {
   let removeIdentifier = false
   let foundHips = false
 
-  model.traverse((target) => {
+  asset.scene.traverse((target) => {
     //see if we find hips
     if (target.name.toLowerCase().includes('hip')) {
       needsMixamoPrefix = !target.name.includes('mixamorig')
@@ -707,18 +723,20 @@ export default function avatarBoneMatching(model: Object3D): VRM {
 
   const humanoid = new VRMHumanoid(bones)
 
-  model.add(humanoid.normalizedHumanBonesRoot)
+  asset.scene.add(humanoid.normalizedHumanBonesRoot)
+
+  const scene = asset.scene as any as Group
 
   const vrm = new VRM({
     humanoid,
-    scene: model,
-    meta: { name: model.children[0].name } as VRM1Meta
+    scene: scene,
+    meta: { name: scene.children[0].name } as VRM1Meta
   } as VRMParameters)
 
   humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
   humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
   //quick dirty tag to disable flipping on mixamo rigs
-  ;(vrm as any).userData = { flipped: false, useAPose: getAPose(_rightHandPos, _rightUpperArmPos) } as any
+  vrm.userData = { useAPose: getAPose(_rightHandPos, _rightUpperArmPos) }
   return vrm
 }
 

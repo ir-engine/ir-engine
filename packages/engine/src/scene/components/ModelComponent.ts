@@ -24,14 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Scene, SkinnedMesh } from 'three'
+import { Object3D, Scene } from 'three'
 
-import { NO_PROXY, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
+import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -42,26 +44,30 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
+  serializeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent,
+  useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
+import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import { Object3DWithEntity, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { enableObjectLayer } from '../functions/setObjectLayers'
+import { EnvmapComponent } from './EnvmapComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
+import { ShadowComponent } from './ShadowComponent'
+import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
-
-export type SceneWithEntity = Scene & { entity: Entity }
+import { VisibleComponent } from './VisibleComponent'
 
 function clearMaterials(src: string) {
   try {
@@ -75,6 +81,8 @@ function clearMaterials(src: string) {
   }
 }
 
+const entitiesInModelHierarchy = {} as Record<Entity, Entity[]>
+
 export const ModelComponent = defineComponent({
   name: 'Model Component',
   jsonID: 'gltf-model',
@@ -82,28 +90,26 @@ export const ModelComponent = defineComponent({
   onInit: (entity) => {
     return {
       src: '',
-      generateBVH: true,
-      avoidCameraOcclusion: false,
+      cameraOcclusion: true,
       // internal
-      scene: null as SceneWithEntity | null,
-      asset: null as VRM | GLTF | null,
-      hasSkinnedMesh: false
+      scene: null as Scene | null,
+      asset: null as VRM | GLTF | null
     }
   },
 
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
-      generateBVH: component.generateBVH.value,
-      avoidCameraOcclusion: component.avoidCameraOcclusion.value
+      cameraOcclusion: component.cameraOcclusion.value
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.src === 'string') component.src.set(json.src)
-    if (typeof json.generateBVH === 'boolean') component.generateBVH.set(json.generateBVH)
-    if (typeof json.avoidCameraOcclusion === 'boolean') component.avoidCameraOcclusion.set(json.avoidCameraOcclusion)
+    if (typeof (json as any).avoidCameraOcclusion === 'boolean')
+      component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
+    if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -119,7 +125,11 @@ export const ModelComponent = defineComponent({
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
-  reactor: ModelReactor
+  reactor: ModelReactor,
+
+  /** Tracks all child entities loaded by this model */
+  entitiesInModelHierarchyState: createState(entitiesInModelHierarchy),
+  entitiesInModelHierarchy: entitiesInModelHierarchy as Readonly<typeof entitiesInModelHierarchy>
 })
 
 function ModelReactor() {
@@ -132,7 +142,7 @@ function ModelReactor() {
 
     const model = modelComponent.value
     if (!model.src) {
-      const dudScene = new Scene() as SceneWithEntity & Object3DWithEntity
+      const dudScene = new Scene() as Scene & Object3D
       dudScene.entity = entity
       Object.assign(dudScene, {
         isProxified: true
@@ -142,10 +152,14 @@ function ModelReactor() {
       return
     }
 
+    /** @todo this is a hack */
+    const override = !isAvaturn(model.src) ? undefined : AssetType.glB
+
     AssetLoader.load(
       modelComponent.src.value,
       {
-        ignoreDisposeGeometry: modelComponent.generateBVH.value,
+        forceAssetType: override,
+        ignoreDisposeGeometry: modelComponent.cameraOcclusion.value,
         uuid: uuid.value
       },
       (loadedAsset) => {
@@ -154,16 +168,18 @@ function ModelReactor() {
           addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
           return
         }
-        modelComponent.asset.set(loadedAsset)
+        const boneMatchedAsset = autoconvertMixamoAvatar(loadedAsset)
+        modelComponent.asset.set(boneMatchedAsset)
       },
       (onprogress) => {
         if (aborted) return
-        SceneAssetPendingTagComponent.loadingProgress.merge({
-          [entity]: {
-            loadedAmount: onprogress.loaded,
-            totalAmount: onprogress.total
-          }
-        })
+        if (hasComponent(entity, SceneAssetPendingTagComponent))
+          SceneAssetPendingTagComponent.loadingProgress.merge({
+            [entity]: {
+              loadedAmount: onprogress.loaded,
+              totalAmount: onprogress.total
+            }
+          })
       },
       (err: Error) => {
         if (aborted) return
@@ -183,21 +199,19 @@ function ModelReactor() {
     if (!asset) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    const fileExtension = model.src.split('.').pop()?.toLowerCase()
     asset.scene.animations = asset.animations
     asset.scene.userData.src = model.src
     asset.scene.userData.sceneID = getModelSceneID(entity)
     asset.scene.userData.type === 'glb' && delete asset.scene.userData.type
-    if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
-    modelComponent.scene.set(asset.scene as any)
+    modelComponent.scene.set(asset.scene)
   }, [modelComponent.asset])
 
   // update scene
   useEffect(() => {
     const scene = getComponent(entity, ModelComponent).scene
-    if (!scene) return
+    const asset = getComponent(entity, ModelComponent).asset
 
-    addObjectToGroup(entity, scene)
+    if (!scene || !asset) return
 
     if (EngineRenderer.instance)
       EngineRenderer.instance.renderer
@@ -210,14 +224,13 @@ function ModelReactor() {
         })
     else removeComponent(entity, SceneAssetPendingTagComponent)
 
-    setComponent(entity, BoundingBoxComponent)
-
     const loadedJsonHierarchy = parseGLTFModel(entity)
     const uuid = getModelSceneID(entity)
+
     SceneState.loadScene(uuid, {
       scene: {
         entities: loadedJsonHierarchy,
-        root: '' as EntityUUID,
+        root: getComponent(entity, UUIDComponent),
         version: 0
       },
       scenePath: uuid,
@@ -229,45 +242,68 @@ function ModelReactor() {
     return () => {
       clearMaterials(src)
       getMutableState(SceneState).scenes[uuid].set(none)
-      removeObjectFromGroup(entity, scene)
     }
   }, [modelComponent.scene])
 
-  // update scene
+  const childQuery = useQuery([SourceComponent])
   useEffect(() => {
-    const scene = getComponent(entity, ModelComponent).scene
-    if (!scene) return
-
-    let active = true
-
-    // check for skinned meshes, and turn off frustum culling for them
-    const skinnedMeshSearch = iterateEntityNode(
-      scene.entity,
-      (childEntity) => getComponent(childEntity, MeshComponent),
-      (childEntity) =>
-        hasComponent(childEntity, MeshComponent) &&
-        (getComponent(childEntity, MeshComponent) as SkinnedMesh).isSkinnedMesh
+    const modelSceneID = getModelSceneID(entity)
+    ModelComponent.entitiesInModelHierarchyState[entity].set(
+      childQuery.filter((e) => getComponent(e, SourceComponent) === modelSceneID)
     )
+  }, [JSON.stringify(childQuery)])
 
-    if (skinnedMeshSearch[0]) {
-      modelComponent.hasSkinnedMesh.set(true)
-      modelComponent.generateBVH.set(false)
-      for (const skinnedMesh of skinnedMeshSearch) {
-        skinnedMesh.frustumCulled = false
-      }
-      setComponent(entity, FrustumCullCameraComponent)
-    }
-
-    return () => {
-      active = false
-    }
-  }, [modelComponent.scene, modelComponent.generateBVH])
+  const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
   useEffect(() => {
-    if (!modelComponent.scene.value) return
-    if (modelComponent.avoidCameraOcclusion.value) removeComponent(entity, FrustumCullCameraComponent)
-    else setComponent(entity, FrustumCullCameraComponent)
-  }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
+    for (const childEntity of childEntities.value) {
+      if (!hasComponent(childEntity, MeshComponent) || hasComponent(entity, SkinnedMeshComponent)) continue
+      const mesh = getComponent(childEntity, MeshComponent)
+      if (modelComponent.cameraOcclusion.value) generateMeshBVH(mesh)
+      enableObjectLayer(
+        mesh,
+        ObjectLayers.Camera,
+        modelComponent.cameraOcclusion.value && hasComponent(childEntity, VisibleComponent)
+      )
+    }
+  }, [childEntities, modelComponent.cameraOcclusion])
+
+  const shadowComponent = useOptionalComponent(entity, ShadowComponent)
+  useEffect(() => {
+    for (const childEntity of childEntities.value) {
+      if (!hasComponent(childEntity, MeshComponent)) continue
+      if (shadowComponent) setComponent(childEntity, ShadowComponent, serializeComponent(entity, ShadowComponent))
+      else removeComponent(childEntity, ShadowComponent)
+    }
+  }, [childEntities, shadowComponent])
+
+  const envmapComponent = useOptionalComponent(entity, EnvmapComponent)
+  useEffect(() => {
+    for (const childEntity of childEntities.value) {
+      if (!hasComponent(childEntity, MeshComponent)) continue
+      if (envmapComponent) setComponent(childEntity, EnvmapComponent, serializeComponent(entity, EnvmapComponent))
+      else removeComponent(childEntity, EnvmapComponent)
+    }
+  }, [childEntities, envmapComponent])
 
   return null
+}
+
+/**
+ * Returns true if the entity is a mesh not a part of a model, or a model
+ * @param entity
+ * @returns
+ */
+export const useMeshOrModel = (entity: Entity) => {
+  const meshComponent = useOptionalComponent(entity, MeshComponent)
+  const modelComponent = useOptionalComponent(entity, ModelComponent)
+  const sourceComponent = useOptionalComponent(entity, SourceComponent)
+  const isEntityHierarchyOrMesh = (!sourceComponent && !!meshComponent) || !!modelComponent
+  return isEntityHierarchyOrMesh
+}
+
+export const useContainsMesh = (entity: Entity) => {
+  const meshComponent = useOptionalComponent(entity, MeshComponent)
+  const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
+  return !!meshComponent || !!childEntities.value?.find((e: Entity) => getComponent(e, MeshComponent))
 }
