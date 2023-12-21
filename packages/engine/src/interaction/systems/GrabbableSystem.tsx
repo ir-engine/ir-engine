@@ -57,6 +57,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
@@ -144,9 +145,10 @@ const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID })
     }
 
     return () => {
-      removeComponent(entity, GrabbedComponent)
       if (hasComponent(grabberEntity, GrabbedComponent))
         setComponent(grabberEntity, GrabberComponent, { [attachmentPoint]: null })
+      if (!entityExists(entity)) return
+      removeComponent(entity, GrabbedComponent)
       if (body) {
         Physics.changeRigidbodyType(entity, RigidBodyType.Dynamic)
         for (let i = 0; i < body.numColliders(); i++) {
