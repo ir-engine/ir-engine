@@ -27,7 +27,7 @@ import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { destroyEngine } from '../../../src/ecs/classes/Engine'
-import { hasComponent, setComponent } from '../../../src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '../../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../src/initializeEngine'
 import { addObjectToGroup } from '../../../src/scene/components/GroupComponent'
@@ -134,7 +134,11 @@ describe('ObjectLayerComponent', () => {
     const entity = createEntity()
     const layer = new Layer(entity)
 
-    assert(layer.isEnabled(1))
+    assert(layer.isEnabled(0))
+    const layerMaskComponent = getComponent(entity, ObjectLayerMaskComponent)
+    assert(layerMaskComponent === 1)
+    assert(ObjectLayerMaskComponent.mask[entity] === 1)
+    assert(hasComponent(entity, ObjectLayerComponents[0]))
 
     const enabledLayers = [2, 3, 4]
 

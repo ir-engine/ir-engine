@@ -85,6 +85,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
     get: () => RenderOrderComponent.renderOrder[entity],
     set: (val: number) => setComponent(entity, RenderOrderComponent, val)
   })
+  obj.renderOrder = 0
 
   Object.assign(obj, {
     updateWorldMatrix: () => {}
@@ -118,12 +119,6 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
   }
 
   object.removeFromParent()
-
-  /** @todo this will be moved to onRemove for ObjectLayerComponent once it exists */
-  const layers = Object.values(Engine.instance.objectLayerList)
-  for (const layer of layers) {
-    if (layer.has(obj)) layer.delete(obj)
-  }
 }
 
 export type GroupReactorProps = {

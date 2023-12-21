@@ -40,6 +40,6 @@ export const RenderOrderComponent = defineComponent({
   },
 
   toJSON(entity, component) {
-    return RenderOrderComponent.renderOrder[entity]
+    return component.value
   }
 })

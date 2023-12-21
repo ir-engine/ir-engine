@@ -27,9 +27,11 @@ import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { destroyEngine } from '../../../src/ecs/classes/Engine'
+import { getComponent, setComponent } from '../../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../src/initializeEngine'
-import { SetRenderOrder } from '../../../src/scene/components/RenderOrderComponent'
+import { addObjectToGroup } from '../../../src/scene/components/GroupComponent'
+import { RenderOrderComponent } from '../../../src/scene/components/RenderOrderComponent'
 import { loadEmptyScene } from '../../util/loadEmptyScene'
 
 describe('RenderOrderComponent', () => {
@@ -42,25 +44,6 @@ describe('RenderOrderComponent', () => {
     return destroyEngine()
   })
 
-  it('Sets renderOrder on object', async () => {
-    const entity = createEntity()
-    const geometry = new BoxGeometry(1, 1, 1)
-    const material = new MeshBasicMaterial({ color: 0xffff00 })
-    const mesh = new Mesh(geometry, material)
-
-    const renderOrder = 2
-    const renderOrder2 = -1
-
-    SetRenderOrder(entity, mesh)
-    mesh.renderOrder = renderOrder
-
-    assert(mesh.renderOrder === renderOrder)
-
-    mesh.renderOrder = renderOrder2
-
-    assert(mesh.renderOrder === renderOrder2)
-  })
-
   it('Sets renderOrder to 0 as default', async () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)
@@ -68,9 +51,28 @@ describe('RenderOrderComponent', () => {
     const mesh = new Mesh(geometry, material)
 
     const defaultRenderOrder = 0
+    addObjectToGroup(entity, mesh)
+    assert.equal(mesh.renderOrder, defaultRenderOrder)
+    assert.equal(getComponent(entity, RenderOrderComponent), 0)
+    assert.equal(RenderOrderComponent.renderOrder[entity], 0)
+  })
 
-    SetRenderOrder(entity, mesh)
+  it('Sets renderOrder on object', async () => {
+    const entity = createEntity()
+    const geometry = new BoxGeometry(1, 1, 1)
+    const material = new MeshBasicMaterial({ color: 0xffff00 })
+    const mesh = new Mesh(geometry, material)
 
-    assert(mesh.renderOrder === defaultRenderOrder)
+    addObjectToGroup(entity, mesh)
+
+    mesh.renderOrder = 2 as number
+    assert.equal(getComponent(entity, RenderOrderComponent), 2)
+    assert.equal(RenderOrderComponent.renderOrder[entity], 2)
+    assert.equal(mesh.renderOrder, 2)
+
+    setComponent(entity, RenderOrderComponent, 42)
+    assert.equal(getComponent(entity, RenderOrderComponent), 42)
+    assert.equal(RenderOrderComponent.renderOrder[entity], 42)
+    assert.equal(mesh.renderOrder, 42)
   })
 })

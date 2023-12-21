@@ -25,7 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { Types } from 'bitecs'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 
 const maxBitWidth = 32
 export const ObjectLayerComponents = Array.from({ length: maxBitWidth }, (_, i) => {
@@ -43,7 +49,7 @@ export const ObjectLayerComponents = Array.from({ length: maxBitWidth }, (_, i) 
 })
 
 export const ObjectLayerMaskComponent = defineComponent({
-  name: 'ObjectLayerComponent',
+  name: 'ObjectLayerMaskComponent',
   schema: { mask: Types.i32 },
 
   onInit(entity) {
@@ -51,44 +57,6 @@ export const ObjectLayerMaskComponent = defineComponent({
   },
 
   onSet(entity, component, mask = 1 | 0) {
-    ObjectLayerMaskComponent.setMask(entity, mask)
-  },
-
-  toJSON(entity, component) {
-    return { mask: ObjectLayerMaskComponent.mask[entity] }
-  },
-
-  setLayer(entity, layer: number) {
-    for (let i = 0; i < maxBitWidth; i++) {
-      if (i == layer) {
-        setComponent(entity, ObjectLayerComponents[i])
-      } else {
-        removeComponent(entity, ObjectLayerComponents[i])
-      }
-    }
-  },
-
-  enableLayers(entity, ...layers: number[]) {
-    for (const layer of layers) {
-      setComponent(entity, ObjectLayerComponents[layer])
-    }
-  },
-
-  disableLayers(entity, ...layers: number[]) {
-    for (const layer of layers) {
-      removeComponent(entity, ObjectLayerComponents[layer])
-    }
-  },
-
-  toggleLayer(entity, layer: number) {
-    if (hasComponent(entity, ObjectLayerComponents[layer])) {
-      ObjectLayerMaskComponent.disableLayers(entity, layer)
-    } else {
-      ObjectLayerMaskComponent.enableLayers(entity, layer)
-    }
-  },
-
-  setMask(entity, mask: number) {
     for (let i = 0; i < maxBitWidth; i++) {
       const isSet = (mask & ((1 << i) | 0)) !== 0
       if (isSet) {
@@ -97,6 +65,57 @@ export const ObjectLayerMaskComponent = defineComponent({
         removeComponent(entity, ObjectLayerComponents[i])
       }
     }
+    component.set(ObjectLayerMaskComponent.mask[entity])
+  },
+
+  toJSON(entity, component) {
+    return component.value
+  },
+
+  setLayer(entity: Entity, layer: number) {
+    for (let i = 0; i < maxBitWidth; i++) {
+      if (i == layer) {
+        setComponent(entity, ObjectLayerComponents[i])
+      } else {
+        removeComponent(entity, ObjectLayerComponents[i])
+      }
+    }
+    getMutableComponent(entity, ObjectLayerMaskComponent).set(ObjectLayerMaskComponent.mask[entity])
+  },
+
+  enableLayers(entity: Entity, ...layers: number[]) {
+    for (const layer of layers) {
+      setComponent(entity, ObjectLayerComponents[layer])
+    }
+    getMutableComponent(entity, ObjectLayerMaskComponent).set(ObjectLayerMaskComponent.mask[entity])
+  },
+
+  disableLayers(entity: Entity, ...layers: number[]) {
+    for (const layer of layers) {
+      removeComponent(entity, ObjectLayerComponents[layer])
+    }
+    getMutableComponent(entity, ObjectLayerMaskComponent).set(ObjectLayerMaskComponent.mask[entity])
+  },
+
+  toggleLayer(entity: Entity, layer: number) {
+    if (hasComponent(entity, ObjectLayerComponents[layer])) {
+      ObjectLayerMaskComponent.disableLayers(entity, layer)
+    } else {
+      ObjectLayerMaskComponent.enableLayers(entity, layer)
+    }
+    getMutableComponent(entity, ObjectLayerMaskComponent).set(ObjectLayerMaskComponent.mask[entity])
+  },
+
+  setMask(entity: Entity, mask: number) {
+    for (let i = 0; i < maxBitWidth; i++) {
+      const isSet = (mask & ((1 << i) | 0)) !== 0
+      if (isSet) {
+        setComponent(entity, ObjectLayerComponents[i])
+      } else {
+        removeComponent(entity, ObjectLayerComponents[i])
+      }
+    }
+    getMutableComponent(entity, ObjectLayerMaskComponent).set(ObjectLayerMaskComponent.mask[entity])
   }
 })
 
@@ -110,7 +129,7 @@ export class Layer {
   }
 
   set mask(val) {
-    ObjectLayerMaskComponent.setMask(this.entity, val)
+    setComponent(this.entity, ObjectLayerMaskComponent, val)
   }
 
   set(channel: number) {
