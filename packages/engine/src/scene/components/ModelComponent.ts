@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Object3D, Scene } from 'three'
+import { Scene } from 'three'
 
 import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -61,6 +61,7 @@ import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { EnvmapComponent } from './EnvmapComponent'
+import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
@@ -142,12 +143,11 @@ function ModelReactor() {
 
     const model = modelComponent.value
     if (!model.src) {
-      const dudScene = new Scene() as Scene & Object3D
-      dudScene.entity = entity
-      Object.assign(dudScene, {
-        isProxified: true
-      })
-      modelComponent.scene.set(dudScene)
+      // const dudScene = new Scene() as Scene & Object3D
+      // dudScene.entity = entity
+      // addObjectToGroup(entity, dudScene)
+      // proxifyParentChildRelationships(dudScene)
+      modelComponent.scene.set(null)
       modelComponent.asset.set(null)
       return
     }
@@ -168,7 +168,8 @@ function ModelReactor() {
           addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
           return
         }
-        const boneMatchedAsset = autoconvertMixamoAvatar(loadedAsset)
+        const boneMatchedAsset = autoconvertMixamoAvatar(loadedAsset) as GLTF
+        boneMatchedAsset.scene.animations = boneMatchedAsset.animations
         modelComponent.asset.set(boneMatchedAsset)
       },
       (onprogress) => {
@@ -199,11 +200,12 @@ function ModelReactor() {
     if (!asset) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    asset.scene.animations = asset.animations
-    asset.scene.userData.src = model.src
-    asset.scene.userData.sceneID = getModelSceneID(entity)
-    asset.scene.userData.type === 'glb' && delete asset.scene.userData.type
-    modelComponent.scene.set(asset.scene)
+    const sceneObj = getComponent(entity, GroupComponent)[0] as Scene
+
+    sceneObj.userData.src = model.src
+    sceneObj.userData.sceneID = getModelSceneID(entity)
+    //sceneObj.userData.type === 'glb' && delete asset.scene.userData.type
+    modelComponent.scene.set(sceneObj)
   }, [modelComponent.asset])
 
   // update scene
@@ -224,7 +226,7 @@ function ModelReactor() {
         })
     else removeComponent(entity, SceneAssetPendingTagComponent)
 
-    const loadedJsonHierarchy = parseGLTFModel(entity)
+    const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
 
     SceneState.loadScene(uuid, {
@@ -242,6 +244,9 @@ function ModelReactor() {
     return () => {
       clearMaterials(src)
       getMutableState(SceneState).scenes[uuid].set(none)
+      // for(const child of scene.children) {
+      //   removeEntity(child.entity)
+      // }
     }
   }, [modelComponent.scene])
 
