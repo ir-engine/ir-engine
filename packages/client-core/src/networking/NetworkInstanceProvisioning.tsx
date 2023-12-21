@@ -41,7 +41,7 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { Groups } from '@mui/icons-material'
+import Groups from '@mui/icons-material/Groups'
 
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'

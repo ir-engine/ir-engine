@@ -43,7 +43,7 @@ import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
 
-import { SportsBarTwoTone } from '@mui/icons-material'
+import SportsBarTwoTone from '@mui/icons-material/SportsBarTwoTone'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
