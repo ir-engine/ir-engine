@@ -50,9 +50,8 @@ describe('RenderOrderComponent', () => {
     const material = new MeshBasicMaterial({ color: 0xffff00 })
     const mesh = new Mesh(geometry, material)
 
-    const defaultRenderOrder = 0
     addObjectToGroup(entity, mesh)
-    assert.equal(mesh.renderOrder, defaultRenderOrder)
+    assert.equal(mesh.renderOrder, 0)
     assert.equal(getComponent(entity, RenderOrderComponent), 0)
     assert.equal(RenderOrderComponent.renderOrder[entity], 0)
   })
@@ -65,7 +64,7 @@ describe('RenderOrderComponent', () => {
 
     addObjectToGroup(entity, mesh)
 
-    mesh.renderOrder = 2 as number
+    mesh.renderOrder = 2
     assert.equal(getComponent(entity, RenderOrderComponent), 2)
     assert.equal(RenderOrderComponent.renderOrder[entity], 2)
     assert.equal(mesh.renderOrder, 2)
