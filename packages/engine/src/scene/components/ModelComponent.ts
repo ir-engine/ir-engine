@@ -42,6 +42,7 @@ import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   serializeComponent,
@@ -51,6 +52,7 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -61,6 +63,7 @@ import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { EnvmapComponent } from './EnvmapComponent'
+import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
@@ -144,8 +147,37 @@ function ModelReactor() {
     if (!model.src) {
       const dudScene = new Scene() as Scene & Object3D
       dudScene.entity = entity
-      Object.assign(dudScene, {
-        isProxified: true
+      Object.defineProperties(dudScene, {
+        parent: {
+          get() {
+            if (EngineRenderer.instance?.rendering) return null
+            if (getComponent(entity, EntityTreeComponent)?.parentEntity) {
+              return (
+                getComponent(getComponent(entity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
+                Engine.instance.scene
+              )
+            }
+          },
+          set(value) {
+            throw new Error('Cannot set parent of proxified object')
+          }
+        },
+        children: {
+          get() {
+            if (EngineRenderer.instance?.rendering) return []
+            return hasComponent(entity, EntityTreeComponent)
+              ? getComponent(entity, EntityTreeComponent)
+                  .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
+                  .flatMap((child) => getComponent(child, GroupComponent))
+              : []
+          },
+          set(value) {
+            throw new Error('Cannot set children of proxified object')
+          }
+        },
+        isProxified: {
+          value: true
+        }
       })
       modelComponent.scene.set(dudScene)
       modelComponent.asset.set(null)
