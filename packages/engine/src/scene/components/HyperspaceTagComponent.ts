@@ -77,7 +77,6 @@ export const HyperspaceTagComponent = defineComponent({
 
     const ambientLightEntity = createEntity()
     const light = new AmbientLight('#aaa')
-    setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
     light.layers.enable(ObjectLayers.Portal)
     addObjectToGroup(ambientLightEntity, light)
 
