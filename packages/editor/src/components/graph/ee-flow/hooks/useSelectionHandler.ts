@@ -71,11 +71,17 @@ export const useSelectionHandler = ({
 
   const handleKeyDown = useMemo(
     () => (event) => {
-      if (event.key === 'c' && event.ctrlKey) {
-        copyNodes()
-      }
-      if (event.key === 'v' && event.ctrlKey) {
-        pasteNodes()
+      if (event.ctrlKey) {
+        switch (event.key) {
+          case 'c':
+            copyNodes()
+            break
+          case 'v':
+            pasteNodes()
+            break
+          default:
+            break
+        }
       }
     },
     [copiedNodes, onNodesChange, selectedNodes]
