@@ -316,7 +316,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const showUploadAndDownloadButtons =
     selectedDirectory.value.slice(1).startsWith('projects/') &&
     !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
-  const showBackButton = true //selectedDirectory.value !== originalPath
+  const showBackButton = selectedDirectory.value !== originalPath
 
   const handleDownloadProject = async () => {
     const url = selectedDirectory.value
