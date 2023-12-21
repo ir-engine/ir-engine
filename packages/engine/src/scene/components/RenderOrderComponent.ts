@@ -24,38 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Types } from 'bitecs'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-
-interface HasRenderOrder {
-  renderOrder: number
-}
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const RenderOrderComponent = defineComponent({
   name: 'RenderOrderComponent',
   schema: { renderOrder: Types.i32 },
 
-  onInit(entity) {
-    RenderOrderComponent.renderOrder[entity] = 0
+  onInit() {
+    return 0 as number
+  },
+
+  onSet(entity, component, renderOrder: number) {
+    RenderOrderComponent.renderOrder[entity] = renderOrder
+    component.set(renderOrder)
   },
 
   toJSON(entity, component) {
-    return { renderOrder: RenderOrderComponent.renderOrder[entity] }
-  },
-
-  setRenderOrder(entity, renderOrder: number) {
-    RenderOrderComponent.renderOrder[entity] = renderOrder
+    return RenderOrderComponent.renderOrder[entity]
   }
 })
-
-export function SetRenderOrder(entity: Entity, obj: HasRenderOrder) {
-  setComponent(entity, RenderOrderComponent)
-  Object.defineProperty(obj, 'renderOrder', {
-    get: function () {
-      return RenderOrderComponent.renderOrder[entity]
-    },
-    set: function (val: number) {
-      RenderOrderComponent.setRenderOrder(entity, val)
-    }
-  })
-}
