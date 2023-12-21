@@ -61,7 +61,7 @@ import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { resizeAvatar } from './resizeAvatar'
-import { retargetMixamoAnimation } from './retargetMixamoRig'
+import { retargetAnimationClip, retargetMixamoAnimation } from './retargetMixamoRig'
 
 const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
@@ -189,6 +189,9 @@ export const loadLocomotionAnimations = () => {
   AssetLoader.loadAsync(
     `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionAnimation}.glb`
   ).then((locomotionAsset: GLTF) => {
+    for (let i = 0; i < locomotionAsset.animations.length; i++) {
+      retargetAnimationClip(locomotionAsset.animations[i], locomotionAsset.scene)
+    }
     manager.loadedAnimations[locomotionAnimation].set(locomotionAsset)
     //update avatar speed from root motion
     // todo: refactor this for direct translation from root motion
