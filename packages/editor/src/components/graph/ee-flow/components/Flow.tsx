@@ -33,6 +33,7 @@ import { useHookstate } from '@hookstate/core'
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
 import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator.js'
+import { useSelectionHandler } from '../hooks/useSelectionHandler.js'
 import CustomControls from './Controls.js'
 import { NodePicker } from './NodePicker.js'
 import { Examples } from './modals/LoadModal.js'
@@ -80,6 +81,11 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     registry
   })
 
+  const { onSelectionChange, handleKeyDown, handleKeyUp } = useSelectionHandler({
+    nodes,
+    onNodesChange
+  })
+
   useEffect(() => {
     if (dragging.value || !mouseOver.value) return
     onChangeGraph(graphJson ?? graph)
@@ -104,8 +110,11 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
       fitViewOptions={{ maxZoom: 1 }}
       onPaneClick={handlePaneClick}
       onPaneContextMenu={handlePaneContextMenu}
+      onSelectionChange={onSelectionChange}
       multiSelectionKeyCode={'Shift'}
       deleteKeyCode={'Backspace'}
+      onKeyDown={handleKeyDown}
+      onKeyUp={handleKeyUp}
     >
       <CustomControls
         playing={playing}
