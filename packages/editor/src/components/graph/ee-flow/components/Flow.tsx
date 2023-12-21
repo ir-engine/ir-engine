@@ -96,9 +96,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
-      // @ts-ignore
       onConnectStart={handleStartConnect}
-      // @ts-ignore
       onConnectEnd={handleStopConnect}
       onPaneMouseEnter={() => mouseOver.set(true)}
       onPaneMouseLeave={() => mouseOver.set(false)}
@@ -106,6 +104,8 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
       fitViewOptions={{ maxZoom: 1 }}
       onPaneClick={handlePaneClick}
       onPaneContextMenu={handlePaneContextMenu}
+      multiSelectionKeyCode={'Shift'}
+      deleteKeyCode={'Backspace'}
     >
       <CustomControls
         playing={playing}
