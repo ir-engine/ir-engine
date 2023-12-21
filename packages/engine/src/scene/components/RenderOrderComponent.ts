@@ -39,6 +39,10 @@ export const RenderOrderComponent = defineComponent({
     RenderOrderComponent.renderOrder[entity] = 0
   },
 
+  toJSON(entity, component) {
+    return { renderOrder: RenderOrderComponent.renderOrder[entity] }
+  },
+
   setRenderOrder(entity, renderOrder: number) {
     RenderOrderComponent.renderOrder[entity] = renderOrder
   }

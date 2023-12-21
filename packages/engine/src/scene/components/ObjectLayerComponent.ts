@@ -56,7 +56,7 @@ export const ObjectLayerMaskComponent = defineComponent({
   },
 
   toJSON(entity, component) {
-    return ObjectLayerMaskComponent.mask[entity]
+    return { mask: ObjectLayerMaskComponent.mask[entity] }
   },
 
   setLayer(entity, layer: number) {
