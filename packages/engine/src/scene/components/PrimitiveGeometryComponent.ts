@@ -30,7 +30,6 @@ import {
   CircleGeometry,
   CylinderGeometry,
   DodecahedronGeometry,
-  Euler,
   IcosahedronGeometry,
   Mesh,
   MeshLambertMaterial,
@@ -91,7 +90,6 @@ function GeometryReactor() {
   const entity = useEntityContext()
   const geometryComponent = useComponent(entity, PrimitiveGeometryComponent)
   const transform = useComponent(entity, TransformComponent)
-  const material = new MeshLambertMaterial() // set material later
   const mesh = useState<Mesh>(new Mesh())
 
   function areKeysDifferentTypes(obj1: Record<string, any>, obj2: Record<string, any>): boolean {
@@ -131,6 +129,7 @@ function GeometryReactor() {
   }
   useEffect(() => {
     geometryComponent.geometry.set(new BoxGeometry()) // set default geometry
+    const material = new MeshLambertMaterial() // set material later
     mesh.set(new Mesh(geometryComponent.geometry.value, material))
     mesh.value.name = `${entity}-primitive-geometry`
     mesh.value.visible = true
@@ -145,12 +144,7 @@ function GeometryReactor() {
 
   useEffect(() => {
     if (!mesh) return
-
-    mesh.value.geometry.dispose()
     mesh.value.geometry = geometryComponent.geometry.get(NO_PROXY)
-    mesh.position.value.copy(transform.position.value)
-    mesh.rotation.value.copy(new Euler().setFromQuaternion(transform.rotation.value))
-    mesh.scale.value.copy(transform.scale.value)
   }, [geometryComponent.geometry])
 
   useEffect(() => {
