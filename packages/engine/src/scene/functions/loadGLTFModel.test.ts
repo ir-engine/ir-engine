@@ -32,13 +32,7 @@ import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
-import {
-  defineComponent,
-  defineQuery,
-  getComponent,
-  getMutableComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { createEngine } from '../../initializeEngine'
@@ -88,14 +82,14 @@ describe.skip('loadGLTFModel', () => {
     })
     const entityName = 'entity name'
     const number = Math.random()
-    const mesh = new Scene()
+    const scene = new Scene()
+    const mesh = new Mesh()
     mesh.userData = {
       'xrengine.entity': entityName,
       // 'xrengine.spawn-point': '',
       'xrengine.CustomComponent.val': number
     }
-    const modelComponent = getMutableComponent(entity, ModelComponent)
-    modelComponent.scene.set(mesh)
+    scene.add(mesh)
     addObjectToGroup(entity, mesh)
     const modelQuery = defineQuery([TransformComponent, GroupComponent])
     const childQuery = defineQuery([
@@ -106,7 +100,7 @@ describe.skip('loadGLTFModel', () => {
     ])
     //todo: revise this so that we're forcing the sceneloadingsystem to execute its reactors,
     //      then we can validate the ECS data directly like we were doing before
-    const jsonHierarchy = parseGLTFModel(entity)
+    const jsonHierarchy = parseGLTFModel(entity, scene)
     const sceneID = getModelSceneID(entity)
     getMutableState(SceneState).scenes[sceneID].set({
       metadata: {
