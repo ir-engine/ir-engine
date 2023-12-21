@@ -34,7 +34,7 @@ import '../../patchEngineNode'
 import '../utils/threejsPatches'
 
 import type { FeathersApplication } from '@feathersjs/feathers'
-import { Group, Object3D, Scene } from 'three'
+import { Group, Scene } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
@@ -85,12 +85,6 @@ export class Engine {
    * Reference to the three.js scene object.
    */
   scene = new Scene()
-
-  /**
-   * Map of object lists by layer
-   * (automatically updated by the SceneObjectSystem)
-   */
-  objectLayerList = {} as { [layer: number]: Set<Object3D> }
 
   /**
    * The xr origin reference space entity

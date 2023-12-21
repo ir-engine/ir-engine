@@ -42,6 +42,7 @@ import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   serializeComponent,
@@ -51,21 +52,25 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
+import { enableObjectLayer } from '../functions/setObjectLayers'
 import { EnvmapComponent } from './EnvmapComponent'
+import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
+import { VisibleComponent } from './VisibleComponent'
 
 function clearMaterials(src: string) {
   try {
@@ -88,28 +93,26 @@ export const ModelComponent = defineComponent({
   onInit: (entity) => {
     return {
       src: '',
-      generateBVH: true,
-      avoidCameraOcclusion: false,
+      cameraOcclusion: true,
       // internal
       scene: null as Scene | null,
-      asset: null as VRM | GLTF | null,
-      hasSkinnedMesh: false
+      asset: null as VRM | GLTF | null
     }
   },
 
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
-      generateBVH: component.generateBVH.value,
-      avoidCameraOcclusion: component.avoidCameraOcclusion.value
+      cameraOcclusion: component.cameraOcclusion.value
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.src === 'string') component.src.set(json.src)
-    if (typeof json.generateBVH === 'boolean') component.generateBVH.set(json.generateBVH)
-    if (typeof json.avoidCameraOcclusion === 'boolean') component.avoidCameraOcclusion.set(json.avoidCameraOcclusion)
+    if (typeof (json as any).avoidCameraOcclusion === 'boolean')
+      component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
+    if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -144,8 +147,37 @@ function ModelReactor() {
     if (!model.src) {
       const dudScene = new Scene() as Scene & Object3D
       dudScene.entity = entity
-      Object.assign(dudScene, {
-        isProxified: true
+      Object.defineProperties(dudScene, {
+        parent: {
+          get() {
+            if (EngineRenderer.instance?.rendering) return null
+            if (getComponent(entity, EntityTreeComponent)?.parentEntity) {
+              return (
+                getComponent(getComponent(entity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
+                Engine.instance.scene
+              )
+            }
+          },
+          set(value) {
+            throw new Error('Cannot set parent of proxified object')
+          }
+        },
+        children: {
+          get() {
+            if (EngineRenderer.instance?.rendering) return []
+            return hasComponent(entity, EntityTreeComponent)
+              ? getComponent(entity, EntityTreeComponent)
+                  .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
+                  .flatMap((child) => getComponent(child, GroupComponent))
+              : []
+          },
+          set(value) {
+            throw new Error('Cannot set children of proxified object')
+          }
+        },
+        isProxified: {
+          value: true
+        }
       })
       modelComponent.scene.set(dudScene)
       modelComponent.asset.set(null)
@@ -159,7 +191,7 @@ function ModelReactor() {
       modelComponent.src.value,
       {
         forceAssetType: override,
-        ignoreDisposeGeometry: modelComponent.generateBVH.value,
+        ignoreDisposeGeometry: modelComponent.cameraOcclusion.value,
         uuid: uuid.value
       },
       (loadedAsset) => {
@@ -173,12 +205,13 @@ function ModelReactor() {
       },
       (onprogress) => {
         if (aborted) return
-        SceneAssetPendingTagComponent.loadingProgress.merge({
-          [entity]: {
-            loadedAmount: onprogress.loaded,
-            totalAmount: onprogress.total
-          }
-        })
+        if (hasComponent(entity, SceneAssetPendingTagComponent))
+          SceneAssetPendingTagComponent.loadingProgress.merge({
+            [entity]: {
+              loadedAmount: onprogress.loaded,
+              totalAmount: onprogress.total
+            }
+          })
       },
       (err: Error) => {
         if (aborted) return
@@ -225,7 +258,6 @@ function ModelReactor() {
 
     const loadedJsonHierarchy = parseGLTFModel(entity)
     const uuid = getModelSceneID(entity)
-    console.log('loadedJsonHierarchy', loadedJsonHierarchy)
 
     SceneState.loadScene(uuid, {
       scene: {
@@ -258,9 +290,15 @@ function ModelReactor() {
   useEffect(() => {
     for (const childEntity of childEntities.value) {
       if (!hasComponent(childEntity, MeshComponent) || hasComponent(entity, SkinnedMeshComponent)) continue
-      if (modelComponent.generateBVH.value) generateMeshBVH(getComponent(childEntity, MeshComponent))
+      const mesh = getComponent(childEntity, MeshComponent)
+      if (modelComponent.cameraOcclusion.value) generateMeshBVH(mesh)
+      enableObjectLayer(
+        mesh,
+        ObjectLayers.Camera,
+        modelComponent.cameraOcclusion.value && hasComponent(childEntity, VisibleComponent)
+      )
     }
-  }, [childEntities, modelComponent.generateBVH])
+  }, [childEntities, modelComponent.cameraOcclusion])
 
   const shadowComponent = useOptionalComponent(entity, ShadowComponent)
   useEffect(() => {
@@ -279,12 +317,6 @@ function ModelReactor() {
       else removeComponent(childEntity, EnvmapComponent)
     }
   }, [childEntities, envmapComponent])
-
-  useEffect(() => {
-    if (!modelComponent.scene.value) return
-    if (modelComponent.avoidCameraOcclusion.value) removeComponent(entity, FrustumCullCameraComponent)
-    else setComponent(entity, FrustumCullCameraComponent)
-  }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
 
   return null
 }

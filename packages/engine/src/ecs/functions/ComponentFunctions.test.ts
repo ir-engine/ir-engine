@@ -29,13 +29,13 @@ import { Types } from 'bitecs'
 import { createEngine } from '../../initializeEngine'
 import { destroyEngine } from '../classes/Engine'
 import {
-  addComponent,
   ComponentMap,
   defineComponent,
   getAllComponents,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from './ComponentFunctions'
 import { createEntity } from './EntityFunctions'
 
@@ -77,12 +77,12 @@ describe('ComponentFunctions', async () => {
     })
   })
 
-  describe('addComponent', () => {
+  describe('setComponent', () => {
     it('should add component', () => {
       const TestComponent = defineComponent({ name: 'TestComponent', onInit: () => true })
 
       const entity = createEntity()
-      addComponent(entity, TestComponent)
+      setComponent(entity, TestComponent)
       const component = getComponent(entity, TestComponent)
 
       assert.ok(component)
@@ -104,7 +104,7 @@ describe('ComponentFunctions', async () => {
       })
 
       const entity = createEntity()
-      addComponent(entity, TestComponent, { val: 5 })
+      setComponent(entity, TestComponent, { val: 5 })
       const component = getComponent(entity, TestComponent)
 
       assert.ok(component)
@@ -121,17 +121,9 @@ describe('ComponentFunctions', async () => {
       assert.equal(TestComponent.value[entity], 3)
     })
 
-    it('should throw on duplicate add component', () => {
-      const TestComponent = defineComponent({ name: 'TestComponent', onInit: () => true })
-
-      const entity = createEntity()
-      addComponent(entity, TestComponent)
-      assert.throws(() => addComponent(entity, TestComponent))
-    })
-
     it('should throw on null entity argument', () => {
-      assert.throws(() => addComponent(null!, null!, null!))
-      assert.throws(() => addComponent(undefined!, undefined!, null!))
+      assert.throws(() => setComponent(null!, null!, null!))
+      assert.throws(() => setComponent(undefined!, undefined!, null!))
     })
   })
 
@@ -140,7 +132,7 @@ describe('ComponentFunctions', async () => {
       const TestComponent = defineComponent({ name: 'TestComponent', onInit: () => true })
 
       const entity = createEntity()
-      addComponent(entity, TestComponent)
+      setComponent(entity, TestComponent)
       const component = getComponent(entity, TestComponent)
 
       assert.ok(component)
@@ -161,7 +153,7 @@ describe('ComponentFunctions', async () => {
       })
 
       const entity = createEntity()
-      addComponent(entity, TestComponent, { val: 2 })
+      setComponent(entity, TestComponent, { val: 2 })
       const component = getComponent(entity, TestComponent)
 
       assert.ok(component)
@@ -179,7 +171,7 @@ describe('ComponentFunctions', async () => {
       const TestComponent = defineComponent({ name: 'TestComponent', onInit: () => true })
 
       const entity = createEntity()
-      addComponent(entity, TestComponent)
+      setComponent(entity, TestComponent)
 
       assert.ok(hasComponent(entity, TestComponent))
     })
@@ -199,7 +191,7 @@ describe('ComponentFunctions', async () => {
       })
 
       const entity = createEntity()
-      addComponent(entity, TestComponent, { val: 2 })
+      setComponent(entity, TestComponent, { val: 2 })
 
       assert.ok(hasComponent(entity, TestComponent))
     })
@@ -210,7 +202,7 @@ describe('ComponentFunctions', async () => {
       const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
 
       const entity = createEntity()
-      addComponent(entity, TestComponent)
+      setComponent(entity, TestComponent)
 
       assert.ok(hasComponent(entity, TestComponent))
     })
@@ -232,7 +224,7 @@ describe('ComponentFunctions', async () => {
       const TestComponent = defineComponent({ name: 'TestComponent', onInit: () => true })
 
       const entity = createEntity()
-      addComponent(entity, TestComponent)
+      setComponent(entity, TestComponent)
 
       assert.ok(hasComponent(entity, TestComponent))
 
@@ -258,7 +250,7 @@ describe('ComponentFunctions', async () => {
       })
 
       const entity = createEntity()
-      addComponent(entity, TestComponent, { val: 2 })
+      setComponent(entity, TestComponent, { val: 2 })
 
       assert.ok(hasComponent(entity, TestComponent))
 
@@ -273,7 +265,7 @@ describe('ComponentFunctions', async () => {
       const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
 
       const entity = createEntity()
-      addComponent(entity, TestComponent)
+      setComponent(entity, TestComponent)
 
       assert.ok(hasComponent(entity, TestComponent))
 
@@ -290,9 +282,9 @@ describe('ComponentFunctions', async () => {
       const TestComponent3 = defineComponent({ name: 'TestComponent3' })
 
       const entity = createEntity()
-      addComponent(entity, TestComponent1)
-      addComponent(entity, TestComponent2)
-      addComponent(entity, TestComponent3)
+      setComponent(entity, TestComponent1)
+      setComponent(entity, TestComponent2)
+      setComponent(entity, TestComponent3)
 
       const [component1, component2, component3] = getAllComponents(entity)
 

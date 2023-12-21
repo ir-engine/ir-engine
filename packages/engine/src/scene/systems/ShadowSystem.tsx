@@ -47,7 +47,6 @@ import { CSMHelper } from '../../assets/csm/CSMHelper'
 import { V_001 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -77,6 +76,7 @@ import { GroupComponent, GroupQueryReactor, addObjectToGroup } from '../componen
 import { MeshComponent } from '../components/MeshComponent'
 import { useContainsMesh } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
+import { ObjectLayerComponents } from '../components/ObjectLayerComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -315,13 +315,15 @@ const shadowOffset = new Vector3(0, 0.01, 0)
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(dropShadowComponentQuery, compareDistanceToCamera)
 const sortedEntityTransforms = [] as Entity[]
 
+const sceneLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
+
 const updateDropShadowTransforms = () => {
   const { deltaSeconds } = getState(EngineState)
   const { priorityQueue } = getState(ShadowSystemState)
 
   sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)
 
-  const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
+  const sceneObjects = sceneLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
 
   for (const entity of priorityQueue.priorityEntities) {
     const dropShadow = getComponent(entity, DropShadowComponent)
