@@ -1665,23 +1665,21 @@ export const uploadLocalProjectToProvider = async (
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
   const resourceKey = (key, hash) => `${key}#${hash}`
-  const { existingContentSet, existingIdSet } = await app
-    .service(staticResourcePath)
-    .find({
-      query: {
-        project: projectName
-      }
-    })
-    .then((res) => {
-      const existingContentSet = new Set<string>()
-      const existingIdSet = new Set<string>()
-      for (const item of res.data) {
-        existingContentSet.add(resourceKey(item.key, item.hash))
-        existingIdSet.add(item.id)
-      }
-      return { existingContentSet, existingIdSet }
-    })
-
+  const existingResources = await app.service(staticResourcePath).find({
+    query: {
+      project: projectName
+    },
+    paginate: {
+      default: Number.MAX_SAFE_INTEGER,
+      max: Number.MAX_SAFE_INTEGER
+    }
+  })
+  const existingContentSet = new Set<string>()
+  const existingIdSet = new Set<string>()
+  for (const item of existingResources.data) {
+    existingContentSet.add(resourceKey(item.key, item.hash))
+    existingIdSet.add(item.id)
+  }
   if (hasResourceDB) {
     //if we have a resources.sql file, use it to populate static-resource table
     const manifest: StaticResourceType[] = JSON.parse(fs.readFileSync(resourceDBPath).toString())
