@@ -135,16 +135,20 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name)
   for (const project of projects) {
-    const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'vite.config.extension.ts')
+    const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'vite.config.extension')
     if (fs.existsSync(staticPath)) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { default: viteConfigExtension } = require(staticPath)
-      if (typeof viteConfigExtension === 'function') {
-        const configExtension = await viteConfigExtension()
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        config.plugins = [...config.plugins!, ...configExtension.default.plugins]
-        delete configExtension.default.plugins
-        config = merge(config, configExtension.default)
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { default: viteConfigExtension } = await import(staticPath)
+        if (typeof viteConfigExtension === 'function') {
+          const configExtension = await viteConfigExtension()
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          config.plugins = [...config.plugins!, ...configExtension.default.plugins]
+          delete configExtension.default.plugins
+          config = merge(config, configExtension.default)
+        }
+      } catch (e) {
+        console.error(e)
       }
     }
   }
