@@ -29,7 +29,7 @@ import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 import { destroyEngine } from '../../../src/ecs/classes/Engine'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../src/initializeEngine'
-import { RenderOrder } from '../../../src/scene/components/RenderOrderComponent'
+import { SetRenderOrder } from '../../../src/scene/components/RenderOrderComponent'
 import { loadEmptyScene } from '../../util/loadEmptyScene'
 
 describe('RenderOrderComponent', () => {
@@ -51,7 +51,7 @@ describe('RenderOrderComponent', () => {
     const renderOrder = 2
     const renderOrder2 = -1
 
-    new RenderOrder(entity, mesh)
+    SetRenderOrder(entity, mesh)
     mesh.renderOrder = renderOrder
 
     assert(mesh.renderOrder === renderOrder)
@@ -69,7 +69,7 @@ describe('RenderOrderComponent', () => {
 
     const defaultRenderOrder = 0
 
-    new RenderOrder(entity, mesh)
+    SetRenderOrder(entity, mesh)
 
     assert(mesh.renderOrder === defaultRenderOrder)
   })

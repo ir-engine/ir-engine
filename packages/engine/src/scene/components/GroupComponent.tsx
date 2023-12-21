@@ -45,7 +45,7 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Layer } from './ObjectLayerComponent'
-import { RenderOrder } from './RenderOrderComponent'
+import { SetRenderOrder } from './RenderOrderComponent'
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
@@ -81,7 +81,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.matrix = transform.matrix
   obj.matrixWorld = transform.matrixWorld
   obj.layers = new Layer(entity)
-  new RenderOrder(entity, obj)
+  SetRenderOrder(entity, obj)
 
   Object.assign(obj, {
     updateWorldMatrix: () => {}

@@ -48,19 +48,14 @@ export const RenderOrderComponent = defineComponent({
   }
 })
 
-export class RenderOrder {
-  constructor(
-    public entity: Entity,
-    public obj: HasRenderOrder
-  ) {
-    setComponent(entity, RenderOrderComponent)
-    Object.defineProperty(obj, 'renderOrder', {
-      get: function () {
-        return RenderOrderComponent.renderOrder[entity]
-      },
-      set: function (val: number) {
-        RenderOrderComponent.setRenderOrder(entity, val)
-      }
-    })
-  }
+export function SetRenderOrder(entity: Entity, obj: HasRenderOrder) {
+  setComponent(entity, RenderOrderComponent)
+  Object.defineProperty(obj, 'renderOrder', {
+    get: function () {
+      return RenderOrderComponent.renderOrder[entity]
+    },
+    set: function (val: number) {
+      RenderOrderComponent.setRenderOrder(entity, val)
+    }
+  })
 }
