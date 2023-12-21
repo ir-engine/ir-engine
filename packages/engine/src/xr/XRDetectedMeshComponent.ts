@@ -34,7 +34,6 @@ import { createEntity, useEntityContext } from '../ecs/functions/EntityFunctions
 import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
-import { RenderOrderComponent } from '../scene/components/RenderOrderComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { occlusionMat, placementHelperMaterial, shadowMaterial } from './XRDetectedPlaneComponent'
@@ -83,7 +82,7 @@ export const XRDetectedMeshComponent = defineComponent({
 
       addObjectToGroup(entity, shadowMesh)
       addObjectToGroup(entity, occlusionMesh)
-      setComponent(entity, RenderOrderComponent, -1) /** @todo make a global config for AR occlusion mesh renderOrder */
+      occlusionMesh.renderOrder = -1 /** @todo make a global config for AR occlusion mesh renderOrder */
 
       component.shadowMesh.set(shadowMesh)
       component.occlusionMesh.set(occlusionMesh)

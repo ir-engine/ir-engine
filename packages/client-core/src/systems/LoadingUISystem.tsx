@@ -43,7 +43,6 @@ import {
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { RenderOrderComponent } from '@etherealengine/engine/src/scene/components/RenderOrderComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import {
@@ -97,7 +96,7 @@ const LoadingUISystemState = defineState({
 
     setComponent(meshEntity, VisibleComponent)
     addObjectToGroup(meshEntity, mesh)
-    setComponent(ui.entity, RenderOrderComponent, 1)
+    mesh.renderOrder = 1
     setObjectLayers(mesh, ObjectLayers.UI)
 
     getComponent(meshEntity, TransformComponent).scale.set(-1, 1, -1)

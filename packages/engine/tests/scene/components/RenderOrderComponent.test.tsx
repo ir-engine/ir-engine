@@ -27,11 +27,9 @@ import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { destroyEngine } from '../../../src/ecs/classes/Engine'
-import { setComponent } from '../../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../src/initializeEngine'
-import { addObjectToGroup } from '../../../src/scene/components/GroupComponent'
-import { RenderOrderComponent } from '../../../src/scene/components/RenderOrderComponent'
+import { RenderOrder } from '../../../src/scene/components/RenderOrderComponent'
 import { loadEmptyScene } from '../../util/loadEmptyScene'
 
 describe('RenderOrderComponent', () => {
@@ -44,41 +42,23 @@ describe('RenderOrderComponent', () => {
     return destroyEngine()
   })
 
-  it('Sets renderOrder on group', async () => {
+  it('Sets renderOrder on object', async () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial({ color: 0xffff00 })
     const mesh = new Mesh(geometry, material)
 
     const renderOrder = 2
+    const renderOrder2 = -1
 
-    addObjectToGroup(entity, mesh)
-    setComponent(entity, RenderOrderComponent, renderOrder)
+    new RenderOrder(entity, mesh)
+    mesh.renderOrder = renderOrder
 
-    assert(mesh.renderOrder === renderOrder, 'Render order is set on mesh object in group')
-  })
+    assert(mesh.renderOrder === renderOrder)
 
-  it('Sets renderOrder on group multiple', async () => {
-    const meshCount = 10
+    mesh.renderOrder = renderOrder2
 
-    const entity = createEntity()
-    const meshes = [] as Mesh[]
-
-    for (let i = 0; i < meshCount; i++) {
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      const mesh = new Mesh(geometry, material)
-      meshes.push(mesh)
-      addObjectToGroup(entity, mesh)
-    }
-
-    const renderOrder = 4
-
-    setComponent(entity, RenderOrderComponent, renderOrder)
-
-    for (const mesh of meshes) {
-      assert(mesh.renderOrder === renderOrder)
-    }
+    assert(mesh.renderOrder === renderOrder2)
   })
 
   it('Sets renderOrder to 0 as default', async () => {
@@ -89,8 +69,7 @@ describe('RenderOrderComponent', () => {
 
     const defaultRenderOrder = 0
 
-    addObjectToGroup(entity, mesh)
-    setComponent(entity, RenderOrderComponent)
+    new RenderOrder(entity, mesh)
 
     assert(mesh.renderOrder === defaultRenderOrder)
   })

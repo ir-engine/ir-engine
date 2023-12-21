@@ -23,23 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { GroupComponent } from './GroupComponent'
+import { Types } from 'bitecs'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+
+interface HasRenderOrder {
+  renderOrder: number
+}
 
 export const RenderOrderComponent = defineComponent({
   name: 'RenderOrderComponent',
+  schema: { renderOrder: Types.i32 },
 
   onInit(entity) {
-    return 0
+    RenderOrderComponent.renderOrder[entity] = 0
   },
 
-  onSet(entity, component, renderOrder) {
-    if (renderOrder !== undefined) {
-      component.set(renderOrder)
-      const group = getComponent(entity, GroupComponent)
-      for (const object of group) {
-        object.renderOrder = component.value
-      }
-    }
+  setRenderOrder(entity, renderOrder: number) {
+    RenderOrderComponent.renderOrder[entity] = renderOrder
   }
 })
+
+export class RenderOrder {
+  constructor(
+    public entity: Entity,
+    public obj: HasRenderOrder
+  ) {
+    setComponent(entity, RenderOrderComponent)
+    Object.defineProperty(obj, 'renderOrder', {
+      get: function () {
+        return RenderOrderComponent.renderOrder[entity]
+      },
+      set: function (val: number) {
+        RenderOrderComponent.setRenderOrder(entity, val)
+      }
+    })
+  }
+}

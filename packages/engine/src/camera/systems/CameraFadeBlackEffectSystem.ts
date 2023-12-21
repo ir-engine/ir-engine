@@ -38,7 +38,6 @@ import { createEntity, entityExists, removeEntity } from '../../ecs/functions/En
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { RenderOrderComponent } from '../../scene/components/RenderOrderComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -116,7 +115,7 @@ const reactor = () => {
     const entity = createEntity()
     setComponent(entity, NameComponent, mesh.name)
     addObjectToGroup(entity, mesh)
-    setComponent(entity, RenderOrderComponent, 1)
+    mesh.renderOrder = 1
     setObjectLayers(mesh, ObjectLayers.Scene)
     const transition = createTransitionState(0.25, 'OUT')
 
