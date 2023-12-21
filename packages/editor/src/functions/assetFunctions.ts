@@ -38,7 +38,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { assetLibraryPath } from '@etherealengine/engine/src/schemas/assets/asset-library.schema'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
-import { addMediaNode } from './addMediaNode'
 
 const logger = multiLogger.child({ component: 'editor:assetFunctions' })
 
@@ -85,9 +84,9 @@ export const inputFileWithAddToScene = async ({
           logger.info('zip files extracted')
         )
 
-        if (projectName) {
-          uploadedURLs.forEach((url) => addMediaNode(url))
-        }
+        // if (projectName) {
+        //   uploadedURLs.forEach((url) => addMediaNode(url))
+        // }
 
         resolve(null)
       }
@@ -106,6 +105,11 @@ export const uploadProjectFiles = (projectName: string, files: File[], isAsset =
       uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: file.name, path, contentType: '' }, onProgress)
     )
   }
+
+  const uploadPromises = [...promises]
+  Promise.all(uploadPromises).then(() =>
+    Engine.instance.api.service('project-resources').create({ project: projectName })
+  )
 
   return {
     cancel: () => promises.forEach((promise) => promise.cancel()),

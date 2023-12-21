@@ -69,7 +69,6 @@ import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
-import { saveProjectResources } from '../../functions/saveProjectResources'
 import { bytesToSize, unique } from '../../functions/utils'
 import { Button } from '../inputs/Button'
 import StringInput from '../inputs/StringInput'
@@ -533,7 +532,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           variant="body2"
         />
       )}
-      <button onClick={saveProjectResources}>Save Project Resources</button>
       <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
         <DndWrapper id="file-browser-panel">
           <DropArea />

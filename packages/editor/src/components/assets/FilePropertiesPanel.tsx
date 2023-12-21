@@ -35,6 +35,7 @@ import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { saveProjectResources } from '../../functions/saveProjectResources'
 import { Button } from '../inputs/Button'
 
 export const FilePropertiesPanel = (props: {
@@ -58,16 +59,18 @@ export const FilePropertiesPanel = (props: {
     }
   }, [])
 
-  const onSaveChanges = useCallback(() => {
-    if (isModified.value) {
+  const onSaveChanges = useCallback(async () => {
+    if (isModified.value && resourceProperties.value.id) {
       const key = fileProperties.value!.key
-      Engine.instance.api.service(staticResourcePath).patch(resourceProperties.id.value, {
+      await Engine.instance.api.service(staticResourcePath).patch(resourceProperties.id.value, {
         key,
         tags: resourceProperties.tags.value,
         licensing: resourceProperties.licensing.value,
         attribution: resourceProperties.attribution.value
       })
+      await saveProjectResources(resourceProperties.project.value)
       isModified.set(false)
+      openProperties.set(false)
     }
   }, [])
 
@@ -81,6 +84,7 @@ export const FilePropertiesPanel = (props: {
   const resourceProperties = useHookstate({
     tags: [] as string[],
     id: '',
+    project: '',
     attribution: '',
     licensing: ''
   })
@@ -92,6 +96,7 @@ export const FilePropertiesPanel = (props: {
         resourceProperties.id.set(resources.id)
         resourceProperties.attribution.set(resources.attribution ?? '')
         resourceProperties.licensing.set(resources.licensing ?? '')
+        resourceProperties.project.set(resources.project ?? '')
       }
     }
   }, [staticResource])
