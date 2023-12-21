@@ -33,22 +33,30 @@ export const ObjectLayerComponents = Array.from({ length: maxBitWidth }, (_, i) 
     name: `ObjectLayer${i}`,
 
     onSet(entity, component) {
-      ObjectLayerComponent.mask[entity] |= (1 << i) | 0
+      ObjectLayerMaskComponent.mask[entity] |= (1 << i) | 0
     },
 
     onRemove(entity, component) {
-      ObjectLayerComponent.mask[entity] &= ~((1 << i) | 0)
+      ObjectLayerMaskComponent.mask[entity] &= ~((1 << i) | 0)
     }
   })
 })
 
-export const ObjectLayerComponent = defineComponent({
+export const ObjectLayerMaskComponent = defineComponent({
   name: 'ObjectLayerComponent',
   schema: { mask: Types.i32 },
 
-  onSet(entity, component) {
-    ObjectLayerComponent.mask[entity] = 1 | 0
-    ObjectLayerComponent.setLayer(entity, 1 | 0)
+  onInit(entity) {
+    return 1 | 0
+  },
+
+  onSet(entity, component, mask = 1 | 0) {
+    ObjectLayerMaskComponent.mask[entity] = mask
+    ObjectLayerMaskComponent.setLayer(entity, mask)
+  },
+
+  toJSON(entity, component) {
+    return ObjectLayerMaskComponent.mask[entity]
   },
 
   setLayer(entity, layer: number) {
@@ -75,9 +83,9 @@ export const ObjectLayerComponent = defineComponent({
 
   toggleLayer(entity, layer: number) {
     if (hasComponent(entity, ObjectLayerComponents[layer])) {
-      ObjectLayerComponent.disableLayers(entity, layer)
+      ObjectLayerMaskComponent.disableLayers(entity, layer)
     } else {
-      ObjectLayerComponent.enableLayers(entity, layer)
+      ObjectLayerMaskComponent.enableLayers(entity, layer)
     }
   },
 
@@ -95,40 +103,40 @@ export const ObjectLayerComponent = defineComponent({
 
 export class Layer {
   constructor(public entity: Entity) {
-    setComponent(entity, ObjectLayerComponent)
+    setComponent(entity, ObjectLayerMaskComponent)
   }
 
   get mask() {
-    return ObjectLayerComponent.mask[this.entity]
+    return ObjectLayerMaskComponent.mask[this.entity]
   }
 
   set mask(val) {
-    ObjectLayerComponent.setMask(this.entity, val)
+    ObjectLayerMaskComponent.setMask(this.entity, val)
   }
 
   set(channel: number) {
-    ObjectLayerComponent.setLayer(this.entity, channel)
+    ObjectLayerMaskComponent.setLayer(this.entity, channel)
   }
 
   enable(channel: number) {
-    ObjectLayerComponent.enableLayers(this.entity, channel)
+    ObjectLayerMaskComponent.enableLayers(this.entity, channel)
   }
 
   enableAll() {
-    ObjectLayerComponent.enableLayers(this.entity, ...[...Array(maxBitWidth).keys()])
+    ObjectLayerMaskComponent.enableLayers(this.entity, ...[...Array(maxBitWidth).keys()])
   }
 
   toggle(channel: number) {
-    ObjectLayerComponent.toggleLayer(this.entity, channel)
+    ObjectLayerMaskComponent.toggleLayer(this.entity, channel)
   }
 
   disable(channel: number) {
-    ObjectLayerComponent.disableLayers(this.entity, channel)
+    ObjectLayerMaskComponent.disableLayers(this.entity, channel)
   }
 
   disableAll() {
-    ObjectLayerComponent.disableLayers(this.entity, ...[...Array(maxBitWidth).keys()])
-    ObjectLayerComponent.mask[this.entity] = 0
+    ObjectLayerMaskComponent.disableLayers(this.entity, ...[...Array(maxBitWidth).keys()])
+    ObjectLayerMaskComponent.mask[this.entity] = 0
   }
 
   test(layers: Layer) {

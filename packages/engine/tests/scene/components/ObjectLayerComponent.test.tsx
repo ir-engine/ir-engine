@@ -31,7 +31,11 @@ import { hasComponent, setComponent } from '../../../src/ecs/functions/Component
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../src/initializeEngine'
 import { addObjectToGroup } from '../../../src/scene/components/GroupComponent'
-import { Layer, ObjectLayerComponent, ObjectLayerComponents } from '../../../src/scene/components/ObjectLayerComponent'
+import {
+  Layer,
+  ObjectLayerComponents,
+  ObjectLayerMaskComponent
+} from '../../../src/scene/components/ObjectLayerComponent'
 import { loadEmptyScene } from '../../util/loadEmptyScene'
 
 describe('ObjectLayerComponent', () => {
@@ -56,7 +60,7 @@ describe('ObjectLayerComponent', () => {
     addObjectToGroup(entity, mesh)
     mesh.layers.enable(objectLayer)
 
-    assert(hasComponent(entity, ObjectLayerComponent))
+    assert(hasComponent(entity, ObjectLayerMaskComponent))
     assert(hasComponent(entity, ObjectLayerComponents[objectLayer]))
     assert(!hasComponent(entity, ObjectLayerComponents[nonEnabledObjectLayer]))
     assert(mesh.layers.isEnabled(objectLayer))
@@ -79,8 +83,8 @@ describe('ObjectLayerComponent', () => {
 
     const objectLayers = [5, 6, 7]
 
-    setComponent(entity, ObjectLayerComponent)
-    ObjectLayerComponent.enableLayers(entity, ...objectLayers)
+    setComponent(entity, ObjectLayerMaskComponent)
+    ObjectLayerMaskComponent.enableLayers(entity, ...objectLayers)
 
     for (const mesh of meshes) {
       for (const layer of objectLayers) {
@@ -100,8 +104,8 @@ describe('ObjectLayerComponent', () => {
     const nonEnabledObjectLayer = 5
 
     addObjectToGroup(entity, mesh)
-    setComponent(entity, ObjectLayerComponent)
-    ObjectLayerComponent.enableLayers(entity, ...objectLayers)
+    setComponent(entity, ObjectLayerMaskComponent)
+    ObjectLayerMaskComponent.enableLayers(entity, ...objectLayers)
 
     for (const layer of objectLayers) {
       assert(mesh.layers.isEnabled(layer))
@@ -111,7 +115,7 @@ describe('ObjectLayerComponent', () => {
     assert(!mesh.layers.isEnabled(nonEnabledObjectLayer))
 
     const disableLayers = [2, 3]
-    ObjectLayerComponent.disableLayers(entity, ...disableLayers)
+    ObjectLayerMaskComponent.disableLayers(entity, ...disableLayers)
 
     for (const layer of objectLayers) {
       if (disableLayers.includes(layer)) {
