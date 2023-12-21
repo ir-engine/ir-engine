@@ -68,7 +68,7 @@ const createProjectResource =
       ContentType: 'application/json',
       Key: key
     })
-    if (!!isDev) {
+    if (isDev !== false) {
       const filePath = path.resolve(projectsRootFolder, key)
       const dirName = path.dirname(filePath)
       fs.mkdirSync(dirName, { recursive: true })
