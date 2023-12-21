@@ -263,31 +263,6 @@ class KTX2Loader extends Loader {
 
 		}
 
-		// const loader = new FileLoader( this.manager );
-
-		// loader.setResponseType( 'arraybuffer' );
-		// loader.setWithCredentials( this.withCredentials );
-
-		// loader.load( url, ( buffer ) => {
-
-		// 	// Check for an existing task using this buffer. A transferred buffer cannot be transferred
-		// 	// again from this thread.
-		// 	if ( _taskCache.has( buffer ) ) {
-
-		// 		const cachedTask = _taskCache.get( buffer );
-
-		// 		return cachedTask.promise.then( onLoad ).catch( onError );
-
-		// 	}
-
-		// 	this._createTexture( buffer )
-		// 		.then( ( texture ) => onLoad ? onLoad( texture ) : null )
-		// 		.catch( onError );
-
-		// }, onProgress, onError );
-					// Check for an existing task using this buffer. A transferred buffer cannot be transferred
-			// again from this thread.
-
 		this._createTexture( url )
 			.then( ( texture ) => {
 				onLoad ? onLoad( texture ) : null
@@ -343,9 +318,6 @@ class KTX2Loader extends Loader {
 			return this.workerPool.postMessage( { type: 'transcode', url, taskConfig: taskConfig } );
 
 		} ).then( ( e ) => this._createTextureFrom( e.data ) );
-
-		// // Cache the task result.
-		// _taskCache.set( url, { promise: texturePending } );
 
 		return texturePending;
 
