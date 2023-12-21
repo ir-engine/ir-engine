@@ -135,8 +135,8 @@ function GeometryReactor() {
     mesh.value.name = `${entity}-primitive-geometry`
     mesh.value.visible = true
     mesh.value.updateMatrixWorld(true)
-    setObjectLayers(mesh.value, ObjectLayers.Scene)
     addObjectToGroup(entity, mesh.value)
+    setObjectLayers(mesh.value, ObjectLayers.Scene)
 
     return () => {
       removeObjectFromGroup(entity, mesh.value)

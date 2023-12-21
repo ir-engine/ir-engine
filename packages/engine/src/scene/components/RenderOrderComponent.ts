@@ -23,33 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const ObjectLayers = {
-  // anything loaded as a scene entity
-  Scene: 0 as const,
+import { Types } from 'bitecs'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-  // intersect with camera raycast
-  Camera: 1 as const,
+export const RenderOrderComponent = defineComponent({
+  name: 'RenderOrderComponent',
+  schema: { renderOrder: Types.i32 },
 
-  // for portal effect rendering & hiding the scene
-  Portal: 2 as const,
+  onInit() {
+    return 0 as number
+  },
 
-  // avatars
-  Avatar: 3 as const,
+  onSet(entity, component, renderOrder: number) {
+    RenderOrderComponent.renderOrder[entity] = renderOrder
+    component.set(renderOrder)
+  },
 
-  // other gizmos (ik targets, infinite grid, origin)
-  Gizmos: 4 as const,
-
-  // XRUI, loading screen envmap mesh
-  UI: 5 as const,
-
-  // used to hide objects from studio screenshot/texture baking
-  PhysicsHelper: 6 as const,
-  AvatarHelper: 7 as const,
-  NodeHelper: 8 as const,
-
-  // custom threejs scene in a UI panel
-  Panel: 9 as const,
-
-  // transform gizmo
-  TransformGizmo: 10 as const
-}
+  toJSON(entity, component) {
+    return component.value
+  }
+})
