@@ -22,11 +22,10 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Node, NodeChange } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
-import { isEqual } from 'lodash'
 import { useBehaveGraphFlow } from './useBehaveGraphFlow'
 
 type BehaveGraphFlow = ReturnType<typeof useBehaveGraphFlow>
@@ -40,41 +39,54 @@ export const useSelectionHandler = ({
   const [selectedNodes, setSelectedNodes] = useState([] as Node[])
   const [copiedNodes, setCopiedNodes] = useState([] as Node[])
 
-  const onSelectionChange = (elements) => {
-    if (elements.nodes.length === 0) return
-    if (isEqual(elements.nodes.length, selectedNodes)) return
-    setSelectedNodes(elements.nodes)
+  const copyNodes = () => {
+    setCopiedNodes(selectedNodes)
   }
 
-  const handleKeyDown = (event) => {
-    if (event.key === 'c' && event.ctrlKey) {
-      // Copy selected elements
-      setCopiedNodes(selectedNodes)
-    }
-    if (event.key === 'v' && event.ctrlKey) {
-      // Paste copied elements
-      const newNodes = copiedNodes.map((node) => ({
-        ...node,
-        id: uuidv4(), // Generate unique IDs for the new elements
-        position: {
-          x: node.position.x + node.width! + 10, // Adjust position to avoid overlap
-          y: node.position.y
-        }
-      }))
+  const pasteNodes = () => {
+    const newNodes = copiedNodes.map((node) => ({
+      ...node,
+      id: uuidv4(),
+      position: {
+        x: node.position.x + node.width! + 10,
+        y: node.position.y
+      }
+    }))
 
-      const newNodeChange: NodeChange[] = newNodes.map((node) => ({
-        type: 'add',
-        item: node
-      }))
+    const newNodeChange: NodeChange[] = newNodes.map((node) => ({
+      type: 'add',
+      item: node
+    }))
 
-      onNodesChange(newNodeChange)
-      setCopiedNodes(newNodes)
-    }
+    onNodesChange(newNodeChange)
+    setCopiedNodes(newNodes)
   }
 
-  const handleKeyUp = (event) => {
-    // empty for now
-  }
+  const onSelectionChange = useMemo(
+    () => (elements) => {
+      setSelectedNodes(elements.nodes)
+    },
+    [selectedNodes]
+  )
+
+  const handleKeyDown = useMemo(
+    () => (event) => {
+      if (event.key === 'c' && event.ctrlKey) {
+        copyNodes()
+      }
+      if (event.key === 'v' && event.ctrlKey) {
+        pasteNodes()
+      }
+    },
+    [copiedNodes, onNodesChange, selectedNodes]
+  )
+
+  const handleKeyUp = useMemo(
+    () => (event) => {
+      // empty for now
+    },
+    []
+  )
 
   return { onSelectionChange, handleKeyDown, handleKeyUp }
 }
