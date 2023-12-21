@@ -357,7 +357,7 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
     const avatarTransform = getComponent(entity, TransformComponent)
     const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
 
-    originRelativeToAvatarMatrix.multiplyMatrices(avatarTransform.matrixInverse, originTransform.matrix)
+    originRelativeToAvatarMatrix.copy(avatarTransform.matrix).invert().multiply(originTransform.matrix)
     desiredAvatarMatrix.compose(
       rigidBody.targetKinematicPosition,
       rigidBody.targetKinematicRotation,
@@ -365,7 +365,6 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
     )
     originTransform.matrix.multiplyMatrices(desiredAvatarMatrix, originRelativeToAvatarMatrix)
     originTransform.matrix.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
-    originTransform.matrixInverse.copy(originTransform.matrix).invert()
     updateWorldOrigin()
   }
 

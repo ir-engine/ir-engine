@@ -117,17 +117,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         {errors?.LOADING_ERROR ||
           (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
-      <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
+      <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>
         <BooleanInput
-          value={modelComponent.generateBVH.value}
-          onChange={commitProperty(ModelComponent, 'generateBVH')}
-          disabled={modelComponent.hasSkinnedMesh.value}
-        />
-      </InputGroup>
-      <InputGroup name="Avoid Camera Occlusion" label={t('editor:properties.model.lbl-avoidCameraOcclusion')}>
-        <BooleanInput
-          value={modelComponent.avoidCameraOcclusion.value}
-          onChange={commitProperty(ModelComponent, 'avoidCameraOcclusion')}
+          value={modelComponent.cameraOcclusion.value}
+          onChange={commitProperty(ModelComponent, 'cameraOcclusion')}
         />
       </InputGroup>
 

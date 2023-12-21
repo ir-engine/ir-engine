@@ -36,7 +36,6 @@ import {
 } from 'three'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 
-const hipsOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 const rightArmOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.325, 0, -Math.PI * 0.1))
 const leftArmOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.325, 0, Math.PI * 0.1))
 

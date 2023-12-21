@@ -37,11 +37,15 @@ describe('projects.test', () => {
     await app.setup()
   })
 
-  after(() => destroyEngine())
+  after(async () => {
+    await destroyEngine()
+  })
 
-  it('should get commits of the project', async () => {
-    const result = await app.service(projectsPath).find()
-
-    assert.ok(result.find((project) => project === 'default-project'))
+  it('should find the projects', async () => {
+    const foundProjects = await app.service(projectsPath).find()
+    assert.notEqual(
+      foundProjects.findIndex((project) => project === 'default-project'),
+      -1
+    )
   })
 })

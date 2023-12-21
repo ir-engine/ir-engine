@@ -74,8 +74,12 @@ export function* heirarchyTreeWalker(
 
     const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)
 
+    // treat entites with all helper children as leaf nodes
+    const allhelperChildren =
+      false || entityTreeComponent.children.every((child) => !hasComponent(child, SceneObjectComponent))
+
     yield {
-      isLeaf: entityTreeComponent.children.length === 0,
+      isLeaf: entityTreeComponent.children.length === 0 || allhelperChildren,
       isCollapsed,
       depth,
       entity: entityNode,
