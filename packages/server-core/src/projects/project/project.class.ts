@@ -164,6 +164,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       promises.push(uploadLocalProjectToProvider(this.app, projectName))
     }
 
+    await Promise.all(promises)
+
     await this._callOnLoad()
 
     for (const { name, id } of data) {

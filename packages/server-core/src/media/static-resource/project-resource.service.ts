@@ -26,7 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Application } from '@feathersjs/koa'
 
+import { isDev } from '@etherealengine/common/src/config'
 import { getStorageProvider } from '../storageprovider/storageprovider'
+
+import fs from 'fs'
+import path from 'path'
+import { projectsRootFolder } from '../file-browser/file-browser.class'
 
 export const projectResourcesPath = 'project-resources'
 
@@ -43,17 +48,23 @@ declare module '@etherealengine/common/declarations' {
 const createProjectResource =
   (app: Application) =>
   async ({ project }: CreateProjectResourceParams) => {
-    const resources = await app.service(staticResourcePath).find({
-      query: { project }
+    const resources: StaticResourceType[] = await app.service(staticResourcePath).find({
+      query: { project },
+      paginate: false
     })
-    const data: StaticResourceType[] = resources.data
     const storageProvider = getStorageProvider()
-
+    const key = `projects/${project}/resources.json`
     await storageProvider.putObject({
-      Body: Buffer.from(JSON.stringify(data)),
+      Body: Buffer.from(JSON.stringify(resources)),
       ContentType: 'application/json',
-      Key: `projects/${project}/resources.json`
+      Key: key
     })
+    if (!!isDev) {
+      const filePath = path.resolve(projectsRootFolder, key)
+      const dirName = path.dirname(filePath)
+      fs.mkdirSync(dirName, { recursive: true })
+      fs.writeFileSync(filePath, JSON.stringify(resources))
+    }
   }
 
 export default (app: Application): void => {
