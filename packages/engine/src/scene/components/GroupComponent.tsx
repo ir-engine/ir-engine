@@ -44,6 +44,8 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Layer } from './ObjectLayerComponent'
+import { RenderOrderComponent } from './RenderOrderComponent'
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
@@ -80,6 +82,12 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.matrixWorldAutoUpdate = false
   obj.matrix = transform.matrix
   obj.matrixWorld = transform.matrixWorld
+  obj.layers = new Layer(entity)
+  Object.defineProperty(obj, 'renderOrder', {
+    get: () => RenderOrderComponent.renderOrder[entity],
+    set: (val: number) => setComponent(entity, RenderOrderComponent, val)
+  })
+  obj.renderOrder = 0
 
   Object.assign(obj, {
     updateWorldMatrix: () => {}
@@ -113,12 +121,6 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
   }
 
   object.removeFromParent()
-
-  /** @todo this will be moved to onRemove for ObjectLayerComponent once it exists */
-  const layers = Object.values(Engine.instance.objectLayerList)
-  for (const layer of layers) {
-    if (layer.has(obj)) layer.delete(obj)
-  }
 }
 
 export type GroupReactorProps = {

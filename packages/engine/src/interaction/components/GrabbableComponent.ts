@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 /**
  * GrabbableComponent
@@ -67,19 +67,14 @@ export const GrabberComponent = defineComponent({
 
   onInit(entity) {
     return {
-      grabbedEntity: null as Entity | null
+      left: null as Entity | null,
+      right: null as Entity | null
     }
   },
 
   onSet(entity, component, json) {
     if (!json) return
-    if (typeof json.grabbedEntity === 'number' || json.grabbedEntity === null)
-      component.grabbedEntity.set(json.grabbedEntity)
-  },
-
-  onRemove(entity, component) {
-    const grabbedEntity = component.grabbedEntity.value
-    if (!grabbedEntity) return
-    removeComponent(grabbedEntity, GrabbedComponent)
+    if (typeof json.left === 'number' || json.left === null) component.left.set(json.left)
+    if (typeof json.right === 'number' || json.right === null) component.right.set(json.right)
   }
 })

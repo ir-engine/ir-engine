@@ -30,7 +30,7 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
 
-import { ScatterPlot } from '@mui/icons-material'
+import ScatterPlot from '@mui/icons-material/ScatterPlot'
 
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'

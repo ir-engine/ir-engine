@@ -83,9 +83,9 @@ export const ScenePreviewCameraComponent = defineComponent({
 
       const helper = new CameraHelper(previewCamera.camera.value)
       helper.name = `scene-preview-helper-${entity}`
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
       const helperEntity = createEntity()
       addObjectToGroup(helperEntity, helper)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
       setComponent(helperEntity, NameComponent, helper.name)
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
