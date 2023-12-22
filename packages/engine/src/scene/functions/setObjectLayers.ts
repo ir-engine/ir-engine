@@ -23,8 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export * from './functions/ActionFunctions'
-export * from './functions/ReactorFunctions'
-export * from './functions/StateFunctions'
-export * from './functions/StoreFunctions'
-export * from './state/SystemState'
+import { Object3D } from 'three'
+
+/**
+ * @deprecated use ObjectLayerMaskComponent instead
+ */
+export function setObjectLayers(object: Object3D, ...layers: number[]) {
+  object.traverse((obj: Object3D) => {
+    obj.layers.disableAll()
+    for (const layer of layers) {
+      obj.layers.enable(layer)
+    }
+  })
+}
+
+/**
+ * @deprecated use ObjectLayerMaskComponent instead
+ */
+export function enableObjectLayer(object: Object3D, layer: number, enable: boolean) {
+  object.traverse((obj: Object3D) => {
+    enable ? obj.layers.enable(layer) : obj.layers.disable(layer)
+  })
+}

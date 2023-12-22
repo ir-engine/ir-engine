@@ -27,44 +27,18 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { System, SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
   AnimationSystemGroup,
   InputSystemGroup,
   PresentationSystemGroup,
-  RootSystemGroup,
   SimulationSystemGroup
-} from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+} from '@etherealengine/engine/src/ecs/functions/SystemGroups'
+import { HyperFlux, SystemState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Color } from 'three'
 import styles from './styles.module.scss'
-
-const convertSystemTypeToDesiredType = (record: SystemUUID[], systemUUID: SystemUUID) => {
-  const system = SystemDefinitions.get(systemUUID)!
-
-  for (let i = 0; i < system.preSystems.length; i++) {
-    convertSystemTypeToDesiredType(record, system.preSystems[i])
-  }
-
-  if (system.uuid === RootSystemGroup) {
-    convertSystemTypeToDesiredType(record, SimulationSystemGroup)
-  }
-
-  record.push(system.uuid)
-
-  for (let i = 0; i < system.subSystems.length; i++) {
-    convertSystemTypeToDesiredType(record, system.subSystems[i])
-  }
-
-  for (let i = 0; i < system.postSystems.length; i++) {
-    convertSystemTypeToDesiredType(record, system.postSystems[i])
-  }
-
-  return record
-}
 
 const col = new Color()
 const col2 = new Color()
@@ -79,16 +53,8 @@ const convertSystemExecutionTimeToColor = (systemDuration: number, targetTimeste
 
 export const SystemDebug = () => {
   useHookstate(getMutableState(EngineState).frameTime).value
-  const systemPerformanceProfilingEnabled = useHookstate(getMutableState(EngineState).systemPerformanceProfilingEnabled)
+  const systemPerformanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
   const { t } = useTranslation()
-
-  const dag = {
-    input: convertSystemTypeToDesiredType([], InputSystemGroup),
-    simulation: convertSystemTypeToDesiredType([], SimulationSystemGroup),
-    animation: convertSystemTypeToDesiredType([], AnimationSystemGroup),
-    presentation: convertSystemTypeToDesiredType([], PresentationSystemGroup)
-  }
-  const targetTimestep = getState(EngineState).simulationTimestep / 2
 
   return (
     <div className={styles.jsonPanel}>
@@ -100,39 +66,90 @@ export const SystemDebug = () => {
       >
         {'Profile'}
       </button>
-      <JSONTree
-        data={dag}
-        valueRenderer={(raw, value, ...keyPath) => {
-          const systemUUID = value as SystemUUID
-          const system = SystemDefinitions.get(systemUUID)!
-          const systemReactor = Engine.instance.activeSystemReactors.get(system.uuid)!
-
-          const renderSystemDuration = () => {
-            if (typeof system.systemDuration === 'number') {
-              const color = convertSystemExecutionTimeToColor(system.systemDuration, targetTimestep)
-              return (
-                <span key={' system duration'} style={{ color: color }}>
-                  {` ${Math.round(system.systemDuration * 1000) / 1000} ms`}
-                </span>
-              )
-            }
-          }
-
-          return (
-            <>
-              <span style={{ color: 'black' }}>{systemUUID}</span>
-              {systemPerformanceProfilingEnabled.value && renderSystemDuration()}
-              {systemReactor &&
-                systemReactor.errors.map((error, i) => (
-                  <span key={'error' + i} style={{ color: 'red' }}>
-                    {`${error.name}: ${error.message}`}
-                  </span>
-                ))}
-            </>
-          )
-        }}
-        shouldExpandNodeInitially={() => true}
-      />
+      <SystemDagView uuid={InputSystemGroup} />
+      <SystemDagView uuid={SimulationSystemGroup} />
+      <SystemDagView uuid={AnimationSystemGroup} />
+      <SystemDagView uuid={PresentationSystemGroup} />
     </div>
   )
+}
+
+export const SystemDagView = (props: { uuid: SystemUUID }) => {
+  const { t } = useTranslation()
+
+  const systemPerformanceProfilingEnabled = useHookstate(getMutableState(EngineState).systemPerformanceProfilingEnabled)
+
+  return (
+    <JSONTree
+      data={expandSystemToTree(SystemDefinitions.get(props.uuid)!)}
+      labelRenderer={(raw, ...keyPath) => {
+        const label = raw[0]
+        if (label === 'preSystems' || label === 'subSystems' || label === 'postSystems')
+          return <span style={{ color: 'green' }}>{t(`common:debug.${label}`)}</span>
+        return <span style={{ color: 'black' }}>{label}</span>
+      }}
+      valueRenderer={(raw, value, ...keyPath) => {
+        const system = SystemDefinitions.get(keyPath[0] as SystemUUID)!
+        const systemReactor = system ? HyperFlux.store.activeSystemReactors.get(system.uuid) : undefined
+        const targetTimestep = getState(EngineState).simulationTimestep / 2
+
+        const renderSystemDuration = () => {
+          if (typeof system.systemDuration === 'number') {
+            const color = convertSystemExecutionTimeToColor(system.systemDuration, targetTimestep)
+            return (
+              <span key={' system duration'} style={{ color: color }}>
+                {` ${Math.round(system.systemDuration * 1000) / 1000} ms`}
+              </span>
+            )
+          }
+        }
+
+        return (
+          <>
+            {systemPerformanceProfilingEnabled.value && renderSystemDuration()}
+            {systemReactor?.errors.map((e) => {
+              return (
+                <span style={{ color: 'red' }}>
+                  {e.name.value}: {e.message.value}
+                </span>
+              )
+            })}
+          </>
+        )
+      }}
+      shouldExpandNodeInitially={() => true}
+    />
+  )
+}
+
+type SystemTree = {
+  preSystems: Record<SystemUUID, SystemTree>
+  subSystems: Record<SystemUUID, SystemTree>
+  postSystems: Record<SystemUUID, SystemTree>
+}
+
+const expandSystemToTree = (system: System): SystemTree => {
+  return {
+    preSystems: system.preSystems.reduce(
+      (acc, uuid) => {
+        acc[uuid] = expandSystemToTree(SystemDefinitions.get(uuid)!)
+        return acc
+      },
+      {} as Record<SystemUUID, SystemTree>
+    ),
+    subSystems: system.subSystems.reduce(
+      (acc, uuid) => {
+        acc[uuid] = expandSystemToTree(SystemDefinitions.get(uuid)!)
+        return acc
+      },
+      {} as Record<SystemUUID, SystemTree>
+    ),
+    postSystems: system.postSystems.reduce(
+      (acc, uuid) => {
+        acc[uuid] = expandSystemToTree(SystemDefinitions.get(uuid)!)
+        return acc
+      },
+      {} as Record<SystemUUID, SystemTree>
+    )
+  }
 }

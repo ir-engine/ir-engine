@@ -54,7 +54,7 @@ import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../comp
 import { NameComponent } from '../components/NameComponent'
 import { setVisibleComponent } from '../components/VisibleComponent'
 import LogarithmicDepthBufferMaterialChunk from '../functions/LogarithmicDepthBufferMaterialChunk'
-import { setObjectLayers } from '../functions/ObjectLayers'
+import { setObjectLayers } from '../functions/setObjectLayers'
 
 /**
  * Original Author: Fyrestar

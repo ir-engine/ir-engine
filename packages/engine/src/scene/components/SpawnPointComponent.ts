@@ -36,7 +36,7 @@ import { createEntity, removeEntity, useEntityContext } from '../../ecs/function
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/ObjectLayers'
+import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'

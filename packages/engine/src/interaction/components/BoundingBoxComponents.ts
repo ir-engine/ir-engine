@@ -45,7 +45,7 @@ import { MeshComponent } from '../../scene/components/MeshComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',

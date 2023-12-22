@@ -28,6 +28,7 @@ import * as bitecs from 'bitecs'
 import { merge } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
+import { isDev } from '@etherealengine/common/src/config'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { Query, QueryComponents } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
@@ -161,7 +162,7 @@ export function createHyperStore(options: {
         state
       }
     },
-    systemPerformanceProfilingEnabled: false
+    systemPerformanceProfilingEnabled: isDev
   } as HyperStore
   HyperFlux.store = store
   bitecs.createWorld(store)
