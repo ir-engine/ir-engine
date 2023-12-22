@@ -258,10 +258,6 @@ describe('EntityNetworkState', () => {
       assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
       assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), true)
 
-      const transferAuthorityOfObjectQueue = ActionFunctions.defineActionQueue(
-        WorldNetworkAction.transferAuthorityOfObject.matches
-      )
-
       dispatchAction(
         WorldNetworkAction.requestAuthorityOverObject({
           $from: userId,
@@ -325,10 +321,6 @@ describe('EntityNetworkState', () => {
     assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).ownerId, hostUserId)
     assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
     assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), false)
-
-    const transferAuthorityOfObjectQueue = ActionFunctions.defineActionQueue(
-      WorldNetworkAction.transferAuthorityOfObject.matches
-    )
 
     dispatchAction(
       WorldNetworkAction.requestAuthorityOverObject({

@@ -86,6 +86,7 @@ export class WorldNetworkAction {
     type: 'ee.engine.world.TRANSFER_AUTHORITY_OF_OBJECT',
     entityUUID: matchesEntityUUID,
     newAuthority: matchesPeerID,
-    $topic: NetworkTopics.world
+    $topic: NetworkTopics.world,
+    $cache: true
   })
 }

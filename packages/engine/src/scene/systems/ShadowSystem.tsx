@@ -302,7 +302,7 @@ function ShadowMeshReactor(props: { entity: Entity; obj: Mesh<any, Material> }) 
     }
 
     return () => {
-      csm?.teardownMaterial(obj)
+      if (obj.material) csm?.teardownMaterial(obj)
     }
   }, [shadowComponent.cast, shadowComponent.receive, csm])
 

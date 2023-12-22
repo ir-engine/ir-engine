@@ -640,7 +640,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
               }
             }
 
-            if (!UUIDComponent.getEntityByUUID(entityID)) {
+            if (!UUIDComponent.getEntityByUUID(entityID) && isClone) {
               dispatchAction(
                 AvatarNetworkAction.spawn({
                   $from: entityID,

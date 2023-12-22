@@ -34,6 +34,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -76,10 +77,14 @@ export const EntityTreeComponent = defineComponent({
 
     // If a previous parentEntity, remove this entity from its children
     if (currentParentEntity && currentParentEntity !== json.parentEntity) {
-      const oldParent = getMutableComponent(currentParentEntity, EntityTreeComponent)
-      const parentChildIndex = oldParent.children.value.findIndex((child) => child === entity)
-      const children = oldParent.children.get(NO_PROXY)
-      oldParent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
+      if (entityExists(currentParentEntity)) {
+        const oldParent = getOptionalMutableComponent(currentParentEntity, EntityTreeComponent)
+        if (oldParent) {
+          const parentChildIndex = oldParent.children.value.findIndex((child) => child === entity)
+          const children = oldParent.children.get(NO_PROXY)
+          oldParent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
+        }
+      }
     }
 
     // set new data
@@ -92,7 +97,7 @@ export const EntityTreeComponent = defineComponent({
     if (matchesEntityUUID.test(json?.uuid) && !hasComponent(entity, UUIDComponent))
       setComponent(entity, UUIDComponent, json.uuid)
 
-    if (parentEntity) {
+    if (parentEntity && entityExists(parentEntity)) {
       if (!hasComponent(parentEntity, EntityTreeComponent)) setComponent(parentEntity, EntityTreeComponent)
 
       const parentState = getMutableComponent(parentEntity, EntityTreeComponent)

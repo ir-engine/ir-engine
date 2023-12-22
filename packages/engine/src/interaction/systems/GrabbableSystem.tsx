@@ -48,7 +48,13 @@ import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -112,18 +118,22 @@ export const GrabbableState = defineState({
 
 const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(GrabbableState)[entityUUID])
-  const entity = UUIDComponent.getEntityByUUID(entityUUID)
-  const grabberEntity = UUIDComponent.getEntityByUUID(state.grabberUserId.value as EntityUUID)
+  const entity = UUIDComponent.useEntityByUUID(entityUUID)
+  const grabberEntity = UUIDComponent.useEntityByUUID(state.grabberUserId.value as EntityUUID)
   const attachmentPoint = state.attachmentPoint.value
+  const bodyState = useComponent(entity, RigidBodyComponent)?.body
 
   useEffect(() => {
+    if (!entity || !grabberEntity || !bodyState) return
+
     setComponent(grabberEntity, GrabberComponent, { [attachmentPoint]: entity })
     setComponent(entity, GrabbedComponent, {
       grabberEntity,
       attachmentPoint
     })
 
-    const body = getComponent(entity, RigidBodyComponent)?.body
+    const body = bodyState.value
+
     if (body) {
       Physics.changeRigidbodyType(entity, RigidBodyType.KinematicPositionBased)
       for (let i = 0; i < body.numColliders(); i++) {
@@ -149,16 +159,18 @@ const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID })
         }
       }
     }
-  }, [])
+  }, [entity, grabberEntity, bodyState])
 
   return null
 })
 
 export const GrabbablesReactor = React.memo(() => {
-  const grabbableState = useHookstate(getMutableState(GrabbableState))
+  const grabbableState = Object.keys(useHookstate(getMutableState(GrabbableState)).value)
+  console.log('grabbableState', grabbableState)
+
   return (
     <>
-      {grabbableState.keys.map((entityUUID: EntityUUID) => (
+      {grabbableState.map((entityUUID: EntityUUID) => (
         <GrabbableReactor key={entityUUID} entityUUID={entityUUID} />
       ))}
     </>
@@ -187,12 +199,11 @@ export function transferAuthorityOfObjectReceptor(
 
 // since grabbables are all client authoritative, we don't need to recompute this for all users
 export function grabbableQueryAll(grabbableEntity: Entity) {
-  const grabberComponent = getComponent(grabbableEntity, GrabbedComponent)
-
   const grabbedComponent = getComponent(grabbableEntity, GrabbedComponent)
+  if (!grabbedComponent) return
   const attachmentPoint = grabbedComponent.attachmentPoint
 
-  const target = getHandTarget(grabberComponent.grabberEntity, attachmentPoint ?? 'right')!
+  const target = getHandTarget(grabbedComponent.grabberEntity, attachmentPoint ?? 'right')!
 
   const rigidbodyComponent = getComponent(grabbableEntity, RigidBodyComponent)
 

@@ -129,7 +129,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     loadAvatarModelAsset(entity, url)
     return () => {
       if (!entityExists(entity)) return
-      unloadAvatarForUser(entity, url)
+      unloadAvatarForUser(entity)
     }
   }, [state.userAvatarDetails])
 
