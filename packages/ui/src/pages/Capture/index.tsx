@@ -53,6 +53,7 @@ import { ChannelService } from '@etherealengine/client-core/src/social/services/
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneServices } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   MotionCaptureFunctions,
@@ -554,7 +555,12 @@ const PlaybackMode = () => {
   useEffect(() => {
     const scenePath = locationState.currentLocation.location.sceneId.value
     if (!scenePath) return
-    return SceneServices.setCurrentScene(scenePath)
+    const cleanup = SceneServices.setCurrentScene(scenePath)
+    return () => {
+      cleanup()
+      // hack
+      getMutableState(EngineState).sceneLoaded.set(false)
+    }
   }, [locationState])
 
   useLocationSpawnAvatarWithDespawn()
