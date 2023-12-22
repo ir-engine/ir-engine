@@ -51,6 +51,8 @@ import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { GroupComponent } from '../../scene/components/GroupComponent'
+import { ObjectLayerComponents } from '../../scene/components/ObjectLayerComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import {
   ComputedTransformComponent,
@@ -116,6 +118,8 @@ export const updateCameraTargetRotation = (cameraEntity: Entity) => {
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
 
+const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera]])
+
 export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
 
@@ -128,7 +132,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   camRayCastClock.start()
 
-  const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
+  const sceneObjects = cameraLayerQuery().flatMap((e) => getComponent(e, GroupComponent))
 
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)

@@ -34,6 +34,7 @@ export const AppLoadingStates = {
 
 type AppLoadingStatesType = (typeof AppLoadingStates)[keyof typeof AppLoadingStates]
 
+/** @deprecated @todo replace with scene loading state directly */
 export const AppLoadingState = defineState({
   name: 'AppLoadingState',
   initial: () => ({

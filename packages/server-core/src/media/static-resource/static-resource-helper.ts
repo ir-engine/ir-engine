@@ -34,11 +34,8 @@ import { Readable } from 'stream'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
 import { getStorageProvider } from '../storageprovider/storageprovider'
-
-const logger = multiLogger.child('static-resource-helper')
 
 export type MediaUploadArguments = {
   media: Buffer

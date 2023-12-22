@@ -170,13 +170,13 @@ export const AvatarRigComponent = defineComponent({
       const helper = new SkeletonHelper(rigComponent.value.vrm.scene)
       helper.frustumCulled = false
       helper.name = `target-rig-helper-${entity}`
-      setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
       const helperEntity = createEntity()
       setVisibleComponent(helperEntity, true)
       addObjectToGroup(helperEntity, helper)
       rigComponent.helperEntity.set(helperEntity)
       setComponent(helperEntity, NameComponent, helper.name)
+      setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
       setComputedTransformComponent(helperEntity, entity, () => {
         const helperTransform = getComponent(helperEntity, TransformComponent)
