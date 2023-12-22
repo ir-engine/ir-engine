@@ -68,6 +68,7 @@ import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
+import { AnimationComponent } from './AnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -228,7 +229,8 @@ export const AvatarRigComponent = defineComponent({
       if (
         !manager.loadedAnimations[locomotionAnimation].value ||
         !rigComponent?.vrm?.value ||
-        !rigComponent?.normalizedRig?.value
+        !rigComponent?.normalizedRig?.value ||
+        getComponent(entity, AnimationComponent).animations.length
       )
         return
       try {
