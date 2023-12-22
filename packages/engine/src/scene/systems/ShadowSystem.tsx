@@ -61,7 +61,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { QueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
@@ -72,14 +72,13 @@ import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
+import { GroundPlaneComponent } from '../components/GroundPlaneComponent'
 import { GroupComponent, GroupQueryReactor, addObjectToGroup } from '../components/GroupComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import { useContainsMesh } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
-import { ObjectLayerComponents } from '../components/ObjectLayerComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
 
 export const ShadowSystemState = defineState({
   name: 'ee.engine.scene.ShadowSystemState',
@@ -240,6 +239,7 @@ const DropShadowReactor = () => {
   const shadowMaterial = useHookstate(shadowState)
   const containsMesh = useContainsMesh(entity)
   const shadow = useComponent(entity, ShadowComponent)
+  const entityTree = getComponent(entity, EntityTreeComponent)
 
   useEffect(() => {
     if (
@@ -247,7 +247,8 @@ const DropShadowReactor = () => {
       !shadow.cast.value ||
       !shadowMaterial.value ||
       !containsMesh ||
-      hasComponent(entity, DropShadowComponent)
+      hasComponent(entity, DropShadowComponent) ||
+      entityTree.parentEntity !== null
     )
       return
 
@@ -315,7 +316,7 @@ const shadowOffset = new Vector3(0, 0.01, 0)
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(dropShadowComponentQuery, compareDistanceToCamera)
 const sortedEntityTransforms = [] as Entity[]
 
-const sceneLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
+const sceneLayerQuery = defineQuery([GroundPlaneComponent])
 
 const updateDropShadowTransforms = () => {
   const { deltaSeconds } = getState(EngineState)
