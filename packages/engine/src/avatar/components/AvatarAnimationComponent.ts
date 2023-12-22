@@ -65,7 +65,7 @@ import {
 } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
-import { setupAvatarForUser } from '../functions/avatarFunctions'
+import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
@@ -224,13 +224,13 @@ export const AvatarRigComponent = defineComponent({
     const manager = useHookstate(getMutableState(AnimationState))
 
     useEffect(() => {
-      if (!manager.loadedAnimations.value || !rigComponent?.vrm?.value || !rigComponent?.normalizedRig?.value) return
-      //try {
-      //  retargetAvatarAnimations(entity)
-      //} catch (e) {
-      //  console.error('Failed to retarget avatar animations', e)
-      //  if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
-      //}
+      if (!manager.loadedAnimations[0].value || !rigComponent?.vrm?.value || !rigComponent?.normalizedRig?.value) return
+      try {
+        retargetAvatarAnimations(entity)
+      } catch (e) {
+        console.error('Failed to retarget avatar animations', e)
+        if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
+      }
     }, [manager.loadedAnimations, rigComponent.vrm])
 
     return null

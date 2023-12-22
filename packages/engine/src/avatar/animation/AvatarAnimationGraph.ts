@@ -38,7 +38,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
+import { bindAnimationClipFromMixamo } from '../functions/retargetMixamoRig'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { locomotionAnimation } from './Util'
 
@@ -151,13 +151,12 @@ export const playAvatarAnimationFromMixamo = (
   )
   //otherwise retarget and push to animation component's animations
   if (!retargetedAnimation) {
-    retargetedAnimation = retargetMixamoAnimation(
+    retargetedAnimation = bindAnimationClipFromMixamo(
       cloneDeep(
         clipName
           ? animationsScene.animations.find((clip) => clip.name == clipName) ?? animationsScene.animations[0]
           : animationsScene.animations[0]
       ),
-      animationsScene,
       rigComponent.vrm
     )
     animationComponent.animations.push(retargetedAnimation)

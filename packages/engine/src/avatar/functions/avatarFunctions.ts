@@ -61,7 +61,7 @@ import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { resizeAvatar } from './resizeAvatar'
-import { retargetAnimationClip, retargetMixamoAnimation } from './retargetMixamoRig'
+import { bindAnimationClipFromMixamo, retargetAnimationClip } from './retargetMixamoRig'
 
 const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
@@ -172,12 +172,13 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const manager = getState(AnimationState)
   const animations = [] as AnimationClip[]
+  console.log(manager.loadedAnimations)
   for (const key in manager.loadedAnimations) {
     for (const animation of manager.loadedAnimations[key].animations)
-      animations.push(retargetMixamoAnimation(animation, manager.loadedAnimations[key].scene, rigComponent.vrm))
+      animations.push(bindAnimationClipFromMixamo(animation, rigComponent.vrm))
   }
   setComponent(entity, AnimationComponent, {
-    animations: animations,
+    animations: manager.loadedAnimations[locomotionAnimation].animations,
     mixer: new AnimationMixer(rigComponent.normalizedRig.hips.node)
   })
 }
