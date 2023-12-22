@@ -46,6 +46,8 @@ export const removeEntity = (entity: Entity) => {
   return promise
 }
 
+globalThis.EE_removeEntity = removeEntity
+
 export const entityExists = (entity: Entity) => {
   return bitECS.entityExists(HyperFlux.store, entity)
 }

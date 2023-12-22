@@ -205,7 +205,7 @@ describe('EntityNetworkState', () => {
       )
       applyIncomingActions()
 
-      const entity = UUIDComponent.entitiesByUUID[Engine.instance.userID as any as EntityUUID]
+      const entity = UUIDComponent.getEntityByUUID(Engine.instance.userID as any as EntityUUID)
 
       spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 

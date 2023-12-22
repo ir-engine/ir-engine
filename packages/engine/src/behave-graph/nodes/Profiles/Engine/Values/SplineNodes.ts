@@ -56,9 +56,9 @@ export const getSpline = makeFunctionNodeDefinition({
   },
   out: { entity: 'entity' },
   exec: ({ read, write }) => {
-    const splineEntityUUID = read<string>('spline')
+    const splineEntityUUID = read<EntityUUID>('spline')
     Assert.mustBeTrue(splineEntityUUID !== '', 'Please select spline entity')
-    const splineEntity = UUIDComponent.entitiesByUUID[splineEntityUUID]
+    const splineEntity = UUIDComponent.getEntityByUUID(splineEntityUUID)
     write('entity', splineEntity)
   }
 })
@@ -112,7 +112,7 @@ export const addSplineTrack = makeAsyncNodeDefinition({
         // can we hook into the spline track reactor somehow? this feels wasteful, but probably the right way to do it
         const splineTrack = getComponent(entity, SplineTrackComponent)
         if (splineTrack.loop) return
-        const splineEntity = UUIDComponent.entitiesByUUID[splineTrack.splineEntityUUID!]
+        const splineEntity = UUIDComponent.getEntityByUUID(splineTrack.splineEntityUUID!)
         if (!splineEntity) return
         const spline = getOptionalComponent(splineEntity, SplineComponent)
         if (!spline) return

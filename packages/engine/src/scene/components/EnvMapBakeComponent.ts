@@ -30,7 +30,6 @@ import {
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
-  Scene,
   SphereGeometry,
   Vector3
 } from 'three'
@@ -38,12 +37,10 @@ import {
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
 import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent, traverseEntityNode } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import {
   envmapParsReplaceLambert,
@@ -55,7 +52,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/ObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
-import { GroupComponent, addObjectToGroup } from './GroupComponent'
+import { addObjectToGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
@@ -131,90 +128,47 @@ export const EnvMapBakeComponent = defineComponent({
   }
 })
 
-export const prepareSceneForBake = (): Scene => {
-  const scene = Engine.instance.scene.clone(false)
-  const sceneEntity = SceneState.getRootEntity()
-  const parents = {
-    [sceneEntity]: scene
-  } as { [key: Entity]: Object3D }
-
-  traverseEntityNode(sceneEntity, (entity) => {
-    if (entity === sceneEntity) return
-
-    const group = getComponent(entity, GroupComponent) as unknown as Mesh<any, MeshStandardMaterial>[]
-    const node = getComponent(entity, EntityTreeComponent)
-
-    if (group) {
-      for (const obj of group) {
-        const newObj = obj.clone(true)
-        if (node.parentEntity) parents[node.parentEntity].add(newObj)
-        newObj.traverse((o: any) => {
-          if (o.material) {
-            o.material = obj.material.clone()
-            o.material.roughness = 1
-          }
-        })
-      }
-    }
-  })
-
-  return scene
-}
-
-//Hacky tentative solution, injects shader code into threejs' shaders for box box projected envmaps
-//Depends on shader type to add pbr or non pbr shader logic
+// Hacky tentative solution, injects shader code into threejs' shaders for box projected envmaps
+// Depends on shader type to add pbr or non pbr shader logic
 export const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
   for (const target of targets) {
-    target.traverse((child: Mesh<any, MeshStandardMaterial>) => {
-      if (!child.material || child.type == 'VFXBatch') return
+    const child = target as Mesh<any, MeshStandardMaterial>
+    if (!child.material || child.type == 'VFXBatch') return
 
-      if (child.material instanceof MeshPhysicalMaterial || child.material instanceof MeshStandardMaterial) {
-        child.material = Object.assign(new MeshPhysicalMaterial(), child.material)
-        child.material.onBeforeCompile = (shader, renderer) => {
-          shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
-          shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
+    if (child.material instanceof MeshPhysicalMaterial || child.material instanceof MeshStandardMaterial) {
+      child.material = Object.assign(new MeshPhysicalMaterial(), child.material)
+      child.material.onBeforeCompile = (shader, renderer) => {
+        shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
+        shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
 
-          //replace shader chunks with box projection chunks
-          if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
-            shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+        //replace shader chunks with box projection chunks
+        if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
+          shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
 
-          shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+        shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
 
-          shader.fragmentShader = shader.fragmentShader.replace(
-            '#include <envmap_physical_pars_fragment>',
-            envmapPhysicalParsReplace
-          )
-        }
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <envmap_physical_pars_fragment>',
+          envmapPhysicalParsReplace
+        )
       }
-      if ((child.material as any) instanceof MeshLambertMaterial) {
-        child.material.onBeforeCompile = function (shader) {
-          //these parameters are for the cubeCamera texture
-          shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
-          shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
-          //replace shader chunks with box projection chunks
+    }
+    if ((child.material as any) instanceof MeshLambertMaterial) {
+      child.material.onBeforeCompile = function (shader) {
+        //these parameters are for the cubeCamera texture
+        shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
+        shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
+        //replace shader chunks with box projection chunks
 
-          shader.fragmentShader = shader.fragmentShader.replace(
-            '#include <envmap_pars_fragment>',
-            envmapParsReplaceLambert
-          )
-          shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <envmap_pars_fragment>',
+          envmapParsReplaceLambert
+        )
+        shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
 
-          shader.uniforms.envMap = { value: child.material.envMap }
-        }
+        shader.uniforms.envMap = { value: child.material.envMap }
       }
-    })
+    }
   }
-}
-
-export const isInsideBox = (extents: Vector3, point: Vector3) => {
-  const bounds = { x: extents.x * 0.5, y: extents.y * 0.5, z: extents.z * 0.5 }
-  return (
-    point.x <= bounds.x &&
-    point.x >= -bounds.x &&
-    point.y <= bounds.y &&
-    point.y >= -bounds.y &&
-    point.z <= bounds.z &&
-    point.z >= -bounds.z
-  )
 }

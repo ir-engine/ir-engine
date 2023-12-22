@@ -31,7 +31,7 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { Person } from '@mui/icons-material'
+import Person from '@mui/icons-material/Person'
 import { IconButton } from '@mui/material'
 
 import styles from './styles.module.scss'

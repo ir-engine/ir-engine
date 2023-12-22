@@ -33,7 +33,6 @@ import { getState } from '@etherealengine/hyperflux'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -43,8 +42,7 @@ import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import {
   DistanceFromCameraComponent,
-  setDistanceFromCameraComponent,
-  setDistanceFromLocalClientComponent
+  DistanceFromLocalClientComponent
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
@@ -61,7 +59,7 @@ export const InteractState = defineState({
       /**
        * closest interactable to the player, in view of the camera, sorted by distance
        */
-      maxDistance: 1.5,
+      maxDistance: 2,
       available: [] as Entity[]
     }
   }
@@ -79,21 +77,19 @@ const vec3 = new Vector3()
 const flip = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
-  const transform = getComponent(xrui.entity, TransformComponent)
-  transform.matrix.lookAt(
-    transform.position,
-    getComponent(Engine.instance.cameraEntity, TransformComponent).position,
-    V_010
-  )
-  transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
-  transform.rotation.multiply(flip)
+  const xruiTransform = getComponent(xrui.entity, TransformComponent)
+  TransformComponent.getWorldPosition(entity, xruiTransform.position)
 
-  if (!transform || !getComponent(Engine.instance.localClientEntity, TransformComponent)) return
-  transform.position.copy(getComponent(entity, TransformComponent).position)
-  transform.position.y += 1
+  if (!Engine.instance.localClientEntity) return
+
+  xruiTransform.position.y += 1
+
+  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+  xruiTransform.rotation.copy(cameraTransform.rotation)
+
   const transition = InteractableTransitions.get(entity)!
-  getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Hips, vec3)
-  const distance = vec3.distanceToSquared(transform.position)
+  getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Chest, vec3)
+  const distance = vec3.distanceToSquared(xruiTransform.position)
   const inRange = distance < getState(InteractState).maxDistance
   if (transition.state === 'OUT' && inRange) {
     transition.setState('IN')
@@ -148,8 +144,8 @@ const execute = () => {
 
   // ensure distance component is set on all interactables
   for (const entity of allInteractablesQuery.enter()) {
-    setDistanceFromCameraComponent(entity)
-    setDistanceFromLocalClientComponent(entity)
+    setComponent(entity, DistanceFromCameraComponent)
+    setComponent(entity, DistanceFromLocalClientComponent)
   }
 
   // TODO: refactor InteractiveUI to be ui-centric rather than interactable-centeric

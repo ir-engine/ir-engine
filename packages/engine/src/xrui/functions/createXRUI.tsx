@@ -41,7 +41,6 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/ObjectLayers'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
 
@@ -76,7 +75,6 @@ export function createXRUI<S extends State<any> | null>(
   const root = new Group()
   root.name = containerElement.id
   root.add(container)
-  setComponent(entity, TransformComponent)
   addObjectToGroup(entity, root)
   setObjectLayers(container, ObjectLayers.UI)
   setComponent(entity, DistanceFromCameraComponent)

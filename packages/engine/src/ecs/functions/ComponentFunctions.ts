@@ -43,6 +43,8 @@ import { HyperFlux, ReactorRoot, defineActionQueue, startReactor } from '@ethere
 import {
   hookstate,
   NO_PROXY,
+  NO_PROXY_STEALTH,
+  none,
   ReceptorMap,
   State,
   useHookstate
@@ -176,7 +178,7 @@ export interface Component<
   reactorMap: Map<Entity, ReactorRoot>
   receptors?: Receptors
   existenceMap: Readonly<Record<Entity, boolean>>
-  existenceMapState: State<Record<Entity, boolean>>
+  existenceMapState: Record<Entity, State<boolean> | undefined>
   existenceMapPromiseResolver: Record<Entity, { promise: Promise<void>; resolve: () => void }>
   stateMap: Record<Entity, State<ComponentType, Subscribable> | undefined>
   valueMap: Record<Entity, ComponentType>
@@ -252,8 +254,7 @@ export const defineComponent = <
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
-  Component.existenceMap = {}
-  Component.existenceMapState = hookstate(Component.existenceMap)
+  Component.existenceMapState = {}
   Component.existenceMapPromiseResolver = {}
   Component.stateMap = {}
   Component.valueMap = {}
@@ -286,7 +287,7 @@ export const getOptionalMutableComponent = <ComponentType>(
   component: Component<ComponentType, Record<string, any>, unknown>
 ): State<ComponentType, Subscribable> | undefined => {
   // if (entity === UndefinedEntity) return undefined
-  if (component.existenceMap[entity]) return component.stateMap[entity]
+  if (component.existenceMapState[entity]?.get(NO_PROXY_STEALTH)) return component.stateMap[entity]
   return undefined
 }
 
@@ -342,12 +343,17 @@ export const setComponent = <C extends Component>(
   }
   if (!hasComponent(entity, Component)) {
     const value = Component.onInit(entity)
-    Component.existenceMapState[entity].set(true)
     Component.existenceMapPromiseResolver[entity]?.resolve?.()
 
     if (!Component.stateMap[entity]) {
+      Component.existenceMapState[entity] = hookstate(true)
       Component.stateMap[entity] = hookstate(value, subscribable())
-    } else Component.stateMap[entity]!.set(value)
+    } else {
+      Component.existenceMapState[entity]!.set(true)
+      Component.stateMap[entity]!.set(value)
+    }
+
+    Component.valueMap[entity] = value
 
     bitECS.addComponent(HyperFlux.store, Component, entity, false) // don't clear data on-add
 
@@ -399,12 +405,12 @@ export const setComponent = <C extends Component>(
       })
     }
   }
-  startTransition(() => {
-    Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
-    Component.valueMap[entity] = Component.stateMap[entity]!.get(NO_PROXY)
-    const root = Component.reactorMap.get(entity)
-    if (!root?.isRunning) root?.run()
-  })
+  // startTransition(() => {
+  Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
+  Component.valueMap[entity] = Component.stateMap[entity]?.get(NO_PROXY_STEALTH)
+  const root = Component.reactorMap.get(entity)
+  if (!root?.isRunning) root?.run()
+  // })
 }
 
 /**
@@ -420,7 +426,7 @@ export const updateComponent = <C extends Component>(
 
   const comp = getMutableComponent(entity, Component)
   if (!comp) {
-    throw new Error('[updateComponent]: component does not exist')
+    throw new Error('[updateComponent]: component does not exist ' + Component.name)
   }
 
   startTransition(() => {
@@ -447,50 +453,13 @@ export const updateComponent = <C extends Component>(
   })
 }
 
-/**
- * @deprecated Use {@link setComponent} instead
- * @description Like {@link setComponent}, but errors if the component already exists.
- * @throws Error when the component exists: {@link Error}
- */
-export const addComponent = <C extends Component>(
-  entity: Entity,
-  Component: C,
-  args: SetComponentType<C> | undefined = undefined
-) => {
-  if (hasComponent(entity, Component)) throw new Error(`${Component.name} already exists on entity ${entity}`)
-  setComponent(entity, Component, args)
-}
-
-/**
- * @description Checks if the given {@link Entity} contains the given {@link Component}.
- * @param entity The Entity to check.
- * @param component The Component to check.
- * @returns True when the Component is contained in the Entity.
- */
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
-  return component.existenceMap[entity] ?? false
+  return component.existenceMapState[entity]?.get(NO_PROXY_STEALTH) ?? false
 }
 
-/**
- * @description Returns a {@link Component} by getting it from the given {@link Entity}, or adding if it does not already exists.
- * @param entity The Entity to get/add the component from/to.
- * @param component The Component to get/add.
- * @param args `@todo` Explain what `getOrAddComponent(  args)` is.
- * @returns The requested Component, independent of whether it existed or was added.
- */
-export const getOrAddComponent = <C extends Component>(entity: Entity, component: C, args?: SetComponentType<C>) => {
-  return hasComponent(entity, component) ? getComponent(entity, component) : addComponent(entity, component, args)
-}
-
-/**
- * @async
- * @description Removes the given {@link Component} from the given {@link Entity} asynchronously.
- * @param entity The Entity to remove the component from.
- * @param component The Component to remove.
- */
 export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
-  component.existenceMapState[entity].set(false)
+  component.existenceMapState[entity]?.set(false)
   component.existenceMapPromiseResolver[entity]?.resolve?.()
   component.existenceMapPromiseResolver[entity] = _createPromiseResolver()
   component.onRemove(entity, component.stateMap[entity]!)
@@ -614,8 +583,12 @@ export function useComponent<C extends Component<any>>(entity: Entity, Component
  * Use a component in a reactive context (a React component)
  */
 export function useOptionalComponent<C extends Component<any>>(entity: Entity, Component: C) {
+  if (!Component.stateMap[entity]) {
+    //in the case that this is called before a component is set we need a hookstate present for react
+    Component.existenceMapState[entity] = hookstate(false)
+    Component.stateMap[entity] = hookstate(undefined, subscribable())
+  }
   const hasComponent = useHookstate(Component.existenceMapState[entity]).value
-  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined, subscribable()) //in the case that this is called before a component is set we need a hookstate present for react
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return hasComponent ? component : undefined
 }
@@ -623,6 +596,5 @@ export function useOptionalComponent<C extends Component<any>>(entity: Entity, C
 globalThis.EE_getComponent = getComponent
 globalThis.EE_getAllComponents = getAllComponents
 globalThis.EE_getAllComponentData = getAllComponentData
-globalThis.EE_addComponent = addComponent
 globalThis.EE_setComponent = setComponent
 globalThis.EE_removeComponent = removeComponent

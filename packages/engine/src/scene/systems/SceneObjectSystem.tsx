@@ -41,7 +41,7 @@ import { getMutableState, getState, useHookstate, useMutableState } from '@ether
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
@@ -50,13 +50,11 @@ import { registerMaterial, unregisterMaterial } from '../../renderer/materials/f
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
-import { GroupComponent, GroupQueryReactor, Object3DWithEntity } from '../components/GroupComponent'
+import { GroupComponent, GroupQueryReactor } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
-import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { ObjectLayerState } from '../functions/ObjectLayers'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import iterateObject3D from '../util/iterateObject3D'
 
@@ -98,82 +96,64 @@ export const disposeObject3D = (obj: Object3D) => {
   if (typeof light.dispose === 'function') light.dispose()
 }
 
-export function setupObject(obj: Object3DWithEntity, forceBasicMaterials = false) {
-  const mesh = obj as any as Mesh<any, any>
-  /** @todo do we still need this? */
-  //Lambert shader needs an empty normal map to prevent shader errors
-  // const res = 8
-  // const normalTexture = new DataTexture(getRGBArray(new Color(0.5, 0.5, 1)), res, res, RGBAFormat)
-  // normalTexture.needsUpdate = true
-  mesh.traverse((child: Mesh<any, any>) => {
-    if (child.material) {
-      if (!child.userData) child.userData = {}
-      const shouldMakeBasic =
-        (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
-      if (!forceBasicMaterials && !isMobileXRHeadset && child.userData.lastMaterial) {
-        child.material = child.userData.lastMaterial
-        delete child.userData.lastMaterial
-      } else if (shouldMakeBasic && !child.userData.lastMaterial) {
-        const prevMaterial = child.material
-        const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-        const prevMatEntry = unregisterMaterial(prevMaterial)
-        const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
+export function setupObject(obj: Object3D, forceBasicMaterials = false) {
+  const child = obj as any as Mesh<any, any>
 
-        // nuMaterial.normalMap = nuMaterial.normalMap ?? normalTexture
-        nuMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
+  if (child.material) {
+    if (!child.userData) child.userData = {}
+    const shouldMakeBasic =
+      (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
+    if (!forceBasicMaterials && !isMobileXRHeadset && child.userData.lastMaterial) {
+      child.material = child.userData.lastMaterial
+      delete child.userData.lastMaterial
+    } else if (shouldMakeBasic && !child.userData.lastMaterial) {
+      const prevMaterial = child.material
+      const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+      const prevMatEntry = unregisterMaterial(prevMaterial)
+      const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
 
-        if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
-        else nuMaterial.map = prevMaterial.map
+      nuMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
 
-        nuMaterial.reflectivity = prevMaterial.metalness
-        nuMaterial.envMap = prevMaterial.envMap
-        nuMaterial.vertexColors = prevMaterial.vertexColors
+      if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
+      else nuMaterial.map = prevMaterial.map
 
-        child.material = nuMaterial
-        child.userData.lastMaterial = prevMaterial
-        prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
-      }
-      // normalTexture.dispose()
+      nuMaterial.reflectivity = prevMaterial.metalness
+      nuMaterial.envMap = prevMaterial.envMap
+      nuMaterial.vertexColors = prevMaterial.vertexColors
+
+      child.material = nuMaterial
+      child.userData.lastMaterial = prevMaterial
+      prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
     }
-  })
+  }
 }
 
 const groupQuery = defineQuery([GroupComponent])
 const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
-function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
+function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   const { entity, obj } = props
 
-  const shadowComponent = useOptionalComponent(entity, ShadowComponent)
   const renderState = getMutableState(RendererState)
   const forceBasicMaterials = useHookstate(renderState.forceBasicMaterials)
-  const csm = useHookstate(renderState.csm)
   const scene = useMutableState(EngineState).scene
 
-  useEffect(() => {
-    scene.value.add(obj)
-    return () => {
-      scene.value.remove(obj)
-    }
-  }, [])
+  // useEffect(() => {
+  //   scene.value.add(obj)
+  //   return () => {
+  //     scene.value.remove(obj)
+  //   }
+  // }, [])
 
   useEffect(() => {
     const source = hasComponent(entity, ModelComponent)
       ? getModelSceneID(entity)
       : getComponent(entity, SourceComponent)
     return () => {
-      const layers = getState(ObjectLayerState)
-      for (const layer of Object.values(layers)) {
-        if (layer.has(obj)) layer.delete(obj)
-      }
       if (obj.isProxified) {
         disposeObject3D(obj)
       } else {
-        iterateObject3D(
-          obj,
-          disposeObject3D,
-          (obj: Object3DWithEntity) => getComponent(obj.entity, SourceComponent) === source
-        )
+        iterateObject3D(obj, disposeObject3D, (obj: Object3D) => getComponent(obj.entity, SourceComponent) === source)
       }
     }
   }, [])
@@ -181,28 +161,6 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
   useEffect(() => {
     setupObject(obj, forceBasicMaterials.value)
   }, [forceBasicMaterials])
-
-  useEffect(() => {
-    const shadow = shadowComponent?.value
-    const csm = getState(RendererState).csm
-    obj.traverse((child: Mesh<any, Material>) => {
-      if (!child.isMesh) return
-      child.castShadow = !!shadow?.cast
-      child.receiveShadow = !!shadow?.receive
-      if (child.material && child.receiveShadow && csm) {
-        csm.setupMaterial(child)
-      }
-    })
-
-    return () => {
-      obj.traverse((child: Mesh<any, Material>) => {
-        if (!child.isMesh) return
-        if (csm) {
-          csm.teardownMaterial(child)
-        }
-      })
-    }
-  }, [shadowComponent?.cast, shadowComponent?.receive, csm])
 
   return null
 }

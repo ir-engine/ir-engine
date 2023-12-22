@@ -29,11 +29,11 @@ import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { GroupComponent } from '../components/GroupComponent'
+import { MeshComponent } from '../components/MeshComponent'
 import { ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
 import { fitTexture } from './fitTexture'
 
-const screenshareTargetQuery = defineQuery([ScreenshareTargetComponent])
+const screenshareTargetQuery = defineQuery([MeshComponent, ScreenshareTargetComponent])
 
 const getAspectRatioFromBufferGeometry = (mesh: Mesh<BufferGeometry>) => {
   mesh.geometry.computeBoundingBox()
@@ -92,13 +92,10 @@ export const applyScreenshareToTexture = (video: HTMLVideoElement) => {
     ;(video as any).appliedTexture = true
     if (!video.videoWidth || !video.videoHeight) return
     for (const entity of screenshareTargetQuery()) {
-      const group = getComponent(entity, GroupComponent)
-      for (const obj3d of group)
-        obj3d.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
-          if (obj.material) {
-            applyVideoToTexture(video, obj)
-          }
-        })
+      const mesh = getComponent(entity, MeshComponent)
+      if (mesh.material) {
+        applyVideoToTexture(video, mesh)
+      }
     }
   }
   if (!video.readyState) {

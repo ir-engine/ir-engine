@@ -73,7 +73,7 @@ describe('SceneLoadingSystem', () => {
 
   //     await updateSceneFromJSON()
 
-  //     const rootEntity = UUIDComponent.entitiesByUUID['root']
+  //     const rootEntity = UUIDComponent.getEntityByUUID('root')
   //     assert(rootEntity)
   //     assert(hasComponent(rootEntity, EntityTreeComponent))
   //     assert(EntityTreeComponent.roots[rootEntity])
@@ -90,8 +90,8 @@ describe('SceneLoadingSystem', () => {
   //     sceneState.sceneData.set(sceneJSON_2)
   //     await updateSceneFromJSON()
 
-  //     const rootEntity = UUIDComponent.entitiesByUUID['root']
-  //     const childEntity = UUIDComponent.entitiesByUUID['child_0']
+  //     const rootEntity = UUIDComponent.getEntityByUUID('root')
+  //     const childEntity = UUIDComponent.getEntityByUUID('child_0')
   //     assert(childEntity)
   //     assert(hasComponent(childEntity, EntityTreeComponent))
   //     assert.equal(getComponent(childEntity, EntityTreeComponent).parentEntity, rootEntity)
@@ -107,8 +107,8 @@ describe('SceneLoadingSystem', () => {
   //     sceneState.sceneData.set(sceneJSON_1)
   //     await updateSceneFromJSON()
 
-  //     const rootEntity = UUIDComponent.entitiesByUUID['root']
-  //     const childEntity = UUIDComponent.entitiesByUUID['child_0']
+  //     const rootEntity = UUIDComponent.getEntityByUUID('root')
+  //     const childEntity = UUIDComponent.getEntityByUUID('child_0')
   //     assert(rootEntity)
   //     assert.equal(childEntity, undefined)
   //   })

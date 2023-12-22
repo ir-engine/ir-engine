@@ -41,14 +41,16 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryComponents, QueryReactor } from '../../ecs/functions/QueryFunctions'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Layer } from './ObjectLayerComponent'
+import { RenderOrderComponent } from './RenderOrderComponent'
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
 
   onInit: (entity: Entity) => {
-    return [] as Object3DWithEntity[]
+    return [] as Object3D[]
   },
 
   onRemove: (entity, component) => {
@@ -59,26 +61,30 @@ export const GroupComponent = defineComponent({
 })
 
 export function addObjectToGroup(entity: Entity, object: Object3D) {
-  const obj = object as Object3DWithEntity & Camera
+  const obj = object as Object3D & Camera
   obj.entity = entity
 
   if (!hasComponent(entity, GroupComponent)) setComponent(entity, GroupComponent, [])
   if (getComponent(entity, GroupComponent).includes(obj))
     return console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
-  if (!hasComponent(entity, LocalTransformComponent)) setComponent(entity, LocalTransformComponent)
+  if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
 
   getMutableComponent(entity, GroupComponent).merge([obj])
 
-  const localTransform = getComponent(entity, LocalTransformComponent)
   const transform = getComponent(entity, TransformComponent)
-  obj.position.copy(localTransform.position)
-  obj.quaternion.copy(localTransform.rotation)
-  obj.scale.copy(localTransform.scale)
+  obj.position.copy(transform.position)
+  obj.quaternion.copy(transform.rotation)
+  obj.scale.copy(transform.scale)
   obj.matrixAutoUpdate = false
   obj.matrixWorldAutoUpdate = false
-  obj.matrix = localTransform.matrix
-  obj.matrixWorld = transform.matrix
-  obj.matrixWorldInverse = transform.matrixInverse
+  obj.matrix = transform.matrix
+  obj.matrixWorld = transform.matrixWorld
+  obj.layers = new Layer(entity)
+  Object.defineProperty(obj, 'renderOrder', {
+    get: () => RenderOrderComponent.renderOrder[entity],
+    set: (val: number) => setComponent(entity, RenderOrderComponent, val)
+  })
+  obj.renderOrder = 0
 
   Object.assign(obj, {
     updateWorldMatrix: () => {}
@@ -86,14 +92,9 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
 
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies
-  proxifyVector3WithDirty(LocalTransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
-  proxifyQuaternionWithDirty(
-    LocalTransformComponent.rotation,
-    entity,
-    TransformComponent.dirtyTransforms,
-    obj.quaternion
-  )
-  proxifyVector3WithDirty(LocalTransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
+  proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
+  proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
+  proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
 }
 
 export function removeGroupComponent(entity: Entity) {
@@ -104,7 +105,7 @@ export function removeGroupComponent(entity: Entity) {
 }
 
 export function removeObjectFromGroup(entity: Entity, object: Object3D) {
-  const obj = object as Object3DWithEntity & Camera
+  const obj = object as Object3D & Camera
 
   if (hasComponent(entity, GroupComponent)) {
     const group = getComponent(entity, GroupComponent)
@@ -119,7 +120,7 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
 
 export type GroupReactorProps = {
   entity: Entity
-  obj: Object3DWithEntity
+  obj: Object3D
 }
 
 export const GroupReactor = memo((props: { GroupChildReactor: FC<GroupReactorProps> }) => {

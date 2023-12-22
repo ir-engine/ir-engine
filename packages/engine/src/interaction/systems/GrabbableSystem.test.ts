@@ -43,13 +43,7 @@ import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import {
-  addComponent,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Network } from '../../networking/classes/Network'
@@ -81,7 +75,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     const player = createEntity()
     const item = createEntity()
 
-    addComponent(player, NetworkObjectComponent, {
+    setComponent(player, NetworkObjectComponent, {
       ownerId: Engine.instance.userID,
       authorityPeerID: Engine.instance.peerID,
       networkId: 0 as NetworkId
@@ -106,7 +100,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
       attachmentPoint: 'none'
     })
     const grabbedComponent = getComponent(player, GrabbedComponent)
-    setComponent(player, GrabberComponent, { grabbedEntity: item })
+    setComponent(player, GrabberComponent, { right: item })
 
     setComponent(item, TransformComponent)
     const equippableTransform = getComponent(item, TransformComponent)
@@ -176,7 +170,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     const grabberEntity = createEntity()
     setComponent(grabberEntity, TransformComponent)
 
-    grabEntity(grabberEntity, grabbableEntity, 'none')
+    grabEntity(grabberEntity, grabbableEntity, 'right')
 
     // world.receptors.push(
     //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)
@@ -189,7 +183,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     // validations for equip
     assert(hasComponent(grabberEntity, GrabberComponent))
     const grabberComponent = getComponent(grabberEntity, GrabberComponent)
-    assert.equal(grabbableEntity, grabberComponent.grabbedEntity)
+    assert.equal(grabbableEntity, grabberComponent.right)
     // assert(hasComponent(grabbableEntity, NetworkObjectAuthorityTag))
     assert(hasComponent(grabbableEntity, GrabbedComponent))
 

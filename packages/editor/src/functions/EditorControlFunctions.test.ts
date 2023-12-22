@@ -30,7 +30,6 @@ import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/En
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
-  addComponent,
   defineComponent,
   getComponent,
   hasComponent,
@@ -103,7 +102,7 @@ describe.skip('EditorControlFunctions', () => {
 
       for (let i = 0; i < 2; i++) {
         setComponent(nodes[i], EntityTreeComponent, { parentEntity: rootNode })
-        addComponent(nodes[i], TestComponent, getRandomValues())
+        setComponent(nodes[i], TestComponent, getRandomValues())
       }
     })
 

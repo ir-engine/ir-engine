@@ -24,10 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Euler, MathUtils, Matrix4, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -43,6 +44,9 @@ import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { TransformSystem } from '../../transform/TransformModule'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
@@ -55,6 +59,8 @@ import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
+import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
@@ -81,6 +87,7 @@ const _quat = new Quaternion()
 const _vector3 = new Vector3()
 const _right = new Vector3()
 const _forward = new Vector3()
+const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
 
 const midAxisRestriction = new Euler(0, 0, 0)
@@ -88,8 +95,8 @@ const tipAxisRestriction = new Euler(0, 0, 0)
 
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
-  const { physicsDebug } = getMutableState(RendererState)
-  if (!physicsDebug.value) {
+  const { avatarDebug } = getMutableState(RendererState)
+  if (!avatarDebug.value) {
     //remove visualizers
     for (let i = 0; i < visualizers.length; i++) {
       removeEntity(visualizers[i].value)
@@ -101,8 +108,10 @@ const setVisualizers = () => {
     const e = createEntity()
     setComponent(e, VisibleComponent, true)
     setComponent(e, NameComponent, 'Avatar Debug Visualizer')
-    addObjectToGroup(e, new Mesh(new SphereGeometry(0.05)))
+    const mesh = new Mesh(new SphereGeometry(0.05))
+    addObjectToGroup(e, mesh)
     setComponent(e, TransformComponent)
+    setObjectLayers(mesh, ObjectLayers.AvatarHelper)
     visualizers[i].set(e)
   }
 }
@@ -168,27 +177,26 @@ const execute = () => {
 
     if (!rig?.hips?.node) continue
 
-    rigComponent.vrm.update(deltaTime)
+    updateVRMRetargeting(rigComponent.vrm, deltaTime)
 
     const uuid = getComponent(entity, UUIDComponent)
-
-    const leftFoot = UUIDComponent.entitiesByUUID[uuid + ikTargets.leftFoot]
+    const leftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
     const leftFootTransform = getComponent(leftFoot, TransformComponent)
     const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftFoot]
 
-    const rightFoot = UUIDComponent.entitiesByUUID[uuid + ikTargets.rightFoot]
+    const rightFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightFoot) as EntityUUID)
     const rightFootTransform = getComponent(rightFoot, TransformComponent)
     const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightFoot]
 
-    const leftHand = UUIDComponent.entitiesByUUID[uuid + ikTargets.leftHand]
+    const leftHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftHand) as EntityUUID)
     const leftHandTransform = getComponent(leftHand, TransformComponent)
     const leftHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftHand]
 
-    const rightHand = UUIDComponent.entitiesByUUID[uuid + ikTargets.rightHand]
+    const rightHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightHand) as EntityUUID)
     const rightHandTransform = getComponent(rightHand, TransformComponent)
     const rightHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightHand]
 
-    const head = UUIDComponent.entitiesByUUID[uuid + ikTargets.head]
+    const head = UUIDComponent.getEntityByUUID((uuid + ikTargets.head) as EntityUUID)
     const headTargetBlendWeight = AvatarIKTargetComponent.blendWeight[head]
 
     const transform = getComponent(entity, TransformComponent)
@@ -209,7 +217,7 @@ const execute = () => {
       rig.hips.node.position.sub(hipsForward)
 
       // convert to local space
-      rig.hips.node.position.applyMatrix4(transform.matrixInverse)
+      rig.hips.node.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
 
       //calculate head look direction and apply to head bone
       //look direction should be set outside of the xr switch
@@ -345,4 +353,25 @@ export const AvatarAnimationSystem = defineSystem({
   insert: { before: AnimationSystem },
   execute,
   reactor
+})
+
+const skinnedMeshQuery = defineQuery([SkinnedMeshComponent])
+
+const updateSkinnedMeshes = () => {
+  for (const entity of skinnedMeshQuery()) {
+    const skinnedMesh = getComponent(entity, SkinnedMeshComponent)
+    if (skinnedMesh.bindMode === 'attached') {
+      skinnedMesh.bindMatrixInverse.copy(skinnedMesh.matrixWorld).invert()
+    } else if (skinnedMesh.bindMode === 'detached') {
+      skinnedMesh.bindMatrixInverse.copy(skinnedMesh.bindMatrix).invert()
+    } else {
+      console.warn('THREE.SkinnedMesh: Unrecognized bindMode: ' + skinnedMesh.bindMode)
+    }
+  }
+}
+
+export const SkinnedMeshTransformSystem = defineSystem({
+  uuid: 'ee.engine.SkinnedMeshTransformSystem',
+  insert: { after: TransformSystem },
+  execute: updateSkinnedMeshes
 })

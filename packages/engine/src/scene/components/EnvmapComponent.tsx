@@ -33,9 +33,7 @@ import {
   Mesh,
   MeshMatcapMaterial,
   MeshStandardMaterial,
-  Object3D,
   RGBAFormat,
-  Scene,
   SRGBColorSpace,
   Texture
 } from 'three'
@@ -54,14 +52,13 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { RendererState } from '../../renderer/RendererState'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import iterateObject3D from '../util/iterateObject3D'
-import { applyBoxProjection, EnvMapBakeComponent } from './EnvMapBakeComponent'
+import { EnvMapBakeComponent, applyBoxProjection } from './EnvMapBakeComponent'
 import { GroupComponent } from './GroupComponent'
+import { MeshComponent } from './MeshComponent'
 import { UUIDComponent } from './UUIDComponent'
 
 const tempColor = new Color()
@@ -111,16 +108,17 @@ export const EnvmapComponent = defineComponent({
     const component = useComponent(entity, EnvmapComponent)
     const group = useComponent(entity, GroupComponent)
     const background = useHookstate(getMutableState(SceneState).background)
+    const mesh = useOptionalComponent(entity, MeshComponent)?.value as Mesh<any, any> | null
 
     useEffect(() => {
-      updateEnvMapIntensity(group.value, component.envMapIntensity.value)
-    }, [group, component.envMapIntensity])
+      updateEnvMapIntensity(mesh, component.envMapIntensity.value)
+    }, [mesh, component.envMapIntensity])
 
     useEffect(() => {
       if (component.type.value !== EnvMapSourceType.Skybox) return
       component.envmap.set(null)
-      updateEnvMap(group.value, background.value as Texture | null)
-    }, [component.type, group, background])
+      updateEnvMap(mesh, background.value as Texture | null)
+    }, [component.type, mesh, background])
 
     useEffect(() => {
       if (component.type.value !== EnvMapSourceType.Color) return
@@ -174,8 +172,8 @@ export const EnvmapComponent = defineComponent({
 
     useEffect(() => {
       if (!component.envmap.value) return
-      updateEnvMap(group.value, component.envmap.value)
-    }, [group, component.envmap])
+      updateEnvMap(mesh, component.envmap.value)
+    }, [mesh, component.envmap])
 
     useEffect(() => {
       const envmap = component.envmap.value
@@ -186,8 +184,7 @@ export const EnvmapComponent = defineComponent({
       }
     }, [component.envmap])
 
-    const entitiesByUUIDState = useHookstate(UUIDComponent.entitiesByUUIDState)
-    const bakeEntity = entitiesByUUIDState[component.envMapSourceEntityUUID.value].value
+    const bakeEntity = UUIDComponent.getEntityByUUID(component.envMapSourceEntityUUID.value)
 
     if (component.type.value !== EnvMapSourceType.Bake) return null
 
@@ -202,7 +199,6 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
   const renderState = useHookstate(getMutableState(RendererState))
-  const dynamicBoundingBox = useOptionalComponent(envmapEntity, BoundingBoxDynamicTag)
 
   /** @todo add an unmount cleanup for applyBoxprojection */
   useEffect(() => {
@@ -210,7 +206,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
       if (texture) {
         texture.mapping = EquirectangularReflectionMapping
         getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
-        if (bakeComponent.boxProjection.value && !dynamicBoundingBox) applyBoxProjection(bakeEntity, group.value)
+        if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
         removeError(envmapEntity, EnvmapComponent, 'MISSING_FILE')
       } else {
         addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
@@ -221,37 +217,28 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   return null
 }
 
-function updateEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
-  for (const obj of obj3ds) {
-    if (obj instanceof Scene) {
-      obj.environment = envmap
-    } else {
-      iterateObject3D(obj, (child: Mesh<any, MeshStandardMaterial | MeshStandardMaterial[]>) => {
-        if (!child.material) return
-        if (Array.isArray(child.material)) {
-          child.material.forEach((mat: MeshStandardMaterial) => {
-            if (mat instanceof MeshMatcapMaterial) return
-            mat.envMap = envmap!
-          })
-        } else {
-          if (child.material instanceof MeshMatcapMaterial) return
-          child.material.envMap = envmap!
-        }
-      })
-    }
+function updateEnvMap(obj: Mesh<any, any> | null, envmap: Texture | null) {
+  if (!obj) return
+  if (!obj.material) return
+  if (Array.isArray(obj.material)) {
+    obj.material.forEach((mat: MeshStandardMaterial) => {
+      if (mat instanceof MeshMatcapMaterial) return
+      mat.envMap = envmap!
+    })
+  } else {
+    if (obj.material instanceof MeshMatcapMaterial) return
+    obj.material.envMap = envmap!
   }
 }
 
-const updateEnvMapIntensity = (group: typeof GroupComponent._TYPE, intensity: number) => {
-  for (const obj of group)
-    obj.traverse((obj: Mesh) => {
-      if (!obj.material) return
-      if (Array.isArray(obj.material)) {
-        obj.material.forEach((m: MeshStandardMaterial) => {
-          m.envMapIntensity = intensity
-        })
-      } else {
-        ;(obj.material as MeshStandardMaterial).envMapIntensity = intensity
-      }
+const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: number) => {
+  if (!obj) return
+  if (!obj.material) return
+  if (Array.isArray(obj.material)) {
+    obj.material.forEach((m: MeshStandardMaterial) => {
+      m.envMapIntensity = intensity
     })
+  } else {
+    ;(obj.material as MeshStandardMaterial).envMapIntensity = intensity
+  }
 }

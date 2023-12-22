@@ -39,6 +39,7 @@ import {
 
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { V_100 } from '../../common/constants/MathConstants'
 import { matches } from '../../common/functions/MatchesUtils'
@@ -61,9 +62,9 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { portalPath } from '../../schemas/projects/portal.schema'
-import { LocalTransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/ObjectLayers'
+import { enableObjectLayer, setObjectLayers } from '../functions/setObjectLayers'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -95,7 +96,7 @@ export const portalColliderValues: SerializedComponentType<typeof ColliderCompon
     {
       onEnter: 'teleport',
       onExit: null,
-      target: ''
+      target: '' as EntityUUID
     }
   ]
 }
@@ -116,7 +117,7 @@ export const PortalComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      linkedPortalId: '',
+      linkedPortalId: '' as EntityUUID,
       location: '',
       effectType: 'None',
       previewType: PortalPreviewTypeSimple as string,
@@ -199,18 +200,17 @@ export const PortalComponent = defineComponent({
       const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 1, 0x000000)
       helper.name = `portal-helper-${entity}`
 
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
       const helperEntity = createEntity()
 
       addObjectToGroup(helperEntity, helper)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
       setComponent(helperEntity, NameComponent, helper.name)
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
-      getComponent(helperEntity, LocalTransformComponent).rotation.copy(
+      getComponent(helperEntity, TransformComponent).rotation.copy(
         new Quaternion().setFromAxisAngle(V_100, Math.PI / 2)
       )
 
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
       portalComponent.helperEntity.set(helperEntity)
 
       return () => {
@@ -223,6 +223,7 @@ export const PortalComponent = defineComponent({
       if (portalComponent.previewType.value !== PortalPreviewTypeSpherical) return
 
       const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: BackSide }))
+      enableObjectLayer(portalMesh, ObjectLayers.Camera, true)
       portalMesh.geometry.translate(0, 1.5, 0)
       portalComponent.mesh.set(portalMesh)
       addObjectToGroup(entity, portalMesh)
@@ -237,7 +238,7 @@ export const PortalComponent = defineComponent({
       if (!isClient) return
       if (!portalComponent.mesh.value) return
 
-      const linkedPortalExists = UUIDComponent.entitiesByUUID[portalComponent.linkedPortalId.value]
+      const linkedPortalExists = UUIDComponent.getEntityByUUID(portalComponent.linkedPortalId.value)
 
       const applyPortalDetails = (portalDetails: {
         spawnPosition: Vector3

@@ -28,7 +28,7 @@ import { defineActionQueue } from '@etherealengine/hyperflux'
 import { getComponent, getMutableComponent } from '../ecs/functions/ComponentFunctions'
 import { defineQuery } from '../ecs/functions/QueryFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { LocalTransformComponent } from '../transform/components/TransformComponent'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { PersistentAnchorActions, PersistentAnchorComponent } from './XRAnchorComponents'
 import { XRPersistentAnchorSystem } from './XRPersistentAnchorSystem'
 
@@ -45,9 +45,9 @@ const execute = () => {
       const anchor = getMutableComponent(entity, PersistentAnchorComponent)
       if (anchor.name.value === action.name) {
         anchor.active.set(true)
-        const localTransform = getComponent(entity, LocalTransformComponent)
-        localTransform.position.copy(action.position)
-        localTransform.rotation.copy(action.rotation)
+        const transform = getComponent(entity, TransformComponent)
+        transform.position.copy(action.position)
+        transform.rotation.copy(action.rotation)
       }
     }
   }
@@ -56,9 +56,9 @@ const execute = () => {
     for (const entity of anchors) {
       const anchor = getMutableComponent(entity, PersistentAnchorComponent)
       if (anchor.name.value === action.name) {
-        const localTransform = getComponent(entity, LocalTransformComponent)
-        localTransform.position.copy(action.position)
-        localTransform.rotation.copy(action.rotation)
+        const transform = getComponent(entity, TransformComponent)
+        transform.position.copy(action.position)
+        transform.rotation.copy(action.rotation)
       }
     }
   }

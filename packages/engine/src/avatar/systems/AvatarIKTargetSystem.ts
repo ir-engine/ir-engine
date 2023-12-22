@@ -53,8 +53,8 @@ const execute = () => {
     AvatarIKTargetComponent.blendWeight[entity] = action.blendWeight
 
     const helper = new AxesHelper(0.5)
-    setObjectLayers(helper, ObjectLayers.Gizmos)
     addObjectToGroup(entity, helper)
+    setObjectLayers(helper, ObjectLayers.Gizmos)
     setComponent(entity, VisibleComponent)
   }
 }

@@ -23,12 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { lazy, useEffect } from 'react'
 
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getMutableState, none } from '@etherealengine/hyperflux'
-
-import { FaceRetouchingNatural, Send } from '@mui/icons-material'
 
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { useTranslation } from 'react-i18next'
@@ -71,6 +69,8 @@ const reactor = () => {
   InviteService.useAPIListeners()
 
   useEffect(() => {
+    const FaceRetouchingNatural = lazy(() => import('@mui/icons-material/FaceRetouchingNatural'))
+    const Send = lazy(() => import('@mui/icons-material/Send'))
     const popupMenuState = getMutableState(PopupMenuState)
 
     popupMenuState.menus.merge({

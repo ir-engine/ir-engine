@@ -23,23 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Object3D } from 'three'
 import {
   getAllComponents,
   getComponent,
   getMutableComponent,
   hasComponent
 } from '../../../../ecs/functions/ComponentFunctions'
-import { Object3DWithEntity } from '../../../../scene/components/GroupComponent'
 import { NameComponent } from '../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../scene/components/SceneObjectComponent'
-import { LocalTransformComponent, TransformComponent } from '../../../../transform/components/TransformComponent'
+import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
 export class EEECSExporterExtension extends ExporterExtension implements GLTFExporterPlugin {
   name = 'EE_ecs'
 
-  writeNode(object: Object3DWithEntity, nodeDef: { [key: string]: any }) {
+  writeNode(object: Object3D, nodeDef: { [key: string]: any }) {
     if (!object.entity) return
     const entity = object.entity
     if (!hasComponent(entity, SceneObjectComponent)) return
@@ -51,7 +51,7 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
     for (const component of components) {
       if (
         component === TransformComponent ||
-        component === LocalTransformComponent || //skip transform data as that is stored in the object3d
+        component === TransformComponent || //skip transform data as that is stored in the object3d
         !component.jsonID //skip components that don't have a jsonID
       )
         continue

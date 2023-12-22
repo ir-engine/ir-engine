@@ -23,80 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getEntityComponents } from 'bitecs'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { JSONTree } from 'react-json-tree'
 
 import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  Component,
-  getComponent,
-  getOptionalComponent,
-  hasComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { System, SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import {
-  AnimationSystemGroup,
-  InputSystemGroup,
-  PresentationSystemGroup,
-  SimulationSystemGroup
-} from '@etherealengine/engine/src/ecs/functions/SystemGroups'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { HyperFlux, NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  HyperFlux,
+  defineState,
+  getMutableState,
+  syncStateWithLocalStorage,
+  useHookstate
+} from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import ActionsPanel from './ActionsPanel'
+import { EntityDebug } from './EntityDebug'
+import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
+import { SystemDebug } from './SystemDebug'
 import styles from './styles.module.scss'
 
-type SystemTree = {
-  preSystems: Record<SystemUUID, SystemTree>
-  subSystems: Record<SystemUUID, SystemTree>
-  postSystems: Record<SystemUUID, SystemTree>
-}
-
-const expandSystemToTree = (system: System): SystemTree => {
-  return {
-    preSystems: system.preSystems.reduce(
-      (acc, uuid) => {
-        acc[uuid] = expandSystemToTree(SystemDefinitions.get(uuid)!)
-        return acc
-      },
-      {} as Record<SystemUUID, SystemTree>
-    ),
-    subSystems: system.subSystems.reduce(
-      (acc, uuid) => {
-        acc[uuid] = expandSystemToTree(SystemDefinitions.get(uuid)!)
-        return acc
-      },
-      {} as Record<SystemUUID, SystemTree>
-    ),
-    postSystems: system.postSystems.reduce(
-      (acc, uuid) => {
-        acc[uuid] = expandSystemToTree(SystemDefinitions.get(uuid)!)
-        return acc
-      },
-      {} as Record<SystemUUID, SystemTree>
-    )
+export const DebugState = defineState({
+  name: 'DebugState',
+  initial: {
+    activeTab: 'None'
+  },
+  onCreate: (store, state) => {
+    syncStateWithLocalStorage(DebugState, ['activeTab'])
   }
+})
+
+export const DebugTabs = {
+  Entities: EntityDebug,
+  Systems: SystemDebug,
+  State: StateDebug
 }
 
 export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefObject<boolean> }) => {
   useHookstate(getMutableState(EngineState).frameTime).value
   const rendererState = useHookstate(getMutableState(RendererState))
-  const engineState = useHookstate(getMutableState(EngineState))
-
-  engineState.frameTime.value // make Engine.instance data reactive in the render tree
+  const activeTab = useHookstate(getMutableState(DebugState).activeTab)
 
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
@@ -114,79 +85,6 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
     rendererState.avatarDebug.set(!rendererState.avatarDebug.value)
   }
 
-  const renderEntityTreeRoots = () => {
-    return {
-      ...Object.values(getState(SceneState).scenes)
-        .map((scene, i) => {
-          const root = scene.snapshots[scene.index].data.root
-          const entity = UUIDComponent.entitiesByUUID[root]
-          if (!entity || !entityExists(entity)) return null
-          return {
-            [`${i} - ${getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent)}`]:
-              renderEntityTree(entity)
-          }
-        })
-        .filter((exists) => !!exists)
-    }
-  }
-
-  const renderEntityTree = (entity: Entity) => {
-    const node = getComponent(entity, EntityTreeComponent)
-    return {
-      components: renderEntityComponents(entity),
-      children: {
-        ...node.children.reduce(
-          (r, child) =>
-            Object.assign(r, {
-              [`${child} - ${getComponent(child, NameComponent) ?? getComponent(child, UUIDComponent)}`]:
-                renderEntityTree(child)
-            }),
-          {}
-        )
-      }
-    }
-  }
-
-  const renderEntityComponents = (entity: Entity) => {
-    return Object.fromEntries(
-      entityExists(entity)
-        ? getEntityComponents(Engine.instance.store, entity).reduce<[string, any][]>(
-            (components, C: Component<any, any>) => {
-              if (C !== NameComponent) {
-                const component = getComponent(entity, C)
-                if (typeof component === 'object') components.push([C.name, { ...component }])
-                else components.push([C.name, component])
-              }
-              return components
-            },
-            []
-          )
-        : []
-    )
-  }
-
-  const renderAllEntities = () => {
-    return {
-      ...Object.fromEntries(
-        [...Engine.instance.entityQuery().entries()]
-          .map(([key, eid]) => {
-            try {
-              return [
-                '(eid:' +
-                  eid +
-                  ') ' +
-                  (getOptionalComponent(eid, NameComponent) ?? getOptionalComponent(eid, UUIDComponent) ?? ''),
-                renderEntityComponents(eid)
-              ]
-            } catch (e) {
-              return null!
-            }
-          })
-          .filter((exists) => !!exists)
-      )
-    }
-  }
-
   const toggleNodeHelpers = () => {
     getMutableState(RendererState).nodeHelperVisibility.set(!getMutableState(RendererState).nodeHelperVisibility.value)
   }
@@ -195,27 +93,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
     getMutableState(RendererState).gridVisibility.set(!getMutableState(RendererState).gridVisibility.value)
   }
 
-  const namedEntities = useHookstate({})
-  const erroredComponents = useHookstate([] as any[])
-  const entityTree = useHookstate({} as any)
-
-  namedEntities.set(renderAllEntities())
-  entityTree.set(renderEntityTreeRoots())
-
-  erroredComponents.set(
-    [...Engine.instance.store.activeReactors.values()]
-      .filter((reactor) => (reactor as any).entity && reactor.errors.length)
-      .map((reactor) => {
-        return reactor.errors.map((error) => {
-          return {
-            entity: (reactor as any).entity,
-            component: (reactor as any).component,
-            error
-          }
-        })
-      })
-      .flat()
-  )
+  const ActiveTabComponent = DebugTabs[activeTab.value]
 
   return (
     <div className={styles.debugContainer} style={{ pointerEvents: 'all' }}>
@@ -273,70 +151,30 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
       </div>
       <StatsPanel show={showingStateRef.current} />
       <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.entityTree')}</h1>
-        <JSONTree
-          data={entityTree.value}
-          postprocessValue={(v: any) => v?.value ?? v}
-          shouldExpandNodeInitially={(keyPath, data: any, level) =>
-            !!data.components && !!data.children && typeof data.entity === 'number'
-          }
-        />
+        {['None']
+          .concat(Object.keys(DebugTabs))
+          .concat('All')
+          .map((tab, i) => (
+            <button
+              key={i}
+              onClick={() => activeTab.set(tab)}
+              className={styles.flagBtn + (activeTab.value === tab ? ' ' + styles.active : '')}
+              style={{ width: '100px' }}
+            >
+              {tab}
+            </button>
+          ))}
       </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.entities')}</h1>
-        <JSONTree data={namedEntities.get(NO_PROXY)} />
-      </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.erroredEntities')}</h1>
-        <JSONTree data={erroredComponents.get(NO_PROXY)} />
-      </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.state')}</h1>
-        <JSONTree
-          data={Engine.instance.store.stateMap}
-          postprocessValue={(v: any) => (v?.value && v.get(NO_PROXY)) ?? v}
-        />
-      </div>
-      <ActionsPanel />
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.systems')}</h1>
-        <SystemDagView uuid={InputSystemGroup} />
-        <SystemDagView uuid={SimulationSystemGroup} />
-        <SystemDagView uuid={AnimationSystemGroup} />
-        <SystemDagView uuid={PresentationSystemGroup} />
-      </div>
+      {activeTab.value === 'All' ? (
+        <>
+          {Object.values(DebugTabs).map((Tab, i) => (
+            <Tab key={i} />
+          ))}
+        </>
+      ) : (
+        ActiveTabComponent && <ActiveTabComponent />
+      )}
     </div>
-  )
-}
-
-export const SystemDagView = (props: { uuid: SystemUUID }) => {
-  const { t } = useTranslation()
-  return (
-    <JSONTree
-      data={expandSystemToTree(SystemDefinitions.get(props.uuid)!)}
-      labelRenderer={(raw, ...keyPath) => {
-        const label = raw[0]
-        if (label === 'preSystems' || label === 'subSystems' || label === 'postSystems')
-          return <span style={{ color: 'green' }}>{t(`common:debug.${label}`)}</span>
-        return <span style={{ color: 'black' }}>{label}</span>
-      }}
-      valueRenderer={(raw, value, ...keyPath) => {
-        const system = SystemDefinitions.get(keyPath[0] as SystemUUID)!
-        const systemReactor = system ? HyperFlux.store.activeSystemReactors.get(system.uuid) : undefined
-        return (
-          <>
-            {systemReactor?.errors.map((e) => {
-              return (
-                <span style={{ color: 'red' }}>
-                  {e.name.value}: {e.message.value}
-                </span>
-              )
-            })}
-          </>
-        )
-      }}
-      shouldExpandNodeInitially={() => true}
-    />
   )
 }
 

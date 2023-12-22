@@ -70,6 +70,8 @@ export interface System {
   subSystems: SystemUUID[]
   postSystems: SystemUUID[]
   sceneSystem?: boolean
+  // debug
+  systemDuration?: number
 }
 
 export const SystemDefinitions = new Map<SystemUUID, System>()
@@ -110,6 +112,7 @@ export function executeSystem(systemUUID: SystemUUID) {
 
   if (HyperFlux.store.systemPerformanceProfilingEnabled) {
     const systemDuration = endTime - startTime
+    system.systemDuration = systemDuration
     if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
       lastWarningTime.set(systemUUID, endTime)
       logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
@@ -145,7 +148,8 @@ export function defineSystem(systemConfig: SystemArgs) {
     timeStep: 'variable',
     ...systemConfig,
     uuid: systemConfig.uuid as SystemUUID,
-    enabled: false
+    enabled: false,
+    systemDuration: 0
   } as Required<System>
 
   SystemDefinitions.set(system.uuid, system)

@@ -38,7 +38,7 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AvatarID, AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
 import { userAvatarPath } from '../../schemas/user/user-avatar.schema'
-import { loadAvatarModelAsset } from '../functions/avatarFunctions'
+import { loadAvatarModelAsset, unloadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from './AvatarNetworkActions'
 
@@ -93,9 +93,6 @@ export const AvatarState = defineState({
 const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(AvatarState)[entityUUID])
 
-  // useEffect(() => {
-  // }, [])
-
   useEffect(() => {
     if (!isClient || !state.avatarID.value) return
 
@@ -125,11 +122,15 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     const url = state.userAvatarDetails.value.modelResource?.url
     if (!url) return
 
-    const entity = UUIDComponent.entitiesByUUID[entityUUID]
+    const entity = UUIDComponent.getEntityByUUID(entityUUID)
     if (!entity || !entityExists(entity)) return
 
     spawnAvatarReceptor(entityUUID)
     loadAvatarModelAsset(entity, url)
+    return () => {
+      if (!entityExists(entity)) return
+      unloadAvatarForUser(entity, url)
+    }
   }, [state.userAvatarDetails])
 
   return null

@@ -30,7 +30,6 @@ import { MeshBasicMaterial } from 'three'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
-  addComponent,
   getComponent,
   removeComponent,
   setComponent
@@ -157,7 +156,7 @@ export const WarningUISystemState = defineState({
 
     const ui = createXRUI(WarningSystemXRUI)
     removeComponent(ui.entity, VisibleComponent)
-    addComponent(ui.entity, NameComponent, 'Warning XRUI')
+    setComponent(ui.entity, NameComponent, 'Warning XRUI')
 
     return {
       ui,

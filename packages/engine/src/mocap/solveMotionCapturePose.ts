@@ -163,12 +163,12 @@ const drawMocapDebug = (label: string) => {
       const color = new Color().set(1 - confidence, confidence, 0)
       if (!debugEntities[key]) {
         const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial({ color }))
-        setObjectLayers(mesh, ObjectLayers.AvatarHelper)
         const entity = createEntity()
         debugEntities[key] = entity
         addObjectToGroup(entity, mesh)
         setVisibleComponent(entity, true)
         setComponent(entity, NameComponent, `Mocap Debug ${label} ${LandmarkNames[key]}`)
+        setObjectLayers(mesh, ObjectLayers.AvatarHelper)
       }
       const entity = debugEntities[key]
       const mesh = getComponent(entity, GroupComponent)[0] as any as Mesh<BufferGeometry, MeshBasicMaterial>

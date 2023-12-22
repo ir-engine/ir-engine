@@ -47,8 +47,8 @@ import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupCo
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/ObjectLayers'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CSM } from './CSM'
 
 export class CSMHelper {
@@ -144,6 +144,7 @@ export class CSMHelper {
       setComponent(cascadeLinesEntity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
       setComponent(cascadeLinesEntity, NameComponent, 'CSM cascade line ' + cascadeLines.length)
       setObjectLayers(cascadeLine, ObjectLayers.NodeHelper)
+
       cascadeLines.push(cascadeLinesEntity)
 
       const planeMat = new MeshBasicMaterial({ transparent: true, opacity: 0.1, depthWrite: false, side: DoubleSide })
@@ -154,6 +155,7 @@ export class CSMHelper {
       setComponent(cascadePlanesEntity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
       setComponent(cascadePlanesEntity, NameComponent, 'CSM cascade plane ' + cascadeLines.length)
       setObjectLayers(cascadePlane, ObjectLayers.NodeHelper)
+
       cascadePlanes.push(cascadePlanesEntity)
 
       const shadowLine = new Box3Helper(new Box3(), new Color(0xffff00))
@@ -173,8 +175,8 @@ export class CSMHelper {
       const farVerts = frustum.vertices.far
 
       const cascadeLine = getComponent(cascadeLines[i], GroupComponent)[0] as any as Box3Helper
-      const cascadeLineTransform = getComponent(cascadeLines[i], LocalTransformComponent)
-      const cascadePlane = getComponent(cascadePlanes[i], LocalTransformComponent)
+      const cascadeLineTransform = getComponent(cascadeLines[i], TransformComponent)
+      const cascadePlane = getComponent(cascadePlanes[i], TransformComponent)
       const shadowLine = getComponent(shadowLines[i], GroupComponent)[0] as any as Box3Helper
       const shadowTransform = getComponent(shadowLines[i], TransformComponent)
 
