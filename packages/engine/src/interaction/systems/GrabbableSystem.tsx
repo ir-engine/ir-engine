@@ -197,12 +197,11 @@ export function transferAuthorityOfObjectReceptor(
 
 // since grabbables are all client authoritative, we don't need to recompute this for all users
 export function grabbableQueryAll(grabbableEntity: Entity) {
-  const grabberComponent = getComponent(grabbableEntity, GrabbedComponent)
-
   const grabbedComponent = getComponent(grabbableEntity, GrabbedComponent)
+  if (!grabbedComponent) return
   const attachmentPoint = grabbedComponent.attachmentPoint
 
-  const target = getHandTarget(grabberComponent.grabberEntity, attachmentPoint ?? 'right')!
+  const target = getHandTarget(grabbedComponent.grabberEntity, attachmentPoint ?? 'right')!
 
   const rigidbodyComponent = getComponent(grabbableEntity, RigidBodyComponent)
 
