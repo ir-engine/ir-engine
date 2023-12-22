@@ -28,9 +28,6 @@ jobs:
         with:
           repository: etherealengine/ee-development-test-suite
           path: './packages/projects/projects/ee-development-test-suite'
-        with:
-          repository: etherealengine/ee-bot
-          path: './packages/projects/projects/ee-bot'
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
@@ -50,6 +47,6 @@ jobs:
       # - run: npm run check-eslint
       - run: npm run dev-docker
       - run: npm run dev-reinit
-      - run: npm run test-e2e-bot
+      - run: npm run test-e2e
       - run: npm run build-client
       
