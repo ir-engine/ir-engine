@@ -1675,17 +1675,17 @@ export const uploadLocalProjectToProvider = async (
     }
   })
   const existingContentSet = new Set<string>()
-  const existingIdSet = new Set<string>()
+  const existingKeySet = new Set<string>()
   for (const item of existingResources.data) {
     existingContentSet.add(resourceKey(item.key, item.hash))
-    existingIdSet.add(item.id)
+    existingKeySet.add(item.key)
   }
   if (hasResourceDB) {
     //if we have a resources.sql file, use it to populate static-resource table
     const manifest: StaticResourceType[] = JSON.parse(fs.readFileSync(resourceDBPath).toString())
 
     for (const item of manifest) {
-      if (existingIdSet.has(item.id)) continue
+      if (existingKeySet.has(item.id)) continue
       const url = getCachedURL(item.key, cacheDomain)
       await app.service(staticResourcePath).create({
         ...item,
@@ -1724,7 +1724,16 @@ export const uploadLocalProjectToProvider = async (
           const hash = createStaticResourceHash(fileResult, { mimeType: contentType, assetURL: key })
           if (existingContentSet.has(resourceKey(key, hash))) {
             logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
-          } else {
+          } else if (existingKeySet.has(key)) {
+            logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
+            await app.service(staticResourcePath).patch(null, {
+              hash,
+              url,
+              mimeType: contentType,
+              tags: [thisFileClass]
+            })
+          }
+          {
             await app.service(staticResourcePath).create({
               key: `projects/${projectName}${filePathRelative}`,
               project: projectName,
