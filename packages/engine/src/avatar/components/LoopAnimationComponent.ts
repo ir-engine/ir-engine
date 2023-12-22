@@ -173,7 +173,6 @@ export const LoopAnimationComponent = defineComponent({
       loopAnimationComponent._action.value.blendMode = loopAnimationComponent.blendMode.value
     }, [
       loopAnimationComponent._action,
-      loopAnimationComponent.time,
       loopAnimationComponent.blendMode,
       loopAnimationComponent.loop,
       loopAnimationComponent.clampWhenFinished,
@@ -227,7 +226,7 @@ export const LoopAnimationComponent = defineComponent({
         return
 
       let aborted = false
-
+      animComponent.mixer.time.set(0)
       AssetLoader.loadAsync(loopAnimationComponent.animationPack.value).then((model) => {
         if (aborted) return
         const animations = model.animations ?? model.scene.animations
