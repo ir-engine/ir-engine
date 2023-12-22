@@ -125,10 +125,6 @@ export const VolumetricComponent = defineComponent({
       component.autoplay.set(json.autoplay)
     }
 
-    if (typeof json.paused === 'boolean') {
-      component.paused.set(json.paused)
-    }
-
     if (typeof json.volume === 'number') {
       component.volume.set(json.volume)
     }
