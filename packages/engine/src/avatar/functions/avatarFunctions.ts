@@ -170,7 +170,6 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const manager = getState(AnimationState)
   const animations = [] as AnimationClip[]
-  console.log(manager.loadedAnimations)
   for (const key in manager.loadedAnimations) {
     for (const animation of manager.loadedAnimations[key].animations)
       animations.push(bindAnimationClipFromMixamo(animation, rigComponent.vrm))
