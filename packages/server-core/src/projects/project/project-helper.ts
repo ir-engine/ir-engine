@@ -1643,7 +1643,7 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string, s
  */
 export const uploadLocalProjectToProvider = async (
   app: Application,
-  projectName,
+  projectName: string,
   remove = true,
   storageProviderName?: string
 ) => {
@@ -1669,14 +1669,11 @@ export const uploadLocalProjectToProvider = async (
     query: {
       project: projectName
     },
-    paginate: {
-      default: Number.MAX_SAFE_INTEGER,
-      max: Number.MAX_SAFE_INTEGER
-    }
+    paginate: false
   })
   const existingContentSet = new Set<string>()
   const existingKeySet = new Set<string>()
-  for (const item of existingResources.data) {
+  for (const item of existingResources) {
     existingContentSet.add(resourceKey(item.key, item.hash))
     existingKeySet.add(item.key)
   }
