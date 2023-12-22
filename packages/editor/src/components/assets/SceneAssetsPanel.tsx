@@ -115,7 +115,7 @@ const SceneAssetsPanel = () => {
     const staticResourcesFindApi = () =>
       Engine.instance.api
         .service(staticResourcePath)
-        .find({ query: { key: { $like: searchText.value || undefined }, $sort: { mimeType: 1 }, $limit: 100 } })
+        .find({ query: { key: { $like: `%${searchText.value}%` || undefined }, $sort: { mimeType: 1 }, $limit: 100 } })
         .then((resources) => {
           if (searchText.value) {
             searchedStaticResources.set(resources.data)
