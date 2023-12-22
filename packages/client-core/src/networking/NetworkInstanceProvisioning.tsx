@@ -69,11 +69,19 @@ export const WorldInstanceProvisioning = () => {
   useEffect(() => {
     const currentLocation = locationState.currentLocation.location
     const hasJoined = !!worldNetwork
+    console.log(
+      currentLocation.id?.value,
+      isUserBanned,
+      hasJoined,
+      locationInstances.keys.length,
+      Object.values(locationInstances).find((instance) => instance.locationId.value === currentLocation.id?.value)
+    )
 
     if (
       currentLocation.id?.value &&
       !isUserBanned &&
       !hasJoined &&
+      !locationInstances.keys.length &&
       !Object.values(locationInstances).find((instance) => instance.locationId.value === currentLocation.id?.value)
     ) {
       const search = window.location.search

@@ -130,8 +130,9 @@ export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {
   setComponent(entity, ModelComponent, { src: avatarURL, cameraOcclusion: false })
 }
 
-export const unloadAvatarForUser = async (entity: Entity, avatarURL: string) => {
+export const unloadAvatarForUser = async (entity: Entity) => {
   setComponent(entity, ModelComponent, { src: '' })
+  removeComponent(entity, AvatarPendingComponent)
 }
 
 /**Kicks off avatar animation loading and setup. Called after an avatar's model asset is
