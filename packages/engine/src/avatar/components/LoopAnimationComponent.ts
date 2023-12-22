@@ -48,7 +48,7 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CallbackComponent, StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
+import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
 
 export const LoopAnimationComponent = defineComponent({
@@ -134,14 +134,14 @@ export const LoopAnimationComponent = defineComponent({
       const assetObject = modelComponent.asset.get(NO_PROXY)
       try {
         const action = animComponent.mixer.value.clipAction(
-          assetObject instanceof VRM ? retargetMixamoAnimation(clip, modelComponent.scene.value, assetObject) : clip
+          assetObject instanceof VRM ? bindAnimationClipFromMixamo(clip, assetObject) : clip
         )
         loopAnimationComponent._action.set(action)
         return () => {
           action.stop()
         }
       } catch (e) {
-        console.warn('Failed to retarget animation in LoopAnimationComponent', entity, e)
+        console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
       }
     }, [animComponent?.animations, loopAnimationComponent.activeClipIndex])
 
@@ -231,6 +231,7 @@ export const LoopAnimationComponent = defineComponent({
       AssetLoader.loadAsync(loopAnimationComponent.animationPack.value).then((model) => {
         if (aborted) return
         const animations = model.animations ?? model.scene.animations
+        for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], model.scene)
         lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
         animComponent.animations.set(animations)
       })
