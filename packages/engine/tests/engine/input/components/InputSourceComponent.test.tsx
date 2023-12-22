@@ -34,7 +34,7 @@ import { createEngine } from '../../../../src/initializeEngine'
 import { InputComponent } from '../../../../src/input/components/InputComponent'
 import { InputSourceCaptureState, InputSourceComponent } from '../../../../src/input/components/InputSourceComponent'
 import { loadEmptyScene } from '../../../util/loadEmptyScene'
-import { MockXRInputSource, MockXRSpace } from '../../../util/MockXRInputSource'
+import { MockXRInputSource, MockXRSpace } from '../../../util/MockXR'
 
 describe('InputSourceComponent', () => {
   beforeEach(() => {

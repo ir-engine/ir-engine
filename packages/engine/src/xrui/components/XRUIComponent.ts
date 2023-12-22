@@ -45,6 +45,6 @@ export const XRUIComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    component.value.destroy()
+    component.value?.destroy()
   }
 })
