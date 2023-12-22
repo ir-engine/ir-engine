@@ -34,6 +34,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
+import { logger } from '@etherealengine/client-core/src/user/services/AuthService'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { saveProjectResources } from '../../functions/saveProjectResources'
 import { Button } from '../inputs/Button'
@@ -90,6 +91,7 @@ export const FilePropertiesPanel = (props: {
   })
   useEffect(() => {
     if (!staticResource.promised && staticResource.value.data.length > 0) {
+      if (staticResource.value.data.length > 1) logger.warn('Multiple resources with same key found')
       const resources = JSON.parse(JSON.stringify(staticResource.value.data[0])) as StaticResourceType
       if (resources) {
         resourceProperties.tags.set(resources.tags ?? [])

@@ -1682,7 +1682,10 @@ export const uploadLocalProjectToProvider = async (
     const manifest: StaticResourceType[] = JSON.parse(fs.readFileSync(resourceDBPath).toString())
 
     for (const item of manifest) {
-      if (existingKeySet.has(item.id)) continue
+      if (existingKeySet.has(item.key)) {
+        logger.info(`Skipping upload of static resource: "${item.key}"`)
+        continue
+      }
       const url = getCachedURL(item.key, cacheDomain)
       await app.service(staticResourcePath).create({
         ...item,
