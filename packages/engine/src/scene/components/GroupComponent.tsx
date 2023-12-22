@@ -56,9 +56,7 @@ export const GroupComponent = defineComponent({
 
   onRemove: (entity, component) => {
     for (const obj of component.value) {
-      if (obj.parent) {
-        obj.removeFromParent()
-      }
+      obj.removeFromParent()
     }
   }
 })
