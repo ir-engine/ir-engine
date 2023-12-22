@@ -954,7 +954,8 @@
       }
     },
     "scene-assets": {
-      "no-category": "No category selected"
+      "no-category": "No category selected",
+      "search-placeholder": "Search for an asset ..."
     }
   },
   "hierarchy": {
