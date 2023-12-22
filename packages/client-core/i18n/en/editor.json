@@ -952,6 +952,9 @@
         "size": "Size:",
         "url": "URL:"
       }
+    },
+    "scene-assets": {
+      "no-category": "No category selected"
     }
   },
   "hierarchy": {
@@ -1113,5 +1116,8 @@
   },
   "corsProxyButton": {
     "tooltip": "Use Cors Proxy Server"
+  },
+  "tabs": {
+    "scene-assets": "Assets"
   }
 }

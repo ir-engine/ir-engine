@@ -23,6 +23,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import Inventory2Icon from '@mui/icons-material/Inventory2'
 import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -30,52 +31,83 @@ import { FixedSizeList } from 'react-window'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import styles from './scene-assets.module.scss'
+import { t } from 'i18next'
+import { TabData } from 'rc-dock'
+import { useTranslation } from 'react-i18next'
+import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
+import ImageNodeEditor from '../properties/ImageNodeEditor'
+import ModelNodeEditor from '../properties/ModelNodeEditor'
+import VideoNodeEditor from '../properties/VideoNodeEditor'
+import styles from './styles.module.scss'
 
 type FolderType = { folderType: 'folder'; assetClass: string }
 type ResourceType = { folderType: 'staticResource' } & StaticResourceType
 
 type CategorizedStaticResourceType = FolderType | ResourceType
 
-const StaticResourceItem = (props) => {
-  const {
-    resources,
-    onClick
-  }: { resources: CategorizedStaticResourceType[]; onClick: (resource: CategorizedStaticResourceType) => void } =
-    props.data
-  const index = props.index
+const ResourceIcons = {
+  [AssetClass.Model]: ModelNodeEditor.iconComponent,
+  [AssetClass.Image]: ImageNodeEditor.iconComponent,
+  [AssetClass.Video]: VideoNodeEditor.iconComponent
+}
 
-  if (resources[index].folderType === 'folder') {
+const StaticResourceItem = (props: {
+  data: {
+    resources: CategorizedStaticResourceType[]
+    onClick: (resource: CategorizedStaticResourceType) => void
+    selectedCategory: string | null
+  }
+  index: number
+}) => {
+  const { resources, onClick, selectedCategory } = props.data
+  const index = props.index
+  const resource = resources[index]
+
+  if (resource.folderType === 'folder') {
     return (
-      <div className={styles.resourceItemContainer} onClick={() => onClick(resources[index])}>
-        {(resources[index] as FolderType).assetClass}
+      <div
+        key={resource.folderType}
+        className={`${styles.resourceItemContainer} ${selectedCategory === resource.assetClass ? styles.selected : ''}`}
+        onClick={() => onClick(resource)}
+      >
+        {resource.assetClass}
       </div>
     )
   }
 }
 
 const SceneAssetsPanel = () => {
+  const { t } = useTranslation()
   const staticResources = useHookstate<CategorizedStaticResourceType[]>([])
+  const categorizedStaticResources = useHookstate({} as Record<string, StaticResourceType[]>)
+  const selectedCategory = useHookstate<string | null>(null)
 
   useEffect(() => {
     Engine.instance.api
       .service(staticResourcePath)
       .find({ query: { $sort: { mimeType: 1 } } })
       .then((resources) => {
-        const categorizedResources: CategorizedStaticResourceType[] = []
-        let previousMimeType: string | null = null
+        const categorizedResources: Record<string, StaticResourceType[]> = {}
+        const categorizedResourcesList: CategorizedStaticResourceType[] = []
+
+        let previousAssetClass: string | null = null
 
         resources.data.forEach((resource) => {
-          if (previousMimeType !== resource.mimeType) {
-            categorizedResources.push({ folderType: 'folder', assetClass: AssetLoader.getAssetClass(resource.key) })
-            previousMimeType = resource.mimeType
+          const assetClass = AssetLoader.getAssetClass(resource.key)
+          if (previousAssetClass !== assetClass) {
+            categorizedResourcesList.push({ folderType: 'folder', assetClass })
+            previousAssetClass = assetClass
+            categorizedResources[previousAssetClass] = []
           }
-          categorizedResources.push({ folderType: 'staticResource', ...resource })
+          categorizedResources[previousAssetClass].push(resource)
+          categorizedResourcesList.push({ folderType: 'staticResource', ...resource })
         })
 
-        staticResources.set(categorizedResources)
+        categorizedStaticResources.set(categorizedResources)
+        staticResources.set(categorizedResourcesList)
       })
   }, [])
 
@@ -86,7 +118,11 @@ const SceneAssetsPanel = () => {
       itemSize={32}
       itemCount={staticResources.length}
       itemData={{
-        resources: staticResources.get(NO_PROXY)
+        resources: staticResources.get(NO_PROXY),
+        selectedCategory: selectedCategory.value,
+        onClick: (resource: FolderType) => {
+          selectedCategory.set(resource.assetClass)
+        }
       }}
       itemKey={(index) => index}
     >
@@ -94,14 +130,55 @@ const SceneAssetsPanel = () => {
     </FixedSizeList>
   )
 
+  const ResourceIcon = ResourceIcons[selectedCategory.get(NO_PROXY)!]
+
   return (
-    <div style={{ display: 'flex', height: '100%', width: '100%' }}>
+    <div style={{ display: 'flex', height: '100%', width: '100%', margin: '1rem auto' }}>
       <div style={{ height: '100%', width: '50%' }}>
         <AutoSizer onResize={ResourceList}>{ResourceList}</AutoSizer>
       </div>
-      <div style={{ display: 'block', backgroundColor: 'blue' }}></div>
+      <div
+        style={{
+          width: '50%',
+          display: 'grid',
+          gap: '40px 10px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))',
+          gridAutoRows: '60px'
+        }}
+      >
+        {selectedCategory.value
+          ? categorizedStaticResources.value[selectedCategory.value!].map((resource) => (
+              <div
+                key={resource.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  flexDirection: 'column',
+                  marginTop: '10px'
+                }}
+              >
+                <ResourceIcon style={{ marginBottom: '5px', height: '70px', width: '70px' }} />
+                <span>{resource.key.split('/').at(-1)}</span>
+              </div>
+            ))
+          : t('editor:layout.scene-assets.no-category')}
+      </div>
     </div>
   )
+}
+
+export const SceneAssetsPanelTab: TabData = {
+  id: 'sceneAssetsPanel',
+  closable: true,
+  cached: true,
+  title: (
+    <PanelDragContainer>
+      <PanelIcon as={Inventory2Icon} size={12} />
+      <PanelTitle>{t('editor:tabs.scene-assets')}</PanelTitle>
+    </PanelDragContainer>
+  ),
+  content: <SceneAssetsPanel />
 }
 
 export default SceneAssetsPanel
