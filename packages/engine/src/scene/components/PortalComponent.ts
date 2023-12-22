@@ -200,10 +200,10 @@ export const PortalComponent = defineComponent({
       const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 1, 0x000000)
       helper.name = `portal-helper-${entity}`
 
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
       const helperEntity = createEntity()
 
       addObjectToGroup(helperEntity, helper)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
       setComponent(helperEntity, NameComponent, helper.name)
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
@@ -211,7 +211,6 @@ export const PortalComponent = defineComponent({
         new Quaternion().setFromAxisAngle(V_100, Math.PI / 2)
       )
 
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
       portalComponent.helperEntity.set(helperEntity)
 
       return () => {

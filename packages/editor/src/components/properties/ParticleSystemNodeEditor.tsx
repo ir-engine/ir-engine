@@ -54,7 +54,7 @@ import {
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux'
 
-import { ScatterPlotOutlined } from '@mui/icons-material'
+import ScatterPlotOutlined from '@mui/icons-material/ScatterPlotOutlined'
 
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'

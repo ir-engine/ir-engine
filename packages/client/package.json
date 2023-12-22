@@ -2,6 +2,7 @@
   "name": "@etherealengine/client",
   "version": "1.5.0",
   "private": true,
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git://github.com/etherealengine/etherealengine.git"
@@ -69,12 +70,10 @@
     "tailwind-merge": "^1.13.2",
     "tailwindcss": "^3.3.2",
     "ts-node": "10.9.1",
-    "vite": "4.4.8",
+    "vite": "5.0.9",
     "vite-plugin-compression": "0.5.1",
     "vite-plugin-ejs": "^1.6.4",
     "vite-plugin-node-polyfills": "^0.9.0",
-    "vite-plugin-optimize-persist": "^0.1.2",
-    "vite-plugin-package-config": "0.1.1",
     "vite-plugin-pwa": "^0.14.7",
     "vite-plugin-svgr": "^4.1.0"
   },
