@@ -65,6 +65,7 @@ import {
 } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
+import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarComponent } from './AvatarComponent'
@@ -224,7 +225,12 @@ export const AvatarRigComponent = defineComponent({
     const manager = useHookstate(getMutableState(AnimationState))
 
     useEffect(() => {
-      if (!manager.loadedAnimations[0].value || !rigComponent?.vrm?.value || !rigComponent?.normalizedRig?.value) return
+      if (
+        !manager.loadedAnimations[locomotionAnimation].value ||
+        !rigComponent?.vrm?.value ||
+        !rigComponent?.normalizedRig?.value
+      )
+        return
       try {
         retargetAvatarAnimations(entity)
       } catch (e) {
