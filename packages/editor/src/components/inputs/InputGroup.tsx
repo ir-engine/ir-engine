@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { InfoOutlined } from '@mui/icons-material'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
 import { createStyles } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import makeStyles from '@mui/styles/makeStyles'
