@@ -31,43 +31,58 @@ import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent, hasComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getMutableState } from '@etherealengine/hyperflux'
-import { useHookstate } from '@hookstate/core'
-import { SelectionState } from '../../../services/SelectionServices'
-
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import {
   DefaultModelTransformParameters,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
+import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { getComponent, hasComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { useHookstate } from '@hookstate/core'
+import { MathUtils } from 'three'
+import { exportRelativeGLTF } from '../../../functions/exportGLTF'
+import { EditorState } from '../../../services/EditorServices'
+import { SelectionState } from '../../../services/SelectionServices'
 
-const createSceneEntity = (name: string, parentEntity: Entity | null = null): Entity => {
+const createSceneEntity = (name: string, parentEntity: Entity | null = null, sceneID?: SceneID): Entity => {
   const entity = createEntity()
   setComponent(entity, NameComponent, name)
   setComponent(entity, VisibleComponent)
   setComponent(entity, TransformComponent)
   setComponent(entity, EntityTreeComponent, { parentEntity })
+
+  if (parentEntity != null) {
+    sceneID ??= getComponent(parentEntity!, SourceComponent)
+  }
+  sceneID ??= getState(SceneState).activeScene!
+  setComponent(entity, SourceComponent, sceneID)
+
+  const uuid = MathUtils.generateUUID() as EntityUUID
+  setComponent(entity, UUIDComponent, uuid)
   return entity
 }
 
-const createLODS = async (modelEntity: Entity): Promise<string[]> => {
-  const model = getComponent(modelEntity, ModelComponent)
-  const modelSrc = model.src
+const createLODS = async (modelSrc: string, modelFormat: 'glb' | 'gltf'): Promise<string[]> => {
   const transformParms: ModelTransformParameters = {
     ...DefaultModelTransformParameters,
     src: modelSrc,
-    modelFormat: modelSrc.endsWith('.gltf') ? 'gltf' : 'glb'
+    modelFormat
   }
 
   const batchCompressed = true
@@ -110,8 +125,18 @@ export const LODRunner = () => {
   async function createLODVariants() {
     const modelEntities = selectionState.selectedEntities.value.filter((entity) => hasComponent(entity, ModelComponent))
 
+    const srcProject = getState(EditorState).projectName!
+
     for (const entity of modelEntities) {
-      const lodPaths = await createLODS(entity)
+      const modelComponent = getComponent(entity, ModelComponent)
+      const modelSrc = modelComponent.src
+
+      const relativePath = pathResolver()
+        .exec(modelSrc)?.[2]
+        .replace(/\.[^.]*$/, '')
+      const modelFormat = modelSrc.endsWith('.gltf') ? 'gltf' : 'glb'
+
+      const lodPaths = await createLODS(modelSrc, modelFormat)
       const result = createSceneEntity('container')
       setComponent(result, ModelComponent)
       const variant = createSceneEntity('LOD Variant', result)
@@ -124,8 +149,10 @@ export const LODRunner = () => {
         heuristic: 'DEVICE'
       })
 
-      // run exportRelativeGLTF on parent
+      await exportRelativeGLTF(result, srcProject, `${relativePath}-lodded.${modelFormat}`)
+
       // change the source of the original model component
+      // modelComponent.src.set(pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName))
       //   see if that works
     }
 
