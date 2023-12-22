@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ESNext",
     "lib": [
-      "esnext",
+      "ESNext",
       "dom",
       "dom.iterable",
       "WebWorker"
@@ -11,7 +11,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "module": "CommonJS",
+    "module": "ESNext",
     "strict": false,
     "strictNullChecks": true,
     "strictBindCallApply": true,

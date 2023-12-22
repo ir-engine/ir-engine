@@ -47,22 +47,21 @@ import { CSMHelper } from '../../assets/csm/CSMHelper'
 import { V_001 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
   useComponent,
-  useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { QueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
@@ -73,8 +72,11 @@ import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
-import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
+import { GroupComponent, GroupQueryReactor, addObjectToGroup } from '../components/GroupComponent'
+import { MeshComponent } from '../components/MeshComponent'
+import { useContainsMesh } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
+import { ObjectLayerComponents } from '../components/ObjectLayerComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -225,17 +227,18 @@ const shadowMaterial = new MeshBasicMaterial({
 
 const shadowState = hookstate(null as MeshBasicMaterial | null)
 
-const dropShadowComponentQuery = defineQuery([DropShadowComponent, GroupComponent])
+const dropShadowComponentQuery = defineQuery([DropShadowComponent])
 
 const minRadius = 0.15
 const maxRadius = 5
 const sphere = new Sphere()
 const box3 = new Box3()
+const vec3 = new Vector3()
 
 const DropShadowReactor = () => {
   const entity = useEntityContext()
   const shadowMaterial = useHookstate(shadowState)
-  const groupComponent = useOptionalComponent(entity, GroupComponent)
+  const containsMesh = useContainsMesh(entity)
   const shadow = useComponent(entity, ShadowComponent)
 
   useEffect(() => {
@@ -243,34 +246,66 @@ const DropShadowReactor = () => {
       getState(EngineState).isEditor ||
       !shadow.cast.value ||
       !shadowMaterial.value ||
-      !groupComponent ||
-      groupComponent.value.length === 0 ||
+      !containsMesh ||
       hasComponent(entity, DropShadowComponent)
     )
       return
 
-    for (const obj of groupComponent.value) {
-      if (obj.type.includes('Helper')) continue
-      box3.setFromObject(obj)
-    }
+    box3.makeEmpty()
+
+    let foundMesh = false
+
+    iterateEntityNode(entity, (child) => {
+      const mesh = getOptionalComponent(child, MeshComponent)
+      if (mesh) {
+        box3.expandByObject(mesh)
+        foundMesh = true
+      }
+    })
+
+    if (!foundMesh) return
+
     box3.getBoundingSphere(sphere)
 
     if (sphere.radius > maxRadius) return
 
     const radius = Math.max(sphere.radius * 2, minRadius)
-    const center = sphere.center
+    const center = sphere.center.sub(TransformComponent.getWorldPosition(entity, vec3))
     const shadowEntity = createEntity()
     const shadowObject = new Mesh(shadowGeometry, shadowMaterial.value.clone())
     addObjectToGroup(shadowEntity, shadowObject)
-    addComponent(shadowEntity, NameComponent, 'Shadow for ' + getComponent(entity, NameComponent))
-    addComponent(shadowEntity, VisibleComponent)
+    setComponent(shadowEntity, NameComponent, 'Shadow for ' + getComponent(entity, NameComponent))
+    setComponent(shadowEntity, VisibleComponent)
     setComponent(entity, DropShadowComponent, { radius, center, entity: shadowEntity })
 
     return () => {
       removeComponent(entity, DropShadowComponent)
       removeEntity(shadowEntity)
     }
-  }, [shadowMaterial, groupComponent, shadow])
+  }, [shadowMaterial, containsMesh, shadow])
+
+  return null
+}
+
+function ShadowMeshReactor(props: { entity: Entity; obj: Mesh<any, Material> }) {
+  const { entity, obj } = props
+
+  const shadowComponent = useComponent(entity, ShadowComponent)
+  const csm = useHookstate(getMutableState(RendererState).csm)
+
+  useEffect(() => {
+    obj.castShadow = shadowComponent.cast.value
+    obj.receiveShadow = shadowComponent.receive.value
+
+    const csm = getState(RendererState).csm
+    if (obj.material && obj.receiveShadow) {
+      csm?.setupMaterial(obj)
+    }
+
+    return () => {
+      if (obj.material) csm?.teardownMaterial(obj)
+    }
+  }, [shadowComponent.cast, shadowComponent.receive, csm])
 
   return null
 }
@@ -280,20 +315,21 @@ const shadowOffset = new Vector3(0, 0.01, 0)
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(dropShadowComponentQuery, compareDistanceToCamera)
 const sortedEntityTransforms = [] as Entity[]
 
+const sceneLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
+
 const updateDropShadowTransforms = () => {
   const { deltaSeconds } = getState(EngineState)
   const { priorityQueue } = getState(ShadowSystemState)
 
   sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)
 
-  const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
+  const sceneObjects = sceneLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
 
   for (const entity of priorityQueue.priorityEntities) {
     const dropShadow = getComponent(entity, DropShadowComponent)
-    const group = getComponent(entity, GroupComponent)
     const dropShadowTransform = getComponent(dropShadow.entity, TransformComponent)
 
-    raycasterPosition.copy(group[0].position).add(dropShadow.center)
+    TransformComponent.getWorldPosition(entity, raycasterPosition).add(dropShadow.center)
     raycaster.set(raycasterPosition, shadowDirection)
 
     const intersected = raycaster.intersectObjects(sceneObjects)[0]
@@ -347,10 +383,10 @@ const reactor = () => {
         shadowState.set(shadowMaterial)
       }
     )
-
-    EngineRenderer.instance.renderer.shadowMap.enabled = EngineRenderer.instance.renderer.shadowMap.autoUpdate =
-      getShadowsEnabled()
   }, [])
+
+  EngineRenderer.instance.renderer.shadowMap.enabled = EngineRenderer.instance.renderer.shadowMap.autoUpdate =
+    useShadows
 
   return (
     <>
@@ -359,6 +395,7 @@ const reactor = () => {
       ) : (
         <QueryReactor Components={[ShadowComponent]} ChildEntityReactor={DropShadowReactor} />
       )}
+      <GroupQueryReactor GroupChildReactor={ShadowMeshReactor} Components={[ShadowComponent]} />
     </>
   )
 }

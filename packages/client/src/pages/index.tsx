@@ -31,9 +31,9 @@ import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/
 import styles from '@etherealengine/client-core/src/admin/styles/admin.module.scss'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { PopupMenuState } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
+import { PopupMenuState } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
+import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import config from '@etherealengine/common/src/config'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 

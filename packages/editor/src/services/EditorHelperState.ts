@@ -50,7 +50,7 @@ export const EditorHelperState = defineState({
     scaleSnap: 0.1,
     isGenerateThumbnailsEnabled: true
   }),
-  onCreate: () => {
+  onCreate: (store, state) => {
     syncStateWithLocalStorage(EditorHelperState, [
       'snapMode',
       'translationSnap',

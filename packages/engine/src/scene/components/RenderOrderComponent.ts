@@ -23,33 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, ShaderMaterial } from 'three'
-
-import { Entity } from '../../ecs/classes/Entity'
+import { Types } from 'bitecs'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type MaterialMap = {
-  id: string
-  material: Material
-}
+export const RenderOrderComponent = defineComponent({
+  name: 'RenderOrderComponent',
+  schema: { renderOrder: Types.i32 },
 
-export const AvatarEffectComponent = defineComponent({
-  name: 'AvatarEffectComponent',
-  onInit: (entity) => {
-    return {
-      sourceEntity: null! as Entity,
-      opacityMultiplier: 1,
-      dissolveMaterials: [] as Array<ShaderMaterial>,
-      originMaterials: [] as Array<MaterialMap>
-    }
+  onInit() {
+    return 0 as number
   },
 
-  onSet: (entity, component, json) => {
-    if (!json) return
+  onSet(entity, component, renderOrder: number) {
+    RenderOrderComponent.renderOrder[entity] = renderOrder
+    component.set(renderOrder)
+  },
 
-    if (json.sourceEntity) component.sourceEntity.set(json.sourceEntity)
-    if (json.opacityMultiplier) component.opacityMultiplier.set(json.opacityMultiplier)
-    if (json.dissolveMaterials) component.dissolveMaterials.set(json.dissolveMaterials as Array<ShaderMaterial>)
-    if (json.originMaterials) component.originMaterials.set(json.originMaterials as Array<MaterialMap>)
+  toJSON(entity, component) {
+    return component.value
   }
 })

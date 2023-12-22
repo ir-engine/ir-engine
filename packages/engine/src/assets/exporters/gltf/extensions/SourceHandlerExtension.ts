@@ -27,7 +27,6 @@ import { Object3D } from 'three'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { getComponent, setComponent } from '../../../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '../../../../ecs/functions/EntityTree'
-import { Object3DWithEntity } from '../../../../scene/components/GroupComponent'
 import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { getModelSceneID } from '../../../../scene/functions/loaders/ModelFunctions'
 import { SceneID } from '../../../../schemas/projects/scene.schema'
@@ -46,7 +45,7 @@ export default class SourceHandlerExtension extends ExporterExtension implements
     //we allow saving of any object that has a source equal to or parent of the root's source
     const validSrcs: Set<SceneID> = new Set()
     validSrcs.add(getModelSceneID(this.writer.options.srcEntity!))
-    const root = (Array.isArray(input) ? input[0] : input) as Object3DWithEntity
+    const root = (Array.isArray(input) ? input[0] : input) as Object3D
     let walker: Entity | null = root.entity
     while (walker !== null) {
       const src = getComponent(walker, SourceComponent)

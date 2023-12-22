@@ -125,7 +125,7 @@ export const saveScene = async (
     //remove gltf data from scene data
     for (const entityUUID of Object.keys(sceneData.entities)) {
       if (!sceneData.entities[entityUUID]) continue //entity has already been removed from save data
-      const entity = UUIDComponent.entitiesByUUID[entityUUID as EntityUUID]
+      const entity = UUIDComponent.getEntityByUUID(entityUUID as EntityUUID)
       if (hasComponent(entity, GLTFLoadedComponent)) {
         //delete anything that is a child of any GLTF-loaded entity
         iterateEntityNode(entity, (entity) => {

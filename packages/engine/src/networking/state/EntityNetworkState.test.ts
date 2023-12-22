@@ -49,11 +49,7 @@ import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../components/Net
 import { NetworkPeerFunctions } from '../functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 import { NetworkState } from '../NetworkState'
-import {
-  EntityNetworkState,
-  receiveRequestAuthorityOverObject,
-  receiveTransferAuthorityOfObject
-} from './EntityNetworkState'
+import { EntityNetworkState, receiveRequestAuthorityOverObject } from './EntityNetworkState'
 
 describe('EntityNetworkState', () => {
   beforeEach(async () => {
@@ -221,7 +217,7 @@ describe('EntityNetworkState', () => {
       applyIncomingActions()
       await act(() => receiveActions(EntityNetworkState))
 
-      const entity = UUIDComponent.entitiesByUUID[Engine.instance.userID as any as EntityUUID]
+      const entity = UUIDComponent.getEntityByUUID(Engine.instance.userID as any as EntityUUID)
 
       spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 
@@ -277,10 +273,6 @@ describe('EntityNetworkState', () => {
       assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
       assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), true)
 
-      const transferAuthorityOfObjectQueue = ActionFunctions.defineActionQueue(
-        WorldNetworkAction.transferAuthorityOfObject.matches
-      )
-
       receiveRequestAuthorityOverObject(
         WorldNetworkAction.requestAuthorityOverObject({
           $from: userId,
@@ -293,7 +285,7 @@ describe('EntityNetworkState', () => {
 
       ActionFunctions.applyIncomingActions()
 
-      for (const action of transferAuthorityOfObjectQueue()) receiveTransferAuthorityOfObject(action)
+      await act(() => receiveActions(EntityNetworkState))
 
       const networkObjectEntitiesAfter = networkObjectQuery()
       const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
@@ -351,10 +343,6 @@ describe('EntityNetworkState', () => {
     assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
     assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), false)
 
-    const transferAuthorityOfObjectQueue = ActionFunctions.defineActionQueue(
-      WorldNetworkAction.transferAuthorityOfObject.matches
-    )
-
     receiveRequestAuthorityOverObject(
       WorldNetworkAction.requestAuthorityOverObject({
         $from: userId, // from user
@@ -366,9 +354,8 @@ describe('EntityNetworkState', () => {
     )
 
     applyIncomingActions()
-    await act(() => receiveActions(EntityNetworkState))
 
-    for (const action of transferAuthorityOfObjectQueue()) receiveTransferAuthorityOfObject(action)
+    await act(() => receiveActions(EntityNetworkState))
 
     const networkObjectEntitiesAfter = networkObjectQuery()
     const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
