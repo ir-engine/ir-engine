@@ -25,7 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Object3D, Quaternion, Vector3 } from 'three'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { BoneComponent } from '../components/BoneComponent'
 
 export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
   vrm.update(deltaTime)
@@ -52,23 +56,23 @@ export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
       // Move the mass center of the VRM
       if (boneName === 'hips') {
         /** @todo for some reason this breaks loop animations */
-        // const boneWorldPosition = rigBoneNode.getWorldPosition(_boneWorldPos)
+        const boneWorldPosition = rigBoneNode.getWorldPosition(_boneWorldPos)
 
-        // const boneEntity = boneNode.entity
-        // if (!boneEntity) continue
+        const boneEntity = boneNode.entity
+        if (!boneEntity) continue
 
-        // const parentEntity = getComponent(boneEntity, EntityTreeComponent)?.parentEntity
-        // if (!parentEntity) continue
+        const parentEntity = getComponent(boneEntity, EntityTreeComponent)?.parentEntity
+        if (!parentEntity) continue
 
-        // const parentBoneNode = getComponent(parentEntity, BoneComponent)
-        // if (!parentBoneNode) continue
+        const parentBoneNode = getComponent(parentEntity, BoneComponent)
+        if (!parentBoneNode) continue
 
-        // computeTransformMatrix(parentEntity)
-        // const parentWorldMatrix = parentBoneNode.matrixWorld
-        // const localPosition = boneWorldPosition.applyMatrix4(parentWorldMatrix.invert())
-        // boneNode.position.copy(localPosition)
+        computeTransformMatrix(parentEntity)
+        parentBoneNode.updateMatrixWorld(true)
 
-        boneNode.position.copy(rigBoneNode.position)
+        const parentWorldMatrix = parentBoneNode.matrixWorld
+        const localPosition = boneWorldPosition.applyMatrix4(parentWorldMatrix.clone().invert())
+        boneNode.position.copy(localPosition)
       }
     }
   }
