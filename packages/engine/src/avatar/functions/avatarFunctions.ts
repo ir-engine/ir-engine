@@ -51,6 +51,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { XRState } from '../../xr/XRState'
 import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
+import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { locomotionAnimation } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -221,8 +222,8 @@ export const setAvatarSpeedFromRootMotion = () => {
   const run = manager.loadedAnimations[locomotionAnimation].animations[4] ?? [new AnimationClip()]
   const walk = manager.loadedAnimations[locomotionAnimation].animations[6] ?? [new AnimationClip()]
   const movement = getMutableState(AvatarMovementSettingsState)
-  //if (run) movement.runSpeed.set(getRootSpeed(run) * 0.01)
-  //if (walk) movement.walkSpeed.set(getRootSpeed(walk) * 0.01)
+  if (run) movement.runSpeed.set(getRootSpeed(run))
+  if (walk) movement.walkSpeed.set(getRootSpeed(walk))
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
