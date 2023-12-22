@@ -35,6 +35,7 @@ import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
 import { logger } from '@etherealengine/client-core/src/user/services/AuthService'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { saveProjectResources } from '../../functions/saveProjectResources'
 import { Button } from '../inputs/Button'
@@ -75,13 +76,12 @@ export const FilePropertiesPanel = (props: {
     }
   }, [])
 
-  const staticResource = useHookstate(async () => {
-    return await Engine.instance.api.service(staticResourcePath).find({
-      query: {
-        key: fileProperties.value!.key
-      }
-    })
+  const staticResource = useFind(staticResourcePath, {
+    query: {
+      key: fileProperties.value!.key
+    }
   })
+
   const resourceProperties = useHookstate({
     tags: [] as string[],
     id: '',
@@ -90,9 +90,9 @@ export const FilePropertiesPanel = (props: {
     licensing: ''
   })
   useEffect(() => {
-    if (!staticResource.promised && staticResource.value.data.length > 0) {
-      if (staticResource.value.data.length > 1) logger.warn('Multiple resources with same key found')
-      const resources = JSON.parse(JSON.stringify(staticResource.value.data[0])) as StaticResourceType
+    if (staticResource.data.length > 0) {
+      if (staticResource.data.length > 1) logger.warn('Multiple resources with same key found')
+      const resources = JSON.parse(JSON.stringify(staticResource.data[0])) as StaticResourceType
       if (resources) {
         resourceProperties.tags.set(resources.tags ?? [])
         resourceProperties.id.set(resources.id)
