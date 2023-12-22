@@ -209,6 +209,7 @@ export const loadAnimationArray = (animations: string[], subDir: string) => {
       //fbx files need animations reassignment to maintain consistency with GLTF
       loadedEmotes.animations = loadedEmotes.scene.animations
       loadedEmotes.animations[0].name = animations[i]
+      retargetAnimationClip(loadedEmotes.animations[0], loadedEmotes.scene)
     })
   }
 }
