@@ -28,6 +28,7 @@ jobs:
         with:
           repository: etherealengine/ee-development-test-suite
           path: './packages/projects/projects/ee-development-test-suite'
+          ref: 'test/bot-test'
       - name: Checkout ee-bot
         uses: actions/checkout@v3
         with:
