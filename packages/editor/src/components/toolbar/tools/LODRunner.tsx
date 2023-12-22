@@ -60,6 +60,10 @@ import { exportRelativeGLTF } from '../../../functions/exportGLTF'
 import { EditorState } from '../../../services/EditorServices'
 import { SelectionState } from '../../../services/SelectionServices'
 
+import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
+import { Group } from 'three'
+
 const createSceneEntity = (name: string, parentEntity: Entity | null = null, sceneID?: SceneID): Entity => {
   const entity = createEntity()
   setComponent(entity, NameComponent, name)
@@ -75,6 +79,14 @@ const createSceneEntity = (name: string, parentEntity: Entity | null = null, sce
 
   const uuid = MathUtils.generateUUID() as EntityUUID
   setComponent(entity, UUIDComponent, uuid)
+
+  // These additional properties and relations are required for
+  // the current GLTF exporter to successfully generate a GLTF.
+  const obj3d = new Group()
+  obj3d.entity = entity
+  addObjectToGroup(entity, obj3d)
+  proxifyParentChildRelationships(obj3d)
+
   return entity
 }
 
