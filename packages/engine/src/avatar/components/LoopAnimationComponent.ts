@@ -126,8 +126,7 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (!animComponent?.animations?.value) return
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value]
-      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
-      if (!modelComponent || !asset?.scene || !clip) {
+      if (!modelComponent?.scene?.value || !clip) {
         loopAnimationComponent._action.set(null)
         return
       }
@@ -135,7 +134,7 @@ export const LoopAnimationComponent = defineComponent({
       const assetObject = modelComponent.asset.get(NO_PROXY)
       try {
         const action = animComponent.mixer.value.clipAction(
-          assetObject instanceof VRM ? retargetMixamoAnimation(clip, asset.scene, assetObject) : clip
+          assetObject instanceof VRM ? retargetMixamoAnimation(clip, modelComponent.scene.value, assetObject) : clip
         )
         loopAnimationComponent._action.set(action)
         return () => {
@@ -207,22 +206,20 @@ export const LoopAnimationComponent = defineComponent({
      * A model is required for LoopAnimationComponent.
      */
     useEffect(() => {
-      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
-      if (!asset?.scene) return
+      if (!modelComponent?.scene?.value) return
       const model = getComponent(entity, ModelComponent)
 
       if (!hasComponent(entity, AnimationComponent)) {
         setComponent(entity, AnimationComponent, {
-          mixer: new AnimationMixer(model.asset!.scene),
+          mixer: new AnimationMixer(model.scene!),
           animations: []
         })
       }
-    }, [modelComponent?.asset, loopAnimationComponent.hasAvatarAnimations])
+    }, [modelComponent?.scene, loopAnimationComponent.hasAvatarAnimations])
 
     useEffect(() => {
-      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       if (
-        !asset?.scene ||
+        !modelComponent?.scene?.value ||
         !animComponent ||
         !loopAnimationComponent.animationPack.value ||
         lastAnimationPack.value === loopAnimationComponent.animationPack.value

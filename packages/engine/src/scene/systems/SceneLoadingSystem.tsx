@@ -40,7 +40,6 @@ import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/proje
 
 import { Not } from 'bitecs'
 import React from 'react'
-import { Group } from 'three'
 import { AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -65,7 +64,6 @@ import { PhysicsState } from '../../physics/state/PhysicsState'
 import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
@@ -74,7 +72,6 @@ import { SceneTagComponent } from '../components/SceneTagComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 
 const reactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
@@ -321,14 +318,6 @@ const EntityChildLoadReactor = (props: {
       uuid: props.entityUUID,
       childIndex: entityJSONState.index.value
     })
-
-    if (!hasComponent(entity, GroupComponent)) {
-      const obj3d = new Group()
-      obj3d.entity = entity
-      addObjectToGroup(entity, obj3d)
-      proxifyParentChildRelationships(obj3d)
-    }
-
     setComponent(entity, SourceComponent, props.sceneID)
     return () => {
       removeEntity(entity)

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AnimationMixer, Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
+import { AnimationMixer, Bone, InstancedMesh, Mesh, Object3D, SkinnedMesh } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
@@ -147,25 +147,20 @@ export const parseObjectComponentsFromGLTF = (
   return entityJson
 }
 
-export const parseGLTFModel = (entity: Entity, scene: Scene) => {
+export const parseGLTFModel = (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
-
+  const scene = model.scene!
   scene.updateMatrixWorld(true)
   computeTransformMatrix(entity)
 
   // always parse components first using old ECS parsing schema
   const entityJson = parseObjectComponentsFromGLTF(entity, scene)
   // current ECS parsing schema
-
-  const children = [...scene.children]
-  for (const child of children) {
-    child.parent = model.scene
-    iterateObject3D(child, (obj: Object3D) => {
-      const uuid = obj.uuid as EntityUUID
-      const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
-      entityJson[uuid] = eJson
-    })
-  }
+  iterateObject3D(scene, (obj: Object3D) => {
+    const uuid = obj.uuid as EntityUUID
+    const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
+    entityJson[uuid] = eJson
+  })
 
   enableObjectLayer(scene, ObjectLayers.Scene, true)
 
@@ -180,42 +175,6 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
   }
 
   return entityJson
-}
-
-export const proxifyParentChildRelationships = (obj: Object3D) => {
-  const objEntity = obj.entity
-  Object.defineProperties(obj, {
-    parent: {
-      get() {
-        if (EngineRenderer.instance?.rendering) return null
-        if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-          const result =
-            getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
-            Engine.instance.scene
-          return result ?? null
-        }
-      },
-      set(value) {
-        throw new Error('Cannot set parent of proxified object')
-      }
-    },
-    children: {
-      get() {
-        if (EngineRenderer.instance?.rendering) return []
-        return hasComponent(objEntity, EntityTreeComponent)
-          ? getComponent(objEntity, EntityTreeComponent)
-              .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
-              .flatMap((child) => getComponent(child, GroupComponent))
-          : []
-      },
-      set(value) {
-        throw new Error('Cannot set children of proxified object')
-      }
-    },
-    isProxified: {
-      value: true
-    }
-  })
 }
 
 export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, entityJson?: EntityJsonType) => {
@@ -255,7 +214,38 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   setComponent(objEntity, GLTFLoadedComponent, ['entity'])
 
   /** Proxy children with EntityTreeComponent if it exists */
-  proxifyParentChildRelationships(obj)
+  Object.defineProperties(obj, {
+    parent: {
+      get() {
+        if (EngineRenderer.instance?.rendering) return null
+        if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
+          return (
+            getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
+            Engine.instance.scene
+          )
+        }
+      },
+      set(value) {
+        throw new Error('Cannot set parent of proxified object')
+      }
+    },
+    children: {
+      get() {
+        if (EngineRenderer.instance?.rendering) return []
+        return hasComponent(objEntity, EntityTreeComponent)
+          ? getComponent(objEntity, EntityTreeComponent)
+              .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
+              .flatMap((child) => getComponent(child, GroupComponent))
+          : []
+      },
+      set(value) {
+        throw new Error('Cannot set children of proxified object')
+      }
+    },
+    isProxified: {
+      value: true
+    }
+  })
 
   obj.removeFromParent = () => {
     if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
