@@ -50,7 +50,7 @@ export const FilteredUsersService = {
     const selfUserId = getMutableState(AuthState).user.id.value
     const peers = Object.values(NetworkState.worldNetwork.peers)
     const worldUserIds = peers
-      .filter((peer) => peer.peerID !== 'server' && peer.userId !== selfUserId)
+      .filter((peer) => peer.peerID !== NetworkState.worldNetwork.hostPeerID && peer.userId !== selfUserId)
       .map((peer) => peer.userId)
     const nearbyUsers = getNearbyUsers(Engine.instance.userID, worldUserIds)
     mediaState.nearbyLayerUsers.set(nearbyUsers)

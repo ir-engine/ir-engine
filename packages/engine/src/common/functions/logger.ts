@@ -120,7 +120,7 @@ const multiLogger = {
    * @param opts {object}
    * @param opts.component {string}
    */
-  child: (opts: any) => {
+  child: (opts: { component: string }) => {
     if (!config.client.serverHost || (config.client.localBuildOrDev && !config.client.logs.forceClientAggregate)) {
       // Locally, this will provide correct file & line numbers in browser console
       return {

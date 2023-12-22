@@ -39,7 +39,7 @@ import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThu
 import { AuthState } from '../../../user/services/AuthService'
 import { AvatarMenus } from '../../AvatarUISystem'
 import XRTextButton from '../../components/XRTextButton'
-import styles from './index.scss'
+import styles from './index.scss?inline'
 
 export const AvatarUIContextMenuState = defineState({
   name: 'AvatarUISystem',

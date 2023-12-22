@@ -40,7 +40,8 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 
-import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
+import MessageIcon from '@mui/icons-material/Close'
+import CloseIcon from '@mui/icons-material/Message'
 import Fab from '@mui/material/Fab'
 
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
