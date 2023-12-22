@@ -34,7 +34,8 @@ import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/s
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
   AttachmentPointData,
-  ObjectGridSnapComponent
+  ObjectGridSnapComponent,
+  flipAround
 } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformSystem, computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
@@ -44,12 +45,6 @@ import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 let lastExecutionTime = 0
 const interval = 1000
-
-function flipAround(rotation: Quaternion) {
-  const localYAxis = new Vector3(1, 0, 0)
-  localYAxis.applyQuaternion(rotation)
-  return new Quaternion().setFromAxisAngle(localYAxis, Math.PI)
-}
 
 const execute = () => {
   //only execute if attachment point snap is enabled
@@ -72,6 +67,7 @@ const execute = () => {
     )
   })
   let shortestDistance = Infinity
+  let shortestAngle = Infinity
   let srcPosition: Vector3 | null = null
   let srcRotation: Quaternion | null = null
   let dstPosition: Vector3 | null = null
@@ -88,7 +84,7 @@ const execute = () => {
     const selectTransform = getComponent(selectedObjSnapEntity, TransformComponent)
     for (const selectedAttachmentPoint of selectedSnapComponent.attachmentPoints) {
       //const selectTransform = getComponent(selectParententity, TransformComponent)
-      const srcWorldspacePosition = selectedAttachmentPoint.position.clone().applyMatrix4(selectTransform.matrix)
+      const srcWorldspacePosition = selectedAttachmentPoint.position.clone().applyMatrix4(selectTransform.matrixWorld)
       for (const candidateDstSnapEntity of attachmentPointQuery()) {
         if (selectedAttachmentPoints.includes(candidateDstSnapEntity)) continue
 
@@ -99,9 +95,15 @@ const execute = () => {
         for (const attachmentPoint of attachmentPoints) {
           const attachmentPointWorldSpacePosition = attachmentPoint.position
             .clone()
-            .applyMatrix4(dstSnapTransform.matrix)
-          const srcWorldspaceRotation = selectTransform.rotation.clone().multiply(selectedAttachmentPoint.rotation)
-          const attachmentPointWorldSpaceRotation = dstSnapTransform.rotation.clone().multiply(attachmentPoint.rotation)
+            .applyMatrix4(dstSnapTransform.matrixWorld)
+          const srcWorldspaceRotation = TransformComponent.getWorldRotation(
+            selectedObjSnapEntity,
+            new Quaternion()
+          ).multiply(selectedAttachmentPoint.rotation)
+          const attachmentPointWorldSpaceRotation = TransformComponent.getWorldRotation(
+            candidateDstSnapEntity,
+            new Quaternion()
+          ).multiply(attachmentPoint.rotation)
           const distance = srcWorldspacePosition.distanceTo(attachmentPointWorldSpacePosition)
           //store the attachment point transform and selected attachment point
           if (distance < shortestDistance) {

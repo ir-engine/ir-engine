@@ -51,6 +51,12 @@ export type AttachmentPointData = {
   helper?: ArrowHelper
 }
 
+export function flipAround(rotation: Quaternion) {
+  const localYAxis = new Vector3(1, 0, 0)
+  localYAxis.applyQuaternion(rotation)
+  return new Quaternion().setFromAxisAngle(localYAxis, Math.PI)
+}
+
 export const ObjectGridSnapComponent = defineComponent({
   name: 'Object Grid Snap Component',
   jsonID: 'object-grid-snap',
@@ -255,7 +261,7 @@ export const ObjectGridSnapComponent = defineComponent({
           const { position, rotation } = generatePositionAndRotation(x, z)
           attachmentPoints.push({
             position,
-            rotation,
+            rotation: flipAround(rotation),
             helper
           })
         } else {
@@ -270,7 +276,7 @@ export const ObjectGridSnapComponent = defineComponent({
               const { position, rotation } = generatePositionAndRotation(x, z)
               attachmentPoints.push({
                 position,
-                rotation,
+                rotation: flipAround(rotation),
                 helper
               })
             }
