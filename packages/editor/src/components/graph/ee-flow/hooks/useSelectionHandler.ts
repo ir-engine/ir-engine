@@ -22,8 +22,8 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { useMemo, useState } from 'react'
-import { Node, NodeChange } from 'reactflow'
+import { useEffect, useMemo, useState } from 'react'
+import { Edge, EdgeChange, Node, NodeChange, useKeyPress } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
 import { useBehaveGraphFlow } from './useBehaveGraphFlow'
@@ -32,26 +32,56 @@ type BehaveGraphFlow = ReturnType<typeof useBehaveGraphFlow>
 
 export const useSelectionHandler = ({
   nodes,
-  onNodesChange
-}: Pick<BehaveGraphFlow, 'onNodesChange'> & {
+  onNodesChange,
+  onEdgesChange
+}: Pick<BehaveGraphFlow, 'onNodesChange' | 'onEdgesChange'> & {
   nodes: Node[]
 }) => {
+  const ctrlCPressed = useKeyPress(['Control+c', 'Meta+c'])
+  const ctrlVPressed = useKeyPress(['Control+v', 'Meta+v'])
   const [selectedNodes, setSelectedNodes] = useState([] as Node[])
+  const [selectedEdges, setSelectedEdges] = useState([] as Edge[])
+
   const [copiedNodes, setCopiedNodes] = useState([] as Node[])
+  const [copiedEdges, setCopiedEdges] = useState([] as Edge[])
 
   const copyNodes = () => {
     setCopiedNodes(selectedNodes)
+    setCopiedEdges(selectedEdges)
   }
 
   const pasteNodes = () => {
-    const newNodes = copiedNodes.map((node) => ({
-      ...node,
-      id: uuidv4(),
-      position: {
-        x: node.position.x + node.width! + 10,
-        y: node.position.y
+    const minPosLeft = Math.min(...copiedNodes.map((node) => node.position.x))
+    const maxPosLeft = Math.max(...copiedNodes.map((node) => node.position.x))
+    const nodeMaxPosX = copiedNodes.reduce(
+      (maxNode, currentNode) => (currentNode.position.x > maxNode.position.x ? currentNode : maxNode),
+      copiedNodes[0]
+    )
+
+    const nodeIdMap = new Map<string, string>()
+    const newNodes = copiedNodes.map((node) => {
+      nodeIdMap[node.id] = uuidv4()
+      return {
+        ...node,
+        id: nodeIdMap[node.id],
+        position: {
+          x: maxPosLeft + (node.position.x - minPosLeft) + nodeMaxPosX.width! + 20,
+          y: node.position.y
+        }
       }
-    }))
+    })
+
+    const newEdgeChange: EdgeChange[] = copiedEdges.map((edge) => {
+      return {
+        type: 'add',
+        item: {
+          ...edge,
+          id: uuidv4(),
+          source: nodeIdMap[edge.source],
+          target: nodeIdMap[edge.target]
+        }
+      }
+    })
 
     const newNodeChange: NodeChange[] = newNodes.map((node) => ({
       type: 'add',
@@ -59,40 +89,27 @@ export const useSelectionHandler = ({
     }))
 
     onNodesChange(newNodeChange)
+    onEdgesChange(newEdgeChange)
     setCopiedNodes(newNodes)
   }
 
   const onSelectionChange = useMemo(
     () => (elements) => {
       setSelectedNodes(elements.nodes)
+      setSelectedEdges(elements.edges)
     },
     [selectedNodes]
   )
 
-  const handleKeyDown = useMemo(
-    () => (event) => {
-      if (!event.ctrlKey) return
+  useEffect(() => {
+    if (!ctrlCPressed || selectedNodes.length === 0) return
+    copyNodes()
+  }, [ctrlCPressed])
 
-      switch (event.key) {
-        case 'c':
-          copyNodes()
-          break
-        case 'v':
-          pasteNodes()
-          break
-        default:
-          break
-      }
-    },
-    [copiedNodes, onNodesChange, selectedNodes]
-  )
+  useEffect(() => {
+    if (!ctrlVPressed || copiedNodes.length === 0) return
+    pasteNodes()
+  }, [ctrlVPressed])
 
-  const handleKeyUp = useMemo(
-    () => (event) => {
-      // empty for now
-    },
-    []
-  )
-
-  return { onSelectionChange, handleKeyDown, handleKeyUp }
+  return { onSelectionChange }
 }

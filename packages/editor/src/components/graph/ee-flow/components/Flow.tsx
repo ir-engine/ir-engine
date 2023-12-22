@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useRef } from 'react'
-import { Background, BackgroundVariant, ReactFlow } from 'reactflow'
+import { Background, BackgroundVariant, ReactFlow, ReactFlowProvider } from 'reactflow'
 
 import { GraphJSON, IRegistry } from '@behave-graph/core'
 
@@ -81,9 +81,10 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     registry
   })
 
-  const { onSelectionChange, handleKeyDown, handleKeyUp } = useSelectionHandler({
+  const { onSelectionChange } = useSelectionHandler({
     nodes,
-    onNodesChange
+    onNodesChange,
+    onEdgesChange
   })
 
   useEffect(() => {
@@ -92,49 +93,49 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   }, [graphJson]) // change in node position triggers reactor
 
   return (
-    <ReactFlow
-      ref={flowRef}
-      nodeTypes={nodeTypes}
-      nodes={nodes}
-      edges={edges}
-      onNodeDragStart={() => dragging.set(true)}
-      onNodeDragStop={() => dragging.set(false)}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      onConnectStart={handleStartConnect}
-      onConnectEnd={handleStopConnect}
-      onPaneMouseEnter={() => mouseOver.set(true)}
-      onPaneMouseLeave={() => mouseOver.set(false)}
-      fitView
-      fitViewOptions={{ maxZoom: 1 }}
-      onPaneClick={handlePaneClick}
-      onPaneContextMenu={handlePaneContextMenu}
-      onSelectionChange={onSelectionChange}
-      multiSelectionKeyCode={'Shift'}
-      deleteKeyCode={'Backspace'}
-      onKeyDown={handleKeyDown}
-      onKeyUp={handleKeyUp}
-    >
-      <CustomControls
-        playing={playing}
-        togglePlay={togglePlay}
-        onSaveGraph={onChangeGraph}
-        setBehaviorGraph={setGraphJson}
-        examples={examples}
-        specGenerator={specGenerator}
-      />
-      <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
-      {nodePickerVisibility && (
-        <NodePicker
-          flowRef={flowRef}
-          position={nodePickerVisibility}
-          filters={nodePickFilters}
-          onPickNode={handleAddNode}
-          onClose={closeNodePicker}
-          specJSON={specGenerator?.getAllNodeSpecs()}
+    <ReactFlowProvider>
+      <ReactFlow
+        ref={flowRef}
+        nodeTypes={nodeTypes}
+        nodes={nodes}
+        edges={edges}
+        onNodeDragStart={() => dragging.set(true)}
+        onNodeDragStop={() => dragging.set(false)}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onConnectStart={handleStartConnect}
+        onConnectEnd={handleStopConnect}
+        onPaneMouseEnter={() => mouseOver.set(true)}
+        onPaneMouseLeave={() => mouseOver.set(false)}
+        fitView
+        fitViewOptions={{ maxZoom: 1 }}
+        onPaneClick={handlePaneClick}
+        onPaneContextMenu={handlePaneContextMenu}
+        onSelectionChange={onSelectionChange}
+        multiSelectionKeyCode={'Shift'}
+        deleteKeyCode={'Backspace'}
+      >
+        <CustomControls
+          playing={playing}
+          togglePlay={togglePlay}
+          onSaveGraph={onChangeGraph}
+          setBehaviorGraph={setGraphJson}
+          examples={examples}
+          specGenerator={specGenerator}
         />
-      )}
-    </ReactFlow>
+        <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
+        {nodePickerVisibility && (
+          <NodePicker
+            flowRef={flowRef}
+            position={nodePickerVisibility}
+            filters={nodePickFilters}
+            onPickNode={handleAddNode}
+            onClose={closeNodePicker}
+            specJSON={specGenerator?.getAllNodeSpecs()}
+          />
+        )}
+      </ReactFlow>
+    </ReactFlowProvider>
   )
 }
