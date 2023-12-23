@@ -30,6 +30,7 @@ import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 export type ResourceID = OpaqueType<'ResourceID'> & string
 
 export type ParameterOverride<T> = OpaqueType<'ParameterOverride'> & {
+  isParameterOverride: true
   enabled: boolean
   parameters: T
 }
@@ -39,7 +40,7 @@ export function extractParameters<T>(parameters: ParameterOverride<T>) {
   if (typeof parameters.parameters === 'object' && !Array.isArray(parameters.parameters)) {
     return Object.fromEntries(
       Object.entries(parameters.parameters as object).map(([key, value]: [string, ParameterOverride<any>]) => {
-        if (value.__opaqueType === 'ParameterOverride') {
+        if (value.isParameterOverride) {
           if (value.enabled) return [key, extractParameters(value)]
           else return []
         } else return [key, value]
@@ -48,7 +49,7 @@ export function extractParameters<T>(parameters: ParameterOverride<T>) {
   } else if (Array.isArray(parameters.parameters)) {
     return [
       ...parameters.parameters.map((value) => {
-        if (value.__opaqueType === 'ParameterOverride') {
+        if (value.isParameterOverride) {
           if (value.enabled) return [extractParameters(value)]
           else return []
         } else return [value]
