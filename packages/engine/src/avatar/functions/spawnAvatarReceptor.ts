@@ -35,6 +35,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
   NetworkObjectComponent,
@@ -121,6 +122,8 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, ShadowComponent)
   setComponent(entity, GrabberComponent)
   setComponent(entity, AvatarRigComponent)
+
+  setComponent(entity, EntityTreeComponent)
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {
