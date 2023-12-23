@@ -61,7 +61,7 @@ import { baseName, pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { Engine } from '../../ecs/classes/Engine'
 import { EEMaterial, EEMaterialExtension } from './extensions/EE_MaterialTransformer'
-import { EEResourceID } from './extensions/EE_ResourceIDTransformer'
+import { EEResourceID, EEResourceIDExtension } from './extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from './ModelTransformLoader'
 
 import config from '@etherealengine/common/src/config'
@@ -537,6 +537,13 @@ export async function transformModel(args: ModelTransformParameters) {
     .listExtensionsUsed()
     .find((ext) => ext.extensionName === 'EE_material') as EEMaterialExtension
   if (eeMaterialExtension) {
+    for (let i = 0; i < eeMaterialExtension.textures.length; i++) {
+      const texture = eeMaterialExtension.textures[i]
+      const extensions = eeMaterialExtension.textureExtensions[i]
+      for (const extension of extensions) {
+        texture.setExtension(extension.extensionName, extension)
+      }
+    }
     textures.push(...eeMaterialExtension.textures)
   }
 
@@ -548,7 +555,7 @@ export async function transformModel(args: ModelTransformParameters) {
       if (!oldImg) continue
       const oldSize = texture.getSize()
       if (!oldSize) continue
-      const resourceId = texture.getExtension<EEResourceID>('EEResourceID')?.resourceId
+      const resourceId = texture.getExtension<EEResourceID>(EEResourceIDExtension.EXTENSION_NAME)?.resourceId
       const resourceParms = parms.resources.images.find(
         (resource) => resource.enabled && resource.resourceId === resourceId
       )
