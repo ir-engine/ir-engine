@@ -38,7 +38,7 @@ import {
   registerMaterial
 } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
 
@@ -57,12 +57,12 @@ export default function MaterialLibraryPanel() {
   const nodeChanges = useState(0)
   const publicPath = getState(EngineState).publicPath
 
-  const createSrcs = useCallback(() => Object.values(materialLibrary.sources.value), [materialLibrary.sources])
+  const createSrcs = useCallback(() => Object.values(materialLibrary.sources.get(NO_PROXY)), [materialLibrary.sources])
   const srcs = useState(createSrcs())
   useEffect(srcs.set.bind({}, createSrcs), [materialLibrary.sources])
 
   const collapsedSrcs = useCallback(
-    () => new Set<string>(srcs.value.map((src) => entryId(src, LibraryEntryType.MATERIAL_SOURCE))),
+    () => new Set<string>(srcs.get(NO_PROXY).map((src) => entryId(src, LibraryEntryType.MATERIAL_SOURCE))),
     [srcs]
   )
 
