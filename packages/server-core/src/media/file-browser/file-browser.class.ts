@@ -199,14 +199,14 @@ export class FileBrowserService
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: { $like: isDirectory ? `%${path.join(_oldPath, data.oldName)}/%` : path.join(_oldPath, data.oldName) }
+        key: { $like: `%${path.join(_oldPath, data.oldName)}%` }
       },
       paginate: false
     })) as StaticResourceType[]
 
     if (staticResources?.length > 0) {
       for (const resource of staticResources) {
-        const newKey = resource.key.replace(path.join(_oldPath, data.oldName), path.join(_newPath, data.newName))
+        const newKey = resource.key.replace(path.join(_oldPath, data.oldName), path.join(_newPath, fileName))
         await this.app.service(staticResourcePath).patch(
           resource.id,
           {
@@ -315,15 +315,13 @@ export class FileBrowserService
     checkDirectoryInsideNesting(key, params?.nestingDirectory)
 
     const storageProvider = getStorageProvider(storageProviderName)
-    const keySplit = key.split('/')
-    const isDirectory = await storageProvider.isDirectory(keySplit.pop()!, keySplit.join('/'))
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
     await storageProvider.createInvalidation([key])
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: { $like: isDirectory ? `%${key}/%` : key }
+        key: { $like: `%${key}%` }
       },
       paginate: false
     })) as StaticResourceType[]
