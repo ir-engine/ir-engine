@@ -155,15 +155,18 @@ export const LODRunner = () => {
         .replace(/\.[^.]*$/, '')
       const modelFormat = modelSrc.endsWith('.gltf') ? 'gltf' : 'glb'
 
+      const lodDevices = ['DESKTOP', 'XR', 'MOBILE']
       const lodPaths = await createLODS(modelSrc, modelFormat)
       const result = createSceneEntity('container')
       setComponent(result, ModelComponent)
       const variant = createSceneEntity('LOD Variant', result)
       setComponent(variant, ModelComponent)
       setComponent(variant, VariantComponent, {
-        levels: lodPaths.map((src) => ({
+        levels: lodPaths.map((src, index) => ({
           src,
-          metadata: {}
+          metadata: {
+            device: lodDevices[index]
+          }
         })),
         heuristic: 'DEVICE'
       })
