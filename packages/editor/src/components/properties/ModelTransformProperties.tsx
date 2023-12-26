@@ -46,7 +46,7 @@ import { materialsFromSource } from '@etherealengine/engine/src/renderer/materia
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { getMutableState, State } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { getMutableState, NO_PROXY, State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
@@ -67,6 +67,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   const transforming = useHookstate<boolean>(false)
   const transformHistory = useHookstate<string[]>([])
   const isClientside = useHookstate<boolean>(true)
+  const isBatchCompress = useHookstate<boolean>(false)
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: modelState.src.value,
@@ -127,16 +128,32 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
       const modelSrc = modelState.src.value
-      if (isClientside.value) {
-        await clientSideTransformModel(transformParms.value)
-      } else {
-        await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
+      const batchCompressed = isBatchCompress.value
+      const clientside = isClientside.value
+      const textureSizes = batchCompressed ? [2048, 1024, 512] : [transformParms.maxTextureSize.value]
+      const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
+      let nuPath: string | null = null
+
+      const variants = textureSizes.map((maxTextureSize, index) => {
+        const suffix = batchCompressed ? `-transformed-LOD_${index}.glb` : '-transformed.glb'
+        nuPath = modelSrc.replace(/(-transformed)?\.glb$/, suffix)
+        const [_, __, dst] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
+        return { ...transformParms.get(NO_PROXY), maxTextureSize, dst }
+      })
+
+      for (const variant of variants) {
+        if (clientside) {
+          await clientSideTransformModel(variant)
+        } else {
+          await Engine.instance.api.service(modelTransformPath).create(variant)
+        }
       }
-      const nuPath = modelSrc.replace(/\.glb$/, '-transformed.glb')
-      transformHistory.set([modelSrc, ...transformHistory.value])
-      const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
+
+      if (!batchCompressed) {
+        onChangeModel(nuPath)
+      }
       await FileBrowserService.fetchFiles(directoryToRefresh)
-      onChangeModel(nuPath)
+      transformHistory.set([modelSrc, ...transformHistory.value])
       transforming.set(false)
     },
     [transformParms]
@@ -198,10 +215,12 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   return (
     <CollapsibleBlock label="Model Transform Properties">
       <div className="TransformContainer">
-        <GLTFTransformProperties
-          transformParms={transformParms}
-          onChange={(transformParms: ModelTransformParameters) => {}}
-        />
+        <CollapsibleBlock label="glTF-Transform">
+          <GLTFTransformProperties
+            transformParms={transformParms}
+            onChange={(transformParms: ModelTransformParameters) => {}}
+          />
+        </CollapsibleBlock>
         {!transforming.value && (
           <>
             <InputGroup name="Clientside Transform" label="Clientside Transform">
@@ -209,6 +228,14 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
                 value={isClientside.value}
                 onChange={(val: boolean) => {
                   isClientside.set(val)
+                }}
+              />
+            </InputGroup>
+            <InputGroup name="Batch Compress" label="Batch Compress">
+              <BooleanInput
+                value={isBatchCompress.value}
+                onChange={(val: boolean) => {
+                  isBatchCompress.set(val)
                 }}
               />
             </InputGroup>
