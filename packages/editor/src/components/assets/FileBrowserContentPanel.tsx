@@ -59,9 +59,6 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import Dialog from '@etherealengine/ui/src/primitives/mui/Dialog'
-import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
-import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
@@ -80,6 +77,7 @@ import { AssetSelectionChangePropsType } from './AssetsPreviewPanel'
 import CompressionPanel from './CompressionPanel'
 import { FileBrowserItem } from './FileBrowserGrid'
 import { FileDataType } from './FileDataType'
+import { FilePropertiesPanel } from './FilePropertiesPanel'
 import ImageConvertPanel from './ImageConvertPanel'
 import styles from './styles.module.scss'
 
@@ -558,37 +556,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       )}
 
       {openProperties.value && fileProperties.value && (
-        <Dialog
-          open={openProperties.value}
-          onClose={() => openProperties.set(false)}
-          classes={{ paper: styles.paperDialog }}
-        >
-          <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }}>
-            {`${fileProperties.value.name} ${fileProperties.value.type == 'folder' ? 'folder' : 'file'} Properties`}
-          </DialogTitle>
-          <Grid container spacing={1} style={{ width: '100%', margin: '0' }}>
-            <Grid item xs={4} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
-              <Typography className={styles.primaryText}>
-                {t('editor:layout.filebrowser.fileProperties.name')}
-              </Typography>
-              <Typography className={styles.primaryText}>
-                {t('editor:layout.filebrowser.fileProperties.type')}
-              </Typography>
-              <Typography className={styles.primaryText}>
-                {t('editor:layout.filebrowser.fileProperties.size')}
-              </Typography>
-              <Typography className={styles.primaryText}>
-                {t('editor:layout.filebrowser.fileProperties.url')}
-              </Typography>
-            </Grid>
-            <Grid item xs={8} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
-              <Typography className={styles.secondaryText}>{fileProperties.value.name}</Typography>
-              <Typography className={styles.secondaryText}>{fileProperties.value.type}</Typography>
-              <Typography className={styles.secondaryText}>{fileProperties.value.size}</Typography>
-              <Typography className={styles.secondaryText}>{fileProperties.value.url}</Typography>
-            </Grid>
-          </Grid>
-        </Dialog>
+        <FilePropertiesPanel openProperties={openProperties} fileProperties={fileProperties} />
       )}
       <ConfirmDialog
         open={openConfirm.value}
