@@ -89,8 +89,10 @@ const quat = new Quaternion()
 type HandTargetReturn = { position: Vector3; rotation: Quaternion } | null
 export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetReturn => {
   const networkComponent = getComponent(entity, NetworkObjectComponent)
+
   const targetEntity = NameComponent.entitiesByName[networkComponent.ownerId + '_' + hand]?.[0] // todo, how should be choose which one to use?
-  if (targetEntity) return getComponent(targetEntity, TransformComponent)
+  if (targetEntity && AvatarIKTargetComponent.blendWeight[targetEntity] > 0)
+    return getComponent(targetEntity, TransformComponent)
 
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig) return getComponent(entity, TransformComponent)
@@ -98,19 +100,19 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   switch (hand) {
     case 'left':
       return {
-        position: rig.normalizedRig.leftHand.node.getWorldPosition(vec3),
-        rotation: rig.normalizedRig.leftHand.node.getWorldQuaternion(quat)
+        position: rig.rawRig.leftHand.node.getWorldPosition(vec3),
+        rotation: rig.rawRig.leftHand.node.getWorldQuaternion(quat)
       }
     case 'right':
       return {
-        position: rig.normalizedRig.rightHand.node.getWorldPosition(vec3),
-        rotation: rig.normalizedRig.rightHand.node.getWorldQuaternion(quat)
+        position: rig.rawRig.rightHand.node.getWorldPosition(vec3),
+        rotation: rig.rawRig.rightHand.node.getWorldQuaternion(quat)
       }
     default:
     case 'none':
       return {
-        position: rig.normalizedRig.head.node.getWorldPosition(vec3),
-        rotation: rig.normalizedRig.head.node.getWorldQuaternion(quat)
+        position: rig.rawRig.head.node.getWorldPosition(vec3),
+        rotation: rig.rawRig.head.node.getWorldQuaternion(quat)
       }
   }
 }

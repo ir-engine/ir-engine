@@ -65,8 +65,10 @@ import {
 } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
+import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
+import { AnimationComponent } from './AnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -170,13 +172,13 @@ export const AvatarRigComponent = defineComponent({
       const helper = new SkeletonHelper(rigComponent.value.vrm.scene)
       helper.frustumCulled = false
       helper.name = `target-rig-helper-${entity}`
-      setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
       const helperEntity = createEntity()
       setVisibleComponent(helperEntity, true)
       addObjectToGroup(helperEntity, helper)
       rigComponent.helperEntity.set(helperEntity)
       setComponent(helperEntity, NameComponent, helper.name)
+      setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
       setComputedTransformComponent(helperEntity, entity, () => {
         const helperTransform = getComponent(helperEntity, TransformComponent)
@@ -224,7 +226,13 @@ export const AvatarRigComponent = defineComponent({
     const manager = useHookstate(getMutableState(AnimationState))
 
     useEffect(() => {
-      if (!manager.loadedAnimations.value || !rigComponent?.vrm?.value || !rigComponent?.normalizedRig?.value) return
+      if (
+        !manager.loadedAnimations[locomotionAnimation].value ||
+        !rigComponent?.vrm?.value ||
+        !rigComponent?.normalizedRig?.value ||
+        getComponent(entity, AnimationComponent).animations.length
+      )
+        return
       try {
         retargetAvatarAnimations(entity)
       } catch (e) {
