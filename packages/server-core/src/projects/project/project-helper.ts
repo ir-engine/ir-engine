@@ -42,7 +42,10 @@ import fs from 'fs'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
@@ -64,10 +67,12 @@ import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
+import { projectResourcesPath } from '../../media/static-resource/project-resource.service'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
@@ -1638,7 +1643,7 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string, s
  */
 export const uploadLocalProjectToProvider = async (
   app: Application,
-  projectName,
+  projectName: string,
   remove = true,
   storageProviderName?: string
 ) => {
@@ -1653,26 +1658,102 @@ export const uploadLocalProjectToProvider = async (
 
   // upload new files to storage provider
   const projectRootPath = path.resolve(projectsRootFolder, projectName)
+  const resourceDBPath = path.join(projectRootPath, 'resources.json')
+  const hasResourceDB = fs.existsSync(resourceDBPath)
+
   const files = getFilesRecursive(projectRootPath)
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
+  const resourceKey = (key, hash) => `${key}#${hash}`
+  const existingResources = await app.service(staticResourcePath).find({
+    query: {
+      project: projectName
+    },
+    paginate: false
+  })
+  const existingContentSet = new Set<string>()
+  const existingKeySet = new Set<string>()
+  for (const item of existingResources) {
+    existingContentSet.add(resourceKey(item.key, item.hash))
+    existingKeySet.add(item.key)
+  }
+  if (hasResourceDB) {
+    //if we have a resources.sql file, use it to populate static-resource table
+    const manifest: StaticResourceType[] = JSON.parse(fs.readFileSync(resourceDBPath).toString())
+
+    for (const item of manifest) {
+      if (existingKeySet.has(item.key)) {
+        logger.info(`Skipping upload of static resource: "${item.key}"`)
+        continue
+      }
+      const url = getCachedURL(item.key, cacheDomain)
+      await app.service(staticResourcePath).create({
+        ...item,
+        url
+      })
+      logger.info(`Uploaded static resource ${item.key} from resources.json`)
+    }
+  }
+
   for (const file of filtered) {
     try {
       const fileResult = fs.readFileSync(file)
       const filePathRelative = processFileName(file.slice(projectRootPath.length))
+      const contentType = getContentType(file)
+      const key = `projects/${projectName}${filePathRelative}`
+      const url = getCachedURL(key, getCacheDomain(storageProvider))
       await storageProvider.putObject(
         {
           Body: fileResult,
-          ContentType: getContentType(file),
-          Key: `projects/${projectName}${filePathRelative}`
+          ContentType: contentType,
+          Key: key
         },
         { isDirectory: false }
       )
+      if (!hasResourceDB) {
+        //otherwise, upload the files into static resources individually
+        const staticResourceClasses = [
+          AssetClass.Audio,
+          AssetClass.Image,
+          AssetClass.Model,
+          AssetClass.Video,
+          AssetClass.Volumetric
+        ]
+        const thisFileClass = AssetLoader.getAssetClass(file)
+        if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
+          const hash = createStaticResourceHash(fileResult, { mimeType: contentType, assetURL: key })
+          if (existingContentSet.has(resourceKey(key, hash))) {
+            logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
+          } else if (existingKeySet.has(key)) {
+            logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
+            await app.service(staticResourcePath).patch(null, {
+              hash,
+              url,
+              mimeType: contentType,
+              tags: [thisFileClass]
+            })
+          }
+          {
+            await app.service(staticResourcePath).create({
+              key: `projects/${projectName}${filePathRelative}`,
+              project: projectName,
+              hash,
+              url,
+              mimeType: contentType,
+              tags: [thisFileClass]
+            })
+            logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
+          }
+        }
+      }
       results.push(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
     } catch (e) {
       logger.error(e)
       results.push(null)
     }
+  }
+  if (!hasResourceDB) {
+    await app.service(projectResourcesPath).create({ project: projectName })
   }
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   return results.filter((success) => !!success) as string[]
