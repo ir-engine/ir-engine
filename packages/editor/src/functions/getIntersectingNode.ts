@@ -28,30 +28,30 @@ import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { GroupComponent, Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { SelectionState } from '../services/SelectionServices'
 
-type RaycastIntersectionNode = Intersection<Object3DWithEntity> & {
-  obj3d: Object3DWithEntity
+type RaycastIntersectionNode = Intersection<Object3D> & {
+  obj3d: Object3D
   node?: Entity
 }
 
-function getParentEntity(obj: Object3DWithEntity): Object3DWithEntity {
+function getParentEntity(obj: Object3D): Object3D {
   let curObj = obj
 
   while (curObj) {
     if (curObj.entity) break
-    curObj = curObj.parent! as Object3DWithEntity
+    curObj = curObj.parent! as Object3D
   }
 
   return curObj
 }
 
-export function getIntersectingNode(results: Intersection<Object3DWithEntity>[]): RaycastIntersectionNode | undefined {
+export function getIntersectingNode(results: Intersection<Object3D>[]): RaycastIntersectionNode | undefined {
   if (results.length <= 0) return
   const selectionState = getState(SelectionState)
   const selected = new Set<string | Entity>(selectionState.selectedEntities)
@@ -61,7 +61,7 @@ export function getIntersectingNode(results: Intersection<Object3DWithEntity>[])
     if (!parentNode) continue //skip obj3ds that are not children of EntityNodes
     if (!obj.entity && parentNode && !selected.has(parentNode.entity)) {
       result.node = parentNode.entity
-      result.obj3d = getComponent(parentNode.entity, GroupComponent)[0] as Object3DWithEntity
+      result.obj3d = getComponent(parentNode.entity, GroupComponent)[0] as Object3D
       return result
     }
 
@@ -85,11 +85,8 @@ export const getIntersectingNodeOnScreen = (
   recursive = true
 ): RaycastIntersectionNode | undefined => {
   raycaster.setFromCamera(coord, camera)
-  raycaster.intersectObject<Object3DWithEntity>(
-    object ?? Engine.instance.scene,
-    recursive,
-    target as Intersection<Object3DWithEntity>[]
-  )
+  raycaster.layers.enable(ObjectLayers.NodeHelper)
+  raycaster.intersectObject<Object3D>(object ?? Engine.instance.scene, recursive, target as Intersection<Object3D>[])
   raycaster.layers.disable(ObjectLayers.NodeHelper)
-  return getIntersectingNode(target as Intersection<Object3DWithEntity>[])
+  return getIntersectingNode(target as Intersection<Object3D>[])
 }

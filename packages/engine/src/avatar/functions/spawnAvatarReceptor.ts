@@ -35,7 +35,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
   NetworkObjectComponent,
@@ -49,15 +49,17 @@ import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/Collis
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
+import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
@@ -66,7 +68,7 @@ export const defaultAvatarHeight = 1.8
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
-  const entity = UUIDComponent.entitiesByUUID[entityUUID]
+  const entity = UUIDComponent.getEntityByUUID(entityUUID)
   if (!entity) return
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
@@ -81,19 +83,20 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, AvatarComponent, {
     avatarHalfHeight: defaultAvatarHalfHeight,
-    avatarHeight: defaultAvatarHeight,
-    model: null
+    avatarHeight: defaultAvatarHeight
   })
 
   const userNames = getState(WorldState).userNames
   const userName = userNames[entityUUID]
   const shortId = ownerID.substring(0, 7)
   setComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))
+  const obj3d = new Object3D()
+  obj3d.entity = entity
+  addObjectToGroup(entity, obj3d)
+  proxifyParentChildRelationships(obj3d)
 
   setComponent(entity, VisibleComponent, true)
 
-  setComponent(entity, BoundingBoxDynamicTag)
-  setComponent(entity, BoundingBoxComponent)
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
 
@@ -124,6 +127,9 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, ShadowComponent)
   setComponent(entity, GrabberComponent)
+  setComponent(entity, AvatarRigComponent)
+
+  setComponent(entity, EntityTreeComponent)
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {

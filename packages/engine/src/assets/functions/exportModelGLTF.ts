@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import createGLTFExporter from './createGLTFExporter'
 
@@ -38,7 +39,7 @@ export default async function exportModelGLTF(
     embedImages: true
   }
 ) {
-  const scene = getComponent(entity, ModelComponent).scene!
+  const scene = getComponent(entity, ModelComponent).scene ?? getComponent(entity, GroupComponent)[0]
   const exporter = createGLTFExporter()
   const modelName = options.relativePath.split('/').at(-1)!.split('.').at(0)!
   const resourceURI = `model-resources/${modelName}`
@@ -55,7 +56,8 @@ export default async function exportModelGLTF(
         ...options,
         animations: scene.animations ?? [],
         flipY: !!scene.userData.src?.endsWith('.usdz'),
-        resourceURI
+        resourceURI,
+        srcEntity: entity
       }
     )
   })

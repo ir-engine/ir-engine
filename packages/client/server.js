@@ -25,21 +25,27 @@ Ethereal Engine. All Rights Reserved.
 */
 
 
-const { join } = require('path');
-const { readFileSync } = require('fs');
-const koa = require('koa');
-const serve = require('koa-static');
-const sendFile = require('koa-send')
-const { path: packageRoot } = require('app-root-path');
-const { createServer } = require('https');
-const { createServer: _createServer } = require('http');
+import path from 'path'
+import { readFileSync } from 'node:fs';
+import { koa } from '@feathersjs/koa'
+import serve from 'koa-static';
+import send from 'koa-send';
+import packageRoot from 'app-root-path'
+import { createServer } from 'https';
+import { createServer as _createServer } from 'http';
+import dotenv from 'dotenv'
+dotenv.config({ path: process.cwd() + '/../../.env.local' })
+
 
 
 const app = new koa();
-const PORT = process.env.HOST_PORT || 3000;
+const HOST = process.env.VITE_APP_HOST || '0.0.0.0';
+const PORT = parseInt(process.env.HOST_PORT) || 3000;
 const HTTPS = process.env.VITE_LOCAL_BUILD ?? false;
+const key = process.env.KEY || 'certs/key.pem'
+const cert = process.env.CERT || 'certs/cert.pem'
 
-app.use(serve(join(packageRoot, 'packages', 'client', 'dist'), {
+app.use(serve(path.join(packageRoot.path, 'packages', 'client', 'dist'), {
   brotli: true,
   setHeaders: (ctx) => {
     ctx.setHeader('Origin-Agent-Cluster', '?1')
@@ -47,21 +53,20 @@ app.use(serve(join(packageRoot, 'packages', 'client', 'dist'), {
 }));
 
 app.use(async (ctx) => {
-  await sendFile(ctx, join('dist', 'index.html'), {
-    root: join(packageRoot, 'packages', 'client')
+  await send(ctx, path.join('dist', 'index.html'), {
+    root: path.join(packageRoot.path, 'packages', 'client')
   });
 });
 
 app.listen = function () {
   let server;
   if (HTTPS) {
-    const key = readFileSync(join(packageRoot, 'certs/key.pem'))
-    const cert = readFileSync(join(packageRoot, 'certs/cert.pem'))
-    server = createServer({key: key, cert: cert }, this.callback());
+    const pathedkey = readFileSync(path.join(packageRoot.path, key))
+    const pathedcert = readFileSync(path.join(packageRoot.path, cert))
+    server = createServer({key: pathedkey, cert: pathedcert }, this.callback());
   } else {
     server = _createServer(this.callback());
   }
   return server.listen.apply(server, arguments);
 };
-
-app.listen(PORT, '0.0.0.0', () => console.log(`Server listening on port: ${PORT}`));
+app.listen(PORT, HOST, () => console.log(`Server listening on port: ${PORT}`));

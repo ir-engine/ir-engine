@@ -42,7 +42,7 @@ import { VisibleComponent } from '@etherealengine/engine/src/scene/components/Vi
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { SnapMode, TransformPivot, TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Euler, Object3D } from 'three'
@@ -68,7 +68,7 @@ export const TransformGizmoComponent = defineComponent({
     const entity = useEntityContext()
     const gizmoComponent = useComponent(entity, TransformGizmoComponent)
     const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-    const transformComponent = useComponent(entity, LocalTransformComponent)
+    const transformComponent = useComponent(entity, TransformComponent)
 
     useEffect(() => {
       // create dummy object to attach gizmo to, we can only attach to three js objects
@@ -92,14 +92,13 @@ export const TransformGizmoComponent = defineComponent({
       // set layers
       const raycaster = gizmoComponent.value.getRaycaster()
       raycaster.layers.set(ObjectLayers.TransformGizmo)
-      setObjectLayers(dummy, ObjectLayers.TransformGizmo)
-      setObjectLayers(gizmoComponent.value, ObjectLayers.TransformGizmo)
 
       // add dummy to entity and gizmo to dummy entity and attach
       addObjectToGroup(entity, dummy)
       gizmoComponent.value.attach(dummy)
       addObjectToGroup(dummyEntity, gizmoComponent.value)
-      removeComponent(dummyEntity, LocalTransformComponent)
+      setObjectLayers(dummy, ObjectLayers.TransformGizmo)
+      removeComponent(dummyEntity, TransformComponent)
 
       return () => {
         removeObjectFromGroup(entity, dummy)

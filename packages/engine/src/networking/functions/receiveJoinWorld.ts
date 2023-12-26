@@ -93,11 +93,11 @@ export const createIkTargetsForLocalAvatar = () => {
   const leftFootUUID = (Engine.instance.userID + ikTargets.leftFoot) as EntityUUID
   const rightFootUUID = (Engine.instance.userID + ikTargets.rightFoot) as EntityUUID
 
-  const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
-  const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
-  const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
-  const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[leftFootUUID]
-  const ikTargetRightFoot = UUIDComponent.entitiesByUUID[rightFootUUID]
+  const ikTargetHead = UUIDComponent.getEntityByUUID(headUUID)
+  const ikTargetLeftHand = UUIDComponent.getEntityByUUID(leftHandUUID)
+  const ikTargetRightHand = UUIDComponent.getEntityByUUID(rightHandUUID)
+  const ikTargetLeftFoot = UUIDComponent.getEntityByUUID(leftFootUUID)
+  const ikTargetRightFoot = UUIDComponent.getEntityByUUID(rightFootUUID)
 
   if (ikTargetHead) removeEntity(ikTargetHead)
   if (ikTargetLeftHand) removeEntity(ikTargetLeftHand)

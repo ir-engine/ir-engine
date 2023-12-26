@@ -58,7 +58,7 @@ import { NO_PROXY, useState } from '@etherealengine/hyperflux'
 import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { GroupAddOutlined as PlaceHolderIcon } from '@mui/icons-material'
+import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
 import { IconButton, PopoverPosition } from '@mui/material'
 
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'

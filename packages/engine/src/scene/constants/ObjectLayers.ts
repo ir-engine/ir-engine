@@ -24,15 +24,32 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export const ObjectLayers = {
-  Scene: 0 as const, // DEFAULT
+  // anything loaded as a scene entity
+  Scene: 0 as const,
+
+  // intersect with camera raycast
   Camera: 1 as const,
+
+  // for portal effect rendering & hiding the scene
   Portal: 2 as const,
+
+  // avatars
   Avatar: 3 as const,
+
+  // other gizmos (ik targets, infinite grid, origin)
   Gizmos: 4 as const,
+
+  // XRUI, loading screen envmap mesh
   UI: 5 as const,
+
+  // used to hide objects from studio screenshot/texture baking
   PhysicsHelper: 6 as const,
   AvatarHelper: 7 as const,
   NodeHelper: 8 as const,
+
+  // custom threejs scene in a UI panel
   Panel: 9 as const,
+
+  // transform gizmo
   TransformGizmo: 10 as const
 }
