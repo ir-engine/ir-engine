@@ -58,8 +58,10 @@ jobs:
       # - run: npm run check-eslint
       - run: npm run dev-docker
       - run: npm run dev-reinit
-      - run: npm run dev &
-        background: true
-      - run: npm run test-e2e
+      - run: |
+          npm run dev &
+          sleep 20
+          npm run test-e2e
+      # - run: npm run test-e2e
       - run: npm run build-client
       
