@@ -15,6 +15,10 @@ jobs:
           if [ ${{ secrets.PROJECTS_BUILD_ENABLED }} == 'true' ]; then
             echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
   compile-codebase:
     needs:
       - secrets-gate
