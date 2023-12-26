@@ -1687,6 +1687,8 @@ export const uploadLocalProjectToProvider = async (
         continue
       }
       const url = getCachedURL(item.key, cacheDomain)
+      //remove userId if exists
+      if (item.userId) delete (item as any).userId
       await app.service(staticResourcePath).create({
         ...item,
         url

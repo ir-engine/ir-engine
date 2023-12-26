@@ -58,6 +58,9 @@ const createProjectResource =
         if (resource[field] === null) {
           delete resource[field]
         }
+        if (field === 'userId') {
+          delete (resource as any)[field]
+        }
       }
       resource.url = ''
     }
