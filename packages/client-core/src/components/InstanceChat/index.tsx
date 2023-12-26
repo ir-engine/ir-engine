@@ -40,8 +40,8 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 
-import MessageIcon from '@mui/icons-material/Close'
-import CloseIcon from '@mui/icons-material/Message'
+import CloseIcon from '@mui/icons-material/Close'
+import MessageIcon from '@mui/icons-material/Message'
 import Fab from '@mui/material/Fab'
 
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
@@ -202,17 +202,9 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
 
 interface InstanceChatProps {
   styles?: any
-  MessageButton?: any
-  CloseButton?: any
-  newMessageLabel?: string
 }
 
-export const InstanceChat = ({
-  styles = defaultStyles,
-  MessageButton = MessageIcon,
-  CloseButton = CloseIcon,
-  newMessageLabel = 'World Chat...'
-}: InstanceChatProps): any => {
+export const InstanceChat = ({ styles = defaultStyles }: InstanceChatProps) => {
   const { t } = useTranslation()
   const chatWindowOpen = useHookstate(false)
   const unreadMessages = useHookstate(false)
@@ -377,7 +369,7 @@ export const InstanceChat = ({
                   maxRows={10}
                   fullWidth
                   id="newMessage"
-                  label={newMessageLabel}
+                  label={'World Chat...'}
                   name="newMessage"
                   variant="standard"
                   value={composingMessage}
@@ -431,14 +423,14 @@ export const InstanceChat = ({
                 onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
-                {!chatWindowOpen.value ? (
-                  <MessageButton />
-                ) : (
-                  <CloseButton
+                {chatWindowOpen.value ? (
+                  <CloseIcon
                     onClick={() => {
                       getMutableState(AppState).showTouchPad.set(true)
                     }}
                   />
+                ) : (
+                  <MessageIcon />
                 )}
               </Fab>
             </Badge>

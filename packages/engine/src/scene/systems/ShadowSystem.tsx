@@ -61,7 +61,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { QueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
@@ -74,7 +74,7 @@ import { DirectionalLightComponent } from '../components/DirectionalLightCompone
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { GroupComponent, GroupQueryReactor, addObjectToGroup } from '../components/GroupComponent'
 import { MeshComponent } from '../components/MeshComponent'
-import { useContainsMesh } from '../components/ModelComponent'
+import { useMeshOrModel } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ObjectLayerComponents } from '../components/ObjectLayerComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -238,15 +238,16 @@ const vec3 = new Vector3()
 const DropShadowReactor = () => {
   const entity = useEntityContext()
   const shadowMaterial = useHookstate(shadowState)
-  const containsMesh = useContainsMesh(entity)
+  const isMeshOrModel = useMeshOrModel(entity)
   const shadow = useComponent(entity, ShadowComponent)
+  const entityTree = useComponent(entity, EntityTreeComponent)
 
   useEffect(() => {
     if (
       getState(EngineState).isEditor ||
       !shadow.cast.value ||
       !shadowMaterial.value ||
-      !containsMesh ||
+      !isMeshOrModel ||
       hasComponent(entity, DropShadowComponent)
     )
       return
@@ -282,7 +283,7 @@ const DropShadowReactor = () => {
       removeComponent(entity, DropShadowComponent)
       removeEntity(shadowEntity)
     }
-  }, [shadowMaterial, containsMesh, shadow])
+  }, [shadowMaterial, isMeshOrModel, shadow, entityTree.children])
 
   return null
 }
@@ -315,7 +316,7 @@ const shadowOffset = new Vector3(0, 0.01, 0)
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(dropShadowComponentQuery, compareDistanceToCamera)
 const sortedEntityTransforms = [] as Entity[]
 
-const sceneLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
+const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera]])
 
 const updateDropShadowTransforms = () => {
   const { deltaSeconds } = getState(EngineState)
@@ -323,7 +324,7 @@ const updateDropShadowTransforms = () => {
 
   sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)
 
-  const sceneObjects = sceneLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
+  const sceneObjects = cameraLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
 
   for (const entity of priorityQueue.priorityEntities) {
     const dropShadow = getComponent(entity, DropShadowComponent)
@@ -393,9 +394,9 @@ const reactor = () => {
       {useShadows ? (
         <CSMReactor />
       ) : (
-        <QueryReactor Components={[ShadowComponent]} ChildEntityReactor={DropShadowReactor} />
+        <QueryReactor Components={[VisibleComponent, ShadowComponent]} ChildEntityReactor={DropShadowReactor} />
       )}
-      <GroupQueryReactor GroupChildReactor={ShadowMeshReactor} Components={[ShadowComponent]} />
+      <GroupQueryReactor GroupChildReactor={ShadowMeshReactor} Components={[VisibleComponent, ShadowComponent]} />
     </>
   )
 }
