@@ -164,9 +164,11 @@ export default function CompressionPanel({
     const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
 
     const variants = textureSizes.map((maxTextureSize, index) => {
-      const suffix = batchCompressed ? `-transformed-LOD_${index}.glb` : '-transformed.glb'
-      const nuPath = modelSrc.replace(/(-transformed)?\.glb$/, suffix)
-      const [_, __, dst] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
+      let dst = transformParms.dst.value
+      if (batchCompressed) {
+        dst += `-LOD_${index}`
+      }
+      dst += '.glb'
       return { ...transformParms.get(NO_PROXY), maxTextureSize, dst }
     })
 
