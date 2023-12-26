@@ -24,22 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import childProcess from 'child_process'
-import killPort from 'kill-port'
-
-import config from '@etherealengine/server-core/src/appconfig'
 
 // we may need an alternative to kill-port for mac & windows
 
-const killports = () => {
-  killPort(config.server.port)
-  killPort(config.instanceserver.port)
-  killPort('3032') // todo, we should put this hardcoded val into env
-  killPort(process.env.CORS_SERVER_PORT)
-  killPort(process.env.VITE_APP_PORT)
-  killPort(process.env.LOCAL_STORAGE_PROVIDER_PORT)
-}
+// const killports = () => {
+//   killPort(config.server.port)
+//   killPort(config.instanceserver.port)
+//   killPort('3032') // todo, we should put this hardcoded val into env
+//   killPort(process.env.CORS_SERVER_PORT)
+//   killPort(process.env.VITE_APP_PORT)
+//   killPort(process.env.LOCAL_STORAGE_PROVIDER_PORT)
+// }
 
-killports()
+// killports()
 const logOutput = (child) => {
   child.stdout.setEncoding('utf8')
   child.stdout.on('data', function (data) {
@@ -65,7 +62,7 @@ devStack.on('exit', (exitCode) => {
 })
 process.on('exit', (exitCode) => {
   console.log(`'npm run test-e2e' exited with exit code`, exitCode)
-  killports()
+  // killports()
   if (!lernaE2E.killed) lernaE2E.kill(exitCode)
   if (!devStack.killed) devStack.kill(exitCode)
 })
