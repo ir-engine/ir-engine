@@ -24,9 +24,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import Inventory2Icon from '@mui/icons-material/Inventory2'
+import { CircularProgress } from '@mui/material'
 import { t } from 'i18next'
+import { debounce } from 'lodash'
 import { TabData } from 'rc-dock'
 import React, { useCallback, useEffect, useRef } from 'react'
+import { useDrag } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -37,8 +41,6 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { CircularProgress } from '@mui/material'
-import { debounce } from 'lodash'
 import StringInput from '../inputs/StringInput'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import ImageNodeEditor from '../properties/ImageNodeEditor'
@@ -84,15 +86,29 @@ const StaticResourceItem = (props: {
 
 const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const ResourceIcon = ResourceIcons[AssetLoader.getAssetClass(resource.key)]
+  const [_, drag, preview] = useDrag(() => ({
+    type: resource.key.split('.').pop() ?? '',
+    item: {
+      url: resource.url
+    },
+    multiple: false
+  }))
+
+  useEffect(() => {
+    if (preview) preview(getEmptyImage(), { captureDraggingState: true })
+  }, [preview])
+
   return (
     <div
+      ref={drag}
       key={resource.id}
       style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'column',
-        marginTop: '10px'
+        marginTop: '10px',
+        cursor: 'pointer'
       }}
     >
       <ResourceIcon style={{ marginBottom: '5px', height: '70px', width: '70px' }} />
