@@ -126,7 +126,8 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (!animComponent?.animations?.value) return
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value]
-      if (!modelComponent?.scene?.value || !clip) {
+      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
+      if (!modelComponent || !asset?.scene || !clip) {
         loopAnimationComponent._action.set(null)
         return
       }
@@ -205,20 +206,22 @@ export const LoopAnimationComponent = defineComponent({
      * A model is required for LoopAnimationComponent.
      */
     useEffect(() => {
-      if (!modelComponent?.scene?.value) return
+      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
+      if (!asset?.scene) return
       const model = getComponent(entity, ModelComponent)
 
       if (!hasComponent(entity, AnimationComponent)) {
         setComponent(entity, AnimationComponent, {
-          mixer: new AnimationMixer(model.scene!),
+          mixer: new AnimationMixer(model.asset!.scene),
           animations: []
         })
       }
-    }, [modelComponent?.scene, loopAnimationComponent.hasAvatarAnimations])
+    }, [modelComponent?.asset, loopAnimationComponent.hasAvatarAnimations])
 
     useEffect(() => {
+      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       if (
-        !modelComponent?.scene?.value ||
+        !asset?.scene ||
         !animComponent ||
         !loopAnimationComponent.animationPack.value ||
         lastAnimationPack.value === loopAnimationComponent.animationPack.value

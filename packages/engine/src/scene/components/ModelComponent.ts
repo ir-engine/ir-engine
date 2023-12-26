@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Object3D, Scene } from 'three'
+import { Scene } from 'three'
 
 import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -42,7 +42,6 @@ import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
-  getOptionalComponent,
   hasComponent,
   removeComponent,
   serializeComponent,
@@ -52,7 +51,6 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -145,41 +143,11 @@ function ModelReactor() {
 
     const model = modelComponent.value
     if (!model.src) {
-      const dudScene = new Scene() as Scene & Object3D
-      dudScene.entity = entity
-      Object.defineProperties(dudScene, {
-        parent: {
-          get() {
-            if (EngineRenderer.instance?.rendering) return null
-            if (getComponent(entity, EntityTreeComponent)?.parentEntity) {
-              return (
-                getComponent(getComponent(entity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
-                Engine.instance.scene
-              )
-            }
-          },
-          set(value) {
-            throw new Error('Cannot set parent of proxified object')
-          }
-        },
-        children: {
-          get() {
-            if (EngineRenderer.instance?.rendering) return []
-            return hasComponent(entity, EntityTreeComponent)
-              ? getComponent(entity, EntityTreeComponent)
-                  .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
-                  .flatMap((child) => getComponent(child, GroupComponent))
-              : []
-          },
-          set(value) {
-            throw new Error('Cannot set children of proxified object')
-          }
-        },
-        isProxified: {
-          value: true
-        }
-      })
-      modelComponent.scene.set(dudScene)
+      // const dudScene = new Scene() as Scene & Object3D
+      // dudScene.entity = entity
+      // addObjectToGroup(entity, dudScene)
+      // proxifyParentChildRelationships(dudScene)
+      modelComponent.scene.set(null)
       modelComponent.asset.set(null)
       return
     }
@@ -200,7 +168,8 @@ function ModelReactor() {
           addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
           return
         }
-        const boneMatchedAsset = autoconvertMixamoAvatar(loadedAsset)
+        const boneMatchedAsset = autoconvertMixamoAvatar(loadedAsset) as GLTF
+        boneMatchedAsset.scene.animations = boneMatchedAsset.animations
         modelComponent.asset.set(boneMatchedAsset)
       },
       (onprogress) => {
@@ -231,11 +200,12 @@ function ModelReactor() {
     if (!asset) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    asset.scene.animations = asset.animations
-    asset.scene.userData.src = model.src
-    asset.scene.userData.sceneID = getModelSceneID(entity)
-    asset.scene.userData.type === 'glb' && delete asset.scene.userData.type
-    modelComponent.scene.set(asset.scene)
+    const sceneObj = getComponent(entity, GroupComponent)[0] as Scene
+
+    sceneObj.userData.src = model.src
+    sceneObj.userData.sceneID = getModelSceneID(entity)
+    //sceneObj.userData.type === 'glb' && delete asset.scene.userData.type
+    modelComponent.scene.set(sceneObj)
   }, [modelComponent.asset])
 
   // update scene
@@ -256,7 +226,7 @@ function ModelReactor() {
         })
     else removeComponent(entity, SceneAssetPendingTagComponent)
 
-    const loadedJsonHierarchy = parseGLTFModel(entity)
+    const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
 
     SceneState.loadScene(uuid, {
@@ -274,6 +244,9 @@ function ModelReactor() {
     return () => {
       clearMaterials(src)
       getMutableState(SceneState).scenes[uuid].set(none)
+      // for(const child of scene.children) {
+      //   removeEntity(child.entity)
+      // }
     }
   }, [modelComponent.scene])
 
