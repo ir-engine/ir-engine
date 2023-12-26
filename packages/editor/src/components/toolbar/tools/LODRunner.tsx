@@ -37,7 +37,7 @@ import {
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
-import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { getFileName, pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -108,14 +108,18 @@ const createLODS = async (modelSrc: string, modelFormat: 'glb' | 'gltf'): Promis
   const paths: string[] = []
 
   for (let index = 0; index < textureSizes.length; index++) {
-    const suffix = batchCompressed ? `-transformed-LOD_${index}.glb` : '-transformed.glb'
-    const nuPath = modelSrc.replace(/(-transformed)?\.glb$/, suffix)
-    const [_, __, dst] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
+    let nuPath = modelSrc.replace(/\.[^\.]+$/, '')
+    if (batchCompressed) {
+      nuPath += `-LOD_${index}`
+    }
+    nuPath += '.' + modelFormat
+    const dst = getFileName(nuPath)
     variants.push({
       ...transformParms,
       maxTextureSize: textureSizes[index],
       dst
     })
+
     paths.push(nuPath)
   }
 
