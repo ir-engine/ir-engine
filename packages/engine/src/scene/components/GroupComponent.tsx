@@ -101,10 +101,11 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
   proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
 }
-export function addWorldObjectToGroup(entity: Entity, object: Object3D) {
-  const obj = object as Object3DWithEntity & Camera
-  obj.entity = entity
 
+export function addWorldObjectToGroup(entity: Entity, object: Object3D) {
+  const obj = object
+  obj.entity = entity
+  obj.layers = new Layer(entity)
   if (!hasComponent(entity, GroupComponent)) setComponent(entity, GroupComponent, [])
   if (getComponent(entity, GroupComponent).includes(obj))
     return console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)

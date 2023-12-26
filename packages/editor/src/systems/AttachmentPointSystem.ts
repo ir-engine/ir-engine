@@ -2,7 +2,7 @@
 CPAL-1.0 License
 
 The contents of this file are subject to the Common Public Attribution License
-Version 1.0. (the "License"); you may not use this file except in compliance
+Version 1.0. (the "License") you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
@@ -45,6 +45,32 @@ import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 let lastExecutionTime = 0
 const interval = 1000
+
+export function findClosestRotation(n: number, srcRotation: Quaternion, dstRotation: Quaternion): Quaternion {
+  const yAxis = new Vector3(0, 1, 0)
+  let minAngle = Infinity
+  const closestRotation = new Quaternion()
+
+  for (let i = 0; i < n; i++) {
+    // Compute the angle increment
+    const angle = (i * 2 * Math.PI) / n // Convert to radians
+
+    // Create a rotation about the Y-axis of dstRotation
+    const incrementalRotation = new Quaternion().setFromAxisAngle(yAxis, angle)
+    const testRotation = dstRotation.clone().multiply(incrementalRotation)
+
+    // Compute the angular distance to srcRotation
+    const angleDistance = srcRotation.angleTo(testRotation)
+
+    // Update closest rotation if a new minimum is found
+    if (angleDistance < minAngle) {
+      minAngle = angleDistance
+      closestRotation.copy(testRotation)
+    }
+  }
+
+  return closestRotation
+}
 
 const execute = () => {
   //only execute if attachment point snap is enabled
@@ -108,15 +134,19 @@ const execute = () => {
           //store the attachment point transform and selected attachment point
           if (distance < shortestDistance) {
             shortestDistance = distance
-
-            srcAttachmentPoint = selectedAttachmentPoint
-            srcPosition = srcWorldspacePosition
-            srcRotation = srcWorldspaceRotation
-            dstAttachmentPoint = attachmentPoint
-            dstPosition = attachmentPointWorldSpacePosition
-            dstRotation = attachmentPointWorldSpaceRotation
-            srcSnapEntity = selectedObjSnapEntity
-            dstSnapEntity = candidateDstSnapEntity
+            const closestRotation = findClosestRotation(4, srcWorldspaceRotation, attachmentPointWorldSpaceRotation)
+            const candidateShortestAngle = srcWorldspaceRotation.angleTo(closestRotation)
+            if (candidateShortestAngle < shortestAngle) {
+              shortestAngle = candidateShortestAngle
+              srcAttachmentPoint = selectedAttachmentPoint
+              srcPosition = srcWorldspacePosition
+              srcRotation = srcWorldspaceRotation
+              dstAttachmentPoint = attachmentPoint
+              dstPosition = attachmentPointWorldSpacePosition
+              dstRotation = closestRotation
+              srcSnapEntity = selectedObjSnapEntity
+              dstSnapEntity = candidateDstSnapEntity
+            }
           }
         }
       }
@@ -153,26 +183,6 @@ const execute = () => {
       const flipRotation = flipAround(initialRotation)
       // Apply the flip to the parent's rotation
       const rotation = flipRotation.multiply(initialRotation)
-
-      // currentOrientation from the selectParententityFinal's TransformComponent
-      const currentOrientation = getComponent(selectParententityFinal, TransformComponent).rotation
-
-      // desiredOrientation from the calculated rotation constant
-      const desiredOrientation = rotation
-
-      // Determine the colinear axis (assuming Y-axis, modify as needed)
-      const colinearAxis = new Vector3(0, 1, 0)
-      colinearAxis.applyQuaternion(rotation)
-
-      // Calculate the angle difference between currentOrientation and desiredOrientation
-      const angleDifference = currentOrientation.angleTo(desiredOrientation) // This calculates the angle in radians
-
-      // Compute minimal rotation around the colinear axis
-      const minimalRotationAngle = Math.round(angleDifference / (Math.PI / 2)) * (Math.PI / 2) // Round to nearest PI/2
-
-      // Apply the minimal rotation
-      const minimalRotation = new Quaternion().setFromAxisAngle(colinearAxis, minimalRotationAngle)
-      const finalRotation = minimalRotation.multiply(rotation)
 
       setComponent(selectParententityFinal, TransformComponent, {
         rotation
