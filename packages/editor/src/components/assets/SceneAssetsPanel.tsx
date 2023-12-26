@@ -27,8 +27,8 @@ import Inventory2Icon from '@mui/icons-material/Inventory2'
 import { CircularProgress } from '@mui/material'
 import { t } from 'i18next'
 import { debounce } from 'lodash'
-import { TabData } from 'rc-dock'
-import React, { useCallback, useEffect, useRef } from 'react'
+import DockLayout, { DockMode, TabData } from 'rc-dock'
+import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
@@ -41,11 +41,13 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { DockContainer } from '../EditorContainer'
 import StringInput from '../inputs/StringInput'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import ImageNodeEditor from '../properties/ImageNodeEditor'
 import ModelNodeEditor from '../properties/ModelNodeEditor'
 import VideoNodeEditor from '../properties/VideoNodeEditor'
+import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
 import styles from './styles.module.scss'
 
 type FolderType = { folderType: 'folder'; assetClass: string }
@@ -85,9 +87,12 @@ const StaticResourceItem = (props: {
 }
 
 const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
+  const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
+
+  const assetType = AssetLoader.getAssetType(resource.key)
   const ResourceIcon = ResourceIcons[AssetLoader.getAssetClass(resource.key)]
   const [_, drag, preview] = useDrag(() => ({
-    type: resource.key.split('.').pop() ?? '',
+    type: assetType,
     item: {
       url: resource.url
     },
@@ -102,6 +107,9 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
     <div
       ref={drag}
       key={resource.id}
+      onClick={() =>
+        onAssetSelectionChanged?.({ contentType: assetType, name: resource.key, resourceUrl: resource.url, size: '' })
+      }
       style={{
         display: 'flex',
         justifyContent: 'center',
@@ -141,16 +149,13 @@ const SceneAssetsPanel = () => {
           const categorizedResources: Record<string, StaticResourceType[]> = {}
           const categorizedResourcesList: CategorizedStaticResourceType[] = []
 
-          let previousAssetClass: string | null = null
-
           resources.data.forEach((resource) => {
             const assetClass = AssetLoader.getAssetClass(resource.key)
-            if (previousAssetClass !== assetClass) {
+            if (!(assetClass in categorizedResources)) {
               categorizedResourcesList.push({ folderType: 'folder', assetClass })
-              previousAssetClass = assetClass
-              categorizedResources[previousAssetClass] = []
+              categorizedResources[assetClass] = []
             }
-            categorizedResources[previousAssetClass].push(resource)
+            categorizedResources[assetClass].push(resource)
             categorizedResourcesList.push({ folderType: 'staticResource', ...resource })
           })
 
@@ -259,8 +264,64 @@ const SceneAssetsPanel = () => {
   )
 }
 
+const AssetsPreviewContext = createContext({ onAssetSelectionChanged: (props: AssetSelectionChangePropsType) => {} })
+
+export const SceneAssetsPanelContent = () => {
+  const { t } = useTranslation()
+  const assetsPreviewPanelRef = useRef()
+  return (
+    <AssetsPreviewContext.Provider
+      value={{
+        onAssetSelectionChanged: (props: AssetSelectionChangePropsType) =>
+          (assetsPreviewPanelRef.current as any)?.onSelectionChanged(props)
+      }}
+    >
+      <DockContainer id="sceneAssetsPanelContent" dividerAlpha={0.3}>
+        <DockLayout
+          onLayoutChange={() => (assetsPreviewPanelRef.current as any)?.onLayoutChanged?.()}
+          style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
+          defaultLayout={{
+            dockbox: {
+              mode: 'vertical' as DockMode,
+              children: [
+                {
+                  size: 7,
+                  mode: 'horizontal' as DockMode,
+                  children: [
+                    {
+                      tabs: [
+                        {
+                          id: 'sceneAssetsPanel',
+                          title: t('editor:tabs.project-assets') as string,
+                          content: <SceneAssetsPanel />,
+                          cached: true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  size: 3,
+                  tabs: [
+                    {
+                      id: 'previewPanel',
+                      title: t('editor:layout.scene-assets.preview'),
+                      cached: true,
+                      content: <AssetsPreviewPanel ref={assetsPreviewPanelRef} />
+                    }
+                  ]
+                }
+              ]
+            }
+          }}
+        />
+      </DockContainer>
+    </AssetsPreviewContext.Provider>
+  )
+}
+
 export const SceneAssetsPanelTab: TabData = {
-  id: 'sceneAssetsPanel',
+  id: 'sceneAssetsPanelTab',
   closable: true,
   cached: true,
   title: (
@@ -269,7 +330,7 @@ export const SceneAssetsPanelTab: TabData = {
       <PanelTitle>{t('editor:tabs.scene-assets')}</PanelTitle>
     </PanelDragContainer>
   ),
-  content: <SceneAssetsPanel />
+  content: <SceneAssetsPanelContent />
 }
 
 export default SceneAssetsPanel
