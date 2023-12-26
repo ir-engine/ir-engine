@@ -27,7 +27,7 @@ import { Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 import { Entity } from '../../ecs/classes/Entity'
-import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -64,11 +64,9 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
   if (!hasComponent(entity, RigidBodyComponent)) return
 
   Physics.removeCollidersFromRigidBody(entity, getState(PhysicsState).physicsWorld)
-
   const collider = createAvatarCollider(entity)
 
   if (hasComponent(entity, AvatarControllerComponent)) {
-    ;(getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>).bodyCollider =
-      collider
+    getMutableComponent(entity, AvatarControllerComponent).bodyCollider.set(collider)
   }
 }

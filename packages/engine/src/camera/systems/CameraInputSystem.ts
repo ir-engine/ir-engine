@@ -50,6 +50,7 @@ import { XRState } from '../../xr/XRState'
 
 import { InputState } from '../../input/state/InputState'
 
+import { isMobile } from '../../common/functions/isMobile'
 import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
@@ -214,7 +215,9 @@ const execute = () => {
   if (keys?.KeyC?.down) onKeyC()
 
   const pointerState = getState(InputState).pointerState
-  const mouseMoved = keys?.PrimaryClick?.pressed
+  const mouseMoved = isMobile
+    ? pointerState.movement.lengthSq() > 0 && keys?.PrimaryClick?.pressed
+    : keys?.PrimaryClick?.pressed
 
   for (const entity of avatarControllerEntities) {
     if (!inputSource) continue

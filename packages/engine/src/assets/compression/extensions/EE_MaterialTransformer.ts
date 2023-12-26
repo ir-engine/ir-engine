@@ -194,6 +194,7 @@ export class EEMaterialExtension extends Extension {
   public static readonly EXTENSION_NAME = EXTENSION_NAME
 
   textures: Texture[] = []
+  textureExtensions: ExtensionProperty[][] = []
 
   textureInfoMap: Map<string, TextureInfo> = new Map()
   materialInfoMap: Map<string, string[]> = new Map()
@@ -239,6 +240,7 @@ export class EEMaterialExtension extends Extension {
                   texture.setExtras({ uuid })
                   textureUuidIndex++
                   this.textures.push(texture)
+                  this.textureExtensions.push(texture.listExtensions())
                 }
                 if (texture && value.extensions?.KHR_texture_transform) {
                   const extensionData = value.extensions.KHR_texture_transform
