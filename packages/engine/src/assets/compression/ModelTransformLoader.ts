@@ -45,6 +45,7 @@ import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
 import { FileLoader } from 'three'
 
 import { EEMaterialExtension } from './extensions/EE_MaterialTransformer'
+import { EEResourceIDExtension } from './extensions/EE_ResourceIDTransformer'
 import { MOZLightmapExtension } from './extensions/MOZ_LightmapTransformer'
 
 const transformHistory: string[] = []
@@ -65,6 +66,7 @@ export default async function ModelTransformLoader() {
     KHRTextureBasisu,
     KHRTextureTransform,
     MOZLightmapExtension,
+    EEResourceIDExtension,
     EEMaterialExtension
   ])
   io.registerDependencies({
