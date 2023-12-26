@@ -61,7 +61,7 @@ import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { resizeAvatar } from './resizeAvatar'
-import { retargetMixamoAnimation } from './retargetMixamoRig'
+import { bindAnimationClipFromMixamo, retargetAnimationClip } from './retargetMixamoRig'
 
 const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
@@ -172,7 +172,7 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   const animations = [] as AnimationClip[]
   for (const key in manager.loadedAnimations) {
     for (const animation of manager.loadedAnimations[key].animations)
-      animations.push(retargetMixamoAnimation(animation, manager.loadedAnimations[key].scene, rigComponent.vrm))
+      animations.push(bindAnimationClipFromMixamo(animation, rigComponent.vrm))
   }
   setComponent(entity, AnimationComponent, {
     animations: animations,
@@ -187,6 +187,9 @@ export const loadLocomotionAnimations = () => {
   AssetLoader.loadAsync(
     `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionAnimation}.glb`
   ).then((locomotionAsset: GLTF) => {
+    for (let i = 0; i < locomotionAsset.animations.length; i++) {
+      retargetAnimationClip(locomotionAsset.animations[i], locomotionAsset.scene)
+    }
     manager.loadedAnimations[locomotionAnimation].set(locomotionAsset)
     //update avatar speed from root motion
     // todo: refactor this for direct translation from root motion
@@ -205,6 +208,7 @@ export const loadAnimationArray = (animations: string[], subDir: string) => {
       //fbx files need animations reassignment to maintain consistency with GLTF
       loadedEmotes.animations = loadedEmotes.scene.animations
       loadedEmotes.animations[0].name = animations[i]
+      retargetAnimationClip(loadedEmotes.animations[0], loadedEmotes.scene)
     })
   }
 }
@@ -218,8 +222,8 @@ export const setAvatarSpeedFromRootMotion = () => {
   const run = manager.loadedAnimations[locomotionAnimation].animations[4] ?? [new AnimationClip()]
   const walk = manager.loadedAnimations[locomotionAnimation].animations[6] ?? [new AnimationClip()]
   const movement = getMutableState(AvatarMovementSettingsState)
-  if (run) movement.runSpeed.set(getRootSpeed(run) * 0.01)
-  if (walk) movement.walkSpeed.set(getRootSpeed(walk) * 0.01)
+  if (run) movement.runSpeed.set(getRootSpeed(run))
+  if (walk) movement.walkSpeed.set(getRootSpeed(walk))
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
