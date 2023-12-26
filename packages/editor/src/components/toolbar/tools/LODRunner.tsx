@@ -46,6 +46,7 @@ import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFun
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
@@ -79,6 +80,8 @@ const createSceneEntity = (name: string, parentEntity: Entity | null = null, sce
 
   const uuid = MathUtils.generateUUID() as EntityUUID
   setComponent(entity, UUIDComponent, uuid)
+
+  setComponent(entity, SceneObjectComponent)
 
   // These additional properties and relations are required for
   // the current GLTF exporter to successfully generate a GLTF.
