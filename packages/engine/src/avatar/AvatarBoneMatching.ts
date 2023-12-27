@@ -719,21 +719,24 @@ export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
 }
 
 /**Aligns the arms and legs with a T-Pose formation and flips the hips if it is VRM0 */
+const legAngle = new Euler(0, 0, Math.PI)
+const rightShoulderAngle = new Euler(Math.PI / 2, 0, Math.PI / 2)
+const leftShoulderAngle = new Euler(Math.PI / 2, 0, -Math.PI / 2)
 export const enforceTPose = (humanoid: VRMHumanoid) => {
   const bones = humanoid.humanBones
 
-  bones.rightShoulder!.node.quaternion.setFromEuler(new Euler(Math.PI / 2, 0, Math.PI / 2))
+  bones.rightShoulder!.node.quaternion.setFromEuler(rightShoulderAngle)
   bones.rightUpperArm.node.quaternion.set(0, 0, 0, 1)
   bones.rightLowerArm.node.quaternion.set(0, 0, 0, 1)
 
-  bones.leftShoulder!.node.quaternion.setFromEuler(new Euler(Math.PI / 2, 0, -Math.PI / 2))
+  bones.leftShoulder!.node.quaternion.setFromEuler(leftShoulderAngle)
   bones.leftUpperArm.node.quaternion.set(0, 0, 0, 1)
   bones.leftLowerArm.node.quaternion.set(0, 0, 0, 1)
 
-  bones.rightUpperLeg.node.quaternion.setFromEuler(new Euler(0, 0, Math.PI))
+  bones.rightUpperLeg.node.quaternion.setFromEuler(legAngle)
   bones.rightLowerLeg.node.quaternion.set(0, 0, 0, 1)
 
-  bones.leftUpperLeg.node.quaternion.setFromEuler(new Euler(0, 0, Math.PI))
+  bones.leftUpperLeg.node.quaternion.setFromEuler(legAngle)
   bones.leftLowerLeg.node.quaternion.set(0, 0, 0, 1)
 
   return new VRMHumanoid(bones)
