@@ -1690,8 +1690,30 @@ export const uploadLocalProjectToProvider = async (
       const url = getCachedURL(item.key, cacheDomain)
       //remove userId if exists
       if (item.userId) delete (item as any).userId
+
+      const newResource: Partial<StaticResourceType> = {}
+
+      const validFields: (keyof StaticResourceType)[] = [
+        'attribution',
+        'createdAt',
+        'hash',
+        'key',
+        'licensing',
+        'metadata',
+        'mimeType',
+        'project',
+        'sid',
+        'stats',
+        'tags',
+        'updatedAt'
+      ]
+
+      for (const field of validFields) {
+        if (item[field]) newResource[field] = item[field]
+      }
+
       await app.service(staticResourcePath).create({
-        ...item,
+        ...newResource,
         url
       })
       logger.info(`Uploaded static resource ${item.key} from resources.json`)
