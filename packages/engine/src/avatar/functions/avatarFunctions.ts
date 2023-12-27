@@ -50,7 +50,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { XRState } from '../../xr/XRState'
-import avatarBoneMatching, { findSkinnedMeshes, getAllBones, recursiveHipsLookup } from '../AvatarBoneMatching'
+import avatarBoneMatching, { findSkinnedMeshes } from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { locomotionAnimation } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -84,16 +84,13 @@ export const getPreloaded = () => {
 export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
   const scene = model.scene ?? model // FBX assets do not have 'scene' property
   if (!scene) return null!
-
-  const isVRM0 = model instanceof VRM
-  const isVRM1 = model.userData?.vrm
-
-  if (isVRM1) {
-    if (!model.userData) model.userData = {}
-    return model
+  //vrm1's vrm object is in the userData property
+  if (model.userData?.vrm instanceof VRM) {
+    return model.userData.vrm
   }
 
-  if (isVRM0) {
+  //vrm0 is an instance of the vrm object
+  if (model instanceof VRM) {
     const bones = model.humanoid.rawHumanBones
     model.humanoid.normalizedHumanBonesRoot.removeFromParent()
     bones.hips.node.rotateY(Math.PI)
@@ -231,14 +228,10 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
-  const hips = recursiveHipsLookup(model.scene)
-
-  const targetBones = getAllBones(hips)
 
   setComponent(entity, AvatarRigComponent, {
     normalizedRig: model.humanoid.normalizedHumanBones,
     rawRig: model.humanoid.rawHumanBones,
-    targetBones,
     skinnedMeshes
   })
 
