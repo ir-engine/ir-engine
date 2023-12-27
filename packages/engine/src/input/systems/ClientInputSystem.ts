@@ -422,9 +422,7 @@ const bboxHitTarget = new Vector3()
 
 const quat = new Quaternion()
 
-const execute = (_isClient = isClient) => {
-  if (!_isClient) return null
-
+const execute = () => {
   const pointerState = getState(InputState).pointerState
   const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
   pointerScreenRaycaster.setFromCamera(
