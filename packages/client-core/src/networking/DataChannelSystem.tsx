@@ -179,6 +179,13 @@ export const DataChannels = () => {
   const networkIDs = Object.entries(useHookstate(getMutableState(NetworkState).networks).value)
     .filter(([networkID, network]) => network.topic === NetworkTopics.world)
     .map(([networkID, network]) => networkID)
+
+  const networkConfig = useHookstate(getMutableState(NetworkState).config)
+  const isOnline = networkConfig.world.value || networkConfig.media.value
+
+  /** @todo - instead of checking for network config, we should filter NetworkConnectionReactor by networks with a "real" transport */
+  if (!isOnline) return null
+
   return (
     <>
       {networkIDs.map((id: InstanceID) => (

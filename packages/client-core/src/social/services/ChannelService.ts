@@ -28,6 +28,7 @@ import { useEffect } from 'react'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -69,15 +70,29 @@ export const ChannelService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  getInstanceChannel: async () => {
+  leaveInstanceChannel: async () => {
+    getMutableState(ChannelState).merge({
+      channels: {
+        channels: [] as ChannelType[],
+        limit: 5,
+        skip: 0,
+        total: 0
+      },
+      targetChannelId: '' as ChannelID,
+      instanceChannelFetching: false,
+      instanceChannelFetched: false,
+      messageCreated: false
+    })
+  },
+  getInstanceChannel: async (instanceID: InstanceID) => {
     try {
       const channelResult = (await Engine.instance.api.service(channelPath).find({
         query: {
-          instanceId: NetworkState.worldNetwork.id,
+          instanceId: instanceID,
           paginate: false
         }
       })) as any as ChannelType[]
-      if (channelResult.length === 0) return setTimeout(() => ChannelService.getInstanceChannel(), 2000)
+      if (channelResult.length === 0) return setTimeout(() => ChannelService.getInstanceChannel(instanceID), 2000)
 
       const channel = channelResult[0]
 
@@ -105,7 +120,7 @@ export const ChannelService = {
       //If it's a 403, it is almost definitely because of this issue, so just wait a second and try again.
       //The second part of the if condition is to handle the scenario when its channel resolver calling message service.
       if (err.code == 403 || (err.data && err.data.length > 0 && err.data[0].data?.code === 403)) {
-        return setTimeout(() => ChannelService.getInstanceChannel(), 1000)
+        return setTimeout(() => ChannelService.getInstanceChannel(instanceID), 1000)
       }
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -125,7 +140,7 @@ export const ChannelService = {
   joinChannelInstance: (channelID: ChannelID) => {
     getMutableState(ChannelState).targetChannelId.set(channelID)
     if (channelID === '' && NetworkState.worldNetwork) {
-      ChannelService.getInstanceChannel()
+      ChannelService.getInstanceChannel(NetworkState.worldNetwork.id)
     } else {
       getMutableState(ChannelState).targetChannelId.set(channelID)
     }
@@ -199,7 +214,7 @@ export const ChannelService = {
         const channelState = getMutableState(ChannelState)
         if (params.userId === Engine.instance.userID && params.channelId === channelState.targetChannelId.value) {
           channelState.targetChannelId.set('' as ChannelID)
-          ChannelService.getInstanceChannel()
+          ChannelService.getInstanceChannel(NetworkState.worldNetwork.id)
         }
       }
 

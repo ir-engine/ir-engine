@@ -57,7 +57,8 @@ const execute = () => {
   for (const action of transportCreatedActionQueue()) onTransportCreated(action)
   // TODO replace with event sourcing
   for (const action of updatePeersActionQueue()) {
-    const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
+    const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork | undefined
+    if (!network) continue
 
     for (const peer of action.peers) {
       NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)

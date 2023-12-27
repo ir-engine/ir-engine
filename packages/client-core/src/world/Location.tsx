@@ -36,21 +36,17 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import './LocationModule'
 
-import { useLoadEngineWithScene, useOfflineNetwork, useOnlineNetwork } from '../components/World/EngineHooks'
+import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
 
 type Props = {
-  offline?: boolean
+  online?: boolean
 }
 
-const LocationPage = ({ offline }: Props) => {
+const LocationPage = ({ online }: Props) => {
   const params = useParams()
   const appState = useHookstate(getMutableState(AppLoadingState).state)
 
-  if (offline) {
-    useOfflineNetwork()
-  } else {
-    useOnlineNetwork()
-  }
+  useNetwork({ online })
 
   if (params.locationName) {
     useLoadLocation({ locationName: params.locationName })

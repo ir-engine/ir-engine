@@ -32,8 +32,8 @@ import { defineState, getMutableState, getState } from '@etherealengine/hyperflu
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
-import { AuthState } from '../user/services/AuthService'
+import { useEffect } from 'react'
+import { MediaInstanceState, useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
 
 export const FilteredUsersState = defineState({
@@ -47,10 +47,9 @@ export const FilteredUsersService = {
   updateNearbyLayerUsers: () => {
     if (!NetworkState.worldNetwork) return
     const mediaState = getMutableState(FilteredUsersState)
-    const selfUserId = getMutableState(AuthState).user.id.value
     const peers = Object.values(NetworkState.worldNetwork.peers)
     const worldUserIds = peers
-      .filter((peer) => peer.peerID !== NetworkState.worldNetwork.hostPeerID && peer.userId !== selfUserId)
+      .filter((peer) => peer.peerID !== NetworkState.worldNetwork.hostPeerID && peer.userId !== Engine.instance.userID)
       .map((peer) => peer.userId)
     const nearbyUsers = getNearbyUsers(Engine.instance.userID, worldUserIds)
     mediaState.nearbyLayerUsers.set(nearbyUsers)
@@ -97,8 +96,19 @@ const execute = () => {
   }
 }
 
+const reactor = () => {
+  const mediaNetwork = useMediaNetwork()
+
+  useEffect(() => {
+    accumulator = NEARBY_AVATAR_UPDATE_PERIOD
+  }, [mediaNetwork?.peers])
+
+  return null
+}
+
 export const FilteredUsersSystem = defineSystem({
   uuid: 'ee.client.FilteredUsersSystem',
   insert: { after: PresentationSystemGroup },
-  execute
+  execute,
+  reactor
 })

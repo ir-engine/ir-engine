@@ -39,8 +39,8 @@ const LocationRoutes = () => {
   return (
     <Suspense fallback={<LoadingCircle message={t('common:loader.offline')} />}>
       <Routes>
-        <Route path=":projectName/:sceneName" element={<LocationPage offline />} />
-        <Route path=":locationName" element={<LocationPage offline />} />
+        <Route path=":projectName/:sceneName" element={<LocationPage />} />
+        <Route path=":locationName" element={<LocationPage />} />
       </Routes>
     </Suspense>
   )

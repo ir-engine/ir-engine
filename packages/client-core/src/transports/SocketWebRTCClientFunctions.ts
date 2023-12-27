@@ -233,7 +233,7 @@ export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) 
 
 export type SocketWebRTCClientNetwork = ReturnType<typeof initializeNetwork>
 
-export const connectToNetwork = async (
+export const connectToNetwork = (
   instanceID: InstanceID,
   ipAddress: string,
   port: string,
@@ -285,7 +285,11 @@ export const connectToNetwork = async (
     handleFailedConnection(locationId ? NetworkTopics.world : NetworkTopics.media, instanceID)
   }, 3000)
 
+  let connecting = true
+
   const onConnect = () => {
+    connecting = false
+
     const topic = locationId ? NetworkTopics.world : NetworkTopics.media
     getMutableState(NetworkState).hostIds[topic].set(instanceID)
     const network = initializeNetwork(instanceID, instanceID as any, topic)
@@ -303,6 +307,7 @@ export const connectToNetwork = async (
     networkState.connected.set(true)
     authenticateNetwork(network)
 
+    /** Server closed the connection. */
     const onDisconnect = () => {
       logger.info('Disonnected from network %o', { topic: network.topic, id: network.id })
       leaveNetwork(network)
@@ -312,6 +317,19 @@ export const connectToNetwork = async (
   primus.on('incoming::open', onConnect)
 
   logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, channelId, roomCode })
+
+  return () => {
+    if (connecting) {
+      primus.off('incoming::open', onConnect)
+      primus.removeAllListeners()
+      primus.end()
+      clearTimeout(connectionFailTimeout)
+    } else {
+      console.log('END NETWORK')
+      const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
+      leaveNetwork(network)
+    }
+  }
 }
 
 export const getChannelIdFromTransport = (network: SocketWebRTCClientNetwork) => {

@@ -49,7 +49,6 @@ import {
 
 import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
-import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
@@ -632,14 +631,6 @@ const CapturePageState = defineState({
 
 const CaptureDashboard = () => {
   const worldNetwork = useWorldNetwork()
-
-  // media server connecion
-  useEffect(() => {
-    if (worldNetwork?.connected?.value) {
-      ChannelService.getInstanceChannel()
-    }
-  }, [worldNetwork?.connected?.value])
-
   const mode = useHookstate(getMutableState(CapturePageState).mode)
 
   return (

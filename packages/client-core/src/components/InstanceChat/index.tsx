@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
+import { ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
@@ -446,15 +445,6 @@ export const InstanceChatWrapper = () => {
   const { bottomShelfStyle } = useShelfStyles()
 
   const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
-
-  /**
-   * Provisioning logic
-   */
-  const worldNetwork = useWorldNetwork()
-
-  useEffect(() => {
-    if (worldNetwork?.connected?.value) ChannelService.getInstanceChannel()
-  }, [worldNetwork?.connected])
 
   return (
     <>

@@ -37,20 +37,17 @@ import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
-import { Network, NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
-import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -243,46 +240,50 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   }, [engineState.sceneLoaded, engineState.loadingProgress])
 }
 
-export const useOnlineNetwork = () => {
+export const useNetwork = (props: { online?: boolean }) => {
   useEffect(() => {
     getMutableState(NetworkState).config.set({
-      world: true,
-      media: true,
-      friends: true,
-      instanceID: true,
+      world: !!props.online,
+      media: !!props.online,
+      friends: !!props.online,
+      instanceID: !!props.online,
       roomID: false
     })
-  }, [])
-}
+  }, [props.online])
 
-export const useOfflineNetwork = () => {
-  const engineState = useHookstate(getMutableState(EngineState))
-  const authState = useHookstate(getMutableState(AuthState))
+  // const engineState = useHookstate(getMutableState(EngineState))
+  // const authState = useHookstate(getMutableState(AuthState))
 
-  useEffect(() => {
-    if (engineState.sceneLoaded.value) {
-      const userId = Engine.instance.userID
-      const peerID = Engine.instance.peerID
-      const userIndex = 1
-      const peerIndex = 1
+  // /** Offline/local world network */
+  // useEffect(() => {
+  //   if (!engineState.sceneLoaded.value || props.online) return
 
-      const networkState = getMutableState(NetworkState)
-      networkState.hostIds.world.set(userId as any as InstanceID)
-      addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
-      addOutgoingTopicIfNecessary(NetworkTopics.world)
+  //   const userId = Engine.instance.userID
+  //   const peerID = Engine.instance.peerID
+  //   const userIndex = 1
+  //   const peerIndex = 1
 
-      NetworkState.worldNetworkState.authenticated.set(true)
-      NetworkState.worldNetworkState.connected.set(true)
-      NetworkState.worldNetworkState.ready.set(true)
+  //   const networkState = getMutableState(NetworkState)
+  //   networkState.hostIds.world.set(userId as any as InstanceID)
+  //   addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
+  //   addOutgoingTopicIfNecessary(NetworkTopics.world)
 
-      NetworkPeerFunctions.createPeer(
-        NetworkState.worldNetwork as Network,
-        peerID,
-        peerIndex,
-        userId,
-        userIndex,
-        authState.user.name.value
-      )
-    }
-  }, [engineState.sceneLoaded])
+  //   NetworkState.worldNetworkState.authenticated.set(true)
+  //   NetworkState.worldNetworkState.connected.set(true)
+  //   NetworkState.worldNetworkState.ready.set(true)
+
+  //   NetworkPeerFunctions.createPeer(
+  //     NetworkState.worldNetwork as Network,
+  //     peerID,
+  //     peerIndex,
+  //     userId,
+  //     userIndex,
+  //     authState.user.name.value
+  //   )
+
+  //   return () => {
+  //     removeNetwork(NetworkState.worldNetwork as Network)
+  //     networkState.hostIds.world.set(none)
+  //   }
+  // }, [engineState.sceneLoaded, props.online])
 }
