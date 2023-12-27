@@ -1728,12 +1728,21 @@ export const uploadLocalProjectToProvider = async (
             logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
           } else if (existingKeySet.has(key)) {
             logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
-            await app.service(staticResourcePath).patch(null, {
-              hash,
-              url,
-              mimeType: contentType,
-              tags: [thisFileClass]
-            })
+            await app.service(staticResourcePath).patch(
+              null,
+              {
+                hash,
+                url,
+                mimeType: contentType,
+                tags: [thisFileClass]
+              },
+              {
+                query: {
+                  key,
+                  project: projectName
+                }
+              }
+            )
           }
           {
             await app.service(staticResourcePath).create({
