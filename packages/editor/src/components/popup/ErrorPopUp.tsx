@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { ErrorSharp } from '@mui/icons-material'
+import ErrorSharp from '@mui/icons-material/ErrorSharp'
 
 import PopUp from './PopUp'
 

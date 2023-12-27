@@ -71,13 +71,16 @@ export function getModelResources(entity: Entity): ResourceTransforms {
       }
       return {
         resourceId: geometry.uuid as ResourceID,
+        isParameterOverride: true,
         enabled: true,
         parameters: {
           weld: {
+            isParameterOverride: true,
             enabled: false,
             parameters: 0.0001
           },
           dracoCompression: {
+            isParameterOverride: true,
             enabled: false,
             parameters: dracoParms
           }
@@ -106,26 +109,32 @@ export function getModelResources(entity: Entity): ResourceTransforms {
     const result: ImageTransformParameters[] = images.map((image) => {
       return {
         resourceId: image.id as ResourceID,
+        isParameterOverride: true,
         enabled: false,
         parameters: {
           flipY: {
             enabled: false,
+            isParameterOverride: true,
             parameters: false
           },
           maxTextureSize: {
             enabled: true,
-            parameters: 2048
+            isParameterOverride: true,
+            parameters: 1024
           },
           textureFormat: {
             enabled: true,
+            isParameterOverride: true,
             parameters: 'ktx2'
           },
           textureCompressionType: {
             enabled: false,
+            isParameterOverride: true,
             parameters: 'etc1'
           },
           textureCompressionQuality: {
             enabled: false,
+            isParameterOverride: true,
             parameters: 128
           }
         }

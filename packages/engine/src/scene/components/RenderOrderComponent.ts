@@ -23,22 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { memo } from 'react'
+import { Types } from 'bitecs'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-import { Grid } from '@mui/material'
+export const RenderOrderComponent = defineComponent({
+  name: 'RenderOrderComponent',
+  schema: { renderOrder: Types.i32 },
 
-import ServerItemCard from './ServerItemCard'
+  onInit() {
+    return 0 as number
+  },
 
-const ServerList = ({ data, selectedCard, setSelectedCard }) => {
-  return data.map((item, index) => (
-    <Grid item key={item.id} xs={12} sm={6} md={2}>
-      <ServerItemCard key={index} data={item} isSelected={selectedCard === item.id} onCardClick={setSelectedCard} />
-    </Grid>
-  ))
-}
+  onSet(entity, component, renderOrder: number) {
+    RenderOrderComponent.renderOrder[entity] = renderOrder
+    component.set(renderOrder)
+  },
 
-ServerList.displayName = 'ServerList'
-
-ServerList.defaultProps = {}
-
-export default memo(ServerList)
+  toJSON(entity, component) {
+    return component.value
+  }
+})

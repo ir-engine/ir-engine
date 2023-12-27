@@ -197,21 +197,24 @@ export class FileBrowserService
 
     await storageProvider.createInvalidation([_oldPath, _newPath])
 
-    const staticResource = (await this.app.service(staticResourcePath).find({
+    const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: path.join(_oldPath, data.oldName),
-        $limit: 1
-      }
-    })) as Paginated<StaticResourceType>
+        key: { $like: `%${path.join(_oldPath, data.oldName)}%` }
+      },
+      paginate: false
+    })) as StaticResourceType[]
 
-    if (staticResource?.data?.length > 0) {
-      await this.app.service(staticResourcePath).patch(
-        staticResource.data[0].id,
-        {
-          key: path.join(_newPath, data.newName)
-        },
-        { isInternal: true }
-      )
+    if (staticResources?.length > 0) {
+      for (const resource of staticResources) {
+        const newKey = resource.key.replace(path.join(_oldPath, data.oldName), path.join(_newPath, fileName))
+        await this.app.service(staticResourcePath).patch(
+          resource.id,
+          {
+            key: newKey
+          },
+          { isInternal: true }
+        )
+      }
     }
 
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
@@ -316,14 +319,18 @@ export class FileBrowserService
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
     await storageProvider.createInvalidation([key])
 
-    const staticResource = (await this.app.service(staticResourcePath).find({
+    const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: key,
-        $limit: 1
-      }
-    })) as Paginated<StaticResourceType>
+        key: { $like: `%${key}%` }
+      },
+      paginate: false
+    })) as StaticResourceType[]
 
-    if (staticResource?.data?.length > 0) await this.app.service(staticResourcePath).remove(staticResource?.data[0]?.id)
+    if (staticResources?.length > 0) {
+      for (const resource of staticResources) {
+        await this.app.service(staticResourcePath).remove(resource.id)
+      }
+    }
 
     if (isDev && PROJECT_FILE_REGEX.test(key)) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
 
