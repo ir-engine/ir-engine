@@ -108,10 +108,11 @@ export const ObjectFitFunctions = {
   attachObjectInFrontOfCamera: (entity: Entity, scale: number, distance: number) => {
     const transform = getComponent(entity, TransformComponent)
     _mat4.makeTranslation(0, 0, -distance).scale(_vec3.set(scale, scale, 1))
-    transform.matrix.multiplyMatrices(getComponent(Engine.instance.cameraEntity, CameraComponent).matrixWorld, _mat4)
-    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
-    transform.matrixInverse.copy(transform.matrix).invert()
-    TransformComponent.dirtyTransforms[entity] = false
+    transform.matrixWorld.multiplyMatrices(
+      getComponent(Engine.instance.cameraEntity, CameraComponent).matrixWorld,
+      _mat4
+    )
+    transform.matrixWorld.decompose(transform.position, transform.rotation, transform.scale)
   },
 
   lookAtCameraFromPosition: (container: WebContainer3D, position: Vector3) => {

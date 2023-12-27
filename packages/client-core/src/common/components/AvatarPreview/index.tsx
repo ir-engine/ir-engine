@@ -41,6 +41,8 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import styles from './index.module.scss'
 
 import { setupSceneForPreview } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
+import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
+import { isAvaturn } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
 interface Props {
   fill?: boolean
   avatarUrl?: string
@@ -72,7 +74,12 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
 
     setAvatarLoading(true)
     resetAnimationLogic(entity.value)
-    AssetLoader.loadAsync(avatarUrl).then((avatar) => {
+    /** @todo this is a hack */
+    const override = !isAvaturn(avatarUrl) ? undefined : AssetType.glB
+
+    AssetLoader.loadAsync(avatarUrl, {
+      forceAssetType: override
+    }).then((avatar) => {
       const loadedAvatar = setupSceneForPreview(avatar)
       scene.value.add(loadedAvatar)
       loadedAvatar.name = 'avatar'

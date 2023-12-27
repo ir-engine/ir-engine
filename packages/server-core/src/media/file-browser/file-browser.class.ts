@@ -167,15 +167,16 @@ export class FileBrowserService
 
     const parentPath = path.dirname(directory)
     const key = await getIncrementalName(path.basename(directory), parentPath, storageProvider, true)
+    const keyPath = path.join(parentPath, key)
 
-    const result = await storageProvider.putObject({ Key: path.join(parentPath, key) } as StorageObjectInterface, {
+    const result = await storageProvider.putObject({ Key: keyPath } as StorageObjectInterface, {
       isDirectory: true
     })
 
-    await storageProvider.createInvalidation([key])
+    await storageProvider.createInvalidation([keyPath])
 
     if (isDev && PROJECT_FILE_REGEX.test(directory))
-      fs.mkdirSync(path.resolve(projectsRootFolder, path.join(parentPath, key)), { recursive: true })
+      fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
 
     return result
   }
@@ -194,15 +195,32 @@ export class FileBrowserService
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
 
+    await storageProvider.createInvalidation([_oldPath, _newPath])
+
+    const staticResources = (await this.app.service(staticResourcePath).find({
+      query: {
+        key: { $like: `%${path.join(_oldPath, data.oldName)}%` }
+      },
+      paginate: false
+    })) as StaticResourceType[]
+
+    if (staticResources?.length > 0) {
+      for (const resource of staticResources) {
+        const newKey = resource.key.replace(path.join(_oldPath, data.oldName), path.join(_newPath, fileName))
+        await this.app.service(staticResourcePath).patch(
+          resource.id,
+          {
+            key: newKey
+          },
+          { isInternal: true }
+        )
+      }
+    }
+
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
 
-    await Promise.all([
-      storageProvider.createInvalidation([oldNamePath]),
-      storageProvider.createInvalidation([newNamePath])
-    ])
-
-    if (isDev) {
+    if (isDev && PROJECT_FILE_REGEX.test(_oldPath)) {
       if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
       else fs.renameSync(oldNamePath, newNamePath)
     }
@@ -301,16 +319,18 @@ export class FileBrowserService
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
     await storageProvider.createInvalidation([key])
 
-    const filePath = path.join(projectsRootFolder, key)
-
-    const staticResource = (await this.app.service(staticResourcePath).find({
+    const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: filePath,
-        $limit: 1
-      }
-    })) as Paginated<StaticResourceType>
+        key: { $like: `%${key}%` }
+      },
+      paginate: false
+    })) as StaticResourceType[]
 
-    if (staticResource?.data?.length > 0) await this.app.service(staticResourcePath).remove(staticResource?.data[0]?.id)
+    if (staticResources?.length > 0) {
+      for (const resource of staticResources) {
+        await this.app.service(staticResourcePath).remove(resource.id)
+      }
+    }
 
     if (isDev && PROJECT_FILE_REGEX.test(key)) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
 

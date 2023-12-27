@@ -56,6 +56,7 @@ export default (writeAccess) => {
     if (projectName) {
       const project = (await app.service(projectPath).find({
         query: {
+          action: 'admin',
           name: projectName,
           $limit: 1
         }

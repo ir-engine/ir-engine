@@ -23,22 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { memo } from 'react'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import assert from 'assert'
+import { Application } from '../../../declarations'
+import { createFeathersKoaApp } from '../../createApp'
 
-import { Grid } from '@mui/material'
+describe('projects.test', () => {
+  let app: Application
 
-import ServerItemCard from './ServerItemCard'
+  before(async () => {
+    app = createFeathersKoaApp()
+    await app.setup()
+  })
 
-const ServerList = ({ data, selectedCard, setSelectedCard }) => {
-  return data.map((item, index) => (
-    <Grid item key={item.id} xs={12} sm={6} md={2}>
-      <ServerItemCard key={index} data={item} isSelected={selectedCard === item.id} onCardClick={setSelectedCard} />
-    </Grid>
-  ))
-}
+  after(async () => {
+    await destroyEngine()
+  })
 
-ServerList.displayName = 'ServerList'
-
-ServerList.defaultProps = {}
-
-export default memo(ServerList)
+  it('should find the projects', async () => {
+    const foundProjects = await app.service(projectsPath).find()
+    assert.notEqual(
+      foundProjects.findIndex((project) => project === 'default-project'),
+      -1
+    )
+  })
+})

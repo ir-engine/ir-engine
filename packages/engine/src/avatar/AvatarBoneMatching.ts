@@ -26,18 +26,10 @@ Ethereal Engine. All Rights Reserved.
 // This retargeting logic is based exokitxr retargeting system
 // https://github.com/exokitxr/avatars
 
-import {
-  VRM,
-  VRM1Meta,
-  VRMHumanBone,
-  VRMHumanBoneName,
-  VRMHumanBones,
-  VRMHumanoid,
-  VRMParameters
-} from '@pixiv/three-vrm'
-import { cloneDeep } from 'lodash'
-import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBones, VRMHumanoid, VRMParameters } from '@pixiv/three-vrm'
+import { Bone, Euler, Group, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
+import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 import { Object3DUtils } from '../common/functions/Object3DUtils'
 
 export type BoneNames =
@@ -585,17 +577,6 @@ export function findSkinnedMeshes(model: Object3D) {
   return meshes
 }
 
-export function getAllBones(rootBone: Bone) {
-  const bones = {} as Record<VRMHumanBoneName, Bone>
-  rootBone.traverse((bone: Bone) => {
-    if (bone.isBone) {
-      const boneName = mixamoVRMRigMap[bone.name] ?? hipRigMap[bone.name] ?? bone.name
-      bones[boneName] = bone
-    }
-  })
-  return bones
-}
-
 /**
  * Creates a skeleton form given bone chain
  * @param bone first bone in the chain
@@ -671,7 +652,22 @@ export function getAPose(rightHand: Vector3, _rightUpperArmPos: Vector3): boolea
 
 const _rightHandPos = new Vector3(),
   _rightUpperArmPos = new Vector3()
-export default function avatarBoneMatching(model: Object3D): VRM {
+export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
+  /** Detect that the model needs bone matching */
+  if (asset instanceof VRM) return asset
+
+  let isAvatar = false
+  let hasSkinnedMesh = false
+  asset.scene.traverse((target: SkinnedMesh) => {
+    //see if we find hips
+    const name = target.name.toLowerCase()
+    if (name.includes('hip') || name.includes('root')) {
+      isAvatar = true
+    }
+    if (target.isSkinnedMesh) hasSkinnedMesh = true
+  })
+  if (!isAvatar || !hasSkinnedMesh) return asset
+
   const bones = {} as VRMHumanBones
   //use hips name as a standard to determine what to do with the mixamo prefix
   let needsMixamoPrefix = false
@@ -679,7 +675,7 @@ export default function avatarBoneMatching(model: Object3D): VRM {
   let removeIdentifier = false
   let foundHips = false
 
-  model.traverse((target) => {
+  asset.scene.traverse((target) => {
     //see if we find hips
     if (target.name.toLowerCase().includes('hip')) {
       needsMixamoPrefix = !target.name.includes('mixamorig')
@@ -705,21 +701,45 @@ export default function avatarBoneMatching(model: Object3D): VRM {
     }
   })
 
-  const humanoid = new VRMHumanoid(bones)
+  const humanoid = enforceTPose(new VRMHumanoid(bones))
 
-  model.add(humanoid.normalizedHumanBonesRoot)
+  asset.scene.add(humanoid.normalizedHumanBonesRoot)
+
+  const scene = asset.scene as any as Group
 
   const vrm = new VRM({
     humanoid,
-    scene: model,
-    meta: { name: model.children[0].name } as VRM1Meta
+    scene: scene,
+    meta: { name: scene.children[0].name } as VRM1Meta
   } as VRMParameters)
 
   humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
   humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
-  //quick dirty tag to disable flipping on mixamo rigs
-  ;(vrm as any).userData = { flipped: false, useAPose: getAPose(_rightHandPos, _rightUpperArmPos) } as any
   return vrm
+}
+
+/**Aligns the arms and legs with a T-Pose formation and flips the hips if it is VRM0 */
+const legAngle = new Euler(0, 0, Math.PI)
+const rightShoulderAngle = new Euler(Math.PI / 2, 0, Math.PI / 2)
+const leftShoulderAngle = new Euler(Math.PI / 2, 0, -Math.PI / 2)
+export const enforceTPose = (humanoid: VRMHumanoid) => {
+  const bones = humanoid.humanBones
+
+  bones.rightShoulder!.node.quaternion.setFromEuler(rightShoulderAngle)
+  bones.rightUpperArm.node.quaternion.set(0, 0, 0, 1)
+  bones.rightLowerArm.node.quaternion.set(0, 0, 0, 1)
+
+  bones.leftShoulder!.node.quaternion.setFromEuler(leftShoulderAngle)
+  bones.leftUpperArm.node.quaternion.set(0, 0, 0, 1)
+  bones.leftLowerArm.node.quaternion.set(0, 0, 0, 1)
+
+  bones.rightUpperLeg.node.quaternion.setFromEuler(legAngle)
+  bones.rightLowerLeg.node.quaternion.set(0, 0, 0, 1)
+
+  bones.leftUpperLeg.node.quaternion.setFromEuler(legAngle)
+  bones.leftLowerLeg.node.quaternion.set(0, 0, 0, 1)
+
+  return new VRMHumanoid(bones)
 }
 
 export const mixamoVRMRigMap = {
@@ -779,12 +799,4 @@ export const mixamoVRMRigMap = {
 
 export const hipRigMap = {
   CC_Base_Hip: 'hips'
-}
-
-export function makeBindPose(bones: VRMHumanBones) {
-  const newRig = cloneDeep(bones)
-  for (const [key, value] of Object.entries(newRig)) {
-    value.node.quaternion.set(0, 0, 0, 0)
-  }
-  return newRig
 }

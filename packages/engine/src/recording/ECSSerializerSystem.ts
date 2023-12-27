@@ -26,9 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 
-import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
+import { Entity } from '../ecs/classes/Entity'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { entityExists } from '../ecs/functions/EntityFunctions'
 import { checkBitflag } from '../networking/serialization/DataReader'
 import { SerializationSchema } from '../networking/serialization/Utils'
 import {
@@ -162,8 +161,7 @@ export const readEntity = (v: ViewCursor, entities: EntityUUID[], serializationS
   const entityIndex = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
 
-  let entity = UUIDComponent.entitiesByUUID[entities[entityIndex]] || UndefinedEntity
-  if (!entity || !entityExists(entity)) entity = UndefinedEntity
+  const entity = UUIDComponent.getEntityByUUID(entities[entityIndex])
 
   let b = 0
 

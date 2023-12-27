@@ -43,6 +43,7 @@ import {
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
+import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { matches, matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
@@ -53,9 +54,11 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
@@ -79,7 +82,7 @@ export class GrabbableNetworkAction {
     type: 'ee.engine.grabbable.SET_GRABBED_OBJECT',
     entityUUID: matchesEntityUUID,
     grabbed: matches.boolean,
-    attachmentPoint: matches.literals('left', 'right', 'none').optional(),
+    attachmentPoint: matches.literals('left', 'right').optional(),
     grabberUserId: matchesEntityUUID,
     $cache: true,
     $topic: NetworkTopics.world
@@ -92,7 +95,7 @@ export const GrabbableState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
-      attachmentPoint: 'left' | 'right' | 'none'
+      attachmentPoint: 'left' | 'right'
       grabberUserId: EntityUUID
     }
   >,
@@ -108,24 +111,34 @@ export const GrabbableState = defineState({
           })
         else state[action.entityUUID].set(none)
       }
+    ],
+    [
+      WorldNetworkAction.destroyObject,
+      (state, action: typeof WorldNetworkAction.destroyObject.matches._TYPE) => {
+        state[action.entityUUID].set(none)
+      }
     ]
   ]
 })
 
 const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(GrabbableState)[entityUUID])
-  const entity = UUIDComponent.entitiesByUUID[entityUUID]
-  const grabberEntity = UUIDComponent.entitiesByUUID[state.grabberUserId.value as EntityUUID]
+  const entity = UUIDComponent.useEntityByUUID(entityUUID)
+  const grabberEntity = UUIDComponent.useEntityByUUID(state.grabberUserId.value as EntityUUID)
   const attachmentPoint = state.attachmentPoint.value
+  const bodyState = useComponent(entity, RigidBodyComponent)?.body
 
   useEffect(() => {
-    setComponent(grabberEntity, GrabberComponent, { grabbedEntity: entity })
+    if (!entity || !grabberEntity || !bodyState) return
+
+    setComponent(grabberEntity, GrabberComponent, { [attachmentPoint]: entity })
     setComponent(entity, GrabbedComponent, {
       grabberEntity,
       attachmentPoint
     })
 
-    const body = getComponent(entity, RigidBodyComponent)?.body
+    const body = bodyState.value
+
     if (body) {
       Physics.changeRigidbodyType(entity, RigidBodyType.KinematicPositionBased)
       for (let i = 0; i < body.numColliders(); i++) {
@@ -137,8 +150,10 @@ const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID })
     }
 
     return () => {
+      if (hasComponent(grabberEntity, GrabbedComponent))
+        setComponent(grabberEntity, GrabberComponent, { [attachmentPoint]: null })
+      if (!entityExists(entity)) return
       removeComponent(entity, GrabbedComponent)
-      setComponent(grabberEntity, GrabberComponent, { grabbedEntity: null })
       if (body) {
         Physics.changeRigidbodyType(entity, RigidBodyType.Dynamic)
         for (let i = 0; i < body.numColliders(); i++) {
@@ -149,16 +164,18 @@ const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID })
         }
       }
     }
-  }, [])
+  }, [entity, grabberEntity, bodyState])
 
   return null
 })
 
 export const GrabbablesReactor = React.memo(() => {
-  const grabbableState = useHookstate(getMutableState(GrabbableState))
+  const grabbableState = Object.keys(useHookstate(getMutableState(GrabbableState)).value)
+  console.log('grabbableState', grabbableState)
+
   return (
     <>
-      {grabbableState.keys.map((entityUUID: EntityUUID) => (
+      {grabbableState.map((entityUUID: EntityUUID) => (
         <GrabbableReactor key={entityUUID} entityUUID={entityUUID} />
       ))}
     </>
@@ -186,20 +203,14 @@ export function transferAuthorityOfObjectReceptor(
 }
 
 // since grabbables are all client authoritative, we don't need to recompute this for all users
-export function grabberQueryAll(grabberEntity: Entity) {
-  const grabberComponent = getComponent(grabberEntity, GrabberComponent)
-  const grabbedEntity = grabberComponent.grabbedEntity
-  if (!grabbedEntity) return
-
-  const grabberAuthority = hasComponent(grabberEntity, NetworkObjectAuthorityTag)
-  if (!grabberAuthority) return
-
-  const grabbedComponent = getComponent(grabbedEntity, GrabbedComponent)
+export function grabbableQueryAll(grabbableEntity: Entity) {
+  const grabbedComponent = getComponent(grabbableEntity, GrabbedComponent)
+  if (!grabbedComponent) return
   const attachmentPoint = grabbedComponent.attachmentPoint
 
-  const target = getHandTarget(grabberEntity, attachmentPoint ?? 'right')!
+  const target = getHandTarget(grabbedComponent.grabberEntity, attachmentPoint ?? 'right')!
 
-  const rigidbodyComponent = getComponent(grabbedEntity, RigidBodyComponent)
+  const rigidbodyComponent = getComponent(grabbableEntity, RigidBodyComponent)
 
   if (rigidbodyComponent) {
     rigidbodyComponent.targetKinematicPosition.copy(target.position)
@@ -208,7 +219,7 @@ export function grabberQueryAll(grabberEntity: Entity) {
     rigidbodyComponent.body.setRotation(target.rotation, true)
   }
 
-  const grabbableTransform = getComponent(grabbedEntity, TransformComponent)
+  const grabbableTransform = getComponent(grabbableEntity, TransformComponent)
   grabbableTransform.position.copy(target.position)
   grabbableTransform.rotation.copy(target.rotation)
 }
@@ -216,20 +227,20 @@ export function grabberQueryAll(grabberEntity: Entity) {
 const vec3 = new Vector3()
 
 export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
-  const transform = getComponent(xrui.entity, TransformComponent)
-  if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
-  transform.position.copy(getComponent(entity, TransformComponent).position)
+  const xruiTransform = getComponent(xrui.entity, TransformComponent)
+  if (!xruiTransform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
+  TransformComponent.getWorldPosition(entity, xruiTransform.position)
 
   if (hasComponent(xrui.entity, VisibleComponent)) {
     const boundingBox = getComponent(entity, BoundingBoxComponent)
     if (boundingBox) {
       const boundingBoxHeight = boundingBox.box.max.y - boundingBox.box.min.y
-      transform.position.y += boundingBoxHeight * 2
+      xruiTransform.position.y += boundingBoxHeight * 2
     } else {
-      transform.position.y += 0.5
+      xruiTransform.position.y += 0.5
     }
     const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    transform.rotation.copy(cameraTransform.rotation)
+    xruiTransform.rotation.copy(cameraTransform.rotation)
   }
 
   const transition = InteractableTransitions.get(entity)!
@@ -240,9 +251,9 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       removeComponent(xrui.entity, VisibleComponent)
     }
   } else {
-    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Hips, vec3)
-    const distance = vec3.distanceToSquared(transform.position)
-    const inRange = distance < 5
+    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Chest, vec3)
+    const distance = vec3.distanceToSquared(xruiTransform.position)
+    const inRange = distance < getState(InteractState).maxDistance
     if (transition.state === 'OUT' && inRange) {
       transition.setState('IN')
       setComponent(xrui.entity, VisibleComponent)
@@ -263,7 +274,7 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
   })
 }
 
-export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachmentPoint: XRHandedness): void => {
+export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachmentPoint: 'left' | 'right'): void => {
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
   if (networkComponent.authorityPeerID === Engine.instance.peerID) {
     dispatchAction(
@@ -289,7 +300,8 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
 export const dropEntity = (grabberEntity: Entity): void => {
   const grabberComponent = getComponent(grabberEntity, GrabberComponent)
   if (!grabberComponent) return
-  const grabbedEntity = grabberComponent.grabbedEntity!
+  const handedness = getState(AvatarInputSettingsState).preferredHand
+  const grabbedEntity = grabberComponent[handedness]!
   if (!grabbedEntity) return
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
   if (networkComponent.authorityPeerID === Engine.instance.peerID) {
@@ -318,19 +330,23 @@ export const grabbableInteractMessage = 'Grab'
 
 const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
 
-const grabberQuery = defineQuery([GrabberComponent])
+const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthorityTag])
 const grabbableQuery = defineQuery([GrabbableComponent])
 
 const onDrop = () => {
   const grabber = getComponent(Engine.instance.localClientEntity, GrabberComponent)
-  if (!grabber?.grabbedEntity) return
+  const handedness = getState(AvatarInputSettingsState).preferredHand
+  const grabbedEntity = grabber[handedness]!
+  if (!grabbedEntity) return
   dropEntity(Engine.instance.localClientEntity)
 }
 
-const onGrab = (targetEntity: Entity, handedness = 'right' as XRHandedness) => {
+const onGrab = (targetEntity: Entity, handedness = getState(AvatarInputSettingsState).preferredHand) => {
   if (!hasComponent(targetEntity, GrabbableComponent)) return
   const grabber = getComponent(Engine.instance.localClientEntity, GrabberComponent)
-  if (grabber?.grabbedEntity) {
+  const grabbedEntity = grabber[handedness]!
+  if (!grabbedEntity) return
+  if (grabbedEntity) {
     onDrop()
   } else {
     grabEntity(Engine.instance.localClientEntity, targetEntity, handedness)
@@ -348,7 +364,7 @@ const execute = () => {
     if (inputSource.buttons.KeyU?.down) onDrop()
     /** @todo currently mouse has to be over the grabbable for it to be grabbed */
     if (inputSource.buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
-      onGrab(getState(InteractState).available[0], inputSource.source.handedness)
+      onGrab(getState(InteractState).available[0], inputSource.source.handedness === 'left' ? 'left' : 'right')
   }
 
   for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)
@@ -366,8 +382,8 @@ const execute = () => {
     removeInteractiveUI(entity)
   }
 
-  for (const entity of grabberQuery()) {
-    grabberQueryAll(entity)
+  for (const entity of ownedGrabbableQuery()) {
+    grabbableQueryAll(entity)
   }
 }
 

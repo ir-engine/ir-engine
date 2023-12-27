@@ -28,6 +28,7 @@ import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks
 
 import {
   AvatarID,
+  AvatarQuery,
   AvatarType,
   avatarDataValidator,
   avatarPatchValidator,
@@ -83,18 +84,36 @@ const setIdentifierName = async (context: HookContext<AvatarService>) => {
  */
 const ensureUserAccessibleAvatars = async (context: HookContext<AvatarService>) => {
   if (context.params.user && context.params.user.id) {
-    context.params.query = {
-      ...context.params?.query,
-      $or: [
-        ...(context.params?.query?.$or || []),
-        {
+    if (context.params.query?.$or) {
+      const orQuery: AvatarQuery['$or'] = []
+
+      for (const item of context.params.query.$or) {
+        orQuery.push({
+          ...item,
           isPublic: true
-        },
-        {
+        })
+        orQuery.push({
+          ...item,
           isPublic: false,
           userId: context.params.user.id
-        }
-      ]
+        })
+      }
+
+      context.params.query.$or = orQuery
+    } else {
+      context.params.query = {
+        ...context.params?.query,
+        $or: [
+          ...(context.params?.query?.$or || []),
+          {
+            isPublic: true
+          },
+          {
+            isPublic: false,
+            userId: context.params.user.id
+          }
+        ]
+      }
     }
   } else {
     context.params.query = {
@@ -169,17 +188,18 @@ const removeAvatarResources = async (context: HookContext<AvatarService>) => {
  * @returns
  */
 const updateUserAvatars = async (context: HookContext<AvatarService>) => {
-  const avatars = (await context.app.service(avatarPath).find({
+  const avatars = await context.app.service(avatarPath).find({
     query: {
       id: {
         $ne: context.id?.toString() as AvatarID
-      }
-    },
-    paginate: false
-  })) as AvatarType[]
+      },
+      isPublic: true,
+      $limit: 1000
+    }
+  })
 
-  if (avatars.length > 0) {
-    const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.length)]
+  if (avatars.data.length > 0) {
+    const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.data.length)]
     await context.app.service(userAvatarPath).patch(
       null,
       {
