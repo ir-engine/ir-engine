@@ -23,19 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import {
-  AnimationAction,
-  Bone,
-  Euler,
-  KeyframeTrack,
-  Matrix4,
-  Quaternion,
-  SkeletonHelper,
-  SkinnedMesh,
-  Vector3
-} from 'three'
+import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -111,8 +101,6 @@ export const AvatarRigComponent = defineComponent({
       /** Holds all the bones */
       normalizedRig: null! as VRMHumanBones,
       rawRig: null! as VRMHumanBones,
-      /** the target */
-      targetBones: null! as Record<VRMHumanBoneName, Bone>,
 
       helperEntity: null as Entity | null,
       /** The length of the torso in a t-pose, from the hip joint to the head joint */
@@ -141,7 +129,6 @@ export const AvatarRigComponent = defineComponent({
     if (!json) return
     if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
-    if (matches.object.test(json.targetBones)) component.targetBones.set(json.targetBones)
     if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
     if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
     if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
