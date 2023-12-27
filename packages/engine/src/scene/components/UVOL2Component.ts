@@ -732,9 +732,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) ||
       component.geometryInfo.pendingRequests.value > 0
     ) {
-      console.log(
-        `Entity:${entity} fetchGeometry: Returning early, currentBufferLength: ${currentBufferLength}, pendingRequests: ${component.geometryInfo.pendingRequests.value}`
-      )
       return
     }
 
@@ -749,7 +746,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       // fetched all frames
       return
     }
-    console.log(`Entity:${entity} fetchGeometry: Fetching ${maxBufferHealth - currentBufferLength} seconds`)
 
     const framesToFetch = Math.round((maxBufferHealth - currentBufferLength) * frameRate)
     const endFrame = Math.min(startFrame + framesToFetch, frameCount - 1)
@@ -1253,11 +1249,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     const gH = component.geometryInfo.bufferHealth.value - (currentTime.current - volumetric.startTime.value)
     const tH = component.textureInfo.baseColor.bufferHealth.value - (currentTime.current - volumetric.startTime.value)
-    console.log(
-      `Entity: ${entity}, Current Time: ${currentTime.current.toFixed(2)}, GeometryBuffer: ${gH.toFixed(
-        2
-      )}, BaseColorBuffer: ${tH.toFixed(2)}`
-    )
 
     if (component.data.value.audio) {
       currentTime.current = audio.currentTime
