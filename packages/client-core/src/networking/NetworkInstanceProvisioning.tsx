@@ -74,6 +74,7 @@ export const WorldInstanceProvisioning = () => {
       currentLocation.id?.value &&
       !isUserBanned &&
       !hasJoined &&
+      !locationInstances.keys.length &&
       !Object.values(locationInstances).find((instance) => instance.locationId.value === currentLocation.id?.value)
     ) {
       const search = window.location.search

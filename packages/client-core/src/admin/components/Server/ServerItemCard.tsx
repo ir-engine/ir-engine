@@ -27,25 +27,26 @@ import React, { memo } from 'react'
 
 import { Card, CardActionArea, CardContent, Typography } from '@mui/material'
 
-import { PodsType } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import styles from '../../styles/admin.module.scss'
 
 interface ServerItemProps {
-  data: PodsType
+  id: string
+  title: string
+  description?: string
   isSelected: boolean
   onCardClick: (key: string) => void
 }
 
-const ServerItemCard = ({ data, isSelected, onCardClick }: ServerItemProps) => {
+const ServerItemCard = ({ id, title, description, isSelected, onCardClick }: ServerItemProps) => {
   return (
     <Card className={`${styles.rootCardNumber} ${isSelected ? styles.selectedCard : ''}`}>
-      <CardActionArea onClick={() => onCardClick(data.id)}>
+      <CardActionArea onClick={() => onCardClick(id)}>
         <CardContent className="text-center">
           <Typography variant="h5" component="h5" className={styles.label}>
-            {data.label}
+            {title}
           </Typography>
           <Typography variant="body1" component="p" className={styles.label}>
-            {data.pods.filter((item) => item.status === 'Running').length}/{data.pods.length}
+            {description}
           </Typography>
         </CardContent>
       </CardActionArea>

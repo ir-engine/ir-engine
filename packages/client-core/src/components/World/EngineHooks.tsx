@@ -43,7 +43,7 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
@@ -69,29 +69,21 @@ export const useEngineInjection = () => {
 
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
-  const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
     if (spectate) {
-      if (!sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
+      if (!sceneLoaded.value) return
       dispatchAction(EngineActions.spectateUser({}))
       return
     }
 
     const spectateParam = getSearchParamFromURL('spectate')
 
-    if (
-      Engine.instance.localClientEntity ||
-      !sceneLoaded.value ||
-      !authState.user.value ||
-      !authState.user.avatar.value ||
-      spectateParam
-    )
-      return
+    if (Engine.instance.localClientEntity || !sceneLoaded.value || spectateParam) return
 
     // the avatar should only be spawned once, after user auth and scene load
-    const user = authState.user
-    const avatarDetails = user.avatar.value
+    const user = getState(AuthState).user
+    const avatarDetails = user.avatar
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
@@ -101,13 +93,13 @@ export const useLocationSpawnAvatar = (spectate = false) => {
     if (avatarDetails.modelResource?.url) {
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
-        avatarID: user.avatar.id.value!,
-        name: user.name.value
+        avatarID: user.avatar.id!,
+        name: user.name
       })
     } else {
       AvatarState.selectRandomAvatar()
     }
-  }, [sceneLoaded, authState.user.avatar])
+  }, [sceneLoaded])
 }
 
 /**

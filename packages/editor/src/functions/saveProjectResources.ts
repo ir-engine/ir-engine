@@ -23,22 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { memo } from 'react'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { Grid } from '@mui/material'
-
-import ServerItemCard from './ServerItemCard'
-
-const ServerList = ({ data, selectedCard, setSelectedCard }) => {
-  return data.map((item, index) => (
-    <Grid item key={item.id} xs={12} sm={6} md={2}>
-      <ServerItemCard key={index} data={item} isSelected={selectedCard === item.id} onCardClick={setSelectedCard} />
-    </Grid>
-  ))
+export async function saveProjectResources(project: string) {
+  await Engine.instance.api.service('project-resources').create({ project })
 }
-
-ServerList.displayName = 'ServerList'
-
-ServerList.defaultProps = {}
-
-export default memo(ServerList)
