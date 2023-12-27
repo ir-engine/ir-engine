@@ -85,14 +85,15 @@ export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
   const scene = model.scene ?? model // FBX assets do not have 'scene' property
   if (!scene) return null!
 
-  const isVRM = model instanceof VRM
+  const isVRM0 = model instanceof VRM
+  const isVRM1 = model.userData?.vrm
 
-  if (isVRM && model.meta.metaVersion === '1') {
+  if (isVRM1) {
     if (!model.userData) model.userData = {}
     return model
   }
 
-  if (isVRM && model.meta.metaVersion === '0') {
+  if (isVRM0) {
     const bones = model.humanoid.rawHumanBones
     model.humanoid.normalizedHumanBonesRoot.removeFromParent()
     bones.hips.node.rotateY(Math.PI)

@@ -35,8 +35,7 @@ import {
   VRMHumanoid,
   VRMParameters
 } from '@pixiv/three-vrm'
-import { cloneDeep } from 'lodash'
-import { Bone, Group, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Bone, Euler, Group, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 import { Object3DUtils } from '../common/functions/Object3DUtils'
@@ -721,7 +720,7 @@ export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
     }
   })
 
-  const humanoid = new VRMHumanoid(bones)
+  const humanoid = enforceTPose(new VRMHumanoid(bones))
 
   asset.scene.add(humanoid.normalizedHumanBonesRoot)
 
@@ -735,9 +734,29 @@ export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
 
   humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
   humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
-  //quick dirty tag to disable flipping on mixamo rigs
-  vrm.userData = { useAPose: getAPose(_rightHandPos, _rightUpperArmPos) }
   return vrm
+}
+
+const worldQuat = new Quaternion()
+export const enforceTPose = (humanoid: VRMHumanoid) => {
+  // right arm
+  const bones = humanoid.humanBones
+
+  bones.rightShoulder!.node.quaternion.setFromEuler(new Euler(Math.PI / 2, 0, Math.PI / 2))
+  bones.rightUpperArm.node.quaternion.set(0, 0, 0, 1)
+  bones.rightLowerArm.node.quaternion.set(0, 0, 0, 1)
+
+  bones.leftShoulder!.node.quaternion.setFromEuler(new Euler(Math.PI / 2, 0, -Math.PI / 2))
+  bones.leftUpperArm.node.quaternion.set(0, 0, 0, 1)
+  bones.leftLowerArm.node.quaternion.set(0, 0, 0, 1)
+
+  bones.rightUpperLeg.node.quaternion.setFromEuler(new Euler(0, 0, Math.PI))
+  bones.rightLowerLeg.node.quaternion.set(0, 0, 0, 1)
+
+  bones.leftUpperLeg.node.quaternion.setFromEuler(new Euler(0, 0, Math.PI))
+  bones.leftLowerLeg.node.quaternion.set(0, 0, 0, 1)
+
+  return new VRMHumanoid(bones)
 }
 
 export const mixamoVRMRigMap = {
@@ -797,12 +816,4 @@ export const mixamoVRMRigMap = {
 
 export const hipRigMap = {
   CC_Base_Hip: 'hips'
-}
-
-export function makeBindPose(bones: VRMHumanBones) {
-  const newRig = cloneDeep(bones)
-  for (const [key, value] of Object.entries(newRig)) {
-    value.node.quaternion.set(0, 0, 0, 0)
-  }
-  return newRig
 }
