@@ -24,6 +24,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import Inventory2Icon from '@mui/icons-material/Inventory2'
+import WebAssetIcon from '@mui/icons-material/WebAsset'
 import { CircularProgress } from '@mui/material'
 import { t } from 'i18next'
 import { debounce } from 'lodash'
@@ -46,6 +47,7 @@ import StringInput from '../inputs/StringInput'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import ImageNodeEditor from '../properties/ImageNodeEditor'
 import ModelNodeEditor from '../properties/ModelNodeEditor'
+import PositionalAudioNodeEditor from '../properties/PositionalAudioNodeEditor'
 import VideoNodeEditor from '../properties/VideoNodeEditor'
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
 import styles from './styles.module.scss'
@@ -58,7 +60,8 @@ type CategorizedStaticResourceType = FolderType | ResourceType
 const ResourceIcons = {
   [AssetClass.Model]: ModelNodeEditor.iconComponent,
   [AssetClass.Image]: ImageNodeEditor.iconComponent,
-  [AssetClass.Video]: VideoNodeEditor.iconComponent
+  [AssetClass.Video]: VideoNodeEditor.iconComponent,
+  [AssetClass.Audio]: PositionalAudioNodeEditor.iconComponent
 }
 
 const StaticResourceItem = (props: {
@@ -90,7 +93,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
 
   const assetType = AssetLoader.getAssetType(resource.key)
-  const ResourceIcon = ResourceIcons[AssetLoader.getAssetClass(resource.key)]
+  const ResourceIcon = ResourceIcons[AssetLoader.getAssetClass(resource.key)] || WebAssetIcon
   const [_, drag, preview] = useDrag(() => ({
     type: assetType,
     item: {
