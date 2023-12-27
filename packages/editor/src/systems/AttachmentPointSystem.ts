@@ -24,12 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
@@ -38,7 +33,7 @@ import {
   flipAround
 } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { TransformSystem, computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
@@ -73,6 +68,25 @@ export function findClosestRotation(n: number, srcRotation: Quaternion, dstRotat
 }
 
 const execute = () => {
+  const attachmentPointQuery = defineQuery([ObjectGridSnapComponent])
+
+  for (const entity of attachmentPointQuery()) {
+    const snapComponent = getComponent(entity, ObjectGridSnapComponent)
+    const transform = getComponent(entity, TransformComponent)
+    snapComponent.attachmentPoints.forEach((attachmentPoint) => {
+      attachmentPoint.helper?.position.copy(attachmentPoint.position).applyMatrix4(transform.matrixWorld)
+      attachmentPoint.helper?.quaternion
+        .copy(attachmentPoint.rotation)
+        .multiply(TransformComponent.getWorldRotation(entity, new Quaternion()))
+      attachmentPoint.helper?.matrixWorld.compose(
+        attachmentPoint.helper.position,
+        attachmentPoint.helper.quaternion,
+        attachmentPoint.helper.scale
+      )
+      attachmentPoint.helper?.matrix.copy(attachmentPoint.helper.matrixWorld)
+    })
+  }
+
   //only execute if attachment point snap is enabled
   const helperState = getState(EditorHelperState)
   if (!helperState.attachmentPointSnap) return
@@ -81,7 +95,6 @@ const execute = () => {
   const now = Date.now()
   if (now - lastExecutionTime < interval) return
   lastExecutionTime = now
-  const attachmentPointQuery = defineQuery([ObjectGridSnapComponent])
 
   //calculate select entity
   const selectionState = getMutableState(SelectionState) //access the list of currently selected entities
@@ -184,17 +197,23 @@ const execute = () => {
       // Apply the flip to the parent's rotation
       const rotation = flipRotation.multiply(initialRotation)
 
-      setComponent(selectParententityFinal, TransformComponent, {
-        rotation
-      })
-      computeTransformMatrix(srcSnapEntity)
-      const nuSrcPosition = srcAttachmentPoint!.position.clone().applyMatrix4(srcPointTransform.matrix)
+      // setComponent(selectParententityFinal, TransformComponent, {
+      //   rotation
+      // })
+      TransformComponent.setWorldRotation(selectParententityFinal, rotation)
+      TransformComponent.updateFromWorldMatrix(selectParententityFinal)
+      //computeTransformMatrix(srcSnapEntity)
+      const nuSrcPosition = srcAttachmentPoint!.position.clone().applyMatrix4(srcPointTransform.matrixWorld)
       const dstPointTransform = getComponent(dstSnapEntity!, TransformComponent)
-      const nuDstPosition = dstAttachmentPoint!.position.clone().applyMatrix4(dstPointTransform.matrix)
-      const position = parentTransform.position.clone().add(nuDstPosition.clone().sub(nuSrcPosition))
-      setComponent(selectParententityFinal, TransformComponent, {
-        position
-      })
+      const nuDstPosition = dstAttachmentPoint!.position.clone().applyMatrix4(dstPointTransform.matrixWorld)
+      const position = TransformComponent.getWorldPosition(selectParententityFinal, new Vector3())
+        .clone()
+        .add(nuDstPosition.clone().sub(nuSrcPosition))
+      // setComponent(selectParententityFinal, TransformComponent, {
+      //   position
+      // })
+      TransformComponent.setWorldPosition(selectParententityFinal, position)
+      TransformComponent.updateFromWorldMatrix(selectParententityFinal)
     }
   }
 }

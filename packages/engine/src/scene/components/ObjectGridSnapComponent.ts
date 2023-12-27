@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   defineComponent,
@@ -33,17 +34,19 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { ArrowHelper, Box3, Euler, Mesh, Quaternion, Vector3 } from 'three'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+import { ArrowHelper, Box3, Euler, MathUtils, Mesh, Quaternion, Vector3 } from 'three'
+import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { TransformSystem, computeTransformMatrix } from '../../transform/systems/TransformSystem'
-import { addWorldObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
+import { addObjectToGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { VisibleComponent } from './VisibleComponent'
 
 export type AttachmentPointData = {
   position: Vector3
@@ -92,13 +95,18 @@ export const ObjectGridSnapComponent = defineComponent({
       const originalPosition = new Vector3()
       const originalRotation = new Quaternion()
       const originalScale = new Vector3()
-      getComponent(entity, TransformComponent).matrix.decompose(originalPosition, originalRotation, originalScale)
+      const originalParent = getComponent(entity, EntityTreeComponent).parentEntity
+      const transform = getComponent(entity, TransformComponent)
+      transform.matrix.decompose(originalPosition, originalRotation, originalScale)
       //set entity transform to identity before calculating bounding box
-      setComponent(entity, TransformComponent, {
-        position: new Vector3(),
-        rotation: new Quaternion().identity(),
-        scale: new Vector3(1, 1, 1)
-      })
+      setComponent(entity, EntityTreeComponent, { parentEntity: null })
+      // setComponent(entity, TransformComponent, {
+      //   position: new Vector3(),
+      //   rotation: new Quaternion().identity(),
+      //   scale: new Vector3(1, 1, 1)
+      // })
+      transform.matrixWorld.identity()
+      TransformComponent.updateFromWorldMatrix(entity)
       const meshes: Mesh[] = []
       //iterate through children and update their transforms to reflect identity from parent
       iterateEntityNode(entity, (childEntity: Entity) => {
@@ -120,6 +128,7 @@ export const ObjectGridSnapComponent = defineComponent({
         bbox
       })
       //set entity transform back to original
+      setComponent(entity, EntityTreeComponent, { parentEntity: originalParent })
       setComponent(entity, TransformComponent, {
         position: originalPosition,
         rotation: originalRotation,
@@ -139,15 +148,17 @@ export const ObjectGridSnapComponent = defineComponent({
       const bboxMin = bbox.min
       const bboxMax = bbox.max
       //top side
-      if (snapComponent.attachmentPoints.value.length > 0) {
-        for (const attachmentPoint of snapComponent.attachmentPoints.value) {
-          if (attachmentPoint.helper) removeObjectFromGroup(entity, attachmentPoint.helper)
-        }
-      }
+      // if (snapComponent.attachmentPoints.value.length > 0) {
+      //   for (const attachmentPoint of snapComponent.attachmentPoints.value) {
+      //     if (attachmentPoint.helper) removeObjectFromGroup(entity, attachmentPoint.helper)
+      //   }
+      // }
 
       const generateHelper = (color: number) => {
         return new ArrowHelper(new Vector3(0, 0, 1), new Vector3(), 0.5, color, 0.2, 0.1)
       }
+
+      const helperEntities: Entity[] = []
 
       const generateAttachmentPointsForSide = (
         side: 'top' | 'bottom' | 'left' | 'right' | 'front' | 'back',
@@ -257,8 +268,18 @@ export const ObjectGridSnapComponent = defineComponent({
           const x = minI + sizeI / 2
           const z = minJ + sizeJ / 2
           const helper = generateHelper(color)
-          addWorldObjectToGroup(entity, helper)
+          const helperEntity = createEntity()
+          helperEntities.push(helperEntity)
           const { position, rotation } = generatePositionAndRotation(x, z)
+          setComponent(helperEntity, TransformComponent, { position, rotation })
+          setComponent(helperEntity, EntityTreeComponent, {
+            parentEntity: entity,
+            uuid: MathUtils.generateUUID() as EntityUUID
+          })
+          addObjectToGroup(helperEntity, helper)
+          proxifyParentChildRelationships(helper)
+          setComponent(helperEntity, VisibleComponent)
+          //addWorldObjectToGroup(entity, helper)
           attachmentPoints.push({
             position,
             rotation: flipAround(rotation),
@@ -271,12 +292,21 @@ export const ObjectGridSnapComponent = defineComponent({
               const z = minJ + (sizeJ / (density - 1)) * j
               //const helper = new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial({ color: 0xFF0000 }))
               const helper = generateHelper(color)
-              addWorldObjectToGroup(entity, helper)
+              const helperEntity = createEntity()
+              helperEntities.push(helperEntity)
               //attachment points point up in local space
               const { position, rotation } = generatePositionAndRotation(x, z)
+              setComponent(helperEntity, TransformComponent, { position, rotation })
+              setComponent(helperEntity, EntityTreeComponent, {
+                parentEntity: entity,
+                uuid: MathUtils.generateUUID() as EntityUUID
+              })
+              addObjectToGroup(helperEntity, helper)
+              proxifyParentChildRelationships(helper)
+              setComponent(helperEntity, VisibleComponent)
               attachmentPoints.push({
                 position,
-                rotation: flipAround(rotation),
+                rotation,
                 helper
               })
             }
@@ -299,6 +329,12 @@ export const ObjectGridSnapComponent = defineComponent({
       setComponent(entity, ObjectGridSnapComponent, {
         attachmentPoints
       })
+
+      return () => {
+        for (const helperEntity of helperEntities) {
+          removeEntity(helperEntity)
+        }
+      }
     }, [snapComponent.density, snapComponent.bbox])
 
     useExecute(
