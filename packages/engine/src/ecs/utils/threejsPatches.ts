@@ -180,4 +180,55 @@ Object3D.prototype.getWorldDirection = function (target) {
   return target.set(e[8], e[9], e[10]).normalize()
 }
 
+Object3D.prototype.add = function (...object: Object3D[]) {
+  if (arguments.length > 1) {
+    for (const obj of object) {
+      this.add(obj)
+    }
+    return this
+  }
+
+  const obj3d = object[0]
+  if (obj3d === this) {
+    console.error("Object3D.add: object can't be added as a child of itself.", object)
+    return this
+  }
+
+  if (obj3d && obj3d.isObject3D) {
+    if (obj3d.parent !== null) {
+      obj3d.parent.remove(obj3d)
+    }
+
+    obj3d.parent = this
+    this.children.push(obj3d)
+
+    obj3d.dispatchEvent({ type: 'added' })
+  } else {
+    console.error('THREE.Object3D.add: object not an instance of THREE.Object3D.', object)
+  }
+
+  return this
+}
+
+Object3D.prototype.remove = function (...object: Object3D[]) {
+  if (arguments.length > 1) {
+    for (const obj of object) {
+      this.remove(obj)
+    }
+    return this
+  }
+
+  const index = this.children.indexOf(object)
+
+  const obj3d = object[0]
+  if (index !== -1) {
+    obj3d.parent = null
+    this.children.splice(index, 1)
+
+    obj3d.dispatchEvent({ type: 'removed' })
+  }
+
+  return this
+}
+
 globalThis.THREE = { ...THREE, GLTFLoader } as any
