@@ -25,7 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Object3D, Quaternion, Vector3 } from 'three'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { BoneComponent } from '../components/BoneComponent'
 
 export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
   const humanoidRig = (vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRig
@@ -47,13 +50,16 @@ export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
         .premultiply(invParentWorldRotation)
         .multiply(boneRotation)
 
-      // Move the mass center of the VRM
       if (boneName === 'hips') {
         const boneWorldPosition = rigBoneNode.getWorldPosition(_boneWorldPos)
-        boneNode.parent!.updateWorldMatrix(true, false)
-        const parentWorldMatrix = boneNode.parent!.matrixWorld.clone()
-        const localPosition = boneWorldPosition.clone().applyMatrix4(parentWorldMatrix.invert())
-        boneNode.position.copy(localPosition)
+        const entity = boneNode.entity
+        const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
+        if (!parentEntity) continue
+        const parentBone = getComponent(parentEntity, BoneComponent)
+        if (!parentBone) continue
+        parentBone.updateWorldMatrix(true, false)
+        const parentWorldMatrix = parentBone.matrixWorld.clone()
+        boneNode.position.copy(boneWorldPosition.applyMatrix4(parentWorldMatrix.invert()))
       }
     }
   }
