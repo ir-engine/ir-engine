@@ -37,12 +37,15 @@ import {
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import { Popover } from '@mui/material'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
+import ElementList from '../element/ElementList'
+import { PropertiesPanelButton } from '../inputs/Button'
 import MaterialEditor from '../materials/MaterialEditor'
 import { MaterialSelectionState } from '../materials/MaterialLibraryState'
 import { CoreNodeEditor } from './CoreNodeEditor'
@@ -60,6 +63,8 @@ const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
 
 const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
   const { entity, multiEdit } = props
+  const anchorEl = useHookstate<HTMLButtonElement | null>(null)
+  const { t } = useTranslation()
 
   const [{ isDragging }, dropRef] = useDrop({
     accept: [ItemTypes.Component],
@@ -86,6 +91,8 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
 
   const components = getAllComponents(entity).filter((c) => EntityNodeEditor.has(c))
 
+  const open = !!anchorEl.value
+
   return (
     <div
       ref={dropRef}
@@ -94,6 +101,27 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
         border: isDragging ? '2px solid lightgrey' : 'none'
       }}
     >
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.5rem' }}>
+        <PropertiesPanelButton onClick={(event) => anchorEl.set(event.currentTarget)}>
+          {t('editor:properties.lbl-addComponent')}
+        </PropertiesPanelButton>
+      </div>
+      <Popover
+        id={open ? 'add-component-popover' : undefined}
+        open={open}
+        anchorEl={anchorEl.value}
+        onClose={() => anchorEl.set(null)}
+        anchorOrigin={{
+          vertical: 'center',
+          horizontal: 'left'
+        }}
+        transformOrigin={{
+          vertical: 'center',
+          horizontal: 'right'
+        }}
+      >
+        <ElementList />
+      </Popover>
       <CoreNodeEditor entity={entity} key={uuid.value} />
       {components.map((c, i) => (
         <EntityComponentEditor key={`${uuid.value}-${c.name}`} multiEdit={multiEdit} entity={entity} component={c} />
@@ -104,8 +132,6 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
 
 /**
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
- *
- * @extends Component
  */
 export const PropertiesPanelContainer = () => {
   const selectionState = useHookstate(getMutableState(SelectionState))

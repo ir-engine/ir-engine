@@ -55,11 +55,10 @@ import { VideoComponent } from '@etherealengine/engine/src/scene/components/Vide
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { NO_PROXY, useState } from '@etherealengine/hyperflux'
 
-import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
-import { IconButton, PopoverPosition } from '@mui/material'
+import { IconButton } from '@mui/material'
 
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
@@ -70,15 +69,11 @@ import { PostProcessingComponent } from '@etherealengine/engine/src/scene/compon
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
-import { Vector3 } from 'three'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
-import { Button } from '../inputs/Button'
 import StringInput from '../inputs/StringInput'
-import { ContextMenu } from '../layout/ContextMenu'
 import { InfoTooltip } from '../layout/Tooltip'
 import styles from './styles.module.scss'
 
@@ -92,7 +87,6 @@ export type SceneElementType = {
 type SceneElementListItemType = {
   item: SceneElementType
   onClick: (item: SceneElementType) => void
-  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: SceneElementType) => void
 }
 
 export const ComponentShelfCategories: Record<string, Component[]> = {
@@ -125,7 +119,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
   ]
 }
 
-const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementListItemType) => {
+const SceneElementListItem = ({ item, onClick }: SceneElementListItemType) => {
   const { t } = useTranslation()
 
   const onClickItem = useCallback(() => {
@@ -140,7 +134,7 @@ const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementList
   }, [preview])
 
   return (
-    <div onContextMenu={(event) => onContextMenu(event, item)}>
+    <div>
       <InfoTooltip
         title={item.label}
         info={t(`editor:layout.assetGrid.tooltip.${item.componentJsonID}`)}
@@ -161,45 +155,6 @@ const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementList
 
 export function ElementList() {
   const { t } = useTranslation()
-  const [selectedItem, setSelectedItem] = React.useState<SceneElementType | null>(null)
-  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
-
-  const placeObject = () => {
-    handleClose()
-
-    const vec3 = new Vector3()
-    getSpawnPositionAtCenter(vec3)
-
-    EditorControlFunctions.createObjectFromSceneElement([
-      { name: selectedItem!.componentJsonID, props: { position: vec3 } }
-    ])
-  }
-
-  const placeObjectAtOrigin = () => {
-    handleClose()
-
-    EditorControlFunctions.createObjectFromSceneElement([{ name: selectedItem!.componentJsonID }])
-  }
-
-  const onContextMenu = (event: React.MouseEvent<HTMLDivElement>, item: SceneElementType) => {
-    event.preventDefault()
-    event.stopPropagation()
-
-    setSelectedItem(item)
-    setAnchorEl(event.currentTarget)
-    setAnchorPosition({
-      left: event.clientX + 2,
-      top: event.clientY - 6
-    })
-  }
-
-  const handleClose = () => {
-    setSelectedItem(null)
-    setAnchorEl(null)
-    setAnchorPosition(undefined)
-  }
 
   const searchBarState = useState<string>('')
 
@@ -207,7 +162,6 @@ export function ElementList() {
 
   useEffect(() => {
     const result: Record<string, Component[]> = {}
-    console.log('searchBarState', searchBarState, searchBarState.value)
     if (searchBarState.value === '') {
       validElements.set(ComponentShelfCategories)
     } else {
@@ -219,45 +173,36 @@ export function ElementList() {
   }, [searchBarState])
 
   return (
-    <>
-      <div className={styles.elementListContainer}>
-        <span className={styles.searchContainer}>
-          <Button onClick={() => searchBarState.set('')}>x</Button>
-          <StringInput
-            value={searchBarState.value}
-            onChange={(event) => searchBarState.set(event?.target.value)}
-            placeholder={t('Search...')}
-          />
-        </span>
-
-        {Object.entries(validElements.get(NO_PROXY)).map(([category, items]) => (
-          <div className={styles.category} key={category}>
-            {items.length > 0 && (
-              <Typography variant="subtitle2" className={styles.categoryTitle}>
-                {category}
-              </Typography>
-            )}
-            {items.map((item) => (
-              <SceneElementListItem
-                key={item.jsonID || item.name}
-                item={{
-                  componentJsonID: item.jsonID!,
-                  label: startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase()),
-                  Icon: EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon,
-                  type: ItemTypes.Component
-                }}
-                onClick={() => EditorControlFunctions.createObjectFromSceneElement([{ name: item.jsonID! }])}
-                onContextMenu={onContextMenu}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-      <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
-        <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
-        <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
-      </ContextMenu>
-    </>
+    <div className={styles.elementListContainer}>
+      <span className={styles.searchContainer}>
+        <StringInput
+          value={searchBarState.value}
+          onChange={(event) => searchBarState.set(event?.target.value)}
+          placeholder={t('Search...')}
+        />
+      </span>
+      {Object.entries(validElements.get(NO_PROXY)).map(([category, items]) => (
+        <div className={styles.category} key={category}>
+          {items.length > 0 && (
+            <Typography variant="subtitle2" className={styles.categoryTitle}>
+              {category}
+            </Typography>
+          )}
+          {items.map((item) => (
+            <SceneElementListItem
+              key={item.jsonID || item.name}
+              item={{
+                componentJsonID: item.jsonID!,
+                label: startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase()),
+                Icon: EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon,
+                type: ItemTypes.Component
+              }}
+              onClick={() => EditorControlFunctions.createObjectFromSceneElement([{ name: item.jsonID! }])}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
   )
 }
 

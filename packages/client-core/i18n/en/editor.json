@@ -187,6 +187,7 @@
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",
     "lbl-dynamicLoadDistance": "Distance",
+    "lbl-addComponent": "Add Component",
     "multipleNodeSelected": "Multiple Nodes of different types selected",
     "noNodeSelected": "No node selected",
     "ambientLight": {

@@ -64,7 +64,6 @@ import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
 import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
-import ElementList from './element/ElementList'
 import { GraphPanelTab } from './graph/GraphPanel'
 import { HierarchyPanelTab } from './hierarchy/HierarchyPanel'
 import { MaterialLibraryPanelTab } from './materials/MaterialLibraryPanel'
@@ -460,7 +459,6 @@ const EditorContainer = () => {
         <DndWrapper id="editor-container">
           <DragLayer />
           <ToolBar menu={toolbarMenu} panels={panelMenu} />
-          <ElementList />
           <ControlText />
           {sceneLoading && <SceneLoadingProgress />}
           <div className={styles.workspaceContainer}>
@@ -469,7 +467,7 @@ const EditorContainer = () => {
               <DockLayout
                 ref={dockPanelRef}
                 defaultLayout={defaultLayout}
-                style={{ position: 'absolute', left: 5, top: 55, right: 130, bottom: 5 }}
+                style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
               />
             </DockContainer>
           </div>
