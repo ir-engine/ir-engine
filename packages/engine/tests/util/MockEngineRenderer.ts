@@ -23,28 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-import type { WebContainer3D } from '@etherealengine/xrui'
+import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
+import { EngineRenderer } from '../../src/renderer/WebGLRendererSystem'
+import { MockEventListener } from './MockEventListener'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import { XRUIState } from '../XRUIState'
+export class MockEngineRenderer extends EngineRenderer {
+  static instance: EngineRenderer
 
-export const XRUIComponent = defineComponent({
-  name: 'XRUIComponent',
-
-  onInit: (entity) => {
-    return null! as WebContainer3D
-  },
-
-  onSet: (entity, component, json: WebContainer3D) => {
-    if (typeof json !== 'undefined') {
-      component.set(json)
-      XRUIComponent.valueMap[entity] = json
-      json.interactionRays = getState(XRUIState).interactionRays
-    }
-  },
-
-  onRemove: (entity, component) => {
-    component.value.destroy()
+  constructor() {
+    super()
+    this.renderer = {
+      domElement: new MockEventListener()
+    } as unknown as WebGLRenderer
   }
-})
+}
