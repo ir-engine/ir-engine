@@ -34,7 +34,12 @@ import React from 'react'
 import { Ray, Vector3 } from 'three'
 import { Engine, destroyEngine } from '../../../../src/ecs/classes/Engine'
 import { Entity } from '../../../../src/ecs/classes/Entity'
-import { getComponent, hasComponent, setComponent } from '../../../../src/ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../../../src/ecs/functions/ComponentFunctions'
 import { entityExists } from '../../../../src/ecs/functions/EntityFunctions'
 import { SystemDefinitions } from '../../../../src/ecs/functions/SystemFunctions'
 import { createEngine } from '../../../../src/initializeEngine'
@@ -143,17 +148,6 @@ describe('addClientInputListeners', () => {
 })
 
 describe('client input system reactor', () => {
-  let originCopy
-
-  before(() => {
-    originCopy = globalThis.ReferenceSpace.origin
-    globalThis.ReferenceSpace.origin = new MockXRReferenceSpace()
-  })
-
-  after(() => {
-    globalThis.ReferenceSpace.origin = originCopy
-  })
-
   beforeEach(() => {
     createEngine()
   })
@@ -178,6 +172,8 @@ describe('client input system reactor', () => {
       profiles: ['test'],
       hand: undefined
     }) as XRInputSource
+
+    globalThis.ReferenceSpace.origin = new MockXRReferenceSpace()
 
     const mockXRFrame = new MockXRFrame()
     mockXRFrame.pose.transform.position.x = 0.2134
@@ -223,8 +219,7 @@ describe('client input system reactor', () => {
     getMutableState(XRUIState).interactionRays.set([
       new Ray(new Vector3(0.23, 0.65, 0.98), new Vector3(0.21, 0.43, 0.82))
     ])
-    setComponent(entity, XRUIComponent)
-    XRUIComponent.valueMap[entity] = {
+    setComponent(entity, XRUIComponent, {
       hitTest: (inputRay) => {
         return {
           intersection: {
@@ -238,9 +233,9 @@ describe('client input system reactor', () => {
           }
         }
       },
-      destroy: () => {},
-      interactionRays: []
-    } as unknown as WebContainer3D
+      destroy: () => {}
+    } as unknown as WebContainer3D)
+
     setComponent(entity, InputComponent)
     setComponent(entity, VisibleComponent)
     setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
@@ -250,6 +245,9 @@ describe('client input system reactor', () => {
     const sourceState = getComponent(entity, InputSourceComponent)
     assert(sourceState.assignedAxesEntity == entity)
     assert(sourceState.assignedButtonEntity == entity)
+
+    //Remove before destroyEngine is called to prevent a throw since the WebContainer is being mocked
+    removeComponent(entity, XRUIComponent)
   })
 
   it('test client input system physics heuristic', async () => {
