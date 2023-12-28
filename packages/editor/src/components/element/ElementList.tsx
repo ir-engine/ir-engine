@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { startCase } from 'lodash'
-import React, { useEffect } from 'react'
+import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
@@ -51,11 +51,12 @@ import { SystemComponent } from '@etherealengine/engine/src/scene/components/Sys
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { useHookstate, useState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
 import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
@@ -71,6 +72,8 @@ import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/compone
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { SelectionState } from '../../services/SelectionServices'
+import { usePopoverContextClose } from './PopoverContext'
 
 export type SceneElementType = {
   componentJsonID: string
@@ -112,11 +115,16 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
 const ComponentListItem = ({ item }: { item: Component }) => {
   const { t } = useTranslation()
   const Icon = EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon
+  const handleClosePopover = usePopoverContextClose()
 
   return (
     <ListItemButton
       sx={{ pl: 4, bgcolor: 'var(--dockBackground)' }}
-      onClick={() => EditorControlFunctions.createObjectFromSceneElement([{ name: item.jsonID! }])}
+      onClick={() => {
+        const nodes = getMutableState(SelectionState).selectedEntities.value
+        EditorControlFunctions.addOrRemoveComponent(nodes, item, true)
+        handleClosePopover()
+      }}
     >
       <ListItemIcon style={{ color: 'var(--textColor)' }}>
         <Icon />
@@ -129,7 +137,7 @@ const ComponentListItem = ({ item }: { item: Component }) => {
         }
         secondary={
           <Typography variant="caption" color={'var(--textColor)'}>
-            {t(`editor:layout.assetGrid.tooltip.${item.jsonID}`)}
+            {t(`editor:layout.assetGrid.component-detail.${item.jsonID}`)}
           </Typography>
         }
       />
@@ -139,10 +147,12 @@ const ComponentListItem = ({ item }: { item: Component }) => {
 
 const SceneElementListItem = ({
   categoryTitle,
-  categoryItems
+  categoryItems,
+  isCollapsed
 }: {
   categoryTitle: string
   categoryItems: Component[]
+  isCollapsed: boolean
 }) => {
   const open = useHookstate(categoryTitle === 'Misc')
   return (
@@ -159,9 +169,9 @@ const SceneElementListItem = ({
         }}
       >
         <Typography>{categoryTitle}</Typography>
-        <Icon type={open.value ? 'KeyboardArrowUp' : 'KeyboardArrowDown'} />
+        <Icon type={isCollapsed || open.value ? 'KeyboardArrowUp' : 'KeyboardArrowDown'} />
       </ListItemButton>
-      <Collapse in={open.value} timeout={'auto'} unmountOnExit>
+      <Collapse in={isCollapsed || open.value} timeout={'auto'} unmountOnExit>
         <List component={'div'} sx={{ bgcolor: 'var(--dockBackground)', width: '100%' }} disablePadding>
           {categoryItems.map((item) => (
             <ComponentListItem key={item.jsonID || item.name} item={item} />
@@ -172,23 +182,33 @@ const SceneElementListItem = ({
   )
 }
 
+const filterComponentShelfCategories = (search: string) => {
+  if (!search) {
+    return Object.entries(ComponentShelfCategories)
+  }
+
+  const searchRegExp = new RegExp(search, 'gi')
+
+  return Object.entries(ComponentShelfCategories)
+    .map(([category, items]) => {
+      const filteredItems = items.filter((item) => item.name.match(searchRegExp)?.length)
+      return [category, filteredItems] as [string, Component[]]
+    })
+    .filter(([_, items]) => !!items.length)
+}
+
 export function ElementList() {
   const { t } = useTranslation()
-  const searchBarState = useState<string>('')
+  const search = useHookstate({ local: '', query: '' })
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const validElements = useState(ComponentShelfCategories)
-
-  useEffect(() => {
-    const result: Record<string, Component[]> = {}
-    if (searchBarState.value === '') {
-      validElements.set(ComponentShelfCategories)
-    } else {
-      for (const [category, items] of Object.entries(ComponentShelfCategories)) {
-        result[category] = items.filter((item) => item.name.toLowerCase().includes(searchBarState.value.toLowerCase()))
-      }
-      validElements.set(result)
-    }
-  }, [searchBarState])
+  const onSearch = (text: string) => {
+    search.local.set(text)
+    if (searchTimeout.current) clearTimeout(searchTimeout.current)
+    searchTimeout.current = setTimeout(() => {
+      search.query.set(text)
+    }, 50)
+  }
 
   return (
     <List
@@ -198,11 +218,22 @@ export function ElementList() {
           <Typography style={{ color: 'var(--textColor)', textAlign: 'center', textTransform: 'uppercase' }}>
             {t('editor:layout.assetGrid.components')}
           </Typography>
+          <InputText
+            placeholder={t('editor:layout.assetGrid.components-search')}
+            value={search.local.value}
+            sx={{ mt: 1 }}
+            onChange={(e) => onSearch(e.target.value)}
+          />
         </div>
       }
     >
-      {Object.entries(ComponentShelfCategories).map(([category, items]) => (
-        <SceneElementListItem key={category} categoryTitle={category} categoryItems={items} />
+      {filterComponentShelfCategories(search.query.value).map(([category, items]) => (
+        <SceneElementListItem
+          key={category}
+          categoryTitle={category}
+          categoryItems={items}
+          isCollapsed={!!search.query.value}
+        />
       ))}
     </List>
   )

@@ -900,7 +900,8 @@
       "openInNewTab": "Open URL in New Tab",
       "deleteAsset": "Delete Asset",
       "components": "Components",
-      "tooltip": {
+      "components-search": "Search Components ...",
+      "component-detail": {
         "gltf-model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
         "volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
         "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
