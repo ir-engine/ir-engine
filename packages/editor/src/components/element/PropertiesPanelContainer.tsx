@@ -44,11 +44,11 @@ import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
-import ElementList from '../element/ElementList'
 import { PropertiesPanelButton } from '../inputs/Button'
 import MaterialEditor from '../materials/MaterialEditor'
 import { MaterialSelectionState } from '../materials/MaterialLibraryState'
-import { CoreNodeEditor } from './CoreNodeEditor'
+import { CoreNodeEditor } from '../properties/CoreNodeEditor'
+import ElementList from './ElementList'
 
 const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
   const { entity, component, multiEdit } = props
