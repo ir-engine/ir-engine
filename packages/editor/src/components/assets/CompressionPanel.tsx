@@ -176,13 +176,10 @@ export default function CompressionPanel({
     heuristic: 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE',
     exportCombined = false
   ) => {
-    const modelFormat = modelSrc.endsWith('.gltf') ? 'gltf' : 'glb'
-
     const lodVariantParms: ModelTransformParameters[] = lods.map((lod) => ({
       ...lod.parms,
       src: modelSrc,
-      dst: `${modelDst}${lod.suffix ?? ''}.${modelFormat}`,
-      modelFormat
+      dst: `${modelDst}${lod.suffix ?? ''}.${lod.parms.modelFormat}`
     }))
 
     for (const variant of lodVariantParms) {
@@ -205,7 +202,9 @@ export default function CompressionPanel({
         })),
         heuristic
       })
-      await exportGLTF(result, modelSrc.replace(/\.[^.]*$/, `-integrated.${modelFormat}`))
+
+      const combinedModelFormat = modelSrc.endsWith('.gltf') ? 'gltf' : 'glb'
+      await exportGLTF(result, modelSrc.replace(/\.[^.]*$/, `-integrated.${combinedModelFormat}`))
     }
   }
 
