@@ -256,7 +256,7 @@ function ModelReactor() {
         })
     else removeComponent(entity, SceneAssetPendingTagComponent)
 
-    const loadedJsonHierarchy = parseGLTFModel(entity)
+    const loadedJsonHierarchy = parseGLTFModel(entity, scene)
     const uuid = getModelSceneID(entity)
 
     SceneState.loadScene(uuid, {

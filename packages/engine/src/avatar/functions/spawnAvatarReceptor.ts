@@ -49,11 +49,13 @@ import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/Collis
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
+import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -87,6 +89,10 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const userName = userNames[entityUUID]
   const shortId = ownerID.substring(0, 7)
   setComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))
+  const obj3d = new Object3D()
+  obj3d.entity = entity
+  addObjectToGroup(entity, obj3d)
+  proxifyParentChildRelationships(obj3d)
 
   setComponent(entity, VisibleComponent, true)
 
