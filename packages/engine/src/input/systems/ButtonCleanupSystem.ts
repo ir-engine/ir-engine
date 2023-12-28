@@ -38,6 +38,8 @@ function cleanupButton(key: string, buttons: ButtonStateMap, hasFocus: boolean) 
 }
 
 const execute = () => {
+  if (typeof globalThis.document === 'undefined') return
+
   const hasFocus = document.hasFocus()
 
   for (const eid of inputSources()) {
