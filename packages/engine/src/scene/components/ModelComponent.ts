@@ -48,11 +48,11 @@ import {
   serializeComponent,
   setComponent,
   useComponent,
-  useOptionalComponent,
-  useQuery
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { useQuery } from '../../ecs/functions/QueryFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'

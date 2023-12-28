@@ -536,8 +536,8 @@ export function defineActionQueue<V extends Validator<unknown, ResolvedActionTyp
     get: () => getOrCreateInstance()
   })
 
-  actionQueueGetter.needsReset = false
-  Object.defineProperty(actionQueueGetter, 'instance', {
+  actionQueueGetter.needsResync = false
+  Object.defineProperty(actionQueueGetter, 'needsResync', {
     get: () => getOrCreateInstance().needsResync
   })
 

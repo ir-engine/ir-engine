@@ -35,7 +35,6 @@ import { Query, QueryComponents } from '@etherealengine/engine/src/ecs/functions
 import { SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
 import { ReactorRoot } from './ReactorFunctions'
-import { StateDefinitions, setInitialState } from './StateFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
@@ -72,11 +71,6 @@ export interface HyperStore {
    * State dictionary
    */
   stateMap: { [type: string]: State<any> }
-  /**
-   * Underlying non-reactive states
-   */
-  valueMap: { [type: string]: any }
-
   /**
    * The entity context used to match action receptor functions
    */
@@ -166,8 +160,5 @@ export function createHyperStore(options: {
   } as HyperStore
   HyperFlux.store = store
   bitecs.createWorld(store)
-  for (const StateDefinition of StateDefinitions.values()) {
-    setInitialState(StateDefinition)
-  }
   return store
 }
