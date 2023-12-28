@@ -100,12 +100,8 @@ export const XRDetectedMeshComponent = defineComponent({
       const occlusionMesh = component.occlusionMesh.value
       const geometry = component.geometry.value
 
-      const setGeometry = (mesh: Mesh) => {
-        if (mesh.geometry) mesh.geometry = geometry
-      }
-
-      shadowMesh.traverse(setGeometry)
-      occlusionMesh.traverse(setGeometry)
+      if (shadowMesh.geometry) shadowMesh.geometry = geometry
+      if (occlusionMesh.geometry) occlusionMesh.geometry = geometry
 
       return () => {
         geometry.dispose()
