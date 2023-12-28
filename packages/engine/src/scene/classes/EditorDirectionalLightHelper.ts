@@ -33,8 +33,9 @@ import {
   Object3D
 } from 'three'
 
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
+import { Entity } from '../../ecs/classes/Entity'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { addObjectToGroup } from '../components/GroupComponent'
 
 export default class EditorDirectionalLightHelper extends Object3D {
   color: ColorRepresentation
@@ -42,6 +43,7 @@ export default class EditorDirectionalLightHelper extends Object3D {
   targetLine: LineSegments<BufferGeometry, LineBasicMaterial>
   name: string
   directionalLight: DirectionalLight
+  lightHelperEntity: Entity
 
   constructor(directionalLight: DirectionalLight, size?: number, color?: ColorRepresentation) {
     super()
@@ -99,8 +101,9 @@ export default class EditorDirectionalLightHelper extends Object3D {
       )
     )
 
+    this.lightHelperEntity = createEntity()
     this.lightPlane = new LineSegments(geometry, material)
-    this.add(this.lightPlane)
+    addObjectToGroup(this.lightHelperEntity, this.lightPlane)
 
     geometry = new BufferGeometry()
     const t = size * 0.1
@@ -110,9 +113,7 @@ export default class EditorDirectionalLightHelper extends Object3D {
     )
 
     this.targetLine = new LineSegments(geometry, material)
-    this.add(this.targetLine)
-
-    setObjectLayers(this, ObjectLayers.NodeHelper)
+    addObjectToGroup(this.lightHelperEntity, this.targetLine)
   }
 
   dispose() {
@@ -120,5 +121,9 @@ export default class EditorDirectionalLightHelper extends Object3D {
     this.lightPlane.material.dispose()
     this.targetLine.geometry.dispose()
     this.targetLine.material.dispose()
+  }
+
+  onRemove() {
+    removeEntity(this.lightHelperEntity)
   }
 }
