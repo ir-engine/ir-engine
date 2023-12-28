@@ -41,6 +41,7 @@ import {
 
 import { useEffect } from 'react'
 
+import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
@@ -125,14 +126,16 @@ export const SplineComponent = defineComponent({
       }
 
       let id = 0
-      const gizmoEntity = createEntity()
+      const gizmoEntities = [] as Entity[]
       for (const elem of elements.value) {
         const gizmo = new AxesHelper()
         gizmo.name = `${entity}-gizmos-${++id}`
+        const gizmoEntity = createEntity()
         addObjectToGroup(gizmoEntity, gizmo)
         setComponent(gizmoEntity, NameComponent, gizmo.name)
         setComponent(gizmoEntity, EntityTreeComponent, { parentEntity: entity })
         addObjectToGroup(gizmoEntity, new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
+        gizmoEntities.push(gizmoEntity)
         setObjectLayers(gizmo, ObjectLayers.NodeHelper)
         gizmo.position.copy(elem.position)
         gizmo.quaternion.copy(elem.quaternion)
@@ -159,7 +162,7 @@ export const SplineComponent = defineComponent({
         line.children.forEach((child) => line.remove(child))
         removeObjectFromGroup(entity, line)
         removeEntity(lineEntity)
-        removeEntity(gizmoEntity)
+        for (const gizmoEntity of gizmoEntities) removeEntity(gizmoEntity)
       }
     }, [
       elements.length,
