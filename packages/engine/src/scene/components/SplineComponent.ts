@@ -41,11 +41,14 @@ import {
 
 import { useEffect } from 'react'
 
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { NameComponent } from './NameComponent'
+import { setVisibleComponent } from './VisibleComponent'
 
 const ARC_SEGMENTS = 200
 const _point = new Vector3()
@@ -95,6 +98,12 @@ export const SplineComponent = defineComponent({
       addObjectToGroup(entity, line)
       setObjectLayers(line, ObjectLayers.NodeHelper)
 
+      const lineEntity = createEntity()
+      addObjectToGroup(lineEntity, line)
+      setComponent(lineEntity, NameComponent, line.name)
+      setComponent(lineEntity, EntityTreeComponent, { parentEntity: entity })
+      setVisibleComponent(lineEntity, true)
+
       const geometry = new SphereGeometry(0.05, 4, 2)
 
       if (elements.length > 0) {
@@ -103,7 +112,7 @@ export const SplineComponent = defineComponent({
         setObjectLayers(sphere, ObjectLayers.NodeHelper)
         sphere.position.copy(first.position)
         sphere.updateMatrixWorld(true)
-        line.add(sphere)
+        addObjectToGroup(lineEntity, sphere)
       }
 
       if (elements.length > 1) {
@@ -112,19 +121,23 @@ export const SplineComponent = defineComponent({
         setObjectLayers(sphere, ObjectLayers.NodeHelper)
         sphere.position.copy(last.position)
         sphere.updateMatrixWorld(true)
-        line.add(sphere)
+        addObjectToGroup(lineEntity, sphere)
       }
 
       let id = 0
+      const gizmoEntity = createEntity()
       for (const elem of elements.value) {
         const gizmo = new AxesHelper()
         gizmo.name = `${entity}-gizmos-${++id}`
-        gizmo.add(new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
+        addObjectToGroup(gizmoEntity, gizmo)
+        setComponent(gizmoEntity, NameComponent, gizmo.name)
+        setComponent(gizmoEntity, EntityTreeComponent, { parentEntity: entity })
+        addObjectToGroup(gizmoEntity, new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
         setObjectLayers(gizmo, ObjectLayers.NodeHelper)
         gizmo.position.copy(elem.position)
         gizmo.quaternion.copy(elem.quaternion)
         gizmo.updateMatrixWorld(true)
-        line.add(gizmo)
+        addObjectToGroup(lineEntity, gizmo)
       }
 
       const curve = new CatmullRomCurve3(
@@ -139,13 +152,14 @@ export const SplineComponent = defineComponent({
         positions.setXYZ(i, _point.x, _point.y, _point.z)
       }
       positions.needsUpdate = true
-      line.visible = true
 
       component.curve.set(curve)
 
       return () => {
         line.children.forEach((child) => line.remove(child))
         removeObjectFromGroup(entity, line)
+        removeEntity(lineEntity)
+        removeEntity(gizmoEntity)
       }
     }, [
       elements.length,
