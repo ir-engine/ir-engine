@@ -35,7 +35,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { NetworkState } from '../NetworkState'
-import { Network } from '../classes/Network'
+import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
 import { WorldNetworkAction } from './WorldNetworkAction'
@@ -103,7 +103,7 @@ function destroyPeer(network: Network, peerID: PeerID) {
    * if no other connections exist for this user, and this action is occurring on the world network,
    * we want to remove them from world.users
    */
-  if (network.topic === 'world') {
+  if (network.topic === NetworkTopics.world) {
     // todo - when multiple world servers are running, we may need to do this
     // const remainingPeersForDisconnectingUser = Object.entries(getState(NetworkState).networks)
     //   .map(([id, network]) => {

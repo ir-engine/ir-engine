@@ -71,8 +71,6 @@ export const WorldInstanceProvisioning = () => {
     const currentLocation = locationState.currentLocation.location
     const hasJoined = !!worldNetwork
 
-    console.log(hasJoined, locationInstances.keys)
-
     if (
       !currentLocation.id?.value ||
       isUserBanned ||

@@ -80,22 +80,17 @@ export const useLocationSpawnAvatar = (spectate = false) => {
 
     // the avatar should only be spawned once, after user auth and scene load
     const user = getState(AuthState).user
-    const avatarDetails = user.avatar
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
       ? getSpawnPoint(spawnPoint, Engine.instance.userID)
       : getRandomSpawnPoint(Engine.instance.userID)
 
-    if (avatarDetails.modelResource?.url) {
-      spawnLocalAvatarInWorld({
-        avatarSpawnPose,
-        avatarID: user.avatar.id!,
-        name: user.name
-      })
-    } else {
-      AvatarState.selectRandomAvatar()
-    }
+    spawnLocalAvatarInWorld({
+      avatarSpawnPose,
+      avatarID: user.avatar.id!,
+      name: user.name
+    })
   }, [sceneLoaded])
 }
 
