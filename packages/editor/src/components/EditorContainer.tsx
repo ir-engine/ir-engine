@@ -55,6 +55,7 @@ import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
+import { SceneAssetsPanelTab } from './assets/SceneAssetsPanel'
 import { ScenePanelTab } from './assets/ScenesPanel'
 import { ControlText } from './controlText/ControlText'
 import { DialogState } from './dialogs/DialogState'
@@ -320,10 +321,10 @@ const defaultLayout: LayoutData = {
     children: [
       {
         mode: 'vertical' as DockMode,
-        size: 2,
+        size: 3,
         children: [
           {
-            tabs: [ScenePanelTab, ProjectBrowserPanelTab]
+            tabs: [ScenePanelTab, ProjectBrowserPanelTab, SceneAssetsPanelTab]
           }
         ]
       },

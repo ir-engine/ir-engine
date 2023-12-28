@@ -957,6 +957,11 @@
         "tag": "Tag:",
         "addTag": "Add Tag"
       }
+    },
+    "scene-assets": {
+      "no-category": "No category selected",
+      "search-placeholder": "Search for an asset ...",
+      "preview" : "Preview"
     }
   },
   "hierarchy": {
@@ -1118,5 +1123,9 @@
   },
   "corsProxyButton": {
     "tooltip": "Use Cors Proxy Server"
+  },
+  "tabs": {
+    "scene-assets": "Assets",
+    "project-assets": "Project Assets"
   }
 }
