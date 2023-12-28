@@ -30,7 +30,7 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoneComponent } from '../components/BoneComponent'
 
-export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
+export const updateVRMRetargeting = (vrm: VRM) => {
   const humanoidRig = (vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRig
   for (const boneName of VRMHumanBoneList) {
     const boneNode = humanoidRig.original.getBoneNode(boneName) as Object3D | null

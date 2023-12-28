@@ -170,13 +170,12 @@ const execute = () => {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-    const deltaTime = elapsedSeconds - avatarAnimationComponent.deltaAccumulator
     avatarAnimationComponent.deltaAccumulator = elapsedSeconds
     const rig = rigComponent.rawRig
 
     if (!rig?.hips?.node) continue
 
-    updateVRMRetargeting(rigComponent.vrm, deltaTime)
+    updateVRMRetargeting(rigComponent.vrm)
 
     const uuid = getComponent(entity, UUIDComponent)
     const leftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
