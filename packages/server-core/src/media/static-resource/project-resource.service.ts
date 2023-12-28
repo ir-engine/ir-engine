@@ -52,6 +52,10 @@ const createProjectResource =
       query: { project },
       paginate: false
     })
+    //if no resources, return
+    if (resources.length === 0) {
+      return
+    }
     //wipe URLs from resources
     for (const resource of resources) {
       for (const field of Object.keys(resource)) {
