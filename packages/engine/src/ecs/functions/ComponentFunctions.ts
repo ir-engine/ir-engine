@@ -389,11 +389,11 @@ export const setComponent = <C extends Component>(
           HyperFlux.store.receptorEntityContext = entity
           // queue may need to be reset when actions are recieved out of order
           // or when state needs to be rolled back
-          if (queue.needsReset) {
-            // reset the state to the initial value when the queue is reset
-            setComponent(entity, Component, componentJsonDefaults(Component))
-            queue.reset()
-          }
+          // if (queue.needsReset) {
+          //   // reset the state to the initial value when the queue is reset
+          //   setComponent(entity, Component, componentJsonDefaults(Component))
+          //   queue.reset()
+          // }
           // apply each action to each matching receptor, in order
           for (const action of queue()) {
             for (const receptor of Object.values(Component.receptors!)) {

@@ -42,11 +42,11 @@ export class MountPointActions {
 export const MountPointState = defineState({
   name: 'MountPointState',
   initial: {} as Record<EntityUUID, EntityUUID>,
-  receptors: [
-    MountPointActions.mountInteraction.receive((action) => {
+  receptors: {
+    onMountInteraction: MountPointActions.mountInteraction.receive((action) => {
       const state = getMutableState(MountPointState)
       if (action.mounted) state[action.targetMount].merge(action.mountedEntity)
       else state[action.targetMount].set(none)
     })
-  ]
+  }
 })
