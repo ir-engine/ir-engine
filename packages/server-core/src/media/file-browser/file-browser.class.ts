@@ -205,16 +205,18 @@ export class FileBrowserService
     })) as StaticResourceType[]
 
     if (staticResources?.length > 0) {
-      for (const resource of staticResources) {
-        const newKey = resource.key.replace(path.join(_oldPath, data.oldName), path.join(_newPath, fileName))
-        await this.app.service(staticResourcePath).patch(
-          resource.id,
-          {
-            key: newKey
-          },
-          { isInternal: true }
-        )
-      }
+      await Promise.all(
+        staticResources.map(async (resource) => {
+          const newKey = resource.key.replace(path.join(_oldPath, data.oldName), path.join(_newPath, fileName))
+          this.app.service(staticResourcePath).patch(
+            resource.id,
+            {
+              key: newKey
+            },
+            { isInternal: true }
+          )
+        })
+      )
     }
 
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
@@ -327,9 +329,9 @@ export class FileBrowserService
     })) as StaticResourceType[]
 
     if (staticResources?.length > 0) {
-      for (const resource of staticResources) {
-        await this.app.service(staticResourcePath).remove(resource.id)
-      }
+      await Promise.all(
+        staticResources.map(async (resource) => this.app.service(staticResourcePath).remove(resource.id))
+      )
     }
 
     if (isDev && PROJECT_FILE_REGEX.test(key)) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
