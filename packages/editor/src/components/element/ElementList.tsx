@@ -24,9 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { startCase } from 'lodash'
-import React, { useCallback, useEffect } from 'react'
-import { useDrag } from 'react-dnd'
-import { getEmptyImage } from 'react-dnd-html5-backend'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
@@ -53,12 +51,10 @@ import { SystemComponent } from '@etherealengine/engine/src/scene/components/Sys
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { NO_PROXY, useState } from '@etherealengine/hyperflux'
-
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
+import { useHookstate, useState } from '@etherealengine/hyperflux'
 
 import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
-import { IconButton } from '@mui/material'
+import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
@@ -69,24 +65,18 @@ import { PostProcessingComponent } from '@etherealengine/engine/src/scene/compon
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import StringInput from '../inputs/StringInput'
-import { InfoTooltip } from '../layout/Tooltip'
-import styles from './styles.module.scss'
 
 export type SceneElementType = {
   componentJsonID: string
   label: string
   Icon: any
   type: typeof ItemTypes.Component
-}
-
-type SceneElementListItemType = {
-  item: SceneElementType
-  onClick: (item: SceneElementType) => void
 }
 
 export const ComponentShelfCategories: Record<string, Component[]> = {
@@ -119,43 +109,71 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
   ]
 }
 
-const SceneElementListItem = ({ item, onClick }: SceneElementListItemType) => {
+const ComponentListItem = ({ item }: { item: Component }) => {
   const { t } = useTranslation()
-
-  const onClickItem = useCallback(() => {
-    onClick?.(item)
-  }, [item, onClick])
-
-  const [_, drag, preview] = useDrag(() => ({ type: ItemTypes.Component, item, multiple: false }))
-
-  //showing the object in viewport once it drag and droped
-  useEffect(() => {
-    preview(getEmptyImage(), { captureDraggingState: true })
-  }, [preview])
+  const Icon = EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon
 
   return (
-    <div>
-      <InfoTooltip
-        title={item.label}
-        info={t(`editor:layout.assetGrid.tooltip.${item.componentJsonID}`)}
-        placement="left"
-        disableInteractive
+    <ListItemButton
+      sx={{ pl: 4, bgcolor: 'var(--dockBackground)' }}
+      onClick={() => EditorControlFunctions.createObjectFromSceneElement([{ name: item.jsonID! }])}
+    >
+      <ListItemIcon style={{ color: 'var(--textColor)' }}>
+        <Icon />
+      </ListItemIcon>
+      <ListItemText
+        primary={
+          <Typography variant="subtitle1" color={'var(--textColor)'}>
+            {startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase())}
+          </Typography>
+        }
+        secondary={
+          <Typography variant="caption" color={'var(--textColor)'}>
+            {t(`editor:layout.assetGrid.tooltip.${item.jsonID}`)}
+          </Typography>
+        }
+      />
+    </ListItemButton>
+  )
+}
+
+const SceneElementListItem = ({
+  categoryTitle,
+  categoryItems
+}: {
+  categoryTitle: string
+  categoryItems: Component[]
+}) => {
+  const open = useHookstate(categoryTitle === 'Misc')
+  return (
+    <>
+      <ListItemButton
+        onClick={() => open.set((prev) => !prev)}
+        style={{
+          backgroundColor: 'var(--dockBackground)',
+          cursor: 'pointer',
+          color: 'var(--textColor)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          width: '100%'
+        }}
       >
-        <IconButton
-          className={styles.element}
-          disableRipple
-          ref={drag}
-          onClick={onClickItem}
-          children={<item.Icon />}
-        />
-      </InfoTooltip>
-    </div>
+        <Typography>{categoryTitle}</Typography>
+        <Icon type={open.value ? 'KeyboardArrowUp' : 'KeyboardArrowDown'} />
+      </ListItemButton>
+      <Collapse in={open.value} timeout={'auto'} unmountOnExit>
+        <List component={'div'} sx={{ bgcolor: 'var(--dockBackground)', width: '100%' }} disablePadding>
+          {categoryItems.map((item) => (
+            <ComponentListItem key={item.jsonID || item.name} item={item} />
+          ))}
+        </List>
+      </Collapse>
+    </>
   )
 }
 
 export function ElementList() {
   const { t } = useTranslation()
-
   const searchBarState = useState<string>('')
 
   const validElements = useState(ComponentShelfCategories)
@@ -173,36 +191,20 @@ export function ElementList() {
   }, [searchBarState])
 
   return (
-    <div className={styles.elementListContainer}>
-      <span className={styles.searchContainer}>
-        <StringInput
-          value={searchBarState.value}
-          onChange={(event) => searchBarState.set(event?.target.value)}
-          placeholder={t('Search...')}
-        />
-      </span>
-      {Object.entries(validElements.get(NO_PROXY)).map(([category, items]) => (
-        <div className={styles.category} key={category}>
-          {items.length > 0 && (
-            <Typography variant="subtitle2" className={styles.categoryTitle}>
-              {category}
-            </Typography>
-          )}
-          {items.map((item) => (
-            <SceneElementListItem
-              key={item.jsonID || item.name}
-              item={{
-                componentJsonID: item.jsonID!,
-                label: startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase()),
-                Icon: EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon,
-                type: ItemTypes.Component
-              }}
-              onClick={() => EditorControlFunctions.createObjectFromSceneElement([{ name: item.jsonID! }])}
-            />
-          ))}
+    <List
+      sx={{ width: 300, height: 600, bgcolor: 'var(--dockBackground)' }}
+      subheader={
+        <div style={{ padding: '0.5rem' }}>
+          <Typography style={{ color: 'var(--textColor)', textAlign: 'center', textTransform: 'uppercase' }}>
+            {t('editor:layout.assetGrid.components')}
+          </Typography>
         </div>
+      }
+    >
+      {Object.entries(ComponentShelfCategories).map(([category, items]) => (
+        <SceneElementListItem key={category} categoryTitle={category} categoryItems={items} />
       ))}
-    </div>
+    </List>
   )
 }
 
