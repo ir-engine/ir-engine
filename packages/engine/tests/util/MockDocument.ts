@@ -23,28 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-import type { WebContainer3D } from '@etherealengine/xrui'
+import { MockEventListener } from './MockEventListener'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import { XRUIState } from '../XRUIState'
-
-export const XRUIComponent = defineComponent({
-  name: 'XRUIComponent',
-
-  onInit: (entity) => {
-    return null! as WebContainer3D
-  },
-
-  onSet: (entity, component, json: WebContainer3D) => {
-    if (typeof json !== 'undefined') {
-      component.set(json)
-      XRUIComponent.valueMap[entity] = json
-      json.interactionRays = getState(XRUIState).interactionRays
-    }
-  },
-
-  onRemove: (entity, component) => {
-    component.value.destroy()
-  }
-})
+export class MockDocument extends MockEventListener {
+  visibilityState = 'hidden'
+}
