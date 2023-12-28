@@ -28,12 +28,7 @@ import { Vector3 } from 'three'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
 import {
@@ -48,6 +43,7 @@ import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/co
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
 
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 

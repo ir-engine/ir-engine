@@ -49,7 +49,7 @@ export class EEScene implements IScene {
         QuatValue
       ].map((valueType) => [valueType.name, valueType])
     )
-    Object.entries(Engine.instance.store.valueMap).forEach((stateType) => {
+    Object.entries(Engine.instance.store.stateMap).forEach((stateType) => {
       const properties = {}
       Object.keys(stateType[1]).forEach((property) => {
         properties[property] = property

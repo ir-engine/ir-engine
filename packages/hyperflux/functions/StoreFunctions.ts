@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Downgraded, State } from '@hookstate/core'
+import { State } from '@hookstate/core'
 import * as bitecs from 'bitecs'
-import { merge } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
 import { isDev } from '@etherealengine/common/src/config'
@@ -123,7 +122,7 @@ export function createHyperStore(options: {
   getDispatchTime: () => number
   defaultDispatchDelay?: () => number
 }) {
-  const store = {
+  const store: HyperStore = {
     defaultTopic: 'default' as Topic,
     forwardingTopics: new Set<Topic>(),
     getDispatchId: options.getDispatchId,
@@ -132,7 +131,6 @@ export function createHyperStore(options: {
     getCurrentReactorRoot: () => store.activeSystemReactors.get(store.currentSystemUUID),
     peerID: uuidv4() as PeerID,
     stateMap: {},
-    valueMap: {},
     receptorEntityContext: UndefinedEntity,
     actions: {
       queues: new Map(),
@@ -147,17 +145,17 @@ export function createHyperStore(options: {
     activeSystemReactors: new Map<SystemUUID, ReactorRoot>(),
     currentSystemUUID: '__null__' as SystemUUID,
     reactiveQueryStates: new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>(),
-    toJSON: () => {
-      const state = Object.entries(store.stateMap).reduce((obj, [name, state]) => {
-        return merge(obj, { [name]: state.attach(Downgraded).value })
-      }, {})
-      return {
-        ...store,
-        state
-      }
-    },
+    // toJSON: () => {
+    //   const state = Object.entries(store.stateMap).reduce((obj, [name, state]) => {
+    //     return merge(obj, { [name]: state.attach(Downgraded).value })
+    //   }, {})
+    //   return {
+    //     ...store,
+    //     state
+    //   }
+    // },
     systemPerformanceProfilingEnabled: isDev
-  } as HyperStore
+  }
   HyperFlux.store = store
   bitecs.createWorld(store)
   return store
