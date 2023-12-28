@@ -56,6 +56,7 @@ import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTextur
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
+import { initializeKTX2Loader } from '../functions/createGLTFLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
@@ -273,9 +274,9 @@ const tgaLoader = () => new TGALoader()
 const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
   load: (src, onLoad) => {
-    const ktxLoader = getState(AssetLoaderState).gltfLoader!.ktx2Loader
-    if (!ktxLoader) throw new Error('KTX2Loader not yet initialized')
-    ktxLoader.load(
+    const gltfLoader = getState(AssetLoaderState).gltfLoader
+    if (!gltfLoader.ktx2Loader) initializeKTX2Loader(gltfLoader)
+    gltfLoader.ktx2Loader!.load(
       src,
       (texture) => {
         // console.log('KTX2Loader loaded texture', texture)

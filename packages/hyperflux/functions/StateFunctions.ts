@@ -94,7 +94,7 @@ export function defineState<S, R extends ReceptorMap, StateExtras = unknown>(
       if (receptorActionQueue.needsResync) {
         // reset the state to the initial value when the queue is reset
         setInitialState(definition)
-        receptorActionQueue.reset()
+        receptorActionQueue.resync()
       }
 
       // apply each action to each matching receptor, in order

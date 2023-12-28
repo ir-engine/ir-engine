@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -34,10 +34,8 @@ import { defineState, getMutableState, useHookstate } from '@etherealengine/hype
 
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { FriendService, FriendState } from '../../../social/services/FriendService'
-import { PopupMenuServices } from '../../../user/components/UserMenu/PopupMenuService'
 import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../user/services/AuthService'
-import { AvatarMenus } from '../../AvatarUISystem'
 import XRTextButton from '../../components/XRTextButton'
 import styles from './index.scss?inline'
 
@@ -92,14 +90,14 @@ function AvatarContextMenu() {
     console.log('Mute pressed')
   }
 
-  useEffect(() => {
-    if (detailState.id.value !== '') {
-      const tappedUser = Object.values(NetworkState.worldNetwork.peers).find(
-        (peer) => peer.userId === detailState.id.value
-      )
-      PopupMenuServices.showPopupMenu(AvatarMenus.AvatarContext, { user: tappedUser })
-    }
-  }, [detailState.id])
+  // useEffect(() => {
+  //   if (detailState.id.value !== '') {
+  //     const tappedUser = Object.values(NetworkState.worldNetwork.peers).find(
+  //       (peer) => peer.userId === detailState.id.value
+  //     )
+  //     PopupMenuServices.showPopupMenu(AvatarMenus.AvatarContext, { user: tappedUser })
+  //   }
+  // }, [detailState.id])
 
   const userThumbnail = useUserAvatarThumbnail(user?.userId)
 

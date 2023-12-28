@@ -38,8 +38,6 @@ import {
 
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { initializeKTX2Loader } from '../assets/functions/createGLTFLoader'
-import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
@@ -176,8 +174,6 @@ export class EngineRenderer {
     } else {
       console.log('Browser does not support `WEBGL_lose_context` extension')
     }
-
-    initializeKTX2Loader(getState(AssetLoaderState).gltfLoader)
   }
 
   handleWebGLConextLost(e) {

@@ -42,7 +42,10 @@ export const createEngine = () => {
     throw new Error('Engine already exists')
   }
   Engine.instance = new Engine()
-  if (isClient) EngineRenderer.instance = new EngineRenderer()
+  if (isClient) {
+    EngineRenderer.instance = new EngineRenderer()
+    EngineRenderer.instance.initialize()
+  }
   Engine.instance.engineTimer = Timer(executeSystems)
   executeSystems(0)
 }

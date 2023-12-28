@@ -50,7 +50,6 @@ export const initializeBrowser = () => {
 
   getMutableState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
 
-  EngineRenderer.instance.initialize()
   const renderer = EngineRenderer.instance.renderer
   if (!renderer) throw new Error('EngineRenderer.instance.renderer does not exist!')
 

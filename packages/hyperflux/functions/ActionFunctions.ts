@@ -541,7 +541,7 @@ export function defineActionQueue<V extends Validator<unknown, ResolvedActionTyp
     get: () => getOrCreateInstance().needsResync
   })
 
-  actionQueueGetter.reset = () => {
+  actionQueueGetter.resync = () => {
     // make sure actions are sorted by time, earliest first
     const queue = getOrCreateInstance()
     HyperFlux.store.actions.activeQueue = queue
