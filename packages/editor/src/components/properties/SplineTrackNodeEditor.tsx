@@ -26,11 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, useComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 
 import CameraswitchIcon from '@mui/icons-material/Cameraswitch'
 
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'

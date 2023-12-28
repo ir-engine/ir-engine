@@ -25,12 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState'
-import {
-  getComponent,
-  hasComponent,
-  useComponent,
-  useQuery
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { isEqual } from 'lodash'
 import React from 'react'

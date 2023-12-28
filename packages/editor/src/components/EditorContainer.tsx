@@ -39,7 +39,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Dialog from '@mui/material/Dialog'
 
 import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'

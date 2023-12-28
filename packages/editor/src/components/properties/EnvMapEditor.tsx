@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, useComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
@@ -43,6 +43,7 @@ import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
 
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import SportsBarTwoTone from '@mui/icons-material/SportsBarTwoTone'
 
 /**
