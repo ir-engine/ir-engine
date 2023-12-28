@@ -24,12 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
-import { Object3D, Quaternion, Vector3 } from 'three'
+import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoneComponent } from '../components/BoneComponent'
 
+const parentWorldMatrixInverse = new Matrix4()
 export const updateVRMRetargeting = (vrm: VRM) => {
   const humanoidRig = (vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRig
   for (const boneName of VRMHumanBoneList) {
@@ -58,8 +59,8 @@ export const updateVRMRetargeting = (vrm: VRM) => {
         const parentBone =
           getOptionalComponent(parentEntity, BoneComponent) ?? getOptionalComponent(parentEntity, TransformComponent)
         if (!parentBone) continue
-        const parentWorldMatrix = parentBone.matrixWorld.clone()
-        boneNode.position.copy(boneWorldPosition.applyMatrix4(parentWorldMatrix.invert()))
+        parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
+        boneNode.position.copy(boneWorldPosition.applyMatrix4(parentWorldMatrixInverse))
       }
     }
   }
