@@ -39,7 +39,8 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { ContentFitType, ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { clearErrors } from '../functions/ErrorFunctions'
@@ -133,7 +134,13 @@ function VideoReactor() {
   const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) ?? entity
 
   useEffect(() => {
-    video.videoGroup.value.add(video.videoMesh.value)
+    const videoEntity = createEntity()
+    addObjectToGroup(videoEntity, video.videoGroup.value)
+    addObjectToGroup(videoEntity, video.videoMesh.value)
+    setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
+    return () => {
+      removeEntity(videoEntity)
+    }
   }, [])
 
   // update side

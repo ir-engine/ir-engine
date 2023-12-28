@@ -112,7 +112,6 @@ export const SplineComponent = defineComponent({
         const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'lightgreen', opacity: 0.2 }))
         setObjectLayers(sphere, ObjectLayers.NodeHelper)
         sphere.position.copy(first.position)
-        sphere.updateMatrixWorld(true)
         addObjectToGroup(lineEntity, sphere)
       }
 
@@ -121,7 +120,6 @@ export const SplineComponent = defineComponent({
         const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'red', opacity: 0.2 }))
         setObjectLayers(sphere, ObjectLayers.NodeHelper)
         sphere.position.copy(last.position)
-        sphere.updateMatrixWorld(true)
         addObjectToGroup(lineEntity, sphere)
       }
 
@@ -139,7 +137,6 @@ export const SplineComponent = defineComponent({
         setObjectLayers(gizmo, ObjectLayers.NodeHelper)
         gizmo.position.copy(elem.position)
         gizmo.quaternion.copy(elem.quaternion)
-        gizmo.updateMatrixWorld(true)
         addObjectToGroup(lineEntity, gizmo)
       }
 

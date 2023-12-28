@@ -42,6 +42,8 @@ import {
 import { createGLTFLoader } from '@etherealengine/engine/src/assets/functions/createGLTFLoader'
 import { loadDRACODecoderNode } from '@etherealengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
 
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import logger from '../../ServerLogger'
 
 /**
@@ -72,11 +74,14 @@ const createThreeScene = () => {
   frontLight.position.set(-1, 3, 1)
   frontLight.target.position.set(0, 1.5, 0)
   const hemi = new HemisphereLight(0xeeeeff, 0xebbf2c, 1)
-  scene.add(backLight)
-  scene.add(backLight.target)
-  scene.add(frontLight)
-  scene.add(frontLight.target)
-  scene.add(hemi)
+
+  const sceneEntity = createEntity()
+  addObjectToGroup(sceneEntity, scene)
+  addObjectToGroup(sceneEntity, backLight)
+  addObjectToGroup(sceneEntity, backLight.target)
+  addObjectToGroup(sceneEntity, frontLight)
+  addObjectToGroup(sceneEntity, frontLight.target)
+  addObjectToGroup(sceneEntity, hemi)
 
   //TODO
   // canvas = createCanvas(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)

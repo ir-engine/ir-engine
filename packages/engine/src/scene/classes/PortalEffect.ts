@@ -38,6 +38,9 @@ import {
   TubeGeometry,
   Vector3
 } from 'three'
+import { Entity } from '../../ecs/classes/Entity'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { addObjectToGroup } from '../components/GroupComponent'
 
 /**
  * https://github.com/Mamboleoo/InfiniteTubes
@@ -54,13 +57,16 @@ export class PortalEffect extends Object3D {
   tubeGeometry: TubeGeometry
   tubeMesh: Mesh
   numPoints = 200
+  portalEntity: Entity
 
   constructor() {
     super()
     this.name = 'PortalEffect'
 
     this.createMesh()
-    this.add(this.tubeMesh)
+    this.portalEntity = createEntity()
+    addObjectToGroup(this.portalEntity, this)
+    addObjectToGroup(this.portalEntity, this.tubeMesh)
   }
 
   get texture() {
@@ -123,7 +129,7 @@ export class PortalEffect extends Object3D {
   }
 
   deleteMesh() {
-    this.remove(this.tubeMesh)
+    removeEntity(this.portalEntity)
   }
 
   updateMaterialOffset(delta: number) {
