@@ -81,7 +81,7 @@ export class LocalStorage implements StorageProviderInterface {
     this.PATH_PREFIX += path.sep
     this._store = fsStore(this.PATH_PREFIX)
 
-    if (getState(ServerState).serverMode === ServerMode.API && !config.testEnabled) {
+    if (getState(ServerState).serverMode === ServerMode.API) {
       const child: ChildProcess = require('child_process').spawn(
         'npx',
         [

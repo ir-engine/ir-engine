@@ -28,8 +28,13 @@ import assert from 'assert'
 import { Engine, destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
+import { v1 } from 'uuid'
+import { StartTestFileServer } from '../../server-core/src/createFileServer'
 import { onConnection } from '../src/channels'
 import { start } from '../src/start'
 
@@ -37,18 +42,34 @@ describe('InstanceLoad', () => {
   before(async () => {
     const app = await start()
     await app.setup()
+    StartTestFileServer()
   })
 
   it('should load location', async () => {
     const app = Engine.instance.api as Application
     const loadLocation = onConnection(app)
 
+    const type = 'guest'
+    const token = v1()
+
+    const createdIdentityProvider = await app.service(identityProviderPath).create({
+      type,
+      token,
+      userId: '' as UserID
+    })
+
+    const skyStationScene = await app.service(locationPath).find({
+      query: {
+        slugifiedName: 'sky-station'
+      }
+    })
+
     const query = {
       provider: 'test',
       headers: {},
       socketQuery: {
-        token: '',
-        locationId: '',
+        token: createdIdentityProvider.accessToken,
+        locationId: skyStationScene.data[0].id,
         instanceID: '',
         channelId: '',
         roomCode: '',
@@ -63,6 +84,9 @@ describe('InstanceLoad', () => {
     } as any
 
     await loadLocation(query)
+
+    // wait 0.5 seconds for reactors to finish running
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     assert.equal(getState(EngineState).sceneLoaded, true)
   })
