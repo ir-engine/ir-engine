@@ -78,10 +78,10 @@ export const XRDetectedMeshComponent = defineComponent({
       const occlusionMesh = new Mesh(geometry, occlusionMat)
 
       const placementHelper = new Mesh(geometry, placementHelperMaterial)
-      occlusionMesh.add(placementHelper)
 
       addObjectToGroup(entity, shadowMesh)
       addObjectToGroup(entity, occlusionMesh)
+      addObjectToGroup(entity, placementHelper)
       occlusionMesh.renderOrder = -1 /** @todo make a global config for AR occlusion mesh renderOrder */
 
       component.shadowMesh.set(shadowMesh)
@@ -91,6 +91,7 @@ export const XRDetectedMeshComponent = defineComponent({
       return () => {
         removeObjectFromGroup(entity, shadowMesh)
         removeObjectFromGroup(entity, occlusionMesh)
+        removeObjectFromGroup(entity, placementHelper)
       }
     }, [component.mesh])
 

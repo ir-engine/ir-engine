@@ -46,7 +46,6 @@ import { defineComponent, setComponent, useComponent } from '../../ecs/functions
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'
@@ -97,7 +96,7 @@ export const SplineComponent = defineComponent({
       line.layers.set(ObjectLayers.NodeHelper)
       line.name = `${entity}-line`
       addObjectToGroup(entity, line)
-      setObjectLayers(line, ObjectLayers.NodeHelper)
+      line.layers.set(ObjectLayers.NodeHelper)
 
       const lineEntity = createEntity()
       addObjectToGroup(lineEntity, line)
@@ -110,17 +109,17 @@ export const SplineComponent = defineComponent({
       if (elements.length > 0) {
         const first = elements[0].value
         const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'lightgreen', opacity: 0.2 }))
-        setObjectLayers(sphere, ObjectLayers.NodeHelper)
         sphere.position.copy(first.position)
         addObjectToGroup(lineEntity, sphere)
+        sphere.layers.set(ObjectLayers.NodeHelper)
       }
 
       if (elements.length > 1) {
         const last = elements[elements.length - 1].value
         const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'red', opacity: 0.2 }))
-        setObjectLayers(sphere, ObjectLayers.NodeHelper)
         sphere.position.copy(last.position)
         addObjectToGroup(lineEntity, sphere)
+        sphere.layers.set(ObjectLayers.NodeHelper)
       }
 
       let id = 0
@@ -134,10 +133,10 @@ export const SplineComponent = defineComponent({
         setComponent(gizmoEntity, EntityTreeComponent, { parentEntity: entity })
         addObjectToGroup(gizmoEntity, new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
         gizmoEntities.push(gizmoEntity)
-        setObjectLayers(gizmo, ObjectLayers.NodeHelper)
         gizmo.position.copy(elem.position)
         gizmo.quaternion.copy(elem.quaternion)
         addObjectToGroup(lineEntity, gizmo)
+        gizmo.layers.set(ObjectLayers.NodeHelper)
       }
 
       const curve = new CatmullRomCurve3(
@@ -156,7 +155,6 @@ export const SplineComponent = defineComponent({
       component.curve.set(curve)
 
       return () => {
-        line.children.forEach((child) => line.remove(child))
         removeObjectFromGroup(entity, line)
         removeEntity(lineEntity)
         for (const gizmoEntity of gizmoEntities) removeEntity(gizmoEntity)
