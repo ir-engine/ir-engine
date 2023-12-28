@@ -47,7 +47,6 @@ import { CSMHelper } from '../../assets/csm/CSMHelper'
 import { V_001 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -62,7 +61,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { QueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
@@ -75,8 +74,9 @@ import { DirectionalLightComponent } from '../components/DirectionalLightCompone
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { GroupComponent, GroupQueryReactor, addObjectToGroup } from '../components/GroupComponent'
 import { MeshComponent } from '../components/MeshComponent'
-import { useContainsMesh } from '../components/ModelComponent'
+import { useMeshOrModel } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
+import { ObjectLayerComponents } from '../components/ObjectLayerComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -238,15 +238,16 @@ const vec3 = new Vector3()
 const DropShadowReactor = () => {
   const entity = useEntityContext()
   const shadowMaterial = useHookstate(shadowState)
-  const containsMesh = useContainsMesh(entity)
+  const isMeshOrModel = useMeshOrModel(entity)
   const shadow = useComponent(entity, ShadowComponent)
+  const entityTree = useComponent(entity, EntityTreeComponent)
 
   useEffect(() => {
     if (
       getState(EngineState).isEditor ||
       !shadow.cast.value ||
       !shadowMaterial.value ||
-      !containsMesh ||
+      !isMeshOrModel ||
       hasComponent(entity, DropShadowComponent)
     )
       return
@@ -282,7 +283,7 @@ const DropShadowReactor = () => {
       removeComponent(entity, DropShadowComponent)
       removeEntity(shadowEntity)
     }
-  }, [shadowMaterial, containsMesh, shadow])
+  }, [shadowMaterial, isMeshOrModel, shadow, entityTree.children])
 
   return null
 }
@@ -303,7 +304,7 @@ function ShadowMeshReactor(props: { entity: Entity; obj: Mesh<any, Material> }) 
     }
 
     return () => {
-      csm?.teardownMaterial(obj)
+      if (obj.material) csm?.teardownMaterial(obj)
     }
   }, [shadowComponent.cast, shadowComponent.receive, csm])
 
@@ -315,13 +316,15 @@ const shadowOffset = new Vector3(0, 0.01, 0)
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(dropShadowComponentQuery, compareDistanceToCamera)
 const sortedEntityTransforms = [] as Entity[]
 
+const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera]])
+
 const updateDropShadowTransforms = () => {
   const { deltaSeconds } = getState(EngineState)
   const { priorityQueue } = getState(ShadowSystemState)
 
   sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)
 
-  const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
+  const sceneObjects = cameraLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
 
   for (const entity of priorityQueue.priorityEntities) {
     const dropShadow = getComponent(entity, DropShadowComponent)
@@ -391,9 +394,9 @@ const reactor = () => {
       {useShadows ? (
         <CSMReactor />
       ) : (
-        <QueryReactor Components={[ShadowComponent]} ChildEntityReactor={DropShadowReactor} />
+        <QueryReactor Components={[VisibleComponent, ShadowComponent]} ChildEntityReactor={DropShadowReactor} />
       )}
-      <GroupQueryReactor GroupChildReactor={ShadowMeshReactor} Components={[ShadowComponent]} />
+      <GroupQueryReactor GroupChildReactor={ShadowMeshReactor} Components={[VisibleComponent, ShadowComponent]} />
     </>
   )
 }

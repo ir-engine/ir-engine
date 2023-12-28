@@ -48,7 +48,7 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CallbackComponent, StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
+import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
 
 export const LoopAnimationComponent = defineComponent({
@@ -126,7 +126,8 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (!animComponent?.animations?.value) return
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value]
-      if (!modelComponent?.scene?.value || !clip) {
+      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
+      if (!modelComponent || !asset?.scene || !clip) {
         loopAnimationComponent._action.set(null)
         return
       }
@@ -134,14 +135,14 @@ export const LoopAnimationComponent = defineComponent({
       const assetObject = modelComponent.asset.get(NO_PROXY)
       try {
         const action = animComponent.mixer.value.clipAction(
-          assetObject instanceof VRM ? retargetMixamoAnimation(clip, modelComponent.scene.value, assetObject) : clip
+          assetObject instanceof VRM ? bindAnimationClipFromMixamo(clip, assetObject) : clip
         )
         loopAnimationComponent._action.set(action)
         return () => {
           action.stop()
         }
       } catch (e) {
-        console.warn('Failed to retarget animation in LoopAnimationComponent', entity, e)
+        console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
       }
     }, [animComponent?.animations, loopAnimationComponent.activeClipIndex])
 
@@ -173,7 +174,6 @@ export const LoopAnimationComponent = defineComponent({
       loopAnimationComponent._action.value.blendMode = loopAnimationComponent.blendMode.value
     }, [
       loopAnimationComponent._action,
-      loopAnimationComponent.time,
       loopAnimationComponent.blendMode,
       loopAnimationComponent.loop,
       loopAnimationComponent.clampWhenFinished,
@@ -206,20 +206,22 @@ export const LoopAnimationComponent = defineComponent({
      * A model is required for LoopAnimationComponent.
      */
     useEffect(() => {
-      if (!modelComponent?.scene?.value) return
+      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
+      if (!asset?.scene) return
       const model = getComponent(entity, ModelComponent)
 
       if (!hasComponent(entity, AnimationComponent)) {
         setComponent(entity, AnimationComponent, {
-          mixer: new AnimationMixer(model.scene!),
+          mixer: new AnimationMixer(model.asset!.scene),
           animations: []
         })
       }
-    }, [modelComponent?.scene, loopAnimationComponent.hasAvatarAnimations])
+    }, [modelComponent?.asset, loopAnimationComponent.hasAvatarAnimations])
 
     useEffect(() => {
+      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       if (
-        !modelComponent?.scene?.value ||
+        !asset?.scene ||
         !animComponent ||
         !loopAnimationComponent.animationPack.value ||
         lastAnimationPack.value === loopAnimationComponent.animationPack.value
@@ -227,10 +229,11 @@ export const LoopAnimationComponent = defineComponent({
         return
 
       let aborted = false
-
+      animComponent.mixer.time.set(0)
       AssetLoader.loadAsync(loopAnimationComponent.animationPack.value).then((model) => {
         if (aborted) return
         const animations = model.animations ?? model.scene.animations
+        for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], model.scene)
         lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
         animComponent.animations.set(animations)
       })

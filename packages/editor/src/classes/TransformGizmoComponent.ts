@@ -92,13 +92,12 @@ export const TransformGizmoComponent = defineComponent({
       // set layers
       const raycaster = gizmoComponent.value.getRaycaster()
       raycaster.layers.set(ObjectLayers.TransformGizmo)
-      setObjectLayers(dummy, ObjectLayers.TransformGizmo)
-      setObjectLayers(gizmoComponent.value, ObjectLayers.TransformGizmo)
 
       // add dummy to entity and gizmo to dummy entity and attach
       addObjectToGroup(entity, dummy)
       gizmoComponent.value.attach(dummy)
       addObjectToGroup(dummyEntity, gizmoComponent.value)
+      setObjectLayers(dummy, ObjectLayers.TransformGizmo)
       removeComponent(dummyEntity, TransformComponent)
 
       return () => {

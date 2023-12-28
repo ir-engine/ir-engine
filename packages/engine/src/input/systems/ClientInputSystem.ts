@@ -423,8 +423,6 @@ const bboxHitTarget = new Vector3()
 const quat = new Quaternion()
 
 const execute = () => {
-  if (!isClient) return null
-
   const pointerState = getState(InputState).pointerState
   const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
   pointerScreenRaycaster.setFromCamera(
@@ -515,7 +513,7 @@ const execute = () => {
         if (hits.length && hits[0].distance < hitDistance) {
           const object = hits[0].object
           const parentObject = Object3DUtils.findAncestor(object, (obj) => obj.parent === Engine.instance.scene)
-          if (parentObject.entity) {
+          if (parentObject?.entity) {
             assignedInputEntity = parentObject.entity
             hitDistance = hits[0].distance
           }

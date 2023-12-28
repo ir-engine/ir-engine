@@ -39,7 +39,7 @@ export async function up(knex: Knex): Promise<void> {
   if (sceneIdColumnExists === true) {
     await trx
       .from(locationPath)
-      .update({ sceneId: trx.raw(`CONCAT("projects/", ??, ".scene.json")`, ['sceneId']) })
+      .update({ sceneId: trx.raw("CONCAT('projects/', ??, '.scene.json')", ['sceneId']) })
       .where('sceneId', 'not like', '%projects/%')
   }
 

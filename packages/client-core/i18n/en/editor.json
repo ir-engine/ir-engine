@@ -368,10 +368,7 @@
       "lbl-animationSpeed": "Animation Speed",
       "lbl-isAvatar": "Force Avatar Animations",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
-      "lbl-isEquippable": "Is Equippable",
-      "lbl-interactable": "Interactable",
-      "lbl-generateBVH": "Generate BVH",
-      "lbl-avoidCameraOcclusion": "Avoid Camera Occlusion",
+      "lbl-cameraOcclusion": "Occlude Camera",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
       "lbl-name": "Name",
       "lbl-url": "Model Url",
@@ -953,8 +950,17 @@
         "name": "Name:",
         "type": "Type:",
         "size": "Size:",
-        "url": "URL:"
+        "url": "URL:",
+        "attribution": "Attribution:",
+        "licensing": "Licensing:",
+        "tag": "Tag:",
+        "addTag": "Add Tag"
       }
+    },
+    "scene-assets": {
+      "no-category": "No category selected",
+      "search-placeholder": "Search for an asset ...",
+      "preview" : "Preview"
     }
   },
   "hierarchy": {
@@ -1116,5 +1122,9 @@
   },
   "corsProxyButton": {
     "tooltip": "Use Cors Proxy Server"
+  },
+  "tabs": {
+    "scene-assets": "Assets",
+    "project-assets": "Project Assets"
   }
 }

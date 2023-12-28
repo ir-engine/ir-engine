@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
@@ -38,11 +38,12 @@ export const triggerEnter = (entity: Entity, otherEntity: Entity, hit: ColliderH
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
   if (!Array.isArray(triggerComponent.triggers)) return
   for (const trigger of triggerComponent.triggers) {
-    if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) return
+    if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) continue
     const targetEntity = trigger.target ? UUIDComponent.getEntityByUUID(trigger.target) : triggerEntity
     if (targetEntity && trigger.onEnter) {
-      const callbacks = getComponent(targetEntity, CallbackComponent)
-      callbacks.get(trigger.onEnter)?.(triggerEntity)
+      const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
+      if (!callbacks) continue
+      callbacks.get(trigger.onEnter)?.(triggerEntity, otherEntity)
     }
   }
 }
@@ -52,11 +53,12 @@ export const triggerExit = (entity: Entity, otherEntity: Entity, hit: ColliderHi
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
   if (!Array.isArray(triggerComponent.triggers)) return
   for (const trigger of triggerComponent.triggers) {
-    if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) return
+    if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) continue
     const targetEntity = trigger.target ? UUIDComponent.getEntityByUUID(trigger.target) : triggerEntity
     if (targetEntity && trigger.onExit) {
-      const callbacks = getComponent(targetEntity, CallbackComponent)
-      callbacks.get(trigger.onExit)?.(triggerEntity)
+      const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
+      if (!callbacks) continue
+      callbacks.get(trigger.onExit)?.(triggerEntity, otherEntity)
     }
   }
 }

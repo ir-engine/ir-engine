@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import RAPIER, {
+import {
   ActiveCollisionTypes,
   ActiveEvents,
   Collider,
@@ -57,7 +57,6 @@ import { V_000 } from '../../common/constants/MathConstants'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   getComponent,
   getOptionalComponent,
   removeComponent,
@@ -79,7 +78,8 @@ import { ColliderDescOptions, CollisionEvents, RaycastHit, SceneQueryType } from
 
 export type PhysicsWorld = World
 
-function load() {
+async function load() {
+  const RAPIER = await import('@dimforge/rapier3d-compat')
   return RAPIER.init()
 }
 
@@ -396,7 +396,7 @@ function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
   rigidBody.setBodyType(newType, false)
 
   const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody.bodyType())
-  addComponent(entity, newRigidBodyComponent, true)
+  setComponent(entity, newRigidBodyComponent, true)
 }
 
 export type RaycastArgs = {
