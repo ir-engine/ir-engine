@@ -288,7 +288,6 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
-    console.log('MODEL SHADOW', props, isMesh, shadowComponent)
     if (!isMesh) return
     if (shadowComponent)
       setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
