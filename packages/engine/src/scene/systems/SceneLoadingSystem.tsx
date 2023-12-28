@@ -302,7 +302,7 @@ const EntityChildLoadReactor = (props: {
   const parentEntity = props.parentEntity
   const selfEntity = UUIDComponent.useEntityByUUID(props.entityUUID)
   const entityJSONState = props.entityJSONState
-  const parentLoaded = !!useOptionalComponent(parentEntity, SceneObjectComponent)
+  const parentLoaded = !!useOptionalComponent(parentEntity, UUIDComponent)
   const dynamicParentState = useOptionalComponent(parentEntity, SceneDynamicLoadTagComponent)
 
   useEffect(() => {

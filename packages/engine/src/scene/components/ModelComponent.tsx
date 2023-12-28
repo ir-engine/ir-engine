@@ -29,6 +29,7 @@ import { Object3D, Scene } from 'three'
 import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { VRM } from '@pixiv/three-vrm'
+import React from 'react'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
@@ -56,12 +57,9 @@ import { useQuery } from '../../ecs/functions/QueryFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import { enableObjectLayer } from '../functions/setObjectLayers'
 import { EnvmapComponent } from './EnvmapComponent'
 import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
@@ -70,7 +68,6 @@ import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
-import { VisibleComponent } from './VisibleComponent'
 
 function clearMaterials(src: string) {
   try {
@@ -135,7 +132,7 @@ export const ModelComponent = defineComponent({
   entitiesInModelHierarchy: entitiesInModelHierarchy as Readonly<typeof entitiesInModelHierarchy>
 })
 
-function ModelReactor() {
+function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
   const uuid = useComponent(entity, UUIDComponent)
@@ -287,36 +284,46 @@ function ModelReactor() {
 
   const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
-  useEffect(() => {
-    for (const childEntity of childEntities.value) {
-      if (!hasComponent(childEntity, MeshComponent) || hasComponent(entity, SkinnedMeshComponent)) continue
-      const mesh = getComponent(childEntity, MeshComponent)
-      if (modelComponent.cameraOcclusion.value) generateMeshBVH(mesh)
-      enableObjectLayer(
-        mesh,
-        ObjectLayers.Camera,
-        modelComponent.cameraOcclusion.value && hasComponent(childEntity, VisibleComponent)
-      )
-    }
-  }, [childEntities, modelComponent.cameraOcclusion])
+  return (
+    <>
+      {childEntities.value?.map((childEntity: Entity) => (
+        <ChildReactor key={childEntity} entity={childEntity} parentEntity={entity} />
+      ))}
+    </>
+  )
+}
 
-  const shadowComponent = useOptionalComponent(entity, ShadowComponent)
-  useEffect(() => {
-    for (const childEntity of childEntities.value) {
-      if (!hasComponent(childEntity, MeshComponent)) continue
-      if (shadowComponent) setComponent(childEntity, ShadowComponent, serializeComponent(entity, ShadowComponent))
-      else removeComponent(childEntity, ShadowComponent)
-    }
-  }, [childEntities, shadowComponent])
+const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
+  const modelComponent = useComponent(props.parentEntity, ModelComponent)
+  const isMesh = useOptionalComponent(props.entity, MeshComponent)
+  const isSkinnedMesh = useOptionalComponent(props.entity, SkinnedMeshComponent)
 
-  const envmapComponent = useOptionalComponent(entity, EnvmapComponent)
+  // useEffect(() => {
+  //   if (!isMesh || isSkinnedMesh) return
+  //   const mesh = getComponent(props.entity, MeshComponent)
+  //   if (modelComponent.cameraOcclusion.value) generateMeshBVH(mesh)
+  //   enableObjectLayer(
+  //     mesh,
+  //     ObjectLayers.Camera,
+  //     modelComponent.cameraOcclusion.value && hasComponent(props.entity, VisibleComponent)
+  //   )
+  // }, [isMesh, isSkinnedMesh, modelComponent.cameraOcclusion])
+
+  const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
-    for (const childEntity of childEntities.value) {
-      if (!hasComponent(childEntity, MeshComponent)) continue
-      if (envmapComponent) setComponent(childEntity, EnvmapComponent, serializeComponent(entity, EnvmapComponent))
-      else removeComponent(childEntity, EnvmapComponent)
-    }
-  }, [childEntities, envmapComponent])
+    if (!isMesh) return
+    if (shadowComponent)
+      setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
+    else removeComponent(props.entity, ShadowComponent)
+  }, [isMesh, shadowComponent])
+
+  const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
+  useEffect(() => {
+    if (!isMesh) return
+    if (envmapComponent)
+      setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
+    else removeComponent(props.entity, EnvmapComponent)
+  }, [isMesh, envmapComponent])
 
   return null
 }

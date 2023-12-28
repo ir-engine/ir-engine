@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isClient } from '../../common/functions/getEnvironment'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -40,7 +39,7 @@ function cleanupButton(key: string, buttons: ButtonStateMap, hasFocus: boolean) 
 }
 
 const execute = () => {
-  if (!isClient) return
+  if (typeof globalThis.document === 'undefined') return
 
   const hasFocus = document.hasFocus()
 
