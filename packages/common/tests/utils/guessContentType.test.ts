@@ -29,6 +29,7 @@ import { guessContentType } from '../../src/utils/guessContentType'
 
 describe('guessContentType', () => {
   it('guessContentType', () => {
+    assert(guessContentType('https://mydomain.com/myfile.mat'), 'model/material')
     assert(guessContentType('https://mydomain.com/myfile.gltf'), 'model/gltf')
     assert(guessContentType('https://mydomain.com/myfile.glb'), 'model/gltf-binary')
     assert(guessContentType('https://mydomain.com/myfile.png'), 'image/png')

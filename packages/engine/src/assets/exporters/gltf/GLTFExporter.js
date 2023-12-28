@@ -1717,7 +1717,8 @@ export class GLTFWriter {
 
 		if ( originalNormal !== undefined ) geometry.setAttribute( 'normal', originalNormal );
 		// Skip if no exportable attributes found
-		if ( Object.keys( attributes ).length === 0 ) return null;
+		//if ( Object.keys( attributes ).length === 0 ) return null;
+		 
 
 		// Morph targets
 		if ( mesh.morphTargetInfluences !== undefined && mesh.morphTargetInfluences.length > 0 ) {

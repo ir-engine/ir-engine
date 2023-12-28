@@ -34,8 +34,8 @@ import { CommonKnownContentTypes } from './CommonKnownContentTypes'
 export function guessContentType(url: string): string {
   const contentPath = new URL(url).pathname
   //check for xre gltf extension
-  if (/\.xre\.gltf$/.test(contentPath)) {
-    return CommonKnownContentTypes.xre
+  if (/\.material\.gltf$/.test(contentPath)) {
+    return CommonKnownContentTypes.material
   }
   const extension = contentPath.split('.').pop()!
   return CommonKnownContentTypes[extension]

@@ -84,17 +84,21 @@ export function pathJoin(...parts: string[]): string {
       }
       // If it's the last part, we only want to remove leading slashes
       else if (index === parts.length - 1) {
-        while (part.startsWith(separator)) {
-          part = part.substring(1)
+        if (part) {
+          while (part.startsWith(separator)) {
+            part = part.substring(1)
+          }
         }
       }
       // For all other parts, remove leading and trailing slashes
       else {
-        while (part.startsWith(separator)) {
-          part = part.substring(1)
-        }
-        while (part.endsWith(separator)) {
-          part = part.substring(0, part.length - 1)
+        if (part) {
+          while (part.startsWith(separator)) {
+            part = part.substring(1)
+          }
+          while (part.endsWith(separator)) {
+            part = part.substring(0, part.length - 1)
+          }
         }
       }
 

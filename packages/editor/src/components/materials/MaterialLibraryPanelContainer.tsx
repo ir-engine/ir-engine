@@ -46,6 +46,8 @@ import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import styles from '../hierarchy/styles.module.scss'
 import { Button } from '../inputs/Button'
+import InputGroup from '../inputs/InputGroup'
+import StringInput from '../inputs/StringInput'
 import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
 import { MaterialSelectionState } from './MaterialLibraryState'
 
@@ -56,6 +58,7 @@ export default function MaterialLibraryPanel() {
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useState(0)
   const publicPath = getState(EngineState).publicPath
+  const srcPath = useState('/mat/material-test.material.gltf')
 
   const createSrcs = useCallback(() => Object.values(materialLibrary.sources.get(NO_PROXY)), [materialLibrary.sources])
   const srcs = useState(createSrcs())
@@ -161,11 +164,14 @@ export default function MaterialLibraryPanel() {
             >
               New
             </Button>
+            <InputGroup name="File Path" label="File Path">
+              <StringInput value={srcPath.value} onChange={(e) => srcPath.set(e.target.value)} />
+            </InputGroup>
             <Button
               onClick={async () => {
                 const projectName = editorState.projectName.value!
                 const materials = selectedMaterial.value ? [materialFromId(selectedMaterial.value)] : []
-                const libraryName = 'material-test.gltf'
+                const libraryName = srcPath.value
                 const path = `${publicPath}/projects/${projectName}/assets/${libraryName}`
                 const gltf = (await exportMaterialsGLTF(materials, {
                   binary: false,

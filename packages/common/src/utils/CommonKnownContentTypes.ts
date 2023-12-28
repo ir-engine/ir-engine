@@ -7,7 +7,7 @@ with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -29,6 +29,7 @@ Ethereal Engine. All Rights Reserved.
  * @type {Object}
  */
 export const CommonKnownContentTypes = {
+  material: 'model/material',
   xre: 'prefab/xre',
   gltf: 'model/gltf',
   glb: 'model/gltf-binary',
@@ -52,6 +53,7 @@ export const CommonKnownContentTypes = {
 
 export const MimeTypeToExtension = {
   'prefab/xre': 'xre',
+  'model/material': 'material',
   'model/gltf': 'gltf',
   'model/gltf-binary': 'glb',
   'model/vrm': 'vrm',

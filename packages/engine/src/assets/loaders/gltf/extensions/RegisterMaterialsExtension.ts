@@ -27,22 +27,51 @@ import { Mesh, Object3D } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { IntersectObject, MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
 import { SourceType } from '../../../../renderer/materials/components/MaterialSource'
-import { registerMaterial } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
-import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
+import {
+  extractDefaults,
+  prototypeFromId,
+  registerMaterial
+} from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
+import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
 export function registerMaterials(root: Object3D, type: SourceType = SourceType.EDITOR_SESSION, path = '') {
   const materialLibrary = getState(MaterialLibraryState)
-  root.traverse((mesh: Mesh) => {
+  const intersected = getState(IntersectObject)
+  iterateObject3D(root, (mesh: Mesh) => {
+    //root.traverse((mesh: Mesh) => {
     if (!mesh?.isMesh) return
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+
     materials
       .filter((material) => !materialLibrary.materials[material.uuid])
       .map((material) => {
         const materialComponent = registerMaterial(material, { type, path })
         material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
+        iterateObject3D(intersected.intersected.object, (mesh: Mesh) => {
+          if (!mesh?.isMesh) return
+          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+          mats.forEach((mat) => {
+            const prototypeId = mat.userData.type ?? mat.type
+            const prototype = prototypeFromId(prototypeId)
+            const parameters = Object.fromEntries(
+              Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, mat[k]])
+            )
+            const prototypeId2 = material.userData.type ?? material.type
+            const prototype2 = prototypeFromId(prototypeId)
+            const parameters2 = Object.fromEntries(
+              Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]])
+            )
+            parameters.color = parameters2.color
+            mat.setValues(parameters)
+            // parameters.color.r=1.0
+            // parameters.color.g=0.0
+            // parameters.color.b=0.0
+          })
+        })
       })
   })
 }

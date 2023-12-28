@@ -224,6 +224,8 @@ const getAssetType = (assetFileName: string): AssetType => {
       return AssetType.MKV
     case 'm3u8':
       return AssetType.M3U8
+    case 'material':
+      return AssetType.MAT
     default:
       return null!
   }
@@ -237,6 +239,10 @@ const getAssetType = (assetFileName: string): AssetType => {
 const getAssetClass = (assetFileName: string): AssetClass => {
   assetFileName = assetFileName.toLowerCase()
   if (/\.(gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
+    if (/\.(material.gltf)$/.test(assetFileName)) {
+      console.log('Material asset')
+      return AssetClass.Material
+    }
     return AssetClass.Model
   } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
     return AssetClass.Image
