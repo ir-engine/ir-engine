@@ -55,12 +55,9 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import { enableObjectLayer } from '../functions/setObjectLayers'
 import { EnvmapComponent } from './EnvmapComponent'
 import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
@@ -69,7 +66,6 @@ import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
-import { VisibleComponent } from './VisibleComponent'
 
 function clearMaterials(src: string) {
   try {
@@ -275,16 +271,16 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const isMesh = useOptionalComponent(props.entity, MeshComponent)
   const isSkinnedMesh = useOptionalComponent(props.entity, SkinnedMeshComponent)
 
-  useEffect(() => {
-    if (!isMesh || isSkinnedMesh) return
-    const mesh = getComponent(props.entity, MeshComponent)
-    if (modelComponent.cameraOcclusion.value) generateMeshBVH(mesh)
-    enableObjectLayer(
-      mesh,
-      ObjectLayers.Camera,
-      modelComponent.cameraOcclusion.value && hasComponent(props.entity, VisibleComponent)
-    )
-  }, [isMesh, isSkinnedMesh, modelComponent.cameraOcclusion])
+  // useEffect(() => {
+  //   if (!isMesh || isSkinnedMesh) return
+  //   const mesh = getComponent(props.entity, MeshComponent)
+  //   if (modelComponent.cameraOcclusion.value) generateMeshBVH(mesh)
+  //   enableObjectLayer(
+  //     mesh,
+  //     ObjectLayers.Camera,
+  //     modelComponent.cameraOcclusion.value && hasComponent(props.entity, VisibleComponent)
+  //   )
+  // }, [isMesh, isSkinnedMesh, modelComponent.cameraOcclusion])
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
