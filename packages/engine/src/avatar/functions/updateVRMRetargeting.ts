@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Object3D, Quaternion, Vector3 } from 'three'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoneComponent } from '../components/BoneComponent'
@@ -55,9 +55,9 @@ export const updateVRMRetargeting = (vrm: VRM) => {
         const entity = boneNode.entity
         const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
         if (!parentEntity) continue
-        const parentBone = getComponent(parentEntity, BoneComponent)
+        const parentBone =
+          getOptionalComponent(parentEntity, BoneComponent) ?? getOptionalComponent(parentEntity, TransformComponent)
         if (!parentBone) continue
-        parentBone.updateWorldMatrix(true, false)
         const parentWorldMatrix = parentBone.matrixWorld.clone()
         boneNode.position.copy(boneWorldPosition.applyMatrix4(parentWorldMatrix.invert()))
       }
