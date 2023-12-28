@@ -25,10 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { EventDispatcher } from '@etherealengine/engine/src/common/classes/EventDispatcher'
 import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneSnapshotSystem, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
@@ -42,7 +43,7 @@ import { FogType } from '@etherealengine/engine/src/scene/constants/FogType'
 import { SceneLoadingSystem } from '@etherealengine/engine/src/scene/SceneModule'
 import { SceneDataType, SceneID, SceneJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import testSceneJson from '@etherealengine/engine/tests/assets/SceneLoadingTest.scene.json'
 import { applyIncomingActions, getMutableState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
@@ -110,7 +111,7 @@ describe('EditorControlFunctions', () => {
         'root entity does not have parentEntity'
       )
 
-      const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+      const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
       assert(child2_1Entity, 'child_0 entity not found')
       assert.equal(
         hasComponent(child2_1Entity, EntityTreeComponent),
@@ -170,7 +171,7 @@ describe('EditorControlFunctions', () => {
         'root entity does not have parentEntity'
       )
 
-      const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+      const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
       assert(child0Entity, 'child_0 entity not found')
       assert.equal(
         hasComponent(child0Entity, EntityTreeComponent),
@@ -220,7 +221,7 @@ describe('EditorControlFunctions', () => {
         'root entity does not have parentEntity'
       )
 
-      const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+      const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
       assert(child0Entity, 'child_0 entity not found')
       assert.equal(
         hasComponent(child0Entity, EntityTreeComponent),
@@ -233,8 +234,8 @@ describe('EditorControlFunctions', () => {
         'child_0 entity does not have parentEntity as root entity'
       )
 
-      const child2Entity = UUIDComponent.entitiesByUUID['child_2']
-      const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+      const child2Entity = UUIDComponent.getEntityByUUID('child_2' as EntityUUID)
+      const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
       assert(child2_1Entity, 'child_2_1 entity not found')
       assert.equal(
         hasComponent(child2_1Entity, EntityTreeComponent),
@@ -248,7 +249,7 @@ describe('EditorControlFunctions', () => {
       )
 
       EditorControlFunctions.createObjectFromSceneElement(
-        [{ name: ShadowComponent.jsonID }, { name: LocalTransformComponent.jsonID }],
+        [{ name: ShadowComponent.jsonID }, { name: TransformComponent.jsonID }],
         child2_1Entity
       )
       applyIncomingActions()
@@ -258,7 +259,7 @@ describe('EditorControlFunctions', () => {
       assert(getComponent(child2_1Entity, EntityTreeComponent).children.length > 0)
       const entity = getComponent(child2_1Entity, EntityTreeComponent).children[0]
       assert(hasComponent(entity, ShadowComponent), 'created entity does not have ShadowComponent')
-      assert(hasComponent(entity, LocalTransformComponent), 'created entity does not have LocalTransformComponent')
+      assert(hasComponent(entity, TransformComponent), 'created entity does not have LocalTransformComponent')
 
       unmount()
     })
@@ -276,7 +277,7 @@ describe('EditorControlFunctions', () => {
         'root entity does not have parentEntity'
       )
 
-      const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+      const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
       assert(child0Entity, 'child_0 entity not found')
       assert.equal(
         hasComponent(child0Entity, EntityTreeComponent),
@@ -289,7 +290,7 @@ describe('EditorControlFunctions', () => {
         'child_0 entity does not have parentEntity as root entity'
       )
 
-      const child2Entity = UUIDComponent.entitiesByUUID['child_2']
+      const child2Entity = UUIDComponent.getEntityByUUID('child_2' as EntityUUID)
       assert(child2Entity, 'child_2 entity not found')
       assert.equal(
         hasComponent(child2Entity, EntityTreeComponent),
@@ -298,7 +299,7 @@ describe('EditorControlFunctions', () => {
       )
       const child2Children = getComponent(child2Entity, EntityTreeComponent).children
 
-      const child3Entity = UUIDComponent.entitiesByUUID['child_3']
+      const child3Entity = UUIDComponent.getEntityByUUID('child_3' as EntityUUID)
       assert(child3Entity, 'child_3 entity not found')
       assert.equal(
         hasComponent(child3Entity, EntityTreeComponent),
@@ -311,7 +312,7 @@ describe('EditorControlFunctions', () => {
         'child_3 entity does not have parentEntity as child_2 entity'
       )
 
-      const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+      const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
       assert(child2_1Entity, 'child_2_1 entity not found')
       assert.equal(
         hasComponent(child2_1Entity, EntityTreeComponent),
@@ -356,7 +357,7 @@ describe('EditorControlFunctions', () => {
         'root entity does not have parentEntity'
       )
 
-      const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+      const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
       assert(child0Entity, 'child_0 entity not found')
       assert.equal(
         hasComponent(child0Entity, EntityTreeComponent),
@@ -369,8 +370,8 @@ describe('EditorControlFunctions', () => {
         'child_0 entity does not have parentEntity as root entity'
       )
 
-      const child2Entity = UUIDComponent.entitiesByUUID['child_2']
-      const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+      const child2Entity = UUIDComponent.getEntityByUUID('child_2' as EntityUUID)
+      const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
       assert(child2_1Entity, 'child_2_1 entity not found')
       assert.equal(
         hasComponent(child2_1Entity, EntityTreeComponent),
@@ -384,7 +385,7 @@ describe('EditorControlFunctions', () => {
       )
 
       EditorControlFunctions.createObjectFromSceneElement(
-        [{ name: ShadowComponent.jsonID }, { name: LocalTransformComponent.jsonID }],
+        [{ name: ShadowComponent.jsonID }, { name: TransformComponent.jsonID }],
         child2_1Entity
       )
       applyIncomingActions()
@@ -395,7 +396,7 @@ describe('EditorControlFunctions', () => {
       ]
 
       EditorControlFunctions.createObjectFromSceneElement(
-        [{ name: ShadowComponent.jsonID }, { name: LocalTransformComponent.jsonID }],
+        [{ name: ShadowComponent.jsonID }, { name: TransformComponent.jsonID }],
         child2_1Entity
       )
       applyIncomingActions()
@@ -406,7 +407,7 @@ describe('EditorControlFunctions', () => {
       ]
 
       EditorControlFunctions.createObjectFromSceneElement(
-        [{ name: ShadowComponent.jsonID }, { name: LocalTransformComponent.jsonID }],
+        [{ name: ShadowComponent.jsonID }, { name: TransformComponent.jsonID }],
         child2_1Entity
       )
       applyIncomingActions()
@@ -452,7 +453,7 @@ describe('EditorControlFunctions', () => {
         'root entity does not have parentEntity'
       )
 
-      const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+      const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
       assert(child0Entity, 'child_0 entity not found')
       assert.equal(
         hasComponent(child0Entity, EntityTreeComponent),
@@ -465,7 +466,7 @@ describe('EditorControlFunctions', () => {
         'child_0 entity does not have parentEntity as root entity'
       )
 
-      const child1Entity = UUIDComponent.entitiesByUUID['child_1']
+      const child1Entity = UUIDComponent.getEntityByUUID('child_1' as EntityUUID)
       assert(child1Entity, 'child_1 entity not found')
       assert.equal(
         hasComponent(child1Entity, EntityTreeComponent),
@@ -478,7 +479,7 @@ describe('EditorControlFunctions', () => {
         'child_1 entity does not have parentEntity as child_0 entity'
       )
 
-      const child2Entity = UUIDComponent.entitiesByUUID['child_2']
+      const child2Entity = UUIDComponent.getEntityByUUID('child_2' as EntityUUID)
       assert(child2Entity, 'child_2 entity not found')
       assert.equal(
         hasComponent(child2Entity, EntityTreeComponent),
@@ -491,7 +492,7 @@ describe('EditorControlFunctions', () => {
         'child_2 entity does not have parentEntity as child_1 entity'
       )
 
-      const child3Entity = UUIDComponent.entitiesByUUID['child_3']
+      const child3Entity = UUIDComponent.getEntityByUUID('child_3' as EntityUUID)
       assert(child3Entity, 'child_3 entity not found')
       assert.equal(
         hasComponent(child3Entity, EntityTreeComponent),
@@ -504,7 +505,7 @@ describe('EditorControlFunctions', () => {
         'child_3 entity does not have parentEntity as child_2 entity'
       )
 
-      const child4Entity = UUIDComponent.entitiesByUUID['child_4']
+      const child4Entity = UUIDComponent.getEntityByUUID('child_4' as EntityUUID)
       assert(child4Entity, 'child_4 entity not found')
       assert.equal(
         hasComponent(child4Entity, EntityTreeComponent),
@@ -517,7 +518,7 @@ describe('EditorControlFunctions', () => {
         'child_4 entity does not have parentEntity as child_3 entity'
       )
 
-      const child5Entity = UUIDComponent.entitiesByUUID['child_5']
+      const child5Entity = UUIDComponent.getEntityByUUID('child_5' as EntityUUID)
       assert(child5Entity, 'child_5 entity not found')
       assert.equal(
         hasComponent(child5Entity, EntityTreeComponent),
@@ -530,7 +531,7 @@ describe('EditorControlFunctions', () => {
         'child_5 entity does not have parentEntity as child_4 entity'
       )
 
-      const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+      const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
       assert(child2_1Entity, 'child_2_1 entity not found')
       assert.equal(
         hasComponent(child2_1Entity, EntityTreeComponent),
@@ -542,17 +543,20 @@ describe('EditorControlFunctions', () => {
         child2Entity,
         'child_2_1 entity does not have parentEntity as child_2 entity'
       )
-      const originalEntities = Object.values(UUIDComponent.entitiesByUUID)
+      const originalEntitiesUUID = Object.keys(UUIDComponent.entitiesByUUIDState).map((x) => x as EntityUUID)
       const nodes = [child1Entity, child2Entity, child3Entity, child4Entity, child5Entity]
       EditorControlFunctions.groupObjects(nodes)
       applyIncomingActions()
       SystemDefinitions.get(SceneSnapshotSystem)!.execute()
       await act(() => rerender(loadTag)) // reload scene after snapshot
 
-      const newEntites = Object.values(UUIDComponent.entitiesByUUID)
-      const groupEntity = newEntites.filter((x) => !originalEntities.includes(x))[0]
-      assert(groupEntity, 'new entity not found')
-      assert(hasComponent(groupEntity, EntityTreeComponent))
+      const newEntitesUUID = Object.keys(UUIDComponent.entitiesByUUIDState).map((x) => x as EntityUUID)
+
+      const groupEntity = UUIDComponent.getEntityByUUID(
+        newEntitesUUID.filter((x) => !originalEntitiesUUID.includes(x))[0]
+      )
+      assert(groupEntity !== UndefinedEntity, 'new entity not found')
+      assert(hasComponent(groupEntity as Entity, EntityTreeComponent))
       const newGroupChldren = getComponent(groupEntity, EntityTreeComponent).children
       assert(newGroupChldren.length > 4)
       for (const node of newGroupChldren) {
@@ -584,7 +588,7 @@ describe('EditorControlFunctions', () => {
         'root entity does not have parentEntity'
       )
 
-      const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+      const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
       assert(child0Entity, 'child_0 entity not found')
       assert.equal(
         hasComponent(child0Entity, EntityTreeComponent),

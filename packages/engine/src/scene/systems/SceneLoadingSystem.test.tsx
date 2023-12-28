@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { act, render, waitFor } from '@testing-library/react'
 import assert from 'assert'
@@ -33,6 +34,7 @@ import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
 import { Engine, destroyEngine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { UndefinedEntity } from '../../ecs/classes/Entity'
 import { SceneSnapshotAction, SceneSnapshotSystem, SceneState } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
@@ -108,7 +110,7 @@ describe('SceneLoadingSystem', () => {
       'root entity does not have parentEntity'
     )
 
-    const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+    const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
     assert(child0Entity, 'child_0 entity not found')
     assert.equal(
       hasComponent(child0Entity, EntityTreeComponent),
@@ -121,7 +123,7 @@ describe('SceneLoadingSystem', () => {
       'child_0 entity does not have parentEntity as root entity'
     )
 
-    const child1Entity = UUIDComponent.entitiesByUUID['child_1']
+    const child1Entity = UUIDComponent.getEntityByUUID('child_1' as EntityUUID)
     assert(child1Entity, 'child_1 entity not found')
     assert.equal(
       hasComponent(child1Entity, EntityTreeComponent),
@@ -134,7 +136,7 @@ describe('SceneLoadingSystem', () => {
       'child_1 entity does not have parentEntity as child_0 entity'
     )
 
-    const child2Entity = UUIDComponent.entitiesByUUID['child_2']
+    const child2Entity = UUIDComponent.getEntityByUUID('child_2' as EntityUUID)
     assert(child2Entity, 'child_2 entity not found')
     assert.equal(
       hasComponent(child2Entity, EntityTreeComponent),
@@ -147,7 +149,7 @@ describe('SceneLoadingSystem', () => {
       'child_2 entity does not have parentEntity as child_1 entity'
     )
 
-    const child3Entity = UUIDComponent.entitiesByUUID['child_3']
+    const child3Entity = UUIDComponent.getEntityByUUID('child_3' as EntityUUID)
     assert(child3Entity, 'child_3 entity not found')
     assert.equal(
       hasComponent(child3Entity, EntityTreeComponent),
@@ -160,7 +162,7 @@ describe('SceneLoadingSystem', () => {
       'child_3 entity does not have parentEntity as child_2 entity'
     )
 
-    const child4Entity = UUIDComponent.entitiesByUUID['child_4']
+    const child4Entity = UUIDComponent.getEntityByUUID('child_4' as EntityUUID)
     assert(child4Entity, 'child_4 entity not found')
     assert.equal(
       hasComponent(child4Entity, EntityTreeComponent),
@@ -173,7 +175,7 @@ describe('SceneLoadingSystem', () => {
       'child_4 entity does not have parentEntity as child_3 entity'
     )
 
-    const child5Entity = UUIDComponent.entitiesByUUID['child_5']
+    const child5Entity = UUIDComponent.getEntityByUUID('child_5' as EntityUUID)
     assert(child5Entity, 'child_5 entity not found')
     assert.equal(
       hasComponent(child5Entity, EntityTreeComponent),
@@ -186,7 +188,7 @@ describe('SceneLoadingSystem', () => {
       'child_5 entity does not have parentEntity as child_4 entity'
     )
 
-    const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+    const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
     assert(child2_1Entity, 'child_2_1 entity not found')
     assert.equal(
       hasComponent(child2_1Entity, EntityTreeComponent),
@@ -229,7 +231,7 @@ describe('SceneLoadingSystem', () => {
       'root entity does not have parentEntity'
     )
 
-    const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+    const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
     assert(child2_1Entity, 'child_2_1 entity not found')
     assert.equal(
       hasComponent(child2_1Entity, EntityTreeComponent),
@@ -290,7 +292,7 @@ describe('SceneLoadingSystem', () => {
       'root entity does not have parentEntity'
     )
 
-    const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+    const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
     assert(child0Entity, 'child_0 entity not found')
     assert.equal(
       hasComponent(child0Entity, EntityTreeComponent),
@@ -304,8 +306,9 @@ describe('SceneLoadingSystem', () => {
     )
 
     // check for failure to load
-    const child1Entity = UUIDComponent.entitiesByUUID['child_1']
-    assert.equal(child1Entity, undefined, 'child_1 entity found')
+    const child1Entity = UUIDComponent.getEntityByUUID('child_1' as EntityUUID)
+    console.log('DEBUG', child1Entity)
+    assert.equal(child1Entity, UndefinedEntity, 'child_1 entity found')
     testScene.scene.entities['child_0'].components = testScene.scene.entities['child_0'].components.filter(
       (component) => component.name !== 'dynamic-load'
     )
@@ -355,7 +358,7 @@ describe('SceneLoadingSystem', () => {
       'root entity does not have parentEntity'
     )
 
-    const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+    const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
     assert(child0Entity, 'child_0 entity not found')
     assert.equal(
       hasComponent(child0Entity, EntityTreeComponent),
@@ -368,7 +371,7 @@ describe('SceneLoadingSystem', () => {
       'child_0 entity does not have parentEntity as root entity'
     )
 
-    const child1Entity = UUIDComponent.entitiesByUUID['child_1']
+    const child1Entity = UUIDComponent.getEntityByUUID('child_1' as EntityUUID)
     assert(child1Entity, 'child_1 entity not found')
     assert.equal(
       hasComponent(child1Entity, EntityTreeComponent),
@@ -381,7 +384,7 @@ describe('SceneLoadingSystem', () => {
       'child_1 entity does not have parentEntity as child_0 entity'
     )
 
-    const child2Entity = UUIDComponent.entitiesByUUID['child_2']
+    const child2Entity = UUIDComponent.getEntityByUUID('child_2' as EntityUUID)
     assert(child2Entity, 'child_2 entity not found')
     assert.equal(
       hasComponent(child2Entity, EntityTreeComponent),
@@ -394,7 +397,7 @@ describe('SceneLoadingSystem', () => {
       'child_2 entity does not have parentEntity as child_1 entity'
     )
 
-    const child3Entity = UUIDComponent.entitiesByUUID['child_3']
+    const child3Entity = UUIDComponent.getEntityByUUID('child_3' as EntityUUID)
     assert(child3Entity, 'child_3 entity not found')
     assert.equal(
       hasComponent(child3Entity, EntityTreeComponent),
@@ -407,7 +410,7 @@ describe('SceneLoadingSystem', () => {
       'child_3 entity does not have parentEntity as child_2 entity'
     )
 
-    const child4Entity = UUIDComponent.entitiesByUUID['child_4']
+    const child4Entity = UUIDComponent.getEntityByUUID('child_4' as EntityUUID)
     assert(child4Entity, 'child_4 entity not found')
     assert.equal(
       hasComponent(child4Entity, EntityTreeComponent),
@@ -420,7 +423,7 @@ describe('SceneLoadingSystem', () => {
       'child_4 entity does not have parentEntity as child_3 entity'
     )
 
-    const child5Entity = UUIDComponent.entitiesByUUID['child_5']
+    const child5Entity = UUIDComponent.getEntityByUUID('child_5' as EntityUUID)
     assert(child5Entity, 'child_5 entity not found')
     assert.equal(
       hasComponent(child5Entity, EntityTreeComponent),
@@ -433,7 +436,7 @@ describe('SceneLoadingSystem', () => {
       'child_5 entity does not have parentEntity as child_4 entity'
     )
 
-    const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+    const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
     assert(child2_1Entity, 'child_2_1 entity not found')
     assert.equal(
       hasComponent(child2_1Entity, EntityTreeComponent),
@@ -478,7 +481,7 @@ describe('SceneLoadingSystem', () => {
     )
     // load scene with model component
 
-    const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+    const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
     assert(child0Entity, 'child_0 entity not found')
 
     assert.equal(
@@ -595,7 +598,7 @@ describe('SceneLoadingSystem', () => {
       'root entity does not have parentEntity'
     )
 
-    const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+    const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
     assert(child0Entity, 'child_0 entity not found')
     assert.equal(
       hasComponent(child0Entity, EntityTreeComponent),
@@ -608,7 +611,7 @@ describe('SceneLoadingSystem', () => {
       'child_0 entity does not have parentEntity as root entity'
     )
 
-    const child1Entity = UUIDComponent.entitiesByUUID['child_1']
+    const child1Entity = UUIDComponent.getEntityByUUID('child_1' as EntityUUID)
     assert(child1Entity, 'child_1 entity not found')
     assert.equal(
       hasComponent(child1Entity, EntityTreeComponent),
@@ -621,7 +624,7 @@ describe('SceneLoadingSystem', () => {
       'child_1 entity does not have parentEntity as child_0 entity'
     )
 
-    const child2Entity = UUIDComponent.entitiesByUUID['child_2']
+    const child2Entity = UUIDComponent.getEntityByUUID('child_2' as EntityUUID)
     assert(child2Entity, 'child_2 entity not found')
     assert.equal(
       hasComponent(child2Entity, EntityTreeComponent),
@@ -634,7 +637,7 @@ describe('SceneLoadingSystem', () => {
       'child_2 entity does not have parentEntity as child_1 entity'
     )
 
-    const child3Entity = UUIDComponent.entitiesByUUID['child_3']
+    const child3Entity = UUIDComponent.getEntityByUUID('child_3' as EntityUUID)
     assert(child3Entity, 'child_3 entity not found')
     assert.equal(
       hasComponent(child3Entity, EntityTreeComponent),
@@ -647,7 +650,7 @@ describe('SceneLoadingSystem', () => {
       'child_3 entity does not have parentEntity as child_2 entity'
     )
 
-    const child4Entity = UUIDComponent.entitiesByUUID['child_4']
+    const child4Entity = UUIDComponent.getEntityByUUID('child_4' as EntityUUID)
     assert(child4Entity, 'child_4 entity not found')
     assert.equal(
       hasComponent(child4Entity, EntityTreeComponent),
@@ -660,7 +663,7 @@ describe('SceneLoadingSystem', () => {
       'child_4 entity does not have parentEntity as child_3 entity'
     )
 
-    const child5Entity = UUIDComponent.entitiesByUUID['child_5']
+    const child5Entity = UUIDComponent.getEntityByUUID('child_5' as EntityUUID)
     assert(child5Entity, 'child_5 entity not found')
     assert.equal(
       hasComponent(child5Entity, EntityTreeComponent),
@@ -673,7 +676,7 @@ describe('SceneLoadingSystem', () => {
       'child_5 entity does not have parentEntity as child_4 entity'
     )
 
-    const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+    const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
     assert(child2_1Entity, 'child_2_1 entity not found')
     assert.equal(
       hasComponent(child2_1Entity, EntityTreeComponent),
@@ -748,7 +751,7 @@ describe('Snapshots', () => {
       'root entity does not have parentEntity'
     )
 
-    const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+    const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
     assert(child0Entity, 'child_0 entity not found')
     assert.equal(
       hasComponent(child0Entity, EntityTreeComponent),
@@ -761,7 +764,7 @@ describe('Snapshots', () => {
       'child_0 entity does not have parentEntity as root entity'
     )
 
-    const child1Entity = UUIDComponent.entitiesByUUID['child_1']
+    const child1Entity = UUIDComponent.getEntityByUUID('child_1' as EntityUUID)
     assert(child1Entity, 'child_1 entity not found')
     assert.equal(
       hasComponent(child1Entity, EntityTreeComponent),
@@ -774,7 +777,7 @@ describe('Snapshots', () => {
       'child_1 entity does not have parentEntity as child_0 entity'
     )
 
-    const child2Entity = UUIDComponent.entitiesByUUID['child_2']
+    const child2Entity = UUIDComponent.getEntityByUUID('child_2' as EntityUUID)
     assert(child2Entity, 'child_2 entity not found')
     assert.equal(
       hasComponent(child2Entity, EntityTreeComponent),
@@ -787,7 +790,7 @@ describe('Snapshots', () => {
       'child_2 entity does not have parentEntity as child_1 entity'
     )
 
-    const child3Entity = UUIDComponent.entitiesByUUID['child_3']
+    const child3Entity = UUIDComponent.getEntityByUUID('child_3' as EntityUUID)
     assert(child3Entity, 'child_3 entity not found')
     assert.equal(
       hasComponent(child3Entity, EntityTreeComponent),
@@ -800,7 +803,7 @@ describe('Snapshots', () => {
       'child_3 entity does not have parentEntity as child_2 entity'
     )
 
-    const child4Entity = UUIDComponent.entitiesByUUID['child_4']
+    const child4Entity = UUIDComponent.getEntityByUUID('child_4' as EntityUUID)
     assert(child4Entity, 'child_4 entity not found')
     assert.equal(
       hasComponent(child4Entity, EntityTreeComponent),
@@ -813,7 +816,7 @@ describe('Snapshots', () => {
       'child_4 entity does not have parentEntity as child_3 entity'
     )
 
-    const child5Entity = UUIDComponent.entitiesByUUID['child_5']
+    const child5Entity = UUIDComponent.getEntityByUUID('child_5' as EntityUUID)
     assert(child5Entity, 'child_5 entity not found')
     assert.equal(
       hasComponent(child5Entity, EntityTreeComponent),
@@ -826,7 +829,7 @@ describe('Snapshots', () => {
       'child_5 entity does not have parentEntity as child_4 entity'
     )
 
-    const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+    const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
     assert(child2_1Entity, 'child_2_1 entity not found')
     assert.equal(
       hasComponent(child2_1Entity, EntityTreeComponent),
@@ -890,7 +893,7 @@ describe('Snapshots', () => {
       'root entity does not have parentEntity'
     )
 
-    const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+    const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
     assert(child0Entity, 'child_0 entity not found')
     assert.equal(
       hasComponent(child0Entity, EntityTreeComponent),
@@ -903,7 +906,7 @@ describe('Snapshots', () => {
       'child_0 entity does not have parentEntity as root entity'
     )
 
-    const child1Entity = UUIDComponent.entitiesByUUID['child_1']
+    const child1Entity = UUIDComponent.getEntityByUUID('child_1' as EntityUUID)
     assert(child1Entity, 'child_1 entity not found')
     assert.equal(
       hasComponent(child1Entity, EntityTreeComponent),
@@ -916,7 +919,7 @@ describe('Snapshots', () => {
       'child_1 entity does not have parentEntity as child_0 entity'
     )
 
-    const child2Entity = UUIDComponent.entitiesByUUID['child_2']
+    const child2Entity = UUIDComponent.getEntityByUUID('child_2' as EntityUUID)
     assert(child2Entity, 'child_2 entity not found')
     assert.equal(
       hasComponent(child2Entity, EntityTreeComponent),
@@ -929,7 +932,7 @@ describe('Snapshots', () => {
       'child_2 entity does not have parentEntity as child_1 entity'
     )
 
-    const child3Entity = UUIDComponent.entitiesByUUID['child_3']
+    const child3Entity = UUIDComponent.getEntityByUUID('child_3' as EntityUUID)
     assert(child3Entity, 'child_3 entity not found')
     assert.equal(
       hasComponent(child3Entity, EntityTreeComponent),
@@ -942,7 +945,7 @@ describe('Snapshots', () => {
       'child_3 entity does not have parentEntity as child_2 entity'
     )
 
-    const child4Entity = UUIDComponent.entitiesByUUID['child_4']
+    const child4Entity = UUIDComponent.getEntityByUUID('child_4' as EntityUUID)
     assert(child4Entity, 'child_4 entity not found')
     assert.equal(
       hasComponent(child4Entity, EntityTreeComponent),
@@ -955,7 +958,7 @@ describe('Snapshots', () => {
       'child_4 entity does not have parentEntity as child_3 entity'
     )
 
-    const child5Entity = UUIDComponent.entitiesByUUID['child_5']
+    const child5Entity = UUIDComponent.getEntityByUUID('child_5' as EntityUUID)
     assert(child5Entity, 'child_5 entity not found')
     assert.equal(
       hasComponent(child5Entity, EntityTreeComponent),
@@ -968,7 +971,7 @@ describe('Snapshots', () => {
       'child_5 entity does not have parentEntity as child_4 entity'
     )
 
-    const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+    const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
     assert(child2_1Entity, 'child_2_1 entity not found')
     assert.equal(
       hasComponent(child2_1Entity, EntityTreeComponent),
@@ -986,7 +989,11 @@ describe('Snapshots', () => {
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
     await act(() => rerender(tag)) // reload scene after snapshot
 
-    assert.equal(UUIDComponent.entitiesByUUID['child_2_1'], undefined, 'snapshot unchanged,  entity was not deleted')
+    assert.equal(
+      UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID),
+      UndefinedEntity,
+      'snapshot unchanged,  entity was not deleted'
+    )
 
     dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
     applyIncomingActions()
@@ -1027,7 +1034,7 @@ describe('Snapshots', () => {
       'root entity does not have parentEntity'
     )
 
-    const child0Entity = UUIDComponent.entitiesByUUID['child_0']
+    const child0Entity = UUIDComponent.getEntityByUUID('child_0' as EntityUUID)
     assert(child0Entity, 'child_0 entity not found')
     assert.equal(
       hasComponent(child0Entity, EntityTreeComponent),
@@ -1040,7 +1047,7 @@ describe('Snapshots', () => {
       'child_0 entity does not have parentEntity as root entity'
     )
 
-    const child1Entity = UUIDComponent.entitiesByUUID['child_1']
+    const child1Entity = UUIDComponent.getEntityByUUID('child_1' as EntityUUID)
     assert(child1Entity, 'child_1 entity not found')
     assert.equal(
       hasComponent(child1Entity, EntityTreeComponent),
@@ -1053,7 +1060,7 @@ describe('Snapshots', () => {
       'child_1 entity does not have parentEntity as child_0 entity'
     )
 
-    const child2Entity = UUIDComponent.entitiesByUUID['child_2']
+    const child2Entity = UUIDComponent.getEntityByUUID('child_2' as EntityUUID)
     assert(child2Entity, 'child_2 entity not found')
     assert.equal(
       hasComponent(child2Entity, EntityTreeComponent),
@@ -1066,7 +1073,7 @@ describe('Snapshots', () => {
       'child_2 entity does not have parentEntity as child_1 entity'
     )
 
-    const child3Entity = UUIDComponent.entitiesByUUID['child_3']
+    const child3Entity = UUIDComponent.getEntityByUUID('child_3' as EntityUUID)
     assert(child3Entity, 'child_3 entity not found')
     assert.equal(
       hasComponent(child3Entity, EntityTreeComponent),
@@ -1079,7 +1086,7 @@ describe('Snapshots', () => {
       'child_3 entity does not have parentEntity as child_2 entity'
     )
 
-    const child4Entity = UUIDComponent.entitiesByUUID['child_4']
+    const child4Entity = UUIDComponent.getEntityByUUID('child_4' as EntityUUID)
     assert(child4Entity, 'child_4 entity not found')
     assert.equal(
       hasComponent(child4Entity, EntityTreeComponent),
@@ -1092,7 +1099,7 @@ describe('Snapshots', () => {
       'child_4 entity does not have parentEntity as child_3 entity'
     )
 
-    const child5Entity = UUIDComponent.entitiesByUUID['child_5']
+    const child5Entity = UUIDComponent.getEntityByUUID('child_5' as EntityUUID)
     assert(child5Entity, 'child_5 entity not found')
     assert.equal(
       hasComponent(child5Entity, EntityTreeComponent),
@@ -1105,7 +1112,7 @@ describe('Snapshots', () => {
       'child_5 entity does not have parentEntity as child_4 entity'
     )
 
-    const child2_1Entity = UUIDComponent.entitiesByUUID['child_2_1']
+    const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
     assert(child2_1Entity, 'child_2_1 entity not found')
     assert.equal(
       hasComponent(child2_1Entity, EntityTreeComponent),
@@ -1127,7 +1134,11 @@ describe('Snapshots', () => {
     // wait somehow
     const newSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
 
-    assert.equal(UUIDComponent.entitiesByUUID['child_2_1'], undefined, 'snapshot unchanged entity not deleted')
+    assert.equal(
+      UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID),
+      UndefinedEntity,
+      'snapshot unchanged entity not deleted'
+    )
 
     dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
     applyIncomingActions()
