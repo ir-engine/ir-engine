@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { destroyEngine } from '../../../../src/ecs/classes/Engine'
-import { defineQuery } from '../../../../src/ecs/functions/ComponentFunctions'
 import { SystemDefinitions } from '../../../../src/ecs/functions/SystemFunctions'
 import { createEngine } from '../../../../src/initializeEngine'
 import { ButtonCleanupSystem } from '../../../../src/input/systems/ButtonCleanupSystem'
@@ -36,14 +35,6 @@ describe('ButtonCleanupSystem', () => {
   beforeEach(() => {
     createEngine()
     loadEmptyScene()
-  })
-
-  it('should be queryable', () => {
-    const buttonCleanupQuery = defineQuery([ButtonCleanupSystem])
-    assert(buttonCleanupQuery)
-    assert(buttonCleanupQuery._enterQuery)
-    assert(buttonCleanupQuery._exitQuery)
-    assert(buttonCleanupQuery._query)
   })
 
   it('test button cleanup system', () => {

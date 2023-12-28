@@ -60,22 +60,49 @@ import { MockXRFrame, MockXRInputSource, MockXRReferenceSpace, MockXRSpace } fro
 import { loadEmptyScene } from '../../../util/loadEmptyScene'
 
 describe('addClientInputListeners', () => {
-  beforeEach(() => {
-    createEngine()
-    loadEmptyScene()
-  })
+  let documentAddEvent
+  let documentRemoveEvent
+  let windowAddEvent
+  let windowRemoveEvent
+  let navigatorCopy
 
-  it('should add client input listeners', () => {
-    EngineRenderer.instance = new MockEngineRenderer()
+  const mockDocEvents = new MockEventListener()
+  const mockWinEvents = new MockEventListener()
 
-    const mockDocEvents = new MockEventListener()
-    const mockWinEvents = new MockEventListener()
+  before(() => {
+    documentAddEvent = globalThis.document.addEventListener
+    documentRemoveEvent = globalThis.document.removeEventListener
+    windowAddEvent = globalThis.window.addEventListener
+    windowRemoveEvent = globalThis.window.removeEventListener
+    navigatorCopy = globalThis.navigator
 
     globalThis.document.addEventListener = mockDocEvents.addEventListener as any
     globalThis.document.removeEventListener = mockDocEvents.removeEventListener as any
     globalThis.window.addEventListener = mockWinEvents.addEventListener as any
     globalThis.window.removeEventListener = mockWinEvents.removeEventListener as any
     globalThis.navigator = new MockNavigator() as any
+    globalThis.ReferenceSpace.origin = new MockXRReferenceSpace()
+  })
+
+  after(() => {
+    globalThis.document.addEventListener = documentAddEvent
+    globalThis.document.removeEventListener = documentRemoveEvent
+    globalThis.window.addEventListener = windowAddEvent
+    globalThis.window.removeEventListener = windowRemoveEvent
+    globalThis.navigator = navigatorCopy
+  })
+
+  beforeEach(() => {
+    createEngine()
+    loadEmptyScene()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  it('should add client input listeners', () => {
+    EngineRenderer.instance = new MockEngineRenderer()
 
     const cleanup = addClientInputListeners()
 
@@ -113,15 +140,26 @@ describe('addClientInputListeners', () => {
     assert(mockDocEvents.listeners.length === 0, 'Callbacks were removed from document')
     assert(mockWinEvents.listeners.length === 0, 'Callbacks were removed from window')
   })
-
-  afterEach(() => {
-    return destroyEngine()
-  })
 })
 
 describe('client input system reactor', () => {
+  let originCopy
+
+  before(() => {
+    originCopy = globalThis.ReferenceSpace.origin
+    globalThis.ReferenceSpace.origin = new MockXRReferenceSpace()
+  })
+
+  after(() => {
+    globalThis.ReferenceSpace.origin = originCopy
+  })
+
   beforeEach(() => {
     createEngine()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('test client input system reactor', async () => {
@@ -150,15 +188,14 @@ describe('client input system reactor', () => {
     mockXRFrame.pose.transform.orientation.z = 0.2454
     mockXRFrame.pose.transform.orientation.w = 0.2743
 
-    globalThis.ReferenceSpace.origin = new MockXRReferenceSpace()
     const entity = Engine.instance.originEntity
     registerState(XRState)
     getMutableState(XRState).xrFrame.set(mockXRFrame as unknown as XRFrame)
     setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
     setComponent(entity, XRSpaceComponent, new MockXRSpace() as XRSpace)
     setComponent(entity, TransformComponent)
-    const execute = SystemDefinitions.get(ClientInputSystem)!.execute! as (_: boolean) => void
-    execute(true)
+    const execute = SystemDefinitions.get(ClientInputSystem)!.execute!
+    execute()
 
     const transformComponent = getComponent(entity, TransformComponent)
     assert(transformComponent.position.x === mockXRFrame.pose.transform.position.x)
@@ -207,8 +244,8 @@ describe('client input system reactor', () => {
     setComponent(entity, InputComponent)
     setComponent(entity, VisibleComponent)
     setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
-    const execute = SystemDefinitions.get(ClientInputSystem)!.execute! as (_: boolean) => void
-    execute(true)
+    const execute = SystemDefinitions.get(ClientInputSystem)!.execute!
+    execute()
 
     const sourceState = getComponent(entity, InputSourceComponent)
     assert(sourceState.assignedAxesEntity == entity)
@@ -253,8 +290,8 @@ describe('client input system reactor', () => {
     setComponent(entity, InputComponent)
     setComponent(entity, VisibleComponent)
     setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
-    const execute = SystemDefinitions.get(ClientInputSystem)!.execute! as (_: boolean) => void
-    execute(true)
+    const execute = SystemDefinitions.get(ClientInputSystem)!.execute!
+    execute()
 
     const sourceState = getComponent(entity, InputSourceComponent)
     assert(sourceState.assignedAxesEntity == entity)
@@ -278,15 +315,11 @@ describe('client input system reactor', () => {
     setComponent(entity, InputComponent)
     setComponent(entity, VisibleComponent)
     setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
-    const execute = SystemDefinitions.get(ClientInputSystem)!.execute! as (_: boolean) => void
-    execute(true)
+    const execute = SystemDefinitions.get(ClientInputSystem)!.execute!
+    execute()
 
     const sourceState = getComponent(entity, InputSourceComponent)
     assert(sourceState.assignedAxesEntity == 0)
     assert(sourceState.assignedButtonEntity == 0)
-  })
-
-  afterEach(() => {
-    return destroyEngine()
   })
 })

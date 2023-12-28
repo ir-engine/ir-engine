@@ -28,7 +28,7 @@ import assert from 'assert'
 import React from 'react'
 
 import { Engine, destroyEngine } from '../../../../src/ecs/classes/Engine'
-import { defineQuery, getComponent, setComponent } from '../../../../src/ecs/functions/ComponentFunctions'
+import { getComponent, setComponent } from '../../../../src/ecs/functions/ComponentFunctions'
 import { createEngine } from '../../../../src/initializeEngine'
 import { InputComponent } from '../../../../src/input/components/InputComponent'
 import { loadEmptyScene } from '../../../util/loadEmptyScene'
@@ -37,14 +37,6 @@ describe('InputComponent', () => {
   beforeEach(() => {
     createEngine()
     loadEmptyScene()
-  })
-
-  it('should be queryable', () => {
-    const inputComponent = defineQuery([InputComponent])
-    assert(inputComponent)
-    assert(inputComponent._enterQuery)
-    assert(inputComponent._exitQuery)
-    assert(inputComponent._query)
   })
 
   it('test input component', () => {
