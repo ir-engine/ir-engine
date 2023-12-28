@@ -23,16 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { render } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 
 import { getMutableState } from '@etherealengine/hyperflux'
 import { destroyEngine, Engine } from '../../../../src/ecs/classes/Engine'
 import { getComponent, hasComponent, setComponent } from '../../../../src/ecs/functions/ComponentFunctions'
+import { createEntity } from '../../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../../src/initializeEngine'
 import { InputComponent } from '../../../../src/input/components/InputComponent'
-import { InputSourceCaptureState, InputSourceComponent } from '../../../../src/input/components/InputSourceComponent'
+import {
+  InputSourceAxesCapturedComponent,
+  InputSourceButtonsCapturedComponent,
+  InputSourceCaptureState,
+  InputSourceComponent
+} from '../../../../src/input/components/InputSourceComponent'
 import { loadEmptyScene } from '../../../util/loadEmptyScene'
 import { MockXRInputSource, MockXRSpace } from '../../../util/MockXR'
 
@@ -59,9 +65,43 @@ describe('InputSourceComponent', () => {
 
     assert(hasComponent(entity, InputSourceComponent))
 
-    const hands = ['left', 'right', 'none']
     const inputSourceComponent = getComponent(entity, InputSourceComponent)
-    assert(inputSourceComponent !== undefined)
+
+    let isAssignedButtons = InputSourceComponent.isAssignedButtons(entity)
+    let isAssignedAxes = InputSourceComponent.isAssignedAxes(entity)
+
+    assert(!isAssignedButtons)
+    assert(!isAssignedAxes)
+
+    inputSourceComponent.assignedAxesEntity = entity
+    inputSourceComponent.assignedButtonEntity = entity
+    setComponent(entity, InputComponent)
+    const inputComponent = getComponent(entity, InputComponent)
+    inputComponent.inputSources.push(entity)
+
+    isAssignedButtons = InputSourceComponent.isAssignedButtons(entity)
+    isAssignedAxes = InputSourceComponent.isAssignedAxes(entity)
+
+    assert(isAssignedButtons)
+    assert(isAssignedAxes)
+  })
+
+  it('should capture and release buttons and axes', () => {
+    const mockXRInputSource = new MockXRInputSource({
+      handedness: 'left',
+      targetRayMode: 'screen',
+      targetRaySpace: new MockXRSpace() as XRSpace,
+      gripSpace: undefined,
+      gamepad: undefined,
+      profiles: ['test'],
+      hand: undefined
+    }) as XRInputSource
+
+    const entity = Engine.instance.originEntity
+
+    setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
+
+    const hands = ['left', 'right', 'none']
 
     const state = getMutableState(InputSourceCaptureState)
     InputSourceComponent.captureButtons(entity)
@@ -95,27 +135,9 @@ describe('InputSourceComponent', () => {
       assert(state.buttons[hand].get() === 0)
       assert(state.axes[hand].get() === 0)
     })
-
-    let isAssignedButtons = InputSourceComponent.isAssignedButtons(entity)
-    let isAssignedAxes = InputSourceComponent.isAssignedAxes(entity)
-
-    assert(!isAssignedButtons)
-    assert(!isAssignedAxes)
-
-    inputSourceComponent.assignedAxesEntity = entity
-    inputSourceComponent.assignedButtonEntity = entity
-    setComponent(entity, InputComponent)
-    const inputComponent = getComponent(entity, InputComponent)
-    inputComponent.inputSources.push(entity)
-
-    isAssignedButtons = InputSourceComponent.isAssignedButtons(entity)
-    isAssignedAxes = InputSourceComponent.isAssignedAxes(entity)
-
-    assert(isAssignedButtons)
-    assert(isAssignedAxes)
   })
 
-  it('test reactor', () => {
+  it('assigns input source button entity reactively', async () => {
     const mockXRInputSource = new MockXRInputSource({
       handedness: 'left',
       targetRayMode: 'screen',
@@ -126,11 +148,51 @@ describe('InputSourceComponent', () => {
       hand: undefined
     }) as XRInputSource
 
-    const entity = Engine.instance.originEntity
+    const entity = createEntity()
 
+    getMutableState(InputSourceCaptureState).buttons.set({
+      left: entity
+    } as any)
     setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
     const Reactor = InputSourceComponent.reactor
-    const { rerender, unmount } = render(<Reactor />)
+    const tag = <Reactor />
+    const { rerender, unmount } = render(tag)
+
+    await act(() => rerender(tag))
+
+    const inputSource = getComponent(entity, InputSourceComponent)
+    assert(inputSource.assignedButtonEntity === entity)
+    assert(hasComponent(entity, InputSourceButtonsCapturedComponent))
+
+    unmount()
+  })
+
+  it('assigns input source axes entity reactively', async () => {
+    const mockXRInputSource = new MockXRInputSource({
+      handedness: 'left',
+      targetRayMode: 'screen',
+      targetRaySpace: new MockXRSpace() as XRSpace,
+      gripSpace: undefined,
+      gamepad: undefined,
+      profiles: ['test'],
+      hand: undefined
+    }) as XRInputSource
+
+    const entity = createEntity()
+
+    getMutableState(InputSourceCaptureState).axes.set({
+      left: entity
+    } as any)
+    setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
+    const Reactor = InputSourceComponent.reactor
+    const tag = <Reactor />
+    const { rerender, unmount } = render(tag)
+
+    await act(() => rerender(tag))
+
+    const inputSource = getComponent(entity, InputSourceComponent)
+    assert(inputSource.assignedAxesEntity === entity)
+    assert(hasComponent(entity, InputSourceAxesCapturedComponent))
 
     unmount()
   })

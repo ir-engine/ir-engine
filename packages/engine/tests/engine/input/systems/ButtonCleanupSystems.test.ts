@@ -23,25 +23,63 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import assert from 'assert'
-
 import { destroyEngine } from '../../../../src/ecs/classes/Engine'
+import { getMutableComponent, setComponent } from '../../../../src/ecs/functions/ComponentFunctions'
+import { createEntity } from '../../../../src/ecs/functions/EntityFunctions'
 import { SystemDefinitions } from '../../../../src/ecs/functions/SystemFunctions'
 import { createEngine } from '../../../../src/initializeEngine'
+import { InputSourceComponent } from '../../../../src/input/components/InputSourceComponent'
 import { ButtonCleanupSystem } from '../../../../src/input/systems/ButtonCleanupSystem'
+import { MockXRInputSource, MockXRSpace } from '../../../util/MockXR'
 import { loadEmptyScene } from '../../../util/loadEmptyScene'
 
 describe('ButtonCleanupSystem', () => {
+  let focusCopy
+
+  before(() => {
+    focusCopy = document.hasFocus
+    document.hasFocus = () => {
+      return true
+    }
+  })
+
+  after(() => {
+    document.hasFocus = focusCopy
+  })
+
   beforeEach(() => {
     createEngine()
     loadEmptyScene()
   })
 
   it('test button cleanup system', () => {
+    const mockXRInputSource = new MockXRInputSource({
+      handedness: 'left',
+      targetRayMode: 'screen',
+      targetRaySpace: new MockXRSpace() as XRSpace,
+      gripSpace: undefined,
+      gamepad: undefined,
+      profiles: ['test'],
+      hand: undefined
+    }) as XRInputSource
+
+    const entity = createEntity()
+    setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
+    const inputSource = getMutableComponent(entity, InputSourceComponent)
+    inputSource.buttons.set({
+      '0': {
+        down: true
+      }
+    } as any)
+
     const system = SystemDefinitions.get(ButtonCleanupSystem)!
     const execute = system.execute
-    assert(typeof execute === 'function')
-    assert(execute() === undefined)
+    execute()
+
+    const buttons = inputSource.buttons.get(NO_PROXY)
+    assert(buttons['0'].down === false)
   })
 
   afterEach(() => {

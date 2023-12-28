@@ -23,14 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { render } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 
 import { Engine, destroyEngine } from '../../../../src/ecs/classes/Engine'
-import { getComponent, setComponent } from '../../../../src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '../../../../src/ecs/functions/ComponentFunctions'
 import { createEngine } from '../../../../src/initializeEngine'
 import { InputComponent } from '../../../../src/input/components/InputComponent'
+import { HighlightComponent } from '../../../../src/renderer/components/HighlightComponent'
 import { loadEmptyScene } from '../../../util/loadEmptyScene'
 
 describe('InputComponent', () => {
@@ -39,7 +40,7 @@ describe('InputComponent', () => {
     loadEmptyScene()
   })
 
-  it('test input component', () => {
+  it('test input component', async () => {
     const entity = Engine.instance.originEntity
 
     const json = { highlight: true, grow: true }
@@ -50,10 +51,14 @@ describe('InputComponent', () => {
     assert(inputComponent.highlight === json.highlight)
 
     inputComponent.inputSources.push(entity)
-    assert(inputComponent.inputSources.length === 1)
 
     const Reactor = InputComponent.reactor
-    const { rerender, unmount } = render(<Reactor />)
+    const tag = <Reactor />
+    const { rerender, unmount } = render(tag)
+
+    await act(() => rerender(tag))
+
+    assert(hasComponent(entity, HighlightComponent))
 
     unmount()
   })
