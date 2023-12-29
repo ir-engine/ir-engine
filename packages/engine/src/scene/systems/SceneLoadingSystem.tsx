@@ -242,9 +242,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 /** @todo eventually, this will become redundant */
 const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
-  const entity = UUIDComponent.getOrCreateEntityByUUID(props.entityUUID)
 
   useEffect(() => {
+    const entity = UUIDComponent.getOrCreateEntityByUUID(props.entityUUID)
     setComponent(entity, NameComponent, entityState.name.value)
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, SourceComponent, props.sceneID)

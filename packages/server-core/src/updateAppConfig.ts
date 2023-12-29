@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import dotenv from 'dotenv'
 import knex from 'knex'
 
 import { AwsSettingDatabaseType, awsSettingPath } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
@@ -66,7 +65,6 @@ import { clientDbToSchema } from './setting/client-setting/client-setting.resolv
 import { emailDbToSchema } from './setting/email-setting/email-setting.resolvers'
 import { serverDbToSchema } from './setting/server-setting/server-setting.resolvers'
 
-dotenv.config()
 const db = {
   user: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
