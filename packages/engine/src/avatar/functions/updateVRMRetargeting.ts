@@ -30,14 +30,13 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoneComponent } from '../components/BoneComponent'
 
-const parentWorldMatrixInverse = new Matrix4()
 export const updateVRMRetargeting = (vrm: VRM) => {
   const humanoidRig = (vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRig
   for (const boneName of VRMHumanBoneList) {
     const boneNode = humanoidRig.original.getBoneNode(boneName) as Object3D | null
 
     if (boneNode != null) {
-      const rigBoneNode = humanoidRig.getBoneNode(boneName)!
+      const rigBoneNode = humanoidRig.getBoneNode(boneName)! as Object3D
 
       delete TransformComponent.dirtyTransforms[rigBoneNode.entity]
 
@@ -52,15 +51,15 @@ export const updateVRMRetargeting = (vrm: VRM) => {
         .multiply(boneRotation)
 
       if (boneName === 'hips') {
-        const boneWorldPosition = rigBoneNode.getWorldPosition(_boneWorldPos)
         const entity = boneNode.entity
         const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
         if (!parentEntity) continue
         const parentBone =
           getOptionalComponent(parentEntity, BoneComponent) ?? getOptionalComponent(parentEntity, TransformComponent)
         if (!parentBone) continue
-        parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
-        boneNode.position.copy(boneWorldPosition.applyMatrix4(parentWorldMatrixInverse))
+        _boneWorldPos.copy(rigBoneNode.position).applyMatrix4(parentBone?.matrixWorld)
+        _parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
+        boneNode.position.copy(_boneWorldPos.applyMatrix4(_parentWorldMatrixInverse))
       }
     }
   }
@@ -68,3 +67,4 @@ export const updateVRMRetargeting = (vrm: VRM) => {
 
 const _quatA = new Quaternion()
 const _boneWorldPos = new Vector3()
+const _parentWorldMatrixInverse = new Matrix4()
