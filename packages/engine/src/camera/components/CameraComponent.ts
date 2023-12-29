@@ -34,8 +34,8 @@ export const CameraComponent = defineComponent({
     const camera = new ArrayCamera()
     camera.fov = 60
     camera.aspect = 1
-    camera.near = 0.001
-    camera.far = 100000
+    camera.near = 0.1
+    camera.far = 1000
     camera.cameras = [new PerspectiveCamera().copy(camera, false)]
     return camera
   },
