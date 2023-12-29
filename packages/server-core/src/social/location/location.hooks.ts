@@ -69,10 +69,10 @@ import {
   locationResolver
 } from './location.resolvers'
 
-export const locationValidator = getValidator(locationSchema, dataValidator)
-export const locationDataValidator = getValidator(locationDataSchema, dataValidator)
-export const locationPatchValidator = getValidator(locationPatchSchema, dataValidator)
-export const locationQueryValidator = getValidator(locationQuerySchema, queryValidator)
+const locationValidator = getValidator(locationSchema, dataValidator)
+const locationDataValidator = getValidator(locationDataSchema, dataValidator)
+const locationPatchValidator = getValidator(locationPatchSchema, dataValidator)
+const locationQueryValidator = getValidator(locationQuerySchema, queryValidator)
 
 const locationSettingSorts = ['locationType', 'audioEnabled', 'videoEnabled']
 
