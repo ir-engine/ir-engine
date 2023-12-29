@@ -199,7 +199,7 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
   })
 
   if (avatars.data.length > 0) {
-    const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.data.length)]
+    const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
     await context.app.service(userAvatarPath).patch(
       null,
       {

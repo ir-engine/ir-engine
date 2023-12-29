@@ -55,6 +55,7 @@ import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
+import { SceneAssetsPanelTab } from './assets/SceneAssetsPanel'
 import { ScenePanelTab } from './assets/ScenesPanel'
 import { ControlText } from './controlText/ControlText'
 import { DialogState } from './dialogs/DialogState'
@@ -64,12 +65,11 @@ import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
 import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
-import ElementList from './element/ElementList'
+import { PropertiesPanelTab } from './element/PropertiesPanel'
 import { GraphPanelTab } from './graph/GraphPanel'
 import { HierarchyPanelTab } from './hierarchy/HierarchyPanel'
 import { MaterialLibraryPanelTab } from './materials/MaterialLibraryPanel'
 import { ViewportPanelTab } from './panels/ViewportPanel'
-import { PropertiesPanelTab } from './properties/PropertiesPanel'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
 
@@ -321,10 +321,10 @@ const defaultLayout: LayoutData = {
     children: [
       {
         mode: 'vertical' as DockMode,
-        size: 2,
+        size: 3,
         children: [
           {
-            tabs: [ScenePanelTab, ProjectBrowserPanelTab]
+            tabs: [ScenePanelTab, ProjectBrowserPanelTab, SceneAssetsPanelTab]
           }
         ]
       },
@@ -460,7 +460,6 @@ const EditorContainer = () => {
         <DndWrapper id="editor-container">
           <DragLayer />
           <ToolBar menu={toolbarMenu} panels={panelMenu} />
-          <ElementList />
           <ControlText />
           {sceneLoading && <SceneLoadingProgress />}
           <div className={styles.workspaceContainer}>
@@ -469,7 +468,7 @@ const EditorContainer = () => {
               <DockLayout
                 ref={dockPanelRef}
                 defaultLayout={defaultLayout}
-                style={{ position: 'absolute', left: 5, top: 55, right: 130, bottom: 5 }}
+                style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
               />
             </DockContainer>
           </div>
