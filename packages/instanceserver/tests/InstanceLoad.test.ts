@@ -33,6 +33,8 @@ import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/id
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
+import appRootPath from 'app-root-path'
+import { ChildProcess } from 'child_process'
 import { v1 } from 'uuid'
 import { StartTestFileServer } from '../../server-core/src/createFileServer'
 import { onConnection } from '../src/channels'
@@ -40,6 +42,16 @@ import { start } from '../src/start'
 
 describe('InstanceLoad', () => {
   before(async () => {
+    const child: ChildProcess = require('child_process').spawn('npm', ['run', 'dev-agones'], {
+      cwd: appRootPath.path,
+      stdio: 'inherit',
+      detached: true
+    })
+
+    process.on('exit', async () => {
+      process.kill(-child.pid!, 'SIGINT')
+    })
+
     const app = await start()
     await app.setup()
     StartTestFileServer()
