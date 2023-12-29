@@ -956,6 +956,10 @@
         "licensing": "Licensing:",
         "tag": "Tag:",
         "addTag": "Add Tag"
+      },
+      "view-mode": {
+        "icons": "View: Icons",
+        "list": "View: List"
       }
     },
     "scene-assets": {

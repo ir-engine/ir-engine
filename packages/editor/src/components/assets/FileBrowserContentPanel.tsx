@@ -165,6 +165,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const contentToDeletePath = useHookstate('')
 
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
+  const filesViewMode = useHookstate<'icons' | 'list'>('icons')
 
   const fileState = useHookstate(getMutableState(FileBrowserState))
   const filesValue = fileState.files.attach(Downgraded).value
@@ -480,6 +481,25 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             onClick={refreshDirectory}
             id="refreshDir"
           />
+          <select
+            value={filesViewMode.value}
+            onChange={(event) => filesViewMode.set(event.target.value as 'icons' | 'list')}
+            style={{
+              all: 'unset',
+              verticalAlign: 'middle',
+              textAlign: 'center',
+              backgroundColor: 'var(--inputBackground)',
+              lineHeight: 'normal',
+              margin: '5px',
+              padding: '5px',
+              paddingTop: '7px',
+              borderRadius: '10%',
+              cursor: 'pointer'
+            }}
+          >
+            <option value={'icons'}>{t('editor:layout.filebrowser.view-mode.icons')}</option>
+            <option value={'list'}>{t('editor:layout.filebrowser.view-mode.list')}</option>
+          </select>
         </span>
         <BreadcrumbItems />
         <span
