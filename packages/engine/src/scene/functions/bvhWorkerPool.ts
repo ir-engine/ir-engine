@@ -38,7 +38,7 @@ export function generateMeshBVH(mesh: Mesh | InstancedMesh) {
     (mesh as InstancedMesh).isInstancedMesh ||
     !mesh.geometry ||
     !mesh.geometry.attributes.position ||
-    (mesh.geometry as any).boundsTree
+    mesh.geometry.boundsTree
   )
     return Promise.resolve()
   if (!bvhWorkers.length) {
@@ -68,7 +68,7 @@ function runBVHGenerator() {
     const mesh = meshQueue.shift() as Mesh
 
     worker.generate(mesh.geometry).then((bvh) => {
-      ;(mesh.geometry as any).boundsTree = bvh
+      mesh.geometry.boundsTree = bvh
       runBVHGenerator()
       ;(mesh as any).resolvePromiseBVH && (mesh as any).resolvePromiseBVH()
     })
