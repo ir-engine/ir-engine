@@ -24,16 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
-import { Object3D, Quaternion, Vector3 } from 'three'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
+import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { BoneComponent } from '../components/BoneComponent'
 
-export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
-  vrm.update(deltaTime)
-
+const parentWorldMatrixInverse = new Matrix4()
+export const updateVRMRetargeting = (vrm: VRM) => {
   const humanoidRig = (vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRig
   for (const boneName of VRMHumanBoneList) {
     const boneNode = humanoidRig.original.getBoneNode(boneName) as Object3D | null
@@ -53,26 +51,16 @@ export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
         .premultiply(invParentWorldRotation)
         .multiply(boneRotation)
 
-      // Move the mass center of the VRM
       if (boneName === 'hips') {
-        /** @todo for some reason this breaks loop animations */
         const boneWorldPosition = rigBoneNode.getWorldPosition(_boneWorldPos)
-
-        const boneEntity = boneNode.entity
-        if (!boneEntity) continue
-
-        const parentEntity = getComponent(boneEntity, EntityTreeComponent)?.parentEntity
+        const entity = boneNode.entity
+        const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
         if (!parentEntity) continue
-
-        const parentBoneNode = getComponent(parentEntity, BoneComponent)
-        if (!parentBoneNode) continue
-
-        computeTransformMatrix(parentEntity)
-        parentBoneNode.updateMatrixWorld(true)
-
-        const parentWorldMatrix = parentBoneNode.matrixWorld
-        const localPosition = boneWorldPosition.applyMatrix4(parentWorldMatrix.clone().invert())
-        boneNode.position.copy(localPosition)
+        const parentBone =
+          getOptionalComponent(parentEntity, BoneComponent) ?? getOptionalComponent(parentEntity, TransformComponent)
+        if (!parentBone) continue
+        parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
+        boneNode.position.copy(boneWorldPosition.applyMatrix4(parentWorldMatrixInverse))
       }
     }
   }
