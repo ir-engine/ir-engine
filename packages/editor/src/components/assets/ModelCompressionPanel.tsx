@@ -49,6 +49,7 @@ import { createSceneEntity } from '@etherealengine/engine/src/ecs/functions/crea
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
+import { Box } from '@mui/material'
 import exportGLTF from '../../functions/exportGLTF'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
@@ -176,43 +177,47 @@ export default function ModelCompressionPanel({
         </>
       }
     >
-      <InputGroup name="fileType" label={fileProperties.value?.isFolder ? 'Directory' : 'File'}>
-        <Typography variant="body2">{t('editor:properties.model.transform.compress') as string}</Typography>
-      </InputGroup>
-      <>
-        <GLTFTransformProperties
-          transformParms={transformParms}
-          onChange={(transformParms: ModelTransformParameters) => {}}
-        />
-        <InputGroup name="Clientside Transform" label="Clientside Transform">
-          <BooleanInput
-            value={
-              true
-              // isClientside.value
-            }
-            onChange={(val: boolean) => {
-              // isClientside.set(val)
-            }}
-            disabled={true}
-          />
-        </InputGroup>
-        <InputGroup name="Batch Compress" label="Batch Compress">
-          <BooleanInput
-            value={isBatchCompress.value}
-            onChange={(val: boolean) => {
-              isBatchCompress.set(val)
-            }}
-          />
-        </InputGroup>
-        <InputGroup name="Generate Integrated Variant Prefab" label="Generate Integrated Variant Prefab">
-          <BooleanInput
-            value={isIntegratedPrefab.value}
-            onChange={(val: boolean) => {
-              isIntegratedPrefab.set(val)
-            }}
-          />
-        </InputGroup>
-      </>
+      <div className={styles.modelMenu}>
+        <Box>
+          <InputGroup name="fileType" label={fileProperties.value?.isFolder ? 'Directory' : 'File'}>
+            <Typography variant="body2">{t('editor:properties.model.transform.compress') as string}</Typography>
+          </InputGroup>
+          <>
+            <GLTFTransformProperties
+              transformParms={transformParms}
+              onChange={(transformParms: ModelTransformParameters) => {}}
+            />
+            <InputGroup name="Clientside Transform" label="Clientside Transform">
+              <BooleanInput
+                value={
+                  true
+                  // isClientside.value
+                }
+                onChange={(val: boolean) => {
+                  // isClientside.set(val)
+                }}
+                disabled={true}
+              />
+            </InputGroup>
+            <InputGroup name="Batch Compress" label="Batch Compress">
+              <BooleanInput
+                value={isBatchCompress.value}
+                onChange={(val: boolean) => {
+                  isBatchCompress.set(val)
+                }}
+              />
+            </InputGroup>
+            <InputGroup name="Generate Integrated Variant Prefab" label="Generate Integrated Variant Prefab">
+              <BooleanInput
+                value={isIntegratedPrefab.value}
+                onChange={(val: boolean) => {
+                  isIntegratedPrefab.set(val)
+                }}
+              />
+            </InputGroup>
+          </>
+        </Box>
+      </div>
     </Menu>
   )
 }

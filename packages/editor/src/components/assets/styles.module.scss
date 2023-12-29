@@ -16,8 +16,9 @@
   align-items: center;
 }
 
-.searchContainer > button, .searchContainer > input {
-  margin: 0 !important;  /* To remove any default margins */
+.searchContainer > button,
+.searchContainer > input {
+  margin: 0 !important; /* To remove any default margins */
 }
 
 .searchContainer > input {
@@ -42,7 +43,7 @@
 
 /* Optional, if you want the button and input to have some spacing between them */
 .searchContainer > button + input {
-  margin-left: 5px !important; 
+  margin-left: 5px !important;
 }
 
 .fileListItemContainer {
@@ -219,8 +220,8 @@
   font-weight: bold;
 }
 
-.breadcrumbList{
-  justify-content: center
+.breadcrumbList {
+  justify-content: center;
 }
 
 .separator {
@@ -230,7 +231,7 @@
 .breadcrumb {
   color: var(--textColor);
 
-  [class*="MuiLink-root"] {
+  [class*='MuiLink-root'] {
     cursor: pointer;
   }
 }
@@ -261,3 +262,8 @@
   display: block;
 }
 
+.modelMenu {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
