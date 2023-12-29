@@ -208,7 +208,7 @@ export class FileBrowserService
       await Promise.all(
         staticResources.map(async (resource) => {
           const newKey = resource.key.replace(path.join(_oldPath, data.oldName), path.join(_newPath, fileName))
-          this.app.service(staticResourcePath).patch(
+          await this.app.service(staticResourcePath).patch(
             resource.id,
             {
               key: newKey
@@ -330,7 +330,7 @@ export class FileBrowserService
 
     if (staticResources?.length > 0) {
       await Promise.all(
-        staticResources.map(async (resource) => this.app.service(staticResourcePath).remove(resource.id))
+        staticResources.map(async (resource) => await this.app.service(staticResourcePath).remove(resource.id))
       )
     }
 
