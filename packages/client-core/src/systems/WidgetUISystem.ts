@@ -67,6 +67,7 @@ import {
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
@@ -191,9 +192,11 @@ const execute = () => {
   } else {
     if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
       setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
-      setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.cameraEntity, () =>
-        ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, 0.1)
-      )
+      setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.cameraEntity, () => {
+        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+        const distance = camera.near * 1.1 // 10% in front of camera
+        ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, distance)
+      })
     }
   }
 
