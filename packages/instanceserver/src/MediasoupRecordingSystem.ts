@@ -284,7 +284,7 @@ const reactor = () => {
   useEffect(() => {
     getMutableState(RecordingAPIState).merge({ createMediaChannelRecorder: startMediaRecording })
     return () => {
-      getMutableState(RecordingAPIState).createMediaChannelRecorder.set(none)
+      getMutableState(RecordingAPIState).merge({ createMediaChannelRecorder: none })
     }
   }, [])
 
