@@ -73,11 +73,11 @@ export const BoundingBoxComponent = defineComponent({
       if (!debugEnabled.value) return
 
       const helperEntity = createEntity()
-      setComponent(helperEntity, NameComponent, `bounding-box-helper-${entity}`)
 
       const helper = new Box3Helper(boundingBox.box.value)
       helper.name = `bounding-box-helper-${entity}`
 
+      setComponent(helperEntity, NameComponent, helper.name)
       setComponent(helperEntity, VisibleComponent)
 
       addObjectToGroup(helperEntity, helper)

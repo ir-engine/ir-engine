@@ -140,7 +140,5 @@ export default class Spline extends SplineBase {
     //this.addPoint(position)
     this.updateHelpers()
     return helper
-
-    this.updateMatrixWorld()
   }
 }

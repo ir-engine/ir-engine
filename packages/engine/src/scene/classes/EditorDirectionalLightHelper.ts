@@ -34,8 +34,10 @@ import {
 } from 'three'
 
 import { Entity } from '../../ecs/classes/Entity'
+import { setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { addObjectToGroup } from '../components/GroupComponent'
+import { NameComponent } from '../components/NameComponent'
 
 export default class EditorDirectionalLightHelper extends Object3D {
   color: ColorRepresentation
@@ -103,6 +105,7 @@ export default class EditorDirectionalLightHelper extends Object3D {
 
     this.lightHelperEntity = createEntity()
     this.lightPlane = new LineSegments(geometry, material)
+    setComponent(this.lightHelperEntity, NameComponent, this.name)
     addObjectToGroup(this.lightHelperEntity, this.lightPlane)
 
     geometry = new BufferGeometry()

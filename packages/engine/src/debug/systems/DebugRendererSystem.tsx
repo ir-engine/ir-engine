@@ -107,11 +107,11 @@ const reactor = () => {
     const lineMaterial = new LineBasicMaterial({ vertexColors: true })
     const lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
     lineSegments.frustumCulled = false
-    setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
 
     const lineSegmentsEntity = createEntity()
     setVisibleComponent(lineSegmentsEntity, true)
     addObjectToGroup(lineSegmentsEntity, lineSegments)
+    setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
     engineRendererSettings.physicsDebugEntity.set(lineSegmentsEntity)
 
     return () => {
