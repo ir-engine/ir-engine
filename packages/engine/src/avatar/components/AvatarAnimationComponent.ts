@@ -204,6 +204,7 @@ export const AvatarRigComponent = defineComponent({
       const rig = getComponent(entity, AvatarRigComponent)
       try {
         setupAvatarForUser(entity, rig.vrm)
+        if (manager.loadedAnimations[locomotionAnimation].value) retargetAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()

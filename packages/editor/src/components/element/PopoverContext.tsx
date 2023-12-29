@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,25 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { createContext, useContext } from 'react'
 
-module.exports = {
-  failZero: false,
-  parallel: false,
-  spec: [
-    '**/*.test.ts',
-    '**/*.test.tsx'
-  ],
-  require: [
-    'tests/mocha.env', // init env here
-    'jsdom-global/register'
-  ],
-  extension: [
-    'ts',
-    'tsx'
-  ],
-  bail: true,
-  exit: true,
-  recursive: true,
-  jobs: '1',
-  timeout: '20000'
-};
+export const PopoverContext = createContext({ handlePopoverClose: () => {} })
+
+export const usePopoverContextClose = () => useContext(PopoverContext).handlePopoverClose

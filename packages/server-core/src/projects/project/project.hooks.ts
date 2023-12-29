@@ -420,13 +420,16 @@ const createProjectPermission = async (context: HookContext<ProjectService>) => 
  * @returns
  */
 const removeLocationFromProject = async (context: HookContext<ProjectService>) => {
-  await context.app.service(locationPath).remove(null, {
+  const removingLocations = await context.app.service(locationPath).find({
     query: {
       sceneId: {
         $like: `${context.name}/%` as SceneID
       }
     }
   })
+  await Promise.all(
+    removingLocations.data.map((removingLocation) => context.app.service(locationPath).remove(removingLocation.id))
+  )
 }
 
 /**

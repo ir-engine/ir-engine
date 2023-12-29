@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,25 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { builderInfoPath } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
+import assert from 'assert'
+import { Application } from '../../../declarations'
+import { createFeathersKoaApp } from '../../createApp'
+import { getEnginePackageJson } from '../project/project-helper'
 
-module.exports = {
-  failZero: false,
-  parallel: false,
-  spec: [
-    '**/*.test.ts',
-    '**/*.test.tsx'
-  ],
-  require: [
-    'tests/mocha.env', // init env here
-    'jsdom-global/register'
-  ],
-  extension: [
-    'ts',
-    'tsx'
-  ],
-  bail: true,
-  exit: true,
-  recursive: true,
-  jobs: '1',
-  timeout: '20000'
-};
+describe('builder-info.test', () => {
+  let app: Application
+
+  before(async () => {
+    app = createFeathersKoaApp()
+    await app.setup()
+  })
+
+  after(async () => {
+    await destroyEngine()
+  })
+
+  it('should get the builder info', async () => {
+    const builderInfo = await app.service(builderInfoPath).get()
+    assert.equal(builderInfo.engineVersion, getEnginePackageJson().version)
+  })
+})
