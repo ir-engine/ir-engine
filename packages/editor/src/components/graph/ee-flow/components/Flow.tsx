@@ -81,7 +81,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     registry
   })
 
-  const { onSelectionChange } = useSelectionHandler({
+  const { selectedNodes, onSelectionChange } = useSelectionHandler({
     nodes,
     onNodesChange,
     onEdgesChange
@@ -135,6 +135,10 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
             specJSON={specGenerator?.getAllNodeSpecs()}
           />
         )}
+
+        {
+          //selectedNodes.length !== 0 && ()
+        }
       </ReactFlow>
     </ReactFlowProvider>
   )

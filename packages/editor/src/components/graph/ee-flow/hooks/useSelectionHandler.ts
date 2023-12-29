@@ -111,5 +111,5 @@ export const useSelectionHandler = ({
     pasteNodes()
   }, [ctrlVPressed])
 
-  return { onSelectionChange }
+  return { selectedNodes, onSelectionChange }
 }
