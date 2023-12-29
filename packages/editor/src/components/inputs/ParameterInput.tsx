@@ -32,6 +32,7 @@ import ColorInput from './ColorInput'
 import InputGroup from './InputGroup'
 import NumericInput from './NumericInput'
 import SelectInput from './SelectInput'
+import StringInput from './StringInput'
 import TexturePreviewInput from './TexturePreviewInput'
 
 export default function ParameterInput({
@@ -91,6 +92,8 @@ export default function ParameterInput({
                   return <BooleanInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'float':
                   return <NumericInput value={values[k]} onChange={setArgsProp(k)} />
+                case 'string':
+                  return <StringInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'color':
                   return <ColorInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'texture':

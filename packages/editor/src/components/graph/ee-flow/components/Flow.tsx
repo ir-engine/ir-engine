@@ -31,8 +31,8 @@ import { GraphJSON, IRegistry } from '@behave-graph/core'
 import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/functions/useGraphRunner.js'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity.js'
 import { useHookstate } from '@hookstate/core'
-import { Button } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
+import { Button } from '../../../inputs/Button.js'
 import PaginatedList from '../../../layout/PaginatedList.js'
 import Panel from '../../../layout/Panel.js'
 import NodeEditor from '../../../properties/NodeEditor.js'
@@ -121,14 +121,11 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
                     <Button
                       style={{ width: '100%', textTransform: 'lowercase', padding: '0px' }}
                       onClick={() => {
-                        //const avgX = nodes.reduce((acc, node) => acc + node.position.x, 0) / nodes.length
-                        //const avgY = nodes.reduce((acc, node) => acc + node.position.y, 0) / nodes.length
-
                         const bounds = (flowRef.current! as any).getBoundingClientRect()
                         const centerX = bounds.left + bounds.width / 2
                         const centerY = bounds.top + bounds.height / 2
                         const viewportCenter = reactFlow.screenToFlowPosition({ x: centerX, y: centerY } as XYPosition)
-                        const position: XYPosition = viewportCenter // need a way to get viewport
+                        const position = viewportCenter // need a way to get viewport
                         const newNode = {
                           id: uuidv4(),
                           type: node,
@@ -151,15 +148,8 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
             ></PaginatedList>
           </NodeEditor>
         </div>
-
-        <div style={{ flex: '35%', overflow: 'scroll' }}>
+        <div style={{ flex: '65%', overflow: 'scroll' }}>
           <NodeEditor entity={UndefinedEntity} name={'Templates'} description={'collecton of Templates'}></NodeEditor>
-        </div>
-
-        <div style={{ flex: '30%', overflow: 'scroll' }}>
-          <NodeEditor entity={UndefinedEntity} name={'variables'} description={'collection of variables'}>
-            <Button onClick={() => {}}>Add Variable</Button>
-          </NodeEditor>
         </div>
       </div>
 
@@ -205,9 +195,6 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
               specJSON={specGenerator?.getAllNodeSpecs()}
             />
           )}
-          {
-            //selectedNodes.length !== 0 && ()
-          }
         </ReactFlow>
       </div>
     </div>
