@@ -63,6 +63,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
 
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
@@ -74,11 +75,12 @@ import { Button } from '../inputs/Button'
 import StringInput from '../inputs/StringInput'
 import { ToolButton } from '../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from './AssetsPreviewPanel'
-import CompressionPanel from './CompressionPanel'
 import { FileBrowserItem } from './FileBrowserGrid'
 import { FileDataType } from './FileDataType'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
+import ImageCompressionPanel from './ImageCompressionPanel'
 import ImageConvertPanel from './ImageConvertPanel'
+import ModelCompressionPanel from './ModelCompressionPanel'
 import styles from './styles.module.scss'
 
 export const FileIconType = {
@@ -135,6 +137,15 @@ export type FileType = {
   size: string
   type: string
   url: string
+}
+
+const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
+  if (file.isFolder) {
+    return contentType.startsWith('image')
+  } else {
+    const guessedType: string = CommonKnownContentTypes[file.type]
+    return guessedType?.startsWith(contentType)
+  }
 }
 
 export function isFileDataType(value: any): value is FileDataType {
@@ -547,8 +558,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         />
       )}
 
-      {openCompress.value && fileProperties.value && (
-        <CompressionPanel
+      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
+        <ModelCompressionPanel
+          openCompress={openCompress}
+          fileProperties={fileProperties as any}
+          onRefreshDirectory={refreshDirectory}
+        />
+      )}
+
+      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
+        <ImageCompressionPanel
           openCompress={openCompress}
           fileProperties={fileProperties as any}
           onRefreshDirectory={refreshDirectory}
