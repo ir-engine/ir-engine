@@ -125,7 +125,9 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         ...defaultState,
         name: selectedLocation.name,
         maxUsers: selectedLocation.maxUsersPerInstance,
-        scene: selectedLocation.sceneId.replace('projects/', '').replace('.scene.json', ''),
+        scene: selectedLocation.sceneId
+          .replace(`${selectedLocation.sceneId.split('/', 1)[0]}/`, '')
+          .replace('.scene.json', ''),
         type: selectedLocation.locationSetting?.locationType,
         videoEnabled: selectedLocation.locationSetting?.videoEnabled,
         audioEnabled: selectedLocation.locationSetting?.audioEnabled,
