@@ -934,6 +934,7 @@
       }
     },
     "filebrowser": {
+      "tab-name": "Project Files",
       "addNewFolder": "Add New Folder",
       "cutAsset": "Cut",
       "copyAsset": "Copy",
@@ -955,7 +956,8 @@
         "attribution": "Attribution:",
         "licensing": "Licensing:",
         "tag": "Tag:",
-        "addTag": "Add Tag"
+        "addTag": "Add Tag",
+        "save-changes": "Save Changes"
       },
       "view-mode": {
         "icons": "View: Icons",

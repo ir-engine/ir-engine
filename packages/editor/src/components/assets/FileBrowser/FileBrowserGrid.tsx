@@ -40,12 +40,12 @@ import Paper from '@mui/material/Paper'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { Vector3 } from 'three'
-import { SupportedFileTypes } from '../../constants/AssetTypes'
-import { addMediaNode } from '../../functions/addMediaNode'
-import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
-import { ContextMenu } from '../layout/ContextMenu'
+import { SupportedFileTypes } from '../../../constants/AssetTypes'
+import { addMediaNode } from '../../../functions/addMediaNode'
+import { getSpawnPositionAtCenter } from '../../../functions/screenSpaceFunctions'
+import { ContextMenu } from '../../layout/ContextMenu'
+import styles from '../styles.module.scss'
 import { FileDataType } from './FileDataType'
-import styles from './styles.module.scss'
 
 type FileListItemProps = {
   item: FileDataType
