@@ -101,7 +101,7 @@ export const FilePropertiesPanel = (props: {
         resourceProperties.project.set(resources.project ?? '')
       }
     }
-  }, [staticResource])
+  }, [staticResource.data])
 
   return (
     <Dialog

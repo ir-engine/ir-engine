@@ -96,7 +96,11 @@ export default function CompressionPanel({
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: fileProperties.url.value,
-    modelFormat: fileProperties.url.value.endsWith('.gltf') ? 'gltf' : 'glb'
+    modelFormat: fileProperties.url.value.endsWith('.gltf')
+      ? 'gltf'
+      : fileProperties.url.value.endsWith('.vrm')
+      ? 'vrm'
+      : 'glb'
   })
 
   const compressContentInBrowser = async () => {

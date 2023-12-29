@@ -692,11 +692,11 @@ export async function transformModel(args: ModelTransformParameters) {
     }
   }
   let result
-  if (parms.modelFormat === 'glb') {
+  if (['glb', 'vrm'].includes(parms.modelFormat)) {
     const data = await io.writeBinary(document)
-    let finalPath = args.dst.replace(/\.gltf$/, '.glb')
-    if (!finalPath.endsWith('.glb')) {
-      finalPath += '.glb'
+    let finalPath = args.dst.replace(/\.[^.]*$/, `.${parms.modelFormat}`)
+    if (!finalPath.endsWith(`.${parms.modelFormat}`)) {
+      finalPath += `.${parms.modelFormat}`
     }
     await doUpload(data, finalPath)
 
@@ -805,7 +805,7 @@ export async function transformModel(args: ModelTransformParameters) {
         await doUpload(blob, uri)
       })
     )
-    let finalPath = args.dst.replace(/\.glb$/, '.gltf')
+    let finalPath = args.dst.replace(/\.[^.]*$/, '.gltf')
     if (!finalPath.endsWith('.gltf')) {
       finalPath += '.gltf'
     }
