@@ -34,6 +34,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 
 const maxBitWidth = 32
+
 export const ObjectLayerComponents = Array.from({ length: maxBitWidth }, (_, i) => {
   return defineComponent({
     name: `ObjectLayer${i}`,
@@ -53,10 +54,10 @@ export const ObjectLayerMaskComponent = defineComponent({
   schema: { mask: Types.i32 },
 
   onInit(entity) {
-    return 1 | 0
+    return 1 << 0 // enable layer 0
   },
 
-  onSet(entity, component, mask = 1 | 0) {
+  onSet(entity, component, mask = 1 << 0) {
     for (let i = 0; i < maxBitWidth; i++) {
       const isSet = (mask & ((1 << i) | 0)) !== 0
       if (isSet) {
