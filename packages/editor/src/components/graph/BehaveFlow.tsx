@@ -31,13 +31,11 @@ import { isEqual } from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
+import { ReactFlowProvider } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
-import PaginatedList from '../layout/PaginatedList'
-import Panel from '../layout/Panel'
-import NodeEditor from '../properties/NodeEditor'
 import { commitProperty } from '../properties/Util'
 import { Flow } from './ee-flow'
 import './ee-flow/styles.css'
@@ -52,32 +50,31 @@ export const ActiveBehaveGraph = (props: { entity }) => {
   const graphComponent = getComponent(entity, BehaveGraphComponent)
 
   return (
-    <Flow
-      initialGraph={graphComponent.graph}
-      examples={{}}
-      registry={behaveGraphState.registries[graphComponent.domain]}
-      onChangeGraph={
-        (newGraph) => {
-          if (!newGraph) return
-          if (isEqual(graphComponent.graph, newGraph)) return
-          commitProperty(BehaveGraphComponent, 'graph')(newGraph)
+    <ReactFlowProvider>
+      <Flow
+        initialGraph={graphComponent.graph}
+        examples={{}}
+        registry={behaveGraphState.registries[graphComponent.domain]}
+        onChangeGraph={
+          (newGraph) => {
+            if (!newGraph) return
+            if (isEqual(graphComponent.graph, newGraph)) return
+            commitProperty(BehaveGraphComponent, 'graph')(newGraph)
+          }
+          // need this to smoothen UX
         }
-        // need this to smoothen UX
-      }
-    />
+      />
+    </ReactFlowProvider>
   )
 }
 
 const BehaveFlow = () => {
   const selectionState = useHookstate(getMutableState(SelectionState))
-  const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
-  const existingNodes = Object.keys(behaveGraphState.registries.ECS.nodes.value)
 
   const entities = selectionState.selectedEntities.value
   const entity = entities[entities.length - 1]
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
   const { t } = useTranslation()
-
   const addGraph = () => EditorControlFunctions.addOrRemoveComponent([entity], BehaveGraphComponent, true)
 
   // ensure reactivity of adding new graph
@@ -86,62 +83,25 @@ const BehaveFlow = () => {
   return (
     <AutoSizer>
       {({ width, height }) => (
-        <div style={{ width, height, display: 'flex', flexDirection: 'row' }}>
-          {validEntity && (
-            // Side Panel
-
-            <div
+        <div style={{ width, height }}>
+          {entities.length && !validEntity ? (
+            <PropertiesPanelButton
               style={{
-                width: '25%',
-                display: 'flex',
-                flexDirection: 'column',
-                minWidth: '150px',
-                backgroundColor: 'var(--panelBackground)',
-                padding: '10px'
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)'
+              }}
+              onClick={() => {
+                addGraph()
               }}
             >
-              <div style={{ flex: 1 / 2 }}>
-                <NodeEditor entity={entity} name={'Nodes'} description={'collecton of Nodes'}>
-                  <PaginatedList
-                    options={{ countPerPage: 10 }}
-                    list={existingNodes}
-                    element={(node: string, index) => {
-                      return (
-                        <div>
-                          <Panel title={node}></Panel>
-                        </div>
-                      )
-                    }}
-                  ></PaginatedList>
-                </NodeEditor>
-              </div>
-
-              <div style={{ flex: 1 / 2 }}>
-                <NodeEditor entity={entity} name={'Templates'} description={'collecton of Templates'}></NodeEditor>
-              </div>
-            </div>
+              {t('editor:graphPanel.addGraph')}
+            </PropertiesPanelButton>
+          ) : (
+            <></>
           )}
-
-          <div style={{ flex: 1, position: 'relative' }}>
-            {entities.length && !validEntity ? (
-              <PropertiesPanelButton
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)'
-                }}
-                onClick={() => {
-                  addGraph()
-                }}
-              >
-                {t('editor:graphPanel.addGraph')}
-              </PropertiesPanelButton>
-            ) : (
-              <></>
-            )}
-            {validEntity && <ActiveBehaveGraph entity={entity} />}
-          </div>
+          {validEntity && <ActiveBehaveGraph entity={entity} />}
         </div>
       )}
     </AutoSizer>

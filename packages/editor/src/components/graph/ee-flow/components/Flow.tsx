@@ -24,12 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useRef } from 'react'
-import { Background, BackgroundVariant, ReactFlow, ReactFlowProvider } from 'reactflow'
+import { Background, BackgroundVariant, ReactFlow, XYPosition, useReactFlow } from 'reactflow'
 
 import { GraphJSON, IRegistry } from '@behave-graph/core'
 
 import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/functions/useGraphRunner.js'
+import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity.js'
 import { useHookstate } from '@hookstate/core'
+import { Button } from '@mui/material'
+import { v4 as uuidv4 } from 'uuid'
+import PaginatedList from '../../../layout/PaginatedList.js'
+import Panel from '../../../layout/Panel.js'
+import NodeEditor from '../../../properties/NodeEditor.js'
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
 import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator.js'
@@ -48,8 +54,8 @@ type FlowProps = {
 export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, registry, onChangeGraph }) => {
   const specGenerator = useNodeSpecGenerator(registry)
 
+  const reactFlow = useReactFlow()
   const flowRef = useRef(null)
-
   const dragging = useHookstate(false)
   const mouseOver = useHookstate(false)
 
@@ -93,53 +99,117 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   }, [graphJson]) // change in node position triggers reactor
 
   return (
-    <ReactFlowProvider>
-      <ReactFlow
-        ref={flowRef}
-        nodeTypes={nodeTypes}
-        nodes={nodes}
-        edges={edges}
-        onNodeDragStart={() => dragging.set(true)}
-        onNodeDragStop={() => dragging.set(false)}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onConnectStart={handleStartConnect}
-        onConnectEnd={handleStopConnect}
-        onPaneMouseEnter={() => mouseOver.set(true)}
-        onPaneMouseLeave={() => mouseOver.set(false)}
-        fitView
-        fitViewOptions={{ maxZoom: 1 }}
-        onPaneClick={handlePaneClick}
-        onPaneContextMenu={handlePaneContextMenu}
-        onSelectionChange={onSelectionChange}
-        multiSelectionKeyCode={'Shift'}
-        deleteKeyCode={'Backspace'}
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'row' }}>
+      <div
+        style={{
+          width: '25%',
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: '150px',
+          backgroundColor: 'var(--panelBackground)',
+          padding: '10px'
+        }}
       >
-        <CustomControls
-          playing={playing}
-          togglePlay={togglePlay}
-          onSaveGraph={onChangeGraph}
-          setBehaviorGraph={setGraphJson}
-          examples={examples}
-          specGenerator={specGenerator}
-        />
-        <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
-        {nodePickerVisibility && (
-          <NodePicker
-            flowRef={flowRef}
-            position={nodePickerVisibility}
-            filters={nodePickFilters}
-            onPickNode={handleAddNode}
-            onClose={closeNodePicker}
-            specJSON={specGenerator?.getAllNodeSpecs()}
-          />
-        )}
+        <div style={{ flex: '35%' }}>
+          <NodeEditor entity={UndefinedEntity} name={'Nodes'} description={'collecton of Nodes'}>
+            <PaginatedList
+              options={{ countPerPage: 10 }}
+              list={Object.keys(registry.nodes)}
+              element={(node: string, index) => {
+                return (
+                  <div>
+                    <Button
+                      style={{ width: '100%', textTransform: 'lowercase', padding: '0px' }}
+                      onClick={() => {
+                        //const avgX = nodes.reduce((acc, node) => acc + node.position.x, 0) / nodes.length
+                        //const avgY = nodes.reduce((acc, node) => acc + node.position.y, 0) / nodes.length
 
-        {
-          //selectedNodes.length !== 0 && ()
-        }
-      </ReactFlow>
-    </ReactFlowProvider>
+                        const bounds = (flowRef.current! as any).getBoundingClientRect()
+                        const centerX = bounds.left + bounds.width / 2
+                        const centerY = bounds.top + bounds.height / 2
+                        const viewportCenter = reactFlow.screenToFlowPosition({ x: centerX, y: centerY } as XYPosition)
+                        const position: XYPosition = viewportCenter // need a way to get viewport
+                        const newNode = {
+                          id: uuidv4(),
+                          type: node,
+                          position,
+                          data: { configuration: {}, values: {} } //fill with default values here
+                        }
+                        onNodesChange([
+                          {
+                            type: 'add',
+                            item: newNode
+                          }
+                        ])
+                      }}
+                    >
+                      <Panel title={node}></Panel>
+                    </Button>
+                  </div>
+                )
+              }}
+            ></PaginatedList>
+          </NodeEditor>
+        </div>
+
+        <div style={{ flex: '35%', overflow: 'scroll' }}>
+          <NodeEditor entity={UndefinedEntity} name={'Templates'} description={'collecton of Templates'}></NodeEditor>
+        </div>
+
+        <div style={{ flex: '30%', overflow: 'scroll' }}>
+          <NodeEditor entity={UndefinedEntity} name={'variables'} description={'collection of variables'}>
+            <Button onClick={() => {}}>Add Variable</Button>
+          </NodeEditor>
+        </div>
+      </div>
+
+      <div style={{ flex: 1 }}>
+        <ReactFlow
+          ref={flowRef}
+          nodeTypes={nodeTypes}
+          nodes={nodes}
+          edges={edges}
+          onNodeDragStart={() => dragging.set(true)}
+          onNodeDragStop={() => dragging.set(false)}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onConnectStart={handleStartConnect}
+          onConnectEnd={handleStopConnect}
+          onPaneMouseEnter={() => mouseOver.set(true)}
+          onPaneMouseLeave={() => mouseOver.set(false)}
+          fitView
+          fitViewOptions={{ maxZoom: 1 }}
+          onPaneClick={handlePaneClick}
+          onPaneContextMenu={handlePaneContextMenu}
+          onSelectionChange={onSelectionChange}
+          multiSelectionKeyCode={'Shift'}
+          deleteKeyCode={'Backspace'}
+        >
+          <CustomControls
+            playing={playing}
+            togglePlay={togglePlay}
+            onSaveGraph={onChangeGraph}
+            setBehaviorGraph={setGraphJson}
+            examples={examples}
+            specGenerator={specGenerator}
+          />
+          <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
+          {nodePickerVisibility && (
+            <NodePicker
+              flowRef={flowRef}
+              position={nodePickerVisibility}
+              filters={nodePickFilters}
+              onPickNode={handleAddNode}
+              onClose={closeNodePicker}
+              specJSON={specGenerator?.getAllNodeSpecs()}
+            />
+          )}
+          {
+            //selectedNodes.length !== 0 && ()
+          }
+        </ReactFlow>
+      </div>
+    </div>
   )
 }
