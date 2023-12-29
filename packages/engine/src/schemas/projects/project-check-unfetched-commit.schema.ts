@@ -20,8 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
-import { dataValidator } from '../validators'
+import { Type } from '@feathersjs/typebox'
 
 export const projectCheckUnfetchedCommitPath = 'project-check-unfetched-commit'
 
@@ -42,5 +41,3 @@ export const projectCheckUnfetchedCommitSchema = Type.Object(
   { $id: 'ProjectCheckUnfetchedCommit', additionalProperties: false }
 )
 export interface ProjectCheckUnfetchedCommitType extends Static<typeof projectCheckUnfetchedCommitSchema> {}
-
-export const projectCheckUnfetchedCommitValidator = getValidator(projectCheckUnfetchedCommitSchema, dataValidator)

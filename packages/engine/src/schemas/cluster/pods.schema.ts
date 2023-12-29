@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { StringEnum, Type, getValidator } from '@feathersjs/typebox'
+import { StringEnum, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { InstanceID } from '../networking/instance.schema'
-import { dataValidator } from '../validators'
 
 export const podsPath = 'pods'
 
@@ -76,7 +75,3 @@ export const podsSchema = Type.Object(
   { $id: 'Pods', additionalProperties: false }
 )
 export interface PodsType extends Static<typeof podsSchema> {}
-
-export const serverContainerInfoValidator = getValidator(serverContainerInfoSchema, dataValidator)
-export const serverPodInfoValidator = getValidator(serverPodInfoSchema, dataValidator)
-export const podsValidator = getValidator(podsSchema, dataValidator)

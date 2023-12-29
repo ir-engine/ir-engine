@@ -27,13 +27,16 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  loginTokenDataValidator,
-  loginTokenPatchValidator,
-  loginTokenQueryValidator
+  loginTokenDataSchema,
+  loginTokenPatchSchema,
+  loginTokenQuerySchema,
+  loginTokenSchema
 } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { HookContext } from '../../../declarations'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { BadRequest } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import moment from 'moment'
 import { toDateTimeSql } from '../../util/datetime-sql'
 import { LoginTokenService } from './login-token.class'
@@ -44,6 +47,11 @@ import {
   loginTokenQueryResolver,
   loginTokenResolver
 } from './login-token.resolvers'
+
+const loginTokenValidator = getValidator(loginTokenSchema, dataValidator)
+const loginTokenDataValidator = getValidator(loginTokenDataSchema, dataValidator)
+const loginTokenPatchValidator = getValidator(loginTokenPatchSchema, dataValidator)
+const loginTokenQueryValidator = getValidator(loginTokenQuerySchema, queryValidator)
 
 const checkIdentityProvider = (context: HookContext<LoginTokenService>) => {
   if (!context.params.user || context.params.user.isGuest)

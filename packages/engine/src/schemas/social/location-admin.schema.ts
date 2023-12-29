@@ -26,9 +26,8 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
-import { dataValidator, queryValidator } from '../validators'
 import { LocationID } from './location.schema'
 
 export const locationAdminPath = 'location-admin'
@@ -78,8 +77,3 @@ export const locationAdminQuerySchema = Type.Intersect(
 )
 
 export interface LocationAdminQuery extends Static<typeof locationAdminQuerySchema> {}
-
-export const locationAdminValidator = getValidator(locationAdminSchema, dataValidator)
-export const locationAdminDataValidator = getValidator(locationAdminDataSchema, dataValidator)
-export const locationAdminPatchValidator = getValidator(locationAdminPatchSchema, dataValidator)
-export const locationAdminQueryValidator = getValidator(locationAdminQuerySchema, queryValidator)

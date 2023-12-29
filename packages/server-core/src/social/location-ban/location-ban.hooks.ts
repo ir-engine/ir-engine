@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  locationBanDataValidator,
-  locationBanPatchValidator,
-  locationBanQueryValidator
+  locationBanDataSchema,
+  locationBanPatchSchema,
+  locationBanQuerySchema,
+  locationBanSchema
 } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyLocationAdmin from '../../hooks/verify-location-admin'
 import {
   locationBanDataResolver,
@@ -40,6 +43,11 @@ import {
   locationBanQueryResolver,
   locationBanResolver
 } from './location-ban.resolvers'
+
+const locationBanValidator = getValidator(locationBanSchema, dataValidator)
+const locationBanDataValidator = getValidator(locationBanDataSchema, dataValidator)
+const locationBanPatchValidator = getValidator(locationBanPatchSchema, dataValidator)
+const locationBanQueryValidator = getValidator(locationBanQuerySchema, queryValidator)
 
 export default {
   around: {

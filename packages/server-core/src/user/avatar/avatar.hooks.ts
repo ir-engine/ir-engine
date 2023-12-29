@@ -30,10 +30,11 @@ import {
   AvatarID,
   AvatarQuery,
   AvatarType,
-  avatarDataValidator,
-  avatarPatchValidator,
+  avatarDataSchema,
+  avatarPatchSchema,
   avatarPath,
-  avatarQueryValidator
+  avatarQuerySchema,
+  avatarSchema
 } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import logger from '../../ServerLogger'
@@ -42,7 +43,9 @@ import { checkScope } from '@etherealengine/engine/src/common/functions/checkSco
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import isAction from '../../hooks/is-action'
@@ -57,6 +60,11 @@ import {
   avatarQueryResolver,
   avatarResolver
 } from './avatar.resolvers'
+
+const avatarValidator = getValidator(avatarSchema, dataValidator)
+const avatarDataValidator = getValidator(avatarDataSchema, dataValidator)
+const avatarPatchValidator = getValidator(avatarPatchSchema, dataValidator)
+const avatarQueryValidator = getValidator(avatarQuerySchema, queryValidator)
 
 /**
  * Set identifier name based on name and id

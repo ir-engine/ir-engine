@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  apiJobDataValidator,
-  apiJobPatchValidator,
-  apiJobQueryValidator
+  apiJobDataSchema,
+  apiJobPatchSchema,
+  apiJobQuerySchema,
+  apiJobSchema
 } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   apiJobDataResolver,
@@ -40,6 +43,11 @@ import {
   apiJobQueryResolver,
   apiJobResolver
 } from './api-job.resolvers'
+
+const apiJobValidator = getValidator(apiJobSchema, dataValidator)
+const apiJobDataValidator = getValidator(apiJobDataSchema, dataValidator)
+const apiJobPatchValidator = getValidator(apiJobPatchSchema, dataValidator)
+const apiJobQueryValidator = getValidator(apiJobQuerySchema, queryValidator)
 
 export default {
   around: {

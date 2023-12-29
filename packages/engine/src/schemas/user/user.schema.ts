@@ -26,14 +26,13 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
 import { ScopeType } from '../scope/scope.schema'
 import { locationAdminSchema } from '../social/location-admin.schema'
 import { locationBanSchema } from '../social/location-ban.schema'
 import { userSettingSchema } from '../user/user-setting.schema'
-import { dataValidator, queryValidator } from '../validators'
 import { avatarDataSchema, AvatarID } from './avatar.schema'
 import { identityProviderSchema } from './identity-provider.schema'
 import { userApiKeySchema } from './user-api-key.schema'
@@ -124,9 +123,3 @@ export const userQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface UserQuery extends Static<typeof userQuerySchema> {}
-
-export const userScopeValidator = getValidator(userScopeSchema, dataValidator)
-export const userValidator = getValidator(userSchema, dataValidator)
-export const userDataValidator = getValidator(userDataSchema, dataValidator)
-export const userPatchValidator = getValidator(userPatchSchema, dataValidator)
-export const userQueryValidator = getValidator(userQuerySchema, queryValidator)

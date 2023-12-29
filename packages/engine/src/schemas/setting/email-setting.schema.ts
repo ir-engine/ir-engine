@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '../validators'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const emailSettingPath = 'email-setting'
 
@@ -120,11 +119,3 @@ export const emailSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface EmailSettingQuery extends Static<typeof emailSettingQuerySchema> {}
-
-export const emailSubjectValidator = getValidator(emailSubjectSchema, dataValidator)
-export const emailAuthValidator = getValidator(emailAuthSchema, dataValidator)
-export const emailSmtpValidator = getValidator(emailSmtpSchema, dataValidator)
-export const emailSettingValidator = getValidator(emailSettingSchema, dataValidator)
-export const emailSettingDataValidator = getValidator(emailSettingDataSchema, dataValidator)
-export const emailSettingPatchValidator = getValidator(emailSettingPatchSchema, dataValidator)
-export const emailSettingQueryValidator = getValidator(emailSettingQuerySchema, queryValidator)

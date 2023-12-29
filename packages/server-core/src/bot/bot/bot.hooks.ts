@@ -33,10 +33,13 @@ import {
 } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import {
   BotType,
-  botDataValidator,
-  botPatchValidator,
-  botQueryValidator
+  botDataSchema,
+  botPatchSchema,
+  botQuerySchema,
+  botSchema
 } from '@etherealengine/engine/src/schemas/bot/bot.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import {
   botDataResolver,
@@ -48,6 +51,11 @@ import {
 import persistData from '../../hooks/persist-data'
 import verifyScope from '../../hooks/verify-scope'
 import { BotService } from './bot.class'
+
+const botValidator = getValidator(botSchema, dataValidator)
+const botDataValidator = getValidator(botDataSchema, dataValidator)
+const botPatchValidator = getValidator(botPatchSchema, dataValidator)
+const botQueryValidator = getValidator(botQuerySchema, queryValidator)
 
 async function addBotCommands(context: HookContext<BotService>) {
   const process = async (bot: BotType, botCommandData: BotCommandData[]) => {

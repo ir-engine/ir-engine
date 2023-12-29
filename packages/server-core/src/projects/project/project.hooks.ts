@@ -30,10 +30,12 @@ import {
   ProjectData,
   ProjectPatch,
   ProjectType,
-  projectDataValidator,
-  projectPatchValidator,
+  projectDataSchema,
+  projectPatchSchema,
   projectPath,
-  projectQueryValidator
+  projectQuerySchema,
+  projectSchema,
+  projectSettingSchema
 } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import fs from 'fs'
 import path from 'path'
@@ -58,9 +60,11 @@ import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { getValidator } from '@feathersjs/typebox'
 import appRootPath from 'app-root-path'
 import { Knex } from 'knex'
 import { HookContext } from '../../../declarations'
@@ -93,6 +97,12 @@ import {
   projectQueryResolver,
   projectResolver
 } from './project.resolvers'
+
+const projectSettingValidator = getValidator(projectSettingSchema, dataValidator)
+const projectValidator = getValidator(projectSchema, dataValidator)
+const projectDataValidator = getValidator(projectDataSchema, dataValidator)
+const projectPatchValidator = getValidator(projectPatchSchema, dataValidator)
+const projectQueryValidator = getValidator(projectQuerySchema, queryValidator)
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 

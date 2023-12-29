@@ -18,9 +18,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { staticResourceFiltersQueryValidator } from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
+import {
+  staticResourceFiltersQuerySchema,
+  staticResourceFiltersSchema
+} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import {
@@ -28,6 +33,9 @@ import {
   staticResourceFiltersQueryResolver,
   staticResourceFiltersResolver
 } from './static-resource-filters.resolvers'
+
+const staticResourceFiltersValidator = getValidator(staticResourceFiltersSchema, dataValidator)
+const staticResourceFiltersQueryValidator = getValidator(staticResourceFiltersQuerySchema, queryValidator)
 
 export default {
   around: {

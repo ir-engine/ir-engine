@@ -23,7 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { instanceProvisionSchema } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
+import { dataValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
+
+const instanceProvisionValidator = getValidator(instanceProvisionSchema, dataValidator)
 
 export default {
   before: {

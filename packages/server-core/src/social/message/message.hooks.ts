@@ -27,9 +27,10 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import {
   MessageData,
-  messageDataValidator,
-  messagePatchValidator,
-  messageQueryValidator
+  messageDataSchema,
+  messagePatchSchema,
+  messageQuerySchema,
+  messageSchema
 } from '@etherealengine/engine/src/schemas/social/message.schema'
 import channelPermissionAuthenticate from '../../hooks/channel-permission-authenticate'
 import messagePermissionAuthenticate from '../../hooks/message-permission-authenticate'
@@ -43,12 +44,19 @@ import {
 
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { getValidator } from '@feathersjs/typebox'
 import { discard, iff, isProvider } from 'feathers-hooks-common'
 import { HookContext } from '../../../declarations'
 import { MessageService } from './message.class'
+
+const messageValidator = getValidator(messageSchema, dataValidator)
+const messageDataValidator = getValidator(messageDataSchema, dataValidator)
+const messagePatchValidator = getValidator(messagePatchSchema, dataValidator)
+const messageQueryValidator = getValidator(messageQuerySchema, queryValidator)
 
 /**
  * Restricts from creating empty messages

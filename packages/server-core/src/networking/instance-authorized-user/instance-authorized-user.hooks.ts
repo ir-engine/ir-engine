@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 
 import {
-  instanceAuthorizedUserDataValidator,
-  instanceAuthorizedUserPatchValidator,
-  instanceAuthorizedUserQueryValidator
+  instanceAuthorizedUserDataSchema,
+  instanceAuthorizedUserPatchSchema,
+  instanceAuthorizedUserQuerySchema,
+  instanceAuthorizedUserSchema
 } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import {
   instanceAuthorizedUserDataResolver,
   instanceAuthorizedUserExternalResolver,
@@ -39,6 +42,11 @@ import {
   instanceAuthorizedUserQueryResolver,
   instanceAuthorizedUserResolver
 } from './instance-authorized-user.resolvers'
+
+const instanceAuthorizedUserValidator = getValidator(instanceAuthorizedUserSchema, dataValidator)
+const instanceAuthorizedUserDataValidator = getValidator(instanceAuthorizedUserDataSchema, dataValidator)
+const instanceAuthorizedUserPatchValidator = getValidator(instanceAuthorizedUserPatchSchema, dataValidator)
+const instanceAuthorizedUserQueryValidator = getValidator(instanceAuthorizedUserQuerySchema, queryValidator)
 
 export default {
   around: {

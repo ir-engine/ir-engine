@@ -27,9 +27,8 @@ Ethereal Engine. All Rights Reserved.
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
+import { Type, querySyntax } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
-import { dataValidator, queryValidator } from '../validators'
 
 export const scopePath = 'scope'
 
@@ -78,8 +77,3 @@ export const scopeQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface ScopeQuery extends Static<typeof scopeQuerySchema> {}
-
-export const scopeValidator = getValidator(scopeSchema, dataValidator)
-export const scopeDataValidator = getValidator(scopeDataSchema, dataValidator)
-export const scopePatchValidator = getValidator(scopePatchSchema, dataValidator)
-export const scopeQueryValidator = getValidator(scopeQuerySchema, queryValidator)

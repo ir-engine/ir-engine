@@ -28,13 +28,16 @@ import { disallow } from 'feathers-hooks-common'
 
 import {
   MatchTicketAssignmentType,
-  matchTicketAssignmentQueryValidator
+  matchTicketAssignmentQuerySchema,
+  matchTicketAssignmentSchema
 } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import linkMatchUserToMatch from '@etherealengine/server-core/src/hooks/matchmaking-link-match-user-to-match'
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { getTicketsAssignment } from '@etherealengine/matchmaking/src/functions'
 import { NotFound } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import { emulate_getTicketsAssignment } from '../emulate'
@@ -44,6 +47,9 @@ import {
   matchTicketAssignmentQueryResolver,
   matchTicketAssignmentResolver
 } from './match-ticket-assignment.resolvers'
+
+const matchTicketAssignmentValidator = getValidator(matchTicketAssignmentSchema, dataValidator)
+const matchTicketAssignmentQueryValidator = getValidator(matchTicketAssignmentQuerySchema, queryValidator)
 
 const getTicketAssigment = async (context: HookContext<MatchTicketAssignmentService>) => {
   let assignment: MatchTicketAssignmentType

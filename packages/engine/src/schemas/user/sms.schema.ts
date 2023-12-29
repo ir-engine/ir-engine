@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, Type } from '@feathersjs/typebox'
-import { dataValidator } from '../validators'
+import { Type } from '@feathersjs/typebox'
 
 export const smsPath = 'sms'
 export const smsMethods = ['create'] as const
@@ -38,5 +37,3 @@ export const smsDataSchema = Type.Object(
   { $id: 'SmsData', additionalProperties: false }
 )
 export interface SmsData extends Static<typeof smsDataSchema> {}
-
-export const smsDataValidator = getValidator(smsDataSchema, dataValidator)

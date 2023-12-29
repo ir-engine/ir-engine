@@ -26,15 +26,18 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  staticResourceDataValidator,
-  staticResourcePatchValidator,
+  staticResourceDataSchema,
+  staticResourcePatchSchema,
   staticResourcePath,
-  staticResourceQueryValidator
+  staticResourceQuerySchema,
+  staticResourceSchema
 } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
 import verifyScope from '../../hooks/verify-scope'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { Forbidden } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -46,6 +49,11 @@ import {
   staticResourceQueryResolver,
   staticResourceResolver
 } from './static-resource.resolvers'
+
+const staticResourceValidator = getValidator(staticResourceSchema, dataValidator)
+const staticResourceDataValidator = getValidator(staticResourceDataSchema, dataValidator)
+const staticResourcePatchValidator = getValidator(staticResourcePatchSchema, dataValidator)
+const staticResourceQueryValidator = getValidator(staticResourceQuerySchema, queryValidator)
 
 /**
  * Ensure static-resource with the specified id exists and user is creator of the resource

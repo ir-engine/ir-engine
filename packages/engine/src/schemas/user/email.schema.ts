@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
-import { dataValidator } from '../validators'
+import { Type } from '@feathersjs/typebox'
 
 export const emailPath = 'email'
 
@@ -39,5 +38,3 @@ export const emailDataSchema = Type.Object(
   { $id: 'EmailData', additionalProperties: false }
 )
 export interface EmailData extends Static<typeof emailDataSchema> {}
-
-export const emailDataValidator = getValidator(emailDataSchema, dataValidator)

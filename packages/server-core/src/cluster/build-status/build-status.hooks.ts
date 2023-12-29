@@ -27,11 +27,13 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  buildStatusDataValidator,
-  buildStatusPatchValidator,
-  buildStatusQueryValidator
+  buildStatusDataSchema,
+  buildStatusPatchSchema,
+  buildStatusQuerySchema,
+  buildStatusSchema
 } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
-
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   buildStatusDataResolver,
@@ -40,6 +42,11 @@ import {
   buildStatusQueryResolver,
   buildStatusResolver
 } from './build-status.resolvers'
+
+const buildStatusValidator = getValidator(buildStatusSchema, dataValidator)
+const buildStatusDataValidator = getValidator(buildStatusDataSchema, dataValidator)
+const buildStatusPatchValidator = getValidator(buildStatusPatchSchema, dataValidator)
+const buildStatusQueryValidator = getValidator(buildStatusQuerySchema, queryValidator)
 
 export default {
   around: {

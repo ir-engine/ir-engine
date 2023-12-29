@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  helmSettingDataValidator,
-  helmSettingPatchValidator,
-  helmSettingQueryValidator
+  helmSettingDataSchema,
+  helmSettingPatchSchema,
+  helmSettingQuerySchema,
+  helmSettingSchema
 } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   helmSettingDataResolver,
@@ -40,6 +43,11 @@ import {
   helmSettingQueryResolver,
   helmSettingResolver
 } from './helm-setting.resolvers'
+
+const helmSettingValidator = getValidator(helmSettingSchema, dataValidator)
+const helmSettingDataValidator = getValidator(helmSettingDataSchema, dataValidator)
+const helmSettingPatchValidator = getValidator(helmSettingPatchSchema, dataValidator)
+const helmSettingQueryValidator = getValidator(helmSettingQuerySchema, queryValidator)
 
 export default {
   around: {

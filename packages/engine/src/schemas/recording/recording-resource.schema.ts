@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
-import { dataValidator, queryValidator } from '../validators'
 import { RecordingID } from './recording.schema'
 
 export const recordingResourcePath = 'recording-resource'
@@ -82,8 +81,3 @@ export const recordingResourceQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface RecordingResourceQuery extends Static<typeof recordingResourceQuerySchema> {}
-
-export const recordingResourceValidator = getValidator(recordingResourceSchema, dataValidator)
-export const recordingResourceDataValidator = getValidator(recordingResourceDataSchema, dataValidator)
-export const recordingResourcePatchValidator = getValidator(recordingResourcePatchSchema, dataValidator)
-export const recordingResourceQueryValidator = getValidator(recordingResourceQuerySchema, queryValidator)

@@ -20,9 +20,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
+import {
+  projectBranchSchema,
+  projectBranchesSchema
+} from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
+import { dataValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import { projectBranchesExternalResolver, projectBranchesResolver } from './project-branches.resolvers'
+
+const projectBranchValidator = getValidator(projectBranchSchema, dataValidator)
+const projectBranchesValidator = getValidator(projectBranchesSchema, dataValidator)
 
 export default {
   around: {

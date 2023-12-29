@@ -26,11 +26,10 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { InstanceID, instanceSchema } from '../networking/instance.schema'
 import { LocationID, locationSchema } from '../social/location.schema'
-import { dataValidator, queryValidator } from '../validators'
 import { botCommandDataSchema } from './bot-command.schema'
 
 export const botPath = 'bot'
@@ -98,8 +97,3 @@ export const botQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface BotQuery extends Static<typeof botQuerySchema> {}
-
-export const botValidator = getValidator(botSchema, dataValidator)
-export const botDataValidator = getValidator(botDataSchema, dataValidator)
-export const botPatchValidator = getValidator(botPatchSchema, dataValidator)
-export const botQueryValidator = getValidator(botQuerySchema, queryValidator)

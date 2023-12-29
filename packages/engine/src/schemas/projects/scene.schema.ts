@@ -22,9 +22,8 @@ Ethereal Engine. All Rights Reserved.
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
+import { Type, querySyntax } from '@feathersjs/typebox'
 import { TypedRecord, TypedString } from '../../common/types/TypeboxUtils'
-import { dataValidator } from '../validators'
 
 export const scenePath = 'scene'
 
@@ -171,9 +170,3 @@ export const sceneQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface SceneQuery extends Static<typeof sceneQuerySchema> {}
-
-export const componentJsonValidator = getValidator(componentJsonSchema, dataValidator)
-export const entityJsonValidator = getValidator(entityJsonSchema, dataValidator)
-export const sceneJsonValidator = getValidator(sceneJsonSchema, dataValidator)
-export const sceneMetadataValidator = getValidator(sceneMetadataSchema, dataValidator)
-export const sceneDataValidator = getValidator(sceneDataSchema, dataValidator)

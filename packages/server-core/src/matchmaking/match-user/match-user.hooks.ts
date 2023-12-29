@@ -27,13 +27,16 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  matchUserDataValidator,
-  matchUserPatchValidator,
-  matchUserQueryValidator
+  matchUserDataSchema,
+  matchUserPatchSchema,
+  matchUserQuerySchema,
+  matchUserSchema
 } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import setLoggedInUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import {
   matchUserDataResolver,
   matchUserExternalResolver,
@@ -41,6 +44,11 @@ import {
   matchUserQueryResolver,
   matchUserResolver
 } from './match-user.resolvers'
+
+const matchUserValidator = getValidator(matchUserSchema, dataValidator)
+const matchUserDataValidator = getValidator(matchUserDataSchema, dataValidator)
+const matchUserPatchValidator = getValidator(matchUserPatchSchema, dataValidator)
+const matchUserQueryValidator = getValidator(matchUserQuerySchema, queryValidator)
 
 export default {
   around: {

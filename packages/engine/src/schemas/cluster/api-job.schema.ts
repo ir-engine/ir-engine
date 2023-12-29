@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '../validators'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const apiJobPath = 'api-job'
 
@@ -80,8 +79,3 @@ export const apiJobQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface ApiJobQuery extends Static<typeof apiJobQuerySchema> {}
-
-export const apiJobValidator = getValidator(apiJobSchema, dataValidator)
-export const apiJobDataValidator = getValidator(apiJobDataSchema, dataValidator)
-export const apiJobPatchValidator = getValidator(apiJobPatchSchema, dataValidator)
-export const apiJobQueryValidator = getValidator(apiJobQuerySchema, queryValidator)

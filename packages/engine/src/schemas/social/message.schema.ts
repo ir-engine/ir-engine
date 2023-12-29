@@ -26,11 +26,10 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { InstanceID } from '../networking/instance.schema'
 import { UserID, userSchema } from '../user/user.schema'
-import { dataValidator, queryValidator } from '../validators'
 import { ChannelID } from './channel.schema'
 
 export const messagePath = 'message'
@@ -105,8 +104,3 @@ export const messageQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface MessageQuery extends Static<typeof messageQuerySchema> {}
-
-export const messageValidator = getValidator(messageSchema, dataValidator)
-export const messageDataValidator = getValidator(messageDataSchema, dataValidator)
-export const messagePatchValidator = getValidator(messagePatchSchema, dataValidator)
-export const messageQueryValidator = getValidator(messageQuerySchema, queryValidator)

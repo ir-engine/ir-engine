@@ -28,9 +28,11 @@ import {
   UserID,
   UserPatch,
   UserType,
-  userDataValidator,
-  userPatchValidator,
-  userQueryValidator
+  userDataSchema,
+  userPatchSchema,
+  userQuerySchema,
+  userSchema,
+  userScopeSchema
 } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
@@ -45,7 +47,9 @@ import {
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { MethodNotAllowed } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -62,6 +66,12 @@ import {
   userQueryResolver,
   userResolver
 } from './user.resolvers'
+
+const userScopeValidator = getValidator(userScopeSchema, dataValidator)
+const userValidator = getValidator(userSchema, dataValidator)
+const userDataValidator = getValidator(userDataSchema, dataValidator)
+const userPatchValidator = getValidator(userPatchSchema, dataValidator)
+const userQueryValidator = getValidator(userQuerySchema, queryValidator)
 
 /**
  * Restricts patching of user data to admins and the user itself

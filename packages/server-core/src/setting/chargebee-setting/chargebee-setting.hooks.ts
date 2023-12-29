@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  chargebeeSettingDataValidator,
-  chargebeeSettingPatchValidator,
-  chargebeeSettingQueryValidator
+  chargebeeSettingDataSchema,
+  chargebeeSettingPatchSchema,
+  chargebeeSettingQuerySchema,
+  chargebeeSettingSchema
 } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   chargebeeSettingDataResolver,
@@ -40,6 +43,11 @@ import {
   chargebeeSettingQueryResolver,
   chargebeeSettingResolver
 } from './chargebee-setting.resolvers'
+
+const chargebeeSettingValidator = getValidator(chargebeeSettingSchema, dataValidator)
+const chargebeeSettingDataValidator = getValidator(chargebeeSettingDataSchema, dataValidator)
+const chargebeeSettingPatchValidator = getValidator(chargebeeSettingPatchSchema, dataValidator)
+const chargebeeSettingQueryValidator = getValidator(chargebeeSettingQuerySchema, queryValidator)
 
 export default {
   around: {

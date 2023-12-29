@@ -29,16 +29,20 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import {
   MatchTicketData,
   MatchTicketType,
-  matchTicketDataValidator,
-  matchTicketQueryValidator
+  matchSearchFieldsSchema,
+  matchTicketDataSchema,
+  matchTicketQuerySchema,
+  matchTicketSchema
 } from '@etherealengine/matchmaking/src/match-ticket.schema'
 import matchmakingRemoveTicket from '@etherealengine/server-core/src/hooks/matchmaking-remove-ticket'
 import matchmakingRestrictMultipleQueueing from '@etherealengine/server-core/src/hooks/matchmaking-restrict-multiple-queueing'
 import matchmakingSaveTicket from '@etherealengine/server-core/src/hooks/matchmaking-save-ticket'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { createTicket, deleteTicket, getTicket } from '@etherealengine/matchmaking/src/functions'
 import { BadRequest, NotFound } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -50,6 +54,11 @@ import {
   matchTicketQueryResolver,
   matchTicketResolver
 } from './match-ticket.resolvers'
+
+const matchSearchFieldsValidator = getValidator(matchSearchFieldsSchema, dataValidator)
+const matchTicketValidator = getValidator(matchTicketSchema, dataValidator)
+const matchTicketDataValidator = getValidator(matchTicketDataSchema, dataValidator)
+const matchTicketQueryValidator = getValidator(matchTicketQuerySchema, queryValidator)
 
 const getEmulationTicket = async (context: HookContext<MatchTicketService>) => {
   let ticket

@@ -25,12 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { SceneID } from '../projects/scene.schema'
-import { dataValidator, queryValidator } from '../validators'
 import { locationAdminSchema } from './location-admin.schema'
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
 import { locationBanSchema } from './location-ban.schema'
@@ -117,8 +116,3 @@ export const locationQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface LocationQuery extends Static<typeof locationQuerySchema> {}
-
-export const locationValidator = getValidator(locationSchema, dataValidator)
-export const locationDataValidator = getValidator(locationDataSchema, dataValidator)
-export const locationPatchValidator = getValidator(locationPatchSchema, dataValidator)
-export const locationQueryValidator = getValidator(locationQuerySchema, queryValidator)

@@ -20,9 +20,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
+import { projectBuilderTagsSchema } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
+import { dataValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import { projectBuilderTagsExternalResolver, projectBuilderTagsResolver } from './project-builder-tags.resolvers'
+
+const projectBuilderTagsValidator = getValidator(projectBuilderTagsSchema, dataValidator)
 
 export default {
   around: {

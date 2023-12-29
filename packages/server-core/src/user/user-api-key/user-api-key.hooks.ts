@@ -27,13 +27,16 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  userApiKeyDataValidator,
-  userApiKeyPatchValidator,
-  userApiKeyQueryValidator
+  userApiKeyDataSchema,
+  userApiKeyPatchSchema,
+  userApiKeyQuerySchema,
+  userApiKeySchema
 } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
 import { UserApiKeyService } from './user-api-key.class'
@@ -44,6 +47,11 @@ import {
   userApiKeyQueryResolver,
   userApiKeyResolver
 } from './user-api-key.resolvers'
+
+const userApiKeyValidator = getValidator(userApiKeySchema, dataValidator)
+const userApiKeyDataValidator = getValidator(userApiKeyDataSchema, dataValidator)
+const userApiKeyPatchValidator = getValidator(userApiKeyPatchSchema, dataValidator)
+const userApiKeyQueryValidator = getValidator(userApiKeyQuerySchema, queryValidator)
 
 /**
  * Ensure user is modifying their own api key

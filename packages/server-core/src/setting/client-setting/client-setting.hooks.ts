@@ -28,13 +28,18 @@ import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
   ClientSettingData,
-  clientSettingDataValidator,
-  clientSettingPatchValidator,
+  clientSettingDataSchema,
+  clientSettingPatchSchema,
   clientSettingPath,
-  clientSettingQueryValidator
+  clientSettingQuerySchema,
+  clientSettingSchema,
+  clientSocialLinkSchema,
+  clientThemeOptionsSchema
 } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { BadRequest } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import path from 'path'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -51,6 +56,13 @@ import {
   clientSettingQueryResolver,
   clientSettingResolver
 } from './client-setting.resolvers'
+
+const clientSocialLinkValidator = getValidator(clientSocialLinkSchema, dataValidator)
+const clientThemeOptionsValidator = getValidator(clientThemeOptionsSchema, dataValidator)
+const clientSettingValidator = getValidator(clientSettingSchema, dataValidator)
+const clientSettingDataValidator = getValidator(clientSettingDataSchema, dataValidator)
+const clientSettingPatchValidator = getValidator(clientSettingPatchSchema, dataValidator)
+const clientSettingQueryValidator = getValidator(clientSettingQuerySchema, queryValidator)
 
 /**
  * Updates web manifest

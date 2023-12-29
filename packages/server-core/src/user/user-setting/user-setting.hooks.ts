@@ -33,11 +33,14 @@ import attachOwnerId from '@etherealengine/server-core/src/hooks/set-loggedin-us
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 import {
-  userSettingDataValidator,
-  userSettingPatchValidator,
+  userSettingDataSchema,
+  userSettingPatchSchema,
   userSettingPath,
-  userSettingQueryValidator
+  userSettingQuerySchema,
+  userSettingSchema
 } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import {
   userSettingDataResolver,
   userSettingExternalResolver,
@@ -45,6 +48,11 @@ import {
   userSettingQueryResolver,
   userSettingResolver
 } from './user-setting.resolvers'
+
+const userSettingValidator = getValidator(userSettingSchema, dataValidator)
+const userSettingDataValidator = getValidator(userSettingDataSchema, dataValidator)
+const userSettingPatchValidator = getValidator(userSettingPatchSchema, dataValidator)
+const userSettingQueryValidator = getValidator(userSettingQuerySchema, queryValidator)
 
 const ensureUserSettingsOwner = () => {
   return async (context: HookContext): Promise<HookContext> => {

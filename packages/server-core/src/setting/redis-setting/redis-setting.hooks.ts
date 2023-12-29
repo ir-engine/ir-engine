@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  redisSettingDataValidator,
-  redisSettingPatchValidator,
-  redisSettingQueryValidator
+  redisSettingDataSchema,
+  redisSettingPatchSchema,
+  redisSettingQuerySchema,
+  redisSettingSchema
 } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   redisSettingDataResolver,
@@ -40,6 +43,11 @@ import {
   redisSettingQueryResolver,
   redisSettingResolver
 } from './redis-setting.resolvers'
+
+const redisSettingValidator = getValidator(redisSettingSchema, dataValidator)
+const redisSettingDataValidator = getValidator(redisSettingDataSchema, dataValidator)
+const redisSettingPatchValidator = getValidator(redisSettingPatchSchema, dataValidator)
+const redisSettingQueryValidator = getValidator(redisSettingQuerySchema, queryValidator)
 
 export default {
   around: {

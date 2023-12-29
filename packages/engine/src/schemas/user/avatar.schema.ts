@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
-import { dataValidator, queryValidator } from '../validators'
 
 export const avatarPath = 'avatar'
 
@@ -115,8 +114,3 @@ export const avatarQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface AvatarQuery extends Static<typeof avatarQuerySchema> {}
-
-export const avatarValidator = getValidator(avatarSchema, dataValidator)
-export const avatarDataValidator = getValidator(avatarDataSchema, dataValidator)
-export const avatarPatchValidator = getValidator(avatarPatchSchema, dataValidator)
-export const avatarQueryValidator = getValidator(avatarQuerySchema, queryValidator)

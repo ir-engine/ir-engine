@@ -29,17 +29,26 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import {
   ScopeData,
   ScopeTypeInterface,
-  scopeDataValidator,
+  scopeDataSchema,
+  scopePatchSchema,
   scopePath,
-  scopeQueryValidator
+  scopeQuerySchema,
+  scopeSchema
 } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { BadRequest } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
 import verifyScopeAllowingSelf from '../../hooks/verify-scope-allowing-self'
 import { ScopeService } from './scope.class'
 import { scopeDataResolver, scopeExternalResolver, scopeQueryResolver, scopeResolver } from './scope.resolvers'
+
+const scopeValidator = getValidator(scopeSchema, dataValidator)
+const scopeDataValidator = getValidator(scopeDataSchema, dataValidator)
+const scopePatchValidator = getValidator(scopePatchSchema, dataValidator)
+const scopeQueryValidator = getValidator(scopeQuerySchema, queryValidator)
 
 /**
  * Check and maintain existing scopes

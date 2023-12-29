@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  instanceServerSettingDataValidator,
-  instanceServerSettingPatchValidator,
-  instanceServerSettingQueryValidator
+  instanceServerSettingDataSchema,
+  instanceServerSettingPatchSchema,
+  instanceServerSettingQuerySchema,
+  instanceServerSettingSchema
 } from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   instanceServerSettingDataResolver,
@@ -40,6 +43,11 @@ import {
   instanceServerSettingQueryResolver,
   instanceServerSettingResolver
 } from './instance-server-setting.resolvers'
+
+const instanceServerSettingValidator = getValidator(instanceServerSettingSchema, dataValidator)
+const instanceServerSettingDataValidator = getValidator(instanceServerSettingDataSchema, dataValidator)
+const instanceServerSettingPatchValidator = getValidator(instanceServerSettingPatchSchema, dataValidator)
+const instanceServerSettingQueryValidator = getValidator(instanceServerSettingQuerySchema, queryValidator)
 
 export default {
   around: {

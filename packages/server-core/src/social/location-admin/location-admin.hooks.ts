@@ -27,12 +27,15 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  locationAdminDataValidator,
-  locationAdminPatchValidator,
-  locationAdminQueryValidator
+  locationAdminDataSchema,
+  locationAdminPatchSchema,
+  locationAdminQuerySchema,
+  locationAdminSchema
 } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   locationAdminDataResolver,
@@ -41,6 +44,11 @@ import {
   locationAdminQueryResolver,
   locationAdminResolver
 } from './location-admin.resolvers'
+
+const locationAdminValidator = getValidator(locationAdminSchema, dataValidator)
+const locationAdminDataValidator = getValidator(locationAdminDataSchema, dataValidator)
+const locationAdminPatchValidator = getValidator(locationAdminPatchSchema, dataValidator)
+const locationAdminQueryValidator = getValidator(locationAdminQuerySchema, queryValidator)
 
 export default {
   around: {

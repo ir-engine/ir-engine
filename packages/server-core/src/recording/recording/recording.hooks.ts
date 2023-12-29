@@ -27,14 +27,18 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {
-  recordingDataValidator,
-  recordingPatchValidator,
+  recordingDataSchema,
+  recordingPatchSchema,
   recordingPath,
-  recordingQueryValidator
+  recordingQuerySchema,
+  recordingSchema,
+  recordingSchemaType
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { NotFound } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
@@ -48,6 +52,12 @@ import {
   recordingQueryResolver,
   recordingResolver
 } from './recording.resolvers'
+
+const recordingSchemaValidator = getValidator(recordingSchemaType, dataValidator)
+const recordingValidator = getValidator(recordingSchema, dataValidator)
+const recordingDataValidator = getValidator(recordingDataSchema, dataValidator)
+const recordingPatchValidator = getValidator(recordingPatchSchema, dataValidator)
+const recordingQueryValidator = getValidator(recordingQuerySchema, queryValidator)
 
 /**
  * Sort result by user name

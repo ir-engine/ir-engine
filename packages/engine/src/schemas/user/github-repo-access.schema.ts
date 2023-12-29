@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '../validators'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const githubRepoAccessPath = 'github-repo-access'
 
@@ -82,8 +81,3 @@ export const githubRepoAccessQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface GithubRepoAccessQuery extends Static<typeof githubRepoAccessQuerySchema> {}
-
-export const githubRepoAccessValidator = getValidator(githubRepoAccessSchema, dataValidator)
-export const githubRepoAccessDataValidator = getValidator(githubRepoAccessDataSchema, dataValidator)
-export const githubRepoAccessPatchValidator = getValidator(githubRepoAccessPatchSchema, dataValidator)
-export const githubRepoAccessQueryValidator = getValidator(githubRepoAccessQuerySchema, queryValidator)

@@ -27,11 +27,19 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  awsSettingDataValidator,
-  awsSettingPatchValidator,
-  awsSettingQueryValidator
+  awsCloudFrontSchema,
+  awsEksSchema,
+  awsKeysSchema,
+  awsS3Schema,
+  awsSettingDataSchema,
+  awsSettingPatchSchema,
+  awsSettingQuerySchema,
+  awsSettingSchema,
+  awsSmsSchema
 } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   awsSettingDataResolver,
@@ -40,6 +48,16 @@ import {
   awsSettingQueryResolver,
   awsSettingResolver
 } from './aws-setting.resolvers'
+
+const awsKeysValidator = getValidator(awsKeysSchema, dataValidator)
+const awsEksValidator = getValidator(awsEksSchema, dataValidator)
+const awsS3Validator = getValidator(awsS3Schema, dataValidator)
+const awsCloudFrontValidator = getValidator(awsCloudFrontSchema, dataValidator)
+const awsSmsValidator = getValidator(awsSmsSchema, dataValidator)
+const awsSettingValidator = getValidator(awsSettingSchema, dataValidator)
+const awsSettingDataValidator = getValidator(awsSettingDataSchema, dataValidator)
+const awsSettingPatchValidator = getValidator(awsSettingPatchSchema, dataValidator)
+const awsSettingQueryValidator = getValidator(awsSettingQuerySchema, queryValidator)
 
 export default {
   around: {

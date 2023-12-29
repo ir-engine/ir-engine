@@ -20,8 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
-import { dataValidator } from '../validators'
+import { Type } from '@feathersjs/typebox'
 
 export const builderInfoPath = 'builder-info'
 
@@ -36,5 +35,3 @@ export const builderInfoSchema = Type.Object(
   { $id: 'BuilderInfo', additionalProperties: false }
 )
 export interface BuilderInfoType extends Static<typeof builderInfoSchema> {}
-
-export const builderInfoValidator = getValidator(builderInfoSchema, dataValidator)

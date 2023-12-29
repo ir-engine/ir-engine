@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 
 import {
-  userAvatarDataValidator,
-  userAvatarPatchValidator,
-  userAvatarQueryValidator
+  userAvatarDataSchema,
+  userAvatarPatchSchema,
+  userAvatarQuerySchema,
+  userAvatarSchema
 } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import {
   userAvatarDataResolver,
   userAvatarExternalResolver,
@@ -39,6 +42,11 @@ import {
   userAvatarQueryResolver,
   userAvatarResolver
 } from './user-avatar.resolvers'
+
+const userAvatarValidator = getValidator(userAvatarSchema, dataValidator)
+const userAvatarDataValidator = getValidator(userAvatarDataSchema, dataValidator)
+const userAvatarPatchValidator = getValidator(userAvatarPatchSchema, dataValidator)
+const userAvatarQueryValidator = getValidator(userAvatarQuerySchema, queryValidator)
 
 export default {
   around: {

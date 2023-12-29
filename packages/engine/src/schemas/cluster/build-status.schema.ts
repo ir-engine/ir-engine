@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '../validators'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const buildStatusPath = 'build-status'
 
@@ -82,8 +81,3 @@ export const buildStatusQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface BuildStatusQuery extends Static<typeof buildStatusQuerySchema> {}
-
-export const buildStatusValidator = getValidator(buildStatusSchema, dataValidator)
-export const buildStatusDataValidator = getValidator(buildStatusDataSchema, dataValidator)
-export const buildStatusPatchValidator = getValidator(buildStatusPatchSchema, dataValidator)
-export const buildStatusQueryValidator = getValidator(buildStatusQuerySchema, queryValidator)

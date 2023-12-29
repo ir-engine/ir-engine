@@ -26,10 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import {
-  generateTokenDataValidator,
-  generateTokenPatchValidator,
-  generateTokenQueryValidator
+  generateTokenDataSchema,
+  generateTokenPatchSchema,
+  generateTokenQuerySchema,
+  generateTokenSchema
 } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import {
   generateTokenDataResolver,
   generateTokenExternalResolver,
@@ -37,6 +40,11 @@ import {
   generateTokenQueryResolver,
   generateTokenResolver
 } from './generate-token.resolvers'
+
+const generateTokenValidator = getValidator(generateTokenSchema, dataValidator)
+const generateTokenDataValidator = getValidator(generateTokenDataSchema, dataValidator)
+const generateTokenPatchValidator = getValidator(generateTokenPatchSchema, dataValidator)
+const generateTokenQueryValidator = getValidator(generateTokenQuerySchema, queryValidator)
 
 export default {
   around: {

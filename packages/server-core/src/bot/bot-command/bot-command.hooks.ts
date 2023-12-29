@@ -24,12 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  botCommandDataValidator,
-  botCommandQueryValidator
+  botCommandDataSchema,
+  botCommandPatchSchema,
+  botCommandQuerySchema,
+  botCommandSchema
 } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import verifyScope from '../../hooks/verify-scope'
 import {
   botCommandDataResolver,
@@ -37,6 +41,11 @@ import {
   botCommandQueryResolver,
   botCommandResolver
 } from './bot-command.resolvers'
+
+const botCommandValidator = getValidator(botCommandSchema, dataValidator)
+const botCommandDataValidator = getValidator(botCommandDataSchema, dataValidator)
+const botCommandPatchValidator = getValidator(botCommandPatchSchema, dataValidator)
+const botCommandQueryValidator = getValidator(botCommandQuerySchema, queryValidator)
 
 export default {
   around: {

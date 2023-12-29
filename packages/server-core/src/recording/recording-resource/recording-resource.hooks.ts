@@ -26,12 +26,15 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  recordingResourceDataValidator,
-  recordingResourcePatchValidator,
-  recordingResourceQueryValidator
+  recordingResourceDataSchema,
+  recordingResourcePatchSchema,
+  recordingResourceQuerySchema,
+  recordingResourceSchema
 } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import verifyScope from '../../hooks/verify-scope'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import {
   recordingResourceDataResolver,
   recordingResourceExternalResolver,
@@ -39,6 +42,11 @@ import {
   recordingResourceQueryResolver,
   recordingResourceResolver
 } from './recording-resource.resolvers'
+
+const recordingResourceValidator = getValidator(recordingResourceSchema, dataValidator)
+const recordingResourceDataValidator = getValidator(recordingResourceDataSchema, dataValidator)
+const recordingResourcePatchValidator = getValidator(recordingResourcePatchSchema, dataValidator)
+const recordingResourceQueryValidator = getValidator(recordingResourceQuerySchema, queryValidator)
 
 export default {
   around: {

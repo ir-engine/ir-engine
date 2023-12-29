@@ -27,9 +27,8 @@ Ethereal Engine. All Rights Reserved.
 import { TypedString } from '@etherealengine/engine/src/common/types/TypeboxUtils'
 import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
+import { Type, querySyntax } from '@feathersjs/typebox'
 
 export const userAvatarPath = 'user-avatar'
 
@@ -77,8 +76,3 @@ export const userAvatarQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface UserAvatarQuery extends Static<typeof userAvatarQuerySchema> {}
-
-export const userAvatarValidator = getValidator(userAvatarSchema, dataValidator)
-export const userAvatarDataValidator = getValidator(userAvatarDataSchema, dataValidator)
-export const userAvatarPatchValidator = getValidator(userAvatarPatchSchema, dataValidator)
-export const userAvatarQueryValidator = getValidator(userAvatarQuerySchema, queryValidator)

@@ -29,15 +29,18 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import {
   UserRelationshipData,
-  userRelationshipDataValidator,
-  userRelationshipPatchValidator,
+  userRelationshipDataSchema,
+  userRelationshipPatchSchema,
   userRelationshipPath,
-  userRelationshipQueryValidator
+  userRelationshipQuerySchema,
+  userRelationshipSchema
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import setLoggedInUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 import { BadRequest } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
@@ -50,6 +53,11 @@ import {
   userRelationshipQueryResolver,
   userRelationshipResolver
 } from './user-relationship.resolvers'
+
+const userRelationshipValidator = getValidator(userRelationshipSchema, dataValidator)
+const userRelationshipDataValidator = getValidator(userRelationshipDataSchema, dataValidator)
+const userRelationshipPatchValidator = getValidator(userRelationshipPatchSchema, dataValidator)
+const userRelationshipQueryValidator = getValidator(userRelationshipQuerySchema, queryValidator)
 
 /**
  * Ensure id passed in request is a valid user id

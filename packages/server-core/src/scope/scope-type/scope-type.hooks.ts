@@ -26,10 +26,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  scopeTypeDataValidator,
-  scopeTypeQueryValidator
+  scopeTypeDataSchema,
+  scopeTypePatchSchema,
+  scopeTypeQuerySchema,
+  scopeTypeSchema
 } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import {
   scopeTypeDataResolver,
@@ -37,6 +41,11 @@ import {
   scopeTypeQueryResolver,
   scopeTypeResolver
 } from './scope-type.resolvers'
+
+const scopeTypeValidator = getValidator(scopeTypeSchema, dataValidator)
+const scopeTypeDataValidator = getValidator(scopeTypeDataSchema, dataValidator)
+const scopeTypePatchValidator = getValidator(scopeTypePatchSchema, dataValidator)
+const scopeTypeQueryValidator = getValidator(scopeTypeQuerySchema, queryValidator)
 
 export default {
   around: {

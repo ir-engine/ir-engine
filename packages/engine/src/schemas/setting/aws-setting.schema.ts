@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '../validators'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const awsSettingPath = 'aws-setting'
 
@@ -139,13 +138,3 @@ export const awsSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface AwsSettingQuery extends Static<typeof awsSettingQuerySchema> {}
-
-export const awsKeysValidator = getValidator(awsKeysSchema, dataValidator)
-export const awsEksValidator = getValidator(awsEksSchema, dataValidator)
-export const awsS3Validator = getValidator(awsS3Schema, dataValidator)
-export const awsCloudFrontValidator = getValidator(awsCloudFrontSchema, dataValidator)
-export const awsSmsValidator = getValidator(awsSmsSchema, dataValidator)
-export const awsSettingValidator = getValidator(awsSettingSchema, dataValidator)
-export const awsSettingDataValidator = getValidator(awsSettingDataSchema, dataValidator)
-export const awsSettingPatchValidator = getValidator(awsSettingPatchSchema, dataValidator)
-export const awsSettingQueryValidator = getValidator(awsSettingQuerySchema, queryValidator)

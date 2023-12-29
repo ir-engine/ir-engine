@@ -25,9 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
-import { dataValidator, queryValidator } from '../validators'
 import { ScopeType } from './scope.schema'
 
 export const scopeTypePath = 'scope-type'
@@ -68,8 +67,3 @@ export const scopeTypeQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface ScopeTypeQuery extends Static<typeof scopeTypeQuerySchema> {}
-
-export const scopeTypeValidator = getValidator(scopeTypeSchema, dataValidator)
-export const scopeTypeDataValidator = getValidator(scopeTypeDataSchema, dataValidator)
-export const scopeTypePatchValidator = getValidator(scopeTypePatchSchema, dataValidator)
-export const scopeTypeQueryValidator = getValidator(scopeTypeQuerySchema, queryValidator)

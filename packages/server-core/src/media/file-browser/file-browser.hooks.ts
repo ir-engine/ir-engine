@@ -28,10 +28,17 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import { SYNC } from 'feathers-sync'
 
 import {
-  fileBrowserPatchValidator,
-  fileBrowserUpdateValidator
+  fileBrowserContentSchema,
+  fileBrowserPatchSchema,
+  fileBrowserUpdateSchema
 } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { dataValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
+
+const fileBrowserContentValidator = getValidator(fileBrowserContentSchema, dataValidator)
+const fileBrowserUpdateValidator = getValidator(fileBrowserUpdateSchema, dataValidator)
+const fileBrowserPatchValidator = getValidator(fileBrowserPatchSchema, dataValidator)
 
 export default {
   before: {

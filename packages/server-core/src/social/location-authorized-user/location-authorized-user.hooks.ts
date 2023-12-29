@@ -27,12 +27,15 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  locationAuthorizedUserDataValidator,
-  locationAuthorizedUserPatchValidator,
-  locationAuthorizedUserQueryValidator
+  locationAuthorizedUserDataSchema,
+  locationAuthorizedUserPatchSchema,
+  locationAuthorizedUserQuerySchema,
+  locationAuthorizedUserSchema
 } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import {
   locationAuthorizedUserDataResolver,
   locationAuthorizedUserExternalResolver,
@@ -40,6 +43,12 @@ import {
   locationAuthorizedUserQueryResolver,
   locationAuthorizedUserResolver
 } from './location-authorized-user.resolvers'
+
+const locationAuthorizedUserValidator = getValidator(locationAuthorizedUserSchema, dataValidator)
+const locationAuthorizedUserDataValidator = getValidator(locationAuthorizedUserDataSchema, dataValidator)
+const locationAuthorizedUserPatchValidator = getValidator(locationAuthorizedUserPatchSchema, dataValidator)
+const locationAuthorizedUserQueryValidator = getValidator(locationAuthorizedUserQuerySchema, queryValidator)
+
 export default {
   around: {
     all: [

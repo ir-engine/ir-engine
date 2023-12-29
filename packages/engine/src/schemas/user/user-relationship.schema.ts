@@ -26,9 +26,8 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
+import { querySyntax, StringEnum, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
-import { dataValidator, queryValidator } from '../validators'
 import { userRelationshipTypes } from './user-relationship-type.schema'
 import { UserID, userSchema } from './user.schema'
 
@@ -91,8 +90,3 @@ export const userRelationshipQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface UserRelationshipQuery extends Static<typeof userRelationshipQuerySchema> {}
-
-export const userRelationshipValidator = getValidator(userRelationshipSchema, dataValidator)
-export const userRelationshipDataValidator = getValidator(userRelationshipDataSchema, dataValidator)
-export const userRelationshipPatchValidator = getValidator(userRelationshipPatchSchema, dataValidator)
-export const userRelationshipQueryValidator = getValidator(userRelationshipQuerySchema, queryValidator)

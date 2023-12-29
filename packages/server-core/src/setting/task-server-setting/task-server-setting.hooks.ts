@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  taskServerSettingDataValidator,
-  taskServerSettingPatchValidator,
-  taskServerSettingQueryValidator
+  taskServerSettingDataSchema,
+  taskServerSettingPatchSchema,
+  taskServerSettingQuerySchema,
+  taskServerSettingSchema
 } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   taskServerSettingDataResolver,
@@ -40,6 +43,11 @@ import {
   taskServerSettingQueryResolver,
   taskServerSettingResolver
 } from './task-server-setting.resolvers'
+
+const taskServerSettingValidator = getValidator(taskServerSettingSchema, dataValidator)
+const taskServerSettingDataValidator = getValidator(taskServerSettingDataSchema, dataValidator)
+const taskServerSettingPatchValidator = getValidator(taskServerSettingPatchSchema, dataValidator)
+const taskServerSettingQueryValidator = getValidator(taskServerSettingQuerySchema, queryValidator)
 
 export default {
   around: {

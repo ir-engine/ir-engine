@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  githubRepoAccessDataValidator,
-  githubRepoAccessPatchValidator,
-  githubRepoAccessQueryValidator
+  githubRepoAccessDataSchema,
+  githubRepoAccessPatchSchema,
+  githubRepoAccessQuerySchema,
+  githubRepoAccessSchema
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   githubRepoAccessDataResolver,
@@ -40,6 +43,11 @@ import {
   githubRepoAccessQueryResolver,
   githubRepoAccessResolver
 } from './github-repo-access.resolvers'
+
+const githubRepoAccessValidator = getValidator(githubRepoAccessSchema, dataValidator)
+const githubRepoAccessDataValidator = getValidator(githubRepoAccessDataSchema, dataValidator)
+const githubRepoAccessPatchValidator = getValidator(githubRepoAccessPatchSchema, dataValidator)
+const githubRepoAccessQueryValidator = getValidator(githubRepoAccessQuerySchema, queryValidator)
 
 export default {
   around: {

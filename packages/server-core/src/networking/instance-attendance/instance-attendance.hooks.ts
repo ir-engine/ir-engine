@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  instanceAttendanceDataValidator,
-  instanceAttendancePatchValidator,
-  instanceAttendanceQueryValidator
+  instanceAttendanceDataSchema,
+  instanceAttendancePatchSchema,
+  instanceAttendanceQuerySchema,
+  instanceAttendanceSchema
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   instanceAttendanceDataResolver,
@@ -40,6 +43,11 @@ import {
   instanceAttendanceQueryResolver,
   instanceAttendanceResolver
 } from './instance-attendance.resolvers'
+
+const instanceAttendanceValidator = getValidator(instanceAttendanceSchema, dataValidator)
+const instanceAttendanceDataValidator = getValidator(instanceAttendanceDataSchema, dataValidator)
+const instanceAttendancePatchValidator = getValidator(instanceAttendancePatchSchema, dataValidator)
+const instanceAttendanceQueryValidator = getValidator(instanceAttendanceQuerySchema, queryValidator)
 
 export default {
   around: {

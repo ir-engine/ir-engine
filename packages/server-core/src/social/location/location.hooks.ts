@@ -35,10 +35,11 @@ import {
   LocationID,
   LocationPatch,
   LocationType,
-  locationDataValidator,
-  locationPatchValidator,
+  locationDataSchema,
+  locationPatchSchema,
   locationPath,
-  locationQueryValidator
+  locationQuerySchema,
+  locationSchema
 } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
@@ -51,8 +52,10 @@ import {
   locationSettingPath
 } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { BadRequest } from '@feathersjs/errors'
 import { transaction } from '@feathersjs/knex'
+import { getValidator } from '@feathersjs/typebox'
 import { Knex } from 'knex'
 import slugify from 'slugify'
 import { HookContext } from '../../../declarations'
@@ -65,6 +68,11 @@ import {
   locationQueryResolver,
   locationResolver
 } from './location.resolvers'
+
+export const locationValidator = getValidator(locationSchema, dataValidator)
+export const locationDataValidator = getValidator(locationDataSchema, dataValidator)
+export const locationPatchValidator = getValidator(locationPatchSchema, dataValidator)
+export const locationQueryValidator = getValidator(locationQuerySchema, queryValidator)
 
 const locationSettingSorts = ['locationType', 'audioEnabled', 'videoEnabled']
 

@@ -25,7 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
+import {
+  podsSchema,
+  serverContainerInfoSchema,
+  serverPodInfoSchema
+} from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import { dataValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
+
+const serverContainerInfoValidator = getValidator(serverContainerInfoSchema, dataValidator)
+const serverPodInfoValidator = getValidator(serverPodInfoSchema, dataValidator)
+const podsValidator = getValidator(podsSchema, dataValidator)
 
 export default {
   before: {

@@ -26,11 +26,10 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { ChannelID } from '../social/channel.schema'
 import { LocationID, locationSchema, RoomCode } from '../social/location.schema'
-import { dataValidator, queryValidator } from '../validators'
 
 export const instancePath = 'instance'
 
@@ -114,8 +113,3 @@ export const instanceQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface InstanceQuery extends Static<typeof instanceQuerySchema> {}
-
-export const instanceValidator = getValidator(instanceSchema, dataValidator)
-export const instanceDataValidator = getValidator(instanceDataSchema, dataValidator)
-export const instancePatchValidator = getValidator(instancePatchSchema, dataValidator)
-export const instanceQueryValidator = getValidator(instanceQuerySchema, queryValidator)

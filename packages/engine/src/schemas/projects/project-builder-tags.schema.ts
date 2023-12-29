@@ -20,8 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
-import { dataValidator } from '../validators'
+import { Type } from '@feathersjs/typebox'
 
 export const projectBuilderTagsPath = 'project-builder-tags'
 
@@ -38,5 +37,3 @@ export const projectBuilderTagsSchema = Type.Object(
   { $id: 'ProjectBuilderTags', additionalProperties: false }
 )
 export interface ProjectBuilderTagsType extends Static<typeof projectBuilderTagsSchema> {}
-
-export const projectBuilderTagsValidator = getValidator(projectBuilderTagsSchema, dataValidator)

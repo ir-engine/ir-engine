@@ -20,9 +20,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
+import { builderInfoSchema } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
+import { dataValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import { builderInfoExternalResolver, builderInfoResolver } from './builder-info.resolvers'
+
+const builderInfoValidator = getValidator(builderInfoSchema, dataValidator)
 
 export default {
   around: {

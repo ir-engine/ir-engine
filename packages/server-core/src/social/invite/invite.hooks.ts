@@ -31,16 +31,20 @@ import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-logg
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import {
-  inviteDataValidator,
-  invitePatchValidator,
-  inviteQueryValidator
+  inviteDataSchema,
+  invitePatchSchema,
+  inviteQuerySchema,
+  inviteSchema,
+  spawnDetailsSchema
 } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { Paginated } from '@feathersjs/feathers'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
 import { sendInvite } from '../../hooks/send-invite'
@@ -53,6 +57,12 @@ import {
   inviteQueryResolver,
   inviteResolver
 } from './invite.resolvers'
+
+const spawnDetailsValidator = getValidator(spawnDetailsSchema, dataValidator)
+const inviteValidator = getValidator(inviteSchema, dataValidator)
+const inviteDataValidator = getValidator(inviteDataSchema, dataValidator)
+const invitePatchValidator = getValidator(invitePatchSchema, dataValidator)
+const inviteQueryValidator = getValidator(inviteQuerySchema, queryValidator)
 
 async function handleInvitee(context: HookContext<InviteService>) {
   const identityProviders = (await context.app.service(identityProviderPath).find({

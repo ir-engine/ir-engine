@@ -26,10 +26,9 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { InstanceID } from '../networking/instance.schema'
-import { dataValidator, queryValidator } from '../validators'
 import { UserID } from './user.schema'
 
 export const userKickPath = 'user-kick'
@@ -81,8 +80,3 @@ export const userKickQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface UserKickQuery extends Static<typeof userKickQuerySchema> {}
-
-export const userKickValidator = getValidator(userKickSchema, dataValidator)
-export const userKickDataValidator = getValidator(userKickDataSchema, dataValidator)
-export const userKickPatchValidator = getValidator(userKickPatchSchema, dataValidator)
-export const userKickQueryValidator = getValidator(userKickQuerySchema, queryValidator)

@@ -34,15 +34,18 @@ import {
   ProjectPermissionData,
   ProjectPermissionPatch,
   ProjectPermissionType,
-  projectPermissionDataValidator,
-  projectPermissionPatchValidator,
+  projectPermissionDataSchema,
+  projectPermissionPatchSchema,
   projectPermissionPath,
-  projectPermissionQueryValidator
+  projectPermissionQuerySchema,
+  projectPermissionSchema
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { InviteCode, UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ProjectPermissionService } from './project-permission.class'
@@ -53,6 +56,11 @@ import {
   projectPermissionQueryResolver,
   projectPermissionResolver
 } from './project-permission.resolvers'
+
+const projectPermissionValidator = getValidator(projectPermissionSchema, dataValidator)
+const projectPermissionDataValidator = getValidator(projectPermissionDataSchema, dataValidator)
+const projectPermissionPatchValidator = getValidator(projectPermissionPatchSchema, dataValidator)
+const projectPermissionQueryValidator = getValidator(projectPermissionQuerySchema, queryValidator)
 
 /**
  * Updates the inviteCode and userId fields to match the correct types

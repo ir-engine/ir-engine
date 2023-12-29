@@ -20,8 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { StringEnum, Type, getValidator } from '@feathersjs/typebox'
-import { dataValidator } from '../validators'
+import { StringEnum, Type } from '@feathersjs/typebox'
 import { projectUpdateTypes } from './project.schema'
 
 export const projectBuildPath = 'project-build'
@@ -66,7 +65,3 @@ export const projectBuildPatchSchema = Type.Object(
 )
 
 export interface ProjectBuildPatch extends Static<typeof projectBuildPatchSchema> {}
-
-export const projectUpdateValidator = getValidator(ProjectBuildUpdateItemSchema, dataValidator)
-export const projectBuildValidator = getValidator(projectBuildSchema, dataValidator)
-export const projectBuildPatchValidator = getValidator(projectBuildPatchSchema, dataValidator)

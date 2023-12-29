@@ -29,15 +29,25 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import {
   AuthenticationSettingPatch,
   AuthenticationSettingType,
-  authenticationSettingDataValidator,
-  authenticationSettingPatchValidator,
+  authAppCredentialsSchema,
+  authBearerTokenSchema,
+  authCallbackSchema,
+  authDefaultsSchema,
+  authJwtOptionsSchema,
+  authOauthSchema,
+  authStrategiesSchema,
+  authenticationSettingDataSchema,
+  authenticationSettingPatchSchema,
   authenticationSettingPath,
-  authenticationSettingQueryValidator
+  authenticationSettingQuerySchema,
+  authenticationSettingSchema
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import * as k8s from '@kubernetes/client-node'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { getState } from '@etherealengine/hyperflux'
 import { BadRequest } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
@@ -52,6 +62,18 @@ import {
   authenticationSettingResolver,
   authenticationSettingSchemaToDb
 } from './authentication-setting.resolvers'
+
+const authAppCredentialsValidator = getValidator(authAppCredentialsSchema, dataValidator)
+const authBearerTokenValidator = getValidator(authBearerTokenSchema, dataValidator)
+const authCallbackValidator = getValidator(authCallbackSchema, dataValidator)
+const authDefaultsValidator = getValidator(authDefaultsSchema, dataValidator)
+const authJwtOptionsValidator = getValidator(authJwtOptionsSchema, dataValidator)
+const authOauthValidator = getValidator(authOauthSchema, dataValidator)
+const authStrategiesValidator = getValidator(authStrategiesSchema, dataValidator)
+const authenticationSettingValidator = getValidator(authenticationSettingSchema, dataValidator)
+const authenticationSettingDataValidator = getValidator(authenticationSettingDataSchema, dataValidator)
+const authenticationSettingPatchValidator = getValidator(authenticationSettingPatchSchema, dataValidator)
+const authenticationSettingQueryValidator = getValidator(authenticationSettingQuerySchema, queryValidator)
 
 /**
  * Maps settings for admin

@@ -26,9 +26,8 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
-import { dataValidator, queryValidator } from '../validators'
 
 export const matchUserPath = 'match-user'
 
@@ -78,8 +77,3 @@ export const matchUserQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface MatchUserQuery extends Static<typeof matchUserQuerySchema> {}
-
-export const matchUserValidator = getValidator(matchUserSchema, dataValidator)
-export const matchUserDataValidator = getValidator(matchUserDataSchema, dataValidator)
-export const matchUserPatchValidator = getValidator(matchUserPatchSchema, dataValidator)
-export const matchUserQueryValidator = getValidator(matchUserQuerySchema, queryValidator)

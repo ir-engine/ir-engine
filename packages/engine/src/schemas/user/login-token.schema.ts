@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '../validators'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const loginTokenPath = 'login-token'
 
@@ -73,8 +72,3 @@ export const loginTokenQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface LoginTokenQuery extends Static<typeof loginTokenQuerySchema> {}
-
-export const loginTokenValidator = getValidator(loginTokenSchema, dataValidator)
-export const loginTokenDataValidator = getValidator(loginTokenDataSchema, dataValidator)
-export const loginTokenPatchValidator = getValidator(loginTokenPatchSchema, dataValidator)
-export const loginTokenQueryValidator = getValidator(loginTokenQuerySchema, queryValidator)

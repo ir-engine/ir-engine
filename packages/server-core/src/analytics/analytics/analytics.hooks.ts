@@ -28,13 +28,16 @@ import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   AnalyticsType,
-  analyticsDataValidator,
-  analyticsPatchValidator,
-  analyticsQueryValidator
+  analyticsDataSchema,
+  analyticsPatchSchema,
+  analyticsQuerySchema,
+  analyticsSchema
 } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { Paginated } from '@feathersjs/feathers'
+import { getValidator } from '@feathersjs/typebox'
 import { Knex } from 'knex'
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
@@ -47,6 +50,11 @@ import {
   analyticsQueryResolver,
   analyticsResolver
 } from './analytics.resolvers'
+
+const analyticsValidator = getValidator(analyticsSchema, dataValidator)
+const analyticsDataValidator = getValidator(analyticsDataSchema, dataValidator)
+const analyticsPatchValidator = getValidator(analyticsPatchSchema, dataValidator)
+const analyticsQueryValidator = getValidator(analyticsQuerySchema, queryValidator)
 
 async function addDailyUsers(context: HookContext<AnalyticsService>) {
   const limit = context.params.query?.$limit || 30

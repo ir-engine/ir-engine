@@ -20,10 +20,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { projectInvalidatePatchValidator } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
+import { projectInvalidatePatchSchema } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
+import { dataValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import { projectInvalidatePatchResolver } from './project-invalidate.resolvers'
+
+const projectInvalidatePatchValidator = getValidator(projectInvalidatePatchSchema, dataValidator)
 
 export default {
   around: {

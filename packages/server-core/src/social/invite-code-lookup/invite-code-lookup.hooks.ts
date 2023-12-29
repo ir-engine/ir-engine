@@ -25,13 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { inviteCodeLookupQueryValidator } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+import {
+  inviteCodeLookupQuerySchema,
+  inviteCodeLookupSchema
+} from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import {
   inviteCodeLookupExternalResolver,
   inviteCodeLookupQueryResolver,
   inviteCodeLookupResolver
 } from './invite-code-lookup.resolvers'
+
+const inviteCodeLookupValidator = getValidator(inviteCodeLookupSchema, dataValidator)
+const inviteCodeLookupQueryValidator = getValidator(inviteCodeLookupQuerySchema, queryValidator)
 
 export default {
   around: {

@@ -21,9 +21,8 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { UserID, userSchema } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
+import { Type, querySyntax } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
-import { dataValidator, queryValidator } from '../validators'
 import { ChannelID } from './channel.schema'
 
 export const channelUserPath = 'channel-user'
@@ -74,8 +73,3 @@ export const channelUserQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface ChannelUserQuery extends Static<typeof channelUserQuerySchema> {}
-
-export const channelUserValidator = getValidator(channelUserSchema, dataValidator)
-export const channelUserDataValidator = getValidator(channelUserDataSchema, dataValidator)
-export const channelUserPatchValidator = getValidator(channelUserPatchSchema, dataValidator)
-export const channelUserQueryValidator = getValidator(channelUserQuerySchema, queryValidator)

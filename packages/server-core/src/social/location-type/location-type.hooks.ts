@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 
 import {
-  locationTypeDataValidator,
-  locationTypePatchValidator,
-  locationTypeQueryValidator
+  locationTypeDataSchema,
+  locationTypePatchSchema,
+  locationTypeQuerySchema,
+  locationTypeSchema
 } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import {
   locationTypeDataResolver,
   locationTypeExternalResolver,
@@ -39,6 +42,11 @@ import {
   locationTypeQueryResolver,
   locationTypeResolver
 } from './location-type.resolvers'
+
+const locationTypeValidator = getValidator(locationTypeSchema, dataValidator)
+const locationTypeDataValidator = getValidator(locationTypeDataSchema, dataValidator)
+const locationTypePatchValidator = getValidator(locationTypePatchSchema, dataValidator)
+const locationTypeQueryValidator = getValidator(locationTypeQuerySchema, queryValidator)
 
 export default {
   around: {

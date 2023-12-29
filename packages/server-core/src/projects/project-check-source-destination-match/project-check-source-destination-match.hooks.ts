@@ -20,12 +20,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
+import { projectCheckSourceDestinationMatchSchema } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
+import { queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import {
   projectCheckSourceDestinationMatchExternalResolver,
   projectCheckSourceDestinationMatchResolver
 } from './project-check-source-destination-match.resolvers'
+
+const projectCheckSourceDestinationMatchValidator = getValidator(
+  projectCheckSourceDestinationMatchSchema,
+  queryValidator
+)
 
 export default {
   around: {

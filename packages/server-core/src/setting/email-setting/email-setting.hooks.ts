@@ -27,11 +27,17 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  emailSettingDataValidator,
-  emailSettingPatchValidator,
-  emailSettingQueryValidator
+  emailAuthSchema,
+  emailSettingDataSchema,
+  emailSettingPatchSchema,
+  emailSettingQuerySchema,
+  emailSettingSchema,
+  emailSmtpSchema,
+  emailSubjectSchema
 } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   emailSettingDataResolver,
@@ -40,6 +46,14 @@ import {
   emailSettingQueryResolver,
   emailSettingResolver
 } from './email-setting.resolvers'
+
+const emailSubjectValidator = getValidator(emailSubjectSchema, dataValidator)
+const emailAuthValidator = getValidator(emailAuthSchema, dataValidator)
+const emailSmtpValidator = getValidator(emailSmtpSchema, dataValidator)
+const emailSettingValidator = getValidator(emailSettingSchema, dataValidator)
+const emailSettingDataValidator = getValidator(emailSettingDataSchema, dataValidator)
+const emailSettingPatchValidator = getValidator(emailSettingPatchSchema, dataValidator)
+const emailSettingQueryValidator = getValidator(emailSettingQuerySchema, queryValidator)
 
 export default {
   around: {

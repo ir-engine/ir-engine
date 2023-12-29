@@ -25,7 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { instanceActiveQueryValidator } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import {
+  instanceActiveQuerySchema,
+  instanceActiveSchema
+} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import {
@@ -33,6 +38,9 @@ import {
   instanceActiveQueryResolver,
   instanceActiveResolver
 } from './instance-active.resolvers'
+
+const instanceActiveValidator = getValidator(instanceActiveSchema, dataValidator)
+const instanceActiveQueryValidator = getValidator(instanceActiveQuerySchema, queryValidator)
 
 export default {
   around: {

@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '../validators'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const redisSettingPath = 'redis-setting'
 
@@ -78,8 +77,3 @@ export const redisSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface RedisSettingQuery extends Static<typeof redisSettingQuerySchema> {}
-
-export const redisSettingValidator = getValidator(redisSettingSchema, dataValidator)
-export const redisSettingDataValidator = getValidator(redisSettingDataSchema, dataValidator)
-export const redisSettingPatchValidator = getValidator(redisSettingPatchSchema, dataValidator)
-export const redisSettingQueryValidator = getValidator(redisSettingQuerySchema, queryValidator)

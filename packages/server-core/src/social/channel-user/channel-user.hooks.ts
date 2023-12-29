@@ -28,10 +28,11 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   ChannelUserType,
-  channelUserDataValidator,
-  channelUserPatchValidator,
+  channelUserDataSchema,
+  channelUserPatchSchema,
   channelUserPath,
-  channelUserQueryValidator
+  channelUserQuerySchema,
+  channelUserSchema
 } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 
 import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
@@ -39,8 +40,10 @@ import { messagePath } from '@etherealengine/engine/src/schemas/social/message.s
 import verifyScope from '../../hooks/verify-scope'
 
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import disallowId from '../../hooks/disallow-id'
 import { ChannelUserService } from './channel-user.class'
@@ -51,6 +54,11 @@ import {
   channelUserQueryResolver,
   channelUserResolver
 } from './channel-user.resolvers'
+
+const channelUserValidator = getValidator(channelUserSchema, dataValidator)
+const channelUserDataValidator = getValidator(channelUserDataSchema, dataValidator)
+const channelUserPatchValidator = getValidator(channelUserPatchSchema, dataValidator)
+const channelUserQueryValidator = getValidator(channelUserQuerySchema, queryValidator)
 
 /**
  * Adds user joined message to channel

@@ -26,10 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import {
   IdentityProviderData,
   IdentityProviderType,
-  identityProviderDataValidator,
-  identityProviderPatchValidator,
+  identityProviderDataSchema,
+  identityProviderPatchSchema,
   identityProviderPath,
-  identityProviderQueryValidator
+  identityProviderQuerySchema,
+  identityProviderSchema
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
@@ -43,6 +44,8 @@ import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-ty
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { random } from 'lodash'
 import { HookContext } from '../../../declarations'
 import persistData from '../../hooks/persist-data'
@@ -55,6 +58,11 @@ import {
   identityProviderQueryResolver,
   identityProviderResolver
 } from './identity-provider.resolvers'
+
+const identityProviderValidator = getValidator(identityProviderSchema, dataValidator)
+const identityProviderDataValidator = getValidator(identityProviderDataSchema, dataValidator)
+const identityProviderPatchValidator = getValidator(identityProviderPatchSchema, dataValidator)
+const identityProviderQueryValidator = getValidator(identityProviderQuerySchema, queryValidator)
 
 /**
  * If trying to CRUD multiple identity-providers (e.g. patch all IP's belonging to a user),

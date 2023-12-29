@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  coilSettingDataValidator,
-  coilSettingPatchValidator,
-  coilSettingQueryValidator
+  coilSettingDataSchema,
+  coilSettingPatchSchema,
+  coilSettingQuerySchema,
+  coilSettingSchema
 } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import verifyScope from '../../hooks/verify-scope'
 import {
   coilSettingDataResolver,
@@ -40,6 +43,11 @@ import {
   coilSettingQueryResolver,
   coilSettingResolver
 } from './coil-setting.resolvers'
+
+const coilSettingValidator = getValidator(coilSettingSchema, dataValidator)
+const coilSettingDataValidator = getValidator(coilSettingDataSchema, dataValidator)
+const coilSettingPatchValidator = getValidator(coilSettingPatchSchema, dataValidator)
+const coilSettingQueryValidator = getValidator(coilSettingQuerySchema, queryValidator)
 
 export default {
   around: {

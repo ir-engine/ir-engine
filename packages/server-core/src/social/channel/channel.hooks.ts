@@ -31,17 +31,21 @@ import {
   ChannelData,
   ChannelID,
   ChannelType,
-  channelDataValidator,
-  channelPatchValidator,
-  channelPath
+  channelDataSchema,
+  channelPatchSchema,
+  channelPath,
+  channelQuerySchema,
+  channelSchema
 } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import {
   UserRelationshipType,
   userRelationshipPath
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, discard, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { Knex } from 'knex'
 import { HookContext } from '../../../declarations'
@@ -57,6 +61,11 @@ import {
   channelPatchResolver,
   channelResolver
 } from './channel.resolvers'
+
+const channelValidator = getValidator(channelSchema, dataValidator)
+const channelDataValidator = getValidator(channelDataSchema, dataValidator)
+const channelPatchValidator = getValidator(channelPatchSchema, dataValidator)
+const channelQueryValidator = getValidator(channelQuerySchema, queryValidator)
 
 /**
  * Ensure user is owner of channel

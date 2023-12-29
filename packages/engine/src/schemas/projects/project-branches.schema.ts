@@ -20,8 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
-import { dataValidator } from '../validators'
+import { Type } from '@feathersjs/typebox'
 
 export const projectBranchesPath = 'project-branches'
 
@@ -50,6 +49,3 @@ export const projectBranchesSchema = Type.Object(
   { $id: 'ProjectBranches', additionalProperties: false }
 )
 export interface ProjectBranchesType extends Static<typeof projectBranchesSchema> {}
-
-export const projectBranchValidator = getValidator(projectBranchSchema, dataValidator)
-export const projectBranchesValidator = getValidator(projectBranchesSchema, dataValidator)

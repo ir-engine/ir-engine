@@ -20,12 +20,17 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
+import { projectCheckUnfetchedCommitSchema } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
+import { dataValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import {
   projectCheckUnfetchedCommitExternalResolver,
   projectCheckUnfetchedCommitResolver
 } from './project-check-unfetched-commit.resolvers'
+
+const projectCheckUnfetchedCommitValidator = getValidator(projectCheckUnfetchedCommitSchema, dataValidator)
 
 export default {
   around: {

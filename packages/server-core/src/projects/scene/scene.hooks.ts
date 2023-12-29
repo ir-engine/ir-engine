@@ -24,14 +24,29 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { SceneCreateData } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import {
+  SceneCreateData,
+  componentJsonSchema,
+  entityJsonSchema,
+  sceneDataSchema,
+  sceneJsonSchema,
+  sceneMetadataSchema
+} from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { dataValidator } from '@etherealengine/engine/src/schemas/validators'
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
+import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import setResponseStatusCode from '../../hooks/set-response-status-code'
 import verifyScope from '../../hooks/verify-scope'
+
+const componentJsonValidator = getValidator(componentJsonSchema, dataValidator)
+const entityJsonValidator = getValidator(entityJsonSchema, dataValidator)
+const sceneJsonValidator = getValidator(sceneJsonSchema, dataValidator)
+const sceneMetadataValidator = getValidator(sceneMetadataSchema, dataValidator)
+const sceneDataValidator = getValidator(sceneDataSchema, dataValidator)
 
 const checkIfProjectExists = async (context: HookContext, project: string) => {
   const projectResult = (await context.app

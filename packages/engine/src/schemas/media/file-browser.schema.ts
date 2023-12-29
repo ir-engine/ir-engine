@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, Type } from '@feathersjs/typebox'
-import { dataValidator } from '../validators'
+import { Type } from '@feathersjs/typebox'
 
 export const fileBrowserPath = 'file-browser'
 export const fileBrowserMethods = ['create', 'find', 'get', 'patch', 'remove', 'update'] as const
@@ -72,7 +71,3 @@ export const fileBrowserPatchSchema = Type.Object(
   }
 )
 export interface FileBrowserPatch extends Static<typeof fileBrowserPatchSchema> {}
-
-export const fileBrowserContentValidator = getValidator(fileBrowserContentSchema, dataValidator)
-export const fileBrowserUpdateValidator = getValidator(fileBrowserUpdateSchema, dataValidator)
-export const fileBrowserPatchValidator = getValidator(fileBrowserPatchSchema, dataValidator)

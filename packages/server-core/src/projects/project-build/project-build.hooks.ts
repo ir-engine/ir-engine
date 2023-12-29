@@ -20,7 +20,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { projectBuildPatchValidator } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import {
+  ProjectBuildUpdateItemSchema,
+  projectBuildPatchSchema,
+  projectBuildSchema
+} from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { dataValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import {
@@ -28,6 +34,10 @@ import {
   projectBuildPatchResolver,
   projectBuildResolver
 } from './project-build.resolvers'
+
+const projectUpdateValidator = getValidator(ProjectBuildUpdateItemSchema, dataValidator)
+const projectBuildValidator = getValidator(projectBuildSchema, dataValidator)
+const projectBuildPatchValidator = getValidator(projectBuildPatchSchema, dataValidator)
 
 export default {
   around: {

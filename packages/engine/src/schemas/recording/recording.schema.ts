@@ -24,10 +24,9 @@ import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedRecord, TypedString } from '../../common/types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
-import { dataValidator, queryValidator } from '../validators'
 
 export const recordingPath = 'recording'
 
@@ -96,9 +95,3 @@ export const recordingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface RecordingQuery extends Static<typeof recordingQuerySchema> {}
-
-export const recordingSchemaValidator = getValidator(recordingSchemaType, dataValidator)
-export const recordingValidator = getValidator(recordingSchema, dataValidator)
-export const recordingDataValidator = getValidator(recordingDataSchema, dataValidator)
-export const recordingPatchValidator = getValidator(recordingPatchSchema, dataValidator)
-export const recordingQueryValidator = getValidator(recordingQuerySchema, queryValidator)

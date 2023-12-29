@@ -27,11 +27,14 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 
 import {
-  inviteTypeDataValidator,
-  inviteTypePatchValidator,
-  inviteTypeQueryValidator
+  inviteTypeDataSchema,
+  inviteTypePatchSchema,
+  inviteTypeQuerySchema,
+  inviteTypeSchema
 } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import {
   inviteTypeDataResolver,
   inviteTypeExternalResolver,
@@ -39,6 +42,11 @@ import {
   inviteTypeQueryResolver,
   inviteTypeResolver
 } from './invite-type.resolvers'
+
+const inviteTypeValidator = getValidator(inviteTypeSchema, dataValidator)
+const inviteTypeDataValidator = getValidator(inviteTypeDataSchema, dataValidator)
+const inviteTypePatchValidator = getValidator(inviteTypePatchSchema, dataValidator)
+const inviteTypeQueryValidator = getValidator(inviteTypeQuerySchema, queryValidator)
 
 export default {
   around: {

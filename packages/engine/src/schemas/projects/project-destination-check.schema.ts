@@ -19,8 +19,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
-import { queryValidator } from '../validators'
+import { Type } from '@feathersjs/typebox'
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
@@ -57,5 +56,3 @@ export const projectDestinationCheckSchema = Type.Object(
 )
 
 export interface ProjectDestinationCheckType extends Static<typeof projectDestinationCheckSchema> {}
-
-export const projectDestinationCheckValidator = getValidator(projectDestinationCheckSchema, queryValidator)

@@ -26,11 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import {
-  userRelationshipTypeDataValidator,
-  userRelationshipTypePatchValidator,
-  userRelationshipTypeQueryValidator
+  userRelationshipTypeDataSchema,
+  userRelationshipTypePatchSchema,
+  userRelationshipTypeQuerySchema,
+  userRelationshipTypeSchema
 } from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
 
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
 import {
   userRelationshipTypeDataResolver,
@@ -39,6 +42,11 @@ import {
   userRelationshipTypeQueryResolver,
   userRelationshipTypeResolver
 } from './user-relationship-type.resolvers'
+
+const userRelationshipTypeValidator = getValidator(userRelationshipTypeSchema, dataValidator)
+const userRelationshipTypeDataValidator = getValidator(userRelationshipTypeDataSchema, dataValidator)
+const userRelationshipTypePatchValidator = getValidator(userRelationshipTypePatchSchema, dataValidator)
+const userRelationshipTypeQueryValidator = getValidator(userRelationshipTypeQuerySchema, queryValidator)
 
 export default {
   around: {

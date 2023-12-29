@@ -31,13 +31,16 @@ import verifyScope from '../../hooks/verify-scope'
 import {
   InstanceData,
   InstanceType,
-  instanceDataValidator,
-  instancePatchValidator,
+  instanceDataSchema,
+  instancePatchSchema,
   instancePath,
-  instanceQueryValidator
+  instanceQuerySchema,
+  instanceSchema
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import { BadRequest } from '@feathersjs/errors'
+import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
 import { InstanceService, generateRoomCode } from './instance.class'
@@ -48,6 +51,11 @@ import {
   instanceQueryResolver,
   instanceResolver
 } from './instance.resolvers'
+
+const instanceValidator = getValidator(instanceSchema, dataValidator)
+const instanceDataValidator = getValidator(instanceDataSchema, dataValidator)
+const instancePatchValidator = getValidator(instancePatchSchema, dataValidator)
+const instanceQueryValidator = getValidator(instanceQuerySchema, queryValidator)
 
 /**
  * Sort result by location name

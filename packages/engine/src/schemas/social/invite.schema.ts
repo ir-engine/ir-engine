@@ -25,11 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
+import { querySyntax, StringEnum, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { identityProviderTypes } from '../user/identity-provider.schema'
 import { InviteCode, UserID, userSchema } from '../user/user.schema'
-import { dataValidator, queryValidator } from '../validators'
 import { inviteTypes } from './invite-type.schema'
 
 export const invitePath = 'invite'
@@ -165,9 +164,3 @@ export const inviteQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface InviteQuery extends Static<typeof inviteQuerySchema> {}
-
-export const spawnDetailsValidator = getValidator(spawnDetailsSchema, dataValidator)
-export const inviteValidator = getValidator(inviteSchema, dataValidator)
-export const inviteDataValidator = getValidator(inviteDataSchema, dataValidator)
-export const invitePatchValidator = getValidator(invitePatchSchema, dataValidator)
-export const inviteQueryValidator = getValidator(inviteQuerySchema, queryValidator)

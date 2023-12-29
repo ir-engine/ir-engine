@@ -23,9 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { emailDataValidator } from '@etherealengine/engine/src/schemas/user/email.schema'
+import { emailDataSchema } from '@etherealengine/engine/src/schemas/user/email.schema'
+import { dataValidator } from '@etherealengine/engine/src/schemas/validators'
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
+
+const emailDataValidator = getValidator(emailDataSchema, dataValidator)
 
 export default {
   before: {
