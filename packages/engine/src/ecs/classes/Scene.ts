@@ -287,7 +287,6 @@ const modifyQueue = defineActionQueue(SceneSnapshotAction.createSnapshot.matches
 
 const execute = () => {
   const isEditing = getState(EngineState).isEditing
-
   for (const action of undoQueue()) {
     if (!isEditing) return
     const state = getMutableState(SceneState).scenes[action.sceneID]

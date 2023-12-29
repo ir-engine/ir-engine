@@ -69,7 +69,6 @@ const PUSH_TIMEOUT = 60 * 10 //10 minute timeout on GitHub push jobs completing 
 export const getAuthenticatedRepo = async (token: string, repositoryPath: string) => {
   try {
     if (!/.git$/.test(repositoryPath)) repositoryPath = repositoryPath + '.git'
-    repositoryPath = repositoryPath.toLowerCase()
     const user = await getUser(token)
     return repositoryPath.replace('https://', `https://${user.data.login}:${token}@`)
   } catch (error) {
