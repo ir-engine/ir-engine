@@ -75,7 +75,7 @@ const reactor = () => {
   useEffect(() => {
     getMutableState(RecordingAPIState).merge({ uploadRecordingChunk: uploadRecordingStaticResource })
     return () => {
-      getMutableState(RecordingAPIState).uploadRecordingChunk.set(none)
+      getMutableState(RecordingAPIState).merge({ uploadRecordingChunk: none })
     }
   }, [])
 
