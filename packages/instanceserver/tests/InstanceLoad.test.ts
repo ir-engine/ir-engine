@@ -97,9 +97,6 @@ describe('InstanceLoad', () => {
 
     await loadLocation(query)
 
-    // wait 0.5 seconds for reactors to finish running
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
     assert.equal(getState(EngineState).sceneLoaded, true)
   })
 
