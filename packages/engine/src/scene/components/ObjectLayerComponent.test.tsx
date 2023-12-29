@@ -26,17 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
-import { destroyEngine } from '../../../src/ecs/classes/Engine'
-import { getComponent, hasComponent, setComponent } from '../../../src/ecs/functions/ComponentFunctions'
-import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
-import { createEngine } from '../../../src/initializeEngine'
-import { addObjectToGroup } from '../../../src/scene/components/GroupComponent'
-import {
-  Layer,
-  ObjectLayerComponents,
-  ObjectLayerMaskComponent
-} from '../../../src/scene/components/ObjectLayerComponent'
-import { loadEmptyScene } from '../../util/loadEmptyScene'
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
+import { destroyEngine } from '../../ecs/classes/Engine'
+import { getComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
+import { addObjectToGroup } from './GroupComponent'
+import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 
 describe('ObjectLayerComponent', () => {
   beforeEach(async () => {

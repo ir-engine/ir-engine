@@ -63,6 +63,7 @@ import {
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { RestEndpointMethodTypes } from '@octokit/rest'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -345,7 +346,7 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
       error: 'invalidSourceURL',
       text: 'The source URL is not valid, or you do not have access to it'
     }
-  let commit
+  let commit: RestEndpointMethodTypes['repos']['getCommit']['response']
   try {
     commit = await sourceOctoKit.rest.repos.getCommit({
       owner,
@@ -379,7 +380,7 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
       commitSHA: commit.data.sha,
       error: '',
       text: '',
-      datetime: commit.data.commit.committer.date,
+      datetime: commit.data.commit.committer?.date,
       matchesEngineVersion: content.etherealEngine?.version
         ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
         : false
@@ -1689,8 +1690,30 @@ export const uploadLocalProjectToProvider = async (
       const url = getCachedURL(item.key, cacheDomain)
       //remove userId if exists
       if (item.userId) delete (item as any).userId
+
+      const newResource: Partial<StaticResourceType> = {}
+
+      const validFields: (keyof StaticResourceType)[] = [
+        'attribution',
+        'createdAt',
+        'hash',
+        'key',
+        'licensing',
+        'metadata',
+        'mimeType',
+        'project',
+        'sid',
+        'stats',
+        'tags',
+        'updatedAt'
+      ]
+
+      for (const field of validFields) {
+        if (item[field]) newResource[field] = item[field]
+      }
+
       await app.service(staticResourcePath).create({
-        ...item,
+        ...newResource,
         url
       })
       logger.info(`Uploaded static resource ${item.key} from resources.json`)

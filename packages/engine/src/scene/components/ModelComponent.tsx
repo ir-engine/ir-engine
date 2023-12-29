@@ -29,6 +29,7 @@ import { Scene } from 'three'
 import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { VRM } from '@pixiv/three-vrm'
+import React from 'react'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
@@ -133,7 +134,7 @@ export const ModelComponent = defineComponent({
   entitiesInModelHierarchy: entitiesInModelHierarchy as Readonly<typeof entitiesInModelHierarchy>
 })
 
-function ModelReactor() {
+function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
   const uuid = useComponent(entity, UUIDComponent)
@@ -260,36 +261,57 @@ function ModelReactor() {
 
   const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
+  return (
+    <>
+      {childEntities.value?.map((childEntity: Entity) => (
+        <ChildReactor key={childEntity} entity={childEntity} parentEntity={entity} />
+      ))}
+    </>
+  )
+}
+
+const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
+  const modelComponent = useComponent(props.parentEntity, ModelComponent)
+  const isMesh = useOptionalComponent(props.entity, MeshComponent)
+  const isSkinnedMesh = useOptionalComponent(props.entity, SkinnedMeshComponent)
+  const visible = useOptionalComponent(props.entity, VisibleComponent)
+
   useEffect(() => {
-    for (const childEntity of childEntities.value) {
-      if (!hasComponent(childEntity, MeshComponent) || hasComponent(entity, SkinnedMeshComponent)) continue
-      const mesh = getComponent(childEntity, MeshComponent)
-      if (modelComponent.cameraOcclusion.value) generateMeshBVH(mesh)
+    if (!isMesh || isSkinnedMesh) return
+    const mesh = getComponent(props.entity, MeshComponent)
+
+    let aborted = false
+
+    /** @todo should we generate a BVH for every mesh, even invisible ones used for collision? */
+    generateMeshBVH(mesh).then(() => {
+      if (aborted) return
       enableObjectLayer(
         mesh,
         ObjectLayers.Camera,
-        modelComponent.cameraOcclusion.value && hasComponent(childEntity, VisibleComponent)
+        modelComponent.cameraOcclusion.value && hasComponent(props.entity, VisibleComponent)
       )
-    }
-  }, [childEntities, modelComponent.cameraOcclusion])
+    })
 
-  const shadowComponent = useOptionalComponent(entity, ShadowComponent)
-  useEffect(() => {
-    for (const childEntity of childEntities.value) {
-      if (!hasComponent(childEntity, MeshComponent)) continue
-      if (shadowComponent) setComponent(childEntity, ShadowComponent, serializeComponent(entity, ShadowComponent))
-      else removeComponent(childEntity, ShadowComponent)
+    return () => {
+      aborted = true
     }
-  }, [childEntities, shadowComponent])
+  }, [isMesh, isSkinnedMesh, visible, modelComponent.cameraOcclusion])
 
-  const envmapComponent = useOptionalComponent(entity, EnvmapComponent)
+  const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
-    for (const childEntity of childEntities.value) {
-      if (!hasComponent(childEntity, MeshComponent)) continue
-      if (envmapComponent) setComponent(childEntity, EnvmapComponent, serializeComponent(entity, EnvmapComponent))
-      else removeComponent(childEntity, EnvmapComponent)
-    }
-  }, [childEntities, envmapComponent])
+    if (!isMesh) return
+    if (shadowComponent)
+      setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
+    else removeComponent(props.entity, ShadowComponent)
+  }, [isMesh, shadowComponent])
+
+  const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
+  useEffect(() => {
+    if (!isMesh) return
+    if (envmapComponent)
+      setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
+    else removeComponent(props.entity, EnvmapComponent)
+  }, [isMesh, envmapComponent])
 
   return null
 }
