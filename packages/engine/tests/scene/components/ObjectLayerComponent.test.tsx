@@ -61,7 +61,7 @@ describe('ObjectLayerComponent', () => {
     mesh.layers.enable(objectLayer)
 
     assert(hasComponent(entity, ObjectLayerMaskComponent))
-    assert(hasComponent(entity, ObjectLayerComponents[objectLayer]))
+    assert(hasComponent(entity, ObjectLayerComponents[objectLayer + 1]))
     assert(!hasComponent(entity, ObjectLayerComponents[nonEnabledObjectLayer]))
     assert(mesh.layers.isEnabled(objectLayer))
     assert(!mesh.layers.isEnabled(nonEnabledObjectLayer))
@@ -89,7 +89,7 @@ describe('ObjectLayerComponent', () => {
     for (const mesh of meshes) {
       for (const layer of objectLayers) {
         assert(mesh.layers.isEnabled(layer))
-        assert(hasComponent(entity, ObjectLayerComponents[layer]))
+        assert(hasComponent(entity, ObjectLayerComponents[layer + 1]))
       }
     }
   })
@@ -109,7 +109,7 @@ describe('ObjectLayerComponent', () => {
 
     for (const layer of objectLayers) {
       assert(mesh.layers.isEnabled(layer))
-      assert(hasComponent(entity, ObjectLayerComponents[layer]))
+      assert(hasComponent(entity, ObjectLayerComponents[layer + 1]))
     }
 
     assert(!mesh.layers.isEnabled(nonEnabledObjectLayer))
@@ -120,10 +120,10 @@ describe('ObjectLayerComponent', () => {
     for (const layer of objectLayers) {
       if (disableLayers.includes(layer)) {
         assert(!mesh.layers.isEnabled(layer))
-        assert(!hasComponent(entity, ObjectLayerComponents[layer]))
+        assert(!hasComponent(entity, ObjectLayerComponents[layer + 1]))
       } else {
         assert(mesh.layers.isEnabled(layer))
-        assert(hasComponent(entity, ObjectLayerComponents[layer]))
+        assert(hasComponent(entity, ObjectLayerComponents[layer + 1]))
       }
     }
   })
@@ -138,7 +138,7 @@ describe('ObjectLayerComponent', () => {
     const layerMaskComponent = getComponent(entity, ObjectLayerMaskComponent)
     assert(layerMaskComponent === 1)
     assert(ObjectLayerMaskComponent.mask[entity] === 1)
-    assert(hasComponent(entity, ObjectLayerComponents[0]))
+    assert(hasComponent(entity, ObjectLayerComponents[1]))
 
     const enabledLayers = [2, 3, 4]
 
@@ -158,14 +158,14 @@ describe('ObjectLayerComponent', () => {
     assert(layer.mask === 0)
     for (let i = 0; i < maxLayers; i++) {
       assert(!layer.isEnabled(i))
-      assert(!hasComponent(entity, ObjectLayerComponents[i]))
+      assert(!hasComponent(entity, ObjectLayerComponents[i + 1]))
     }
 
     layer.enableAll()
     assert(layer.mask.valueOf() === (0xffffffff | 0))
     for (let i = 1; i < maxLayers; i++) {
       assert(layer.isEnabled(i))
-      assert(hasComponent(entity, ObjectLayerComponents[i]))
+      assert(hasComponent(entity, ObjectLayerComponents[i + 1]))
     }
 
     layer.toggle(4)

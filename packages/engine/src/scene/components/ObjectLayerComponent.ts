@@ -34,16 +34,16 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 
 const maxBitWidth = 32
-export const ObjectLayerComponents = Array.from({ length: maxBitWidth }, (_, i) => {
+export const ObjectLayerComponents = Array.from({ length: maxBitWidth + 1 }, (_, i) => {
   return defineComponent({
     name: `ObjectLayer${i}`,
 
     onSet(entity, component) {
-      ObjectLayerMaskComponent.mask[entity] |= (1 << i) | 0
+      ObjectLayerMaskComponent.mask[entity] |= (1 << (i - 1)) | 0
     },
 
     onRemove(entity, component) {
-      ObjectLayerMaskComponent.mask[entity] &= ~((1 << i) | 0)
+      ObjectLayerMaskComponent.mask[entity] &= ~((1 << (i - 1)) | 0)
     }
   })
 })
@@ -60,9 +60,9 @@ export const ObjectLayerMaskComponent = defineComponent({
     for (let i = 0; i < maxBitWidth; i++) {
       const isSet = (mask & ((1 << i) | 0)) !== 0
       if (isSet) {
-        setComponent(entity, ObjectLayerComponents[i])
+        setComponent(entity, ObjectLayerComponents[i + 1])
       } else {
-        removeComponent(entity, ObjectLayerComponents[i])
+        removeComponent(entity, ObjectLayerComponents[i + 1])
       }
     }
     component.set(ObjectLayerMaskComponent.mask[entity])
@@ -75,9 +75,9 @@ export const ObjectLayerMaskComponent = defineComponent({
   setLayer(entity: Entity, layer: number) {
     for (let i = 0; i < maxBitWidth; i++) {
       if (i == layer) {
-        setComponent(entity, ObjectLayerComponents[i])
+        setComponent(entity, ObjectLayerComponents[i + 1])
       } else {
-        removeComponent(entity, ObjectLayerComponents[i])
+        removeComponent(entity, ObjectLayerComponents[i + 1])
       }
     }
     getMutableComponent(entity, ObjectLayerMaskComponent).set(ObjectLayerMaskComponent.mask[entity])
@@ -85,20 +85,20 @@ export const ObjectLayerMaskComponent = defineComponent({
 
   enableLayers(entity: Entity, ...layers: number[]) {
     for (const layer of layers) {
-      setComponent(entity, ObjectLayerComponents[layer])
+      setComponent(entity, ObjectLayerComponents[layer + 1])
     }
     getMutableComponent(entity, ObjectLayerMaskComponent).set(ObjectLayerMaskComponent.mask[entity])
   },
 
   disableLayers(entity: Entity, ...layers: number[]) {
     for (const layer of layers) {
-      removeComponent(entity, ObjectLayerComponents[layer])
+      removeComponent(entity, ObjectLayerComponents[layer + 1])
     }
     getMutableComponent(entity, ObjectLayerMaskComponent).set(ObjectLayerMaskComponent.mask[entity])
   },
 
   toggleLayer(entity: Entity, layer: number) {
-    if (hasComponent(entity, ObjectLayerComponents[layer])) {
+    if (hasComponent(entity, ObjectLayerComponents[layer + 1])) {
       ObjectLayerMaskComponent.disableLayers(entity, layer)
     } else {
       ObjectLayerMaskComponent.enableLayers(entity, layer)
@@ -110,9 +110,9 @@ export const ObjectLayerMaskComponent = defineComponent({
     for (let i = 0; i < maxBitWidth; i++) {
       const isSet = (mask & ((1 << i) | 0)) !== 0
       if (isSet) {
-        setComponent(entity, ObjectLayerComponents[i])
+        setComponent(entity, ObjectLayerComponents[i + 1])
       } else {
-        removeComponent(entity, ObjectLayerComponents[i])
+        removeComponent(entity, ObjectLayerComponents[i + 1])
       }
     }
     getMutableComponent(entity, ObjectLayerMaskComponent).set(ObjectLayerMaskComponent.mask[entity])
