@@ -37,7 +37,7 @@ import {
   Texture
 } from 'three'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -136,8 +136,8 @@ const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   const { entity, obj } = props
 
-  const renderState = getMutableState(RendererState)
-  const renderSettingsState = getMutableState(RenderSettingsState)
+  const renderState = useHookstate(getMutableState(RendererState))
+  const renderSettingsState = useHookstate(getMutableState(RenderSettingsState))
 
   useEffect(() => {
     const source = hasComponent(entity, ModelComponent)
