@@ -145,8 +145,8 @@ export const useFlowHandlers = ({
   const handlePaneContextMenu = useCallback((e: ReactMouseEvent) => {
     e.preventDefault()
     const graphPane = e.target as HTMLElement
-
     const paneBounds = graphPane.getBoundingClientRect()
+
     setNodePickerVisibility({ x: e.clientX - paneBounds.left, y: e.clientY - paneBounds.top })
     setNodePickerLastOpened(Date.now())
   }, [])

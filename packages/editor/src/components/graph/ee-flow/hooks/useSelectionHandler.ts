@@ -45,21 +45,21 @@ export const useSelectionHandler = ({
   const [copiedNodes, setCopiedNodes] = useState([] as Node[])
   const [copiedEdges, setCopiedEdges] = useState([] as Edge[])
 
-  const copyNodes = () => {
-    setCopiedNodes(selectedNodes)
-    setCopiedEdges(selectedEdges)
+  const copyNodes = (nodes = selectedNodes, edges = selectedEdges) => {
+    setCopiedNodes(nodes)
+    setCopiedEdges(edges)
   }
 
-  const pasteNodes = () => {
-    const minPosLeft = Math.min(...copiedNodes.map((node) => node.position.x))
-    const maxPosLeft = Math.max(...copiedNodes.map((node) => node.position.x))
-    const nodeMaxPosX = copiedNodes.reduce(
+  const pasteNodes = (nodes = copiedNodes) => {
+    const minPosLeft = Math.min(...nodes.map((node) => node.position.x))
+    const maxPosLeft = Math.max(...nodes.map((node) => node.position.x))
+    const nodeMaxPosX = nodes.reduce(
       (maxNode, currentNode) => (currentNode.position.x > maxNode.position.x ? currentNode : maxNode),
-      copiedNodes[0]
+      nodes[0]
     )
 
     const nodeIdMap = new Map<string, string>()
-    const newNodes = copiedNodes.map((node) => {
+    const newNodes = nodes.map((node) => {
       nodeIdMap[node.id] = uuidv4()
       return {
         ...node,
@@ -111,5 +111,5 @@ export const useSelectionHandler = ({
     pasteNodes()
   }, [ctrlVPressed])
 
-  return { selectedNodes, onSelectionChange }
+  return { selectedNodes, selectedEdges, onSelectionChange, copyNodes, pasteNodes }
 }

@@ -24,15 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useRef } from 'react'
-import { Background, BackgroundVariant, ReactFlow, XYPosition, useReactFlow } from 'reactflow'
+import { Background, BackgroundVariant, NodeToolbar, Position, ReactFlow, XYPosition, useReactFlow } from 'reactflow'
 
 import { GraphJSON, IRegistry } from '@behave-graph/core'
 
 import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/functions/useGraphRunner.js'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity.js'
 import { useHookstate } from '@hookstate/core'
+import { CancelOutlined, PlusOneOutlined } from '@mui/icons-material'
 import { v4 as uuidv4 } from 'uuid'
-import { Button } from '../../../inputs/Button.js'
+import { Button, PropertiesPanelButton } from '../../../inputs/Button.js'
+import StringInput from '../../../inputs/StringInput.js'
 import PaginatedList from '../../../layout/PaginatedList.js'
 import Panel from '../../../layout/Panel.js'
 import NodeEditor from '../../../properties/NodeEditor.js'
@@ -40,6 +42,7 @@ import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
 import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator.js'
 import { useSelectionHandler } from '../hooks/useSelectionHandler.js'
+import { useTemplateHandler } from '../hooks/useTemplateHandler.js'
 import CustomControls from './Controls.js'
 import { NodePicker } from './NodePicker.js'
 import { Examples } from './modals/LoadModal.js'
@@ -87,11 +90,17 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     registry
   })
 
-  const { selectedNodes, onSelectionChange } = useSelectionHandler({
+  const { selectedNodes, selectedEdges, onSelectionChange, copyNodes, pasteNodes } = useSelectionHandler({
     nodes,
     onNodesChange,
     onEdgesChange
   })
+
+  const { templateList, handleAddTemplate, handleEditTemplate, handleDeleteTemplate, handleApplyTemplate } =
+    useTemplateHandler({
+      selectedNodes,
+      pasteNodes
+    })
 
   useEffect(() => {
     if (dragging.value || !mouseOver.value) return
@@ -149,7 +158,42 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
           </NodeEditor>
         </div>
         <div style={{ flex: '65%', overflow: 'scroll' }}>
-          <NodeEditor entity={UndefinedEntity} name={'Templates'} description={'collecton of Templates'}></NodeEditor>
+          <NodeEditor entity={UndefinedEntity} name={'Templates'} description={'collecton of Templates'}>
+            <PaginatedList
+              options={{ countPerPage: 5 }}
+              list={templateList}
+              element={(template: any, index) => {
+                return (
+                  <div style={{ display: 'flex', width: '100%' }}>
+                    <Button
+                      style={{ width: '20%' }}
+                      onClick={() => {
+                        handleApplyTemplate(template)
+                      }}
+                    >
+                      <PlusOneOutlined />
+                    </Button>
+                    <StringInput
+                      value={template.name}
+                      onChange={(e) => {
+                        template.name = e.target.value
+                        handleEditTemplate(template)
+                      }}
+                    ></StringInput>
+
+                    <Button
+                      style={{ width: '20%' }}
+                      onClick={() => {
+                        handleDeleteTemplate(template)
+                      }}
+                    >
+                      <CancelOutlined />
+                    </Button>
+                  </div>
+                )
+              }}
+            ></PaginatedList>
+          </NodeEditor>
         </div>
       </div>
 
@@ -195,6 +239,21 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
               specJSON={specGenerator?.getAllNodeSpecs()}
             />
           )}
+
+          <NodeToolbar
+            nodeId={selectedNodes.map((node) => node.id)}
+            isVisible={selectedNodes.length > 1}
+            position={Position.Top}
+          >
+            <PropertiesPanelButton
+              style={{}}
+              onClick={() => {
+                handleAddTemplate()
+              }}
+            >
+              Make into template
+            </PropertiesPanelButton>
+          </NodeToolbar>
         </ReactFlow>
       </div>
     </div>
