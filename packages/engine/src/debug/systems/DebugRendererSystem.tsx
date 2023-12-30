@@ -29,8 +29,10 @@ import { MeshBVHVisualizer } from 'three-mesh-bvh'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RendererState } from '../../renderer/RendererState'
@@ -40,7 +42,8 @@ import {
   GroupComponent,
   GroupQueryReactor,
   GroupReactorProps,
-  addObjectToGroup
+  addObjectToGroup,
+  removeObjectFromGroup
 } from '../../scene/components/GroupComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -57,21 +60,32 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
     if (!debug.value || !obj) return
 
     const meshBVHVisualizers = [] as MeshBVHVisualizer[]
+    const meshBVHEntities = [] as Entity[]
 
     const mesh = obj as any as Mesh
-    if (mesh.isMesh && mesh.parent && mesh.geometry?.boundsTree) {
+    const parentEntity = getOptionalComponent(mesh.entity, EntityTreeComponent)?.parentEntity
+    if (mesh.isMesh && parentEntity && mesh.geometry?.boundsTree) {
       const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
-      mesh.parent.add(meshBVHVisualizer)
-      visualizers.push(meshBVHVisualizer)
-      meshBVHVisualizers.push(meshBVHVisualizer)
+      const meshBVHEntity = createEntity()
+      addObjectToGroup(parentEntity, meshBVHVisualizer)
+      setComponent(meshBVHEntity, EntityTreeComponent, { parentEntity: parentEntity })
+
       meshBVHVisualizer.depth = 20
       meshBVHVisualizer.displayParents = false
       meshBVHVisualizer.update()
+
+      visualizers.push(meshBVHVisualizer)
+      meshBVHVisualizers.push(meshBVHVisualizer)
+      meshBVHEntities.push(meshBVHEntity)
     }
 
     return () => {
+      for (let i = 0; i < meshBVHVisualizers.length; i++) {
+        const parentEntity = getComponent(meshBVHEntities[i], EntityTreeComponent).parentEntity!
+        removeObjectFromGroup(parentEntity, meshBVHVisualizers[i])
+      }
+
       for (const visualizer of meshBVHVisualizers) {
-        visualizer.removeFromParent()
         visualizers.splice(visualizers.indexOf(visualizer), 1)
       }
     }
