@@ -50,7 +50,7 @@ export const useSelectionHandler = ({
     setCopiedEdges(edges)
   }
 
-  const pasteNodes = (nodes = copiedNodes) => {
+  const pasteNodes = (nodes = copiedNodes, edges = copiedEdges) => {
     const minPosLeft = Math.min(...nodes.map((node) => node.position.x))
     const maxPosLeft = Math.max(...nodes.map((node) => node.position.x))
     const nodeMaxPosX = nodes.reduce(
@@ -71,7 +71,7 @@ export const useSelectionHandler = ({
       }
     })
 
-    const newEdgeChange: EdgeChange[] = copiedEdges.map((edge) => {
+    const newEdgeChange: EdgeChange[] = edges.map((edge) => {
       return {
         type: 'add',
         item: {

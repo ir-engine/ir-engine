@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { useEffect, useState } from 'react'
-import { Node } from 'reactflow'
+import { Edge, Node } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
 import { useSelectionHandler } from './useSelectionHandler'
@@ -32,9 +32,11 @@ type selectionHandler = ReturnType<typeof useSelectionHandler>
 
 export const useTemplateHandler = ({
   selectedNodes,
+  selectedEdges,
   pasteNodes
 }: Pick<selectionHandler, 'pasteNodes'> & {
   selectedNodes: Node[]
+  selectedEdges: Edge[]
 }) => {
   const [templateList, setTemplateList] = useState([] as any[]) // make into a list of files instead later on
 
@@ -46,7 +48,8 @@ export const useTemplateHandler = ({
     const newTemplate = {
       id: uuidv4(),
       name: 'New template',
-      data: selectedNodes
+      nodes: selectedNodes,
+      edges: selectedEdges
     }
     setTemplateList([...templateList, newTemplate])
   }
@@ -61,7 +64,7 @@ export const useTemplateHandler = ({
   }
 
   const handleApplyTemplate = (template) => {
-    pasteNodes(template.data)
+    pasteNodes(template.nodes, template.edges)
   }
 
   return { templateList, handleAddTemplate, handleEditTemplate, handleDeleteTemplate, handleApplyTemplate }

@@ -31,7 +31,7 @@ import { GraphJSON, IRegistry } from '@behave-graph/core'
 import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/functions/useGraphRunner.js'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity.js'
 import { useHookstate } from '@hookstate/core'
-import { CancelOutlined, PlusOneOutlined } from '@mui/icons-material'
+import { AddOutlined, CancelOutlined } from '@mui/icons-material'
 import { v4 as uuidv4 } from 'uuid'
 import { Button, PropertiesPanelButton } from '../../../inputs/Button.js'
 import StringInput from '../../../inputs/StringInput.js'
@@ -99,6 +99,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   const { templateList, handleAddTemplate, handleEditTemplate, handleDeleteTemplate, handleApplyTemplate } =
     useTemplateHandler({
       selectedNodes,
+      selectedEdges,
       pasteNodes
     })
 
@@ -171,7 +172,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
                         handleApplyTemplate(template)
                       }}
                     >
-                      <PlusOneOutlined />
+                      <AddOutlined />
                     </Button>
                     <StringInput
                       value={template.name}
