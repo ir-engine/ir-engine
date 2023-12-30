@@ -83,10 +83,7 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
       for (let i = 0; i < meshBVHVisualizers.length; i++) {
         const parentEntity = getComponent(meshBVHEntities[i], EntityTreeComponent).parentEntity!
         removeObjectFromGroup(parentEntity, meshBVHVisualizers[i])
-      }
-
-      for (const visualizer of meshBVHVisualizers) {
-        visualizers.splice(visualizers.indexOf(visualizer), 1)
+        visualizers.splice(visualizers.indexOf(meshBVHVisualizers[i]), 1)
       }
     }
   }, [obj, debug])
