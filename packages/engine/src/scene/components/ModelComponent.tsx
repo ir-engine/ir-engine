@@ -43,6 +43,7 @@ import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   serializeComponent,
@@ -122,7 +123,7 @@ export const ModelComponent = defineComponent({
       component.src.value &&
       !component.scene.value
     )
-      setComponent(entity, SceneAssetPendingTagComponent)
+      SceneAssetPendingTagComponent.addResource(entity, component.src.value)
   },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
@@ -143,7 +144,8 @@ function ModelReactor(): JSX.Element {
     let aborted = false
 
     const model = modelComponent.value
-    if (!model.src) {
+    const src = model.src
+    if (!src) {
       // const dudScene = new Scene() as Scene & Object3D
       // dudScene.entity = entity
       // addObjectToGroup(entity, dudScene)
@@ -154,10 +156,10 @@ function ModelReactor(): JSX.Element {
     }
 
     /** @todo this is a hack */
-    const override = !isAvaturn(model.src) ? undefined : AssetType.glB
+    const override = !isAvaturn(src) ? undefined : AssetType.glB
 
     AssetLoader.load(
-      modelComponent.src.value,
+      src,
       {
         forceAssetType: override,
         ignoreDisposeGeometry: modelComponent.cameraOcclusion.value,
@@ -175,7 +177,7 @@ function ModelReactor(): JSX.Element {
       },
       (onprogress) => {
         if (aborted) return
-        if (hasComponent(entity, SceneAssetPendingTagComponent))
+        if (getOptionalComponent(entity, SceneAssetPendingTagComponent)?.includes(src))
           SceneAssetPendingTagComponent.loadingProgress.merge({
             [entity]: {
               loadedAmount: onprogress.loaded,
@@ -187,7 +189,7 @@ function ModelReactor(): JSX.Element {
         if (aborted) return
         console.error(err)
         addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
-        removeComponent(entity, SceneAssetPendingTagComponent)
+        SceneAssetPendingTagComponent.removeResource(entity, src)
       }
     )
     return () => {
@@ -216,17 +218,6 @@ function ModelReactor(): JSX.Element {
 
     if (!scene || !asset) return
 
-    if (EngineRenderer.instance)
-      EngineRenderer.instance.renderer
-        .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
-        .catch(() => {
-          addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
-        })
-        .finally(() => {
-          removeComponent(entity, SceneAssetPendingTagComponent)
-        })
-    else removeComponent(entity, SceneAssetPendingTagComponent)
-
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
 
@@ -241,6 +232,15 @@ function ModelReactor(): JSX.Element {
       project: '',
       thumbnailUrl: ''
     })
+
+    if (EngineRenderer.instance)
+      EngineRenderer.instance.renderer
+        .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
+        .catch(() => {
+          addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
+          SceneAssetPendingTagComponent.removeResource(entity, modelComponent.src.value)
+        })
+
     const src = modelComponent.src.value
     return () => {
       clearMaterials(src)
@@ -275,6 +275,11 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const isMesh = useOptionalComponent(props.entity, MeshComponent)
   const isSkinnedMesh = useOptionalComponent(props.entity, SkinnedMeshComponent)
   const visible = useOptionalComponent(props.entity, VisibleComponent)
+
+  useEffect(() => {
+    SceneAssetPendingTagComponent.removeResource(props.entity, `${props.parentEntity}`)
+    SceneAssetPendingTagComponent.removeResource(props.parentEntity, modelComponent.src.value)
+  }, [])
 
   useEffect(() => {
     if (!isMesh || isSkinnedMesh) return
