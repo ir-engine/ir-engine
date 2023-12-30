@@ -288,7 +288,8 @@ export const RenderSettingsState = defineState({
     csm: true,
     toneMapping: LinearToneMapping as ToneMapping,
     toneMappingExposure: 0.8,
-    shadowMapType: PCFSoftShadowMap as ShadowMapType
+    shadowMapType: PCFSoftShadowMap as ShadowMapType,
+    disableBasicMaterials: false
   }
 })
 

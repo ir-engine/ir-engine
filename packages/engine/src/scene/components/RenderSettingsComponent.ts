@@ -48,6 +48,7 @@ export const RenderSettingsComponent = defineComponent({
     if (typeof json.toneMapping === 'number') component.toneMapping.set(json.toneMapping)
     if (typeof json.toneMappingExposure === 'number') component.toneMappingExposure.set(json.toneMappingExposure)
     if (typeof json.shadowMapType === 'number') component.shadowMapType.set(json.shadowMapType)
+    if (typeof json.disableBasicMaterials === 'boolean') component.disableBasicMaterials.set(json.disableBasicMaterials)
   },
 
   toJSON: (entity, component) => {
@@ -55,7 +56,8 @@ export const RenderSettingsComponent = defineComponent({
       csm: component.csm.value,
       toneMapping: component.toneMapping.value,
       toneMappingExposure: component.toneMappingExposure.value,
-      shadowMapType: component.shadowMapType.value
+      shadowMapType: component.shadowMapType.value,
+      disableBasicMaterials: component.disableBasicMaterials.value
     }
   },
 

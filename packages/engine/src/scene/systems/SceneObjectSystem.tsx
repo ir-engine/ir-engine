@@ -37,7 +37,7 @@ import {
   Texture
 } from 'three'
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -45,6 +45,7 @@ import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/Com
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
+import { RenderSettingsState } from '../../renderer/WebGLRendererSystem'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '../../xr/XRState'
@@ -95,17 +96,19 @@ export const disposeObject3D = (obj: Object3D) => {
   if (typeof light.dispose === 'function') light.dispose()
 }
 
-export function setupObject(obj: Object3D, forceBasicMaterials = false) {
+export function setupObject(obj: Object3D, forceBasicMaterials = false, disableBasicMaterials = false) {
   const child = obj as any as Mesh<any, any>
 
   if (child.material) {
     if (!child.userData) child.userData = {}
     const shouldMakeBasic =
-      (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
-    if (!forceBasicMaterials && !isMobileXRHeadset && child.userData.lastMaterial) {
+      !disableBasicMaterials &&
+      (forceBasicMaterials || isMobileXRHeadset) &&
+      ExpensiveMaterials.has(child.material.constructor)
+    if (disableBasicMaterials || (!forceBasicMaterials && !isMobileXRHeadset && child.userData.lastMaterial)) {
       child.material = child.userData.lastMaterial
       delete child.userData.lastMaterial
-    } else if (shouldMakeBasic && !child.userData.lastMaterial) {
+    } else if (!disableBasicMaterials && shouldMakeBasic && !child.userData.lastMaterial) {
       const prevMaterial = child.material
       const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
       const prevMatEntry = unregisterMaterial(prevMaterial)
@@ -134,7 +137,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   const { entity, obj } = props
 
   const renderState = getMutableState(RendererState)
-  const forceBasicMaterials = useHookstate(renderState.forceBasicMaterials)
+  const renderSettingsState = getMutableState(RenderSettingsState)
 
   useEffect(() => {
     const source = hasComponent(entity, ModelComponent)
@@ -150,8 +153,8 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   }, [])
 
   useEffect(() => {
-    setupObject(obj, forceBasicMaterials.value)
-  }, [forceBasicMaterials])
+    setupObject(obj, renderState.forceBasicMaterials.value, renderSettingsState.disableBasicMaterials.value)
+  }, [renderState.forceBasicMaterials, renderSettingsState.disableBasicMaterials])
 
   return null
 }
