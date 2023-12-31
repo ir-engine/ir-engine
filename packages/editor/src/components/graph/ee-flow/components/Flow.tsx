@@ -165,7 +165,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
               handleAddTemplate()
             }}
           >
-            {t('editor:graphPanel.makeTemplate')}
+            {t('editor:graphPanel.editorPanel.makeTemplate')}
           </PropertiesPanelButton>
         </NodeToolbar>
       </ReactFlow>

@@ -29,6 +29,7 @@ import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { AddOutlined, CancelOutlined } from '@mui/icons-material'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { XYPosition, useReactFlow } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 import { Button } from '../../../inputs/Button'
@@ -57,6 +58,7 @@ export const SidePanel = ({
   Pick<BehaveGraphFlow, 'onNodesChange'>) => {
   const reactFlow = useReactFlow()
   const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
+  const { t } = useTranslation()
 
   return (
     <div
@@ -69,8 +71,12 @@ export const SidePanel = ({
         padding: '10px'
       }}
     >
-      <div style={{ flex: '35%' }}>
-        <NodeEditor entity={UndefinedEntity} name={'Nodes'} description={'collecton of Nodes'}>
+      <div style={{ flex: '50%', overflow: 'scroll' }}>
+        <NodeEditor
+          entity={UndefinedEntity}
+          name={t('editor:graphPanel.sidePanel.node.name')}
+          description={t('editor:graphPanel.sidePanel.node.description')}
+        >
           <PaginatedList
             options={{ countPerPage: 10 }}
             list={Object.keys(behaveGraphState.registries[BehaveGraphDomain.ECS].nodes)}
@@ -107,8 +113,12 @@ export const SidePanel = ({
           ></PaginatedList>
         </NodeEditor>
       </div>
-      <div style={{ flex: '65%', overflow: 'scroll' }}>
-        <NodeEditor entity={UndefinedEntity} name={'Templates'} description={'collecton of Templates'}>
+      <div style={{ flex: '50%', overflow: 'scroll' }}>
+        <NodeEditor
+          entity={UndefinedEntity}
+          name={t('editor:graphPanel.sidePanel.template.name')}
+          description={t('editor:graphPanel.sidePanel.template.description')}
+        >
           <PaginatedList
             options={{ countPerPage: 8 }}
             list={behaveGraphState.templates.get(NO_PROXY)}
