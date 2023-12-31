@@ -27,6 +27,7 @@ Ethereal Engine. All Rights Reserved.
 
 //https://github.com/DefinitelyTyped/DefinitelyTyped/blob/5b452194a34f86bb35532340ec19582a88337de2/types/three/examples/jsm/exporters/GLTFExporter.d.ts
 import { Object3D, AnimationClip, Texture, Material, Mesh, Camera, BufferAttribute, BufferGeometry, Scene } from 'three'
+import { Entity } from '../../../ecs/classes/Entity';
 
 export interface GLTFExporterOptions {
     /**
@@ -79,6 +80,8 @@ export interface GLTFExporterOptions {
     resourceURI?: string;
 
     flipY?: boolean;
+
+    srcEntity?: Entity;
 }
 
 export class GLTFExporter {
@@ -141,7 +144,7 @@ export class GLTFWriter {
         truncateDrawRange?: boolean,
         maxTextureSize?: number,
         resourceURI?: string
-
+        srcEntity?: Entity
     }
     pending: Promise<any>[]
     extensionsUsed : {[key:string] : any}

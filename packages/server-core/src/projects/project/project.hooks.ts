@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import {
@@ -170,7 +170,10 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
       })
 
       const matchingAllowedRepos = (await context.app.service(projectPath).find({
-        query: { repositoryPath: { $in: repositoryPaths } },
+        query: {
+          action: 'admin',
+          repositoryPath: { $in: repositoryPaths }
+        },
         paginate: false
       })) as ProjectType[]
 
@@ -417,13 +420,16 @@ const createProjectPermission = async (context: HookContext<ProjectService>) => 
  * @returns
  */
 const removeLocationFromProject = async (context: HookContext<ProjectService>) => {
-  await context.app.service(locationPath).remove(null, {
+  const removingLocations = await context.app.service(locationPath).find({
     query: {
       sceneId: {
         $like: `${context.name}/%` as SceneID
       }
     }
   })
+  await Promise.all(
+    removingLocations.data.map((removingLocation) => context.app.service(locationPath).remove(removingLocation.id))
+  )
 }
 
 /**
@@ -526,6 +532,7 @@ const updateProjectJob = async (context: HookContext) => {
       await jobFinishedPromise
       const result = (await context.app.service(projectPath).find({
         query: {
+          action: 'admin',
           name: {
             $like: projectName
           }
@@ -551,7 +558,7 @@ export default createSkippableHooks(
 
     before: {
       all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
-      find: [enableClientPagination(), ensurePushStatus, addLimitToParams],
+      find: [enableClientPagination(), discardQuery('action'), ensurePushStatus, addLimitToParams],
       get: [],
       create: [
         iff(isProvider('external'), verifyScope('editor', 'write')),

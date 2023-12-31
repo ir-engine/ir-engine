@@ -39,15 +39,10 @@ import { NormalizedLandmarkList } from '@mediapipe/pose'
 
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
-import { getState } from '@etherealengine/hyperflux'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
-import { Quaternion } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AnimationSystem } from '../avatar/systems/AnimationSystem'
-import { V_010 } from '../common/constants/MathConstants'
-import { lerp } from '../common/functions/MathLerpFunctions'
 import { isClient } from '../common/functions/getEnvironment'
-import { EngineState } from '../ecs/classes/EngineState'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkState } from '../networking/NetworkState'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
@@ -110,8 +105,10 @@ const execute = () => {
   // for now, it is unnecessary to compute anything on the server
   if (!isClient) return
   const network = NetworkState.worldNetwork
+  if (!network) return
+
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
+    if (!network.peers[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
     }
@@ -130,16 +127,19 @@ const execute = () => {
 
   for (const entity of motionCaptureQuery()) {
     const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
+    const rigComponent = getComponent(entity, AvatarRigComponent)
+    if (!rigComponent.normalizedRig) continue
+    const worldHipsParent = rigComponent.normalizedRig.hips.node.parent
     if (!peers) {
       removeComponent(entity, MotionCaptureRigComponent)
+      worldHipsParent?.position.setY(0)
       continue
     }
-    const rigComponent = getComponent(entity, AvatarRigComponent)
-    console.log(rigComponent.rawRig)
     for (const boneName of VRMHumanBoneList) {
-      const rawBone = rigComponent.rawRig[boneName]?.node
-      if (!rawBone) continue
+      const normalizedBone = rigComponent.vrm.humanoid.normalizedHumanBones[boneName]?.node
+      if (!normalizedBone) continue
       if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
+        /**todo lower body solve logic should be on a per limb basis */
         if (
           boneName == VRMHumanBoneName.LeftUpperLeg ||
           boneName == VRMHumanBoneName.RightUpperLeg ||
@@ -158,47 +158,40 @@ const execute = () => {
       ) {
         MotionCaptureRigComponent.rig[boneName].w[entity] === 1
       }
-      rawBone.quaternion.set(
-        MotionCaptureRigComponent.rig[boneName].x[entity],
-        MotionCaptureRigComponent.rig[boneName].y[entity],
-        MotionCaptureRigComponent.rig[boneName].z[entity],
-        MotionCaptureRigComponent.rig[boneName].w[entity]
-      )
 
-      if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
-      if (MotionCaptureRigComponent.solvingLowerBody[entity])
-        rawBone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
-      rawBone.scale.set(1, 1, 1)
-    }
-
-    const hipBone = rigComponent.rawRig.hips.node
-    if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
-      hipBone.position.set(
-        MotionCaptureRigComponent.hipPosition.x[entity],
-        MotionCaptureRigComponent.hipPosition.y[entity],
-        MotionCaptureRigComponent.hipPosition.z[entity]
-      )
-      hipBone.updateMatrixWorld(true)
-    }
-
-    const worldHipsParent = rigComponent.rawRig.hips.node.parent
-    if (worldHipsParent)
-      if (MotionCaptureRigComponent.solvingLowerBody[entity])
-        worldHipsParent.position.setY(
-          lerp(
-            worldHipsParent.position.y,
-            MotionCaptureRigComponent.footOffset[entity],
-            getState(EngineState).deltaSeconds * 5
-          )
+      normalizedBone.quaternion
+        .set(
+          MotionCaptureRigComponent.rig[boneName].x[entity],
+          MotionCaptureRigComponent.rig[boneName].y[entity],
+          MotionCaptureRigComponent.rig[boneName].z[entity],
+          MotionCaptureRigComponent.rig[boneName].w[entity]
         )
-      else worldHipsParent.position.setY(0)
+        .normalize()
 
-    // rotate hips 180 degrees
-    hipBone.quaternion.premultiply(rotate180YQuaternion)
+      // if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
+      // if (MotionCaptureRigComponent.solvingLowerBody[entity])
+      //   normalizedBone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
+    }
+
+    const hipBone = rigComponent.normalizedRig.hips.node
+    hipBone.position.set(
+      MotionCaptureRigComponent.hipPosition.x[entity],
+      MotionCaptureRigComponent.hipPosition.y[entity],
+      MotionCaptureRigComponent.hipPosition.z[entity]
+    )
+
+    // if (worldHipsParent)
+    //   if (MotionCaptureRigComponent.solvingLowerBody[entity])
+    //     worldHipsParent.position.setY(
+    //       lerp(
+    //         worldHipsParent.position.y,
+    //         MotionCaptureRigComponent.footOffset[entity],
+    //         getState(EngineState).deltaSeconds * 5
+    //       )
+    //     )
+    //   else worldHipsParent.position.setY(0)
   }
 }
-
-const rotate180YQuaternion = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
 const reactor = () => {
   useEffect(() => {

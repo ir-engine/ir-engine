@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Box3, Vector3 } from 'three'
+import { Box3, Quaternion, Vector3 } from 'three'
 
 import { dispatchAction, getMutableState, getState, receiveActions, useHookstate } from '@etherealengine/hyperflux'
 
 import { useEffect } from 'react'
-import { animationStates, defaultAnimationPath } from '../../avatar/animation/Util'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { defaultAnimationPath, optionalAnimationPath, optionalAnimations } from '../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
@@ -52,10 +51,14 @@ import { SittingComponent } from '../../scene/components/SittingComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 
+import { AnimationState } from '../../avatar/AnimationManager'
+import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { loadAnimationArray } from '../../avatar/functions/avatarFunctions'
 import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
+import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
@@ -71,7 +74,7 @@ const mountPointInteractMessages = {
 
 const mountPointQuery = defineQuery([MountPointComponent])
 const sittingIdleQuery = defineQuery([SittingComponent])
-const _vec = new Vector3()
+
 const execute = () => {
   receiveActions(MountPointState)
 
@@ -83,8 +86,8 @@ const execute = () => {
 
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
-        filePath: defaultAnimationPath + animationStates.seated + '.fbx',
-        clipName: animationStates.seated,
+        filePath: defaultAnimationPath + optionalAnimations.seated + '.fbx',
+        clipName: optionalAnimations.seated,
         needsSkip: true,
         entityUUID: getComponent(entity, UUIDComponent)
       })
@@ -103,7 +106,7 @@ const execute = () => {
     const mountTransform = getComponent(sittingComponent.mountPointEntity, TransformComponent)
     const mountComponent = getComponent(sittingComponent.mountPointEntity, MountPointComponent)
     //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
-    const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrix)
+    const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrixWorld)
     teleportAvatar(entity, dismountPoint)
     rigidBody.body.setEnabled(true)
     removeComponent(entity, SittingComponent)
@@ -125,8 +128,8 @@ const execute = () => {
     AvatarControllerComponent.captureMovement(avatarEntity, mountEntity)
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
-        filePath: defaultAnimationPath + animationStates.seated + '.fbx',
-        clipName: animationStates.seated,
+        filePath: optionalAnimationPath + optionalAnimations.seated + '.fbx',
+        clipName: optionalAnimations.seated,
         loop: true,
         layer: 1,
         entityUUID: avatarUUID
@@ -151,6 +154,9 @@ const execute = () => {
     })
     if (isClient) {
       addInteractableUI(entity, createInteractUI(entity, mountPointInteractMessages[mountPoint.type]))
+      const animationState = getState(AnimationState)
+      if (!animationState.loadedAnimations[optionalAnimations.seated])
+        loadAnimationArray([optionalAnimations.seated], 'optional')
     }
   }
 
@@ -171,14 +177,18 @@ const execute = () => {
 
   for (const entity of sittingIdleQuery()) {
     const controller = getComponent(entity, AvatarControllerComponent)
-    if (controller.gamepadLocalInput.lengthSq() > 0.01) unmountEntity(entity)
+    if (controller.gamepadLocalInput.lengthSq() > 0.01) {
+      unmountEntity(entity)
+      continue
+    }
     const mountTransform = getComponent(getComponent(entity, SittingComponent).mountPointEntity, TransformComponent)
-    const avatar = getComponent(entity, AvatarComponent)
-    setComponent(entity, TransformComponent, { rotation: mountTransform.rotation })
-    _vec.copy(mountTransform.position).y -= avatar.avatarHalfHeight * 0.5
-    teleportAvatar(entity, _vec)
 
-    //if (!hasComponent(entity, MotionCaptureRigComponent)) continue
+    mountTransform.matrixWorld.decompose(vec3_0, quat, vec3_1)
+    const rig = getComponent(entity, AvatarRigComponent)
+    vec3_0.y -= rig.normalizedRig.hips.node.position.y - 0.25
+    setComponent(entity, TransformComponent, { rotation: mountTransform.rotation, position: vec3_0 })
+
+    if (!hasComponent(entity, MotionCaptureRigComponent)) continue
 
     //Force mocapped avatar to always face the mount point's rotation
     //const hipsQaut = new Quaternion(
@@ -190,6 +200,10 @@ const execute = () => {
     //avatarTransform.rotation.copy(mountTransform.rotation).multiply(hipsQaut.invert())
   }
 }
+
+const vec3_0 = new Vector3()
+const quat = new Quaternion()
+const vec3_1 = new Vector3()
 
 const reactor = () => {
   const mountedEntities = useHookstate(getMutableState(MountPointState))

@@ -44,10 +44,8 @@ import {
   TransformPivot,
   TransformSpace
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Box3, Euler, Vector3 } from 'three'
@@ -75,7 +73,7 @@ export const TransformGizmoComponent = defineComponent({
     const selectionState = useHookstate(getMutableState(SelectionState))
     const gizmoEntity = createEntity()
     const box = new Box3()
-    const transformComponent = useComponent(entity, LocalTransformComponent)
+    const transformComponent = useComponent(entity, TransformComponent)
 
     useEffect(() => {
       // create dummy object to attach gizmo to, we can only attach to three js objects

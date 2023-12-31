@@ -43,7 +43,7 @@ import { NetworkState } from '../../networking/NetworkState'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { XRAction } from '../../xr/XRState'
+import { XRAction, XRControlsState } from '../../xr/XRState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { respawnAvatar } from '../functions/respawnAvatar'
@@ -83,15 +83,17 @@ const execute = () => {
     })
   }
 
-  for (const entity of controllerQuery()) {
-    const controller = getComponent(entity, AvatarControllerComponent)
-    const followCamera = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
-    if (followCamera) {
-      // todo calculate head size and use that as the bound #7263
-      if (followCamera.distance < 0.6) setComponent(entity, AvatarHeadDecapComponent, true)
-      else removeComponent(entity, AvatarHeadDecapComponent)
+  /** @todo non-immersive camera should utilize isCameraAttachedToAvatar */
+  if (!getState(XRControlsState).isCameraAttachedToAvatar)
+    for (const entity of controllerQuery()) {
+      const controller = getComponent(entity, AvatarControllerComponent)
+      const followCamera = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
+      if (followCamera) {
+        // todo calculate head size and use that as the bound #7263
+        if (followCamera.distance < 0.6) setComponent(entity, AvatarHeadDecapComponent, true)
+        else removeComponent(entity, AvatarHeadDecapComponent)
+      }
     }
-  }
 
   const controlledEntity = Engine.instance.localClientEntity
 

@@ -29,7 +29,6 @@ import '@feathersjs/transport-commons'
 
 import { decode } from 'jsonwebtoken'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -270,7 +269,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   NetworkPeerFunctions.createPeer(
     network,
-    'server' as PeerID,
+    Engine.instance.store.peerID,
     network.peerIndexCount++,
     hostId,
     network.userIndexCount++,
@@ -597,7 +596,7 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
   }
 }
 
-const onConnection = (app: Application) => async (connection: PrimusConnectionType) => {
+export const onConnection = (app: Application) => async (connection: PrimusConnectionType) => {
   logger.info('Connection: %o', connection)
 
   if (!connection.socketQuery?.token) return

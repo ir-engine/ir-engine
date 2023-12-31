@@ -55,6 +55,7 @@ import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
+import { SceneAssetsPanelTab } from './assets/SceneAssetsPanel'
 import { ScenePanelTab } from './assets/ScenesPanel'
 import { ControlText } from './controlText/ControlText'
 import { DialogState } from './dialogs/DialogState'
@@ -64,12 +65,11 @@ import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
 import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
-import ElementList from './element/ElementList'
+import { PropertiesPanelTab } from './element/PropertiesPanel'
 import { GraphPanelTab } from './graph/GraphPanel'
 import { HierarchyPanelTab } from './hierarchy/HierarchyPanel'
 import { MaterialLibraryPanelTab } from './materials/MaterialLibraryPanel'
 import { ViewportPanelTab } from './panels/ViewportPanel'
-import { PropertiesPanelTab } from './properties/PropertiesPanel'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
 
@@ -177,12 +177,12 @@ const onSaveAs = async () => {
   const abortController = new AbortController()
   try {
     if (sceneName || editorState.sceneModified.value) {
-      const blob = await takeScreenshot(512, 320, 'ktx2')
-      const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
+      const [ktx2Blob, thumbnailBlob] = await takeScreenshot(512, 320, 'jpeg')
+      const file = new File([ktx2Blob!], editorState.sceneName + '.thumbnail.ktx2')
       const result: { name: string } | void = await new Promise((resolve) => {
         DialogState.setDialog(
           <SaveNewSceneDialog
-            thumbnailUrl={URL.createObjectURL(blob!)}
+            thumbnailUrl={URL.createObjectURL(thumbnailBlob!)}
             initialName={Engine.instance.scene.name}
             onConfirm={resolve}
             onCancel={resolve}
@@ -232,8 +232,13 @@ const onSaveScene = async () => {
     return
   }
 
+  const [ktx2Blob, thumbnailBlob] = await takeScreenshot(512, 320)
+  const file = new File([ktx2Blob!], sceneName + '.thumbnail.ktx2')
+
   const result = (await new Promise((resolve) => {
-    DialogState.setDialog(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
+    DialogState.setDialog(
+      <SaveSceneDialog onConfirm={resolve} onCancel={resolve} thumbnailUrl={URL.createObjectURL(thumbnailBlob!)} />
+    )
   })) as any
 
   if (!result) {
@@ -261,9 +266,6 @@ const onSaveScene = async () => {
     if (projectName) {
       const isGenerateThumbnailsEnabled = getState(EditorHelperState).isGenerateThumbnailsEnabled
       if (isGenerateThumbnailsEnabled) {
-        const blob = await takeScreenshot(512, 320, 'ktx2')
-        const file = new File([blob!], sceneName + '.thumbnail.ktx2')
-
         await uploadSceneBakeToServer()
         await saveScene(projectName, sceneName, file, abortController.signal)
       } else {
@@ -319,10 +321,10 @@ const defaultLayout: LayoutData = {
     children: [
       {
         mode: 'vertical' as DockMode,
-        size: 2,
+        size: 3,
         children: [
           {
-            tabs: [ScenePanelTab, ProjectBrowserPanelTab]
+            tabs: [ScenePanelTab, ProjectBrowserPanelTab, SceneAssetsPanelTab]
           }
         ]
       },
@@ -458,7 +460,6 @@ const EditorContainer = () => {
         <DndWrapper id="editor-container">
           <DragLayer />
           <ToolBar menu={toolbarMenu} panels={panelMenu} />
-          <ElementList />
           <ControlText />
           {sceneLoading && <SceneLoadingProgress />}
           <div className={styles.workspaceContainer}>
@@ -467,7 +468,7 @@ const EditorContainer = () => {
               <DockLayout
                 ref={dockPanelRef}
                 defaultLayout={defaultLayout}
-                style={{ position: 'absolute', left: 5, top: 55, right: 130, bottom: 5 }}
+                style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
               />
             </DockContainer>
           </div>

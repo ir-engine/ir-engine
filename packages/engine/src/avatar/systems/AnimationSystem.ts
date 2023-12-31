@@ -39,11 +39,12 @@ import { MeshComponent } from '../../scene/components/MeshComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformSystem } from '../../transform/TransformModule'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
+import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
@@ -66,7 +67,7 @@ const execute = () => {
       traverseEntityNode(entity, (childEntity) => {
         const mesh = getComponent(childEntity, MeshComponent)
         if (!mesh) return
-        const rotation = getComponent(childEntity, LocalTransformComponent).rotation
+        const rotation = getComponent(childEntity, TransformComponent).rotation
         rotation.copy(mesh.quaternion)
       })
     const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
@@ -77,9 +78,7 @@ const execute = () => {
   for (const entity of loopAnimationQuery()) {
     const model = getComponent(entity, ModelComponent)
     if (model.asset instanceof VRM) {
-      const position = getComponent(entity, TransformComponent).position
-      model.asset.update(deltaSeconds)
-      getComponent(entity, TransformComponent).position.copy(position)
+      updateVRMRetargeting(model.asset)
     }
   }
 }

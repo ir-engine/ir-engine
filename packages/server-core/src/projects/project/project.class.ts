@@ -165,6 +165,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     }
 
     await Promise.all(promises)
+
     await this._callOnLoad()
 
     for (const { name, id } of data) {

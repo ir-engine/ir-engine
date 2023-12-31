@@ -79,9 +79,12 @@ export const ProjectState = defineState({
 export const ProjectService = {
   fetchProjects: async () => {
     try {
-      const projects = (await API.instance.client
-        .service(projectPath)
-        .find({ query: { allowed: true } })) as Paginated<ProjectType>
+      const projects = (await API.instance.client.service(projectPath).find({
+        query: {
+          action: 'admin',
+          allowed: true
+        }
+      })) as Paginated<ProjectType>
       getMutableState(ProjectState).merge({
         updateNeeded: false,
         projects: projects.data

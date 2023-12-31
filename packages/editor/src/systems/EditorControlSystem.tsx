@@ -52,7 +52,9 @@ import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { useMeshOrModel } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -309,12 +311,16 @@ const execute = () => {
 }
 
 const SceneObjectEntityReactor = (props: { entity: Entity }) => {
+  const isMeshOrModel = useMeshOrModel(props.entity)
+
   useEffect(() => {
+    if (!isMeshOrModel) return
+
     setComponent(props.entity, InputComponent)
     return () => {
       removeComponent(props.entity, InputComponent)
     }
-  }, [])
+  }, [isMeshOrModel])
 
   return null
 }

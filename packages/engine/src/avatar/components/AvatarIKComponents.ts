@@ -28,7 +28,12 @@ import { Quaternion, Vector3 } from 'three'
 
 import { Types } from 'bitecs'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  useComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -43,16 +48,16 @@ export const AvatarHeadDecapComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
 
-    const headDecap = useOptionalComponent(entity, AvatarHeadDecapComponent)
+    const headDecap = useComponent(entity, AvatarHeadDecapComponent)
     const rig = useOptionalComponent(entity, AvatarRigComponent)
 
     useEffect(() => {
-      if (!rig?.value?.vrm?.humanoid?.rawHumanBones?.head?.node || !headDecap?.value) return
+      if (!rig?.value?.rawRig?.head?.node || !headDecap?.value) return
 
-      rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(EPSILON)
+      rig.value.rawRig.head.node.scale.setScalar(EPSILON)
 
       return () => {
-        rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(1)
+        rig.value.rawRig.head.node.scale.setScalar(1)
       }
     }, [headDecap, rig])
 
@@ -84,8 +89,10 @@ const quat = new Quaternion()
 type HandTargetReturn = { position: Vector3; rotation: Quaternion } | null
 export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetReturn => {
   const networkComponent = getComponent(entity, NetworkObjectComponent)
+
   const targetEntity = NameComponent.entitiesByName[networkComponent.ownerId + '_' + hand]?.[0] // todo, how should be choose which one to use?
-  if (targetEntity) return getComponent(targetEntity, TransformComponent)
+  if (targetEntity && AvatarIKTargetComponent.blendWeight[targetEntity] > 0)
+    return getComponent(targetEntity, TransformComponent)
 
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig) return getComponent(entity, TransformComponent)
@@ -93,19 +100,19 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   switch (hand) {
     case 'left':
       return {
-        position: rig.normalizedRig.leftHand.node.getWorldPosition(vec3),
-        rotation: rig.normalizedRig.leftHand.node.getWorldQuaternion(quat)
+        position: rig.rawRig.leftHand.node.getWorldPosition(vec3),
+        rotation: rig.rawRig.leftHand.node.getWorldQuaternion(quat)
       }
     case 'right':
       return {
-        position: rig.normalizedRig.rightHand.node.getWorldPosition(vec3),
-        rotation: rig.normalizedRig.rightHand.node.getWorldQuaternion(quat)
+        position: rig.rawRig.rightHand.node.getWorldPosition(vec3),
+        rotation: rig.rawRig.rightHand.node.getWorldQuaternion(quat)
       }
     default:
     case 'none':
       return {
-        position: rig.normalizedRig.head.node.getWorldPosition(vec3),
-        rotation: rig.normalizedRig.head.node.getWorldQuaternion(quat)
+        position: rig.rawRig.head.node.getWorldPosition(vec3),
+        rotation: rig.rawRig.head.node.getWorldQuaternion(quat)
       }
   }
 }

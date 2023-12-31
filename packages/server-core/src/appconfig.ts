@@ -82,7 +82,7 @@ if (!testEnabled) {
 if (!kubernetesEnabled) {
   dotenv.config({
     path: appRootPath.path,
-    silent: true
+    node_env: 'local'
   })
 }
 

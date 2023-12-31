@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { clamp, cloneDeep } from 'lodash'
+import { clamp } from 'lodash'
 import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 } from 'three'
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
@@ -38,15 +38,15 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { locomotionPack } from '../functions/avatarFunctions'
-import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
+import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
+import { locomotionAnimation } from './Util'
 
 const animationQueue = defineActionQueue(AvatarNetworkAction.setAnimationState.matches)
 
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
   const manager = getState(AnimationState)
-  const clip = AnimationClip.findByName(animations ?? manager.loadedAnimations[locomotionPack]!.animations, name)
+  const clip = AnimationClip.findByName(animations ?? manager.loadedAnimations[locomotionAnimation]!.animations, name)
   return mixer.clipAction(clip)
 }
 
@@ -56,7 +56,7 @@ const epsilon = 0.01
 //blend between locomotion and animation overrides
 export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   for (const newAnimation of animationQueue()) {
-    const targetEntity = UUIDComponent.entitiesByUUID[newAnimation.entityUUID]
+    const targetEntity = UUIDComponent.getEntityByUUID(newAnimation.entityUUID)
     if (!hasComponent(targetEntity, AvatarAnimationComponent)) {
       console.warn(
         '[updateAnimationGraph]: AvatarAnimationComponent not found on entity',
@@ -68,7 +68,7 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
     const graph = getMutableComponent(targetEntity, AvatarAnimationComponent).animationGraph
     graph.fadingOut.set(newAnimation.needsSkip ?? false)
     graph.layer.set(newAnimation.layer ?? 0)
-    loadAvatarAnimation(targetEntity, newAnimation.filePath, newAnimation.clipName!, newAnimation.loop!)
+    loadAndPlayAvatarAnimation(targetEntity, newAnimation.filePath, newAnimation.clipName!, newAnimation.loop!)
   }
 
   for (const entity of avatarEntities) {
@@ -100,9 +100,9 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   }
 }
 
-/**Attempts to get animation by name from animation manager if already loaded, or from
+/**Attempts to play animation by name from animation manager if already loaded, or from
  * default-project/assets/animations if not.*/
-export const loadAvatarAnimation = (entity: Entity, filePath: string, clipName?: string, loop?: boolean) => {
+export const loadAndPlayAvatarAnimation = (entity: Entity, filePath: string, clipName?: string, loop?: boolean) => {
   const animationState = getState(AnimationState)
   //get state name and file type
   const stateName = filePath.split('/').pop()!.split('.')[0]
@@ -119,14 +119,16 @@ export const loadAvatarAnimation = (entity: Entity, filePath: string, clipName?:
       switch (fileType) {
         case 'fbx':
           animationsAsset.scene.animations[0].name = clipName ?? stateName
+          animationsAsset.animations = animationsAsset.animations ?? animationsAsset.scene.animations
           break
         case 'glb':
           //if it's a glb, set the scene's animations to the asset's animations
           //this lets us assume they are in the same location for both fbx and glb files
           animationsAsset.animations[0].name = clipName ?? stateName
-          animationsAsset.scene.animations = animationsAsset.animations
+          animationsAsset.animations = animationsAsset.scene.animations
           break
       }
+      retargetAnimationClip(animationsAsset.animations[0], animationsAsset.scene)
       animationState.loadedAnimations[stateName] = animationsAsset
       playAvatarAnimationFromMixamo(entity, animationsAsset.scene, loop, clipName)
     })
@@ -150,13 +152,10 @@ export const playAvatarAnimationFromMixamo = (
   )
   //otherwise retarget and push to animation component's animations
   if (!retargetedAnimation) {
-    retargetedAnimation = retargetMixamoAnimation(
-      cloneDeep(
-        clipName
-          ? animationsScene.animations.find((clip) => clip.name == clipName) ?? animationsScene.animations[0]
-          : animationsScene.animations[0]
-      ),
-      animationsScene,
+    retargetedAnimation = bindAnimationClipFromMixamo(
+      clipName
+        ? animationsScene.animations.find((clip) => clip.name == clipName) ?? animationsScene.animations[0]
+        : animationsScene.animations[0],
       rigComponent.vrm
     )
     animationComponent.animations.push(retargetedAnimation)

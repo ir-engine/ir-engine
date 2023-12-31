@@ -48,7 +48,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { XRControlsState, XRState } from '../../xr/XRState'
-import { animationStates, defaultAnimationPath } from '../animation/Util'
+import { defaultAnimationPath, locomotionAnimation } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
@@ -158,7 +158,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
     if (controller.isInAir && !beganFalling) {
       dispatchAction(
         AvatarNetworkAction.setAnimationState({
-          filePath: defaultAnimationPath + animationStates.locomotion + '.glb',
+          filePath: defaultAnimationPath + locomotionAnimation + '.glb',
           clipName: 'Fall',
           loop: true,
           layer: 1,
@@ -171,7 +171,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
       if (beganFalling) {
         dispatchAction(
           AvatarNetworkAction.setAnimationState({
-            filePath: defaultAnimationPath + animationStates.locomotion + '.glb',
+            filePath: defaultAnimationPath + locomotionAnimation + '.glb',
             clipName: 'Fall',
             loop: true,
             layer: 1,
@@ -357,7 +357,7 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
     const avatarTransform = getComponent(entity, TransformComponent)
     const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
 
-    originRelativeToAvatarMatrix.multiplyMatrices(avatarTransform.matrixInverse, originTransform.matrix)
+    originRelativeToAvatarMatrix.copy(avatarTransform.matrix).invert().multiply(originTransform.matrix)
     desiredAvatarMatrix.compose(
       rigidBody.targetKinematicPosition,
       rigidBody.targetKinematicRotation,
@@ -365,7 +365,6 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
     )
     originTransform.matrix.multiplyMatrices(desiredAvatarMatrix, originRelativeToAvatarMatrix)
     originTransform.matrix.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
-    originTransform.matrixInverse.copy(originTransform.matrix).invert()
     updateWorldOrigin()
   }
 
