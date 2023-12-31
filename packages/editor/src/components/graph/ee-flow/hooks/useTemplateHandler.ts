@@ -27,9 +27,10 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState'
 import { GraphTemplate } from '@etherealengine/engine/src/behave-graph/types/GraphTemplate'
-import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import { uniqueId } from 'lodash'
+import { useMemo } from 'react'
 import { useSelectionHandler } from './useSelectionHandler'
 
 type selectionHandler = ReturnType<typeof useSelectionHandler>
@@ -44,28 +45,41 @@ export const useTemplateHandler = ({
 }) => {
   const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
 
-  const handleAddTemplate = () => {
-    const newTemplate = {
-      id: uuidv4(),
-      name: uniqueId('New template '),
-      nodes: selectedNodes,
-      edges: selectedEdges
-    } as GraphTemplate
-    behaveGraphState.templates.set([...behaveGraphState.templates.get(NO_PROXY), newTemplate])
+  const createGraphTemplate = (nodes: Node[], edges: Edge[]): GraphTemplate => ({
+    id: uuidv4(),
+    name: uniqueId('New template '),
+    nodes,
+    edges
+  })
+
+  const handleAddTemplate = useMemo(
+    () => () => {
+      try {
+        behaveGraphState.templates.set((currentTemplates) => [
+          ...currentTemplates,
+          createGraphTemplate(selectedNodes, selectedEdges)
+        ])
+      } catch (error) {
+        console.error('Error adding template:', error)
+      }
+    },
+    [selectedNodes, selectedEdges]
+  )
+
+  const handleEditTemplate = (editedTemplate: GraphTemplate) => {
+    behaveGraphState.templates.set((currentTemplates) => {
+      const filterList = currentTemplates.filter((template) => template.id !== editedTemplate.id)
+      return [...filterList, editedTemplate]
+    })
   }
 
-  const handleEditTemplate = (editedTemplate) => {
-    const filterList = behaveGraphState.templates.get(NO_PROXY).filter((template) => template.id !== editedTemplate.id)
-    behaveGraphState.templates.set([...filterList, editedTemplate])
-  }
-
-  const handleDeleteTemplate = (deleteTemplate) => {
-    behaveGraphState.templates.set(
-      behaveGraphState.templates.get(NO_PROXY).filter((template) => template.id !== deleteTemplate.id)
+  const handleDeleteTemplate = (deleteTemplate: GraphTemplate) => {
+    behaveGraphState.templates.set((currentTemplates) =>
+      currentTemplates.filter((template) => template.id !== deleteTemplate.id)
     )
   }
 
-  const handleApplyTemplate = (template) => {
+  const handleApplyTemplate = (template: GraphTemplate) => {
     pasteNodes(template.nodes, template.edges)
   }
 

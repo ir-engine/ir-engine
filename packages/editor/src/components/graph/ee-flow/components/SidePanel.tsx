@@ -46,7 +46,7 @@ export type SidePanelProps = {
   ref: React.MutableRefObject<HTMLElement | null>
 }
 
-export const SidePanel: React.FC<SidePanelProps> = ({
+export const SidePanel = ({
   ref,
   onNodesChange,
   handleApplyTemplate,
