@@ -187,6 +187,7 @@
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",
     "lbl-dynamicLoadDistance": "Distance",
+    "lbl-addComponent": "Add Component",
     "multipleNodeSelected": "Multiple Nodes of different types selected",
     "noNodeSelected": "No node selected",
     "ambientLight": {
@@ -898,12 +899,12 @@
   "layout": {
     "assetGrid": {
       "loading": "Loading...",
-      "placeObject": "Place Object",
-      "placeObjectAtOrigin": "Place Object at Origin",
       "copyURL": "Copy URL",
       "openInNewTab": "Open URL in New Tab",
       "deleteAsset": "Delete Asset",
-      "tooltip": {
+      "components": "Components",
+      "components-search": "Search Components ...",
+      "component-detail": {
         "gltf-model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
         "volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
         "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",

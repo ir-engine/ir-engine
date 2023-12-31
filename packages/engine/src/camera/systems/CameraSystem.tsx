@@ -51,7 +51,7 @@ import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import { MeshComponent } from '../../scene/components/MeshComponent'
 import { ObjectLayerComponents } from '../../scene/components/ObjectLayerComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import {
@@ -118,7 +118,7 @@ export const updateCameraTargetRotation = (cameraEntity: Entity) => {
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
 
-const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera]])
+const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
 
 export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
@@ -132,7 +132,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   camRayCastClock.start()
 
-  const sceneObjects = cameraLayerQuery().flatMap((e) => getComponent(e, GroupComponent))
+  const sceneObjects = cameraLayerQuery().flatMap((e) => getComponent(e, MeshComponent))
 
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
@@ -148,7 +148,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   raycaster.firstHitOnly = true // three-mesh-bvh setting
   raycaster.far = followCamera.maxDistance
   raycaster.set(target, targetToCamVec.normalize())
-  const hits = raycaster.intersectObjects(sceneObjects, true)
+  const hits = raycaster.intersectObjects(sceneObjects, false)
 
   if (hits[0] && hits[0].distance < maxDistance) {
     maxDistance = hits[0].distance
@@ -157,7 +157,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   //Check the cone for minimum distance
   cameraRays.forEach((rayDir, i) => {
     raycaster.set(target, rayDir)
-    const hits = raycaster.intersectObjects(sceneObjects, true)
+    const hits = raycaster.intersectObjects(sceneObjects, false)
 
     if (hits[0] && hits[0].distance < maxDistance) {
       maxDistance = hits[0].distance

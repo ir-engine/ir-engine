@@ -23,24 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { builderInfoPath } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
+import assert from 'assert'
+import { Application } from '../../../declarations'
+import { createFeathersKoaApp } from '../../createApp'
+import { getEnginePackageJson } from '../project/project-helper'
 
-import { CameraMode } from './types/CameraMode'
-import { ProjectionType } from './types/ProjectionType'
+describe('builder-info.test', () => {
+  let app: Application
 
-export const CameraSettingsState = defineState({
-  name: 'CameraSettingsState',
-  initial: {
-    fov: 60,
-    cameraNearClip: 0.1,
-    cameraFarClip: 1000,
-    projectionType: ProjectionType.Perspective,
-    minCameraDistance: 1,
-    maxCameraDistance: 50,
-    startCameraDistance: 3,
-    cameraMode: CameraMode.Dynamic,
-    cameraModeDefault: CameraMode.ThirdPerson,
-    minPhi: -70,
-    maxPhi: 85
-  }
+  before(async () => {
+    app = createFeathersKoaApp()
+    await app.setup()
+  })
+
+  after(async () => {
+    await destroyEngine()
+  })
+
+  it('should get the builder info', async () => {
+    const builderInfo = await app.service(builderInfoPath).get()
+    assert.equal(builderInfo.engineVersion, getEnginePackageJson().version)
+  })
 })

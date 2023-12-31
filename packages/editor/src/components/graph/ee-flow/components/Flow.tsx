@@ -30,6 +30,7 @@ import { GraphJSON, IRegistry } from '@behave-graph/core'
 
 import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/functions/useGraphRunner.js'
 import { useHookstate } from '@hookstate/core'
+import { useTranslation } from 'react-i18next'
 import { PropertiesPanelButton } from '../../../inputs/Button.js'
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
@@ -54,6 +55,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   const flowRef = useRef(null)
   const dragging = useHookstate(false)
   const mouseOver = useHookstate(false)
+  const { t } = useTranslation()
 
   const { nodes, edges, onNodesChange, onEdgesChange, graphJson, setGraphJson, nodeTypes } = useBehaveGraphFlow({
     initialGraphJson: graph,
@@ -157,7 +159,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
               handleAddTemplate()
             }}
           >
-            Make into template
+            {t('editor:graphPanel.makeTemplate')}
           </PropertiesPanelButton>
         </NodeToolbar>
       </ReactFlow>
