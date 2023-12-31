@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
-import { destroyEngine } from '../../../src/ecs/classes/Engine'
-import { getComponent, setComponent } from '../../../src/ecs/functions/ComponentFunctions'
-import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
-import { createEngine } from '../../../src/initializeEngine'
-import { addObjectToGroup } from '../../../src/scene/components/GroupComponent'
-import { RenderOrderComponent } from '../../../src/scene/components/RenderOrderComponent'
-import { loadEmptyScene } from '../../util/loadEmptyScene'
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
+import { destroyEngine } from '../../ecs/classes/Engine'
+import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
+import { addObjectToGroup } from './GroupComponent'
+import { RenderOrderComponent } from './RenderOrderComponent'
 
 describe('RenderOrderComponent', () => {
   beforeEach(async () => {

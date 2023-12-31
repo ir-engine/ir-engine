@@ -53,7 +53,6 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
@@ -168,11 +167,6 @@ export const AvatarRigComponent = defineComponent({
       setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
       setComputedTransformComponent(helperEntity, entity, () => {
-        const helperTransform = getComponent(helperEntity, TransformComponent)
-        const avatarTransform = getComponent(entity, TransformComponent)
-        helperTransform.position.copy(avatarTransform.position)
-        helperTransform.rotation.copy(avatarTransform.rotation)
-
         // this updates the bone helper lines
         helper.updateMatrixWorld(true)
       })
@@ -204,6 +198,7 @@ export const AvatarRigComponent = defineComponent({
       const rig = getComponent(entity, AvatarRigComponent)
       try {
         setupAvatarForUser(entity, rig.vrm)
+        if (manager.loadedAnimations[locomotionAnimation].value) retargetAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()

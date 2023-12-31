@@ -27,6 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MeshBasicMaterial } from 'three'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
@@ -211,7 +212,9 @@ const execute = () => {
     setComponent(ui.entity, ComputedTransformComponent, {
       referenceEntity: Engine.instance.cameraEntity,
       computeFunction: () => {
-        ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, 0.3, 0.2)
+        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+        const distance = camera.near * 1.1 // 10% in front of camera
+        ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, 0.3, distance)
       }
     })
   }

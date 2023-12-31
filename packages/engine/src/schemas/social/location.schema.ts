@@ -54,7 +54,9 @@ export const locationSchema = Type.Object(
       format: 'uuid'
     }),
     slugifiedName: Type.String(),
+    /** @todo review */
     isLobby: Type.Boolean(),
+    /** @todo review */
     isFeatured: Type.Boolean(),
     maxUsersPerInstance: Type.Number(),
     locationSetting: Type.Ref(locationSettingSchema),
