@@ -106,7 +106,9 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'row' }}>
       <SidePanel
         ref={flowRef}
+        examples={examples}
         onNodesChange={onNodesChange}
+        handleAddTemplate={handleAddTemplate}
         handleApplyTemplate={handleApplyTemplate}
         handleDeleteTemplate={handleDeleteTemplate}
         handleEditTemplate={handleEditTemplate}

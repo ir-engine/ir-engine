@@ -53,34 +53,44 @@ export const useTemplateHandler = ({
   })
 
   const handleAddTemplate = useMemo(
-    () => () => {
-      try {
-        behaveGraphState.templates.set((currentTemplates) => [
-          ...currentTemplates,
-          createGraphTemplate(selectedNodes, selectedEdges)
-        ])
-      } catch (error) {
-        console.error('Error adding template:', error)
-      }
-    },
+    () =>
+      (nodes: Node[] = selectedNodes, edges: Edge[] = selectedEdges) => {
+        try {
+          behaveGraphState.templates.set((currentTemplates) => [...currentTemplates, createGraphTemplate(nodes, edges)])
+        } catch (error) {
+          console.error('Error adding template:', error)
+        }
+      },
     [selectedNodes, selectedEdges]
   )
 
   const handleEditTemplate = (editedTemplate: GraphTemplate) => {
-    behaveGraphState.templates.set((currentTemplates) => {
-      const filterList = currentTemplates.filter((template) => template.id !== editedTemplate.id)
-      return [...filterList, editedTemplate]
-    })
+    try {
+      behaveGraphState.templates.set((currentTemplates) => {
+        const filterList = currentTemplates.filter((template) => template.id !== editedTemplate.id)
+        return [...filterList, editedTemplate]
+      })
+    } catch (error) {
+      console.error('Error editing template:', error)
+    }
   }
 
   const handleDeleteTemplate = (deleteTemplate: GraphTemplate) => {
-    behaveGraphState.templates.set((currentTemplates) =>
-      currentTemplates.filter((template) => template.id !== deleteTemplate.id)
-    )
+    try {
+      behaveGraphState.templates.set((currentTemplates) =>
+        currentTemplates.filter((template) => template.id !== deleteTemplate.id)
+      )
+    } catch (error) {
+      console.error('Error deleting template:', error)
+    }
   }
 
   const handleApplyTemplate = (template: GraphTemplate) => {
-    pasteNodes(template.nodes, template.edges)
+    try {
+      pasteNodes(template.nodes, template.edges)
+    } catch (error) {
+      console.error('Error applying template:', error)
+    }
   }
 
   return { handleAddTemplate, handleEditTemplate, handleDeleteTemplate, handleApplyTemplate }

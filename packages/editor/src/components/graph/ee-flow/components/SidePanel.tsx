@@ -28,7 +28,7 @@ import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { AddOutlined, CancelOutlined } from '@mui/icons-material'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { XYPosition, useReactFlow } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
@@ -39,26 +39,38 @@ import Panel from '../../../layout/Panel'
 import NodeEditor from '../../../properties/NodeEditor'
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow'
 import { useTemplateHandler } from '../hooks/useTemplateHandler'
+import { behaveToFlow } from '../transformers/behaveToFlow'
+import { Examples } from './modals/LoadModal'
 
 type templateHandler = ReturnType<typeof useTemplateHandler>
 type BehaveGraphFlow = ReturnType<typeof useBehaveGraphFlow>
 
 export type SidePanelProps = {
   ref: React.MutableRefObject<HTMLElement | null>
+  examples: Examples
 }
 
 export const SidePanel = ({
   ref,
+  examples,
   onNodesChange,
+  handleAddTemplate,
   handleApplyTemplate,
   handleDeleteTemplate,
   handleEditTemplate
 }: SidePanelProps &
-  Pick<templateHandler, 'handleApplyTemplate' | 'handleDeleteTemplate' | 'handleEditTemplate'> &
+  Pick<templateHandler, 'handleApplyTemplate' | 'handleDeleteTemplate' | 'handleEditTemplate' | 'handleAddTemplate'> &
   Pick<BehaveGraphFlow, 'onNodesChange'>) => {
   const reactFlow = useReactFlow()
   const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
   const { t } = useTranslation()
+
+  useEffect(() => {
+    for (const graph of Object.values(examples)) {
+      const [nodes, edges] = behaveToFlow(graph)
+      handleAddTemplate(nodes, edges)
+    }
+  }, [examples, handleAddTemplate])
 
   return (
     <div
