@@ -29,7 +29,9 @@ import { Background, BackgroundVariant, NodeToolbar, Position, ReactFlow, XYPosi
 import { GraphJSON, IRegistry } from '@behave-graph/core'
 
 import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/functions/useGraphRunner.js'
+import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState.js'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity.js'
+import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import { AddOutlined, CancelOutlined } from '@mui/icons-material'
 import { v4 as uuidv4 } from 'uuid'
@@ -55,6 +57,7 @@ type FlowProps = {
 }
 
 export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, registry, onChangeGraph }) => {
+  const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
   const specGenerator = useNodeSpecGenerator(registry)
 
   const reactFlow = useReactFlow()
@@ -96,12 +99,11 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     onEdgesChange
   })
 
-  const { templateList, handleAddTemplate, handleEditTemplate, handleDeleteTemplate, handleApplyTemplate } =
-    useTemplateHandler({
-      selectedNodes,
-      selectedEdges,
-      pasteNodes
-    })
+  const { handleAddTemplate, handleEditTemplate, handleDeleteTemplate, handleApplyTemplate } = useTemplateHandler({
+    selectedNodes,
+    selectedEdges,
+    pasteNodes
+  })
 
   useEffect(() => {
     if (dragging.value || !mouseOver.value) return
@@ -161,8 +163,8 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
         <div style={{ flex: '65%', overflow: 'scroll' }}>
           <NodeEditor entity={UndefinedEntity} name={'Templates'} description={'collecton of Templates'}>
             <PaginatedList
-              options={{ countPerPage: 5 }}
-              list={templateList}
+              options={{ countPerPage: 8 }}
+              list={behaveGraphState.templates.get(NO_PROXY)}
               element={(template: any, index) => {
                 return (
                   <div style={{ display: 'flex', width: '100%' }}>

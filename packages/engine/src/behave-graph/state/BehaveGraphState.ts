@@ -27,10 +27,12 @@ import { IRegistry } from '@behave-graph/core'
 import { defineState } from '@etherealengine/hyperflux'
 import { BehaveGraphDomain } from '../components/BehaveGraphComponent'
 import { createECSRegistry } from '../functions/createECSRegistry'
+import { GraphTemplate } from '../types/GraphTemplate'
 
 export const BehaveGraphState = defineState({
   name: 'BehaveGraphState',
   initial: () => ({
-    registries: { ECS: createECSRegistry() } as Record<BehaveGraphDomain, IRegistry>
+    registries: { ECS: createECSRegistry() } as Record<BehaveGraphDomain, IRegistry>,
+    templates: [] as GraphTemplate[]
   })
 })
