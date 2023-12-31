@@ -243,7 +243,7 @@ function ModelReactor(): JSX.Element {
     })
     const src = modelComponent.src.value
     return () => {
-      clearMaterials(src)
+      if (!(asset instanceof VRM)) clearMaterials(src) // [TODO] Replace with hooks and refrence counting
       getMutableState(SceneState).scenes[uuid].set(none)
       // for(const child of scene.children) {
       //   removeEntity(child.entity)
