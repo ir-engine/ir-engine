@@ -24,22 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useRef } from 'react'
-import { Background, BackgroundVariant, NodeToolbar, Position, ReactFlow, XYPosition, useReactFlow } from 'reactflow'
+import { Background, BackgroundVariant, NodeToolbar, Position, ReactFlow } from 'reactflow'
 
 import { GraphJSON, IRegistry } from '@behave-graph/core'
 
 import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/functions/useGraphRunner.js'
-import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState.js'
-import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity.js'
-import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'
 import { useHookstate } from '@hookstate/core'
-import { AddOutlined, CancelOutlined } from '@mui/icons-material'
-import { v4 as uuidv4 } from 'uuid'
-import { Button, PropertiesPanelButton } from '../../../inputs/Button.js'
-import StringInput from '../../../inputs/StringInput.js'
-import PaginatedList from '../../../layout/PaginatedList.js'
-import Panel from '../../../layout/Panel.js'
-import NodeEditor from '../../../properties/NodeEditor.js'
+import { PropertiesPanelButton } from '../../../inputs/Button.js'
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
 import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator.js'
@@ -47,6 +38,7 @@ import { useSelectionHandler } from '../hooks/useSelectionHandler.js'
 import { useTemplateHandler } from '../hooks/useTemplateHandler.js'
 import CustomControls from './Controls.js'
 import { NodePicker } from './NodePicker.js'
+import SidePanel from './SidePanel.js'
 import { Examples } from './modals/LoadModal.js'
 
 type FlowProps = {
@@ -57,10 +49,8 @@ type FlowProps = {
 }
 
 export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, registry, onChangeGraph }) => {
-  const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
   const specGenerator = useNodeSpecGenerator(registry)
 
-  const reactFlow = useReactFlow()
   const flowRef = useRef(null)
   const dragging = useHookstate(false)
   const mouseOver = useHookstate(false)
@@ -112,153 +102,65 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'row' }}>
-      <div
-        style={{
-          width: '25%',
-          display: 'flex',
-          flexDirection: 'column',
-          minWidth: '150px',
-          backgroundColor: 'var(--panelBackground)',
-          padding: '10px'
-        }}
+      <SidePanel ref={flowRef} />
+      <ReactFlow
+        style={{ flex: 1 }}
+        ref={flowRef}
+        nodeTypes={nodeTypes}
+        nodes={nodes}
+        edges={edges}
+        onNodeDragStart={() => dragging.set(true)}
+        onNodeDragStop={() => dragging.set(false)}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onConnectStart={handleStartConnect}
+        onConnectEnd={handleStopConnect}
+        onPaneMouseEnter={() => mouseOver.set(true)}
+        onPaneMouseLeave={() => mouseOver.set(false)}
+        fitView
+        fitViewOptions={{ maxZoom: 1 }}
+        onPaneClick={handlePaneClick}
+        onPaneContextMenu={handlePaneContextMenu}
+        onSelectionChange={onSelectionChange}
+        multiSelectionKeyCode={'Shift'}
+        deleteKeyCode={'Backspace'}
       >
-        <div style={{ flex: '35%' }}>
-          <NodeEditor entity={UndefinedEntity} name={'Nodes'} description={'collecton of Nodes'}>
-            <PaginatedList
-              options={{ countPerPage: 10 }}
-              list={Object.keys(registry.nodes)}
-              element={(node: string, index) => {
-                return (
-                  <div>
-                    <Button
-                      style={{ width: '100%', textTransform: 'lowercase', padding: '0px' }}
-                      onClick={() => {
-                        const bounds = (flowRef.current! as any).getBoundingClientRect()
-                        const centerX = bounds.left + bounds.width / 2
-                        const centerY = bounds.top + bounds.height / 2
-                        const viewportCenter = reactFlow.screenToFlowPosition({ x: centerX, y: centerY } as XYPosition)
-                        const position = viewportCenter // need a way to get viewport
-                        const newNode = {
-                          id: uuidv4(),
-                          type: node,
-                          position,
-                          data: { configuration: {}, values: {} } //fill with default values here
-                        }
-                        onNodesChange([
-                          {
-                            type: 'add',
-                            item: newNode
-                          }
-                        ])
-                      }}
-                    >
-                      <Panel title={node}></Panel>
-                    </Button>
-                  </div>
-                )
-              }}
-            ></PaginatedList>
-          </NodeEditor>
-        </div>
-        <div style={{ flex: '65%', overflow: 'scroll' }}>
-          <NodeEditor entity={UndefinedEntity} name={'Templates'} description={'collecton of Templates'}>
-            <PaginatedList
-              options={{ countPerPage: 8 }}
-              list={behaveGraphState.templates.get(NO_PROXY)}
-              element={(template: any, index) => {
-                return (
-                  <div style={{ display: 'flex', width: '100%' }}>
-                    <Button
-                      style={{ width: '20%' }}
-                      onClick={() => {
-                        handleApplyTemplate(template)
-                      }}
-                    >
-                      <AddOutlined />
-                    </Button>
-                    <StringInput
-                      value={template.name}
-                      onChange={(e) => {
-                        template.name = e.target.value
-                        handleEditTemplate(template)
-                      }}
-                    ></StringInput>
-
-                    <Button
-                      style={{ width: '20%' }}
-                      onClick={() => {
-                        handleDeleteTemplate(template)
-                      }}
-                    >
-                      <CancelOutlined />
-                    </Button>
-                  </div>
-                )
-              }}
-            ></PaginatedList>
-          </NodeEditor>
-        </div>
-      </div>
-
-      <div style={{ flex: 1 }}>
-        <ReactFlow
-          ref={flowRef}
-          nodeTypes={nodeTypes}
-          nodes={nodes}
-          edges={edges}
-          onNodeDragStart={() => dragging.set(true)}
-          onNodeDragStop={() => dragging.set(false)}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onConnectStart={handleStartConnect}
-          onConnectEnd={handleStopConnect}
-          onPaneMouseEnter={() => mouseOver.set(true)}
-          onPaneMouseLeave={() => mouseOver.set(false)}
-          fitView
-          fitViewOptions={{ maxZoom: 1 }}
-          onPaneClick={handlePaneClick}
-          onPaneContextMenu={handlePaneContextMenu}
-          onSelectionChange={onSelectionChange}
-          multiSelectionKeyCode={'Shift'}
-          deleteKeyCode={'Backspace'}
-        >
-          <CustomControls
-            playing={playing}
-            togglePlay={togglePlay}
-            onSaveGraph={onChangeGraph}
-            setBehaviorGraph={setGraphJson}
-            examples={examples}
-            specGenerator={specGenerator}
+        <CustomControls
+          playing={playing}
+          togglePlay={togglePlay}
+          onSaveGraph={onChangeGraph}
+          setBehaviorGraph={setGraphJson}
+          examples={examples}
+          specGenerator={specGenerator}
+        />
+        <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
+        {nodePickerVisibility && (
+          <NodePicker
+            flowRef={flowRef}
+            position={nodePickerVisibility}
+            filters={nodePickFilters}
+            onPickNode={handleAddNode}
+            onClose={closeNodePicker}
+            specJSON={specGenerator?.getAllNodeSpecs()}
           />
-          <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
-          {nodePickerVisibility && (
-            <NodePicker
-              flowRef={flowRef}
-              position={nodePickerVisibility}
-              filters={nodePickFilters}
-              onPickNode={handleAddNode}
-              onClose={closeNodePicker}
-              specJSON={specGenerator?.getAllNodeSpecs()}
-            />
-          )}
+        )}
 
-          <NodeToolbar
-            nodeId={selectedNodes.map((node) => node.id)}
-            isVisible={selectedNodes.length > 1}
-            position={Position.Top}
+        <NodeToolbar
+          nodeId={selectedNodes.map((node) => node.id)}
+          isVisible={selectedNodes.length > 1}
+          position={Position.Top}
+        >
+          <PropertiesPanelButton
+            style={{}}
+            onClick={() => {
+              handleAddTemplate()
+            }}
           >
-            <PropertiesPanelButton
-              style={{}}
-              onClick={() => {
-                handleAddTemplate()
-              }}
-            >
-              Make into template
-            </PropertiesPanelButton>
-          </NodeToolbar>
-        </ReactFlow>
-      </div>
+            Make into template
+          </PropertiesPanelButton>
+        </NodeToolbar>
+      </ReactFlow>
     </div>
   )
 }
