@@ -29,7 +29,7 @@ import { useEffect } from 'react'
 
 import logger from '@etherealengine/engine/src/common/functions/logger'
 import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
-import { defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, NO_PROXY, useState } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'

@@ -35,7 +35,7 @@ import 'reactflow/dist/style.css'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
-import { commitProperty } from '../properties/Util'
+import { updateProperty } from '../properties/Util'
 import { Flow } from './ee-flow'
 import './ee-flow/styles.css'
 
@@ -57,7 +57,7 @@ export const ActiveBehaveGraph = (props: { entity }) => {
         (newGraph) => {
           if (!newGraph) return
           if (isEqual(graphComponent.graph, newGraph)) return
-          commitProperty(BehaveGraphComponent, 'graph')(newGraph)
+          updateProperty(BehaveGraphComponent, 'graph')(newGraph)
         }
         // need this to smoothen UX
       }

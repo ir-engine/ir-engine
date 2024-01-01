@@ -31,7 +31,7 @@ import { ChannelService, ChannelState } from '@etherealengine/client-core/src/so
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Badge from '@etherealengine/ui/src/primitives/mui/Badge'
 import Card from '@etherealengine/ui/src/primitives/mui/Card'

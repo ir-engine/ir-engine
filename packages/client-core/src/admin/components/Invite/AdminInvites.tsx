@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
 import { UserID, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
