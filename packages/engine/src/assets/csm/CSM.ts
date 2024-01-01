@@ -417,7 +417,9 @@ export class CSM {
   }
 
   teardownMaterial(mesh: Mesh): void {
+    if (!mesh?.isMesh) return
     const material = mesh.material as Material
+    if (!material) return
     if (!material.userData) material.userData = {}
     if (material.userData.CSMPlugin) {
       removeOBCPlugin(material, material.userData.CSMPlugin)

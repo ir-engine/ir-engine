@@ -438,7 +438,9 @@ export function MediaReactor() {
       mediaElementState.hls.set(undefined)
       mediaElementState.element.value.crossOrigin = 'anonymous'
       if (isHLS(path)) {
-        mediaElementState.hls.set(setupHLS(entity, path))
+        setupHLS(entity, path).then((hls) => {
+          mediaElementState.hls.set(hls)
+        })
         mediaElementState.hls.value!.attachMedia(mediaElementState.element.value)
       } else {
         mediaElementState.element.src.set(path)
@@ -506,8 +508,9 @@ export function MediaReactor() {
   return null
 }
 
-export const setupHLS = (entity: Entity, url: string): Hls => {
-  const hls = new Hls()
+export const setupHLS = async (entity: Entity, url: string): Promise<Hls> => {
+  const Hls = await import('hls.js')
+  const hls = new Hls.default()
   hls.on(Hls.Events.ERROR, function (event, data) {
     if (data.fatal) {
       switch (data.type) {

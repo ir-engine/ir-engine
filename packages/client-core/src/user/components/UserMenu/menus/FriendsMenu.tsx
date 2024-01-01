@@ -166,7 +166,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     const layerPeers = NetworkState.worldNetwork
       ? Object.values(NetworkState.worldNetwork.peers).filter(
           (peer) =>
-            peer.peerID !== 'server' &&
+            peer.peerID !== NetworkState.worldNetwork.hostPeerID &&
             peer.userId !== userId &&
             !friendState.relationships.value.find(
               (item) => item.relatedUserId === peer.userId && item.userRelationshipType === 'friend'

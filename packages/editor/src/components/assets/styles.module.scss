@@ -261,3 +261,34 @@
   display: block;
 }
 
+.resourceItemContainer {
+  display: flex;
+  flex-direction: column;
+  outline: none;
+  overflow: hidden;
+  background: transparent;
+  margin: 0.25rem 0.5rem;
+  padding: 0.25rem;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    background-color: var(--dropdownMenuHoverBackground);
+    color: var(--textColor);
+  }
+
+  &.selected {
+    background: var(--dropdownMenuSelectedBackground);
+    color: var(--textColor);
+
+    &:hover,
+    &:focus {
+      background-color: var(--dropdownMenuSelectedBackground);
+    }
+  }
+
+  &:active,
+  &.active {
+    background: var(--dropdownMenuSelectedBackground);
+  }
+}

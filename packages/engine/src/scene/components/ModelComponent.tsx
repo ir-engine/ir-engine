@@ -24,11 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Object3D, Scene } from 'three'
+import { Scene } from 'three'
 
 import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { VRM } from '@pixiv/three-vrm'
+import React from 'react'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
@@ -54,18 +55,21 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
+import { enableObjectLayer } from '../functions/setObjectLayers'
 import { EnvmapComponent } from './EnvmapComponent'
+import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
+import { VisibleComponent } from './VisibleComponent'
 
 function clearMaterials(src: string) {
   try {
@@ -88,28 +92,26 @@ export const ModelComponent = defineComponent({
   onInit: (entity) => {
     return {
       src: '',
-      generateBVH: true,
-      avoidCameraOcclusion: false,
+      cameraOcclusion: true,
       // internal
       scene: null as Scene | null,
-      asset: null as VRM | GLTF | null,
-      hasSkinnedMesh: false
+      asset: null as VRM | GLTF | null
     }
   },
 
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
-      generateBVH: component.generateBVH.value,
-      avoidCameraOcclusion: component.avoidCameraOcclusion.value
+      cameraOcclusion: component.cameraOcclusion.value
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.src === 'string') component.src.set(json.src)
-    if (typeof json.generateBVH === 'boolean') component.generateBVH.set(json.generateBVH)
-    if (typeof json.avoidCameraOcclusion === 'boolean') component.avoidCameraOcclusion.set(json.avoidCameraOcclusion)
+    if (typeof (json as any).avoidCameraOcclusion === 'boolean')
+      component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
+    if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -132,7 +134,7 @@ export const ModelComponent = defineComponent({
   entitiesInModelHierarchy: entitiesInModelHierarchy as Readonly<typeof entitiesInModelHierarchy>
 })
 
-function ModelReactor() {
+function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
   const uuid = useComponent(entity, UUIDComponent)
@@ -142,12 +144,11 @@ function ModelReactor() {
 
     const model = modelComponent.value
     if (!model.src) {
-      const dudScene = new Scene() as Scene & Object3D
-      dudScene.entity = entity
-      Object.assign(dudScene, {
-        isProxified: true
-      })
-      modelComponent.scene.set(dudScene)
+      // const dudScene = new Scene() as Scene & Object3D
+      // dudScene.entity = entity
+      // addObjectToGroup(entity, dudScene)
+      // proxifyParentChildRelationships(dudScene)
+      modelComponent.scene.set(null)
       modelComponent.asset.set(null)
       return
     }
@@ -159,7 +160,7 @@ function ModelReactor() {
       modelComponent.src.value,
       {
         forceAssetType: override,
-        ignoreDisposeGeometry: modelComponent.generateBVH.value,
+        ignoreDisposeGeometry: modelComponent.cameraOcclusion.value,
         uuid: uuid.value
       },
       (loadedAsset) => {
@@ -168,7 +169,8 @@ function ModelReactor() {
           addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
           return
         }
-        const boneMatchedAsset = autoconvertMixamoAvatar(loadedAsset)
+        const boneMatchedAsset = autoconvertMixamoAvatar(loadedAsset) as GLTF
+        boneMatchedAsset.scene.animations = boneMatchedAsset.animations
         modelComponent.asset.set(boneMatchedAsset)
       },
       (onprogress) => {
@@ -199,11 +201,12 @@ function ModelReactor() {
     if (!asset) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    asset.scene.animations = asset.animations
-    asset.scene.userData.src = model.src
-    asset.scene.userData.sceneID = getModelSceneID(entity)
-    asset.scene.userData.type === 'glb' && delete asset.scene.userData.type
-    modelComponent.scene.set(asset.scene)
+    const sceneObj = getComponent(entity, GroupComponent)[0] as Scene
+
+    sceneObj.userData.src = model.src
+    sceneObj.userData.sceneID = getModelSceneID(entity)
+    //sceneObj.userData.type === 'glb' && delete asset.scene.userData.type
+    modelComponent.scene.set(sceneObj)
   }, [modelComponent.asset])
 
   // update scene
@@ -224,7 +227,7 @@ function ModelReactor() {
         })
     else removeComponent(entity, SceneAssetPendingTagComponent)
 
-    const loadedJsonHierarchy = parseGLTFModel(entity)
+    const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
 
     SceneState.loadScene(uuid, {
@@ -240,8 +243,11 @@ function ModelReactor() {
     })
     const src = modelComponent.src.value
     return () => {
-      clearMaterials(src)
+      if (!(asset instanceof VRM)) clearMaterials(src) // [TODO] Replace with hooks and refrence counting
       getMutableState(SceneState).scenes[uuid].set(none)
+      // for(const child of scene.children) {
+      //   removeEntity(child.entity)
+      // }
     }
   }, [modelComponent.scene])
 
@@ -255,36 +261,57 @@ function ModelReactor() {
 
   const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
-  useEffect(() => {
-    for (const childEntity of childEntities.value) {
-      if (!hasComponent(childEntity, MeshComponent) || hasComponent(entity, SkinnedMeshComponent)) continue
-      if (modelComponent.generateBVH.value) generateMeshBVH(getComponent(childEntity, MeshComponent))
-    }
-  }, [childEntities, modelComponent.generateBVH])
+  return (
+    <>
+      {childEntities.value?.map((childEntity: Entity) => (
+        <ChildReactor key={childEntity} entity={childEntity} parentEntity={entity} />
+      ))}
+    </>
+  )
+}
 
-  const shadowComponent = useOptionalComponent(entity, ShadowComponent)
-  useEffect(() => {
-    for (const childEntity of childEntities.value) {
-      if (!hasComponent(childEntity, MeshComponent)) continue
-      if (shadowComponent) setComponent(childEntity, ShadowComponent, serializeComponent(entity, ShadowComponent))
-      else removeComponent(childEntity, ShadowComponent)
-    }
-  }, [childEntities, shadowComponent])
-
-  const envmapComponent = useOptionalComponent(entity, EnvmapComponent)
-  useEffect(() => {
-    for (const childEntity of childEntities.value) {
-      if (!hasComponent(childEntity, MeshComponent)) continue
-      if (envmapComponent) setComponent(childEntity, EnvmapComponent, serializeComponent(entity, EnvmapComponent))
-      else removeComponent(childEntity, EnvmapComponent)
-    }
-  }, [childEntities, envmapComponent])
+const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
+  const modelComponent = useComponent(props.parentEntity, ModelComponent)
+  const isMesh = useOptionalComponent(props.entity, MeshComponent)
+  const isSkinnedMesh = useOptionalComponent(props.entity, SkinnedMeshComponent)
+  const visible = useOptionalComponent(props.entity, VisibleComponent)
 
   useEffect(() => {
-    if (!modelComponent.scene.value) return
-    if (modelComponent.avoidCameraOcclusion.value) removeComponent(entity, FrustumCullCameraComponent)
-    else setComponent(entity, FrustumCullCameraComponent)
-  }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
+    if (!isMesh || isSkinnedMesh) return
+    const mesh = getComponent(props.entity, MeshComponent)
+
+    let aborted = false
+
+    /** @todo should we generate a BVH for every mesh, even invisible ones used for collision? */
+    generateMeshBVH(mesh).then(() => {
+      if (aborted) return
+      enableObjectLayer(
+        mesh,
+        ObjectLayers.Camera,
+        modelComponent.cameraOcclusion.value && hasComponent(props.entity, VisibleComponent)
+      )
+    })
+
+    return () => {
+      aborted = true
+    }
+  }, [isMesh, isSkinnedMesh, visible, modelComponent.cameraOcclusion])
+
+  const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
+  useEffect(() => {
+    if (!isMesh) return
+    if (shadowComponent)
+      setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
+    else removeComponent(props.entity, ShadowComponent)
+  }, [isMesh, shadowComponent])
+
+  const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
+  useEffect(() => {
+    if (!isMesh) return
+    if (envmapComponent)
+      setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
+    else removeComponent(props.entity, EnvmapComponent)
+  }, [isMesh, envmapComponent])
 
   return null
 }

@@ -46,6 +46,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
@@ -163,6 +164,7 @@ export const SpawnEffectComponent = defineComponent({
 const createPlateEntity = (entity: Entity) => {
   const plateMesh = new Mesh(SpawnEffectComponent.plateMesh.geometry, SpawnEffectComponent.plateMesh.material)
   const plateEntity = createEntity()
+  setComponent(plateEntity, NameComponent, 'Spawn Plate ' + entity)
   setComponent(plateEntity, EntityTreeComponent, { parentEntity: entity })
   addObjectToGroup(plateEntity, plateMesh)
   setVisibleComponent(plateEntity, true)
@@ -180,6 +182,7 @@ const createRayEntities = (entity: Entity) => {
     const ray = SpawnEffectComponent.lightMesh.clone()
 
     const rayEntity = createEntity()
+    setComponent(rayEntity, NameComponent, 'Spawn Ray ' + entity)
     setComponent(rayEntity, EntityTreeComponent, { parentEntity: entity })
     addObjectToGroup(rayEntity, ray)
     const transform = getComponent(rayEntity, TransformComponent)
