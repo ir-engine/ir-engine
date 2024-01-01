@@ -31,9 +31,9 @@ import { ProjectionType } from './types/ProjectionType'
 export const CameraSettingsState = defineState({
   name: 'CameraSettingsState',
   initial: {
-    fov: 50,
-    cameraNearClip: 0.01,
-    cameraFarClip: 10000,
+    fov: 60,
+    cameraNearClip: 0.1,
+    cameraFarClip: 1000,
     projectionType: ProjectionType.Perspective,
     minCameraDistance: 1,
     maxCameraDistance: 50,
