@@ -80,13 +80,13 @@ export function disposeDracoLoaderWorkers(): void {
   getState(AssetLoaderState).gltfLoader!.dracoLoader?.dispose()
 }
 
-const onUploadDropBuffer = (uuid?: string) =>
+const onUploadDropBuffer = () =>
   function (this: BufferAttribute) {
     // @ts-ignore
     this.array = new this.array.constructor(1)
   }
 
-const onTextureUploadDropSource = (uuid?: string) =>
+const onTextureUploadDropSource = () =>
   function (this: Texture) {
     // source.data can't be null because the WebGLRenderer checks for it
     this.source.data = { width: this.source.data.width, height: this.source.data.height, __deleted: true }
@@ -361,7 +361,6 @@ const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineSta
 type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
   forceAssetType?: AssetType
-  uuid?: string
   assetRoot?: Entity
 }
 

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Scene } from 'three'
+import { Group, Scene } from 'three'
 
 import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -58,11 +58,11 @@ import { removeMaterialSource } from '../../renderer/materials/functions/Materia
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { parseGLTFModel } from '../functions/loadGLTFModel'
+import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { EnvmapComponent } from './EnvmapComponent'
-import { GroupComponent } from './GroupComponent'
+import { GroupComponent, addObjectToGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
@@ -137,20 +137,22 @@ export const ModelComponent = defineComponent({
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const uuid = useComponent(entity, UUIDComponent)
 
   useEffect(() => {
     let aborted = false
 
     const model = modelComponent.value
     if (!model.src) {
-      // const dudScene = new Scene() as Scene & Object3D
-      // dudScene.entity = entity
-      // addObjectToGroup(entity, dudScene)
-      // proxifyParentChildRelationships(dudScene)
       modelComponent.scene.set(null)
       modelComponent.asset.set(null)
       return
+    }
+
+    if (!hasComponent(entity, GroupComponent)) {
+      const obj3d = new Group()
+      obj3d.entity = entity
+      addObjectToGroup(entity, obj3d)
+      proxifyParentChildRelationships(obj3d)
     }
 
     /** @todo this is a hack */
@@ -160,8 +162,7 @@ function ModelReactor(): JSX.Element {
       modelComponent.src.value,
       {
         forceAssetType: override,
-        ignoreDisposeGeometry: modelComponent.cameraOcclusion.value,
-        uuid: uuid.value
+        ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
       },
       (loadedAsset) => {
         if (aborted) return
@@ -245,9 +246,6 @@ function ModelReactor(): JSX.Element {
     return () => {
       if (!(asset instanceof VRM)) clearMaterials(src) // [TODO] Replace with hooks and refrence counting
       getMutableState(SceneState).scenes[uuid].set(none)
-      // for(const child of scene.children) {
-      //   removeEntity(child.entity)
-      // }
     }
   }, [modelComponent.scene])
 

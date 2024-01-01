@@ -83,11 +83,13 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.matrix = transform.matrix
   obj.matrixWorld = transform.matrixWorld
   obj.layers = new Layer(entity)
+
+  if (!hasComponent(entity, RenderOrderComponent)) setComponent(entity, RenderOrderComponent, obj.renderOrder)
+
   Object.defineProperty(obj, 'renderOrder', {
     get: () => RenderOrderComponent.renderOrder[entity],
     set: (val: number) => setComponent(entity, RenderOrderComponent, val)
   })
-  obj.renderOrder = 0
 
   Object.assign(obj, {
     updateWorldMatrix: () => {}
