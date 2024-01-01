@@ -71,6 +71,7 @@ import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
 import { EditPermissionsDialog } from './EditPermissionsDialog'
 
+import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import styles from './styles.module.scss'
 
 const logger = multiLogger.child({ component: 'editor:ProjectsPage' })
@@ -164,7 +165,7 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
   )
 }
 
-const ProjectsPage = () => {
+const ProjectsPage = createHookableFunction(() => {
   const installedProjects = useHookstate<ProjectType[]>([]) // constant projects initialized with an empty array.
   const officialProjects = useHookstate<ProjectType[]>([])
   const communityProjects = useHookstate<ProjectType[]>([])
@@ -663,6 +664,6 @@ const ProjectsPage = () => {
       />
     </main>
   )
-}
+})
 
 export default ProjectsPage
