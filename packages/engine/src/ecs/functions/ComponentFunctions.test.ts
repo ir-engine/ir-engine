@@ -231,8 +231,7 @@ describe('ComponentFunctions', async () => {
       removeComponent(entity, TestComponent)
 
       assert.ok(!hasComponent(entity, TestComponent))
-      assert.ok(TestComponent.stateMap[entity]!.value === undefined)
-      assert.ok(TestComponent.valueMap[entity]! === undefined)
+      assert.ok(TestComponent.stateMap[entity]!.promised === true)
     })
 
     it('should have component with AoS values', () => {

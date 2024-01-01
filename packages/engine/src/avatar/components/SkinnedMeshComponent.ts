@@ -33,8 +33,6 @@ export const SkinnedMeshComponent = defineComponent({
 
   onSet: (entity, component, mesh: SkinnedMesh) => {
     if (!mesh || !mesh.isSkinnedMesh) throw new Error('SkinnedMeshComponent: Invalid skinned mesh')
-
     component.set(mesh)
-    SkinnedMeshComponent.valueMap[entity] = mesh
   }
 })

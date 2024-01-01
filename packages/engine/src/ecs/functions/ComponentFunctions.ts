@@ -28,7 +28,6 @@ Ethereal Engine. All Rights Reserved.
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
 
-import { Subscribable, subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
@@ -174,17 +173,14 @@ export interface Component<
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: HookableFunction<React.FC>
   reactorMap: Map<Entity, ReactorRoot>
-  existenceMapState: Record<Entity, State<boolean> | undefined>
-  existenceMapPromiseResolver: Record<Entity, { promise: Promise<void>; resolve: () => void }>
-  stateMap: Record<Entity, State<ComponentType, Subscribable> | undefined>
-  valueMap: Record<Entity, ComponentType>
+  stateMap: Record<Entity, State<ComponentType> | undefined>
   errors: ErrorTypes[]
 }
 
 /** @todo Describe this type */
 export type SoAComponentType<S extends bitECS.ISchema> = bitECS.ComponentType<S>
 /** @description Generic `type` for all Engine's ECS {@link Component}s. All of its fields are required to not be `null`. */
-export type ComponentType<C extends Component> = NonNullable<C['valueMap'][keyof C['valueMap']]>
+export type ComponentType<C extends Component> = NonNullable<C['stateMap'][Entity]>['value']
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by the its serialization function {@link Component.toJSON}. */
 export type SerializedComponentType<C extends Component> = ReturnType<C['toJSON']>
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by its {@link Component.onSet} function. */
@@ -251,10 +247,7 @@ export const defineComponent = <
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
-  Component.existenceMapState = {}
-  Component.existenceMapPromiseResolver = {}
   Component.stateMap = {}
-  Component.valueMap = {}
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
     console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
@@ -267,19 +260,19 @@ export const defineComponent = <
 export const getOptionalMutableComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
-): State<ComponentType, Subscribable> | undefined => {
-  // if (entity === UndefinedEntity) return undefined
-  if (component.existenceMapState[entity]?.get(NO_PROXY_STEALTH)) return component.stateMap[entity]
-  return undefined
+): State<ComponentType> | undefined => {
+  if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType>
+  const componentState = component.stateMap[entity]!
+  return componentState.promised ? undefined : componentState
 }
 
 export const getMutableComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
-): State<ComponentType, Subscribable> => {
-  const componentState = getOptionalMutableComponent(entity, component)!
-  /** @todo: uncomment the following after enabling es-lint no-unnecessary-condition rule */
-  // if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
+): State<ComponentType> => {
+  const componentState = getOptionalMutableComponent(entity, component)
+  if (!componentState || componentState.promised)
+    throw new Error(`[getMutableComponent]: entity does not have ${component.name}`)
   return componentState
 }
 
@@ -287,14 +280,17 @@ export const getOptionalComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
 ): ComponentType | undefined => {
-  return component.valueMap[entity] as ComponentType | undefined
+  return getOptionalMutableComponent(entity, component)?.get(NO_PROXY_STEALTH) as ComponentType | undefined
 }
 
 export const getComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
 ): ComponentType => {
-  return component.valueMap[entity] as ComponentType
+  const componentState = getOptionalMutableComponent(entity, component)
+  if (!componentState || componentState.promised)
+    throw new Error(`[getComponent]: entity does not have ${component.name}`)
+  return componentState.get(NO_PROXY_STEALTH) as ComponentType
 }
 
 /**
@@ -322,31 +318,17 @@ export const setComponent = <C extends Component>(
   }
   if (!hasComponent(entity, Component)) {
     const value = Component.onInit(entity)
-    Component.existenceMapPromiseResolver[entity]?.resolve?.()
 
     if (!Component.stateMap[entity]) {
-      Component.existenceMapState[entity] = hookstate(true)
-      Component.stateMap[entity] = hookstate(value, subscribable())
+      Component.stateMap[entity] = hookstate(value)
     } else {
-      Component.existenceMapState[entity]!.set(true)
       Component.stateMap[entity]!.set(value)
     }
 
-    Component.valueMap[entity] = value
-
     bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
-
-    const state = Component.stateMap[entity]!
 
     if (Component.reactor && !Component.reactorMap.has(entity)) {
       const root = startReactor(() => {
-        useEffect(() => {
-          if (typeof state.value === 'object') return
-          return state.subscribe(() => {
-            Component.valueMap[entity] = Component.stateMap[entity]?.get(NO_PROXY)
-          })
-        }, [])
-
         return React.createElement(
           EntityContext.Provider,
           { value: entity },
@@ -360,7 +342,6 @@ export const setComponent = <C extends Component>(
   }
   // startTransition(() => {
   Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
-  Component.valueMap[entity] = Component.stateMap[entity]?.get(NO_PROXY_STEALTH)
   const root = Component.reactorMap.get(entity)
   if (!root?.isRunning) root?.run()
   // })
@@ -407,28 +388,20 @@ export const updateComponent = <C extends Component>(
 }
 
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
-  return component.existenceMapState[entity]?.get(NO_PROXY_STEALTH) ?? false
+  if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none)
+  return !component.stateMap[entity]!.promised
 }
 
 export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
-  component.existenceMapState[entity]?.set(false)
-  component.existenceMapPromiseResolver[entity]?.resolve?.()
-  component.existenceMapPromiseResolver[entity] = _createPromiseResolver()
   component.onRemove(entity, component.stateMap[entity]!)
+  component.stateMap[entity]?.set(none)
   bitECS.removeComponent(Engine.instance, component, entity, false)
-  delete component.valueMap[entity]
   const root = component.reactorMap.get(entity)
   component.reactorMap.delete(entity)
   // we need to wait for the reactor to stop before removing the state, otherwise
   // we can trigger errors in useEffect cleanup functions
   if (root?.isRunning) await root?.stop()
-  // NOTE: we may need to perform cleanup after a timeout here in case there
-  // are other reactors also referencing this state in their cleanup functions
-  if (!hasComponent(entity, component)) {
-    // reset the stateMap (do not use `none` here, as we don't want the state to become a promise)
-    component.stateMap[entity]?.set(undefined)
-  }
 }
 
 /**
@@ -627,40 +600,26 @@ function _use(promise) {
   }
 }
 
-function _createPromiseResolver() {
-  let resolve!: () => void
-  const promise = new Promise<void>((r) => (resolve = r))
-  return { promise, resolve }
-}
-
 /**
  * Use a component in a reactive context (a React component)
  */
 export function useComponent<C extends Component<any>>(entity: Entity, Component: C) {
-  let promiseResolver = Component.existenceMapPromiseResolver[entity]
-  if (!promiseResolver) {
-    promiseResolver = Component.existenceMapPromiseResolver[entity] = _createPromiseResolver()
-    if (hasComponent(entity, Component)) promiseResolver.resolve()
-  }
-
+  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(none)
+  const componentState = Component.stateMap[entity]!
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
-  ;(use ?? _use)(promiseResolver.promise)
-
-  return useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
+  if (componentState.promise) {
+    ;(use ?? _use)(componentState.promise)
+  }
+  return useHookstate(componentState) as any as State<ComponentType<C>> // todo fix any cast
 }
 
 /**
  * Use a component in a reactive context (a React component)
  */
 export function useOptionalComponent<C extends Component<any>>(entity: Entity, Component: C) {
-  if (!Component.stateMap[entity]) {
-    //in the case that this is called before a component is set we need a hookstate present for react
-    Component.existenceMapState[entity] = hookstate(false)
-    Component.stateMap[entity] = hookstate(undefined, subscribable())
-  }
-  const hasComponent = useHookstate(Component.existenceMapState[entity]).value
+  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(none)
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
-  return hasComponent ? component : undefined
+  return component.promised ? undefined : component
 }
 
 export type Query = ReturnType<typeof defineQuery>

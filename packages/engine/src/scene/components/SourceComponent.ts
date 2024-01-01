@@ -49,7 +49,6 @@ export const SourceComponent = defineComponent({
     }
 
     component.set(src)
-    SourceComponent.valueMap[entity] = src
 
     const nuEntities = SourceComponent.entitiesBySource[src] ?? []
     SourceComponent.entitiesBySourceState[src].set([...nuEntities, entity])

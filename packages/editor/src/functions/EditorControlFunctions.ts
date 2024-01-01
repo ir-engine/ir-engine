@@ -364,7 +364,8 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space: TransformSpace
     T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
     if (space === TransformSpace.local) {
-      transform.rotation.copy(T_QUAT_1)
+      updateComponent(node, TransformComponent, { rotation: T_QUAT_1 })
+      computeTransformMatrix(node)
     } else {
       const entityTreeComponent = getComponent(node, EntityTreeComponent)
       const parentTransform = entityTreeComponent.parentEntity
@@ -654,7 +655,7 @@ const commitTransformSave = (entities: Entity[]) => {
     const newSnapshot = SceneState.cloneCurrentSnapshot(sceneID)
     const sceneEntities = scenes[sceneID]
     for (const sceneEntity of sceneEntities) {
-      TransformComponent.stateMap[sceneEntity]!.set(TransformComponent.valueMap[sceneEntity])
+      TransformComponent.stateMap[sceneEntity]!.set((v) => v)
       const entityData = newSnapshot.data.entities[getComponent(sceneEntity, UUIDComponent)]
       const component = entityData.components.find((c) => c.name === TransformComponent.jsonID)!
       component.props = serializeComponent(sceneEntity, TransformComponent)
