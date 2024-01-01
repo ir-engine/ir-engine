@@ -2,14 +2,14 @@
 set -e
 set -x
 
-STAGE=$1
-TAG=$2
-LABEL=$3
-REGION=$4
-PRIVATE_ECR=$5
-$DOCR_REGISTRY=$6
+STAGE="dig"
+TAG="dig-do-7.8.8"
+LABEL="etherealengine/etherealengine"
+DOCR_REGISTRY="registry.digitalocean.com/etherealengine"
+REPO_NAME="etherealengine"
 EEVERSION=$(jq -r .version ./packages/server-core/package.json)
 
+echo "Entering the script"
 docker buildx create --use --driver=docker-container
 
 doctl registry login --expiry-seconds 1800
@@ -37,12 +37,7 @@ else
 fi
 
 # The following scripts will need to be updated for DOCR but are not critical for the functionality of EE on DO.
-if [ $PRIVATE_ECR == "true" ]
-then
-  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-builder --region $REGION --service builder --releaseName $STAGE
-else
-  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-builder --region us-east-1 --service builder --releaseName $STAGE --public
-fi
+
 
 # cache links to use once ECR supports cache manifests
 #  --cache-to type=registry,ref=$ECR_URL/$REPO_NAME-builder:latest_"${STAGE}"_cache,mode=max \

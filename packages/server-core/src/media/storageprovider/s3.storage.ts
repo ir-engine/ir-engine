@@ -110,6 +110,8 @@ function handler(event) {
  */
 export class S3Provider implements StorageProviderInterface {
   constructor() {
+    console.log('S3Provider is being called and minioClient is ', this.minioClient)
+    console.log('App Config', config.aws)
     if (!this.minioClient) this.getOriginURLs().then((result) => (this.originURLs = result))
   }
   /**
@@ -158,7 +160,7 @@ export class S3Provider implements StorageProviderInterface {
    * Domain address of S3 cache.
    */
   cacheDomain =
-    config.server.storageProvider === 's3'
+    config.server.storageProvider === 's3-do'
       ? config.aws.s3.endpoint
         ? `${config.aws.s3.endpoint.replace('http://', '').replace('https://', '')}/${this.bucket}`
         : config.aws.cloudfront.domain
@@ -166,8 +168,8 @@ export class S3Provider implements StorageProviderInterface {
 
   originURLs = [this.cacheDomain]
 
-  private bucketAssetURL =
-    config.server.storageProvider === 's3'
+  public bucketAssetURL =
+    config.server.storageProvider === 's3-do'
       ? config.aws.s3.endpoint
         ? `${config.aws.s3.endpoint}/${this.bucket}`
         : config.aws.s3.s3DevMode === 'local'
@@ -241,9 +243,14 @@ export class S3Provider implements StorageProviderInterface {
    * @param key Key of object.
    */
   async getObject(key: string): Promise<StorageObjectInterface> {
+    console.log('[DO] Inside Get Object DO3')
     const data = new GetObjectCommand({ Bucket: this.bucket, Key: key })
+    console.log('[DO] bucket name is, ', this.bucket)
+    console.log('[DO] endpoint is ', this.provider.config.endpoint)
+    console.log('[DO] region is ', this.provider.config.region)
     const response = await this.provider.send(data)
     const body = await buffer(response.Body as Readable)
+    console.log('[DO] Sent was succcessfull')
     return { Body: body, ContentType: response.ContentType! }
   }
 
@@ -303,7 +310,7 @@ export class S3Provider implements StorageProviderInterface {
     if (!data.Key) return
     // key should not contain '/' at the begining
     const key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
-
+    console.log('[DO] Key is ', key)
     const args = params.isDirectory
       ? {
           ACL: ObjectCannedACL.public_read,
@@ -413,7 +420,7 @@ export class S3Provider implements StorageProviderInterface {
   async createInvalidation(invalidationItems: string[]) {
     if (!invalidationItems || invalidationItems.length === 0) return
     // for non-standard s3 setups, we don't use cloudfront
-    if (config.server.storageProvider !== 's3' || config.aws.s3.s3DevMode === 'local') return
+    if (config.server.storageProvider !== 's3-do' || config.aws.s3.s3DevMode === 'local') return
     const params = {
       DistributionId: config.aws.cloudfront.distributionId,
       InvalidationBatch: {
@@ -431,7 +438,7 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   async getOriginURLs(): Promise<string[]> {
-    if (config.server.storageProvider !== 's3' || config.aws.s3.s3DevMode === 'local') return [this.cacheDomain]
+    if (config.server.storageProvider !== 's3-do' || config.aws.s3.s3DevMode === 'local') return [this.cacheDomain]
     const getDistributionParams = {
       Id: config.aws.cloudfront.distributionId
     }
@@ -442,7 +449,7 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   async listFunctions(marker: string | null, functions: FunctionSummary[]): Promise<FunctionSummary[]> {
-    if (config.server.storageProvider !== 's3') return []
+    if (config.server.storageProvider !== 's3-do') return []
     const params: ListFunctionsCommandInput = {
       MaxItems: MAX_ITEMS
     }

@@ -43,16 +43,22 @@ cli.enable('status')
 
 cli.main(async () => {
   try {
+    console.log('[DO] Starting to push objects to SOS')
     await createDefaultStorageProvider()
     const storageProvider = getStorageProvider()
+    console.log('[DO] Trying to resolve path now and the path is ', appRootPath.path)
     const clientPath = path.resolve(appRootPath.path, `packages/client/dist`)
     const files = getFilesRecursive(clientPath)
+    console.log('[DO] Completed Get files recursive and files count is ', files.length)
+    console.log('[DO] Now trying to get object from SOS')
     let filesToPruneResponse = await storageProvider.getObject('client/S3FilesToRemove.json')
+    console.log('[DO] files to delete are', filesToPruneResponse)
     const filesToPush: string[] = []
     await Promise.all(
       files.map((file) => {
         return new Promise(async (resolve) => {
           try {
+            console.log('[DO] About to push files')
             const fileResult = fs.readFileSync(file)
             let filePathRelative = processFileName(file.slice(clientPath.length))
             let contentType = getContentType(file)
@@ -67,8 +73,12 @@ cli.main(async () => {
               putData.ContentEncoding = 'br'
               putData.Key = `client${filePathRelative}`
             }
+            console.log('[DO] Files relative path is, ', filePathRelative)
+            console.log('[DO] Trying to push object to SOS')
             await storageProvider.putObject(putData, { isDirectory: false })
+            console.log('[DO] Pushed object to SOS by pushing filePathRelative')
             filesToPush.push(`client${filePathRelative}`)
+            console.log('[DO] Sucessfully pushed files')
             resolve(null)
           } catch (e) {
             logger.error(e)

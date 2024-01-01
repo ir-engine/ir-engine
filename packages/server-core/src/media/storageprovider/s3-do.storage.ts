@@ -51,6 +51,10 @@ function handler(event) {
  * Storage provide class to communicate with AWS S3 API.
  */
 export class S3DOProvider extends S3Provider {
+  constructor() {
+    super()
+    this.bucketAssetURL = 'https://etherealengine-static-resources.sfo2.digitaloceanspaces.com'
+  }
   /**
    * Invalidate items in the S3 storage.
    * @param invalidationItems List of keys.
