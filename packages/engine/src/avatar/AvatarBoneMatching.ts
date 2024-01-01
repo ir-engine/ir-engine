@@ -629,10 +629,11 @@ function findRootBone(bone: Bone): Bone {
   return node
 }
 
+const hipsRegex = /hip|pelvis/i
 export const recursiveHipsLookup = (model: Object3D) => {
   const name = model.name.toLowerCase()
 
-  if (name.includes('hip')) {
+  if (hipsRegex.test(name)) {
     return model
   }
   if (model.children.length > 0) {
@@ -652,50 +653,31 @@ export function getAPose(rightHand: Vector3, _rightUpperArmPos: Vector3): boolea
 
 const _rightHandPos = new Vector3(),
   _rightUpperArmPos = new Vector3()
+
 export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
-  /** Detect that the model needs bone matching */
+  /** Determine whether or not the model needs bone matching */
   if (asset instanceof VRM) return asset
 
-  let isAvatar = false
-  let hasSkinnedMesh = false
-  asset.scene.traverse((target: SkinnedMesh) => {
-    //see if we find hips
-    const name = target.name.toLowerCase()
-    if (name.includes('hip') || name.includes('root')) {
-      isAvatar = true
-    }
-    if (target.isSkinnedMesh) hasSkinnedMesh = true
-  })
-  if (!isAvatar || !hasSkinnedMesh) return asset
+  const hips = recursiveHipsLookup(asset.scene)
+  if (!hips) return asset
 
   const bones = {} as VRMHumanBones
-  //use hips name as a standard to determine what to do with the mixamo prefix
-  let needsMixamoPrefix = false
-  let mixamoPrefix = ''
-  let removeIdentifier = false
-  let foundHips = false
 
-  asset.scene.traverse((target) => {
-    //see if we find hips
-    if (target.name.toLowerCase().includes('hip')) {
-      needsMixamoPrefix = !target.name.includes('mixamorig')
-      if (needsMixamoPrefix) {
-        mixamoPrefix = 'mixamorig'
-      } else {
-        if (target.name[9].toLowerCase() != 'h') removeIdentifier = true
-      }
-      foundHips = true
-    }
-    if (!foundHips) return
+  /** some mixamo rigs do not use the mixamo prefix, if so we add
+   * a prefix to the rig names for matching to keys in the mixamoVRMRigMap
+   */
+  const mixamoPrefix = hips.name.includes('mixamorig') ? '' : 'mixamorig'
+  /** some mixamo rigs have an identifier or suffix after the mixamo prefix
+   * that must be removed for matching to keys in the mixamoVRMRigMap
+   */
+  const removeSuffix = !/[hp]/i.test(hips.name.charAt(9))
 
-    if (removeIdentifier) {
-      target.name = target.name.slice(0, 9) + target.name.slice(10)
-    }
-
-    const bone = mixamoVRMRigMap[mixamoPrefix + target.name] as string
-
+  hips.traverse((target) => {
+    /**match the keys to create a humanoid bones object */
+    let boneName = mixamoPrefix + target.name
+    if (removeSuffix) boneName = boneName.slice(0, 9) + target.name.slice(10)
+    const bone = mixamoVRMRigMap[boneName] as string
     if (bone) {
-      //if hips bone does not have mixamo prefix, remove it from the current bone
       target.name = bone
       bones[bone] = { node: target } as VRMHumanBone
     }

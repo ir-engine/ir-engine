@@ -37,6 +37,7 @@ import { ProjectState } from '@etherealengine/client-core/src/common/services/Pr
 import config from '@etherealengine/common/src/config'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { recursiveHipsLookup } from '@etherealengine/engine/src/avatar/AvatarBoneMatching'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import BooleanInput from '../inputs/BooleanInput'
@@ -62,6 +63,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
   const exporting = useState(false)
+  const bonematchable = useState(false)
   const editorState = getState(EditorState)
   const projectState = getState(ProjectState)
   const loadedProjects = useState(() => projectState.projects.map((project) => project.name))
@@ -106,6 +108,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     exportType.set(getExportExtension())
   }, [modelComponent.src])
 
+  useEffect(() => {
+    bonematchable.set(modelComponent.asset.value && recursiveHipsLookup(modelComponent.asset.value?.scene))
+  }, [modelComponent.asset])
+
   return (
     <NodeEditor
       name={t('editor:properties.model.title')}
@@ -123,7 +129,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(ModelComponent, 'cameraOcclusion')}
         />
       </InputGroup>
-
+      <InputGroup name="Convert to VRM" label={t('editor:properties.model.lbl-convertToVRM')}>
+        <BooleanInput
+          value={modelComponent.convertToVRM.value}
+          onChange={commitProperty(ModelComponent, 'convertToVRM')}
+        />
+      </InputGroup>
       {!exporting.value && (
         <Well>
           <div className="property-group-header">{t('editor:properties.model.lbl-export')}</div>

@@ -213,7 +213,7 @@ export const LoopAnimationComponent = defineComponent({
       if (!hasComponent(entity, AnimationComponent)) {
         setComponent(entity, AnimationComponent, {
           mixer: new AnimationMixer(model.asset!.scene),
-          animations: []
+          animations: model.scene?.animations ?? []
         })
       }
     }, [modelComponent?.asset, loopAnimationComponent.hasAvatarAnimations])
