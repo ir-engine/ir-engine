@@ -61,7 +61,9 @@ export const BehaveGraphComponent = defineComponent({
       filepath: component.filepath.value,
       domain: component.domain.value,
       run: false,
-      disabled: component.disabled.value
+      disabled: component.disabled.value,
+      graph: null! as GraphJSON
+      // we dont want to save the graph json in scene but we need this to define the state map :/ better solution is welcome!!
     }
   },
 
@@ -74,6 +76,10 @@ export const BehaveGraphComponent = defineComponent({
     const domainValidator = matches.string as Validator<unknown, BehaveGraphDomain>
     if (domainValidator.test(json.domain)) {
       component.domain.value !== json.domain && component.domain.set(json.domain!)
+    }
+    const graphValidator = matches.object as Validator<unknown, GraphJSON>
+    if (graphValidator.test(json.graph)) {
+      component.graph.set(parseStorageProviderURLs(json.graph)!)
     }
   },
 
