@@ -188,11 +188,9 @@ export const UVOL2Component = defineComponent({
   onInit: (entity) => {
     return {
       canPlay: false,
-      enableBuffering: true,
       manifestPath: '',
       data: {} as PlayerManifest,
       hasAudio: false,
-      polygonOffsetFactor: null as number | null,
       geometryInfo: {
         targets: [] as string[],
         currentTarget: 0,
@@ -460,10 +458,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         defines: defines,
         lights: true
       })
-    }
-    if (component.polygonOffsetFactor.value !== null) {
-      _material.polygonOffset = true
-      _material.polygonOffsetFactor = component.polygonOffsetFactor.value
     }
     return _material
   }, [])
@@ -1253,7 +1247,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       return
     }
 
-    if (component.enableBuffering.value) {
+    if (volumetric.autoPauseWhenBuffering.value) {
       const currentGeometryBufferHealth =
         component.geometryInfo.bufferHealth.value - (component.currentTime.value - volumetric.startTime.value)
       const currentMinBuffer = Math.min(minBufferToPlay, component.data.duration.value - component.currentTime.value)
