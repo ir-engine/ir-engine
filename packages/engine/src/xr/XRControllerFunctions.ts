@@ -29,7 +29,11 @@ import { config } from '@etherealengine/common/src/config'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerType, AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
-import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { setComponent } from '../ecs/functions/ComponentFunctions'
+import { createEntity } from '../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../ecs/functions/EntityTree'
+import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
+import { NameComponent } from '../scene/components/NameComponent'
 import { AssetLoader } from './../assets/classes/AssetLoader'
 import { SkeletonUtils } from './../avatar/SkeletonUtils'
 import { Entity } from './../ecs/classes/Entity'
@@ -54,14 +58,17 @@ export const initializeControllerModel = async (entity: Entity, handedness: stri
 
   const controller = new Group()
   controller.name = `controller-model-${entity}`
-  addObjectToGroup(entity, controller)
+  const controllerEntity = createEntity()
+  setComponent(controllerEntity, NameComponent, controller.name)
+  setComponent(controllerEntity, EntityTreeComponent, { parentEntity: entity })
+  addObjectToGroup(controllerEntity, controller)
 
   if (controller.userData.mesh) {
-    controller.remove(controller.userData.mesh)
+    removeObjectFromGroup(controllerEntity, controller.userData.mesh)
   }
 
   controller.userData.mesh = handMesh
-  controller.add(controller.userData.mesh)
+  addObjectToGroup(controllerEntity, controller.userData.mesh)
   controller.userData.handedness = handedness
 
   const winding = handedness == 'left' ? 1 : -1
@@ -84,14 +91,17 @@ export const initializeHandModel = async (entity: Entity, handedness: string) =>
 
   const controller = new Group()
   controller.name = `controller-hand-model-${entity}`
-  addObjectToGroup(entity, controller)
+  const controllerEntity = createEntity()
+  setComponent(controllerEntity, NameComponent, controller.name)
+  setComponent(controllerEntity, EntityTreeComponent, { parentEntity: entity })
+  addObjectToGroup(controllerEntity, controller)
 
   if (controller.userData.mesh) {
-    controller.remove(controller.userData.mesh)
+    removeObjectFromGroup(controllerEntity, controller.userData.mesh)
   }
 
   controller.userData.mesh = new XRHandMeshModel(entity, controller, handMesh, handedness)
-  controller.add(controller.userData.mesh)
+  addObjectToGroup(controllerEntity, controller.userData.mesh)
   controller.userData.handedness = handedness
 
   if (gltf?.animations?.length) {
