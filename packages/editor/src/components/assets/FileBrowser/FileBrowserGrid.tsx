@@ -36,9 +36,9 @@ import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
 import InputBase from '@mui/material/InputBase'
 import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
 import { PopoverPosition } from '@mui/material/Popover'
 
+import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import { Vector3 } from 'three'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { addMediaNode } from '../../../functions/addMediaNode'
@@ -62,7 +62,7 @@ export const FileListItem: React.FC<FileListItemProps> = (props) => {
     setNewFileName(e.target.value)
   }
 
-  return !props.isRenaming ? (
+  return (
     <div
       className={styles.fileListItemContainer}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
@@ -80,23 +80,26 @@ export const FileListItem: React.FC<FileListItemProps> = (props) => {
           </>
         )}
       </div>
-      {props.item.fullName}
+      {props.isRenaming ? (
+        <Paper component="div" className={styles.inputContainer}>
+          <InputBase
+            autoFocus={true}
+            className={styles.input}
+            name="name"
+            autoComplete="off"
+            value={newFileName}
+            onChange={(e) => handleChange(e)}
+            onKeyUp={async (e) => {
+              if (e.key == 'Enter') {
+                props.onNameChanged(newFileName)
+              }
+            }}
+          />
+        </Paper>
+      ) : (
+        props.item.fullName
+      )}
     </div>
-  ) : (
-    <Paper component="div" className={styles.inputContainer}>
-      <InputBase
-        className={styles.input}
-        name="name"
-        autoComplete="off"
-        value={newFileName}
-        onChange={(e) => handleChange(e)}
-        onKeyPress={async (e) => {
-          if (e.key == 'Enter') {
-            props.onNameChanged(newFileName)
-          }
-        }}
-      />
-    </Paper>
   )
 }
 
