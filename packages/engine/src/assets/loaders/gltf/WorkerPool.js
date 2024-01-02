@@ -35,7 +35,8 @@ export class WorkerPool {
     this.queue = []
     this.workers = []
     this.workersResolve = []
-    this.workerStatus = 0
+    this.workerStatus = []
+    this.maxConcurrentTasks = 7
   }
 
   _initWorker(workerId) {
@@ -43,25 +44,36 @@ export class WorkerPool {
       const worker = this.workerCreator()
       worker.addEventListener('message', this._onMessage.bind(this, workerId))
       this.workers[workerId] = worker
+      this.workerStatus[workerId] = 0
+      this.workersResolve[workerId] = []
     }
   }
 
   _getIdleWorker() {
-    for (let i = 0; i < this.pool; i++) if (!(this.workerStatus & (1 << i))) return i
-
-    return -1
+    if (this.workerStatus.length < this.pool) {
+      for (let i = this.workerStatus.length; i < this.pool; i++) {
+        this._initWorker(i)
+      }
+    }
+    const leastLoad = Math.min(...this.workerStatus)
+    if (leastLoad >= this.maxConcurrentTasks) {
+      return -1
+    }
+    return this.workerStatus.indexOf(leastLoad)
   }
 
   _onMessage(workerId, msg) {
-    const resolve = this.workersResolve[workerId]
+    const requestId = msg.data.requestId
+    const resolve = this.workersResolve[workerId][requestId]
     resolve && resolve(msg)
 
     if (this.queue.length) {
       const { resolve, msg, transfer } = this.queue.shift()
-      this.workersResolve[workerId] = resolve
+      msg.requestId = requestId
+      this.workersResolve[workerId][requestId] = resolve
       this.workers[workerId].postMessage(msg, transfer)
     } else {
-      this.workerStatus ^= 1 << workerId
+      this.workerStatus[workerId]--
     }
   }
 
@@ -79,8 +91,10 @@ export class WorkerPool {
 
       if (workerId !== -1) {
         this._initWorker(workerId)
-        this.workerStatus |= 1 << workerId
-        this.workersResolve[workerId] = resolve
+        this.workerStatus[workerId]++
+        const requestId = this.workerStatus[workerId]
+        this.workersResolve[workerId][requestId] = resolve
+        msg.requestId = requestId
         this.workers[workerId].postMessage(msg, transfer)
       } else {
         this.queue.push({ resolve, msg, transfer })
@@ -93,6 +107,6 @@ export class WorkerPool {
     this.workersResolve.length = 0
     this.workers.length = 0
     this.queue.length = 0
-    this.workerStatus = 0
+    this.workerStatus.length = 0
   }
 }
