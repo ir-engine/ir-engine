@@ -70,13 +70,14 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
-import { Button } from '../../inputs/Button'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
@@ -407,13 +408,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     )
   }
 
-  const searchBarState = useHookstate('')
-
+  const searchText = useHookstate('')
   const validFiles = useHookstate<typeof files>([])
 
   useEffect(() => {
-    validFiles.set(files.filter((file) => file.fullName.toLowerCase().includes(searchBarState.value.toLowerCase())))
-  }, [searchBarState.value, fileState.files])
+    validFiles.set(files.filter((file) => file.fullName.toLowerCase().includes(searchText.value.toLowerCase())))
+  }, [searchText.value, fileState.files])
 
   const DropArea = () => {
     const [{ isFileDropOver }, fileDropRef] = useDrop({
@@ -422,6 +422,26 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       collect: (monitor) => ({ isFileDropOver: monitor.isOver() })
     })
 
+    const isListView = filesViewMode.value === 'list'
+    const staticResourceData = useFind(staticResourcePath, {
+      query: {
+        key: {
+          $in: isListView ? validFiles.value.map((file) => file.key) : []
+        },
+        $select: ['key', 'updatedAt'] as any,
+        $limit: FILES_PAGE_LIMIT
+      }
+    })
+    const staticResourceModifiedDates = useHookstate<Record<string, string>>({})
+
+    useEffect(() => {
+      const modifiedDates: Record<string, string> = {}
+      staticResourceData.data.forEach((data) => {
+        modifiedDates[data.key] = new Date(data.updatedAt).toLocaleString()
+      })
+      staticResourceModifiedDates.set(modifiedDates)
+    }, [staticResourceData.data])
+
     return (
       <div
         ref={fileDropRef}
@@ -429,7 +449,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         style={{ border: isFileDropOver ? '3px solid #ccc' : '' }}
       >
         <div className={styles.contentContainer}>
-          <FileTableWrapper wrap={filesViewMode.value === 'list'}>
+          <FileTableWrapper wrap={isListView}>
             <>
               {unique(validFiles.get(NO_PROXY), (file) => file.key).map((file, i) => (
                 <FileBrowserItem
@@ -448,7 +468,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   isFilesLoading={isLoading}
                   addFolder={createNewFolder}
                   refreshDirectory={refreshDirectory}
-                  isListView={filesViewMode.value === 'list'}
+                  isListView={isListView}
+                  staticResourceModifiedDates={staticResourceModifiedDates.value}
                 />
               ))}
             </>
@@ -566,15 +587,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       }}
     >
       <Header />
-      <div className={styles.headerContainer}>
-        <span className={styles.searchContainer}>
-          <Button onClick={() => searchBarState.set('')}>x</Button>
-          <StringInput
-            value={searchBarState.value}
-            onChange={(e) => searchBarState.set(e?.target.value ?? '')}
-            placeholder="Search"
-          />
-        </span>
+      <div className={styles.searchContainer}>
+        <StringInput
+          placeholder={t('editor:layout.filebrowser.search-placeholder')}
+          value={searchText.value}
+          onChange={(event) => searchText.set(event.target.value)}
+        />
       </div>
       {retrieving && (
         <LoadingView

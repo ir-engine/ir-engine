@@ -100,7 +100,8 @@ export const FileTableListBody = ({
   isRenaming,
   onNameChanged,
   onClick,
-  onDoubleClick
+  onDoubleClick,
+  modifiedDate
 }: {
   file: FileDataType
   onContextMenu: React.MouseEventHandler
@@ -108,6 +109,7 @@ export const FileTableListBody = ({
   onNameChanged: (newName: string) => void
   onClick?: MouseEventHandler<HTMLDivElement>
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
+  modifiedDate?: string
 }) => {
   return (
     <TableRow
@@ -123,8 +125,8 @@ export const FileTableListBody = ({
           {file.isFolder ? <FolderIcon /> : file.Icon ? <file.Icon /> : <DescriptionIcon />}
           {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
         </span>,
-        file.type,
-        file.path,
+        file.type.toUpperCase(),
+        modifiedDate || '',
         file.size
       ].map((data, idx) => (
         <TableCell key={idx} className={styles.tableCell}>
@@ -187,6 +189,7 @@ type FileBrowserItemType = {
   addFolder: () => void
   refreshDirectory: () => Promise<void>
   isListView: boolean
+  staticResourceModifiedDates: Record<string, string>
 }
 
 export function FileBrowserItem({
@@ -204,7 +207,8 @@ export function FileBrowserItem({
   isFilesLoading,
   addFolder,
   refreshDirectory,
-  isListView
+  isListView,
+  staticResourceModifiedDates
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
@@ -361,6 +365,7 @@ export function FileBrowserItem({
           onDoubleClick={onClickItem}
           isRenaming={renamingAsset}
           onNameChanged={onNameChanged}
+          modifiedDate={staticResourceModifiedDates[item.key]}
         />
       ) : (
         <div ref={drop} style={{ border: item.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}>
