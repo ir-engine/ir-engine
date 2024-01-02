@@ -264,7 +264,6 @@ export const playAnimation = makeFlowNodeDefinition({
     const timeScale = read<number>('timeScale')
     const animationPack = read<string>('animationPack')
     const activeClipIndex = read<number>('activeClipIndex')
-    const isAvatar = read<boolean>('isAvatar')
 
     setComponent(entity, LoopAnimationComponent, {
       paused: paused,
