@@ -7,4 +7,4 @@ npm run dev-docker
 npm run dev-reinit
 
 #bot-test
-npm run test-e2e
+npm run test-e2e --verbose
