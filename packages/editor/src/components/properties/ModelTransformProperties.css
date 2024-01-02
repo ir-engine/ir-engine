@@ -41,11 +41,3 @@
     box-shadow: 0 0 5px #f00;
   }
 }
-
-.OptimizeButton {
-  animation: glowing 5000ms infinite;
-}
-
-.OptimizeButton:hover {
-  animation: glowing 250ms infinite;
-}

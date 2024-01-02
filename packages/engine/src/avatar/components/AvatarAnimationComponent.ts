@@ -23,19 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import {
-  AnimationAction,
-  Bone,
-  Euler,
-  KeyframeTrack,
-  Matrix4,
-  Quaternion,
-  SkeletonHelper,
-  SkinnedMesh,
-  Vector3
-} from 'three'
+import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -63,10 +53,11 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
+import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
+import { AnimationComponent } from './AnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -109,8 +100,6 @@ export const AvatarRigComponent = defineComponent({
       /** Holds all the bones */
       normalizedRig: null! as VRMHumanBones,
       rawRig: null! as VRMHumanBones,
-      /** the target */
-      targetBones: null! as Record<VRMHumanBoneName, Bone>,
 
       helperEntity: null as Entity | null,
       /** The length of the torso in a t-pose, from the hip joint to the head joint */
@@ -139,7 +128,6 @@ export const AvatarRigComponent = defineComponent({
     if (!json) return
     if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
-    if (matches.object.test(json.targetBones)) component.targetBones.set(json.targetBones)
     if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
     if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
     if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
@@ -170,20 +158,15 @@ export const AvatarRigComponent = defineComponent({
       const helper = new SkeletonHelper(rigComponent.value.vrm.scene)
       helper.frustumCulled = false
       helper.name = `target-rig-helper-${entity}`
-      setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
       const helperEntity = createEntity()
       setVisibleComponent(helperEntity, true)
       addObjectToGroup(helperEntity, helper)
       rigComponent.helperEntity.set(helperEntity)
       setComponent(helperEntity, NameComponent, helper.name)
+      setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
       setComputedTransformComponent(helperEntity, entity, () => {
-        const helperTransform = getComponent(helperEntity, TransformComponent)
-        const avatarTransform = getComponent(entity, TransformComponent)
-        helperTransform.position.copy(avatarTransform.position)
-        helperTransform.rotation.copy(avatarTransform.rotation)
-
         // this updates the bone helper lines
         helper.updateMatrixWorld(true)
       })
@@ -215,6 +198,7 @@ export const AvatarRigComponent = defineComponent({
       const rig = getComponent(entity, AvatarRigComponent)
       try {
         setupAvatarForUser(entity, rig.vrm)
+        if (manager.loadedAnimations[locomotionAnimation].value) retargetAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
@@ -224,7 +208,13 @@ export const AvatarRigComponent = defineComponent({
     const manager = useHookstate(getMutableState(AnimationState))
 
     useEffect(() => {
-      if (!manager.loadedAnimations.value || !rigComponent?.vrm?.value || !rigComponent?.normalizedRig?.value) return
+      if (
+        !manager.loadedAnimations[locomotionAnimation].value ||
+        !rigComponent?.vrm?.value ||
+        !rigComponent?.normalizedRig?.value ||
+        getComponent(entity, AnimationComponent).animations.length
+      )
+        return
       try {
         retargetAvatarAnimations(entity)
       } catch (e) {

@@ -45,7 +45,6 @@ import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendere
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
@@ -56,9 +55,11 @@ import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/Ob
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
@@ -87,8 +88,6 @@ const LoadingUISystemState = defineState({
     mesh.frustumCulled = false
 
     setComponent(meshEntity, NameComponent, 'Loading XRUI Mesh')
-    mesh.renderOrder = 1
-    setObjectLayers(mesh, ObjectLayers.UI)
 
     setComputedTransformComponent(meshEntity, Engine.instance.cameraEntity, () => {
       getComponent(meshEntity, TransformComponent).position.copy(
@@ -98,6 +97,8 @@ const LoadingUISystemState = defineState({
 
     setComponent(meshEntity, VisibleComponent)
     addObjectToGroup(meshEntity, mesh)
+    mesh.renderOrder = 1
+    setObjectLayers(mesh, ObjectLayers.UI)
 
     getComponent(meshEntity, TransformComponent).scale.set(-1, 1, -1)
 
@@ -234,7 +235,8 @@ const execute = () => {
   if (transition.state === 'IN' && transition.alpha === 1) {
     if (!hasComponent(ui.entity, ComputedTransformComponent))
       setComputedTransformComponent(ui.entity, Engine.instance.cameraEntity, () => {
-        const distance = 0.1
+        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+        const distance = camera.near * 1.1 // 10% in front of camera
         const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
         if (!uiContainer) return
         const uiSize = uiContainer.domSize
