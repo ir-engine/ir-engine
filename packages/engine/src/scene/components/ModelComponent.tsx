@@ -207,11 +207,6 @@ function ModelReactor(): JSX.Element {
     }
   }, [modelComponent.src, modelComponent.convertToVRM])
 
-  //useEffect(() => {
-  //  if(!modelComponent.asset.value) return
-  //  modelComponent.src.set('')
-  //}, [modelComponent.convertToVRM])
-
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
     const asset = model.asset as GLTF | null
