@@ -129,12 +129,14 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(ModelComponent, 'cameraOcclusion')}
         />
       </InputGroup>
-      <InputGroup name="Convert to VRM" label={t('editor:properties.model.lbl-convertToVRM')}>
-        <BooleanInput
-          value={modelComponent.convertToVRM.value}
-          onChange={commitProperty(ModelComponent, 'convertToVRM')}
-        />
-      </InputGroup>
+      {bonematchable.value && (
+        <InputGroup name="Convert to VRM" label={t('editor:properties.model.lbl-convertToVRM')}>
+          <BooleanInput
+            value={modelComponent.convertToVRM.value}
+            onChange={commitProperty(ModelComponent, 'convertToVRM')}
+          />
+        </InputGroup>
+      )}
       {!exporting.value && (
         <Well>
           <div className="property-group-header">{t('editor:properties.model.lbl-export')}</div>
