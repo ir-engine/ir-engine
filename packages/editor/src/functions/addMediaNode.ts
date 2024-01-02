@@ -35,7 +35,7 @@ import { VolumetricComponent } from '@etherealengine/engine/src/scene/components
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { IntersectObject } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { AddMaterial, IntersectObject } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
@@ -62,18 +62,13 @@ export async function addMediaNode(
   const { hostname } = new URL(url)
 
   if (contentType.startsWith('model/')) {
-    console.log('gltf files')
     if (contentType.startsWith('model/material')) {
-      console.log(url)
       EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
         parent!,
         before
       )
-      //find current material
-      //const currentmaterial
-      console.log('Material files')
-      // Swap material of the current model
+      // find current intersected object
       const objectLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
       const sceneObjects = objectLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
       //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
@@ -89,26 +84,12 @@ export async function addMediaNode(
       pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
 
       const intersect = pointerScreenRaycaster.intersectObjects(sceneObjects, true)
-      //swap material of intersected object with current material
+      //change states
       const intersected = pointerScreenRaycaster.intersectObjects(sceneObjects)[0]
       const inter = getState(IntersectObject)
       inter.intersected = intersected
-      // const materialLibrary = getState(MaterialLibraryState)
-      // iterateObject3D(intersected.object, (mesh: Mesh) => {
-      //   if (!mesh?.isMesh) return
-      //   const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-
-      //   materials.forEach(material => {
-      //     const prototypeId = material.userData.type ?? material.type
-      //     const prototype = prototypeFromId(prototypeId)
-      //     const parameters = Object.fromEntries(Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]]))
-      //     const col=parameters.color
-      //     // parameters.color.r=1.0
-      //     // parameters.color.g=0.0
-      //     // parameters.color.b=0.0
-      //      //material=currentmaterial as Material
-      //   })
-      // })
+      const addmaterial = getState(AddMaterial)
+      addmaterial.IsMaterial = true
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],

@@ -350,6 +350,10 @@ const assetLoadCallback =
         registerMaterials(asset.scene, SourceType.MODEL, url)
       }
     }
+    if (assetClass === AssetClass.Material) {
+      const material = asset as Material
+      material.userData.type = assetType
+    }
     if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
       const texture = asset as Texture
       texture.wrapS = RepeatWrapping
