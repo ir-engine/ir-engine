@@ -45,7 +45,13 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  getMutableState,
+  NO_PROXY,
+  syncStateWithLocalStorage,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import AddIcon from '@mui/icons-material/Add'
@@ -77,7 +83,7 @@ import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
 import CompressionPanel from '../CompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
 import styles from '../styles.module.scss'
-import { FileBrowserItem } from './FileBrowserGrid'
+import { FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
 import { FileDataType } from './FileDataType'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
 
@@ -141,6 +147,16 @@ export function isFileDataType(value: any): value is FileDataType {
   return value && value.key
 }
 
+const FilesViewModeState = defineState({
+  name: 'FilesViewModeState',
+  initial: {
+    viewMode: 'icons' as 'icons' | 'list'
+  },
+  onCreate: (store, state) => {
+    syncStateWithLocalStorage(FilesViewModeState, ['viewMode'])
+  }
+})
+
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
  */
@@ -165,7 +181,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const contentToDeletePath = useHookstate('')
 
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
-  const filesViewMode = useHookstate<'icons' | 'list'>('icons')
+  const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
 
   const fileState = useHookstate(getMutableState(FileBrowserState))
   const filesValue = fileState.files.attach(Downgraded).value
@@ -413,25 +429,30 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         style={{ border: isFileDropOver ? '3px solid #ccc' : '' }}
       >
         <div className={styles.contentContainer}>
-          {unique(validFiles.get(NO_PROXY), (file) => file.key).map((file, i) => (
-            <FileBrowserItem
-              key={file.key}
-              item={file}
-              disableDnD={props.disableDnD}
-              onClick={onSelect}
-              moveContent={moveContent}
-              deleteContent={handleConfirmDelete}
-              currentContent={currentContentRef}
-              setOpenPropertiesModal={openProperties.set}
-              setFileProperties={fileProperties.set}
-              setOpenCompress={openCompress.set}
-              setOpenConvert={openConvert.set}
-              dropItemsOnPanel={dropItemsOnPanel}
-              isFilesLoading={isLoading}
-              addFolder={createNewFolder}
-              refreshDirectory={refreshDirectory}
-            />
-          ))}
+          <FileTableWrapper wrap={filesViewMode.value === 'list'}>
+            <>
+              {unique(validFiles.get(NO_PROXY), (file) => file.key).map((file, i) => (
+                <FileBrowserItem
+                  key={file.key}
+                  item={file}
+                  disableDnD={props.disableDnD}
+                  onClick={onSelect}
+                  moveContent={moveContent}
+                  deleteContent={handleConfirmDelete}
+                  currentContent={currentContentRef}
+                  setOpenPropertiesModal={openProperties.set}
+                  setFileProperties={fileProperties.set}
+                  setOpenCompress={openCompress.set}
+                  setOpenConvert={openConvert.set}
+                  dropItemsOnPanel={dropItemsOnPanel}
+                  isFilesLoading={isLoading}
+                  addFolder={createNewFolder}
+                  refreshDirectory={refreshDirectory}
+                  isListView={filesViewMode.value === 'list'}
+                />
+              ))}
+            </>
+          </FileTableWrapper>
 
           {total > 0 && validFiles.value.length < total && (
             <TablePagination

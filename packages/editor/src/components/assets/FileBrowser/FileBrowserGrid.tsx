@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { StateMethods } from '@etherealengine/hyperflux'
+import { StateMethods, useHookstate } from '@etherealengine/hyperflux'
 
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -39,6 +39,7 @@ import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import { Vector3 } from 'three'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { addMediaNode } from '../../../functions/addMediaNode'
@@ -47,7 +48,94 @@ import { ContextMenu } from '../../layout/ContextMenu'
 import styles from '../styles.module.scss'
 import { FileDataType } from './FileDataType'
 
-type FileListItemProps = {
+const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChanged: (newName: string) => void }) => {
+  const newFileName = useHookstate(fileName)
+  return (
+    <Paper component="div" className={styles.inputContainer}>
+      <InputBase
+        autoFocus={true}
+        className={styles.input}
+        name="name"
+        autoComplete="off"
+        value={newFileName.value}
+        onChange={(event) => newFileName.set(event.target.value)}
+        onKeyUp={async (e) => {
+          if (e.key == 'Enter') {
+            onNameChanged(newFileName.value)
+          }
+        }}
+      />
+    </Paper>
+  )
+}
+
+/**
+ * if `wrap` is enabled, wraps the `children` inside a `TableBody` with Table Heading and Table Component attached
+ */
+export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: JSX.Element }): JSX.Element => {
+  if (!wrap) {
+    return children
+  }
+  const { t } = useTranslation()
+  return (
+    <TableContainer component="div">
+      <Table size="small" className={styles.table}>
+        <TableHead>
+          <TableRow className={styles.tableHeaderRow}>
+            {['name', 'type', 'date-modified', 'size'].map((header) => (
+              <TableCell key={header} className={styles.tableCell}>
+                {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>{children}</TableBody>
+      </Table>
+    </TableContainer>
+  )
+}
+export const FileTableListBody = ({
+  file,
+  onContextMenu,
+  isRenaming,
+  onNameChanged,
+  onClick,
+  onDoubleClick
+}: {
+  file: FileDataType
+  onContextMenu: React.MouseEventHandler
+  isRenaming: boolean
+  onNameChanged: (newName: string) => void
+  onClick?: MouseEventHandler<HTMLDivElement>
+  onDoubleClick?: MouseEventHandler<HTMLDivElement>
+}) => {
+  return (
+    <TableRow
+      key={file.key}
+      sx={{ border: 0 }}
+      onContextMenu={onContextMenu}
+      onClick={isRenaming ? () => {} : onClick}
+      onDoubleClick={isRenaming ? () => {} : onDoubleClick}
+      hover
+    >
+      {[
+        <span className={styles.cellName}>
+          {file.isFolder ? <FolderIcon /> : file.Icon ? <file.Icon /> : <DescriptionIcon />}
+          {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
+        </span>,
+        file.type,
+        file.path,
+        file.size
+      ].map((data, idx) => (
+        <TableCell key={idx} className={styles.tableCell}>
+          {data}
+        </TableCell>
+      ))}
+    </TableRow>
+  )
+}
+
+type FileGridItemProps = {
   item: FileDataType
   isRenaming: boolean
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
@@ -55,13 +143,7 @@ type FileListItemProps = {
   onNameChanged: (newName: string) => void
 }
 
-export const FileListItem: React.FC<FileListItemProps> = (props) => {
-  const [newFileName, setNewFileName] = React.useState(props.item.name)
-
-  const handleChange = (e) => {
-    setNewFileName(e.target.value)
-  }
-
+export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   return (
     <div
       className={styles.fileListItemContainer}
@@ -81,21 +163,7 @@ export const FileListItem: React.FC<FileListItemProps> = (props) => {
         )}
       </div>
       {props.isRenaming ? (
-        <Paper component="div" className={styles.inputContainer}>
-          <InputBase
-            autoFocus={true}
-            className={styles.input}
-            name="name"
-            autoComplete="off"
-            value={newFileName}
-            onChange={(e) => handleChange(e)}
-            onKeyUp={async (e) => {
-              if (e.key == 'Enter') {
-                props.onNameChanged(newFileName)
-              }
-            }}
-          />
-        </Paper>
+        <RenameInput fileName={props.item.name} onNameChanged={props.onNameChanged} />
       ) : (
         props.item.fullName
       )}
@@ -118,6 +186,7 @@ type FileBrowserItemType = {
   moveContent: (oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean) => Promise<void>
   addFolder: () => void
   refreshDirectory: () => Promise<void>
+  isListView: boolean
 }
 
 export function FileBrowserItem({
@@ -134,7 +203,8 @@ export function FileBrowserItem({
   moveContent,
   isFilesLoading,
   addFolder,
-  refreshDirectory
+  refreshDirectory,
+  isListView
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
@@ -282,38 +352,51 @@ export function FileBrowserItem({
   }, [preview])
 
   return (
-    <div ref={drop} style={{ border: item.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}>
-      <div ref={drag}>
-        <div onContextMenu={handleContextMenu}>
-          <FileListItem
-            item={item}
-            onClick={onClickItem}
-            onDoubleClick={onClickItem}
-            isRenaming={renamingAsset}
-            onNameChanged={onNameChanged}
-          />
+    <>
+      {isListView ? (
+        <FileTableListBody
+          file={item}
+          onContextMenu={handleContextMenu}
+          onClick={onClickItem}
+          onDoubleClick={onClickItem}
+          isRenaming={renamingAsset}
+          onNameChanged={onNameChanged}
+        />
+      ) : (
+        <div ref={drop} style={{ border: item.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}>
+          <div ref={drag}>
+            <div onContextMenu={handleContextMenu}>
+              <FileGridItem
+                item={item}
+                onClick={onClickItem}
+                onDoubleClick={onClickItem}
+                isRenaming={renamingAsset}
+                onNameChanged={onNameChanged}
+              />
+            </div>
+          </div>
         </div>
+      )}
 
-        <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
-          <MenuItem onClick={addFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
-          {!item.isFolder && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
-          {!item.isFolder && (
-            <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
-          )}
-          {!item.isFolder && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
-          <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
-          <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
-          <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
-          <MenuItem disabled={!currentContent.current} onClick={pasteContent}>
-            {t('editor:layout.filebrowser.pasteAsset')}
-          </MenuItem>
-          <MenuItem onClick={rename}>{t('editor:layout.filebrowser.renameAsset')}</MenuItem>
-          <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
-          <MenuItem onClick={viewAssetProperties}>{t('editor:layout.filebrowser.viewAssetProperties')}</MenuItem>
-          <MenuItem onClick={viewCompress}>{t('editor:layout.filebrowser.compress')}</MenuItem>
-          <MenuItem onClick={viewConvert}>{t('editor:layout.filebrowser.convert')}</MenuItem>
-        </ContextMenu>
-      </div>
-    </div>
+      <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
+        <MenuItem onClick={addFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
+        {!item.isFolder && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
+        {!item.isFolder && (
+          <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
+        )}
+        {!item.isFolder && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
+        <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
+        <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
+        <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
+        <MenuItem disabled={!currentContent.current} onClick={pasteContent}>
+          {t('editor:layout.filebrowser.pasteAsset')}
+        </MenuItem>
+        <MenuItem onClick={rename}>{t('editor:layout.filebrowser.renameAsset')}</MenuItem>
+        <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
+        <MenuItem onClick={viewAssetProperties}>{t('editor:layout.filebrowser.viewAssetProperties')}</MenuItem>
+        <MenuItem onClick={viewCompress}>{t('editor:layout.filebrowser.compress')}</MenuItem>
+        <MenuItem onClick={viewConvert}>{t('editor:layout.filebrowser.convert')}</MenuItem>
+      </ContextMenu>
+    </>
   )
 }

@@ -965,6 +965,14 @@
       "view-mode": {
         "icons": "View: Icons",
         "list": "View: List"
+      },
+      "table-list": {
+        "headers": {
+          "name": "Name",
+          "type": "Type",
+          "date-modified": "Date Modified",
+          "size": "Size"
+        }
       }
     },
     "scene-assets": {

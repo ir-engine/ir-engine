@@ -107,6 +107,26 @@
   }
 }
 
+.table {
+  .tableHeaderRow {
+    background-color: var(--tableHeaderBackground)  ;
+    border-bottom: 2px solid var(--dropdownMenuHoverBackground);
+  }
+
+  .tableCell {
+    color: var(--textColor);
+    border: none;
+    font-weight: 200;
+    cursor: pointer;
+  
+    .cellName {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+  }
+}
+
 .paperDialog {
   background: var(--popupBackground) !important;
   color: var(--textColor);
