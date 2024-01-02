@@ -31,7 +31,6 @@ import {
   BufferGeometry,
   CatmullRomCurve3,
   Euler,
-  Group,
   Line,
   LineBasicMaterial,
   Mesh,
@@ -75,6 +74,12 @@ class SplineBase extends Object3D {
 // helper machinery
 ////////////////////////////////////////////////////////////////////////////////////////
 
+import { Entity } from '../../ecs/classes/Entity'
+import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
+import { NameComponent } from '../components/NameComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 
@@ -87,7 +92,7 @@ lineGeometry.setAttribute('position', new BufferAttribute(new Float32Array(ARC_S
 
 export default class Spline extends SplineBase {
   helperLine: Line | null
-  helperGroup: Group | null
+  helperEntity: Entity | null
 
   addHelper(position?: Vector3, rotation?: Euler) {
     this.addPoint(position, rotation)
@@ -95,13 +100,13 @@ export default class Spline extends SplineBase {
   }
 
   removeHelper(helper: Mesh) {
-    if (!this.helperGroup) return
-    this.helperGroup.remove(helper)
+    if (!this.helperEntity) return
+    removeObjectFromGroup(this.helperEntity, helper)
     this.updateHelpers()
   }
 
   getHelpers() {
-    return this.helperGroup ? this.helperGroup.children : []
+    return this.helperEntity ? getComponent(this.helperEntity, EntityTreeComponent).children : []
   }
 
   updateHelpers() {
@@ -110,11 +115,17 @@ export default class Spline extends SplineBase {
       return
     }
 
+    if (!this.helperEntity) {
+      this.helperEntity = createEntity()
+      setComponent(this.helperEntity, NameComponent, 'Spline Helper Entity')
+      setComponent(this.helperEntity, EntityTreeComponent, { parentEntity: this.entity })
+    }
+
     if (!this.helperLine) {
       this.helperLine = new Line(lineGeometry.clone(), new LineBasicMaterial({ color: 0xff0000, opacity: 0.35 }))
       this.helperLine.castShadow = true
       this.helperLine.layers.set(ObjectLayers.NodeHelper)
-      super.add(this.helperLine)
+      addObjectToGroup(this.helperEntity, this.helperLine)
     }
     this.helperLine.visible = true
 
@@ -126,16 +137,12 @@ export default class Spline extends SplineBase {
     }
     positions.needsUpdate = true
 
-    if (!this.helperGroup) {
-      this.helperGroup = new Group()
-      this.add(this.helperGroup)
-    }
     const helper = new Mesh(helperGeometry, helperMaterial)
     //if (position) helper.position.copy(position)
     //if (rotation) helper.rotation.copy(rotation)
     helper.castShadow = true
     helper.receiveShadow = true
-    this.helperGroup.add(helper)
+    addObjectToGroup(this.helperEntity, helper)
     setObjectLayers(helper, ObjectLayers.NodeHelper)
     //this.addPoint(position)
     this.updateHelpers()
