@@ -217,6 +217,8 @@ export function VolumetricReactor() {
       volumetric.ended.set(false)
       volumetric.initialBuffersLoaded.set(false)
       volumetric.paused.set(true)
+      volumetric.startTime.set(0)
+      volumetric.lastUpdatedTime.set(0)
     }
 
     resetTrack()

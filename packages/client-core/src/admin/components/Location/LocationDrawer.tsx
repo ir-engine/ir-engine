@@ -42,9 +42,8 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
@@ -66,15 +65,15 @@ interface Props {
 
 const defaultState = {
   name: '',
-  maxUsers: 10,
+  maxUsers: 20,
   scene: '',
-  type: 'private',
-  videoEnabled: false,
-  audioEnabled: false,
-  screenSharingEnabled: false,
-  faceStreamingEnabled: false,
-  isLobby: false,
-  isFeatured: false,
+  type: 'public',
+  videoEnabled: true,
+  audioEnabled: true,
+  screenSharingEnabled: true,
+  // faceStreamingEnabled: false,
+  // isLobby: false,
+  // isFeatured: false,
   formErrors: {
     name: '',
     maxUsers: '',
@@ -89,7 +88,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   const state = useHookstate({ ...defaultState })
 
   const scenes = useHookstate(getMutableState(AdminSceneState).scenes)
-  const locationTypes = useFind(locationTypePath).data
+  // const locationTypes = useFind(locationTypePath).data
   const user = useHookstate(getMutableState(AuthState).user)
 
   const locationMutation = useMutation(locationPath)
@@ -104,12 +103,12 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
     }
   })
 
-  const locationTypesMenu: InputMenuItem[] = locationTypes.map((el) => {
-    return {
-      value: el.type,
-      label: el.type
-    }
-  })
+  // const locationTypesMenu: InputMenuItem[] = locationTypes.map((el) => {
+  //   return {
+  //     value: el.type,
+  //     label: el.type
+  //   }
+  // })
 
   useEffect(() => {
     AdminSceneService.fetchAdminScenes()
@@ -131,10 +130,10 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         type: selectedLocation.locationSetting?.locationType,
         videoEnabled: selectedLocation.locationSetting?.videoEnabled,
         audioEnabled: selectedLocation.locationSetting?.audioEnabled,
-        screenSharingEnabled: selectedLocation.locationSetting?.screenSharingEnabled,
-        faceStreamingEnabled: selectedLocation.locationSetting?.faceStreamingEnabled,
-        isLobby: selectedLocation.isLobby,
-        isFeatured: selectedLocation.isFeatured
+        screenSharingEnabled: selectedLocation.locationSetting?.screenSharingEnabled
+        // faceStreamingEnabled: selectedLocation.locationSetting?.faceStreamingEnabled,
+        // isLobby: selectedLocation.isLobby,
+        // isFeatured: selectedLocation.isFeatured
       })
     }
   }
@@ -186,13 +185,13 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         locationType: state.type.value as 'private' | 'public' | 'showroom',
         audioEnabled: state.audioEnabled.value,
         screenSharingEnabled: state.screenSharingEnabled.value,
-        faceStreamingEnabled: state.faceStreamingEnabled.value,
+        faceStreamingEnabled: false, //state.faceStreamingEnabled.value,
         videoEnabled: state.videoEnabled.value,
         createdAt: '',
         updatedAt: ''
       },
-      isLobby: state.isLobby.value,
-      isFeatured: state.isFeatured.value
+      isLobby: false, //state.isLobby.value,
+      isFeatured: false //state.isFeatured.value
     }
 
     state.formErrors.merge({
@@ -256,14 +255,14 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
           onChange={handleChange}
         />
 
-        <InputSelect
+        {/* <InputSelect
           name="type"
           label={t('admin:components.location.type')}
           value={state?.value?.type}
           menu={locationTypesMenu}
           disabled={viewMode}
           onChange={handleChange}
-        />
+        /> */}
 
         <Grid container spacing={5} className={styles.mb15px}>
           <Grid item xs={6}>
@@ -290,33 +289,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
               disabled={viewMode}
               onChange={(e) => state.merge({ screenSharingEnabled: e.target.checked })}
             />
-          </Grid>
-          <Grid item xs={6} style={{ display: 'flex' }}>
-            <div style={{ marginLeft: 'auto' }}>
-              <InputSwitch
-                name="faceStreamingEnabled"
-                label={t('admin:components.location.lbl-fe')}
-                checked={state?.value?.faceStreamingEnabled}
-                disabled={viewMode}
-                onChange={(e) => state.merge({ faceStreamingEnabled: e.target.checked })}
-              />
-
-              <InputSwitch
-                name="isLobby"
-                label={t('admin:components.location.lbl-lobby')}
-                checked={state?.value?.isLobby}
-                disabled={viewMode}
-                onChange={(e) => state.merge({ isLobby: e.target.checked })}
-              />
-
-              <InputSwitch
-                name="isFeatured"
-                label={t('admin:components.location.lbl-featured')}
-                checked={state?.value?.isFeatured}
-                disabled={viewMode}
-                onChange={(e) => state.merge({ isFeatured: e.target.checked })}
-              />
-            </div>
           </Grid>
         </Grid>
         <DialogActions>

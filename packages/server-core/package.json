@@ -36,7 +36,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha",
+    "test": "cross-env TEST=true mocha --config .mocharc.js",
     "validate": "npm run build && npm run test",
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback --all",
