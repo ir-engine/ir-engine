@@ -27,11 +27,13 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
+import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL2Component'
 import VideocamIcon from '@mui/icons-material/Videocam'
+import { debounce } from 'lodash'
 import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
@@ -75,6 +77,12 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const toggle = () => {
     volumetricComponent.paused.set(!volumetricComponent.paused.value)
   }
+
+  const onChange = (value: number) => {
+    volumetricComponent.startTime.set(value)
+  }
+
+  const debouncedOnChange = debounce(onChange, 200)
 
   return (
     <NodeEditor
@@ -120,6 +128,18 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         acceptFileTypes={VolumetricFileTypes}
         acceptDropItems={ItemTypes.Volumetrics}
       />
+
+      {hasComponent(props.entity, UVOL2Component) && (
+        <InputGroup name="CurrentTime" label={t('editor:properties.media.lbl-currentTime')}>
+          <CompoundNumericInput
+            min={0}
+            max={volumetricComponent.currentTrackInfo.duration.value}
+            step={0.01}
+            value={volumetricComponent.currentTrackInfo.currentTime.value}
+            onChange={debouncedOnChange}
+          />
+        </InputGroup>
+      )}
 
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
         <SelectInput
