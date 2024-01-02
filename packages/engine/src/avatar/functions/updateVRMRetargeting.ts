@@ -25,12 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
+import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AvatarRigSizeComponent } from '../components/AvatarAnimationComponent'
 import { BoneComponent } from '../components/BoneComponent'
 
-export const updateVRMRetargeting = (vrm: VRM) => {
+export const updateVRMRetargeting = (vrm: VRM, avatarEntity: Entity) => {
   const humanoidRig = (vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRig
   for (const boneName of VRMHumanBoneList) {
     const boneNode = humanoidRig.original.getBoneNode(boneName) as Object3D | null
@@ -59,7 +61,11 @@ export const updateVRMRetargeting = (vrm: VRM) => {
         if (!parentBone) continue
         _boneWorldPos.copy(rigBoneNode.position).applyMatrix4(parentBone?.matrixWorld)
         _parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
-        boneNode.position.copy(_boneWorldPos.applyMatrix4(_parentWorldMatrixInverse))
+        boneNode.position.copy(
+          _boneWorldPos
+            .applyMatrix4(_parentWorldMatrixInverse)
+            .multiplyScalar(getComponent(avatarEntity, AvatarRigSizeComponent).hipsHeight / 0.5)
+        )
       }
     }
   }

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanoid } from '@pixiv/three-vrm'
-import { AnimationClip, AnimationMixer, Box3, Object3D, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -50,21 +50,17 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { XRState } from '../../xr/XRState'
-import avatarBoneMatching, { findSkinnedMeshes } from '../AvatarBoneMatching'
+import avatarBoneMatching from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { locomotionAnimation } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
-import { resizeAvatar } from './resizeAvatar'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from './retargetMixamoRig'
-
-const tempVec3ForHeight = new Vector3()
-const tempVec3ForCenter = new Vector3()
 
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
@@ -137,8 +133,10 @@ export const unloadAvatarForUser = async (entity: Entity) => {
  * successfully loaded.
  */
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
-  rigAvatarModel(entity)(model)
-  setupAvatarHeight(entity, model.scene)
+  setComponent(entity, AvatarRigComponent, {
+    normalizedRig: model.humanoid.normalizedHumanBones,
+    rawRig: model.humanoid.rawHumanBones
+  })
 
   computeTransformMatrix(entity)
 
@@ -222,29 +220,6 @@ export const setAvatarSpeedFromRootMotion = () => {
   const movement = getMutableState(AvatarMovementSettingsState)
   if (run) movement.runSpeed.set(getRootSpeed(run))
   if (walk) movement.walkSpeed.set(getRootSpeed(walk))
-}
-
-export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
-  const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-
-  const skinnedMeshes = findSkinnedMeshes(model.scene)
-
-  setComponent(entity, AvatarRigComponent, {
-    normalizedRig: model.humanoid.normalizedHumanBones,
-    rawRig: model.humanoid.rawHumanBones,
-    skinnedMeshes
-  })
-
-  avatarAnimationComponent.rootYRatio = 1
-
-  return model
-}
-
-export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
-  const box = new Box3()
-  box.expandByObject(model).getSize(tempVec3ForHeight)
-  box.getCenter(tempVec3ForCenter)
-  resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {

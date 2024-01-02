@@ -51,7 +51,11 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { XRControlsState, XRState, isMobileXRHeadset } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
+import {
+  AvatarAnimationComponent,
+  AvatarRigComponent,
+  AvatarRigSizeComponent
+} from '.././components/AvatarAnimationComponent'
 import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
@@ -168,6 +172,7 @@ const execute = () => {
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
+    const sizeComponent = getComponent(entity, AvatarRigSizeComponent)
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
     avatarAnimationComponent.deltaAccumulator = elapsedSeconds
@@ -175,7 +180,7 @@ const execute = () => {
 
     if (!rig?.hips?.node) continue
 
-    updateVRMRetargeting(rigComponent.vrm)
+    updateVRMRetargeting(rigComponent.vrm, entity)
 
     const uuid = getComponent(entity, UUIDComponent)
     const leftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
@@ -204,7 +209,7 @@ const execute = () => {
       const headTransform = getComponent(head, TransformComponent)
       rig.hips.node.position.set(
         headTransform.position.x,
-        headTransform.position.y - rigComponent.torsoLength - 0.125,
+        headTransform.position.y - sizeComponent.torsoLength - 0.125,
         headTransform.position.z
       )
 

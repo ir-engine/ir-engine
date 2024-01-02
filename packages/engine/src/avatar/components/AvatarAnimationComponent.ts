@@ -25,22 +25,28 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
+import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, Vector3 } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { vec3 } from '@gltf-transform/core'
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
+  getMutableComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { Physics } from '../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
@@ -53,12 +59,15 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
+import { createAvatarCollider } from '../functions/spawnAvatarReceptor'
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AnimationComponent } from './AnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
+import { AvatarControllerComponent } from './AvatarControllerComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -102,24 +111,9 @@ export const AvatarRigComponent = defineComponent({
       rawRig: null! as VRMHumanBones,
 
       helperEntity: null as Entity | null,
-      /** The length of the torso in a t-pose, from the hip joint to the head joint */
-      torsoLength: 0,
-      /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
-      upperLegLength: 0,
-      /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
-      lowerLegLength: 0,
-      /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
-      footHeight: 0,
 
-      armLength: 0,
-
-      footGap: 0,
-
-      /** Cache of the skinned meshes currently on the rig */
-      skinnedMeshes: [] as SkinnedMesh[],
       /** The VRM model */
       vrm: null! as VRM,
-
       avatarURL: null as string | null
     }
   },
@@ -128,12 +122,6 @@ export const AvatarRigComponent = defineComponent({
     if (!json) return
     if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
-    if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
-    if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
-    if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
-    if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
-    if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
-    if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
   },
@@ -223,6 +211,77 @@ export const AvatarRigComponent = defineComponent({
       }
     }, [manager.loadedAnimations, rigComponent.vrm])
 
+    return null
+  }
+})
+
+const vec3 = new Vector3(),
+  vec3_2 = new Vector3(),
+  vec3_3 = new Vector3()
+export const AvatarRigSizeComponent = defineComponent({
+  name: 'AvatarRigSizeComponent',
+  onInit: (entity) => {
+    return {
+      /** The length of the torso in a t-pose, from the hip joint to the head joint */
+      torsoLength: 0,
+      /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
+      upperLegLength: 0,
+      /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
+      lowerLegLength: 0,
+      /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
+      footHeight: 0,
+      /** The height of the hips in a t-pose */
+      hipsHeight: 0,
+      armLength: 0,
+      footGap: 0
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
+    if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
+    if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
+    if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
+    if (matches.number.test(json.hipsHeight)) component.hipsHeight.set(json.hipsHeight)
+    if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const rigComponent = useComponent(entity, AvatarRigComponent)
+    useEffect(() => {
+      const avatar = getComponent(entity, AvatarComponent)
+      const transform = getComponent(entity, TransformComponent)
+      const sizeComponent = getComponent(entity, AvatarRigSizeComponent)
+      const rig = rigComponent.normalizedRig.value
+
+      avatar.avatarHeight = rig.head.node.getWorldPosition(vec3).y - transform.position.y
+      avatar.avatarHalfHeight = avatar.avatarHeight / 2
+
+      if (!rig.hips?.node) return console.warn('No hips node found on rig', entity)
+      rig.hips.node.updateWorldMatrix(true, true)
+      sizeComponent.torsoLength = rig.head.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y
+      sizeComponent.upperLegLength =
+        rig.hips.node.getWorldPosition(vec3).y - rig.leftUpperLeg.node.getWorldPosition(vec3).y
+      sizeComponent.lowerLegLength =
+        rig.leftLowerLeg.node.getWorldPosition(vec3).y - rig.leftFoot.node.getWorldPosition(vec3).y
+      sizeComponent.hipsHeight = rig.hips.node.getWorldPosition(vec3).y - transform.position.y
+      sizeComponent.footHeight = rig.leftFoot.node.getWorldPosition(vec3).y - transform.position.y
+      sizeComponent.armLength =
+        rig.leftUpperArm.node.getWorldPosition(vec3).y - rig.leftHand.node.getWorldPosition(vec3).y
+      sizeComponent.footGap = vec3_2
+        .subVectors(rig.leftFoot.node.getWorldPosition(vec3_2), rig.rightFoot.node.getWorldPosition(vec3_3))
+        .length()
+      if (!hasComponent(entity, RigidBodyComponent)) return
+
+      Physics.removeCollidersFromRigidBody(entity, getState(PhysicsState).physicsWorld)
+      const collider = createAvatarCollider(entity)
+
+      if (hasComponent(entity, AvatarControllerComponent)) {
+        getMutableComponent(entity, AvatarControllerComponent).bodyCollider.set(collider)
+      }
+    }, [rigComponent.vrm])
     return null
   }
 })
