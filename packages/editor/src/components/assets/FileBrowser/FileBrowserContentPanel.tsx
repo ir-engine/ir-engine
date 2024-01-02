@@ -416,7 +416,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           {unique(validFiles.get(NO_PROXY), (file) => file.key).map((file, i) => (
             <FileBrowserItem
               key={file.key}
-              contextMenuId={i.toString()}
               item={file}
               disableDnD={props.disableDnD}
               onClick={onSelect}
@@ -450,91 +449,102 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     )
   }
 
-  return (
-    <div className={styles.fileBrowserRoot}>
-      <div
+  const Header = () => (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '10px'
+      }}
+    >
+      <span
         style={{
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '10px'
+          flexDirection: 'row',
+          flexWrap: 'wrap'
         }}
       >
-        <span
+        {showBackButton && (
+          <ToolButton
+            tooltip={t('editor:layout.filebrowser.back')}
+            icon={ArrowBackIcon}
+            onClick={onBackDirectory}
+            id="backDir"
+          />
+        )}
+        <ToolButton
+          tooltip={t('editor:layout.filebrowser.refresh')}
+          icon={AutorenewIcon}
+          onClick={refreshDirectory}
+          id="refreshDir"
+        />
+        <select
+          value={filesViewMode.value}
+          onChange={(event) => filesViewMode.set(event.target.value as 'icons' | 'list')}
           style={{
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'wrap'
+            all: 'unset',
+            verticalAlign: 'middle',
+            textAlign: 'center',
+            backgroundColor: 'var(--inputBackground)',
+            lineHeight: 'normal',
+            margin: '5px',
+            padding: '5px',
+            paddingTop: '7px',
+            borderRadius: '10%',
+            cursor: 'pointer'
           }}
         >
-          {showBackButton && (
-            <ToolButton
-              tooltip={t('editor:layout.filebrowser.back')}
-              icon={ArrowBackIcon}
-              onClick={onBackDirectory}
-              id="backDir"
-            />
-          )}
+          <option value={'icons'}>{t('editor:layout.filebrowser.view-mode.icons')}</option>
+          <option value={'list'}>{t('editor:layout.filebrowser.view-mode.list')}</option>
+        </select>
+      </span>
+      <BreadcrumbItems />
+      <span
+        style={{
+          display: 'flex',
+          flexDirection: 'row-reverse',
+          flexWrap: 'wrap'
+        }}
+      >
+        <ToolButton
+          tooltip={t('editor:layout.filebrowser.addNewFolder')}
+          icon={CreateNewFolderIcon}
+          onClick={createNewFolder}
+          id="refreshDir"
+        />
+        {showUploadAndDownloadButtons && (
           <ToolButton
-            tooltip={t('editor:layout.filebrowser.refresh')}
-            icon={AutorenewIcon}
-            onClick={refreshDirectory}
-            id="refreshDir"
+            tooltip={t('editor:layout.filebrowser.downloadProject')}
+            onClick={handleDownloadProject}
+            icon={DownloadIcon}
+            id="downloadProject"
           />
-          <select
-            value={filesViewMode.value}
-            onChange={(event) => filesViewMode.set(event.target.value as 'icons' | 'list')}
-            style={{
-              all: 'unset',
-              verticalAlign: 'middle',
-              textAlign: 'center',
-              backgroundColor: 'var(--inputBackground)',
-              lineHeight: 'normal',
-              margin: '5px',
-              padding: '5px',
-              paddingTop: '7px',
-              borderRadius: '10%',
-              cursor: 'pointer'
+        )}
+        {showUploadAndDownloadButtons && (
+          <ToolButton
+            tooltip={t('editor:layout.filebrowser.uploadAsset')}
+            onClick={() => {
+              inputFileWithAddToScene({ directoryPath: selectedDirectory.value }).then(refreshDirectory)
             }}
-          >
-            <option value={'icons'}>{t('editor:layout.filebrowser.view-mode.icons')}</option>
-            <option value={'list'}>{t('editor:layout.filebrowser.view-mode.list')}</option>
-          </select>
-        </span>
-        <BreadcrumbItems />
-        <span
-          style={{
-            display: 'flex',
-            flexDirection: 'row-reverse',
-            flexWrap: 'wrap'
-          }}
-        >
-          <ToolButton
-            tooltip={t('editor:layout.filebrowser.addNewFolder')}
-            icon={CreateNewFolderIcon}
-            onClick={createNewFolder}
-            id="refreshDir"
+            icon={AddIcon}
+            id="uploadAsset"
           />
-          {showUploadAndDownloadButtons && (
-            <ToolButton
-              tooltip={t('editor:layout.filebrowser.downloadProject')}
-              onClick={handleDownloadProject}
-              icon={DownloadIcon}
-              id="downloadProject"
-            />
-          )}
-          {showUploadAndDownloadButtons && (
-            <ToolButton
-              tooltip={t('editor:layout.filebrowser.uploadAsset')}
-              onClick={() => {
-                inputFileWithAddToScene({ directoryPath: selectedDirectory.value }).then(refreshDirectory)
-              }}
-              icon={AddIcon}
-              id="uploadAsset"
-            />
-          )}
-        </span>
-      </div>
+        )}
+      </span>
+    </div>
+  )
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%'
+      }}
+    >
+      <Header />
       <div className={styles.headerContainer}>
         <span className={styles.searchContainer}>
           <Button onClick={() => searchBarState.set('')}>x</Button>

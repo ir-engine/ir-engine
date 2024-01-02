@@ -70,11 +70,14 @@ export const FileListItem: React.FC<FileListItemProps> = (props) => {
     >
       <div className={styles.fileNameContainer}>
         {props.item.isFolder ? (
-          <FolderIcon width={15} />
+          <FolderIcon fontSize={'inherit'} />
         ) : props.item.Icon ? (
-          <props.item.Icon width={15} />
+          <props.item.Icon fontSize={'inherit'} />
         ) : (
-          <DescriptionIcon width={15} />
+          <>
+            <DescriptionIcon fontSize={'inherit'} />
+            <span className={styles.extensionRibbon}>{props.item.type}</span>
+          </>
         )}
       </div>
       {props.item.fullName}
@@ -98,7 +101,6 @@ export const FileListItem: React.FC<FileListItemProps> = (props) => {
 }
 
 type FileBrowserItemType = {
-  contextMenuId: string
   item: FileDataType
   disableDnD?: boolean
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
@@ -116,7 +118,6 @@ type FileBrowserItemType = {
 }
 
 export function FileBrowserItem({
-  contextMenuId,
   item,
   disableDnD,
   currentContent,
