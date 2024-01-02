@@ -65,7 +65,6 @@ import { enableObjectLayer } from '../functions/setObjectLayers'
 import { EnvmapComponent } from './EnvmapComponent'
 import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
-import { NameComponent } from './NameComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
@@ -175,8 +174,10 @@ function ModelReactor(): JSX.Element {
           addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
           return
         }
-        //const boneMatchedAsset = modelComponent.convertToVRM.value ? autoconvertMixamoAvatar(loadedAsset) as GLTF : loadedAsset
-        const boneMatchedAsset = autoconvertMixamoAvatar(loadedAsset)
+        const boneMatchedAsset = modelComponent.convertToVRM.value
+          ? (autoconvertMixamoAvatar(loadedAsset) as GLTF)
+          : loadedAsset
+        /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
         if (boneMatchedAsset instanceof VRM)
           setComponent(entity, AnimationComponent, {
             animations: loadedAsset.animations,
@@ -205,6 +206,11 @@ function ModelReactor(): JSX.Element {
       aborted = true
     }
   }, [modelComponent.src])
+
+  //useEffect(() => {
+  //  if(!modelComponent.asset.value) return
+  //  modelComponent.src.set('')
+  //}, [modelComponent.convertToVRM])
 
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
@@ -237,7 +243,11 @@ function ModelReactor(): JSX.Element {
           removeComponent(entity, SceneAssetPendingTagComponent)
         })
     else removeComponent(entity, SceneAssetPendingTagComponent)
-    console.log(asset instanceof VRM, getComponent(entity, NameComponent))
+
+    /**hotfix for gltf animations being stored in the root and not scene property */
+    if (!asset.scene.animations.length && !(asset instanceof VRM)) asset.scene.animations = asset.animations
+    console.log(asset.scene.animations)
+
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
 

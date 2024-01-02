@@ -102,7 +102,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, EnvmapComponent, {
     type: EnvMapSourceType.Bake,
-    envMapIntensity: 1,
+    envMapIntensity: 0.5,
     envMapSourceEntityUUID: getComponent(SceneState.getRootEntity(), UUIDComponent)
   })
 

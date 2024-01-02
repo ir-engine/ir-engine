@@ -170,12 +170,10 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
 
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (scene.animations?.length) {
-    // We only have to update the mixer time for this animations on each frame
-    if (!hasComponent(entity, AnimationComponent))
-      setComponent(entity, AnimationComponent, {
-        mixer: new AnimationMixer(scene),
-        animations: scene.animations
-      })
+    setComponent(entity, AnimationComponent, {
+      mixer: new AnimationMixer(scene),
+      animations: scene.animations
+    })
   }
 
   return entityJson
