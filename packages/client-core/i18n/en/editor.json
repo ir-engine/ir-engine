@@ -893,6 +893,9 @@
       "lbl-newProject": "New Project"
     }
   },
+  "graphPanel":{
+    "addGraph" : "Add Behave Graph"
+  },
   "layout": {
     "assetGrid": {
       "loading": "Loading...",
