@@ -614,5 +614,5 @@ export default createSkippableHooks(
       remove: []
     }
   },
-  ['find', 'create', 'delete']
+  ['find', 'create', 'remove']
 )
