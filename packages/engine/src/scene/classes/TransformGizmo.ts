@@ -48,6 +48,7 @@ import {
   TorusGeometry,
   Vector3
 } from 'three'
+import iterateObject3D from '../util/iterateObject3D'
 
 const _raycaster = new Raycaster()
 
@@ -530,7 +531,7 @@ class TransformControls extends Object3D<TransformControlsEventMap> {
     this.domElement.removeEventListener('pointermove', this._onPointerMove)
     this.domElement.removeEventListener('pointerup', this._onPointerUp)
 
-    this.traverse(function (child: Mesh) {
+    iterateObject3D(this, function (child: Mesh) {
       if (child.geometry) child.geometry.dispose()
       if (child.material) (child.material as Material).dispose()
     })

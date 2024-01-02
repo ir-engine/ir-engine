@@ -29,11 +29,12 @@ import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
 import { Engine } from '../../../ecs/classes/Engine'
+import iterateObject3D from '../../../scene/util/iterateObject3D'
+import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
 import { MaterialSource, MaterialSourceComponentType } from '../components/MaterialSource'
 import { LibraryEntryType } from '../constants/LibraryEntry'
-import { MaterialLibraryState } from '../MaterialLibrary'
 
 export function MaterialNotFoundError(message) {
   this.name = 'MaterialNotFound'
@@ -249,7 +250,7 @@ export function materialsFromSource(src: MaterialSource) {
 }
 
 export function replaceMaterial(material: Material, nuMat: Material) {
-  Engine.instance.scene.traverse((mesh: Mesh) => {
+  iterateObject3D(Engine.instance.scene, (mesh: Mesh) => {
     if (!mesh?.isMesh) return
     if (Array.isArray(mesh.material)) {
       mesh.material.map((meshMat, i) => {

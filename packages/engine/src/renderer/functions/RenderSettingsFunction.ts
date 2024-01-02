@@ -31,9 +31,10 @@ import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { RendererState } from '../../renderer/RendererState'
+import iterateObject3D from '../../scene/util/iterateObject3D'
 import { isMobileXRHeadset } from '../../xr/XRState'
-import { RenderModes } from '../constants/RenderModes'
 import { EngineRenderer, RenderSettingsState } from '../WebGLRendererSystem'
+import { RenderModes } from '../constants/RenderModes'
 
 export const getShadowsEnabled = () => {
   const rendererState = getState(RendererState)
@@ -63,7 +64,7 @@ export const updateShadowMap = () => {
   EngineRenderer.instance.renderer.shadowMap.type = type
   EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
 
-  Engine.instance.scene.traverse((node: DirectionalLight) => {
+  iterateObject3D(Engine.instance.scene, (node: DirectionalLight) => {
     if (node.isDirectionalLight && node.shadow) {
       node.shadow.map?.dispose()
       node.shadow.map = null as any

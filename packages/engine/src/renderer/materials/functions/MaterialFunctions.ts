@@ -29,6 +29,7 @@ import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../../ecs/classes/Engine'
+import iterateObject3D from '../../../scene/util/iterateObject3D'
 import { MaterialLibraryState } from '../MaterialLibrary'
 
 export function dedupMaterials() {
@@ -48,7 +49,7 @@ export function dedupMaterials() {
       ) {
         multiLogger.info('found duplicate material')
         //change every instance of material1 to material2
-        Engine.instance.scene.traverse((mesh: Mesh) => {
+        iterateObject3D(Engine.instance.scene, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
           const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
           materials.map((material, i) => {

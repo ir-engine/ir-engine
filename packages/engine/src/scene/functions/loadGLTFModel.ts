@@ -124,7 +124,7 @@ export const parseObjectComponentsFromGLTF = (
 
   if (!scene) return {}
 
-  scene.traverse((mesh: Mesh) => {
+  iterateObject3D(scene, (mesh: Mesh) => {
     if ('xrengine.entity' in mesh.userData) {
       meshesToProcess.push(mesh)
     }
