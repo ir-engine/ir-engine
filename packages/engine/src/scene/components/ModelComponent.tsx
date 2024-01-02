@@ -205,7 +205,7 @@ function ModelReactor(): JSX.Element {
     return () => {
       aborted = true
     }
-  }, [modelComponent.src])
+  }, [modelComponent.src, modelComponent.convertToVRM])
 
   //useEffect(() => {
   //  if(!modelComponent.asset.value) return
