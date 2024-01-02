@@ -27,7 +27,6 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
-import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { SceneID } from '../projects/scene.schema'
 import { dataValidator, queryValidator } from '../validators'
@@ -35,13 +34,9 @@ import { locationAdminSchema } from './location-admin.schema'
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
 import { locationBanSchema } from './location-ban.schema'
 import { locationSettingSchema } from './location-setting.schema'
-
-export const locationPath = 'location'
+import { LocationID } from './location.constants'
 
 export const locationMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
-
-export type RoomCode = OpaqueType<'RoomCode'> & string
-export type LocationID = OpaqueType<'LocationID'> & string
 
 // Main data model schema
 export const locationSchema = Type.Object(
