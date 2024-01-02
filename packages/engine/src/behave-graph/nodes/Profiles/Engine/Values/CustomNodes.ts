@@ -267,7 +267,6 @@ export const playAnimation = makeFlowNodeDefinition({
     const isAvatar = read<boolean>('isAvatar')
 
     setComponent(entity, LoopAnimationComponent, {
-      hasAvatarAnimations: isAvatar,
       paused: paused,
       timeScale: timeScale,
       animationPack: animationPack,
