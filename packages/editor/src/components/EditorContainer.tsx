@@ -177,8 +177,8 @@ const onSaveAs = async () => {
   const abortController = new AbortController()
   try {
     if (sceneName || editorState.sceneModified.value) {
-      const [ktx2Blob, thumbnailBlob] = await takeScreenshot(512, 320, 'jpeg')
-      const file = new File([ktx2Blob!], editorState.sceneName + '.thumbnail.ktx2')
+      const thumbnailBlob = await takeScreenshot(512, 320, 'jpeg')
+      const file = new File([thumbnailBlob!], editorState.sceneName + '.thumbnail.jpg')
       const result: { name: string } | void = await new Promise((resolve) => {
         DialogState.setDialog(
           <SaveNewSceneDialog
@@ -232,8 +232,8 @@ const onSaveScene = async () => {
     return
   }
 
-  const [ktx2Blob, thumbnailBlob] = await takeScreenshot(512, 320)
-  const file = new File([ktx2Blob!], sceneName + '.thumbnail.ktx2')
+  const thumbnailBlob = await takeScreenshot(512, 320)
+  const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpeg')
 
   const result = (await new Promise((resolve) => {
     DialogState.setDialog(
