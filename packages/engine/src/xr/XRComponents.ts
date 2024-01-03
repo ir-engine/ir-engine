@@ -308,7 +308,6 @@ export const XRSpaceComponent = defineComponent({
   onSet: (entity, component, space: XRSpace) => {
     component.set(space)
     setComponent(entity, TransformComponent)
-    XRSpaceComponent.valueMap[entity] = space
   }
 })
 

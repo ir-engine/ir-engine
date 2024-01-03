@@ -271,8 +271,12 @@ export const getMutableComponent = <ComponentType>(
   component: Component<ComponentType, Record<string, any>, unknown>
 ): State<ComponentType> => {
   const componentState = getOptionalMutableComponent(entity, component)
-  if (!componentState || componentState.promised)
-    throw new Error(`[getMutableComponent]: entity does not have ${component.name}`)
+  if (!componentState || componentState.promised) {
+    console.warn(
+      `[getMutableComponent]: entity does not have ${component.name}. This will be an error in the future. Use getOptionalMutableComponent if there is uncertainty over whether or not an entity has the specified component.`
+    )
+    return undefined as any
+  }
   return componentState
 }
 
@@ -288,8 +292,12 @@ export const getComponent = <ComponentType>(
   component: Component<ComponentType, Record<string, any>, unknown>
 ): ComponentType => {
   const componentState = getOptionalMutableComponent(entity, component)
-  if (!componentState || componentState.promised)
-    throw new Error(`[getComponent]: entity does not have ${component.name}`)
+  if (!componentState || componentState.promised) {
+    console.warn(
+      `[getComponent]: entity does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
+    )
+    return undefined as any
+  }
   return componentState.get(NO_PROXY_STEALTH) as ComponentType
 }
 
@@ -395,13 +403,15 @@ export const hasComponent = <C extends Component>(entity: Entity, component: C) 
 export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
   component.onRemove(entity, component.stateMap[entity]!)
-  component.stateMap[entity]?.set(none)
   bitECS.removeComponent(Engine.instance, component, entity, false)
   const root = component.reactorMap.get(entity)
   component.reactorMap.delete(entity)
   // we need to wait for the reactor to stop before removing the state, otherwise
   // we can trigger errors in useEffect cleanup functions
   if (root?.isRunning) await root?.stop()
+  // NOTE: we may need to perform cleanup after a timeout here in case there
+  // are other reactors also referencing this state in their cleanup functions
+  if (!hasComponent(entity, component)) component.stateMap[entity]?.set(none)
 }
 
 /**

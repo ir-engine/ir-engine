@@ -28,7 +28,7 @@ import { NO_PROXY, none } from '@etherealengine/hyperflux'
 
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { Entity } from '../classes/Entity'
+import { Entity, UndefinedEntity } from '../classes/Entity'
 import {
   defineComponent,
   getComponent,
@@ -60,7 +60,7 @@ export const EntityTreeComponent = defineComponent({
   onInit: (entity) => {
     return {
       // api
-      parentEntity: null as Entity | null,
+      parentEntity: UndefinedEntity as Entity,
       // internal
       children: [] as Entity[]
     }

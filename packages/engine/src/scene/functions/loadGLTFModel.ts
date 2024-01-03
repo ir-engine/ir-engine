@@ -185,9 +185,9 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     parent: {
       get() {
         if (EngineRenderer.instance?.rendering) return null
-        if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
+        if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
           const result =
-            getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
+            getOptionalComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
             Engine.instance.scene
           return result ?? null
         }

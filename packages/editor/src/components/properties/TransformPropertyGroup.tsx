@@ -84,7 +84,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       [value],
       useGlobalTransformComponent.value ? TransformSpace.world : TransformSpace.local
     )
-    // TransformComponent.stateMap[props.entity]!.set(TransformComponent.valueMap[props.entity])
   }
 
   const onChangeRotation = (value: Euler) => {
@@ -94,7 +93,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       [value],
       useGlobalTransformComponent.value ? TransformSpace.world : TransformSpace.local
     )
-    // TransformComponent.stateMap[props.entity]!.set(TransformComponent.valueMap[props.entity])
   }
 
   const onChangeScale = (value: Vector3) => {
@@ -108,7 +106,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       useGlobalTransformComponent.value ? TransformSpace.world : TransformSpace.local,
       true
     )
-    // TransformComponent.stateMap[props.entity]!.set(TransformComponent.valueMap[props.entity])
   }
 
   return (
