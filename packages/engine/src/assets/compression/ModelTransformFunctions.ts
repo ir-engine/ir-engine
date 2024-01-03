@@ -397,7 +397,7 @@ export async function transformModel(args: ModelTransformParameters) {
 
   const fileUploadPath = (fUploadPath: string) => {
     const relativePath = fUploadPath.replace(config.client.fileServer, '')
-    const pathCheck = /projects\/([^/]+)\/assets\/([\w\d\s\-_./]*)$/
+    const pathCheck = /projects\/([^/]+)\/assets\/([\w\d\s\-|_./]*)$/
     const [_, projectName, fileName] =
       pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(LoaderUtils.extractUrlBase(args.src), fUploadPath))!
     return [projectName, fileName]
