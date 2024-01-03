@@ -39,6 +39,61 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
+const material = new LineBasicMaterial()
+const size = 1
+const lightPlaneGeometry = new BufferGeometry()
+lightPlaneGeometry.setAttribute(
+  'position',
+  new Float32BufferAttribute(
+    [
+      -size,
+      size,
+      0,
+      size,
+      size,
+      0,
+      size,
+      size,
+      0,
+      size,
+      -size,
+      0,
+      size,
+      -size,
+      0,
+      -size,
+      -size,
+      0,
+      -size,
+      -size,
+      0,
+      -size,
+      size,
+      0,
+      -size,
+      size,
+      0,
+      size,
+      -size,
+      0,
+      size,
+      size,
+      0,
+      -size,
+      -size,
+      0
+    ],
+    3
+  )
+)
+
+const targetLineGeometry = new BufferGeometry()
+const t = size * 0.1
+targetLineGeometry.setAttribute(
+  'position',
+  new Float32BufferAttribute([-t, t, 0, 0, 0, 1, t, t, 0, 0, 0, 1, t, -t, 0, 0, 0, 1, -t, -t, 0, 0, 0, 1], 3)
+)
+
 type DirectionalLightHelper = {
   lightPlane: LineSegments<BufferGeometry, LineBasicMaterial>
   targetLine: LineSegments<BufferGeometry, LineBasicMaterial>
@@ -162,69 +217,15 @@ export const DirectionalLightComponent = defineComponent({
       if (!light.helper.value) {
         const size = 1
         const name = `directional-light-helper-${entity}`
-        const material = new LineBasicMaterial()
-
-        let geometry = new BufferGeometry()
-        geometry.setAttribute(
-          'position',
-          new Float32BufferAttribute(
-            [
-              -size,
-              size,
-              0,
-              size,
-              size,
-              0,
-              size,
-              size,
-              0,
-              size,
-              -size,
-              0,
-              size,
-              -size,
-              0,
-              -size,
-              -size,
-              0,
-              -size,
-              -size,
-              0,
-              -size,
-              size,
-              0,
-              -size,
-              size,
-              0,
-              size,
-              -size,
-              0,
-              size,
-              size,
-              0,
-              -size,
-              -size,
-              0
-            ],
-            3
-          )
-        )
 
         const lightHelperEntity = createEntity()
-        const lightPlane = new LineSegments(geometry, material)
+        const lightPlane = new LineSegments(lightPlaneGeometry, material)
         setComponent(lightHelperEntity, NameComponent, name)
         addObjectToGroup(lightHelperEntity, lightPlane)
         setComponent(lightHelperEntity, EntityTreeComponent, { parentEntity: entity })
         setVisibleComponent(lightHelperEntity, true)
 
-        geometry = new BufferGeometry()
-        const t = size * 0.1
-        geometry.setAttribute(
-          'position',
-          new Float32BufferAttribute([-t, t, 0, 0, 0, 1, t, t, 0, 0, 0, 1, t, -t, 0, 0, 0, 1, -t, -t, 0, 0, 0, 1], 3)
-        )
-
-        const targetLine = new LineSegments(geometry, material)
+        const targetLine = new LineSegments(targetLineGeometry, material)
         addObjectToGroup(lightHelperEntity, targetLine)
         targetLine.layers.set(ObjectLayers.NodeHelper)
 
