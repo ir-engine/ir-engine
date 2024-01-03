@@ -29,7 +29,6 @@ import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHel
 
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { vec3 } from '@gltf-transform/core'
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
