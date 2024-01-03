@@ -28,7 +28,6 @@ import React, { useEffect } from 'react'
 import { BackSide, Color, CompressedTexture, Mesh, MeshBasicMaterial, SphereGeometry, Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -156,11 +155,12 @@ function LoadingReactor() {
     const currentSceneID = getState(SceneState).activeScene!
     const sceneData = SceneState.getSceneMetadata(currentSceneID)
     if (!sceneData) return
-    const envmapURL = sceneData.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
+    const envmapURL = sceneData.thumbnailUrl
+      .replace('thumbnail.ktx2', 'loadingscreen.ktx2')
+      .replace('thumbnail.jpg', 'loadingscreen.ktx2')
     const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
     if (envmapURL && mesh.userData.url !== envmapURL) {
       mesh.userData.url = envmapURL
-      setDefaultPalette()
 
       /** Load envmap and parse colours */
       AssetLoader.load(
@@ -170,22 +170,22 @@ function LoadingReactor() {
           mesh.material.map = texture
           mesh.material.needsUpdate = true
           mesh.material.map.needsUpdate = true
-          const compressedTexture = texture as CompressedTexture
-          if (compressedTexture.isCompressedTexture) {
-            try {
-              createReadableTexture(compressedTexture).then((texture: Texture) => {
-                const image = texture.image
-                setColors(image)
-                texture.dispose()
-              })
-            } catch (e) {
-              console.error(e)
-              setDefaultPalette()
-            }
-          } else {
-            const image = texture.image
-            setColors(image)
-          }
+        },
+        undefined,
+        (error: ErrorEvent) => {
+          console.error(error)
+        }
+      )
+
+      setDefaultPalette()
+      /** Load envmap and parse colours */
+      AssetLoader.load(
+        sceneData.thumbnailUrl,
+        {},
+        (texture: Texture) => {
+          const image = texture.image
+          setColors(image)
+          texture.dispose()
         },
         undefined,
         (error: ErrorEvent) => {

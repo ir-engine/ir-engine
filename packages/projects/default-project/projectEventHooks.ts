@@ -53,7 +53,7 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
     if (locationResult.length === 0) throw new BadRequest('Invalid location name')
     const storageProvider = getStorageProvider()
     const cacheDomain = getCacheDomain(storageProvider, true)
-    const thumbnailURL = getCachedURL(locationResult[0].sceneId.replace('.scene.json', '.thumbnail.ktx2'), cacheDomain)
+    const thumbnailURL = getCachedURL(locationResult[0].sceneId.replace('.scene.json', '.thumbnail.jpg'), cacheDomain)
     currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
     currentOEmbed.type = 'photo'
@@ -88,7 +88,7 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
       if (locationResult.length > 0) {
         const storageProvider = getStorageProvider()
         const cacheDomain = getCacheDomain(storageProvider, true)
-        const thumbnailURL = getCachedURL(sceneURL.replace('.scene.json', '.thumbnail.ktx2'), cacheDomain)
+        const thumbnailURL = getCachedURL(sceneURL.replace('.scene.json', '.thumbnail.jpg'), cacheDomain)
         currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'
         currentOEmbed.url = thumbnailURL

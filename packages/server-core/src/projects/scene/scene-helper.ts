@@ -56,9 +56,9 @@ export const getSceneData = async (
   const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, directory)
   if (!sceneExists) throw new Error(`No scene named ${sceneName} exists in project ${directory}`)
 
-  let thumbnailPath = `${directory}${sceneName}.thumbnail.ktx2`
+  let thumbnailPath = `${directory}${sceneName}.thumbnail.jpg`
 
-  //if no ktx2 is found, fallback on legacy jpg thumbnail format, if still not found, fallback on ethereal logo
+  //if no jpg is found, fallback on previous ktx2 thumbnail format, if still not found, fallback on ethereal logo
   if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.ktx2`, directory))) {
     thumbnailPath = `${directory}${sceneName}.thumbnail.jpeg`
     if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.jpeg`, directory))) thumbnailPath = ``
