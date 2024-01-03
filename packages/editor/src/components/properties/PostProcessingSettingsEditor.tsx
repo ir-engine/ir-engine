@@ -45,7 +45,7 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import styles from '../styles.module.scss'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
 enum PropertyTypes {
   BlendFunction,
@@ -359,9 +359,11 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         <div key={effect}>
           <Checkbox
             classes={{ checked: styles.checkbox }}
-            onChange={(e) => {
-              postprocessing.effects[effect].isActive.set(e.target.checked)
-            }}
+            onChange={(e) =>
+              commitProperties(PostProcessingComponent, { [`effects.${effect}.isActive`]: e.target.checked }, [
+                props.entity
+              ])
+            }
             checked={postprocessing.effects[effect]?.isActive?.value}
           />
           <span style={{ color: 'var(--textColor)' }}>{effect}</span>
