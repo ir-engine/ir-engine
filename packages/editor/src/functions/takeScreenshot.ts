@@ -61,7 +61,7 @@ function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: numb
   return tmpCanvas
 }
 
-const query = defineQuery([ScenePreviewCameraComponent])
+const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
 
 const ktx2Encoder = new KTX2Encoder()
 
@@ -84,7 +84,7 @@ export async function previewScreenshot(
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
-    for (const entity of query()) {
+    for (const entity of scenePreviewCameraQuery()) {
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     }
 
@@ -167,7 +167,7 @@ export async function takeScreenshot(
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
-    for (const entity of query()) {
+    for (const entity of scenePreviewCameraQuery()) {
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     }
 
