@@ -24,33 +24,44 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { config } from '@etherealengine/common/src/config'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
 import MetaTags from '../common/components/MetaTags'
-import { OEmbedState } from '../common/services/OEmbedService'
 
-export const OEmbed = () => {
-  const oEmbedState = useHookstate(getMutableState(OEmbedState))
-  const pathname = oEmbedState.pathname.value
-  const oEmbed = oEmbedState.oEmbed.value
-
-  const location = useLocation()
-  const oembedLink = `${config.client.serverUrl}/oembed?url=${encodeURIComponent(
+const oembedLink = () =>
+  `${config.client.serverUrl}/oembed?url=${encodeURIComponent(
     `${config.client.clientUrl}${location.pathname}`
   )}&format=json`
 
+export const OEmbed = () => {
+  const oembedState = useHookstate({
+    data: undefined as OembedType | undefined
+  })
+  const oEmbed = oembedState.data.value
+
   useEffect(() => {
-    if (pathname !== location.pathname) {
-      OEmbedState.fetchData(location.pathname, `${config.client.clientUrl}${location.pathname}`)
-    }
-  }, [location.pathname])
+    /** Fetch with quivalent to feathersjs find */
+    fetch(oembedLink(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data)
+        oembedState.merge({ data })
+      })
+      .catch((error) => {
+        console.error('Error fetching oembed', error)
+      })
+  }, [])
 
   return (
     <MetaTags>
-      <link href={oembedLink} type="application/json+oembed" rel="alternate" title="oEmbed Profile" />
-      {oEmbed && pathname === location.pathname && (
+      <link href={oembedLink()} type="application/json+oembed" rel="alternate" title="oEmbed Profile" />
+      {oEmbed && (
         <>
           <title>{oEmbed.title}</title>
           <meta name="description" content={oEmbed.description} />

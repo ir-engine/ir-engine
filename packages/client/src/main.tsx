@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+// tslint:disable:ordered-imports
+// @ts-ignore
+;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
+
 import { t } from 'i18next'
 import React, { lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -32,9 +36,7 @@ import ErrorBoundary from '@etherealengine/client-core/src/common/components/Err
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
 import './pages/styles.scss'
-// tslint:disable:ordered-imports
-// @ts-ignore
-;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
+import OEmbed from '@etherealengine/client-core/src/components/OEmbed'
 
 const Engine = lazy(() => import('./engine'))
 
@@ -45,6 +47,7 @@ const TailwindPage = lazy(() => import('./pages/_app_tw'))
 const App = () => {
   return (
     <>
+      <OEmbed />
       <ErrorBoundary>
         <BrowserRouter>
           <Routes>
