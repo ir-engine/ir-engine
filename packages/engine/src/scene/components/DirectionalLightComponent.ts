@@ -24,21 +24,29 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, DirectionalLight } from 'three'
+import { BufferGeometry, Color, ColorRepresentation, DirectionalLight, LineBasicMaterial, LineSegments } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'
+
+type DirectionalLightHelper = {
+  color: ColorRepresentation
+  lightPlane: LineSegments<BufferGeometry, LineBasicMaterial>
+  targetLine: LineSegments<BufferGeometry, LineBasicMaterial>
+  name: string
+  lightHelperEntity: Entity
+}
 
 export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
@@ -59,7 +67,8 @@ export const DirectionalLightComponent = defineComponent({
       shadowRadius: 1,
       cameraFar: 200,
       useInCSM: true,
-      helperEntity: null as Entity | null
+      helperEntity: null as Entity | null,
+      helper: null as DirectionalLightHelper | null
     }
   },
 
@@ -103,15 +112,14 @@ export const DirectionalLightComponent = defineComponent({
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
-      const helperEntity = light.helperEntity.value!
-      if (helperEntity) {
-        const helper = getComponent(helperEntity, GroupComponent)[0] as any as EditorDirectionalLightHelper
+      if (light.helper.value) {
+        const helper = light.helper.value
         if (light.color.value) {
           helper.lightPlane.material.color.set(light.color.value)
           helper.targetLine.material.color.set(light.color.value)
         } else {
-          helper.lightPlane.material.color.copy(helper.directionalLight!.color)
-          helper.targetLine.material.color.copy(helper.directionalLight!.color)
+          helper.lightPlane.material.color.copy(light.light!.color.value)
+          helper.targetLine.material.color.copy(light.light!.color.value)
         }
       }
     }, [light.color])
