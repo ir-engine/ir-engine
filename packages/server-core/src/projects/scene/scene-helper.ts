@@ -58,8 +58,8 @@ export const getSceneData = async (
 
   let thumbnailPath = `${directory}${sceneName}.thumbnail.jpg`
 
-  //if no jpg is found, fallback on previous ktx2 thumbnail format, if still not found, fallback on ethereal logo
-  if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.ktx2`, directory))) {
+  //if no jpg is found, fallback on jpeg, if still not found, fallback on ethereal logo
+  if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.jpg`, directory))) {
     thumbnailPath = `${directory}${sceneName}.thumbnail.jpeg`
     if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.jpeg`, directory))) thumbnailPath = ``
   }
