@@ -59,6 +59,7 @@ import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
+import { loadLocomotionAnimations } from '../functions/avatarFunctions'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { AnimationSystem } from './AnimationSystem'
 
@@ -304,6 +305,8 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
+    loadLocomotionAnimations()
+
     const networkState = getMutableState(NetworkState)
 
     networkState.networkSchema[IKSerialization.ID].set({
