@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { lazy, Suspense, useEffect } from 'react'
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Dashboard from '@etherealengine/ui/src/primitives/mui/Dashboard'
@@ -36,11 +36,12 @@ import Analytics from './components/Analytics'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
 import '@etherealengine/engine/src/EngineModule'
+import { RouterState } from '../common/services/RouterService'
 
 const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
 const AdminRoutes = () => {
-  const _location = useLocation()
+  const location = useLocation()
   const admin = useHookstate(getMutableState(AuthState)).user
 
   const allowedRoutes = useHookstate(getMutableState(AllowedAdminRoutesState))
@@ -65,12 +66,13 @@ const AdminRoutes = () => {
   }, [scopes])
 
   if (admin?.id?.value?.length! > 0 && !admin?.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
-    return <Navigate to={{ pathname: '/' }} />
+    RouterState.navigate('/', { from: location.pathname })
+    return null
   }
 
   return (
     <Dashboard>
-      <Suspense fallback={<LoadingCircle message={`Loading ${_location.pathname.split('/')[2]}...`} />}>
+      <Suspense fallback={<LoadingCircle message={`Loading ${location.pathname.split('/')[2]}...`} />}>
         <Routes>
           <Route path="/*" element={<$allowed />} />
           {<Route path="/" element={<Analytics />} />}
