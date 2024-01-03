@@ -926,16 +926,17 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       }
       return
     }
-    // component.playbackStartTime.set(engineState.elapsedSeconds * 1000)
-    // component.geometryInfo.bufferHealth.set(
-    //   component.geometryInfo.bufferHealth.value - (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
-    // )
-    // component.textureInfo.textureTypes.value.forEach((textureType) => {
-    //   const currentHealth = component.textureInfo[textureType].bufferHealth.value
-    //   component.textureInfo[textureType].bufferHealth.set(
-    //     currentHealth - (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
-    //   )
-    // })
+    component.playbackStartTime.set(engineState.elapsedSeconds * 1000)
+    component.geometryInfo.bufferHealth.set(
+      component.geometryInfo.bufferHealth.value -
+        (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
+    )
+    component.textureInfo.textureTypes.value.forEach((textureType) => {
+      const currentHealth = component.textureInfo[textureType].bufferHealth.value
+      component.textureInfo[textureType].bufferHealth.set(
+        currentHealth - (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
+      )
+    })
     volumetric.startTime.set(volumetric.currentTrackInfo.currentTime.value)
 
     if (mesh.material !== material) {
@@ -945,21 +946,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (component.hasAudio.value) {
       handleAutoplay(audioContext, audio, volumetric)
     }
-  }, [volumetric.paused])
-
-  useEffect(() => {
-    if (volumetric.paused.value) return
-    const previousValue = previousStartTime != null ? previousStartTime : 0
-    component.playbackStartTime.set(engineState.elapsedSeconds * 1000)
-    component.geometryInfo.bufferHealth.set(
-      component.geometryInfo.bufferHealth.value - (volumetric.startTime.value - previousValue)
-    )
-    component.textureInfo.textureTypes.value.forEach((textureType) => {
-      const currentHealth = component.textureInfo[textureType].bufferHealth.value
-      component.textureInfo[textureType].bufferHealth.set(currentHealth - (volumetric.startTime.value - previousValue))
-    })
     component.canPlay.set(true)
-  }, [volumetric.startTime, volumetric.paused])
+  }, [volumetric.paused])
 
   const getFrame = (currentTime: number, frameRate: number, integer = true) => {
     const frame = currentTime * frameRate
@@ -1266,8 +1254,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     if (volumetric.autoPauseWhenBuffering.value) {
       const currentGeometryBufferHealth =
-        component.geometryInfo.bufferHealth.value - (component.currentTime.value - volumetric.startTime.value)
-      const currentMinBuffer = Math.min(minBufferToPlay, component.data.duration.value - component.currentTime.value)
+        component.geometryInfo.bufferHealth.value -
+        (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
+      const currentMinBuffer = Math.min(
+        minBufferToPlay,
+        component.data.duration.value - volumetric.currentTrackInfo.currentTime.value
+      )
       if (currentGeometryBufferHealth < currentMinBuffer) {
         return
       }
@@ -1275,7 +1267,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         const textureType = component.textureInfo.textureTypes[i].value
         const currentTextureBufferHealth =
           component.textureInfo[textureType].bufferHealth.value -
-          (component.currentTime.value - volumetric.startTime.value)
+          (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
         if (currentTextureBufferHealth < currentMinBuffer) {
           return
         }

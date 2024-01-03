@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
@@ -31,9 +31,9 @@ import { hasComponent, useComponent } from '@etherealengine/engine/src/ecs/funct
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
+import { UVOL1Component } from '@etherealengine/engine/src/scene/components/UVOL1Component'
 import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL2Component'
 import VideocamIcon from '@mui/icons-material/Videocam'
-import { debounce } from 'lodash'
 import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
@@ -41,6 +41,7 @@ import { Button } from '../inputs/Button'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
+import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
@@ -71,6 +72,7 @@ const PlayModeOptions = [
  */
 export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const [trackLabel, setTrackLabel] = React.useState('')
 
   const volumetricComponent = useComponent(props.entity, VolumetricComponent)
 
@@ -78,11 +80,30 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
     volumetricComponent.paused.set(!volumetricComponent.paused.value)
   }
 
-  const onChange = (value: number) => {
-    volumetricComponent.startTime.set(value)
-  }
+  useEffect(() => {
+    const tracks = volumetricComponent.paths.value
+    if (tracks.length === 0) {
+      return
+    }
+    if (tracks.length === 1) {
+      const segments = tracks[0].split('/')
+      setTrackLabel(segments[segments.length - 1])
+      return
+    }
 
-  const debouncedOnChange = debounce(onChange, 200)
+    let prefix = tracks[0]
+
+    // Don't show the longest common prefix
+    for (let j = 1; j < tracks.length; j++) {
+      while (tracks[j].indexOf(prefix) !== 0) {
+        prefix = prefix.substring(0, prefix.length - 1)
+      }
+    }
+
+    const currentTrackPath = tracks[volumetricComponent.track.value]
+
+    setTrackLabel(currentTrackPath.slice(prefix.length))
+  }, [volumetricComponent.track, volumetricComponent.ended, volumetricComponent.paths])
 
   return (
     <NodeEditor
@@ -129,14 +150,13 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         acceptDropItems={ItemTypes.Volumetrics}
       />
 
-      {hasComponent(props.entity, UVOL2Component) && (
+      {(hasComponent(props.entity, UVOL2Component) || hasComponent(props.entity, UVOL1Component)) && (
         <InputGroup name="CurrentTime" label={t('editor:properties.media.lbl-currentTime')}>
           <CompoundNumericInput
             min={0}
             max={volumetricComponent.currentTrackInfo.duration.value}
             step={0.01}
             value={volumetricComponent.currentTrackInfo.currentTime.value}
-            onChange={debouncedOnChange}
           />
         </InputGroup>
       )}
@@ -155,6 +175,10 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
               : t('editor:properties.media.pausetitle')}
           </Button>
         )}
+      </InputGroup>
+
+      <InputGroup name="Current Track" label="Current Track">
+        <StringInput value={trackLabel} />
       </InputGroup>
     </NodeEditor>
   )

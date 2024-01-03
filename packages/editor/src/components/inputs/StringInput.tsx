@@ -41,6 +41,11 @@ interface StyledNumericInputProps {
 
 const StyledNumericInput = React.forwardRef<any, StyledNumericInputProps>(
   ({ className = '', onChange, ...rest }, ref) => {
+    if (!onChange) {
+      return (
+        <input className={`StyledNumericInput ${className}`} readOnly={true} style={inputStyle} {...rest} ref={ref} />
+      )
+    }
     return (
       <input className={`StyledNumericInput ${className}`} onChange={onChange} style={inputStyle} {...rest} ref={ref} />
     )
