@@ -24,13 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Object3D } from 'three'
-import iterateObject3D from '../util/iterateObject3D'
 
 /**
  * @deprecated use ObjectLayerMaskComponent instead
  */
 export function setObjectLayers(object: Object3D, ...layers: number[]) {
-  iterateObject3D(object, (obj: Object3D) => {
+  object.traverse((obj: Object3D) => {
     obj.layers.disableAll()
     for (const layer of layers) {
       obj.layers.enable(layer)
@@ -42,7 +41,7 @@ export function setObjectLayers(object: Object3D, ...layers: number[]) {
  * @deprecated use ObjectLayerMaskComponent instead
  */
 export function enableObjectLayer(object: Object3D, layer: number, enable: boolean) {
-  iterateObject3D(object, (obj: Object3D) => {
+  object.traverse((obj: Object3D) => {
     enable ? obj.layers.enable(layer) : obj.layers.disable(layer)
   })
 }
