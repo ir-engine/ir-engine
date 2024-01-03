@@ -32,13 +32,21 @@ import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/r
 import { defineState, getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { loadRoute } from '@etherealengine/projects/loadRoute'
 
+type NavigationStateType = {
+  from?: string
+}
+
 export const RouterState = defineState({
   name: 'RouterState',
   initial: () => ({
-    pathname: location.pathname
+    pathname: location.pathname,
+    navigationState: {} as NavigationStateType
   }),
-  navigate: (pathname: string) => {
-    getMutableState(RouterState).pathname.set(pathname)
+  navigate: (pathname: string, navigationState: NavigationStateType = {}) => {
+    getMutableState(RouterState).set({
+      pathname,
+      navigationState
+    })
   }
 })
 
@@ -98,7 +106,7 @@ export const useCustomRoutes = () => {
 
   useEffect(() => {
     if (location.pathname !== routerState.pathname.value) {
-      navigate(routerState.pathname.value)
+      navigate(routerState.pathname.value, { state: routerState.navigationState.get(NO_PROXY) })
     }
   }, [routerState.pathname])
 

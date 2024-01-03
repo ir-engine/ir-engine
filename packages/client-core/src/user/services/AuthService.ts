@@ -348,7 +348,7 @@ export const AuthService = {
     const path = location?.state?.from || location.pathname
 
     const redirectConfig = {
-      path: path
+      path
     } as Record<string, string>
 
     const currentUrl = new URL(window.location.href)
