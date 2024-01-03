@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { t } from 'i18next'
 import React, { lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
@@ -36,9 +36,6 @@ import './pages/styles.scss'
 // @ts-ignore
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
 
-import config from '@etherealengine/common/src/config'
-import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
-
 const Engine = lazy(() => import('./engine'))
 
 /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
@@ -46,15 +43,8 @@ const AppPage = lazy(() => import('./pages/_app'))
 const TailwindPage = lazy(() => import('./pages/_app_tw'))
 
 const App = () => {
-  const oembedLink = `${config.client.serverUrl}/oembed?url=${encodeURIComponent(
-    `${config.client.clientUrl}${location.pathname}`
-  )}&format=json`
-
   return (
     <>
-      <MetaTags>
-        <link href={oembedLink} type="application/json+oembed" rel="alternate" title="oEmbed Profile" />
-      </MetaTags>
       <ErrorBoundary>
         <BrowserRouter>
           <Routes>

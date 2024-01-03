@@ -41,10 +41,6 @@ export const OEmbed = () => {
     `${config.client.clientUrl}${location.pathname}`
   )}&format=json`
 
-  console.log(pathname, location, oEmbed)
-
-  console.log({ oembedLink })
-
   useEffect(() => {
     if (pathname !== location.pathname) {
       OEmbedState.fetchData(location.pathname, `${config.client.clientUrl}${location.pathname}`)
@@ -54,7 +50,7 @@ export const OEmbed = () => {
   return (
     <MetaTags>
       <link href={oembedLink} type="application/json+oembed" rel="alternate" title="oEmbed Profile" />
-      {oEmbed && pathname === location.pathname ? (
+      {oEmbed && pathname === location.pathname && (
         <>
           <title>{oEmbed.title}</title>
           <meta name="description" content={oEmbed.description} />
@@ -78,8 +74,6 @@ export const OEmbed = () => {
           />
           <meta name="twitter:url" content={oEmbed.query_url} />
         </>
-      ) : (
-        <></>
       )}
     </MetaTags>
   )
