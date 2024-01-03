@@ -254,6 +254,9 @@ export default defineConfig(async () => {
     define[`globalThis.process.env.${key}`] = JSON.stringify(value)
   }
 
+  /** test */
+  const PWA_Enabled = false //process.env.VITE_PWA_ENABLED === 'true'
+
   const returned = {
     define: define,
     server: {
@@ -294,7 +297,7 @@ export default defineConfig(async () => {
       svgr(),
       nodePolyfills(),
       mediapipe_workaround(),
-      process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
+      PWA_Enabled ? PWA(clientSetting) : undefined,
       ViteEjsPlugin({
         ...manifest,
         title: clientSetting.title || 'Ethereal Engine',
@@ -309,7 +312,7 @@ export default defineConfig(async () => {
         icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
         webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
         swScriptLink:
-          clientSetting.swScriptLink || process.env.VITE_PWA_ENABLED === 'true'
+          clientSetting.swScriptLink || PWA_Enabled
             ? process.env.APP_ENV === 'development'
               ? 'dev-sw.js?dev-sw'
               : 'service-worker.js'
