@@ -397,7 +397,7 @@ export async function transformModel(args: ModelTransformParameters) {
 
   const fileUploadPath = (fUploadPath: string) => {
     const relativePath = fUploadPath.replace(config.client.fileServer, '')
-    const pathCheck = /projects\/([^/]+)\/assets\/([\w\d\s\-_./]*)$/
+    const pathCheck = /projects\/([^/]+)\/assets\/([\w\d\s\-|_./]*)$/
     const [_, projectName, fileName] =
       pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(LoaderUtils.extractUrlBase(args.src), fUploadPath))!
     return [projectName, fileName]
@@ -544,6 +544,7 @@ export async function transformModel(args: ModelTransformParameters) {
         texture.setExtension(extension.extensionName, extension)
       }
     }
+
     textures.push(...eeMaterialExtension.textures)
   }
 
@@ -551,6 +552,8 @@ export async function transformModel(args: ModelTransformParameters) {
   if (parms.textureFormat !== 'default') {
     let ktx2Encoder: KTX2Encoder | null = null
     for (const texture of textures) {
+      const references = texture.listParents()
+      console.log(references)
       const oldImg = texture.getImage()
       if (!oldImg) continue
       const oldSize = texture.getSize()
@@ -691,6 +694,11 @@ export async function transformModel(args: ModelTransformParameters) {
       */
     }
   }
+  if (eeMaterialExtension) {
+    for (const texture of eeMaterialExtension.textures) {
+      document.createTexture().copy(texture)
+    }
+  }
   let result
   if (parms.modelFormat === 'glb') {
     const data = await io.writeBinary(document)
@@ -720,14 +728,6 @@ export async function transformModel(args: ModelTransformParameters) {
     )*/
     console.log('Handled glb file')
   } else if (parms.modelFormat === 'gltf') {
-    const eeMaterialExtension: EEMaterialExtension | undefined = root
-      .listExtensionsUsed()
-      .find((ext) => ext.extensionName === 'EE_material') as EEMaterialExtension
-    if (eeMaterialExtension) {
-      for (const texture of eeMaterialExtension.textures) {
-        document.createTexture().copy(texture)
-      }
-    }
     await Promise.all(
       [root.listBuffers(), root.listMeshes(), root.listTextures()].map(
         async (elements) =>

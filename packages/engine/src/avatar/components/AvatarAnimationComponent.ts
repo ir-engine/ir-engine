@@ -53,7 +53,6 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
@@ -151,6 +150,7 @@ export const AvatarRigComponent = defineComponent({
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
     const visible = useOptionalComponent(entity, VisibleComponent)
     const modelComponent = useOptionalComponent(entity, ModelComponent)
+    const locomotionAnimationState = useHookstate(getMutableState(AnimationState).loadedAnimations[locomotionAnimation])
 
     useEffect(() => {
       if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
@@ -168,11 +168,6 @@ export const AvatarRigComponent = defineComponent({
       setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
       setComputedTransformComponent(helperEntity, entity, () => {
-        const helperTransform = getComponent(helperEntity, TransformComponent)
-        const avatarTransform = getComponent(entity, TransformComponent)
-        helperTransform.position.copy(avatarTransform.position)
-        helperTransform.rotation.copy(avatarTransform.rotation)
-
         // this updates the bone helper lines
         helper.updateMatrixWorld(true)
       })
@@ -200,15 +195,22 @@ export const AvatarRigComponent = defineComponent({
     }, [modelComponent?.asset])
 
     useEffect(() => {
-      if (!rigComponent.value || !rigComponent.value.vrm || !rigComponent.value.avatarURL) return
+      if (
+        !rigComponent.value ||
+        !rigComponent.value.vrm ||
+        !rigComponent.value.avatarURL ||
+        !locomotionAnimationState?.value
+      )
+        return
       const rig = getComponent(entity, AvatarRigComponent)
       try {
         setupAvatarForUser(entity, rig.vrm)
+        if (manager.loadedAnimations[locomotionAnimation].value) retargetAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
       }
-    }, [rigComponent.vrm])
+    }, [rigComponent.vrm, locomotionAnimationState])
 
     const manager = useHookstate(getMutableState(AnimationState))
 

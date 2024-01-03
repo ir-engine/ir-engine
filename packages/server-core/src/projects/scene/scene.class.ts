@@ -304,8 +304,6 @@ export class SceneService
         }
       }
 
-      const a = data.directory!.split('/')[1]
-
       // return scene id for update hooks
       return { id: `${data.directory!.split('/')[1]}/${name}` }
     } catch (err) {

@@ -27,14 +27,23 @@ import { t } from 'i18next'
 import React from 'react'
 
 import { CameraMode } from '@etherealengine/engine/src/camera/types/CameraMode'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getOptionalComponent,
+  useComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 
+import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { MeshComponent } from '@etherealengine/engine/src/scene/components/MeshComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { Box3, Vector3 } from 'three'
+import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'
 import { NumericInputGroup } from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
 /** Types copied from Camera Modes of engine. */
 const cameraModeSelect = [
@@ -76,8 +85,38 @@ const projectionTypeSelect = [
   }
 ]
 
+const modelQuery = defineQuery([ModelComponent])
+const _box3 = new Box3()
+
 export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
   const cameraSettings = useComponent(props.entity, CameraSettingsComponent)
+
+  const calculateClippingPlanes = () => {
+    const box = new Box3()
+    const modelEntities = modelQuery()
+    for (const entity of modelEntities) {
+      console.log(entity)
+      iterateEntityNode(entity, (entity) => {
+        const mesh = getOptionalComponent(entity, MeshComponent)
+        if (mesh?.geometry?.boundingBox) {
+          console.log(mesh)
+          _box3.copy(mesh.geometry.boundingBox)
+          _box3.applyMatrix4(mesh.matrixWorld)
+          box.union(_box3)
+        }
+      })
+    }
+    const boxSize = box.getSize(new Vector3()).length()
+    commitProperties(
+      CameraSettingsComponent,
+      {
+        cameraNearClip: 0.1,
+        cameraFarClip: Math.max(boxSize, 100)
+      },
+      [props.entity]
+    )
+  }
+
   return (
     <PropertyGroup
       name={t('editor:properties.cameraSettings.name')}
@@ -113,6 +152,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
         largeStep={0.1}
         value={cameraSettings.fov.value}
       />
+
+      <Button onClick={calculateClippingPlanes}>Calculate Clipping Planes</Button>
 
       <NumericInputGroup
         name="cameraNearClip"
