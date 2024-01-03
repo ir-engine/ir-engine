@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BufferGeometry, Color, ColorRepresentation, DirectionalLight, LineBasicMaterial, LineSegments } from 'three'
+import { BufferGeometry, Color, DirectionalLight, Float32BufferAttribute, LineBasicMaterial, LineSegments } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Entity } from '../../ecs/classes/Entity'
@@ -34,17 +34,16 @@ import { defineComponent, setComponent, useComponent } from '../../ecs/functions
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
-import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
 type DirectionalLightHelper = {
-  color: ColorRepresentation
   lightPlane: LineSegments<BufferGeometry, LineBasicMaterial>
   targetLine: LineSegments<BufferGeometry, LineBasicMaterial>
   name: string
+  size: number
   lightHelperEntity: Entity
 }
 
@@ -67,7 +66,6 @@ export const DirectionalLightComponent = defineComponent({
       shadowRadius: 1,
       cameraFar: 200,
       useInCSM: true,
-      helperEntity: null as Entity | null,
       helper: null as DirectionalLightHelper | null
     }
   },
@@ -83,6 +81,8 @@ export const DirectionalLightComponent = defineComponent({
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
     if (matches.boolean.test(json.useInCSM)) component.useInCSM.set(json.useInCSM)
+
+    if (matches.object.test(json.helper)) component.helper.set(json.helper)
   },
 
   toJSON: (entity, component) => {
@@ -93,7 +93,8 @@ export const DirectionalLightComponent = defineComponent({
       castShadow: component.castShadow.value,
       shadowBias: component.shadowBias.value,
       shadowRadius: component.shadowRadius.value,
-      useInCSM: component.useInCSM.value
+      useInCSM: component.useInCSM.value,
+      helper: component.helper.value
     }
   },
 
@@ -122,7 +123,7 @@ export const DirectionalLightComponent = defineComponent({
           helper.targetLine.material.color.copy(light.light!.color.value)
         }
       }
-    }, [light.color])
+    }, [light.color, light.helper])
 
     useEffect(() => {
       light.light.value.intensity = light.intensity.value
@@ -158,23 +159,93 @@ export const DirectionalLightComponent = defineComponent({
     useEffect(() => {
       if (!debugEnabled.value) return
 
-      const helper = new EditorDirectionalLightHelper(light.light.value)
-      helper.name = `directional-light-helper-${entity}`
+      if (!light.helper.value) {
+        const size = 1
+        const name = `directional-light-helper-${entity}`
+        const material = new LineBasicMaterial()
 
-      const helperEntity = createEntity()
-      addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(helperEntity, true)
+        let geometry = new BufferGeometry()
+        geometry.setAttribute(
+          'position',
+          new Float32BufferAttribute(
+            [
+              -size,
+              size,
+              0,
+              size,
+              size,
+              0,
+              size,
+              size,
+              0,
+              size,
+              -size,
+              0,
+              size,
+              -size,
+              0,
+              -size,
+              -size,
+              0,
+              -size,
+              -size,
+              0,
+              -size,
+              size,
+              0,
+              -size,
+              size,
+              0,
+              size,
+              -size,
+              0,
+              size,
+              size,
+              0,
+              -size,
+              -size,
+              0
+            ],
+            3
+          )
+        )
 
-      helper.layers.set(ObjectLayers.NodeHelper)
+        const lightHelperEntity = createEntity()
+        const lightPlane = new LineSegments(geometry, material)
+        setComponent(lightHelperEntity, NameComponent, name)
+        addObjectToGroup(lightHelperEntity, lightPlane)
+        setComponent(lightHelperEntity, EntityTreeComponent, { parentEntity: entity })
+        setVisibleComponent(lightHelperEntity, true)
 
-      light.helperEntity.set(helperEntity)
+        geometry = new BufferGeometry()
+        const t = size * 0.1
+        geometry.setAttribute(
+          'position',
+          new Float32BufferAttribute([-t, t, 0, 0, 0, 1, t, t, 0, 0, 0, 1, t, -t, 0, 0, 0, 1, -t, -t, 0, 0, 0, 1], 3)
+        )
+
+        const targetLine = new LineSegments(geometry, material)
+        addObjectToGroup(lightHelperEntity, targetLine)
+        targetLine.layers.set(ObjectLayers.NodeHelper)
+
+        light.helper.set({
+          lightPlane: lightPlane,
+          targetLine: targetLine,
+          name: name,
+          size: size,
+          lightHelperEntity: lightHelperEntity
+        })
+      }
 
       return () => {
-        removeEntity(helperEntity)
-        light.helperEntity.set(none)
-        helper.onRemove()
+        if (light.helper.value) {
+          const helper = light.helper.value
+          removeEntity(helper.lightHelperEntity)
+          helper.lightPlane.geometry.dispose()
+          helper.lightPlane.material.dispose()
+          helper.targetLine.geometry.dispose()
+          helper.targetLine.material.dispose()
+        }
       }
     }, [debugEnabled])
 
