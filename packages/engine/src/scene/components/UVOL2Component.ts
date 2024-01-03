@@ -369,14 +369,16 @@ function UVOL2Reactor() {
   const textureBuffer = useMemo(() => new Map<string, CompressedTexture>(), [])
 
   let maxBufferHealth = 14 // seconds
-  let minBufferToPlay = 4 // seconds
-  let bufferThreshold = 6 // seconds. If buffer health is less than this, fetch new data
+  let minBufferToStart = 4 // seconds
+  const minBufferToPlay = 2 // seconds. This is used when enableBuffering is true
+  let bufferThreshold = 10 // seconds. If buffer health is less than this, fetch new data
   const repeat = useMemo(() => new Vector2(1, 1), [])
   const offset = useMemo(() => new Vector2(0, 0), [])
   const previousStartTime = usePrevious(volumetric.startTime)
 
   const material = useMemo(() => {
     const manifest = component.data.value
+    let _material: ShaderMaterial | MeshBasicMaterial = new MeshBasicMaterial({ color: 0xffffff })
     if (manifest.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
       const firstTarget = Object.keys(manifest.geometry.targets)[0]
       const hasNormals = !manifest.geometry.targets[firstTarget].settings.excludeNormals
@@ -450,16 +452,15 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           }
         }
       }
-      const _material = new ShaderMaterial({
+      _material = new ShaderMaterial({
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
         uniforms: allUniforms,
         defines: defines,
         lights: true
       })
-      return _material
     }
-    return new MeshBasicMaterial({ color: 0xffffff })
+    return _material
   }, [])
 
   const defaultGeometry = useMemo(() => new SphereGeometry(3, 32, 32) as BufferGeometry, [])
@@ -500,12 +501,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       if (totalBitrate <= 5 * 1024 * 1024) {
         // 5MB
         maxBufferHealth = 15 // seconds
-        minBufferToPlay = 5 // seconds
+        minBufferToStart = 5 // seconds
         bufferThreshold = 10 // seconds.
       } else if (totalBitrate <= 10 * 1024 * 1024) {
         // 5-10MB
         maxBufferHealth = 10 // seconds
-        minBufferToPlay = 2 // seconds
+        minBufferToStart = 2 // seconds
         bufferThreshold = 8 // seconds.
       }
     }
@@ -608,7 +609,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           component.firstGeometryFrameLoaded.set(true)
         }
         if (
-          component.geometryInfo.bufferHealth.value >= minBufferToPlay &&
+          component.geometryInfo.bufferHealth.value >= minBufferToStart &&
           !component.initialGeometryBuffersLoaded.value
         ) {
           component.initialGeometryBuffersLoaded.set(true)
@@ -681,7 +682,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         })
 
         if (
-          component.geometryInfo.bufferHealth.value >= minBufferToPlay &&
+          component.geometryInfo.bufferHealth.value >= minBufferToStart &&
           !component.initialGeometryBuffersLoaded.value
         ) {
           component.initialGeometryBuffersLoaded.set(true)
@@ -701,11 +702,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const adjustGeometryTarget = (metric: number) => {
     const currentTarget = component.geometryInfo.currentTarget.value
     const targetsCount = component.geometryInfo.targets.value.length
-    if (metric >= 0.25) {
+    if (metric >= 0.3) {
       if (currentTarget > 0) {
         component.geometryInfo.currentTarget.set(currentTarget - 1)
       }
-    } else if (metric < 0.1) {
+    } else if (metric < 0.2) {
       if (currentTarget < targetsCount - 1) {
         component.geometryInfo.currentTarget.set(currentTarget + 1)
       }
@@ -715,11 +716,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const adjustTextureTarget = (textureType: TextureType, metric: number) => {
     const currentTarget = component.textureInfo[textureType].currentTarget.value
     const targetsCount = component.textureInfo[textureType].targets.value.length
-    if (metric >= 0.25) {
+    if (metric >= 0.3) {
       if (currentTarget > 0) {
         component.textureInfo[textureType].currentTarget.set(currentTarget - 1)
       }
-    } else if (metric < 0.1) {
+    } else if (metric < 0.2) {
       if (currentTarget < targetsCount - 1) {
         component.textureInfo[textureType].currentTarget.set(currentTarget + 1)
       }
@@ -837,7 +838,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         })
 
         if (
-          component.textureInfo[textureType].bufferHealth.value >= minBufferToPlay &&
+          component.textureInfo[textureType].bufferHealth.value >= minBufferToStart &&
           !component.initialTextureBuffersLoaded.value
         ) {
           component.initialTextureBuffersLoaded.set(true)
@@ -1261,6 +1262,24 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     if (!component.canPlay.value || !volumetric.initialBuffersLoaded.value) {
       return
+    }
+
+    if (volumetric.autoPauseWhenBuffering.value) {
+      const currentGeometryBufferHealth =
+        component.geometryInfo.bufferHealth.value - (component.currentTime.value - volumetric.startTime.value)
+      const currentMinBuffer = Math.min(minBufferToPlay, component.data.duration.value - component.currentTime.value)
+      if (currentGeometryBufferHealth < currentMinBuffer) {
+        return
+      }
+      for (let i = 0; i < component.textureInfo.textureTypes.value.length; i++) {
+        const textureType = component.textureInfo.textureTypes[i].value
+        const currentTextureBufferHealth =
+          component.textureInfo[textureType].bufferHealth.value -
+          (component.currentTime.value - volumetric.startTime.value)
+        if (currentTextureBufferHealth < currentMinBuffer) {
+          return
+        }
+      }
     }
 
     let _currentTime = -1

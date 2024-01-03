@@ -40,7 +40,6 @@ import AnimationIcon from '@mui/icons-material/Animation'
 
 import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import NumericInput from '../inputs/NumericInput'
@@ -69,7 +68,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         { label: 'None', value: -1 },
         ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
       ])
-  }, [modelComponent?.asset, loopAnimationComponent.hasAvatarAnimations])
+  }, [modelComponent?.asset, modelComponent?.convertToVRM])
 
   const onChangePlayingAnimation = (index) => {
     commitProperties(LoopAnimationComponent, {
@@ -92,7 +91,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
-      {loopAnimationComponent.hasAvatarAnimations.value && (
+      {modelComponent?.convertToVRM.value && (
         <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
           <ModelInput
             value={loopAnimationComponent.animationPack.value}
@@ -108,12 +107,6 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           value={loopAnimationComponent.timeScale.value}
           onChange={updateProperty(LoopAnimationComponent, 'timeScale')}
           onRelease={commitProperty(LoopAnimationComponent, 'timeScale')}
-        />
-      </InputGroup>
-      <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
-        <BooleanInput
-          value={loopAnimationComponent.hasAvatarAnimations.value}
-          onChange={commitProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
     </NodeEditor>
