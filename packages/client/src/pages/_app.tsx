@@ -45,6 +45,8 @@ import { useTranslation } from 'react-i18next'
 import RouterComp from '../route/public'
 import { ThemeContextProvider } from '../themes/themeContext'
 
+import { OEmbed } from '@etherealengine/client-core/src/components/OEmbed'
+
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface DefaultTheme extends Theme {}
@@ -89,6 +91,7 @@ const AppPage = ({ route }: { route: string }) => {
 
   return (
     <>
+      <OEmbed />
       <ThemeContextProvider>
         <StyledEngineProvider injectFirst>
           <SnackbarProvider

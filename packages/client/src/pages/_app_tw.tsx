@@ -45,6 +45,8 @@ import '../themes/base.css'
 import '../themes/components.css'
 import '../themes/utilities.css'
 
+import { OEmbed } from '@etherealengine/client-core/src/components/OEmbed'
+
 const AppPage = () => {
   const authState = useHookstate(getMutableState(AuthState))
   const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
@@ -92,17 +94,20 @@ const TailwindPage = () => {
   }, [notistackRef.current])
 
   return (
-    <ThemeContextProvider>
-      <SnackbarProvider
-        ref={notistackRef as any}
-        maxSnack={7}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        action={defaultAction}
-      >
-        <AppPage />
-        <Debug />
-      </SnackbarProvider>
-    </ThemeContextProvider>
+    <>
+      <OEmbed />
+      <ThemeContextProvider>
+        <SnackbarProvider
+          ref={notistackRef as any}
+          maxSnack={7}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          action={defaultAction}
+        >
+          <AppPage />
+          <Debug />
+        </SnackbarProvider>
+      </ThemeContextProvider>
+    </>
   )
 }
 

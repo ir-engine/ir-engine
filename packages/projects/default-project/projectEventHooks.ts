@@ -27,10 +27,10 @@ import { BadRequest } from '@feathersjs/errors'
 import path from 'path'
 
 import { OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import { Application } from '@etherealengine/server-core/declarations'
-import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { installAvatarsFromProject } from '@etherealengine/server-core/src/user/avatar/avatar-helper'
 
 const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
@@ -41,19 +41,19 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
   const isEditor = /^\/studio/.test(url.pathname)
   if (isLocation) {
     const locationName = url.pathname.replace(/\/location\//, '')
-    const locationResult = (await app.service(locationPath).find({
+    const locationResult = await app.service(locationPath).find({
       query: {
         slugifiedName: locationName
       },
-      pagination: false
-    } as any)) as any as LocationType[]
+      paginate: false
+    })
+    console.log(locationResult)
     if (locationResult.length === 0) throw new BadRequest('Invalid location name')
-    const [projectName, sceneName] = locationResult[0].sceneId.split('/')
-    const storageProvider = getStorageProvider()
+    const thumbnailURL = locationResult[0].sceneId.replace('.scene.json', '.thumbnail.ktx2')
     currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
     currentOEmbed.type = 'photo'
-    currentOEmbed.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+    currentOEmbed.url = thumbnailURL
     currentOEmbed.height = 320
     currentOEmbed.width = 512
 
@@ -72,24 +72,26 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
       subPath = url.pathname.replace(/\/studio/, '')
     }
 
-    if (subPath.includes('/')) {
-      const locationResult = (await app.service(locationPath).find({
+    const sceneURL = url.searchParams.get('scenePath') as SceneID | null
+
+    if (sceneURL) {
+      const locationResult = await app.service(locationPath).find({
         query: {
-          sceneId: subPath
+          sceneId: sceneURL
         },
-        pagination: false
-      } as any)) as any as LocationType[]
+        paginate: false
+      })
+      console.log(locationResult)
       if (locationResult.length > 0) {
-        const [projectName, sceneName] = locationResult[0].sceneId.split('/')
-        const storageProvider = getStorageProvider()
+        const thumbnailURL = sceneURL.replace('.scene.json', '.thumbnail.ktx2')
         currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'
-        currentOEmbed.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+        currentOEmbed.url = thumbnailURL
         currentOEmbed.height = 320
         currentOEmbed.width = 512
         return currentOEmbed
       }
-    } else if (subPath.length > 0) {
+    } else {
       currentOEmbed.title = `${subPath} Editor - ${currentOEmbed.title}`
       return currentOEmbed
     }
