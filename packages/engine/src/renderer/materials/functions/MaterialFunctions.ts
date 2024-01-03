@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh } from 'three'
-
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getState } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../../ecs/classes/Engine'
-import iterateObject3D from '../../../scene/util/iterateObject3D'
+import { defineQuery, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { MeshComponent } from '../../../scene/components/MeshComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
+
+const meshQuery = defineQuery([MeshComponent])
 
 export function dedupMaterials() {
   const materialTable = Object.entries(getState(MaterialLibraryState).materials)
@@ -49,7 +49,8 @@ export function dedupMaterials() {
       ) {
         multiLogger.info('found duplicate material')
         //change every instance of material1 to material2
-        iterateObject3D(Engine.instance.scene, (mesh: Mesh) => {
+        for (const entity of meshQuery()) {
+          const mesh = getComponent(entity, MeshComponent)
           if (!mesh?.isMesh) return
           const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
           materials.map((material, i) => {
@@ -61,7 +62,7 @@ export function dedupMaterials() {
               )
             }
           })
-        })
+        }
       }
     }
   })

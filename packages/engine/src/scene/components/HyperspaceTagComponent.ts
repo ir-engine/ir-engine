@@ -90,7 +90,6 @@ class PortalEffect extends Object3D {
     setComponent(portalEntity, NameComponent, this.name)
     setComponent(portalEntity, EntityTreeComponent, { parentEntity: parent })
     setComponent(portalEntity, VisibleComponent, true)
-    addObjectToGroup(portalEntity, this)
     addObjectToGroup(portalEntity, this.tubeMesh)
     this.tubeMesh.layers.set(ObjectLayers.Portal)
   }

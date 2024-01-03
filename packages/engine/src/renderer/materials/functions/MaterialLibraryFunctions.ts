@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Material, Mesh, Texture } from 'three'
+import { Color, Material, Texture } from 'three'
 
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
-import { Engine } from '../../../ecs/classes/Engine'
-import iterateObject3D from '../../../scene/util/iterateObject3D'
+import { defineQuery, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { MeshComponent } from '../../../scene/components/MeshComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
@@ -249,8 +249,11 @@ export function materialsFromSource(src: MaterialSource) {
   return getSourceItems(src)?.map(materialFromId)
 }
 
+const meshQuery = defineQuery([MeshComponent])
+
 export function replaceMaterial(material: Material, nuMat: Material) {
-  iterateObject3D(Engine.instance.scene, (mesh: Mesh) => {
+  for (const entity of meshQuery()) {
+    const mesh = getComponent(entity, MeshComponent)
     if (!mesh?.isMesh) return
     if (Array.isArray(mesh.material)) {
       mesh.material.map((meshMat, i) => {
@@ -263,7 +266,7 @@ export function replaceMaterial(material: Material, nuMat: Material) {
         mesh.material = nuMat
       }
     }
-  })
+  }
 }
 
 export function changeMaterialPrototype(material: Material, protoId: string) {
