@@ -28,9 +28,10 @@ import DockLayout, { DockMode, TabData } from 'rc-dock'
 import React from 'react'
 
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
-import FileBrowserContentPanel from './FileBrowserContentPanel'
+import FileBrowserContentPanel from './FileBrowser/FileBrowserContentPanel'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { t } from 'i18next'
 import { EditorState } from '../../services/EditorServices'
 import { DockContainer } from '../EditorContainer'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
@@ -62,7 +63,7 @@ export default function ProjectBrowserPanel() {
               tabs: [
                 {
                   id: 'filesPanel',
-                  title: 'Project Files',
+                  title: t('editor:layout.filebrowser.tab-name'),
                   content: (
                     <FileBrowserContentPanel
                       selectedFile={projectName ?? undefined}
@@ -79,7 +80,7 @@ export default function ProjectBrowserPanel() {
           tabs: [
             {
               id: 'previewPanel',
-              title: 'Preview',
+              title: t('editor:layout.scene-assets.preview'),
               cached: true,
               content: <AssetsPreviewPanel ref={assetsPreviewPanelRef} />
             }
