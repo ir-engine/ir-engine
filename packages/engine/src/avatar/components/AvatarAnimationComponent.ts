@@ -138,6 +138,7 @@ export const AvatarRigComponent = defineComponent({
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
     const visible = useOptionalComponent(entity, VisibleComponent)
     const modelComponent = useOptionalComponent(entity, ModelComponent)
+    const locomotionAnimationState = useHookstate(getMutableState(AnimationState).loadedAnimations[locomotionAnimation])
 
     useEffect(() => {
       if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
@@ -182,7 +183,13 @@ export const AvatarRigComponent = defineComponent({
     }, [modelComponent?.asset])
 
     useEffect(() => {
-      if (!rigComponent.value || !rigComponent.value.vrm || !rigComponent.value.avatarURL) return
+      if (
+        !rigComponent.value ||
+        !rigComponent.value.vrm ||
+        !rigComponent.value.avatarURL ||
+        !locomotionAnimationState?.value
+      )
+        return
       const rig = getComponent(entity, AvatarRigComponent)
       try {
         setupAvatarForUser(entity, rig.vrm)
@@ -191,7 +198,7 @@ export const AvatarRigComponent = defineComponent({
         console.error('Failed to load avatar', e)
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
       }
-    }, [rigComponent.vrm])
+    }, [rigComponent.vrm, locomotionAnimationState])
 
     const manager = useHookstate(getMutableState(AnimationState))
 
