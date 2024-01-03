@@ -31,18 +31,22 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import { uniqueId } from 'lodash'
 import { useMemo } from 'react'
+import { useBehaveGraphFlow } from './useBehaveGraphFlow'
 import { useSelectionHandler } from './useSelectionHandler'
 
 type selectionHandler = ReturnType<typeof useSelectionHandler>
+type behaveGraphFlow = ReturnType<typeof useBehaveGraphFlow>
 
 export const useTemplateHandler = ({
   selectedNodes,
   selectedEdges,
-  pasteNodes
-}: Pick<selectionHandler, 'pasteNodes'> & {
-  selectedNodes: Node[]
-  selectedEdges: Edge[]
-}) => {
+  pasteNodes,
+  onNodesChange
+}: Pick<selectionHandler, 'pasteNodes'> &
+  Pick<behaveGraphFlow, 'onNodesChange'> & {
+    selectedNodes: Node[]
+    selectedEdges: Edge[]
+  }) => {
   const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
 
   const createGraphTemplate = (nodes: Node[], edges: Edge[]): GraphTemplate => ({
@@ -87,7 +91,8 @@ export const useTemplateHandler = ({
 
   const handleApplyTemplate = (template: GraphTemplate) => {
     try {
-      pasteNodes(template.nodes, template.edges)
+      console.log('DEBUG ', template.name)
+      pasteNodes(template.nodes, template.edges, true, template.name)
     } catch (error) {
       console.error('Error applying template:', error)
     }

@@ -44,7 +44,15 @@ export const behaveToFlow = (graph: GraphJSON): [Node[], Edge[]] => {
         values: {} as { [key: string]: any }
       }
     }
-
+    if (nodeJSON.metadata?.parentNode) {
+      node.parentNode = nodeJSON.metadata.parentNode
+    }
+    if (nodeJSON.metadata?.style) {
+      node.style = nodeJSON.metadata.style as any
+    }
+    if (nodeJSON.metadata?.label) {
+      node.data.label = nodeJSON.metadata.label
+    }
     nodes.push(node)
 
     if (nodeJSON.configuration) {

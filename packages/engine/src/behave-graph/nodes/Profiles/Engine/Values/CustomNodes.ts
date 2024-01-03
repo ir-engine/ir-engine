@@ -471,4 +471,11 @@ export const switchScene = makeFlowNodeDefinition({
   }
 })
 
+export const group = makeFunctionNodeDefinition({
+  typeName: 'group',
+  in: {},
+  out: {},
+  exec: ({ read, write, graph }) => {}
+})
+
 //scene transition

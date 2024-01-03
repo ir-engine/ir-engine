@@ -29,6 +29,8 @@ import { State, useHookstate } from '@etherealengine/hyperflux'
 
 import { Grid } from '@mui/material'
 
+import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import { Button } from '../inputs/Button'
 import Well from './Well'
 
@@ -71,7 +73,7 @@ export default function PaginatedList<T>({
               onClick={() => currentPage.set(Math.min(list.length / countPerPage, Math.max(0, currentPage.value - 1)))}
               style={buttonStyle}
             >
-              -
+              <ArrowLeftIcon />
             </Button>
           </Grid>
           {[-2, -1, 0, 1, 2].map((idx) => {
@@ -104,7 +106,7 @@ export default function PaginatedList<T>({
               }
               style={buttonStyle}
             >
-              +
+              <ArrowRightIcon />
             </Button>
           </Grid>
         </Grid>

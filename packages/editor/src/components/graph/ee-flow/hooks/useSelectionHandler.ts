@@ -50,12 +50,22 @@ export const useSelectionHandler = ({
     setCopiedEdges(edges)
   }
 
-  const pasteNodes = (nodes = copiedNodes, edges = copiedEdges) => {
-    const minPosLeft = Math.min(...nodes.map((node) => node.position.x))
-    const maxPosLeft = Math.max(...nodes.map((node) => node.position.x))
-    const nodeMaxPosX = nodes.reduce(
-      (maxNode, currentNode) => (currentNode.position.x > maxNode.position.x ? currentNode : maxNode),
-      nodes[0]
+  const pasteNodes = (nodes = copiedNodes, edges = copiedEdges, groupNodes = false, groupName = '') => {
+    const nodeBoundingPositions = nodes.reduce(
+      (acc, node) => {
+        return {
+          top: Math.min(acc.top, node.position.y), // y axis is reversed in react flow co-rdinate system
+          bottom: Math.max(acc.bottom, node.position.y + node.height!),
+          right: Math.max(acc.right, node.position.x) + node.width!,
+          left: Math.min(acc.left, node.position.x)
+        }
+      },
+      {
+        top: Number.MAX_VALUE,
+        bottom: -Number.MAX_VALUE,
+        left: Number.MAX_VALUE,
+        right: -Number.MAX_VALUE
+      }
     )
 
     const nodeIdMap = new Map<string, string>()
@@ -65,7 +75,7 @@ export const useSelectionHandler = ({
         ...node,
         id: nodeIdMap[node.id],
         position: {
-          x: maxPosLeft + (node.position.x - minPosLeft) + nodeMaxPosX.width! + 20,
+          x: nodeBoundingPositions.right + (node.position.x - nodeBoundingPositions.left) + 20,
           y: node.position.y
         }
       }
@@ -87,6 +97,34 @@ export const useSelectionHandler = ({
       type: 'add',
       item: node
     }))
+
+    if (groupNodes) {
+      const newGroup: Node = {
+        id: uuidv4(),
+        type: 'group',
+        position: { x: nodeBoundingPositions.right + 10, y: nodeBoundingPositions.top - 20 },
+        data: { label: groupName, configuration: {}, values: {} },
+        style: {
+          width: nodeBoundingPositions.right - nodeBoundingPositions.left + 40,
+          height: nodeBoundingPositions.bottom - nodeBoundingPositions.top + 40,
+          color: 'var(--panelBackground)',
+          opacity: 0.3,
+          border: '1px solid var(--border-color-default)',
+          zIndex: -1
+        }
+      }
+      newNodes.forEach((node) => {
+        node.parentNode = newGroup.id
+        node.extent = 'parent'
+        node.position.x -= newGroup.position.x
+        node.position.y -= newGroup.position.y
+      })
+
+      newNodeChange.push({
+        type: 'add',
+        item: newGroup
+      })
+    }
 
     onNodesChange(newNodeChange)
     onEdgesChange(newEdgeChange)

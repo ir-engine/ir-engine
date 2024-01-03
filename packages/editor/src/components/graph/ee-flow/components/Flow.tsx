@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useRef } from 'react'
-import { Background, BackgroundVariant, NodeToolbar, Position, ReactFlow } from 'reactflow'
+import { Background, BackgroundVariant, NodeToolbar, Panel, Position, ReactFlow } from 'reactflow'
 
 import { GraphJSON, IRegistry } from '@behave-graph/core'
 
@@ -51,16 +51,16 @@ type FlowProps = {
 
 export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, registry, onChangeGraph }) => {
   const specGenerator = useNodeSpecGenerator(registry)
-
   const flowRef = useRef(null)
   const dragging = useHookstate(false)
   const mouseOver = useHookstate(false)
   const { t } = useTranslation()
 
-  const { nodes, edges, onNodesChange, onEdgesChange, graphJson, setGraphJson, nodeTypes } = useBehaveGraphFlow({
-    initialGraphJson: graph,
-    specGenerator
-  })
+  const { nodes, edges, onNodesChange, onEdgesChange, graphJson, setGraphJson, deleteNodes, nodeTypes } =
+    useBehaveGraphFlow({
+      initialGraphJson: graph,
+      specGenerator
+    })
 
   const {
     onConnect,
@@ -94,7 +94,8 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   const { handleAddTemplate, handleEditTemplate, handleDeleteTemplate, handleApplyTemplate } = useTemplateHandler({
     selectedNodes,
     selectedEdges,
-    pasteNodes
+    pasteNodes,
+    onNodesChange
   })
 
   useEffect(() => {
@@ -103,74 +104,75 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   }, [graphJson]) // change in node position triggers reactor
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'row' }}>
-      <SidePanel
-        ref={flowRef}
-        examples={examples}
-        onNodesChange={onNodesChange}
-        handleAddTemplate={handleAddTemplate}
-        handleApplyTemplate={handleApplyTemplate}
-        handleDeleteTemplate={handleDeleteTemplate}
-        handleEditTemplate={handleEditTemplate}
-      />
-      <ReactFlow
-        style={{ flex: 1 }}
-        ref={flowRef}
-        nodeTypes={nodeTypes}
-        nodes={nodes}
-        edges={edges}
-        onNodeDragStart={() => dragging.set(true)}
-        onNodeDragStop={() => dragging.set(false)}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onConnectStart={handleStartConnect}
-        onConnectEnd={handleStopConnect}
-        onPaneMouseEnter={() => mouseOver.set(true)}
-        onPaneMouseLeave={() => mouseOver.set(false)}
-        fitView
-        fitViewOptions={{ maxZoom: 1 }}
-        onPaneClick={handlePaneClick}
-        onPaneContextMenu={handlePaneContextMenu}
-        onSelectionChange={onSelectionChange}
-        multiSelectionKeyCode={'Shift'}
-        deleteKeyCode={'Backspace'}
-      >
-        <CustomControls
-          playing={playing}
-          togglePlay={togglePlay}
-          onSaveGraph={onChangeGraph}
-          setBehaviorGraph={setGraphJson}
+    <ReactFlow
+      ref={flowRef}
+      nodeTypes={nodeTypes}
+      nodes={nodes}
+      edges={edges}
+      onNodeDragStart={() => dragging.set(true)}
+      onNodeDragStop={() => dragging.set(false)}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onNodesDelete={deleteNodes}
+      onConnectStart={handleStartConnect}
+      onConnectEnd={handleStopConnect}
+      onPaneMouseEnter={() => mouseOver.set(true)}
+      onPaneMouseLeave={() => mouseOver.set(false)}
+      fitView
+      fitViewOptions={{ maxZoom: 1 }}
+      onPaneClick={handlePaneClick}
+      onPaneContextMenu={handlePaneContextMenu}
+      onSelectionChange={onSelectionChange}
+      multiSelectionKeyCode={'Shift'}
+      deleteKeyCode={'Backspace'}
+    >
+      <Panel position="top-left" style={{ width: '20%' }}>
+        <SidePanel
+          flowref={flowRef}
           examples={examples}
-          specGenerator={specGenerator}
+          onNodesChange={onNodesChange}
+          handleAddTemplate={handleAddTemplate}
+          handleApplyTemplate={handleApplyTemplate}
+          handleDeleteTemplate={handleDeleteTemplate}
+          handleEditTemplate={handleEditTemplate}
         />
-        <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
-        {nodePickerVisibility && (
-          <NodePicker
-            flowRef={flowRef}
-            position={nodePickerVisibility}
-            filters={nodePickFilters}
-            onPickNode={handleAddNode}
-            onClose={closeNodePicker}
-            specJSON={specGenerator?.getAllNodeSpecs()}
-          />
-        )}
+      </Panel>
 
-        <NodeToolbar
-          nodeId={selectedNodes.map((node) => node.id)}
-          isVisible={selectedNodes.length > 1}
-          position={Position.Top}
+      <CustomControls
+        playing={playing}
+        togglePlay={togglePlay}
+        onSaveGraph={onChangeGraph}
+        setBehaviorGraph={setGraphJson}
+        examples={examples}
+        specGenerator={specGenerator}
+      />
+      <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
+      {nodePickerVisibility && (
+        <NodePicker
+          flowRef={flowRef}
+          position={nodePickerVisibility}
+          filters={nodePickFilters}
+          onPickNode={handleAddNode}
+          onClose={closeNodePicker}
+          specJSON={specGenerator?.getAllNodeSpecs()}
+        />
+      )}
+
+      <NodeToolbar
+        nodeId={selectedNodes.map((node) => node.id)}
+        isVisible={selectedNodes.length > 1}
+        position={Position.Top}
+      >
+        <PropertiesPanelButton
+          style={{}}
+          onClick={() => {
+            handleAddTemplate()
+          }}
         >
-          <PropertiesPanelButton
-            style={{}}
-            onClick={() => {
-              handleAddTemplate()
-            }}
-          >
-            {t('editor:graphPanel.editorPanel.makeTemplate')}
-          </PropertiesPanelButton>
-        </NodeToolbar>
-      </ReactFlow>
-    </div>
+          {t('editor:graphPanel.editorPanel.makeTemplate')}
+        </PropertiesPanelButton>
+      </NodeToolbar>
+    </ReactFlow>
   )
 }

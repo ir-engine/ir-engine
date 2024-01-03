@@ -1,7 +1,7 @@
 {
   "nodes": [
     {
-      "id": "4bb99f89-11c4-471e-ba46-f507d86ffc93",
+      "id": "0",
       "type": "lifecycle/onTick",
       "metadata": {
         "positionX": "4.753700030301175",
@@ -9,7 +9,7 @@
       }
     },
     {
-      "id": "0",
+      "id": "1",
       "type": "lifecycle/onStart",
       "metadata": {
         "positionX": "2.1104424778760915",
@@ -17,13 +17,13 @@
       },
       "flows": {
         "flow": {
-          "nodeId": "6",
+          "nodeId": "2",
           "socket": "flow"
         }
       }
     },
     {
-      "id": "6",
+      "id": "2",
       "type": "debug/log",
       "metadata": {
         "positionX": "270.5933446233562",

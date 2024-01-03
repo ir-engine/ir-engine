@@ -46,12 +46,12 @@ type templateHandler = ReturnType<typeof useTemplateHandler>
 type BehaveGraphFlow = ReturnType<typeof useBehaveGraphFlow>
 
 export type SidePanelProps = {
-  ref: React.MutableRefObject<HTMLElement | null>
+  flowref: React.MutableRefObject<HTMLElement | null>
   examples: Examples
 }
 
 export const SidePanel = ({
-  ref,
+  flowref,
   examples,
   onNodesChange,
   handleAddTemplate,
@@ -75,12 +75,11 @@ export const SidePanel = ({
   return (
     <div
       style={{
-        width: '25%',
         display: 'flex',
         flexDirection: 'column',
         minWidth: '150px',
         backgroundColor: 'var(--panelBackground)',
-        padding: '10px'
+        padding: '5px'
       }}
     >
       <div style={{ flex: '50%', overflow: 'scroll' }}>
@@ -92,20 +91,20 @@ export const SidePanel = ({
           <PaginatedList
             options={{ countPerPage: 10 }}
             list={Object.keys(behaveGraphState.registries[BehaveGraphDomain.ECS].nodes)}
-            element={(node: string, index) => {
+            element={(nodeName: string, index) => {
               return (
                 <div>
                   <Button
                     style={{ width: '100%', textTransform: 'lowercase', padding: '0px' }}
                     onClick={() => {
-                      const bounds = (ref.current! as any).getBoundingClientRect()
+                      const bounds = (flowref.current! as any).getBoundingClientRect()
                       const centerX = bounds.left + bounds.width / 2
                       const centerY = bounds.top + bounds.height / 2
                       const viewportCenter = reactFlow.screenToFlowPosition({ x: centerX, y: centerY } as XYPosition)
                       const position = viewportCenter // need a way to get viewport
                       const newNode = {
                         id: uuidv4(),
-                        type: node,
+                        type: nodeName,
                         position,
                         data: { configuration: {}, values: {} } //fill with default values here
                       }
@@ -117,7 +116,7 @@ export const SidePanel = ({
                       ])
                     }}
                   >
-                    <Panel title={node}></Panel>
+                    <Panel title={nodeName}></Panel>
                   </Button>
                 </div>
               )
@@ -132,7 +131,7 @@ export const SidePanel = ({
           description={t('editor:graphPanel.sidePanel.template.description')}
         >
           <PaginatedList
-            options={{ countPerPage: 8 }}
+            options={{ countPerPage: 5 }}
             list={behaveGraphState.templates.get(NO_PROXY)}
             element={(template: any, index) => {
               return (
