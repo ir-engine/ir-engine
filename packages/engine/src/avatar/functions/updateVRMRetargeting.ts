@@ -64,7 +64,7 @@ export const updateVRMRetargeting = (vrm: VRM, avatarEntity: Entity) => {
         boneNode.position.copy(
           _boneWorldPos
             .applyMatrix4(_parentWorldMatrixInverse)
-            .multiplyScalar(getComponent(avatarEntity, AvatarRigSizeComponent).hipsHeight / 0.5)
+            .multiplyScalar(getComponent(avatarEntity, AvatarRigSizeComponent).hipsHeight)
         )
       }
     }
