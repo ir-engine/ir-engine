@@ -41,7 +41,7 @@ export const OEmbed = () => {
     `${config.client.clientUrl}${location.pathname}`
   )}&format=json`
 
-  console.log(pathname, oEmbed)
+  console.log(pathname, location, oEmbed)
 
   console.log({ oembedLink })
 
@@ -53,9 +53,9 @@ export const OEmbed = () => {
 
   return (
     <MetaTags>
+      <link href={oembedLink} type="application/json+oembed" rel="alternate" />
       {oEmbed && pathname === location.pathname ? (
         <>
-          <link href={oembedLink} type="application/json+oembed" rel="alternate" title={oEmbed.title} />
           <title>{oEmbed.title}</title>
           <meta name="description" content={oEmbed.description} />
 

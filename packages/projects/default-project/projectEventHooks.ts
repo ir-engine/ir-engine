@@ -54,7 +54,7 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
     const storageProvider = getStorageProvider()
     const cacheDomain = getCacheDomain(storageProvider, true)
     const thumbnailURL = getCachedURL(locationResult[0].sceneId.replace('.scene.json', '.thumbnail.jpg'), cacheDomain)
-    currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
+    currentOEmbed.title = `${locationResult[0].name} - Ethereal Engine`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
     currentOEmbed.type = 'photo'
     currentOEmbed.url = thumbnailURL
@@ -63,12 +63,12 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
 
     return currentOEmbed
   } else if (isAdminPanel) {
-    currentOEmbed.title = `Admin Dashboard - ${currentOEmbed.title}`
+    currentOEmbed.title = `Admin Dashboard - Ethereal Engine`
     currentOEmbed.description = `Manage all aspects of your deployment. ${currentOEmbed.description}`
 
     return currentOEmbed
   } else if (isEditor) {
-    currentOEmbed.title = `Studio - ${currentOEmbed.title}`
+    currentOEmbed.title = `Studio - Ethereal Engine`
     currentOEmbed.description = `No need to download extra software. Create, publish, and edit your world directly in the web browser.`
 
     let subPath = url.pathname.replace(/\/studio\//, '')
@@ -89,7 +89,7 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
         const storageProvider = getStorageProvider()
         const cacheDomain = getCacheDomain(storageProvider, true)
         const thumbnailURL = getCachedURL(sceneURL.replace('.scene.json', '.thumbnail.jpg'), cacheDomain)
-        currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
+        currentOEmbed.title = `${locationResult[0].name} - Studio - Ethereal Engine`
         currentOEmbed.type = 'photo'
         currentOEmbed.url = thumbnailURL
         currentOEmbed.height = 320
@@ -97,7 +97,7 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
         return currentOEmbed
       }
     } else {
-      currentOEmbed.title = `${subPath} Editor - ${currentOEmbed.title}`
+      currentOEmbed.title = `Studio - Ethereal Engine`
       return currentOEmbed
     }
 
