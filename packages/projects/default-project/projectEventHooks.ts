@@ -31,6 +31,9 @@ import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schem
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import { Application } from '@etherealengine/server-core/declarations'
+import { getCacheDomain } from '@etherealengine/server-core/src/media/storageprovider/getCacheDomain'
+import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
+import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { installAvatarsFromProject } from '@etherealengine/server-core/src/user/avatar/avatar-helper'
 
 const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
@@ -48,7 +51,9 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
       paginate: false
     })
     if (locationResult.length === 0) throw new BadRequest('Invalid location name')
-    const thumbnailURL = locationResult[0].sceneId.replace('.scene.json', '.thumbnail.ktx2')
+    const storageProvider = getStorageProvider()
+    const cacheDomain = getCacheDomain(storageProvider, true)
+    const thumbnailURL = getCachedURL(locationResult[0].sceneId.replace('.scene.json', '.thumbnail.ktx2'), cacheDomain)
     currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
     currentOEmbed.type = 'photo'
@@ -81,7 +86,9 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
         paginate: false
       })
       if (locationResult.length > 0) {
-        const thumbnailURL = sceneURL.replace('.scene.json', '.thumbnail.ktx2')
+        const storageProvider = getStorageProvider()
+        const cacheDomain = getCacheDomain(storageProvider, true)
+        const thumbnailURL = getCachedURL(sceneURL.replace('.scene.json', '.thumbnail.ktx2'), cacheDomain)
         currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'
         currentOEmbed.url = thumbnailURL
