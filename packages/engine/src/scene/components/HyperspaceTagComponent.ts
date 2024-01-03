@@ -26,42 +26,149 @@ Ethereal Engine. All Rights Reserved.
 import config from '@etherealengine/common/src/config'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { AmbientLight, Vector3 } from 'three'
+import {
+  AmbientLight,
+  BackSide,
+  BufferAttribute,
+  BufferGeometry,
+  CatmullRomCurve3,
+  Line,
+  LineBasicMaterial,
+  Mesh,
+  MeshBasicMaterial,
+  MirroredRepeatWrapping,
+  Object3D,
+  Texture,
+  TubeGeometry,
+  Vector3
+} from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { UndefinedEntity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent, destroyEntityTree } from '../../ecs/functions/EntityTree'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { SceneLoadingSystem } from '../SceneModule'
-import { PortalEffect } from '../classes/PortalEffect'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { GroupComponent, addObjectToGroup } from './GroupComponent'
+import { NameComponent } from './NameComponent'
 import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export const HyperspacePortalEffect = 'Hyperspace'
+
+class PortalEffect extends Object3D {
+  curve: CatmullRomCurve3
+  splineMesh: Line
+  tubeMaterial: MeshBasicMaterial
+  tubeGeometry: TubeGeometry
+  tubeMesh: Mesh
+  numPoints = 200
+  portalEntity: Entity
+
+  constructor(parent: Entity) {
+    super()
+    this.name = 'PortalEffect'
+
+    this.createMesh()
+    const portalEntity = (this.portalEntity = createEntity())
+    setComponent(portalEntity, NameComponent, this.name)
+    setComponent(portalEntity, EntityTreeComponent, { parentEntity: parent })
+    setComponent(portalEntity, VisibleComponent, true)
+    addObjectToGroup(portalEntity, this)
+    addObjectToGroup(portalEntity, this.tubeMesh)
+    this.tubeMesh.layers.set(ObjectLayers.Portal)
+  }
+
+  get texture() {
+    return this.tubeMaterial.map
+  }
+
+  set texture(val: Texture | null) {
+    this.tubeMaterial.map = val
+    if (this.tubeMaterial.map) {
+      this.tubeMaterial.map.wrapS = MirroredRepeatWrapping
+      this.tubeMaterial.map.wrapT = MirroredRepeatWrapping
+      if (this.tubeMaterial.map.repeat) this.tubeMaterial.map.repeat.set(1, 10)
+    }
+  }
+
+  createMesh() {
+    const points: Vector3[] = []
+
+    for (let i = 0; i < this.numPoints; i += 1) {
+      points.push(new Vector3(0, 0, i))
+    }
+
+    this.curve = new CatmullRomCurve3(points)
+
+    const geometry = new BufferGeometry()
+    const curvePoints = new Float32Array(
+      this.curve
+        .getPoints(this.numPoints)
+        .map((val: Vector3) => {
+          return val.toArray()
+        })
+        .flat()
+    )
+    geometry.setAttribute('position', new BufferAttribute(curvePoints, 3))
+    this.splineMesh = new Line(geometry, new LineBasicMaterial())
+
+    this.tubeMaterial = new MeshBasicMaterial({
+      side: BackSide,
+      transparent: true,
+      opacity: 0
+    })
+
+    const radialSegments = 24
+    const tubularSegments = this.numPoints / 10
+
+    this.tubeGeometry = new TubeGeometry(this.curve, tubularSegments, 2, radialSegments, false)
+    const tube = this.tubeGeometry.getAttribute('position') as BufferAttribute
+
+    const entryLength = 5
+    const segmentSize = this.numPoints / tubularSegments
+
+    for (let i = 0; i < radialSegments * entryLength; i++) {
+      const factor = (segmentSize * entryLength - tube.getZ(i)) * 0.1
+      tube.setX(i, tube.getX(i) * factor)
+      tube.setY(i, tube.getY(i) * factor)
+    }
+
+    this.tubeMesh = new Mesh(this.tubeGeometry, this.tubeMaterial)
+    this.tubeMesh.position.set(-0.5, 0, -15)
+  }
+
+  updateMaterialOffset(delta: number) {
+    if (this.tubeMaterial.map) this.tubeMaterial.map.offset.x += delta
+  }
+
+  update(delta: number) {
+    this.updateMaterialOffset(delta)
+  }
+}
 
 export const HyperspaceTagComponent = defineComponent({
   name: 'HyperspaceTagComponent',
 
   onInit(entity) {
     const hyperspaceEffectEntity = createEntity()
-    const hyperspaceEffect = new PortalEffect()
+    const hyperspaceEffect = new PortalEffect(hyperspaceEffectEntity)
     addObjectToGroup(hyperspaceEffectEntity, hyperspaceEffect)
     setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
 
@@ -94,7 +201,7 @@ export const HyperspaceTagComponent = defineComponent({
 
   onRemove(entity, component) {
     removeEntity(component.ambientLightEntity.value)
-    removeEntity(component.hyperspaceEffectEntity.value)
+    destroyEntityTree(component.hyperspaceEffectEntity.value)
   },
 
   reactor: () => {
@@ -120,6 +227,7 @@ export const HyperspaceTagComponent = defineComponent({
 
     useExecute(
       () => {
+        if (!hasComponent(entity, HyperspaceTagComponent)) return
         const engineState = getState(EngineState)
         const sceneLoaded = engineState.sceneLoaded
 
