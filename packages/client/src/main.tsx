@@ -53,7 +53,7 @@ const App = () => {
   return (
     <>
       <MetaTags>
-        <link href={oembedLink} type="application/json+oembed" rel="alternate" title="Bacon Lollys oEmbed Profile" />
+        <link href={oembedLink} type="application/json+oembed" rel="alternate" title="oEmbed Profile" />
       </MetaTags>
       <ErrorBoundary>
         <BrowserRouter>
