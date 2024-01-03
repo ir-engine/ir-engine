@@ -263,10 +263,11 @@ export const AvatarRigSizeComponent = defineComponent({
       const transform = getComponent(entity, TransformComponent)
       const rig = rigComponent.normalizedRig.value
 
-      avatar.avatarHeight = rig.head.node.getWorldPosition(vec3).y - transform.position.y
+      rig.hips.node.updateWorldMatrix(true, true)
+
+      avatar.avatarHeight = rig.head.node.getWorldPosition(vec3).y * 2
       avatar.avatarHalfHeight = avatar.avatarHeight / 2
 
-      rig.hips.node.updateWorldMatrix(true, true)
       sizeComponent.torsoLength.set(rig.head.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y)
       sizeComponent.upperLegLength.set(
         rig.hips.node.getWorldPosition(vec3).y - rig.leftUpperLeg.node.getWorldPosition(vec3).y
@@ -275,7 +276,7 @@ export const AvatarRigSizeComponent = defineComponent({
         rig.leftLowerLeg.node.getWorldPosition(vec3).y - rig.leftFoot.node.getWorldPosition(vec3).y
       )
       sizeComponent.hipsHeight.set(rig.hips.node.getWorldPosition(vec3).y)
-      sizeComponent.footHeight.set(rig.leftFoot.node.getWorldPosition(vec3).y - transform.position.y)
+      sizeComponent.footHeight.set(rig.leftFoot.node.getWorldPosition(vec3).y)
       sizeComponent.armLength.set(
         rig.leftUpperArm.node.getWorldPosition(vec3).y - rig.leftHand.node.getWorldPosition(vec3).y
       )
