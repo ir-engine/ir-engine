@@ -663,14 +663,16 @@ export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
 
   const bones = {} as VRMHumanBones
 
-  /** some mixamo rigs do not use the mixamo prefix, if so we add
+  /**
+   * some mixamo rigs do not use the mixamo prefix, if so we add
    * a prefix to the rig names for matching to keys in the mixamoVRMRigMap
    */
   const mixamoPrefix = hips.name.includes('mixamorig') ? '' : 'mixamorig'
-  /** some mixamo rigs have an identifier or suffix after the mixamo prefix
+  /**
+   * some mixamo rigs have an identifier or suffix after the mixamo prefix
    * that must be removed for matching to keys in the mixamoVRMRigMap
    */
-  const removeSuffix = !/[hp]/i.test(hips.name.charAt(9))
+  const removeSuffix = mixamoPrefix ? false : !/[hp]/i.test(hips.name.charAt(0))
 
   hips.traverse((target) => {
     /**match the keys to create a humanoid bones object */
