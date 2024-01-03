@@ -34,12 +34,14 @@ import { OEmbedState } from '../common/services/OEmbedService'
 export const OEmbed = () => {
   const oEmbedState = useHookstate(getMutableState(OEmbedState))
   const pathname = oEmbedState.pathname.value
-  const oEmbed = oEmbedState.oEmbed
+  const oEmbed = oEmbedState.oEmbed.value
 
   const location = useLocation()
   const oembedLink = `${config.client.serverUrl}/oembed?url=${encodeURIComponent(
     `${config.client.clientUrl}${location.pathname}`
   )}&format=json`
+
+  console.log(pathname, oEmbed)
 
   console.log({ oembedLink })
 
@@ -51,30 +53,30 @@ export const OEmbed = () => {
 
   return (
     <MetaTags>
-      {oembedLink && <link href={oembedLink} type="application/json+oembed" rel="alternate" title="Cool Pants" />}
-      {oEmbed.value && pathname === location.pathname ? (
+      {oEmbed && pathname === location.pathname ? (
         <>
-          <title>{oEmbed.value.title}</title>
-          <meta name="description" content={oEmbed.value.description} />
+          <link href={oembedLink} type="application/json+oembed" rel="alternate" title={oEmbed.title} />
+          <title>{oEmbed.title}</title>
+          <meta name="description" content={oEmbed.description} />
 
           <meta property="og:type" content="website" />
-          <meta property="og:url" content={oEmbed.value.query_url} />
-          <meta property="og:title" content={oEmbed.value.title} />
-          <meta property="og:description" content={oEmbed.value.description} />
+          <meta property="og:url" content={oEmbed.query_url} />
+          <meta property="og:title" content={oEmbed.title} />
+          <meta property="og:description" content={oEmbed.description} />
           <meta
             property="og:image"
-            content={oEmbed.value.url ? oEmbed.value.url : `${oEmbed.value.provider_url}/static/etherealengine.png`}
+            content={oEmbed.url ? oEmbed.url : `${oEmbed.provider_url}/static/etherealengine.png`}
           />
 
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:domain" content={oEmbed.value.provider_url?.replace('https://', '')} />
-          <meta name="twitter:title" content={oEmbed.value.title} />
-          <meta name="twitter:description" content={oEmbed.value.description} />
+          <meta name="twitter:domain" content={oEmbed.provider_url?.replace('https://', '')} />
+          <meta name="twitter:title" content={oEmbed.title} />
+          <meta name="twitter:description" content={oEmbed.description} />
           <meta
             property="twitter:image"
-            content={oEmbed.value.url ? oEmbed.value.url : `${oEmbed.value.provider_url}/static/etherealengine.png`}
+            content={oEmbed.url ? oEmbed.url : `${oEmbed.provider_url}/static/etherealengine.png`}
           />
-          <meta name="twitter:url" content={oEmbed.value.query_url} />
+          <meta name="twitter:url" content={oEmbed.query_url} />
           <link href="/dist/index.css" rel="stylesheet" />
         </>
       ) : (

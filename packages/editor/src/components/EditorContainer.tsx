@@ -233,7 +233,7 @@ const onSaveScene = async () => {
   }
 
   const thumbnailBlob = await takeScreenshot(512, 320)
-  const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpeg')
+  const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpg')
 
   const result = (await new Promise((resolve) => {
     DialogState.setDialog(
