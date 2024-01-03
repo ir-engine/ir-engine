@@ -27,7 +27,7 @@ import { Static, Type } from '@feathersjs/typebox'
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-export const oembedPath = 'oembed'
+export const oembedPath = 'services/oembed'
 
 export const oembedMethods = ['find'] as const
 

@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { config } from '@etherealengine/common/src/config'
-import { OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
+import { OembedType, oembedPath } from '@etherealengine/engine/src/schemas/media/oembed.schema'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import MetaTags from '../common/components/MetaTags'
 
 const oembedLink = () =>
-  `${config.client.serverUrl}/oembed?url=${encodeURIComponent(
+  `${config.client.serverUrl}/${oembedPath}?url=${encodeURIComponent(
     `${config.client.clientUrl}${location.pathname}`
   )}&format=json`
 
