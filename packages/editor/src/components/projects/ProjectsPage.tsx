@@ -289,7 +289,7 @@ const ProjectsPage = () => {
   }
 
   const onCreateProject = async (name) => {
-    await ProjectService.createProject(name)
+    await ProjectService.createProject(name, { query: { action: 'studio' } })
     await fetchInstalledProjects()
   }
 
@@ -322,7 +322,7 @@ const ProjectsPage = () => {
     if (activeProject.value) {
       try {
         const proj = installedProjects.get({ noproxy: true }).find((proj) => proj.id === activeProject.value?.id)!
-        await ProjectService.removeProject(proj.id)
+        await ProjectService.removeProject(proj.id, { query: { action: 'studio' } })
         await fetchInstalledProjects()
       } catch (err) {
         logger.error(err)
