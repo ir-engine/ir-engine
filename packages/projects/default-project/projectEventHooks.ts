@@ -47,7 +47,6 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
       },
       paginate: false
     })
-    console.log(locationResult)
     if (locationResult.length === 0) throw new BadRequest('Invalid location name')
     const thumbnailURL = locationResult[0].sceneId.replace('.scene.json', '.thumbnail.ktx2')
     currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
@@ -81,7 +80,6 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
         },
         paginate: false
       })
-      console.log(locationResult)
       if (locationResult.length > 0) {
         const thumbnailURL = sceneURL.replace('.scene.json', '.thumbnail.ktx2')
         currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
