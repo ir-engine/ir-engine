@@ -223,7 +223,8 @@ export const AvatarRigComponent = defineComponent({
 
 const vec3 = new Vector3(),
   vec3_2 = new Vector3(),
-  vec3_3 = new Vector3()
+  vec3_3 = new Vector3(),
+  feetCenter = new Vector3()
 export const AvatarRigSizeComponent = defineComponent({
   name: 'AvatarRigSizeComponent',
   onInit: (entity) => {
@@ -257,26 +258,32 @@ export const AvatarRigSizeComponent = defineComponent({
     const entity = useEntityContext()
     const rigComponent = useComponent(entity, AvatarRigComponent)
     const sizeComponent = useComponent(entity, AvatarRigSizeComponent)
+    const avatarComponent = useComponent(entity, AvatarComponent)
     useEffect(() => {
-      if (!rigComponent.normalizedRig) return
-      const avatar = getComponent(entity, AvatarComponent)
+      if (!rigComponent.rawRig) return
+      const rig = rigComponent.rawRig.value
       const transform = getComponent(entity, TransformComponent)
-      const rig = rigComponent.normalizedRig.value
-
       rig.hips.node.updateWorldMatrix(true, true)
 
-      avatar.avatarHeight = rig.head.node.getWorldPosition(vec3).y * 2
-      avatar.avatarHalfHeight = avatar.avatarHeight / 2
+      feetCenter.copy(rig.leftFoot.node.getWorldPosition(vec3_2))
 
-      sizeComponent.torsoLength.set(rig.head.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y)
+      avatarComponent.avatarHeight.set(rig.head.node.getWorldPosition(vec3).y - feetCenter.y)
+      console.log('avatar height', avatarComponent.avatarHeight.value)
+      console.log(feetCenter.y, transform.position.y)
+
+      avatarComponent.avatarHalfHeight.set(avatarComponent.avatarHeight.value / 2)
+
+      sizeComponent.torsoLength.set(
+        rig.head.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y - feetCenter.y
+      )
       sizeComponent.upperLegLength.set(
-        rig.hips.node.getWorldPosition(vec3).y - rig.leftUpperLeg.node.getWorldPosition(vec3).y
+        rig.hips.node.getWorldPosition(vec3).y - rig.leftUpperLeg.node.getWorldPosition(vec3).y - feetCenter.y
       )
       sizeComponent.lowerLegLength.set(
-        rig.leftLowerLeg.node.getWorldPosition(vec3).y - rig.leftFoot.node.getWorldPosition(vec3).y
+        rig.leftLowerLeg.node.getWorldPosition(vec3).y - rig.leftFoot.node.getWorldPosition(vec3).y - feetCenter.y
       )
-      sizeComponent.hipsHeight.set(rig.hips.node.getWorldPosition(vec3).y)
-      sizeComponent.footHeight.set(rig.leftFoot.node.getWorldPosition(vec3).y)
+      sizeComponent.hipsHeight.set(rig.hips.node.getWorldPosition(vec3).y - feetCenter.y)
+      sizeComponent.footHeight.set(rig.leftFoot.node.getWorldPosition(vec3).y - feetCenter.y)
       sizeComponent.armLength.set(
         rig.leftUpperArm.node.getWorldPosition(vec3).y - rig.leftHand.node.getWorldPosition(vec3).y
       )
@@ -294,7 +301,7 @@ export const AvatarRigSizeComponent = defineComponent({
       if (hasComponent(entity, AvatarControllerComponent)) {
         getMutableComponent(entity, AvatarControllerComponent).bodyCollider.set(collider)
       }
-    }, [rigComponent.normalizedRig, rigComponent.vrm])
+    }, [rigComponent.rawRig])
     return null
   }
 })
