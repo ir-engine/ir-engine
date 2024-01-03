@@ -53,7 +53,7 @@ export const OEmbed = () => {
 
   return (
     <MetaTags>
-      <link href={oembedLink} type="application/json+oembed" rel="alternate" />
+      <link href={oembedLink} type="application/json+oembed" rel="alternate" title="oEmbed Profile" />
       {oEmbed && pathname === location.pathname ? (
         <>
           <title>{oEmbed.title}</title>
@@ -77,7 +77,6 @@ export const OEmbed = () => {
             content={oEmbed.url ? oEmbed.url : `${oEmbed.provider_url}/static/etherealengine.png`}
           />
           <meta name="twitter:url" content={oEmbed.query_url} />
-          <link href="/dist/index.css" rel="stylesheet" />
         </>
       ) : (
         <></>
