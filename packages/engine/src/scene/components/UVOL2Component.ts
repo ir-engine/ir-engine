@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { usePrevious } from '@etherealengine/common/src/utils/usePrevious'
 import { getState } from '@etherealengine/hyperflux'
-import { useEffect, useMemo } from 'react'
+import { startTransition, useEffect, useMemo } from 'react'
 import {
   BufferGeometry,
   CompressedTexture,
@@ -58,7 +58,6 @@ import {
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { PlayMode } from '../constants/PlayMode'
 import {
@@ -284,7 +283,7 @@ const loadTextureAsync = (url: string, repeat: Vector2, offset: Vector2) => {
       texture.repeat.copy(repeat)
       texture.offset.copy(offset)
       texture.updateMatrix()
-      EngineRenderer.instance.renderer.initTexture(texture)
+      // EngineRenderer.instance.renderer.initTexture(texture)
       resolve(texture)
     })
   })
@@ -371,7 +370,7 @@ function UVOL2Reactor() {
   let maxBufferHealth = 14 // seconds
   let minBufferToStart = 4 // seconds
   const minBufferToPlay = 2 // seconds. This is used when enableBuffering is true
-  let bufferThreshold = 10 // seconds. If buffer health is less than this, fetch new data
+  let bufferThreshold = 13 // seconds. If buffer health is less than this, fetch new data
   const repeat = useMemo(() => new Vector2(1, 1), [])
   const offset = useMemo(() => new Vector2(0, 0), [])
   const previousStartTime = usePrevious(volumetric.startTime)
@@ -502,12 +501,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         // 5MB
         maxBufferHealth = 15 // seconds
         minBufferToStart = 5 // seconds
-        bufferThreshold = 10 // seconds.
+        bufferThreshold = 14 // seconds.
       } else if (totalBitrate <= 10 * 1024 * 1024) {
         // 5-10MB
         maxBufferHealth = 10 // seconds
         minBufferToStart = 2 // seconds
-        bufferThreshold = 8 // seconds.
+        bufferThreshold = 9 // seconds.
       }
     }
 
@@ -529,7 +528,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     volumetric.currentTrackInfo.currentTime.set(volumetric.startTime.value)
     volumetric.currentTrackInfo.duration.set(sortedManifest.duration)
-    const intervalId = setInterval(bufferLoop, 1000)
+    const intervalId = setInterval(bufferLoop, 500)
     bufferLoop() // calling now because setInterval will call after 1 second
 
     return () => {
@@ -1279,7 +1278,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     } else {
       _currentTime = volumetric.startTime.value + (engineState.elapsedSeconds - component.playbackStartTime.value)
     }
-    volumetric.currentTrackInfo.currentTime.set(_currentTime)
+
+    startTransition(() => {
+      volumetric.currentTrackInfo.currentTime.set(_currentTime)
+    })
 
     if (volumetric.currentTrackInfo.currentTime.value > component.data.value.duration || audio.ended) {
       if (component.data.deletePreviousBuffers.value === false && volumetric.playMode.value === PlayMode.loop) {

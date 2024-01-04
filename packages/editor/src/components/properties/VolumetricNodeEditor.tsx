@@ -36,6 +36,7 @@ import { VolumetricComponent } from '@etherealengine/engine/src/scene/components
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { UVOL1Component } from '@etherealengine/engine/src/scene/components/UVOL1Component'
 import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL2Component'
 import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
@@ -157,30 +158,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       />
 
       {(hasComponent(props.entity, UVOL2Component) || hasComponent(props.entity, UVOL1Component)) && (
-        <InputGroup name="CurrentTime" label={t('editor:properties.media.lbl-currentTime')}>
-          <CompoundNumericInput
-            min={0}
-            max={volumetricComponent.currentTrackInfo.duration.value}
-            step={0.01}
-            onChange={(value) => {
-              const uvol2Component = getOptionalMutableComponent(props.entity, UVOL2Component)
-              const engineState = getState(EngineState)
-
-              volumetricComponent.startTime.set(value)
-              volumetricComponent.currentTrackInfo.currentTime.set(value)
-
-              if (uvol2Component) {
-                uvol2Component.playbackStartTime.set(engineState.elapsedSeconds)
-                uvol2Component.geometryInfo.bufferHealth.set(0)
-                uvol2Component.textureInfo.textureTypes.value.forEach((textureType) => {
-                  uvol2Component.textureInfo[textureType].bufferHealth.set(0)
-                })
-              }
-              volumetricComponent.startTime.set(volumetricComponent.currentTrackInfo.currentTime.value)
-            }}
-            value={volumetricComponent.currentTrackInfo.currentTime.value}
-          />
-        </InputGroup>
+        <VolumetricCurrentTimeScrubber entity={props.entity} />
       )}
 
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
@@ -203,6 +181,38 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         <StringInput value={trackLabel} />
       </InputGroup>
     </NodeEditor>
+  )
+}
+
+function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
+  const { t } = useTranslation()
+  const volumetricComponent = useComponent(props.entity, VolumetricComponent)
+
+  return (
+    <InputGroup name="CurrentTime" label={t('editor:properties.media.lbl-currentTime')}>
+      <CompoundNumericInput
+        min={0}
+        max={volumetricComponent.currentTrackInfo.duration.value}
+        step={0.01}
+        onChange={(value) => {
+          const uvol2Component = getOptionalMutableComponent(props.entity, UVOL2Component)
+          const engineState = getState(EngineState)
+
+          volumetricComponent.startTime.set(value)
+          volumetricComponent.currentTrackInfo.currentTime.set(value)
+
+          if (uvol2Component) {
+            uvol2Component.playbackStartTime.set(engineState.elapsedSeconds)
+            uvol2Component.geometryInfo.bufferHealth.set(0)
+            uvol2Component.textureInfo.textureTypes.value.forEach((textureType) => {
+              uvol2Component.textureInfo[textureType].bufferHealth.set(0)
+            })
+          }
+          volumetricComponent.startTime.set(volumetricComponent.currentTrackInfo.currentTime.value)
+        }}
+        value={volumetricComponent.currentTrackInfo.currentTime.value}
+      />
+    </InputGroup>
   )
 }
 
