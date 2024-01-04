@@ -142,10 +142,6 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 
   computeTransformMatrix(entity)
 
-  const animationState = getState(AnimationState)
-  //set global states if they are not already set
-  if (!animationState.loadedAnimations[locomotionAnimation]) loadLocomotionAnimations()
-
   setObjectLayers(model.scene, ObjectLayers.Avatar)
 
   const loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS

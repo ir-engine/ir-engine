@@ -49,6 +49,7 @@ import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projec
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { ProjectParams } from '@etherealengine/server-core/src/projects/project/project.class'
 import { Paginated } from '@feathersjs/feathers'
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
@@ -95,8 +96,8 @@ export const ProjectService = {
   },
 
   // restricted to admin scope
-  createProject: async (name: string) => {
-    const result = await API.instance.client.service(projectPath).create({ name })
+  createProject: async (name: string, params?: ProjectParams) => {
+    const result = await API.instance.client.service(projectPath).create({ name }, params)
     logger.info({ result }, 'Create project result')
     await ProjectService.fetchProjects()
   },
@@ -119,8 +120,8 @@ export const ProjectService = {
   },
 
   // restricted to admin scope
-  removeProject: async (id: string) => {
-    const result = await API.instance.client.service(projectPath).remove(id)
+  removeProject: async (id: string, params?: ProjectParams) => {
+    const result = await API.instance.client.service(projectPath).remove(id, params)
     logger.info({ result }, 'Remove project result')
     await ProjectService.fetchProjects()
   },

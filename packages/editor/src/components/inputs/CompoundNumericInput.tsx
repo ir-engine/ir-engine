@@ -55,7 +55,7 @@ export function CompoundNumericInput({
 
   return (
     <div style={compoundNumericInputStyle}>
-      <Slider min={min} max={max} value={value} step={step} onChange={onChange} onRelease={onRelease} />
+      <Slider min={min} max={max} value={value} step={step} onChange={onChange} onChangeComplete={onRelease} />
       <NumericInput {...extras} mediumStep={step} value={value} onChange={onChange} onRelease={onRelease} />
     </div>
   )
