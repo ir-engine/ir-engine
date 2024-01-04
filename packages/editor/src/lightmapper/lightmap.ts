@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, MeshStandardMaterial, Object3D, WebGLRenderer } from 'three'
+import { MeshStandardMaterial, Object3D, WebGLRenderer } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { MeshComponent } from '@etherealengine/engine/src/scene/components/MeshComponent'
-import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
 import { runBakingPasses } from './bake'
 import { withLightScene } from './lightScene'
 import { LIGHTMAP_READONLY_FLAG, WorkbenchSettings, initializeWorkbench } from './workbench'
@@ -48,17 +48,18 @@ export async function bakeLightmaps(
     mesh.isMesh && Object.assign(mesh.userData, { [LIGHTMAP_READONLY_FLAG]: true })
   }
 
-  iterateObject3D(
-    target,
-    (child: Mesh) => {
-      const materials = Array.isArray(child.material) ? child.material : [child.material]
+  iterateEntityNode(
+    target.entity,
+    (entity) => {
+      const mesh = getComponent(entity, MeshComponent)
+      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
       materials.map((material: MeshStandardMaterial) => {
         if (material.lightMap) {
           material.lightMap = null
         }
       })
     },
-    (child: Mesh) => child?.isMesh ?? false
+    (entity) => hasComponent(entity, MeshComponent)
   )
 
   const workbench = await initializeWorkbench(scene, props, requestWork)
