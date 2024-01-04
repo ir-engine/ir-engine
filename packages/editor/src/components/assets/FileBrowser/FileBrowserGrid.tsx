@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { MouseEventHandler, MutableRefObject, useEffect, useState } from 'react'
-import { useDrag, useDrop } from 'react-dnd'
+import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
@@ -101,7 +101,10 @@ export const FileTableListBody = ({
   onNameChanged,
   onClick,
   onDoubleClick,
-  modifiedDate
+  modifiedDate,
+  drop,
+  isOver,
+  drag
 }: {
   file: FileDataType
   onContextMenu: React.MouseEventHandler
@@ -110,15 +113,21 @@ export const FileTableListBody = ({
   onClick?: MouseEventHandler<HTMLDivElement>
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
   modifiedDate?: string
+  drop?: ConnectDropTarget
+  isOver: boolean
+  drag?: ConnectDragSource
 }) => {
+  const dragFn = drag ?? ((input) => input)
+  const dropFn = drop ?? ((input) => input)
   return (
     <TableRow
       key={file.key}
-      sx={{ border: 0 }}
+      sx={{ border: file.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}
       onContextMenu={onContextMenu}
       onClick={isRenaming ? () => {} : onClick}
       onDoubleClick={isRenaming ? () => {} : onDoubleClick}
       hover
+      ref={(ref) => dragFn(dropFn(ref))}
     >
       {[
         <span className={styles.cellName}>
@@ -366,6 +375,9 @@ export function FileBrowserItem({
           isRenaming={renamingAsset}
           onNameChanged={onNameChanged}
           modifiedDate={staticResourceModifiedDates[item.key]}
+          drop={drop}
+          isOver={isOver}
+          drag={drag}
         />
       ) : (
         <div ref={drop} style={{ border: item.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}>
