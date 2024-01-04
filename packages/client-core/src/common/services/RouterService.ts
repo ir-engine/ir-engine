@@ -25,27 +25,25 @@ Ethereal Engine. All Rights Reserved.
 
 import i18n from 'i18next'
 import { lazy, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { defineState, getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { loadRoute } from '@etherealengine/projects/loadRoute'
 
-type NavigationStateType = {
-  from?: string
-}
+type QueryParamsType = { [key: string]: string }
 
 export const RouterState = defineState({
   name: 'RouterState',
   initial: () => ({
     pathname: location.pathname,
-    navigationState: {} as NavigationStateType
+    queryParams: null as QueryParamsType | null
   }),
-  navigate: (pathname: string, navigationState: NavigationStateType = {}) => {
+  navigate: (pathname: string, queryParams: QueryParamsType | { redirectUrl: string } = {}) => {
     getMutableState(RouterState).set({
       pathname,
-      navigationState
+      queryParams
     })
   }
 })
@@ -91,6 +89,7 @@ export const useCustomRoutes = () => {
 
   const navigate = useNavigate()
   const routerState = useHookstate(getMutableState(RouterState))
+  const [_, setSearchParams] = useSearchParams()
 
   useEffect(() => {
     getCustomRoutes().then((routes) => {
@@ -105,8 +104,14 @@ export const useCustomRoutes = () => {
   }, [location.pathname])
 
   useEffect(() => {
+    if (routerState.queryParams.value) {
+      setSearchParams(routerState.queryParams.value)
+    }
+  }, [routerState.queryParams])
+
+  useEffect(() => {
     if (location.pathname !== routerState.pathname.value) {
-      navigate(routerState.pathname.value, { state: routerState.navigationState.get(NO_PROXY) })
+      navigate(routerState.pathname.value)
     }
   }, [routerState.pathname])
 

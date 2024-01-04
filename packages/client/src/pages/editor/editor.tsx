@@ -86,7 +86,7 @@ const EditorProtectedRoutes = () => {
     if (user.scopes.value) {
       const hasAccess = userHasAccess('editor:write')
       if (!hasAccess) {
-        RouterState.navigate('/', { from: location.pathname })
+        RouterState.navigate('/', { redirectUrl: location.pathname })
         setAuthorized(false)
       } else setAuthorized(true)
     }
