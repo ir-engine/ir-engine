@@ -49,10 +49,10 @@ type EulerInputProps = {
  * @type {Object}
  */
 export const EulerInput = (props: EulerInputProps) => {
-  const euler = useHookstate(new Euler().setFromQuaternion(props.quaternion))
+  const euler = useHookstate(new Euler().setFromQuaternion(props.quaternion, 'YXZ'))
 
   useEffect(() => {
-    euler.value.setFromQuaternion(props.quaternion)
+    euler.value.setFromQuaternion(props.quaternion, 'YXZ')
   }, [props])
 
   const onSetEuler = useCallback(
