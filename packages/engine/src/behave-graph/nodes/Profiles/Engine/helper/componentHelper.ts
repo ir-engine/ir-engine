@@ -23,10 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
+import { NodeCategory, NodeDefinition, makeEventNodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
+import { isEqual, uniqueId } from 'lodash'
 import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
 import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
 import { Component, ComponentMap, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
+import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
 import { PostProcessingComponent } from '../../../../../scene/components/PostProcessingComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
@@ -37,7 +40,7 @@ const skipComponents = [
   AvatarAnimationComponent.name // needs special attention
 ]
 
-export function generateComponentNodeSchema(component: Component) {
+export function generateComponentNodeSchema(component: Component, withFlow = false) {
   const nodeschema = {}
   if (skipComponents.includes(component.name)) return nodeschema
   const schema = component?.onInit(UndefinedEntity)
@@ -50,11 +53,13 @@ export function generateComponentNodeSchema(component: Component) {
   if (typeof schema !== 'object') {
     const name = component.name.replace('Component', '')
     const socketValue = getSocketType(name, schema)
+    if (withFlow) nodeschema[`${name}Change`] = 'flow'
     if (socketValue) nodeschema[name] = socketValue
     return nodeschema
   }
   for (const [name, value] of Object.entries(schema)) {
     const socketValue = getSocketType(name, value)
+    if (withFlow) nodeschema[`${name}Change`] = 'flow'
     if (socketValue) nodeschema[name] = socketValue
   }
   return nodeschema
@@ -142,6 +147,95 @@ export function getComponentGetters() {
         }
         write('entity', entity)
         commit('flow')
+      }
+    })
+    getters.push(node)
+  }
+  return getters
+}
+
+type State = {
+  systemUUID: SystemUUID
+}
+
+const initialState = (): State => ({
+  systemUUID: '' as SystemUUID
+})
+
+export function getComponentListeners() {
+  const getters: NodeDefinition[] = []
+  const skipped: string[] = []
+  for (const [componentName, component] of ComponentMap) {
+    if (skipComponents.includes(componentName)) {
+      skipped.push(componentName)
+      continue
+    }
+    const outputsockets = generateComponentNodeSchema(component, true)
+    if (Object.keys(outputsockets).length === 0) {
+      skipped.push(componentName)
+      continue
+    }
+
+    const node = makeEventNodeDefinition({
+      typeName: `engine/component/on ${componentName} change`,
+      category: NodeCategory.Event,
+      label: `on ${componentName} change`,
+      in: {
+        entity: 'entity'
+      },
+      out: {
+        entity: 'entity',
+        ...outputsockets
+      },
+      initialState: initialState(),
+      init: ({ read, write, commit, graph }) => {
+        const entity = Number.parseInt(read('entity')) as Entity
+        const valueOutputs = Object.entries(node.out)
+          .splice(1)
+          .filter(([output, type]) => type !== 'flow')
+        const flowOutputs = Object.entries(node.out)
+          .splice(1)
+          .filter(([output, type]) => type === 'flow')
+
+        let prevComponentValue = {}
+        const systemUUID = defineSystem({
+          uuid: `behave-graph-on-${componentName}-change` + uniqueId(),
+          insert: { with: InputSystemGroup },
+          execute: () => {
+            const componentValue = getComponent(entity, component)
+            if (typeof componentValue !== 'object') {
+              if (prevComponentValue === componentValue) return
+              const value = EnginetoNodetype(componentValue)
+              write(valueOutputs[valueOutputs.length - 1][0] as any, value)
+              commit(flowOutputs[flowOutputs.length - 1][0] as any)
+              prevComponentValue = componentValue
+            } else {
+              valueOutputs.forEach(([output, type], index) => {
+                const value = EnginetoNodetype(componentValue[output])
+                if (Object.hasOwn(prevComponentValue, output)) {
+                  if (isEqual(prevComponentValue[output], componentValue[output])) return
+                  write(output as any, value)
+                  commit(flowOutputs[index][0] as any)
+                } else {
+                  write(output as any, value)
+                  commit(flowOutputs[index][0] as any)
+                }
+                prevComponentValue[output] = componentValue[output]
+              })
+            }
+          }
+        })
+
+        write('entity', entity)
+        const state: State = {
+          systemUUID
+        }
+
+        return state
+      },
+      dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
+        destroySystem(systemUUID)
+        return initialState()
       }
     })
     getters.push(node)
