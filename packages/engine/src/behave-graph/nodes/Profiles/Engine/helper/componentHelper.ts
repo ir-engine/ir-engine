@@ -212,16 +212,16 @@ export function getComponentListeners() {
               const value = EnginetoNodetype(componentValue)
               write(valueOutputs[valueOutputs.length - 1][0] as any, value)
               commit(flowOutputs[flowOutputs.length - 1][0] as any)
-              prevComponentValue = componentValue
+              prevComponentValue = structuredClone(componentValue)
             } else {
               valueOutputs.forEach(([output, type], index) => {
                 if (Object.hasOwn(prevComponentValue, output)) {
-                  if (isEqual(prevComponentValue[output], componentValue[output])) return
+                  if (isEqual(prevComponentValue[output], structuredClone(componentValue[output]))) return
                 }
                 const value = EnginetoNodetype(componentValue[output])
                 write(output as any, value)
                 commit(flowOutputs[index][0] as any)
-                prevComponentValue[output] = componentValue[output]
+                prevComponentValue[output] = structuredClone(componentValue[output])
               })
             }
           }

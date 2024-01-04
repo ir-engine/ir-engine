@@ -279,9 +279,7 @@ export const listenEntityTransform = makeEventNodeDefinition({
     rotationChange: 'flow',
     rotation: 'quat',
     scaleChange: 'flow',
-    scale: 'vec3',
-    matrixChange: 'flow',
-    matrix: 'mat4'
+    scale: 'vec3'
   },
   initialState: initialState(),
   init: ({ read, commit, write, graph: { getDependency } }) => {
@@ -294,11 +292,12 @@ export const listenEntityTransform = makeEventNodeDefinition({
         const transform = getComponent(entity, TransformComponent)
         Object.entries(transform).forEach(([key, value]) => {
           if (Object.hasOwn(prevTransform, key)) {
-            if (isEqual(prevTransform[key], transform[key])) return
+            if (isEqual(prevTransform[key], structuredClone(transform[key]))) return
           }
+          if (!Object.keys(listenEntityTransform.out).includes(key)) return
           write(key as any, value)
           commit(`${key}Change` as any)
-          prevTransform[key] = transform[key]
+          prevTransform[key] = structuredClone(transform[key])
         })
       }
     })
