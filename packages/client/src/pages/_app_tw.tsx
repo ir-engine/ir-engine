@@ -92,17 +92,19 @@ const TailwindPage = () => {
   }, [notistackRef.current])
 
   return (
-    <ThemeContextProvider>
-      <SnackbarProvider
-        ref={notistackRef as any}
-        maxSnack={7}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        action={defaultAction}
-      >
-        <AppPage />
-        <Debug />
-      </SnackbarProvider>
-    </ThemeContextProvider>
+    <>
+      <ThemeContextProvider>
+        <SnackbarProvider
+          ref={notistackRef as any}
+          maxSnack={7}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          action={defaultAction}
+        >
+          <AppPage />
+          <Debug />
+        </SnackbarProvider>
+      </ThemeContextProvider>
+    </>
   )
 }
 

@@ -23,15 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CompressedTexture } from 'three'
 
 import MoreVert from '@mui/icons-material/MoreVert'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
@@ -72,8 +69,7 @@ export default function ScenesPanel() {
     try {
       const data = await getScenes(editorState.projectName.value!)
       for (let i = 0; i < data.length; i++) {
-        const ktx2url = await getSceneURL(data[i].thumbnailUrl)
-        thumbnails.set(data[i].name, ktx2url)
+        thumbnails.set(data[i].name, data[i].thumbnailUrl)
       }
       setScenes(data ?? [])
     } catch (error) {
@@ -157,13 +153,6 @@ export default function ScenesPanel() {
 
   const renameSceneToNewName = async (e) => {
     if (e.key == 'Enter' && activeScene) finishRenaming()
-  }
-
-  const getSceneURL = async (url) => {
-    const texture = (await AssetLoader.loadAsync(url)) as CompressedTexture
-    const outUrl = (await createReadableTexture(texture, { url: true })) as string
-    texture.dispose()
-    return outUrl
   }
 
   return (

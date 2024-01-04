@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+// tslint:disable:ordered-imports
+// @ts-ignore
+;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
+
 import { t } from 'i18next'
 import React, { lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -32,9 +36,7 @@ import ErrorBoundary from '@etherealengine/client-core/src/common/components/Err
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
 import './pages/styles.scss'
-// tslint:disable:ordered-imports
-// @ts-ignore
-;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
+import OEmbed from '@etherealengine/client-core/src/components/OEmbed'
 
 const Engine = lazy(() => import('./engine'))
 
@@ -44,69 +46,72 @@ const TailwindPage = lazy(() => import('./pages/_app_tw'))
 
 const App = () => {
   return (
-    <ErrorBoundary>
-      <BrowserRouter>
-        <Routes>
-          {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
-          <Route
-            key="admin"
-            path="/admin/*"
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'admin'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
-            key="location"
-            path="/location/*"
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'location'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
-            key="studio"
-            path="/studio/*"
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'studio'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
-            key="offline"
-            path="/offline/*"
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'offline'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          {/* This will become redundant and we can embed the TailwindPage directly */}
-          <Route
-            key="default"
-            path="/*"
-            element={
-              <Suspense>
-                <Engine tailwind>
-                  <TailwindPage />
-                </Engine>
-              </Suspense>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
-    </ErrorBoundary>
+    <>
+      <OEmbed />
+      <ErrorBoundary>
+        <BrowserRouter>
+          <Routes>
+            {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
+            <Route
+              key="admin"
+              path="/admin/*"
+              element={
+                <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                  <Engine>
+                    <AppPage route={'admin'} />
+                  </Engine>
+                </Suspense>
+              }
+            />
+            <Route
+              key="location"
+              path="/location/*"
+              element={
+                <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                  <Engine>
+                    <AppPage route={'location'} />
+                  </Engine>
+                </Suspense>
+              }
+            />
+            <Route
+              key="studio"
+              path="/studio/*"
+              element={
+                <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                  <Engine>
+                    <AppPage route={'studio'} />
+                  </Engine>
+                </Suspense>
+              }
+            />
+            <Route
+              key="offline"
+              path="/offline/*"
+              element={
+                <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                  <Engine>
+                    <AppPage route={'offline'} />
+                  </Engine>
+                </Suspense>
+              }
+            />
+            {/* This will become redundant and we can embed the TailwindPage directly */}
+            <Route
+              key="default"
+              path="/*"
+              element={
+                <Suspense>
+                  <Engine tailwind>
+                    <TailwindPage />
+                  </Engine>
+                </Suspense>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </ErrorBoundary>
+    </>
   )
 }
 

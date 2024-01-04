@@ -27,9 +27,12 @@ import { BadRequest } from '@feathersjs/errors'
 import path from 'path'
 
 import { OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import { Application } from '@etherealengine/server-core/declarations'
+import { getCacheDomain } from '@etherealengine/server-core/src/media/storageprovider/getCacheDomain'
+import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { installAvatarsFromProject } from '@etherealengine/server-core/src/user/avatar/avatar-helper'
 
@@ -41,30 +44,31 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
   const isEditor = /^\/studio/.test(url.pathname)
   if (isLocation) {
     const locationName = url.pathname.replace(/\/location\//, '')
-    const locationResult = (await app.service(locationPath).find({
+    const locationResult = await app.service(locationPath).find({
       query: {
         slugifiedName: locationName
       },
-      pagination: false
-    } as any)) as any as LocationType[]
+      paginate: false
+    })
     if (locationResult.length === 0) throw new BadRequest('Invalid location name')
-    const [projectName, sceneName] = locationResult[0].sceneId.split('/')
     const storageProvider = getStorageProvider()
-    currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
+    const cacheDomain = getCacheDomain(storageProvider, true)
+    const thumbnailURL = getCachedURL(locationResult[0].sceneId.replace('.scene.json', '.thumbnail.jpg'), cacheDomain)
+    currentOEmbed.title = `${locationResult[0].name} - Ethereal Engine`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
     currentOEmbed.type = 'photo'
-    currentOEmbed.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+    currentOEmbed.url = thumbnailURL
     currentOEmbed.height = 320
     currentOEmbed.width = 512
 
     return currentOEmbed
   } else if (isAdminPanel) {
-    currentOEmbed.title = `Admin Dashboard - ${currentOEmbed.title}`
+    currentOEmbed.title = `Admin Dashboard - Ethereal Engine`
     currentOEmbed.description = `Manage all aspects of your deployment. ${currentOEmbed.description}`
 
     return currentOEmbed
   } else if (isEditor) {
-    currentOEmbed.title = `Studio - ${currentOEmbed.title}`
+    currentOEmbed.title = `Studio - Ethereal Engine`
     currentOEmbed.description = `No need to download extra software. Create, publish, and edit your world directly in the web browser.`
 
     let subPath = url.pathname.replace(/\/studio\//, '')
@@ -72,25 +76,28 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
       subPath = url.pathname.replace(/\/studio/, '')
     }
 
-    if (subPath.includes('/')) {
-      const locationResult = (await app.service(locationPath).find({
+    const sceneURL = url.searchParams.get('scenePath') as SceneID | null
+
+    if (sceneURL) {
+      const locationResult = await app.service(locationPath).find({
         query: {
-          sceneId: subPath
+          sceneId: sceneURL
         },
-        pagination: false
-      } as any)) as any as LocationType[]
+        paginate: false
+      })
       if (locationResult.length > 0) {
-        const [projectName, sceneName] = locationResult[0].sceneId.split('/')
         const storageProvider = getStorageProvider()
-        currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
+        const cacheDomain = getCacheDomain(storageProvider, true)
+        const thumbnailURL = getCachedURL(sceneURL.replace('.scene.json', '.thumbnail.jpg'), cacheDomain)
+        currentOEmbed.title = `${locationResult[0].name} - Studio - Ethereal Engine`
         currentOEmbed.type = 'photo'
-        currentOEmbed.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+        currentOEmbed.url = thumbnailURL
         currentOEmbed.height = 320
         currentOEmbed.width = 512
         return currentOEmbed
       }
-    } else if (subPath.length > 0) {
-      currentOEmbed.title = `${subPath} Editor - ${currentOEmbed.title}`
+    } else {
+      currentOEmbed.title = `Studio - Ethereal Engine`
       return currentOEmbed
     }
 
