@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   NodeCategory,
+  makeEventNodeDefinition,
   makeFlowNodeDefinition,
   makeFunctionNodeDefinition,
   makeInNOutFunctionDesc
@@ -32,6 +33,7 @@ import {
 import { toQuat, toVector3 } from '@behave-graph/scene'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getState } from '@etherealengine/hyperflux'
+import { isEqual, uniqueId } from 'lodash'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
@@ -43,7 +45,9 @@ import {
   hasComponent,
   setComponent
 } from '../../../../../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
 import { removeEntity } from '../../../../../ecs/functions/EntityFunctions'
+import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
 import { RigidBodyComponent } from '../../../../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
@@ -51,6 +55,13 @@ import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 import { copyTransformToRigidBody } from '../../../../../transform/systems/TransformSystem'
 import { addEntityToScene } from '../helper/entityHelper'
+
+type State = {
+  systemUUID: SystemUUID
+}
+const initialState = (): State => ({
+  systemUUID: '' as SystemUUID
+})
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 export const getEntity = makeFunctionNodeDefinition({
@@ -252,6 +263,53 @@ export const setEntityTransform = makeFlowNodeDefinition({
       if (hasComponent(entity, RigidBodyComponent)) copyTransformToRigidBody(entity)
     }
     commit('flow')
+  }
+})
+
+export const listenEntityTransform = makeEventNodeDefinition({
+  typeName: 'engine/entity/onEntityTransformChange',
+  category: NodeCategory.Event,
+  label: 'On entity transform change',
+  in: {
+    entity: 'entity'
+  },
+  out: {
+    positionChange: 'flow',
+    position: 'vec3',
+    rotationChange: 'flow',
+    rotation: 'quat',
+    scaleChange: 'flow',
+    scale: 'vec3',
+    matrixChange: 'flow',
+    matrix: 'mat4'
+  },
+  initialState: initialState(),
+  init: ({ read, commit, write, graph: { getDependency } }) => {
+    const entity = Number(read('entity')) as Entity
+    const prevTransform = {}
+    const systemUUID = defineSystem({
+      uuid: 'behave-graph-transformChange-' + uniqueId(),
+      insert: { with: InputSystemGroup },
+      execute: () => {
+        const transform = getComponent(entity, TransformComponent)
+        Object.entries(transform).forEach(([key, value]) => {
+          if (Object.hasOwn(prevTransform, key)) {
+            if (isEqual(prevTransform[key], transform[key])) return
+          }
+          write(key as any, value)
+          commit(`${key}Change` as any)
+          prevTransform[key] = transform[key]
+        })
+      }
+    })
+    const state: State = {
+      systemUUID
+    }
+    return state
+  },
+  dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
+    destroySystem(systemUUID)
+    return initialState()
   }
 })
 
