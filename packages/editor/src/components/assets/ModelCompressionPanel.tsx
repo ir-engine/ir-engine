@@ -49,8 +49,9 @@ import { createSceneEntity } from '@etherealengine/engine/src/ecs/functions/crea
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
-import { Box } from '@mui/material'
+import { Box, ListItemButton, ListItemText } from '@mui/material'
 import exportGLTF from '../../functions/exportGLTF'
+import { List } from '../layout/List'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
 export default function ModelCompressionPanel({
@@ -71,6 +72,58 @@ export default function ModelCompressionPanel({
     src: fileProperties.url.value,
     modelFormat: fileProperties.url.value.endsWith('.gltf') ? 'gltf' : 'glb'
   })
+
+  // TODO: Replace with actual params and find place to put hard-coded list
+  const LODList: ModelTransformParameters[] = [
+    {
+      ...DefaultModelTransformParameters,
+      src: 'Desktop - Ultra High',
+      dst: 'Desktop - Ultra High',
+      maxTextureSize: 512
+    },
+    {
+      ...DefaultModelTransformParameters,
+      src: 'Desktop - High',
+      dst: 'Desktop - High',
+      maxTextureSize: 1024
+    },
+    {
+      ...DefaultModelTransformParameters,
+      src: 'Desktop - Medium',
+      dst: 'Desktop - Medium',
+      maxTextureSize: 2048
+    },
+    {
+      ...DefaultModelTransformParameters,
+      src: 'Mobile - High',
+      dst: 'Mobile - High',
+      maxTextureSize: 2048
+    },
+    {
+      ...DefaultModelTransformParameters,
+      src: 'Mobile - Low',
+      dst: 'Mobile - Low',
+      maxTextureSize: 2048
+    },
+    {
+      ...DefaultModelTransformParameters,
+      src: 'Apple Vision Pro',
+      dst: 'Apple Vision Pro',
+      maxTextureSize: 2048
+    },
+    {
+      ...DefaultModelTransformParameters,
+      src: 'Quest 3',
+      dst: 'Quest 3',
+      maxTextureSize: 2048
+    },
+    {
+      ...DefaultModelTransformParameters,
+      src: 'Quest Pro',
+      dst: 'Quest Pro',
+      maxTextureSize: 2048
+    }
+  ]
 
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
@@ -127,6 +180,12 @@ export default function ModelCompressionPanel({
       const combinedModelFormat = modelSrc.endsWith('.gltf') ? 'gltf' : 'glb'
       await exportGLTF(result, modelSrc.replace(/\.[^.]*$/, `-integrated.${combinedModelFormat}`))
     }
+  }
+
+  const applyPreset = (preset: ModelTransformParameters) => {
+    // TODO: Apply rest of parms and edit name
+    transformParms.dst.set(preset.dst)
+    transformParms.maxTextureSize.set(preset.maxTextureSize)
   }
 
   const compressModel = async () => {
@@ -216,6 +275,20 @@ export default function ModelCompressionPanel({
               />
             </InputGroup>
           </>
+        </Box>
+        <Box className={styles.presetBox}>
+          <Typography className={styles.presetHeader} align="center">
+            LOD Presets
+          </Typography>
+          <Box display="flex" alignItems="center">
+            <List>
+              {LODList.map((lodItem: ModelTransformParameters) => (
+                <ListItemButton className={styles.presetButton} onClick={() => applyPreset(lodItem)}>
+                  <ListItemText>{lodItem.src}</ListItemText>
+                </ListItemButton>
+              ))}
+            </List>
+          </Box>
         </Box>
       </div>
     </Menu>

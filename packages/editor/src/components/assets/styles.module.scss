@@ -267,3 +267,25 @@
   display: flex;
   flex-direction: row;
 }
+
+.presetBox {
+  background-color: rgb(54 54 54);
+  border-radius: 10px;
+  width: 250px;
+  height: 100%;
+}
+
+.presetHeader {
+  justify-content: center;
+  color: white;
+}
+
+.presetButton {
+  justify-content: center;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: rgb(85 85 85);
+  color: white;
+  width: 100%;
+  border-radius: 10px;
+}
