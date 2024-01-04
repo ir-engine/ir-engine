@@ -951,6 +951,7 @@
       }
     },
     "filebrowser": {
+      "tab-name": "Project Files",
       "addNewFolder": "Add New Folder",
       "cutAsset": "Cut",
       "copyAsset": "Copy",
@@ -964,6 +965,7 @@
       "convert": "Convert",
       "downloadProject": "Download Project",
       "uploadAsset": "Upload Asset",
+      "search-placeholder": "Search files and folders ...",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
@@ -972,7 +974,20 @@
         "attribution": "Attribution:",
         "licensing": "Licensing:",
         "tag": "Tag:",
-        "addTag": "Add Tag"
+        "addTag": "Add Tag",
+        "save-changes": "Save Changes"
+      },
+      "view-mode": {
+        "icons": "View: Icons",
+        "list": "View: List"
+      },
+      "table-list": {
+        "headers": {
+          "name": "Name",
+          "type": "Type",
+          "date-modified": "Date Modified",
+          "size": "Size"
+        }
       }
     },
     "scene-assets": {
