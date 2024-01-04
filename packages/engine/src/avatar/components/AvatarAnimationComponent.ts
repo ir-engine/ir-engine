@@ -27,7 +27,7 @@ import { VRM, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, Vector3 } from 'three'
 
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
@@ -35,17 +35,12 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
-  getMutableComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { Physics } from '../../physics/classes/Physics'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
@@ -61,11 +56,9 @@ import {
 import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
-import { createAvatarCollider } from '../functions/spawnAvatarReceptor'
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AnimationComponent } from './AnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
-import { AvatarControllerComponent } from './AvatarControllerComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -257,19 +250,9 @@ export const AvatarRigSizeComponent = defineComponent({
     const entity = useEntityContext()
     const rigComponent = useComponent(entity, AvatarRigComponent)
     const sizeComponent = useComponent(entity, AvatarRigSizeComponent)
-    const avatarComponent = useComponent(entity, AvatarComponent)
     useEffect(() => {
       if (!rigComponent.rawRig) return
       const rig = rigComponent.rawRig.value
-      rig.hips.node.updateWorldMatrix(true, true)
-
-      //todo needs actual footcenter calc
-      feetCenter
-        .addVectors(rig.leftFoot.node.getWorldPosition(vec3), rig.rightFoot.node.getWorldPosition(vec3_2))
-        .multiplyScalar(0.5)
-
-      avatarComponent.avatarHeight.set(rig.head.node.getWorldPosition(vec3).y - feetCenter.y)
-      avatarComponent.avatarHalfHeight.set(avatarComponent.avatarHeight.value / 2)
 
       sizeComponent.torsoLength.set(
         rig.head.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y - feetCenter.y
@@ -290,15 +273,6 @@ export const AvatarRigSizeComponent = defineComponent({
           .subVectors(rig.leftFoot.node.getWorldPosition(vec3_2), rig.rightFoot.node.getWorldPosition(vec3_3))
           .length()
       )
-
-      if (!hasComponent(entity, RigidBodyComponent)) return
-
-      Physics.removeCollidersFromRigidBody(entity, getState(PhysicsState).physicsWorld)
-      const collider = createAvatarCollider(entity)
-
-      if (hasComponent(entity, AvatarControllerComponent)) {
-        getMutableComponent(entity, AvatarControllerComponent).bodyCollider.set(collider)
-      }
     }, [rigComponent.rawRig])
     return null
   }

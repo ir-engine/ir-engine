@@ -139,12 +139,11 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   const transform = getComponent(entity, TransformComponent)
   rigidBody.position.copy(transform.position)
   rigidBody.rotation.copy(transform.rotation)
-
   const bodyColliderDesc = ColliderDesc.capsule(
-    avatarComponent.avatarHalfHeight - avatarRadius,
+    avatarComponent.avatarHalfHeight - avatarRadius - 0.25,
     avatarRadius
   ).setCollisionGroups(interactionGroups)
-  bodyColliderDesc.setTranslation(0, avatarComponent.avatarHalfHeight + 0.5, 0)
+  bodyColliderDesc.setTranslation(0, avatarComponent.avatarHalfHeight + 0.25, 0)
 
   return Physics.createColliderAndAttachToRigidBody(
     getState(PhysicsState).physicsWorld,

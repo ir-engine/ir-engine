@@ -288,8 +288,6 @@ export const applyGamepadInput = (entity: Entity) => {
     controller.gamepadWorldMovement.z
   )
 
-  controller.speedVelocity = controller.gamepadWorldMovement.lengthSq()
-
   moveAvatar(entity, _additionalMovement)
 }
 

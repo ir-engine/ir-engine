@@ -23,9 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { Box3, Vector3 } from 'three'
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { ModelComponent } from '../../scene/components/ModelComponent'
 
+const size = new Vector3()
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',
 
@@ -40,5 +45,21 @@ export const AvatarComponent = defineComponent({
     if (!json) return
     if (matches.number.test(json.avatarHeight)) component.avatarHeight.set(json.avatarHeight)
     if (matches.number.test(json.avatarHalfHeight)) component.avatarHalfHeight.set(json.avatarHalfHeight)
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const avatarComponent = useComponent(entity, AvatarComponent)
+    const modelComponent = useComponent(entity, ModelComponent)
+    useEffect(() => {
+      if (!modelComponent.asset.value) return
+      const scene = modelComponent.asset.value.scene
+      if (!scene) return
+      const box = new Box3()
+      box.expandByObject(scene).getSize(size)
+      avatarComponent.avatarHeight.set(size.y)
+      avatarComponent.avatarHalfHeight.set(size.y * 0.5)
+    }, [modelComponent.asset])
+    return null
   }
 })
