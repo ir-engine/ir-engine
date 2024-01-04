@@ -240,15 +240,15 @@
           "name": "transform",
           "props": {
             "position": {
-              "x": 47.8216932307629,
-              "y": 3.6788167495280506,
-              "z": 0.04700584337115231
+              "x": 52.88653533502665,
+              "y": 8.772787203317975,
+              "z": 2.223495539796688
             },
             "rotation": {
-              "x": 0,
-              "y": 0.7071067811865476,
-              "z": 0,
-              "w": 0.7071067811865475
+              "x": -0.08425366001465671,
+              "y": 0.6332447665597335,
+              "z": 0.06963403297492475,
+              "w": 0.7661941580634052
             },
             "scale": {
               "x": 0.9999999999999993,
@@ -290,10 +290,6 @@
           }
         },
         {
-          "name": "visible",
-          "props": {}
-        },
-        {
           "name": "skybox",
           "props": {
             "backgroundColor": 0,
@@ -310,6 +306,10 @@
               "azimuth": 0.16666666666666666
             }
           }
+        },
+        {
+          "name": "visible",
+          "props": true
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
@@ -374,10 +374,6 @@
           }
         },
         {
-          "name": "visible",
-          "props": {}
-        },
-        {
           "name": "shadow",
           "props": {
             "cast": true,
@@ -419,10 +415,14 @@
             "envMapSourceEntityUUID": "",
             "envMapIntensity": 1.5
           }
+        },
+        {
+          "name": "visible",
+          "props": true
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 3,
+      "index": 6,
       "name": "Model"
     },
     "e29dce88-8f22-4f8d-ae5d-e7dd0d55c41a": {
@@ -449,217 +449,20 @@
           }
         },
         {
-          "name": "visible",
-          "props": {}
-        },
-        {
           "name": "ambient-light",
           "props": {
-            "color": 16777215,
-            "intensity": 1.6
-          }
-        }
-      ],
-      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 4,
-      "name": "Ambient Light"
-    },
-    "5867cc3f-4c7d-47e6-9a7b-db77cdcf4e7c": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 4,
-              "z": 12.5
-            },
-            "rotation": {
-              "x": -6.123233995736766e-17,
-              "y": -1,
-              "z": -6.123233995736766e-17,
-              "w": -6.123234262925839e-17
-            },
-            "scale": {
-              "x": 1.6,
-              "y": 1,
-              "z": 1
-            }
+            "color": 11071487,
+            "intensity": 1
           }
         },
         {
           "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
-          }
-        },
-        {
-          "name": "media",
-          "props": {
-            "controls": true,
-            "autoplay": true,
-            "resources": [
-              "__$project$__/default-project/assets/SampleVideo.mp4"
-            ],
-            "volume": 1,
-            "synchronize": true,
-            "playMode": "loop",
-            "isMusic": false,
-            "seekTime": 0
-          }
-        },
-        {
-          "name": "video",
-          "props": {
-            "mediaUUID": "",
-            "side": 2,
-            "size": {
-              "x": 1,
-              "y": 1
-            },
-            "fit": "contain"
-          }
+          "props": true
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 5,
-      "name": "Video"
-    },
-    "03162202-1925-44e8-9d64-d8f5aba3a476": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": -20.97391128540039,
-              "y": 15.137579917907715,
-              "z": 22.027408599853516
-            },
-            "rotation": {
-              "x": -0.70710676908493,
-              "y": 0,
-              "z": 0,
-              "w": 0.7071067932881648
-            },
-            "scale": {
-              "x": 2,
-              "y": 2,
-              "z": 2
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
-          }
-        }
-      ],
-      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 6,
-      "name": "Particle Emitter"
-    },
-    "d7f168a2-450d-493f-bc6e-c1a1b015a06b": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 41,
-              "y": 3.5,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0,
-              "w": 1
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
-          }
-        },
-        {
-          "name": "gltf-model",
-          "props": {
-            "src": "__$project$__/default-project/assets/test-equippable.glb",
-            "generateBVH": true,
-            "avoidCameraOcclusion": true
-          }
-        },
-        {
-          "name": "loop-animation",
-          "props": {
-            "hasAvatarAnimations": false,
-            "activeClipIndex": -1,
-            "animationPack": "",
-            "paused": false,
-            "time": 0,
-            "timeScale": 1,
-            "blendMode": 2500,
-            "loop": 2201,
-            "clampWhenFinished": false,
-            "zeroSlopeAtStart": true,
-            "zeroSlopeAtEnd": true,
-            "weight": 1
-          }
-        },
-        {
-          "name": "envmap",
-          "props": {
-            "type": "None",
-            "envMapTextureType": "Cubemap",
-            "envMapSourceColor": 1193046,
-            "envMapSourceURL": "__$project$__/default-project/assets/skyboxsun25deg/",
-            "envMapSourceEntityUUID": "",
-            "envMapIntensity": 1
-          }
-        },
-        {
-          "name": "collider",
-          "props": {
-            "bodyType": 0,
-            "shapeType": 1,
-            "isTrigger": false,
-            "removeMesh": false,
-            "collisionLayer": 1,
-            "collisionMask": 7,
-            "restitution": 0.5,
-            "triggers": []
-          }
-        },
-        {
-          "name": "equippable",
-          "props": {}
-        }
-      ],
-      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 7,
-      "name": "Equippable"
+      "name": "Ambient Light"
     },
     "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae": {
       "components": [
@@ -683,10 +486,6 @@
               "z": 0.5
             }
           }
-        },
-        {
-          "name": "visible",
-          "props": {}
         },
         {
           "name": "shadow",
@@ -735,70 +534,15 @@
               "w": 1
             }
           }
+        },
+        {
+          "name": "visible",
+          "props": true
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 8,
       "name": "Portal - to Apartment"
-    },
-    "87df7b80-3c4f-4272-8e44-bc28315a99ad": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 1.9821311235427856,
-              "y": 3.451725959777832,
-              "z": -12.379348754882812
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0,
-              "w": 1
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "media",
-          "props": {
-            "controls": true,
-            "autoplay": false,
-            "resources": [
-              "__$project$__/default-project/assets/SampleAudio.mp3"
-            ],
-            "volume": 1,
-            "synchronize": true,
-            "playMode": "loop",
-            "isMusic": true,
-            "seekTime": 0
-          }
-        },
-        {
-          "name": "audio",
-          "props": {
-            "distanceModel": "inverse",
-            "rolloffFactor": 1,
-            "refDistance": 20,
-            "maxDistance": 1000,
-            "coneInnerAngle": 360,
-            "coneOuterAngle": 360,
-            "coneOuterGain": 1
-          }
-        }
-      ],
-      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 9,
-      "name": "Audio"
     },
     "dd1eafe4-dc87-4353-b3ae-567d4f81c032": {
       "components": [
@@ -877,7 +621,7 @@
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 10,
+      "index": 9,
       "name": "Portal - Sky Station Interior"
     },
     "2d7f9f97-20a0-40e8-a504-682f650af501": {
@@ -957,8 +701,52 @@
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 11,
+      "index": 10,
       "name": "Portal - Sky Station Exterior"
+    },
+    "5b63019e-418f-4318-9807-a00acb4912f4": {
+      "name": "Directional Light",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 36,
+              "y": 13.5,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0.17264854440328714,
+              "y": -0.35599150567103904,
+              "z": 0.06838295529401368,
+              "w": 0.9158527717000969
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "directional-light",
+          "props": {
+            "color": 16777215,
+            "intensity": 1,
+            "cameraFar": 100,
+            "castShadow": true,
+            "shadowBias": -0.0004999999999999449,
+            "shadowRadius": 1,
+            "useInCSM": true
+          }
+        },
+        {
+          "name": "visible",
+          "props": true
+        }
+      ],
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
+      "index": 3
     }
   },
   "root": "1b731841-172a-4141-89cb-d1cceeec748f"

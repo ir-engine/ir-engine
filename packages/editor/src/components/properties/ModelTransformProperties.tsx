@@ -134,12 +134,13 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
       const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
       let nuPath: string | null = null
 
-      const variants = textureSizes.map((maxTextureSize, index) => {
-        const suffix = batchCompressed ? `-transformed-LOD_${index}.glb` : '-transformed.glb'
-        nuPath = modelSrc.replace(/(-transformed)?\.glb$/, suffix)
-        const [_, __, dst] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
-        return { ...transformParms.get(NO_PROXY), maxTextureSize, dst }
-      })
+      const variants = batchCompressed
+        ? textureSizes.map((maxTextureSize, index) => {
+            const suffix = `-LOD_${index}`
+            const dst = transformParms.dst.value.replace(/\.(glb|gltf|vrm)$/, `${suffix}.$1`)
+            return { ...transformParms.get(NO_PROXY), maxTextureSize, dst }
+          })
+        : [transformParms.get(NO_PROXY)]
 
       for (const variant of variants) {
         if (clientside) {
