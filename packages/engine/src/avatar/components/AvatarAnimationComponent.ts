@@ -266,12 +266,10 @@ export const AvatarRigSizeComponent = defineComponent({
       rig.hips.node.updateWorldMatrix(true, true)
 
       //todo needs actual footcenter calc
-      feetCenter.copy(rig.leftFoot.node.getWorldPosition(vec3_2))
+      feetCenter.copy(rig.hips.node.getWorldPosition(vec3)).setY(rig.leftFoot.node.getWorldPosition(vec3_2).y)
 
       avatarComponent.avatarHeight.set(rig.head.node.getWorldPosition(vec3).y - feetCenter.y)
-      console.log('avatar height', avatarComponent.avatarHeight.value)
-      console.log(feetCenter.y, transform.position.y)
-
+      console.log(avatarComponent.avatarHeight.value)
       avatarComponent.avatarHalfHeight.set(avatarComponent.avatarHeight.value / 2)
 
       sizeComponent.torsoLength.set(
