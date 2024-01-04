@@ -575,7 +575,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
     const oldBufferHealth = component.geometryInfo.bufferHealth.value
-    const startTime = engineState.elapsedSeconds * 1000
+    const startTime = engineState.elapsedSeconds
 
     for (let i = startFrame; i <= endFrame; i++) {
       const frameURL = resolvePath(
@@ -617,7 +617,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       })
 
       const playTime = component.geometryInfo.bufferHealth.value - oldBufferHealth
-      const fetchTime = (engineState.elapsedSeconds * 1000 - startTime) / 1000
+      const fetchTime = engineState.elapsedSeconds - startTime
       const metric = fetchTime / playTime
       adjustGeometryTarget(metric)
     })
@@ -628,7 +628,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
     const oldBufferHealth = component.geometryInfo.bufferHealth.value
-    const startTime = engineState.elapsedSeconds * 1000
+    const startTime = engineState.elapsedSeconds
 
     for (let i = startSegment; i <= endSegment; i++) {
       const segmentURL = resolvePath(
@@ -690,7 +690,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       })
 
       const playTime = component.geometryInfo.bufferHealth.value - oldBufferHealth
-      const fetchTime = (engineState.elapsedSeconds * 1000 - startTime) / 1000
+      const fetchTime = engineState.elapsedSeconds - startTime
       const metric = fetchTime / playTime
       adjustGeometryTarget(metric)
       if (extraTime >= 0) {
@@ -804,7 +804,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     const oldBufferHealth = component.textureInfo[textureType].bufferHealth.value
-    const startTime = engineState.elapsedSeconds * 1000
+    const startTime = engineState.elapsedSeconds
     const promises: Promise<CompressedTexture>[] = []
 
     for (let i = startFrame; i <= endFrame; i++) {
@@ -849,7 +849,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       })
 
       const playTime = component.textureInfo[textureType].bufferHealth.value - oldBufferHealth
-      const fetchTime = (engineState.elapsedSeconds * 1000 - startTime) / 1000
+      const fetchTime = engineState.elapsedSeconds - startTime
       const metric = fetchTime / playTime
       adjustTextureTarget(textureType, metric)
     })
@@ -877,22 +877,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     updateAllTextures(volumetric.currentTrackInfo.currentTime.value)
 
     if (volumetric.useLoadingEffect.value) {
-      let headerTemplate: RegExp | undefined = /\/\/\sHEADER_REPLACE_START([\s\S]*?)\/\/\sHEADER_REPLACE_END/
-      let mainTemplate: RegExp | undefined = /\/\/\sMAIN_REPLACE_START([\s\S]*?)\/\/\sMAIN_REPLACE_END/
-
-      if (component.data.value.type !== UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE || 1 == 1) {
-        headerTemplate = undefined
-        mainTemplate = undefined
-      }
-
-      mesh.material = UVOLDissolveComponent.createDissolveMaterial(
-        mesh,
-        headerTemplate,
-        mainTemplate,
-        headerTemplate,
-        mainTemplate
-      )
-      mesh.material.needsUpdate = true
       component.loadingEffectStarted.set(true)
     }
 
@@ -901,6 +885,21 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   useEffect(() => {
     if (component.loadingEffectStarted.value && !component.loadingEffectEnded.value) {
+      let headerTemplate: RegExp | undefined = /\/\/\sHEADER_REPLACE_START([\s\S]*?)\/\/\sHEADER_REPLACE_END/
+      let mainTemplate: RegExp | undefined = /\/\/\sMAIN_REPLACE_START([\s\S]*?)\/\/\sMAIN_REPLACE_END/
+
+      if (component.data.value.type !== UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE || 1 == 1) {
+        headerTemplate = undefined
+        mainTemplate = undefined
+      }
+      mesh.material = UVOLDissolveComponent.createDissolveMaterial(
+        mesh,
+        headerTemplate,
+        mainTemplate,
+        headerTemplate,
+        mainTemplate
+      )
+      mesh.material.needsUpdate = true
       // Loading effect in progress. Let it finish
       return
     }
@@ -926,7 +925,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       }
       return
     }
-    component.playbackStartTime.set(engineState.elapsedSeconds * 1000)
+    component.playbackStartTime.set(engineState.elapsedSeconds)
     component.geometryInfo.bufferHealth.set(
       component.geometryInfo.bufferHealth.value -
         (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
@@ -1278,15 +1277,14 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (component.data.value.audio) {
       _currentTime = audio.currentTime
     } else {
-      _currentTime =
-        volumetric.startTime.value + (engineState.elapsedSeconds * 1000 - component.playbackStartTime.value) / 1000
+      _currentTime = volumetric.startTime.value + (engineState.elapsedSeconds - component.playbackStartTime.value)
     }
     volumetric.currentTrackInfo.currentTime.set(_currentTime)
 
     if (volumetric.currentTrackInfo.currentTime.value > component.data.value.duration || audio.ended) {
       if (component.data.deletePreviousBuffers.value === false && volumetric.playMode.value === PlayMode.loop) {
         volumetric.currentTrackInfo.currentTime.set(0)
-        component.playbackStartTime.set(engineState.elapsedSeconds * 1000)
+        component.playbackStartTime.set(engineState.elapsedSeconds)
       } else {
         volumetric.ended.set(true)
         return
