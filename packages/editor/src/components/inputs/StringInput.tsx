@@ -33,13 +33,13 @@ const inputStyle = {
   margin: 0
 }
 
-interface StyledNumericInputProps {
+interface StyledStringInputProps {
   className?: string
   onChange?: any
   value?: string
 }
 
-const StyledNumericInput = React.forwardRef<any, StyledNumericInputProps>(
+const StyledStringInput = React.forwardRef<any, StyledStringInputProps>(
   ({ className = '', onChange, ...rest }, ref) => {
     return (
       <input className={`StyledNumericInput ${className}`} onChange={onChange} style={inputStyle} {...rest} ref={ref} />
@@ -87,7 +87,7 @@ const containerStyle = {
 }
 
 export const ControlledStringInput = React.forwardRef<any, StringInputProps>((values, ref) => {
-  const { onChange, value, ...rest } = values
+  const { onChange, onRelease, value, ...rest } = values
   const { error, canDrop, ...other } = rest
   const inputRef = useRef<HTMLInputElement>()
   const [tempValue, setTempValue] = useState(value)
@@ -103,12 +103,13 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
   }, [value])
 
   const onBlur = useCallback(() => {
-    onChange?.(tempValue)
+    onRelease?.(tempValue)
   }, [onChange, tempValue])
 
   const onChangeValue = useCallback(
     (e) => {
       setTempValue(e.target.value)
+      onChange?.(e.target.value)
     },
     [setTempValue]
   )
@@ -120,7 +121,7 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
 
   return (
     <div style={containerStyle} ref={ref}>
-      <StyledNumericInput
+      <StyledStringInput
         ref={inputRef}
         className="Input"
         onChange={onChangeValue}
