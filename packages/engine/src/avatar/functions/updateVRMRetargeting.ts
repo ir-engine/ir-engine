@@ -29,6 +29,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AvatarRigSizeComponent } from '../components/AvatarAnimationComponent'
 import { BoneComponent } from '../components/BoneComponent'
 
 export const updateVRMRetargeting = (vrm: VRM, avatarEntity: Entity) => {
@@ -61,8 +62,9 @@ export const updateVRMRetargeting = (vrm: VRM, avatarEntity: Entity) => {
         _boneWorldPos.copy(rigBoneNode.position).applyMatrix4(parentBone?.matrixWorld)
         _parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
         boneNode.position.copy(
-          _boneWorldPos.applyMatrix4(_parentWorldMatrixInverse)
-          //.multiplyScalar(getComponent(avatarEntity, AvatarRigSizeComponent).hipsHeight)
+          _boneWorldPos
+            .applyMatrix4(_parentWorldMatrixInverse)
+            .multiplyScalar(1 / getComponent(avatarEntity, AvatarRigSizeComponent).hipsHeight)
         )
       }
     }

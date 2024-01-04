@@ -53,6 +53,7 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
@@ -251,29 +252,24 @@ export const AvatarRigSizeComponent = defineComponent({
     const rigComponent = useComponent(entity, AvatarRigComponent)
     const sizeComponent = useComponent(entity, AvatarRigSizeComponent)
     useEffect(() => {
-      if (!rigComponent.rawRig) return
-      const rig = rigComponent.rawRig.value
-
-      sizeComponent.torsoLength.set(
-        rig.head.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y - feetCenter.y
-      )
+      if (!rigComponent.normalizedRig) return
+      const rig = rigComponent.normalizedRig.value
+      const transform = getComponent(entity, TransformComponent)
+      sizeComponent.torsoLength.set(rig.head.node.getWorldPosition(vec3_2).y - rig.hips.node.getWorldPosition(vec3_3).y)
       sizeComponent.upperLegLength.set(
-        rig.hips.node.getWorldPosition(vec3).y - rig.leftUpperLeg.node.getWorldPosition(vec3).y - feetCenter.y
+        rig.hips.node.getWorldPosition(vec3).y - rig.leftLowerLeg.node.getWorldPosition(vec3_2).y
       )
       sizeComponent.lowerLegLength.set(
-        rig.leftLowerLeg.node.getWorldPosition(vec3).y - rig.leftFoot.node.getWorldPosition(vec3).y - feetCenter.y
+        rig.leftFoot.node.getWorldPosition(vec3_2).y - rig.leftUpperLeg.node.getWorldPosition(vec3).y
       )
-      sizeComponent.hipsHeight.set(rig.hips.node.getWorldPosition(vec3).y - feetCenter.y)
-      sizeComponent.footHeight.set(rig.leftFoot.node.getWorldPosition(vec3).y - feetCenter.y)
-      sizeComponent.armLength.set(
-        rig.leftUpperArm.node.getWorldPosition(vec3).y - rig.leftHand.node.getWorldPosition(vec3).y
-      )
+      sizeComponent.hipsHeight.set(rig.hips.node.getWorldPosition(vec3).y - transform.position.y)
+
       sizeComponent.footGap.set(
         vec3_2
           .subVectors(rig.leftFoot.node.getWorldPosition(vec3_2), rig.rightFoot.node.getWorldPosition(vec3_3))
           .length()
       )
-    }, [rigComponent.rawRig])
+    }, [rigComponent.normalizedRig])
     return null
   }
 })
