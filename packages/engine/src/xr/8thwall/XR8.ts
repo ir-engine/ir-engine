@@ -29,7 +29,6 @@ import config from '@etherealengine/common/src/config'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, useQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -108,7 +107,8 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null)
 
   const cameraCanvas = document.createElement('canvas')
   cameraCanvas.id = 'camera-canvas'
-  cameraCanvas.style.position = 'fixed'
+  cameraCanvas.style.position = 'absolute'
+  cameraCanvas.style.top = '0px'
   cameraCanvas.style.zIndex = '-10000' // put behind canvas (and everything else)
   cameraCanvas.style.height = '100%'
   cameraCanvas.style.width = '100%'
@@ -344,7 +344,7 @@ const execute = () => {
 const reactor = () => {
   const hasPersistentAnchor = useQuery([PersistentAnchorComponent]).length
   const arSupported = useHookstate(getMutableState(XRState).supportedSessionModes['immersive-ar'])
-  const using8thWall = isMobile && (!navigator.xr || !arSupported.value)
+  const using8thWall = true //isMobile && (!navigator.xr || !arSupported.value)
 
   useEffect(() => {
     /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */
