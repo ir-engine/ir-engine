@@ -316,7 +316,7 @@ const shadowOffset = new Vector3(0, 0.01, 0)
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(dropShadowComponentQuery, compareDistanceToCamera)
 const sortedEntityTransforms = [] as Entity[]
 
-const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera]])
+const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
 
 const updateDropShadowTransforms = () => {
   const { deltaSeconds } = getState(EngineState)
@@ -324,7 +324,7 @@ const updateDropShadowTransforms = () => {
 
   sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)
 
-  const sceneObjects = cameraLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
+  const sceneObjects = cameraLayerQuery().flatMap((entity) => getComponent(entity, MeshComponent))
 
   for (const entity of priorityQueue.priorityEntities) {
     const dropShadow = getComponent(entity, DropShadowComponent)
@@ -333,7 +333,7 @@ const updateDropShadowTransforms = () => {
     TransformComponent.getWorldPosition(entity, raycasterPosition).add(dropShadow.center)
     raycaster.set(raycasterPosition, shadowDirection)
 
-    const intersected = raycaster.intersectObjects(sceneObjects)[0]
+    const intersected = raycaster.intersectObjects(sceneObjects, false)[0]
     if (!intersected || !intersected.face) {
       dropShadowTransform.scale.setScalar(0)
       continue

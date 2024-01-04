@@ -59,6 +59,7 @@ import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
+import { loadLocomotionAnimations } from '../functions/avatarFunctions'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { AnimationSystem } from './AnimationSystem'
 
@@ -170,13 +171,12 @@ const execute = () => {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-    const deltaTime = elapsedSeconds - avatarAnimationComponent.deltaAccumulator
     avatarAnimationComponent.deltaAccumulator = elapsedSeconds
     const rig = rigComponent.rawRig
 
     if (!rig?.hips?.node) continue
 
-    updateVRMRetargeting(rigComponent.vrm, deltaTime)
+    updateVRMRetargeting(rigComponent.vrm)
 
     const uuid = getComponent(entity, UUIDComponent)
     const leftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
@@ -305,6 +305,8 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
+    loadLocomotionAnimations()
+
     const networkState = getMutableState(NetworkState)
 
     networkState.networkSchema[IKSerialization.ID].set({

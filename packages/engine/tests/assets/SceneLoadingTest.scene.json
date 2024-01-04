@@ -1,0 +1,105 @@
+{
+  "version": 0,
+  "entities": {
+    "root": {
+      "name": "Root",
+      "components": []
+    },
+    "child_0": {
+      "name": "Child 0",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": { "x": 0, "y": 0, "z": 0 },
+            "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+            "scale": { "x": 1, "y": 1, "z": 1 }
+          }
+        },
+        {
+          "name": "gltf-model",
+          "props": {
+            "src": "/packages/projects/default-project/assets/collisioncube.glb",
+            "generateBVH": false,
+            "avoidCameraOcclusion": false
+          }
+        }
+      ],
+      "parent": "root"
+    },
+    "child_1": {
+      "name": "Child 1",
+      "components": [
+        {
+          "name": "transform",
+          "props": { "position": { "x": 1, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
+        }
+      ],
+      "parent": "child_0"
+    },
+    "child_2": {
+      "name": "Child 2",
+      "components": [
+        {
+          "name": "transform",
+          "props": { "position": { "x": 0, "y": 1, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
+        }
+      ],
+      "parent": "child_1"
+    },
+    "child_3": {
+      "name": "Child 3",
+      "components": [
+        {
+          "name": "transform",
+          "props": { "position": { "x": 0, "y": 0, "z": 1 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
+        }
+      ],
+      "parent": "child_2"
+    },
+    "child_4": {
+      "name": "Child 4",
+      "components": [
+        {
+          "name": "transform",
+          "props": { "position": { "x": 2, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
+        }
+      ],
+      "parent": "child_3"
+    },
+    "child_5": {
+      "name": "Child 5",
+      "components": [
+        {
+          "name": "transform",
+          "props": { "position": { "x": 0, "y": 2, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
+        }
+      ],
+      "parent": "child_4"
+    },
+    "child_2_1": {
+      "name": "Child 2 _ 1",
+      "components": [
+        {
+          "name": "transform",
+          "props": { "position": { "x": 0, "y": 0, "z": 2 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 }
+          }
+        },
+        {
+          "name": "fog",
+          "props": {
+            "type": "linear",
+            "color": "#FFFFFF",
+            "density": 0.005,
+            "near": 1,
+            "far": 1000,
+            "timeScale": 1,
+            "height": 0.05
+          }
+        }
+      ],
+      "parent": "child_2"
+    }
+  },
+  "root": "root"
+}

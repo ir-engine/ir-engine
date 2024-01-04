@@ -31,14 +31,14 @@ import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import styles from '../styles.module.scss'
 import { FileType } from './FileBrowserContentPanel'
-import styles from './styles.module.scss'
 
 import { logger } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { saveProjectResources } from '../../functions/saveProjectResources'
-import { Button } from '../inputs/Button'
+import { saveProjectResources } from '../../../functions/saveProjectResources'
+import { Button } from '../../inputs/Button'
 
 export const FilePropertiesPanel = (props: {
   openProperties: State<boolean>
@@ -177,7 +177,7 @@ export const FilePropertiesPanel = (props: {
             </div>
             {isModified.value && (
               <Button onClick={onSaveChanges} style={{ marginTop: '15px' }}>
-                Save Changes
+                {t('editor:layout.filebrowser.fileProperties.save-changes')}
               </Button>
             )}
           </>
