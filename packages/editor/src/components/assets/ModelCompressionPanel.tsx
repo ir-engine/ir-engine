@@ -28,7 +28,7 @@ import React, { useEffect } from 'react'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
@@ -39,7 +39,7 @@ import styles from './styles.module.scss'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
-  DefaultModelTransformParameters,
+  DefaultModelTransformParameters as defaultParms,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
@@ -49,9 +49,18 @@ import { createSceneEntity } from '@etherealengine/engine/src/ecs/functions/crea
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
-import { Box } from '@mui/material'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import { Box, List, ListItemButton, ListItemText } from '@mui/material'
 import exportGLTF from '../../functions/exportGLTF'
+import { ListItem } from '../layout/List'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
+
+type LODVariantDescriptor = {
+  parms: ModelTransformParameters
+  metadata: Record<string, any>
+  suffix?: string
+}
 
 export default function ModelCompressionPanel({
   openCompress,
@@ -64,13 +73,19 @@ export default function ModelCompressionPanel({
 }) {
   const compressionLoading = useHookstate(false)
   const isClientside = useHookstate<boolean>(true)
-  const isBatchCompress = useHookstate<boolean>(true)
   const isIntegratedPrefab = useHookstate<boolean>(true)
   const transformParms = useHookstate<ModelTransformParameters>({
-    ...DefaultModelTransformParameters,
+    ...defaultParms,
     src: fileProperties.url.value,
     modelFormat: fileProperties.url.value.endsWith('.gltf') ? 'gltf' : 'glb'
   })
+
+  const lods = useHookstate<LODVariantDescriptor[]>([
+    { suffix: '-LOD_0', parms: { ...defaultParms, maxTextureSize: 2048 }, metadata: { device: 'DESKTOP' } },
+    { suffix: '-LOD_1', parms: { ...defaultParms, maxTextureSize: 1024 }, metadata: { device: 'XR' } },
+    { suffix: '-LOD_2', parms: { ...defaultParms, maxTextureSize: 512 }, metadata: { device: 'MOBILE' } }
+  ])
+  const selectedLOD = useHookstate<number>(0)
 
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
@@ -81,12 +96,6 @@ export default function ModelCompressionPanel({
 
     compressionLoading.set(false)
     openCompress.set(false)
-  }
-
-  type LODVariantDescriptor = {
-    parms: ModelTransformParameters
-    metadata: Record<string, any>
-    suffix?: string
   }
 
   const createLODVariants = async (
@@ -133,19 +142,10 @@ export default function ModelCompressionPanel({
     const modelSrc = fileProperties.url.value
     const modelDst = transformParms.dst.value
     const clientside = isClientside.value
-    const batchCompress = isBatchCompress.value
     const exportCombined = isIntegratedPrefab.value
 
-    const basis = transformParms.get(NO_PROXY)
-    const lods = batchCompress
-      ? [
-          { suffix: '-LOD_0', parms: { ...basis, maxTextureSize: 2048 }, metadata: { device: 'DESKTOP' } },
-          { suffix: '-LOD_1', parms: { ...basis, maxTextureSize: 1024 }, metadata: { device: 'XR' } },
-          { suffix: '-LOD_2', parms: { ...basis, maxTextureSize: 512 }, metadata: { device: 'MOBILE' } }
-        ]
-      : [{ parms: basis, metadata: {} }]
     const heuristic = 'DEVICE'
-    await createLODVariants(modelSrc, modelDst, lods, clientside, heuristic, exportCombined)
+    await createLODVariants(modelSrc, modelDst, lods.value, clientside, heuristic, exportCombined)
 
     const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
     await FileBrowserService.fetchFiles(directoryToRefresh)
@@ -157,6 +157,44 @@ export default function ModelCompressionPanel({
     const dst = `${fileName}-transformed`
     transformParms.dst.set(dst)
   }, [fileProperties.url])
+
+  const saveSelectedLOD = () => {
+    const val = transformParms.get(NO_PROXY)
+    lods[selectedLOD.value].parms.set(val)
+  }
+
+  const loadSelectedLOD = () => {
+    const val = lods[selectedLOD.value].parms.get(NO_PROXY)
+    transformParms.set(val)
+  }
+
+  const handleLODSelect = (index) => {
+    saveSelectedLOD()
+    selectedLOD.set(index)
+    loadSelectedLOD()
+    console.log(index, lods[index].parms.maxTextureSize.value, transformParms.maxTextureSize.value)
+  }
+
+  const handleLODDelete = (index) => {
+    lods[index].set(none)
+
+    if (selectedLOD.value === index) {
+      selectedLOD.set(Math.min(index, lods.length - 1))
+      loadSelectedLOD()
+    }
+  }
+
+  const handleLODAdd = () => {
+    lods.merge([
+      {
+        // parms: {...defaultParms},
+        parms: lods[selectedLOD.value].parms.get(NO_PROXY),
+        metadata: {}
+      }
+    ])
+    selectedLOD.set(lods.length - 1)
+    loadSelectedLOD()
+  }
 
   return (
     <Menu
@@ -179,6 +217,39 @@ export default function ModelCompressionPanel({
     >
       <div className={styles.modelMenu}>
         <Box>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div className={styles.headerContainer}>LOD Levels</div>
+            <List>
+              {lods.map((lod, index) => (
+                <ListItem>
+                  <ListItemButton
+                    selected={selectedLOD.value === index}
+                    onClick={() => handleLODSelect(index)}
+                  ></ListItemButton>
+                  <ListItemText
+                    primary={`LOD Level ${index}`}
+                    secondary={Object.entries(lod.metadata.value)
+                      .map((a) => a.join(': '))
+                      .join(', ')}
+                  />
+                  {lods.length > 1 && (
+                    <IconButton
+                      onClick={() => handleLODDelete(index)}
+                      icon={<Icon type="Delete" style={{ color: 'var(--iconButtonColor)' }} />}
+                    ></IconButton>
+                  )}
+                </ListItem>
+              ))}
+            </List>
+            <div>
+              <IconButton
+                onClick={() => handleLODAdd()}
+                icon={<Icon type="Add" style={{ color: 'var(--iconButtonColor)' }} />}
+              ></IconButton>
+            </div>
+          </div>
+        </Box>
+        <Box>
           <InputGroup name="fileType" label={fileProperties.value?.isFolder ? 'Directory' : 'File'}>
             <Typography variant="body2">{t('editor:properties.model.transform.compress') as string}</Typography>
           </InputGroup>
@@ -197,14 +268,6 @@ export default function ModelCompressionPanel({
                   // isClientside.set(val)
                 }}
                 disabled={true}
-              />
-            </InputGroup>
-            <InputGroup name="Batch Compress" label="Batch Compress">
-              <BooleanInput
-                value={isBatchCompress.value}
-                onChange={(val: boolean) => {
-                  isBatchCompress.set(val)
-                }}
               />
             </InputGroup>
             <InputGroup name="Generate Integrated Variant Prefab" label="Generate Integrated Variant Prefab">
