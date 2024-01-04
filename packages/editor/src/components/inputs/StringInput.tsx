@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import './Input.css'
 
@@ -35,14 +35,25 @@ const inputStyle = {
 
 interface StyledStringInputProps {
   className?: string
-  onChange?: any
+  onChange?: (e: any) => void
+  onRelease?: (e: any) => void
+  onFocus?: any
+  onBlur?: any
+  onKeyUp?: any
   value?: string
 }
 
 const StyledStringInput = React.forwardRef<any, StyledStringInputProps>(
-  ({ className = '', onChange, ...rest }, ref) => {
+  ({ className = '', onChange, onRelease, ...rest }, ref) => {
     return (
-      <input className={`StyledNumericInput ${className}`} onChange={onChange} style={inputStyle} {...rest} ref={ref} />
+      <input
+        className={`StyledNumericInput ${className}`}
+        style={inputStyle}
+        onBlur={onRelease}
+        onChange={onChange}
+        {...rest}
+        ref={ref}
+      />
     )
   }
 )
@@ -92,32 +103,30 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
   const inputRef = useRef<HTMLInputElement>()
   const [tempValue, setTempValue] = useState(value)
 
-  const onKeyUp = useCallback((e) => {
+  const onKeyUp = (e) => {
     if (e.key === 'Enter' || e.key === 'Escape') {
       inputRef.current?.blur()
     }
-  }, [])
+  }
 
   useEffect(() => {
     setTempValue(value)
   }, [value])
 
-  const onBlur = useCallback(() => {
+  const onBlur = () => {
     onRelease?.(tempValue)
-  }, [onChange, tempValue])
+  }
 
-  const onChangeValue = useCallback(
-    (e) => {
-      setTempValue(e.target.value)
-      onChange?.(e.target.value)
-    },
-    [setTempValue]
-  )
+  const onChangeValue = (e) => {
+    console.log('onChangeValue', e.target.value)
+    setTempValue(e.target.value)
+    onChange?.(e.target.value)
+  }
 
-  const onFocus = useCallback(() => {
+  const onFocus = () => {
     inputRef.current?.select()
     if (rest.onFocus) rest.onFocus()
-  }, [rest.onFocus])
+  }
 
   return (
     <div style={containerStyle} ref={ref}>
