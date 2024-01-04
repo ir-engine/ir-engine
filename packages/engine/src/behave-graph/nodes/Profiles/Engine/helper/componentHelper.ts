@@ -93,9 +93,13 @@ export function getComponentSetters() {
         const entity = Number.parseInt(read('entity')) as Entity
         //read from the read and set dict acccordingly
         const inputs = Object.entries(node.in).splice(2)
-        const values = {}
-        for (const [input, type] of inputs) {
-          values[input] = NodetoEnginetype(read(input as any), type)
+        let values = {} as any
+        if (inputs.length === 1) {
+          values = NodetoEnginetype(read(inputs[0][0] as any), inputs[0][1])
+        } else {
+          for (const [input, type] of inputs) {
+            values[input] = NodetoEnginetype(read(input as any), type)
+          }
         }
         setComponent(entity, component, values)
         write('entity', entity)
@@ -211,15 +215,12 @@ export function getComponentListeners() {
               prevComponentValue = componentValue
             } else {
               valueOutputs.forEach(([output, type], index) => {
-                const value = EnginetoNodetype(componentValue[output])
                 if (Object.hasOwn(prevComponentValue, output)) {
                   if (isEqual(prevComponentValue[output], componentValue[output])) return
-                  write(output as any, value)
-                  commit(flowOutputs[index][0] as any)
-                } else {
-                  write(output as any, value)
-                  commit(flowOutputs[index][0] as any)
                 }
+                const value = EnginetoNodetype(componentValue[output])
+                write(output as any, value)
+                commit(flowOutputs[index][0] as any)
                 prevComponentValue[output] = componentValue[output]
               })
             }
