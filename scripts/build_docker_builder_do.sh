@@ -3,7 +3,7 @@ set -e
 set -x
 
 STAGE="dig"
-TAG="dig-do-7.8.8"
+TAG="dig-do-3.3.3"
 LABEL="etherealengine/etherealengine"
 DOCR_REGISTRY="registry.digitalocean.com/etherealengine"
 REPO_NAME="etherealengine"

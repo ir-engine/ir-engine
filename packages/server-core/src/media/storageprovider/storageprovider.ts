@@ -62,13 +62,10 @@ export const createDefaultStorageProvider = () => {
   let StorageProvider
 
   if (config.server.storageProvider === 's3-do') {
-    console.log('[DO] Storage provider is S3DOSTorage')
     StorageProvider = S3DOStorage
   } else if (config.server.storageProvider !== 's3' && config.server.storageProvider !== 'ipfs') {
-    console.log('[DO] Storage provider is LocalStorage')
     StorageProvider = LocalStorage
   } else {
-    console.log('[DO] Storage provider is S3Storage')
     StorageProvider = S3Storage
   }
 

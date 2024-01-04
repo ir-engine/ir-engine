@@ -160,10 +160,12 @@ export class S3Provider implements StorageProviderInterface {
    * Domain address of S3 cache.
    */
   cacheDomain =
-    config.server.storageProvider === 's3-do'
+    config.server.storageProvider === 's3'
       ? config.aws.s3.endpoint
         ? `${config.aws.s3.endpoint.replace('http://', '').replace('https://', '')}/${this.bucket}`
         : config.aws.cloudfront.domain
+      : config.server.storageProvider === 's3-do'
+      ? config.aws.cloudfront.domain
       : `${config.aws.cloudfront.domain}/${this.bucket}`
 
   originURLs = [this.cacheDomain]
@@ -243,14 +245,9 @@ export class S3Provider implements StorageProviderInterface {
    * @param key Key of object.
    */
   async getObject(key: string): Promise<StorageObjectInterface> {
-    console.log('[DO] Inside Get Object DO3')
     const data = new GetObjectCommand({ Bucket: this.bucket, Key: key })
-    console.log('[DO] bucket name is, ', this.bucket)
-    console.log('[DO] endpoint is ', this.provider.config.endpoint)
-    console.log('[DO] region is ', this.provider.config.region)
     const response = await this.provider.send(data)
     const body = await buffer(response.Body as Readable)
-    console.log('[DO] Sent was succcessfull')
     return { Body: body, ContentType: response.ContentType! }
   }
 

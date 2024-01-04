@@ -131,11 +131,7 @@ export const start = async (): Promise<void> => {
     StartCorsServer(useSSL, certOptions)
   }
 
-  if (
-    process.env.SERVE_CLIENT_FROM_API &&
-    !process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER &&
-    process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER !== 'true'
-  ) {
+  if (process.env.SERVE_CLIENT_FROM_API === 'true' && process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER !== 'true') {
     const clientApp = koa()
     clientApp.use(
       serve(join(packageRoot.path, 'packages', 'client', 'dist'), {
