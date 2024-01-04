@@ -78,7 +78,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
         name: '' as UserName,
         isGuest: false,
         inviteCode: code,
-        avatarId: avatars[random(avatars.total - 1)].id,
+        avatarId: avatars.data[random(avatars.data.length - 1)].id,
         scopes: []
       })
       entity.userId = newUser.id
