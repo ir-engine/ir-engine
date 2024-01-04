@@ -58,7 +58,6 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
@@ -262,14 +261,14 @@ export const AvatarRigSizeComponent = defineComponent({
     useEffect(() => {
       if (!rigComponent.rawRig) return
       const rig = rigComponent.rawRig.value
-      const transform = getComponent(entity, TransformComponent)
       rig.hips.node.updateWorldMatrix(true, true)
 
       //todo needs actual footcenter calc
-      feetCenter.copy(rig.hips.node.getWorldPosition(vec3)).setY(rig.leftFoot.node.getWorldPosition(vec3_2).y)
+      feetCenter
+        .addVectors(rig.leftFoot.node.getWorldPosition(vec3), rig.rightFoot.node.getWorldPosition(vec3_2))
+        .multiplyScalar(0.5)
 
       avatarComponent.avatarHeight.set(rig.head.node.getWorldPosition(vec3).y - feetCenter.y)
-      console.log(avatarComponent.avatarHeight.value)
       avatarComponent.avatarHalfHeight.set(avatarComponent.avatarHeight.value / 2)
 
       sizeComponent.torsoLength.set(
