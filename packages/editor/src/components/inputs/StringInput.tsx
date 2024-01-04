@@ -118,7 +118,6 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
   }
 
   const onChangeValue = (e) => {
-    console.log('onChangeValue', e.target.value)
     setTempValue(e.target.value)
     onChange?.(e.target.value)
   }
