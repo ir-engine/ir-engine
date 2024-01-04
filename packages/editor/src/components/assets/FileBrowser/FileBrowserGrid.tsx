@@ -117,6 +117,8 @@ export const FileTableListBody = ({
   isOver: boolean
   drag?: ConnectDragSource
 }) => {
+  const dragFn = drag ?? ((input) => input)
+  const dropFn = drop ?? ((input) => input)
   return (
     <TableRow
       key={file.key}
@@ -125,7 +127,7 @@ export const FileTableListBody = ({
       onClick={isRenaming ? () => {} : onClick}
       onDoubleClick={isRenaming ? () => {} : onDoubleClick}
       hover
-      ref={drop}
+      ref={(ref) => dragFn(dropFn(ref))}
     >
       {[
         <span className={styles.cellName}>
@@ -137,9 +139,7 @@ export const FileTableListBody = ({
         file.size
       ].map((data, idx) => (
         <TableCell key={idx} className={styles.tableCell}>
-          <div ref={drag} style={{ border: '1px solid blue' }}>
-            {data}
-          </div>
+          {data}
         </TableCell>
       ))}
     </TableRow>
