@@ -934,7 +934,9 @@
         "primitive-geometry": "Add basic Geometry to the scene",
         "link": "Add clickable Link to entity to route to different webpage",
         "dynamic-load": "Load entities dynamically"
-      }
+      },
+      "placeObject": "Place Object",
+      "placeObjectAtOrigin": "Place Object at Origin"
     },
     "filebrowser": {
       "tab-name": "Project Files",
