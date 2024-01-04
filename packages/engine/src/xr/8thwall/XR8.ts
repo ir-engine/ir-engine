@@ -29,6 +29,7 @@ import config from '@etherealengine/common/src/config'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, useQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -344,7 +345,7 @@ const execute = () => {
 const reactor = () => {
   const hasPersistentAnchor = useQuery([PersistentAnchorComponent]).length
   const arSupported = useHookstate(getMutableState(XRState).supportedSessionModes['immersive-ar'])
-  const using8thWall = true //isMobile && (!navigator.xr || !arSupported.value)
+  const using8thWall = isMobile && (!navigator.xr || !arSupported.value)
 
   useEffect(() => {
     /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */
