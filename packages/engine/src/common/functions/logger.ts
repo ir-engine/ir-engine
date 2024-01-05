@@ -37,7 +37,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
 import config from '@etherealengine/common/src/config'
-import { logsApiPath } from '@etherealengine/engine/src/schemas/paths.module'
+import { logsApiPath } from '@etherealengine/common/src/schema.type.module'
 import type { FeathersApplication } from '@feathersjs/feathers'
 import NodeCache from 'node-cache'
 import schedule from 'node-schedule'
