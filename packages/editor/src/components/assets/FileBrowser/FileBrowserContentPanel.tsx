@@ -583,7 +583,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        height: '100%'
+        height: '100%',
+        color: 'var(--textColor)',
+        fontFamily: 'var(--lato)',
+        fontSize: '12px'
       }}
     >
       <Header />
