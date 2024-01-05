@@ -69,7 +69,7 @@ const tempVec3ForCenter = new Vector3()
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
     userData: {
-      useAPose?: boolean
+      /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/7519 */
       retargeted?: boolean
     }
   }
