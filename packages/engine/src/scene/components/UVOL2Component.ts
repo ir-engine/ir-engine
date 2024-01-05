@@ -1193,9 +1193,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const updateUniformSolve = (currentTime: number) => {
     const keyframeA = getAttribute('keyframeA', currentTime)
     const keyframeB = getAttribute('keyframeB', currentTime)
-    if (keyframeA || keyframeB) {
-      volumetric.lastUpdatedTime.set(currentTime)
-    }
     if (!keyframeA && !keyframeB) {
       return
     } else if (!keyframeA && keyframeB) {

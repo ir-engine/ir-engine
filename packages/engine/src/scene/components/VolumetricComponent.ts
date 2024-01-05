@@ -90,7 +90,6 @@ export const VolumetricComponent = defineComponent({
       autoPauseWhenBuffering: true, // TODO: Implement this for UVOL1
       autoplay: true,
       startTime: 0,
-      lastUpdatedTime: 0,
       paused: true,
       initialBuffersLoaded: false,
       hasAudio: true,
@@ -227,7 +226,6 @@ export function VolumetricReactor() {
       volumetric.initialBuffersLoaded.set(false)
       volumetric.paused.set(true)
       volumetric.startTime.set(0)
-      volumetric.lastUpdatedTime.set(0)
       volumetric.currentTrackInfo.set({
         currentTime: 0,
         duration: 0
