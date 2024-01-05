@@ -97,7 +97,6 @@ export const AvatarControllerComponent = defineComponent({
       Physics.removeCollidersFromRigidBody(entity, getState(PhysicsState).physicsWorld)
       const collider = createAvatarCollider(entity)
       setComponent(entity, AvatarControllerComponent, { bodyCollider: collider })
-      console.log(collider)
     }, [avatarComponent.avatarHeight])
     return null
   }
