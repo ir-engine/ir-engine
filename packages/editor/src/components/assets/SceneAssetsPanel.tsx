@@ -106,12 +106,20 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
     if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
+  const fullName = resource.key.split('/').at(-1)!
+  const name = fullName.length > 15 ? `${fullName.substring(0, 12)}...` : fullName
+
   return (
     <div
       ref={drag}
       key={resource.id}
       onClick={() =>
-        onAssetSelectionChanged?.({ contentType: assetType, name: resource.key, resourceUrl: resource.url, size: '' })
+        onAssetSelectionChanged?.({
+          contentType: assetType,
+          name: fullName,
+          resourceUrl: resource.url,
+          size: 'unknown size'
+        })
       }
       style={{
         display: 'flex',
@@ -123,7 +131,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
       }}
     >
       <ResourceIcon style={{ marginBottom: '5px', height: '70px', width: '70px' }} />
-      <span>{resource.key.split('/').at(-1)}</span>
+      <span>{name}</span>
     </div>
   )
 }
@@ -248,7 +256,7 @@ const SceneAssetsPanel = () => {
         />
       </div>
       <div style={{ display: 'flex', height: '100%', width: '100%', margin: '1rem auto' }}>
-        <div style={{ height: '100%', width: '50%' }}>
+        <div className={styles.hideScrollbar} style={{ height: '100%', width: '50%' }}>
           <AutoSizer onResize={ResourceList}>{ResourceList}</AutoSizer>
         </div>
         <div
@@ -257,7 +265,8 @@ const SceneAssetsPanel = () => {
             display: 'grid',
             gap: '40px 10px',
             gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))',
-            gridAutoRows: '60px'
+            gridAutoRows: '60px',
+            overflow: 'auto'
           }}
         >
           <ResourceItems />
