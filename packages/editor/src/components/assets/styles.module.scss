@@ -53,16 +53,24 @@
   overflow: auto;
 }
 
+.viewModeSettings {
+  padding: 10px;
+  background-color: var(--inputBackground);
+  
+  .settingsInput {
+    font-family: var(--lato);
+    font-size: 12px;
+  }
+}
+
 .fileListItemContainer {
   display: block;
   color: var(--textColor);
   cursor: pointer;
-  width: 110px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   text-align: center;
-  margin: 10px;
   padding-bottom: 5px;
 
   &:hover {
@@ -75,9 +83,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 90px;
-    width: 90px;
-    font-size: 90px;
     margin-left: auto;
     margin-right: auto;
     padding-top: 5px;

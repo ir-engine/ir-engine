@@ -967,8 +967,12 @@
         "save-changes": "Save Changes"
       },
       "view-mode": {
+        "options": "Options",
         "icons": "View: Icons",
-        "list": "View: List"
+        "list": "View: List",
+        "settings": {
+          "iconSize": "Icon Size"
+        }
       },
       "table-list": {
         "headers": {

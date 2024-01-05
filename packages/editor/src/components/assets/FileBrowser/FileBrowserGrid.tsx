@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { StateMethods, useHookstate } from '@etherealengine/hyperflux'
+import { StateMethods, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -46,6 +46,7 @@ import { addMediaNode } from '../../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../../functions/screenSpaceFunctions'
 import { ContextMenu } from '../../layout/ContextMenu'
 import styles from '../styles.module.scss'
+import { FilesViewModeSettings } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
 
 const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChanged: (newName: string) => void }) => {
@@ -94,6 +95,7 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
     </TableContainer>
   )
 }
+
 export const FileTableListBody = ({
   file,
   onContextMenu,
@@ -155,13 +157,26 @@ type FileGridItemProps = {
 }
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
+  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
   return (
     <div
       className={styles.fileListItemContainer}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.item.isFolder ? undefined : props.onClick}
+      style={{
+        fontSize: 0.2 * viewModeSettings.icons.iconSize.value,
+        width: viewModeSettings.icons.iconSize.value + 10,
+        margin: 0.1 * viewModeSettings.icons.iconSize.value
+      }}
     >
-      <div className={styles.fileNameContainer}>
+      <div
+        className={styles.fileNameContainer}
+        style={{
+          height: viewModeSettings.icons.iconSize.value,
+          width: viewModeSettings.icons.iconSize.value,
+          fontSize: viewModeSettings.icons.iconSize.value
+        }}
+      >
         {props.item.isFolder ? (
           <FolderIcon fontSize={'inherit'} />
         ) : props.item.Icon ? (
