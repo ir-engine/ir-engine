@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
@@ -34,7 +34,6 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
-import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
@@ -55,9 +54,10 @@ import { Box, List, ListItemButton, ListItemText } from '@mui/material'
 import exportGLTF from '../../functions/exportGLTF'
 import { ListItem } from '../layout/List'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
+import { FileType } from './FileBrowser/FileBrowserContentPanel'
 
 type LODVariantDescriptor = {
-  parms: ModelTransformParameters
+  params: ModelTransformParameters
   metadata: Record<string, any>
   suffix?: string
 }
@@ -71,30 +71,30 @@ export default function ModelCompressionPanel({
   fileProperties: State<FileType>
   onRefreshDirectory: () => Promise<void>
 }) {
-  const compressionLoading = useHookstate(false)
-  const isClientside = useHookstate<boolean>(true)
-  const isIntegratedPrefab = useHookstate<boolean>(true)
+  const [compressionLoading, setCompressionLoading] = useState<boolean>(false)
+  const [isClientside, setIsClientSide] = useState<boolean>(true)
+  const [isIntegratedPrefab, setIsIntegratedPrefab] = useState<boolean>(true)
+  const [selectedLOD, setSelectedLOD] = useState<number>(0)
+
   const transformParms = useHookstate<ModelTransformParameters>({
     ...defaultParms,
-    src: fileProperties.url.value,
-    modelFormat: fileProperties.url.value.endsWith('.gltf') ? 'gltf' : 'glb'
+    src: fileProperties.value.url,
+    modelFormat: fileProperties.value.url.endsWith('.gltf') ? 'gltf' : 'glb'
   })
 
   const lods = useHookstate<LODVariantDescriptor[]>([
-    { suffix: '-LOD_0', parms: { ...defaultParms, maxTextureSize: 2048 }, metadata: { device: 'DESKTOP' } },
-    { suffix: '-LOD_1', parms: { ...defaultParms, maxTextureSize: 1024 }, metadata: { device: 'XR' } },
-    { suffix: '-LOD_2', parms: { ...defaultParms, maxTextureSize: 512 }, metadata: { device: 'MOBILE' } }
+    { suffix: '-LOD_0', params: { ...defaultParms, maxTextureSize: 2048 }, metadata: { device: 'DESKTOP' } },
+    { suffix: '-LOD_1', params: { ...defaultParms, maxTextureSize: 1024 }, metadata: { device: 'XR' } },
+    { suffix: '-LOD_2', params: { ...defaultParms, maxTextureSize: 512 }, metadata: { device: 'MOBILE' } }
   ])
-  const selectedLOD = useHookstate<number>(0)
 
   const compressContentInBrowser = async () => {
-    compressionLoading.set(true)
+    setCompressionLoading(true)
 
-    const compressor = compressModel
-    await compressor()
+    await compressModel()
     await onRefreshDirectory()
 
-    compressionLoading.set(false)
+    setCompressionLoading(false)
     openCompress.set(false)
   }
 
@@ -107,9 +107,9 @@ export default function ModelCompressionPanel({
     exportCombined = false
   ) => {
     const lodVariantParms: ModelTransformParameters[] = lods.map((lod) => ({
-      ...lod.parms,
+      ...lod.params,
       src: modelSrc,
-      dst: `${modelDst}${lod.suffix ?? ''}.${lod.parms.modelFormat}`
+      dst: `${modelDst}${lod.suffix ?? ''}.${lod.params.modelFormat}`
     }))
 
     for (const variant of lodVariantParms) {
@@ -141,8 +141,8 @@ export default function ModelCompressionPanel({
   const compressModel = async () => {
     const modelSrc = fileProperties.url.value
     const modelDst = transformParms.dst.value
-    const clientside = isClientside.value
-    const exportCombined = isIntegratedPrefab.value
+    const clientside = isClientside
+    const exportCombined = isIntegratedPrefab
 
     const heuristic = 'DEVICE'
     await createLODVariants(modelSrc, modelDst, lods.value, clientside, heuristic, exportCombined)
@@ -158,28 +158,32 @@ export default function ModelCompressionPanel({
     transformParms.dst.set(dst)
   }, [fileProperties.url])
 
+  useEffect(() => {
+    loadSelectedLOD()
+  }, [selectedLOD])
+
   const saveSelectedLOD = () => {
     const val = transformParms.get(NO_PROXY)
-    lods[selectedLOD.value].parms.set(val)
+    console.log('saveSelectedLOD', selectedLOD, val)
+    lods[selectedLOD].params.set(val)
   }
 
   const loadSelectedLOD = () => {
-    const val = lods[selectedLOD.value].parms.get(NO_PROXY)
+    const val = lods[selectedLOD].params.get(NO_PROXY)
+    console.log('loadSelectedLOD', selectedLOD, val)
     transformParms.set(val)
   }
 
   const handleLODSelect = (index) => {
     saveSelectedLOD()
-    selectedLOD.set(index)
-    loadSelectedLOD()
-    console.log(index, lods[index].parms.maxTextureSize.value, transformParms.maxTextureSize.value)
+    setSelectedLOD(index)
   }
 
   const handleLODDelete = (index) => {
     lods[index].set(none)
 
-    if (selectedLOD.value === index) {
-      selectedLOD.set(Math.min(index, lods.length - 1))
+    if (selectedLOD === index) {
+      setSelectedLOD(Math.min(index, lods.length - 1))
       loadSelectedLOD()
     }
   }
@@ -188,11 +192,11 @@ export default function ModelCompressionPanel({
     lods.merge([
       {
         // parms: {...defaultParms},
-        parms: lods[selectedLOD.value].parms.get(NO_PROXY),
+        params: lods[selectedLOD].params.get(NO_PROXY),
         metadata: {}
       }
     ])
-    selectedLOD.set(lods.length - 1)
+    setSelectedLOD(lods.length - 1)
     loadSelectedLOD()
   }
 
@@ -205,7 +209,7 @@ export default function ModelCompressionPanel({
       header={fileProperties.value.name}
       actions={
         <>
-          {!compressionLoading.value ? (
+          {!compressionLoading ? (
             <Button type="gradient" className={styles.horizontalCenter} onClick={compressContentInBrowser}>
               {t('editor:properties.model.transform.compress') as string}
             </Button>
@@ -222,16 +226,15 @@ export default function ModelCompressionPanel({
             <List>
               {lods.map((lod, index) => (
                 <ListItem>
-                  <ListItemButton
-                    selected={selectedLOD.value === index}
-                    onClick={() => handleLODSelect(index)}
-                  ></ListItemButton>
-                  <ListItemText
-                    primary={`LOD Level ${index}`}
-                    secondary={Object.entries(lod.metadata.value)
-                      .map((a) => a.join(': '))
-                      .join(', ')}
-                  />
+                  <ListItemButton selected={selectedLOD === index} onClick={() => handleLODSelect(index)}>
+                    {' '}
+                    <ListItemText
+                      primary={`LOD Level ${index}`}
+                      secondary={Object.entries(lod.metadata.value)
+                        .map((a) => a.join(': '))
+                        .join(', ')}
+                    />
+                  </ListItemButton>
                   {lods.length > 1 && (
                     <IconButton
                       onClick={() => handleLODDelete(index)}
@@ -272,9 +275,9 @@ export default function ModelCompressionPanel({
             </InputGroup>
             <InputGroup name="Generate Integrated Variant Prefab" label="Generate Integrated Variant Prefab">
               <BooleanInput
-                value={isIntegratedPrefab.value}
+                value={isIntegratedPrefab}
                 onChange={(val: boolean) => {
-                  isIntegratedPrefab.set(val)
+                  setIsIntegratedPrefab(val)
                 }}
               />
             </InputGroup>
