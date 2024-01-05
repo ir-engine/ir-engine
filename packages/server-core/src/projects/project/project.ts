@@ -30,10 +30,10 @@ import logger from '@etherealengine/engine/src/common/functions/logger'
 import {
   ProjectPermissionType,
   projectPermissionPath
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { ProjectType, projectMethods, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { ScopeType, ScopeTypeInterface, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { ProjectType, projectMethods, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { ScopeType, ScopeTypeInterface, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { ProjectService } from './project.class'
 import projectDocs from './project.docs'

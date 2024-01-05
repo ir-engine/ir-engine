@@ -32,7 +32,7 @@ import {
   clientSettingPatchValidator,
   clientSettingPath,
   clientSettingQueryValidator
-} from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 
 import { BadRequest } from '@feathersjs/errors'
 import path from 'path'

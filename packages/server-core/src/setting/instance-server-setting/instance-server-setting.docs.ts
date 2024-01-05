@@ -30,7 +30,7 @@ import {
   instanceServerSettingPatchSchema,
   instanceServerSettingQuerySchema,
   instanceServerSettingSchema
-} from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/instance-server-setting.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

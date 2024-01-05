@@ -30,7 +30,7 @@ import path from 'path'
 
 import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 
-import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { Application } from '../../../declarations'
 
 declare module '@etherealengine/common/declarations' {

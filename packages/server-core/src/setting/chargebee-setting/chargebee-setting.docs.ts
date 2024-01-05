@@ -30,7 +30,7 @@ import {
   chargebeeSettingPatchSchema,
   chargebeeSettingQuerySchema,
   chargebeeSettingSchema
-} from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/chargebee-setting.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { DracoOptions } from '@gltf-transform/functions'
 import { Material, Texture } from 'three'
 
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import {
   GeometryTransformParameters,
   ImageTransformParameters,
@@ -35,7 +36,6 @@ import {
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
-import { SceneID } from '../../../schemas/projects/scene.schema'
 import { MeshComponent } from '../../components/MeshComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 import { UUIDComponent } from '../../components/UUIDComponent'

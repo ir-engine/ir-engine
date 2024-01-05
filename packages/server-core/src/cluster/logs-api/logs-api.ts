@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { logsApiMethods, logsApiPath } from '@etherealengine/engine/src/schemas/cluster/logs-api.schema'
+import { logsApiMethods, logsApiPath } from '@etherealengine/common/src/schemas/cluster/logs-api.schema'
 import { Application } from '../../../declarations'
 import { LogsApiService } from './logs-api.class'
 import logsApiDocs from './logs-api.docs'

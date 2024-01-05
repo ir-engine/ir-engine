@@ -30,7 +30,7 @@ import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/
 import {
   ClientSettingDatabaseType,
   clientSettingPath
-} from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/datetime-sql'

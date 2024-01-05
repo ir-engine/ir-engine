@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { userRelationshipPath } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
 import type { Knex } from 'knex'
 
 /**

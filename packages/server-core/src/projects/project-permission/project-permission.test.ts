@@ -33,12 +33,12 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   ProjectPermissionType,
   projectPermissionPath
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { InviteCode, UserID, UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { ScopeType, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { InviteCode, UserID, UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'

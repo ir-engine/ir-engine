@@ -30,7 +30,7 @@ import {
   serverSettingDataValidator,
   serverSettingPatchValidator,
   serverSettingQueryValidator
-} from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/server-setting.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {

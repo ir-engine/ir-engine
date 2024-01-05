@@ -23,15 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { sceneUploadPath } from '@etherealengine/common/src/schemas/projects/scene-upload.schema'
+import { SceneJsonType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
-import { SceneJsonType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 import assert from 'assert'
 import { v1 } from 'uuid'

@@ -30,7 +30,7 @@ import {
   userAvatarPatchSchema,
   userAvatarQuerySchema,
   userAvatarSchema
-} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
+} from '@etherealengine/common/src/schemas/user/user-avatar.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

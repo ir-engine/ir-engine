@@ -28,8 +28,8 @@ import { useTranslation } from 'react-i18next'
 
 import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
 import { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import Divider from '@etherealengine/ui/src/primitives/mui/Divider'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 

@@ -30,7 +30,7 @@ import {
   awsSettingDataValidator,
   awsSettingPatchValidator,
   awsSettingQueryValidator
-} from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/aws-setting.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {

@@ -30,7 +30,7 @@ import {
   MessagePatch,
   MessageQuery,
   MessageType
-} from '@etherealengine/engine/src/schemas/social/message.schema'
+} from '@etherealengine/common/src/schemas/social/message.schema'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 export interface MessageParams extends KnexAdapterParams<MessageQuery> {}

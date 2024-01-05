@@ -30,7 +30,7 @@ import {
   BotCommandPatch,
   BotCommandQuery,
   BotCommandType
-} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+} from '@etherealengine/common/src/schemas/bot/bot-command.schema'
 
 export interface BotCommandParams extends KnexAdapterParams<BotCommandQuery> {}
 

@@ -29,7 +29,7 @@ import { resolve } from '@feathersjs/schema'
 import {
   InstanceActiveQuery,
   InstanceActiveType
-} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-active.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const instanceActiveResolver = resolve<InstanceActiveType, HookContext>({})

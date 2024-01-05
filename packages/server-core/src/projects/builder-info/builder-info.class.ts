@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { BuilderInfoType } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
+import { BuilderInfoType } from '@etherealengine/common/src/schemas/projects/builder-info.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { ServerState } from '../../ServerState'

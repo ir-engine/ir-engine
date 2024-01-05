@@ -30,7 +30,7 @@ import {
   userRelationshipPatchSchema,
   userRelationshipQuerySchema,
   userRelationshipSchema
-} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+} from '@etherealengine/common/src/schemas/user/user-relationship.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
 
-import { ApiJobQuery, ApiJobType } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+import { ApiJobQuery, ApiJobType } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { v4 } from 'uuid'

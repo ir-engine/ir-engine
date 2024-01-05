@@ -30,7 +30,7 @@ import {
   matchUserPatchSchema,
   matchUserQuerySchema,
   matchUserSchema
-} from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
+} from '@etherealengine/common/src/schemas/matchmaking/match-user.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

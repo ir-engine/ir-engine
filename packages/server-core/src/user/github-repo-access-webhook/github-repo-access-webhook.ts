@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   githubRepoAccessWebhookMethods,
   githubRepoAccessWebhookPath
-} from '@etherealengine/engine/src/schemas/user/github-repo-access-webhook.schema'
+} from '@etherealengine/common/src/schemas/user/github-repo-access-webhook.schema'
 
 import { Application } from '../../../declarations'
 import { GithubRepoAccessWebhookService } from './github-repo-access-webhook.class'

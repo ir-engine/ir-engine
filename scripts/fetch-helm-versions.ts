@@ -32,7 +32,7 @@ import knex from 'knex'
 import path from 'path'
 import { promisify } from 'util'
 
-import { helmSettingPath, HelmSettingType } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { helmSettingPath, HelmSettingType } from '@etherealengine/common/src/schema.type.module'
 import {
   BUILDER_CHART_REGEX,
   MAIN_CHART_REGEX

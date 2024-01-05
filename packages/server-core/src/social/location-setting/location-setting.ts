@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   locationSettingMethods,
   locationSettingPath
-} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+} from '@etherealengine/common/src/schemas/social/location-setting.schema'
 
 import { Application } from '../../../declarations'
 import { LocationSettingService } from './location-setting.class'

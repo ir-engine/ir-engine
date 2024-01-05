@@ -28,7 +28,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
-import { routeMethods, routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { routeMethods, routePath, RouteType } from '@etherealengine/common/src/schemas/route/route.schema'
 import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'

@@ -29,7 +29,6 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import verifyProjectOwner from '../../hooks/verify-project-owner'
 
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import {
   ProjectPermissionData,
   ProjectPermissionPatch,
@@ -38,9 +37,10 @@ import {
   projectPermissionPatchValidator,
   projectPermissionPath,
   projectPermissionQueryValidator
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { InviteCode, UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { InviteCode, UserID, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { HookContext } from '../../../declarations'

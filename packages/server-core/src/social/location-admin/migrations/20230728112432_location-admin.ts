@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+import { locationAdminPath } from '@etherealengine/common/src/schemas/social/location-admin.schema'
 
 /**
  * @param { import("knex").Knex } knex

@@ -27,26 +27,26 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { InviteCode, UserID, UserName, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteCode, UserID, UserName, UserQuery, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import {
   InstanceAttendanceType,
   instanceAttendancePath
-} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ScopeTypeInterface, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
-import { LocationBanType, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
+import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { ScopeTypeInterface, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { LocationAdminType, locationAdminPath } from '@etherealengine/common/src/schemas/social/location-admin.schema'
+import { LocationBanType, locationBanPath } from '@etherealengine/common/src/schemas/social/location-ban.schema'
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { UserAvatarType, userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
-import { UserSettingType, userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { UserAvatarType, userAvatarPath } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
+import { UserSettingType, userSettingPath } from '@etherealengine/common/src/schemas/user/user-setting.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 

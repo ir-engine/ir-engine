@@ -28,7 +28,7 @@ import { Knex } from 'knex'
 import {
   projectPermissionTypePath,
   ProjectPermissionTypeType
-} from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission-type.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export async function seed(knex: Knex): Promise<void> {

@@ -51,6 +51,7 @@ import { useWorldNetwork } from '@etherealengine/client-core/src/common/services
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import { RecordingID, StaticResourceType, recordingPath } from '@etherealengine/common/src/schema.type.module'
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -62,8 +63,6 @@ import {
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import {
   defineState,
   dispatchAction,

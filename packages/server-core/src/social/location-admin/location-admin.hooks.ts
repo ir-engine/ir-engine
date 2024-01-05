@@ -30,7 +30,7 @@ import {
   locationAdminDataValidator,
   locationAdminPatchValidator,
   locationAdminQueryValidator
-} from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+} from '@etherealengine/common/src/schemas/social/location-admin.schema'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 import verifyScope from '../../hooks/verify-scope'

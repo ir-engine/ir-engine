@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { Forbidden } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
-import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+import { LocationAdminType, locationAdminPath } from '@etherealengine/common/src/schemas/social/location-admin.schema'
 import { Application } from '../../declarations'
 
 export default () => {

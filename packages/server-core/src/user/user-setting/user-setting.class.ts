@@ -31,7 +31,7 @@ import {
   UserSettingPatch,
   UserSettingQuery,
   UserSettingType
-} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+} from '@etherealengine/common/src/schemas/user/user-setting.schema'
 
 export interface UserSettingParams extends KnexAdapterParams<UserSettingQuery> {}
 

@@ -30,7 +30,7 @@ import {
   userKickPatchSchema,
   userKickQuerySchema,
   userKickSchema
-} from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+} from '@etherealengine/common/src/schemas/user/user-kick.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

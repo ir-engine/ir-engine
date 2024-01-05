@@ -35,8 +35,8 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
+import { RecordingID, recordingPath } from '@etherealengine/common/src/schema.type.module'
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 

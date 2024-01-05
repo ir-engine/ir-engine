@@ -31,7 +31,7 @@ import {
   InstanceAuthorizedUserPatch,
   InstanceAuthorizedUserQuery,
   InstanceAuthorizedUserType
-} from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-authorized-user.schema'
 
 export interface InstanceAuthorizedUserParams extends KnexAdapterParams<InstanceAuthorizedUserQuery> {}
 

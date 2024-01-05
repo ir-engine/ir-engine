@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { channelUserMethods, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { channelUserMethods, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
 import { Application } from '../../../declarations'
 import { ChannelUserService } from './channel-user.class'
 import channelUserDocs from './channel-user.docs'
