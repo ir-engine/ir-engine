@@ -137,5 +137,12 @@
     "@types/nodemailer-smtp-transport": "2.7.5",
     "@types/pug": "2.0.6"
   },
+  "overrides": {
+    "@feathersjs/authentication-oauth": {
+      "cookie-session": {
+        "cookies": "barankyle/cookies"
+      }
+    }
+  },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

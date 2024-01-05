@@ -92,5 +92,10 @@
     "trace-unhandled": "2.0.1",
     "workbox-core": "^6.5.4"
   },
+  "overrides": {
+    "koa": {
+      "cookies": "barankyle/cookies"
+    }
+  },
   "license": "ISC"
 }
