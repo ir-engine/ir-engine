@@ -41,7 +41,6 @@ import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/proje
 import { Not } from 'bitecs'
 import React from 'react'
 import { Group } from 'three'
-import { AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
@@ -165,12 +164,6 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const isActiveScene = useHookstate(getMutableState(SceneState).activeScene).value === props.sceneID
 
   useEffect(() => {
-    if (isActiveScene && getState(AppLoadingState).state !== AppLoadingStates.SUCCESS) {
-      getMutableState(AppLoadingState).merge({
-        state: AppLoadingStates.SCENE_LOADING,
-        loaded: false
-      })
-    }
     const scene = getState(SceneState).scenes[props.sceneID]
     const { project } = scene.metadata
     const data = scene.snapshots[scene.index].data

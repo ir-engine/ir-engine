@@ -397,7 +397,7 @@ export async function transformModel(args: ModelTransformParameters) {
 
   const fileUploadPath = (fUploadPath: string) => {
     const relativePath = fUploadPath.replace(config.client.fileServer, '')
-    const pathCheck = /projects\/([^/]+)\/assets\/([\w\d\s\-_./]*)$/
+    const pathCheck = /projects\/([^/]+)\/assets\/([\w\d\s\-|_./]*)$/
     const [_, projectName, fileName] =
       pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(LoaderUtils.extractUrlBase(args.src), fUploadPath))!
     return [projectName, fileName]
@@ -552,8 +552,8 @@ export async function transformModel(args: ModelTransformParameters) {
   if (parms.textureFormat !== 'default') {
     let ktx2Encoder: KTX2Encoder | null = null
     for (const texture of textures) {
-      const references = texture.listParents()
-      console.log(references)
+      console.log('considering texture ' + texture.getURI())
+      if (texture.getMimeType() === 'image/ktx2') continue
       const oldImg = texture.getImage()
       if (!oldImg) continue
       const oldSize = texture.getSize()
@@ -584,8 +584,10 @@ export async function transformModel(args: ModelTransformParameters) {
         }
         await imgDoc.transform(textureResize(resizeParms))
         const originalName = texture.getName()
+        const originalURI = texture.getURI()
         texture.copy(nuTexture)
         texture.setName(originalName)
+        texture.setURI(originalURI)
       }
 
       if (mergedParms.textureFormat === 'ktx2' && texture.getMimeType() !== 'image/ktx2') {
@@ -609,7 +611,10 @@ export async function transformModel(args: ModelTransformParameters) {
 
         texture.setImage(new Uint8Array(compressedData))
         texture.setMimeType('image/ktx2')
-        console.log('compressed image ' + texture.getName() + ' to ktx2')
+        texture.setURI(texture.getURI().replace(/\.[^.]+$/, '.ktx2'))
+        console.log('compressed image ' + texture.getURI() + ' to ktx2')
+      } else {
+        console.log('skipping texture ' + texture.getURI())
       }
 
       /*

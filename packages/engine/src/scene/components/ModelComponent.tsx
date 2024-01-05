@@ -71,6 +71,7 @@ import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
+import { VariantComponent } from './VariantComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 function clearMaterials(src: string) {
@@ -143,11 +144,12 @@ export const ModelComponent = defineComponent({
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
+  const variantComponent = useOptionalComponent(entity, VariantComponent)
   const uuid = useComponent(entity, UUIDComponent)
 
   useEffect(() => {
     let aborted = false
-
+    if (variantComponent && !variantComponent.calculated.value) return
     const model = modelComponent.value
     const src = model.src
     if (!src) {
@@ -171,6 +173,7 @@ function ModelReactor(): JSX.Element {
         uuid: uuid.value
       },
       (loadedAsset) => {
+        if (variantComponent && !variantComponent.calculated.value) return
         if (aborted) return
         if (typeof loadedAsset !== 'object') {
           addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
@@ -207,7 +210,7 @@ function ModelReactor(): JSX.Element {
     return () => {
       aborted = true
     }
-  }, [modelComponent.src, modelComponent.convertToVRM])
+  }, [modelComponent.src, modelComponent.convertToVRM, variantComponent?.calculated])
 
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!

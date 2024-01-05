@@ -263,19 +263,13 @@ class KTX2Loader extends Loader {
 
 		}
 
-		this._createTexture( url )
-			.then( ( texture ) => {
-				onLoad ? onLoad( texture ) : null
-			} )
-			.catch( onError );
+		this._createTexture( url, onLoad, onProgress, onError );
 
 	}
 
-	_createTextureFrom( transcodeResult ) {
-		const { faces, width, height, format, type, error, dfdFlags, buffer } = transcodeResult;
+	_createTextureFrom( transcodeResult, onLoad, onProgress, onError ) {
+		const { faces, width, height, format, dfdFlags, buffer } = transcodeResult;
 		const container = read( new Uint8Array( buffer ) );
-
-		if ( type === 'error' ) return Promise.reject( error );
 
 		let texture;
 
@@ -310,17 +304,17 @@ class KTX2Loader extends Loader {
 	 * @param {object?} config
 	 * @return {Promise<CompressedTexture|CompressedArrayTexture|DataTexture|Data3DTexture>}
 	 */
-	async _createTexture( url, config = {} ) {
+	async _createTexture( url, onLoad, onProgress, onError, config = {} ) {
 
 		const taskConfig = config;
-		const texturePending = this.init().then( () => {
 
-			return this.workerPool.postMessage( { type: 'transcode', url, taskConfig: taskConfig } );
+		await this.init();
 
-		} ).then( ( e ) => this._createTextureFrom( e.data ) );
+		const response = await this.workerPool.postMessage( { type: 'transcode', url, taskConfig: taskConfig } );
 
-		return texturePending;
+		if ( response.data.type === 'error' ) return onError(response.data.error);
 
+		onLoad(this._createTextureFrom( response.data));
 	}
 
 	dispose() {
@@ -407,22 +401,32 @@ KTX2Loader.BasisWorker = function () {
 					try {
 
 						this.fetch(message.url).then((res) => {
-							if (!res.ok) {
-								throw new Error('Network response was not ok');
-							}
-							return res.arrayBuffer()
-						}).then((buffer) => {
-							const { faces, buffers, width, height, hasAlpha, format, dfdFlags } = transcode( buffer );
-							buffers.push( buffer );
+							return res.arrayBuffer();
+						})
+						.catch((err) => {
 
-							self.postMessage( { type: 'transcode', requestId: message.requestId, faces, width, height, hasAlpha, format, dfdFlags, buffer }, buffers );
+							self.postMessage( { type: 'error', requestId: message.requestId, error: err.message } );
+
+						})
+						.then((buffer) => {
+							if (!buffer) return
+
+							try {
+								const { faces, buffers, width, height, hasAlpha, format, dfdFlags } = transcode( buffer );
+								buffers.push( buffer );
+								self.postMessage( { type: 'transcode', requestId: message.requestId, faces, width, height, hasAlpha, format, dfdFlags, buffer }, buffers );
+							} catch (e) {
+								console.error(e)
+								self.postMessage( { type: 'error', requestId: message.requestId, error: e.message } );
+							}
+
 						})
 
 					} catch ( error ) {
 
 						console.error( error );
 
-						self.postMessage( { type: 'error', id: message.id, error: error.message } );
+						self.postMessage( { type: 'error', requestId: message.requestId, error: error.message } );
 
 					}
 

@@ -57,7 +57,6 @@ import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
-import { AnimationComponent } from './AnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -150,6 +149,7 @@ export const AvatarRigComponent = defineComponent({
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
     const visible = useOptionalComponent(entity, VisibleComponent)
     const modelComponent = useOptionalComponent(entity, ModelComponent)
+    const locomotionAnimationState = useHookstate(getMutableState(AnimationState).loadedAnimations[locomotionAnimation])
 
     useEffect(() => {
       if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
@@ -194,34 +194,22 @@ export const AvatarRigComponent = defineComponent({
     }, [modelComponent?.asset])
 
     useEffect(() => {
-      if (!rigComponent.value || !rigComponent.value.vrm || !rigComponent.value.avatarURL) return
+      if (
+        !rigComponent.value ||
+        !rigComponent.value.vrm ||
+        !rigComponent.value.avatarURL ||
+        !locomotionAnimationState?.value
+      )
+        return
       const rig = getComponent(entity, AvatarRigComponent)
       try {
         setupAvatarForUser(entity, rig.vrm)
-        if (manager.loadedAnimations[locomotionAnimation].value) retargetAvatarAnimations(entity)
+        retargetAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
       }
     }, [rigComponent.vrm])
-
-    const manager = useHookstate(getMutableState(AnimationState))
-
-    useEffect(() => {
-      if (
-        !manager.loadedAnimations[locomotionAnimation].value ||
-        !rigComponent?.vrm?.value ||
-        !rigComponent?.normalizedRig?.value ||
-        getComponent(entity, AnimationComponent).animations.length
-      )
-        return
-      try {
-        retargetAvatarAnimations(entity)
-      } catch (e) {
-        console.error('Failed to retarget avatar animations', e)
-        if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
-      }
-    }, [manager.loadedAnimations, rigComponent.vrm])
 
     return null
   }

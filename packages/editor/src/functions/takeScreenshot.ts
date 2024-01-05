@@ -41,7 +41,6 @@ import { defineQuery, getComponent, setComponent } from '@etherealengine/engine/
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { ScreenshotSettings } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
@@ -62,7 +61,7 @@ function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: numb
   return tmpCanvas
 }
 
-const query = defineQuery([ScenePreviewCameraComponent])
+const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
 
 const ktx2Encoder = new KTX2Encoder()
 
@@ -85,7 +84,7 @@ export async function previewScreenshot(
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
-    for (const entity of query()) {
+    for (const entity of scenePreviewCameraQuery()) {
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     }
 
@@ -165,10 +164,10 @@ export async function takeScreenshot(
   format = 'jpeg' as 'jpeg' | 'png',
   scenePreviewCamera?: PerspectiveCamera,
   hideHelpers = true
-): Promise<[Blob | null, Blob | null]> {
+): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
-    for (const entity of query()) {
+    for (const entity of scenePreviewCameraQuery()) {
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     }
 
@@ -235,12 +234,6 @@ export async function takeScreenshot(
 
   const canvas = getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height)
 
-  const imageData = canvas.getContext('2d')!.getImageData(0, 0, width, height)
-  const ktx2texture = (await ktx2Encoder.encode(imageData, {
-    ...getState(ScreenshotSettings).ktx2,
-    yFlip: true
-  })) as ArrayBuffer
-  const ktx2Blob = new Blob([ktx2texture])
   const imageBlob = await getCanvasBlob(
     canvas,
     format === 'jpeg' ? 'image/jpeg' : 'image/png',
@@ -256,13 +249,13 @@ export async function takeScreenshot(
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
 
-  return [ktx2Blob, imageBlob]
+  return imageBlob
 }
 
 /** @todo make size, compression & format configurable */
 export const downloadScreenshot = () => {
   takeScreenshot(1920 * 4, 1080 * 4, 'png', getComponent(Engine.instance.cameraEntity, CameraComponent), false).then(
-    ([_, blob]) => {
+    (blob) => {
       if (!blob) return
 
       const blobUrl = URL.createObjectURL(blob)

@@ -69,7 +69,7 @@ const tempVec3ForCenter = new Vector3()
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
     userData: {
-      useAPose?: boolean
+      /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/7519 */
       retargeted?: boolean
     }
   }
@@ -141,10 +141,6 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   setupAvatarHeight(entity, model.scene)
 
   computeTransformMatrix(entity)
-
-  const animationState = getState(AnimationState)
-  //set global states if they are not already set
-  if (!animationState.loadedAnimations[locomotionAnimation]) loadLocomotionAnimations()
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
 
