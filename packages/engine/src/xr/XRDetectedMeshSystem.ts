@@ -99,7 +99,7 @@ const handleDetectedMeshes = (frame: XRFrame) => {
 
 const execute = () => {
   const frame = getState(XRState).xrFrame
-  if (!frame || frame.session.environmentBlendMode === 'opaque' || !ReferenceSpace.localFloor) return
+  if (!frame?.session || frame.session.environmentBlendMode === 'opaque' || !ReferenceSpace.localFloor) return
 
   handleDetectedPlanes(frame)
   handleDetectedMeshes(frame)

@@ -35,7 +35,7 @@ export class WorkerPool {
     this.queue = []
     this.workers = []
     this.workersResolve = []
-    this.workerStatus = []
+    this.workerPendingTasks = []
     this.maxConcurrentTasks = 7
   }
 
@@ -44,22 +44,22 @@ export class WorkerPool {
       const worker = this.workerCreator()
       worker.addEventListener('message', this._onMessage.bind(this, workerId))
       this.workers[workerId] = worker
-      this.workerStatus[workerId] = 0
+      this.workerPendingTasks[workerId] = 0
       this.workersResolve[workerId] = []
     }
   }
 
   _getIdleWorker() {
-    if (this.workerStatus.length < this.pool) {
-      for (let i = this.workerStatus.length; i < this.pool; i++) {
+    if (this.workerPendingTasks.length < this.pool) {
+      for (let i = this.workerPendingTasks.length; i < this.pool; i++) {
         this._initWorker(i)
       }
     }
-    const leastLoad = Math.min(...this.workerStatus)
+    const leastLoad = Math.min(...this.workerPendingTasks)
     if (leastLoad >= this.maxConcurrentTasks) {
       return -1
     }
-    return this.workerStatus.indexOf(leastLoad)
+    return this.workerPendingTasks.indexOf(leastLoad)
   }
 
   _onMessage(workerId, msg) {
@@ -73,7 +73,7 @@ export class WorkerPool {
       this.workersResolve[workerId][requestId] = resolve
       this.workers[workerId].postMessage(msg, transfer)
     } else {
-      this.workerStatus[workerId]--
+      this.workerPendingTasks[workerId]--
     }
   }
 
@@ -91,8 +91,8 @@ export class WorkerPool {
 
       if (workerId !== -1) {
         this._initWorker(workerId)
-        this.workerStatus[workerId]++
-        const requestId = this.workerStatus[workerId]
+        this.workerPendingTasks[workerId]++
+        const requestId = this.workerPendingTasks[workerId]
         this.workersResolve[workerId][requestId] = resolve
         msg.requestId = requestId
         this.workers[workerId].postMessage(msg, transfer)
@@ -107,6 +107,6 @@ export class WorkerPool {
     this.workersResolve.length = 0
     this.workers.length = 0
     this.queue.length = 0
-    this.workerStatus.length = 0
+    this.workerPendingTasks.length = 0
   }
 }

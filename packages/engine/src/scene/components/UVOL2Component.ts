@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { usePrevious } from '@etherealengine/common/src/utils/usePrevious'
 import { getState } from '@etherealengine/hyperflux'
-import { useEffect, useMemo } from 'react'
+import { startTransition, useEffect, useMemo } from 'react'
 import {
   BufferGeometry,
   CompressedTexture,
@@ -57,7 +58,6 @@ import {
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { PlayMode } from '../constants/PlayMode'
 import {
@@ -237,7 +237,6 @@ export const UVOL2Component = defineComponent({
         }
       },
       playbackStartTime: 0,
-      currentTime: 0,
       initialGeometryBuffersLoaded: false,
       initialTextureBuffersLoaded: false,
       firstGeometryFrameLoaded: false,
@@ -284,7 +283,7 @@ const loadTextureAsync = (url: string, repeat: Vector2, offset: Vector2) => {
       texture.repeat.copy(repeat)
       texture.offset.copy(offset)
       texture.updateMatrix()
-      EngineRenderer.instance.renderer.initTexture(texture)
+      // EngineRenderer.instance.renderer.initTexture(texture)
       resolve(texture)
     })
   })
@@ -371,9 +370,10 @@ function UVOL2Reactor() {
   let maxBufferHealth = 14 // seconds
   let minBufferToStart = 4 // seconds
   const minBufferToPlay = 2 // seconds. This is used when enableBuffering is true
-  let bufferThreshold = 10 // seconds. If buffer health is less than this, fetch new data
+  let bufferThreshold = 13 // seconds. If buffer health is less than this, fetch new data
   const repeat = useMemo(() => new Vector2(1, 1), [])
   const offset = useMemo(() => new Vector2(0, 0), [])
+  const previousStartTime = usePrevious(volumetric.startTime)
 
   const material = useMemo(() => {
     const manifest = component.data.value
@@ -501,12 +501,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         // 5MB
         maxBufferHealth = 15 // seconds
         minBufferToStart = 5 // seconds
-        bufferThreshold = 10 // seconds.
+        bufferThreshold = 14 // seconds.
       } else if (totalBitrate <= 10 * 1024 * 1024) {
         // 5-10MB
         maxBufferHealth = 10 // seconds
         minBufferToStart = 2 // seconds
-        bufferThreshold = 8 // seconds.
+        bufferThreshold = 9 // seconds.
       }
     }
 
@@ -526,8 +526,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       audio.playbackRate = sortedManifest.audio.playbackRate
     }
 
-    component.currentTime.set(volumetric.startTime.value)
-    const intervalId = setInterval(bufferLoop, 1000)
+    volumetric.currentTrackInfo.currentTime.set(volumetric.startTime.value)
+    volumetric.currentTrackInfo.duration.set(sortedManifest.duration)
+    const intervalId = setInterval(bufferLoop, 500)
     bufferLoop() // calling now because setInterval will call after 1 second
 
     return () => {
@@ -573,7 +574,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
     const oldBufferHealth = component.geometryInfo.bufferHealth.value
-    const startTime = engineState.elapsedSeconds * 1000
+    const startTime = engineState.elapsedSeconds
 
     for (let i = startFrame; i <= endFrame; i++) {
       const frameURL = resolvePath(
@@ -615,7 +616,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       })
 
       const playTime = component.geometryInfo.bufferHealth.value - oldBufferHealth
-      const fetchTime = (engineState.elapsedSeconds * 1000 - startTime) / 1000
+      const fetchTime = engineState.elapsedSeconds - startTime
       const metric = fetchTime / playTime
       adjustGeometryTarget(metric)
     })
@@ -626,7 +627,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
     const oldBufferHealth = component.geometryInfo.bufferHealth.value
-    const startTime = engineState.elapsedSeconds * 1000
+    const startTime = engineState.elapsedSeconds
 
     for (let i = startSegment; i <= endSegment; i++) {
       const segmentURL = resolvePath(
@@ -688,7 +689,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       })
 
       const playTime = component.geometryInfo.bufferHealth.value - oldBufferHealth
-      const fetchTime = (engineState.elapsedSeconds * 1000 - startTime) / 1000
+      const fetchTime = engineState.elapsedSeconds - startTime
       const metric = fetchTime / playTime
       adjustGeometryTarget(metric)
       if (extraTime >= 0) {
@@ -727,7 +728,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const fetchGeometry = () => {
     const currentBufferLength =
-      component.geometryInfo.bufferHealth.value - (component.currentTime.value - volumetric.startTime.value)
+      component.geometryInfo.bufferHealth.value -
+      (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
     if (
       currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) ||
       component.geometryInfo.pendingRequests.value > 0
@@ -773,7 +775,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const textureTypeData = component.data.texture[textureType].value
     if (!textureTypeData) return
     const currentBufferLength =
-      component.textureInfo[textureType].bufferHealth.value - (component.currentTime.value - volumetric.startTime.value)
+      component.textureInfo[textureType].bufferHealth.value -
+      (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
     if (
       currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) ||
       component.textureInfo[textureType].pendingRequests.value > 0
@@ -800,7 +803,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     const oldBufferHealth = component.textureInfo[textureType].bufferHealth.value
-    const startTime = engineState.elapsedSeconds * 1000
+    const startTime = engineState.elapsedSeconds
     const promises: Promise<CompressedTexture>[] = []
 
     for (let i = startFrame; i <= endFrame; i++) {
@@ -845,7 +848,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       })
 
       const playTime = component.textureInfo[textureType].bufferHealth.value - oldBufferHealth
-      const fetchTime = (engineState.elapsedSeconds * 1000 - startTime) / 1000
+      const fetchTime = engineState.elapsedSeconds - startTime
       const metric = fetchTime / playTime
       adjustTextureTarget(textureType, metric)
     })
@@ -869,26 +872,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (!component.firstGeometryFrameLoaded.value || !component.firstTextureFrameLoaded.value) {
       return
     }
-    updateGeometry(component.currentTime.value)
-    updateAllTextures(component.currentTime.value)
+    updateGeometry(volumetric.currentTrackInfo.currentTime.value)
+    updateAllTextures(volumetric.currentTrackInfo.currentTime.value)
 
     if (volumetric.useLoadingEffect.value) {
-      let headerTemplate: RegExp | undefined = /\/\/\sHEADER_REPLACE_START([\s\S]*?)\/\/\sHEADER_REPLACE_END/
-      let mainTemplate: RegExp | undefined = /\/\/\sMAIN_REPLACE_START([\s\S]*?)\/\/\sMAIN_REPLACE_END/
-
-      if (component.data.value.type !== UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE || 1 == 1) {
-        headerTemplate = undefined
-        mainTemplate = undefined
-      }
-
-      mesh.material = UVOLDissolveComponent.createDissolveMaterial(
-        mesh,
-        headerTemplate,
-        mainTemplate,
-        headerTemplate,
-        mainTemplate
-      )
-      mesh.material.needsUpdate = true
       component.loadingEffectStarted.set(true)
     }
 
@@ -897,6 +884,21 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   useEffect(() => {
     if (component.loadingEffectStarted.value && !component.loadingEffectEnded.value) {
+      let headerTemplate: RegExp | undefined = /\/\/\sHEADER_REPLACE_START([\s\S]*?)\/\/\sHEADER_REPLACE_END/
+      let mainTemplate: RegExp | undefined = /\/\/\sMAIN_REPLACE_START([\s\S]*?)\/\/\sMAIN_REPLACE_END/
+
+      if (component.data.value.type !== UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE || 1 == 1) {
+        headerTemplate = undefined
+        mainTemplate = undefined
+      }
+      mesh.material = UVOLDissolveComponent.createDissolveMaterial(
+        mesh,
+        headerTemplate,
+        mainTemplate,
+        headerTemplate,
+        mainTemplate
+      )
+      mesh.material.needsUpdate = true
       // Loading effect in progress. Let it finish
       return
     }
@@ -922,17 +924,18 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       }
       return
     }
-    component.playbackStartTime.set(engineState.elapsedSeconds * 1000)
+    component.playbackStartTime.set(engineState.elapsedSeconds)
     component.geometryInfo.bufferHealth.set(
-      component.geometryInfo.bufferHealth.value - (component.currentTime.value - volumetric.startTime.value)
+      component.geometryInfo.bufferHealth.value -
+        (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
     )
     component.textureInfo.textureTypes.value.forEach((textureType) => {
       const currentHealth = component.textureInfo[textureType].bufferHealth.value
       component.textureInfo[textureType].bufferHealth.set(
-        currentHealth - (component.currentTime.value - volumetric.startTime.value)
+        currentHealth - (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
       )
     })
-    volumetric.startTime.set(component.currentTime.value)
+    volumetric.startTime.set(volumetric.currentTrackInfo.currentTime.value)
 
     if (mesh.material !== material) {
       mesh.material = material
@@ -1249,8 +1252,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     if (volumetric.autoPauseWhenBuffering.value) {
       const currentGeometryBufferHealth =
-        component.geometryInfo.bufferHealth.value - (component.currentTime.value - volumetric.startTime.value)
-      const currentMinBuffer = Math.min(minBufferToPlay, component.data.duration.value - component.currentTime.value)
+        component.geometryInfo.bufferHealth.value -
+        (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
+      const currentMinBuffer = Math.min(
+        minBufferToPlay,
+        component.data.duration.value - volumetric.currentTrackInfo.currentTime.value
+      )
       if (currentGeometryBufferHealth < currentMinBuffer) {
         return
       }
@@ -1258,7 +1265,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         const textureType = component.textureInfo.textureTypes[i].value
         const currentTextureBufferHealth =
           component.textureInfo[textureType].bufferHealth.value -
-          (component.currentTime.value - volumetric.startTime.value)
+          (volumetric.currentTrackInfo.currentTime.value - volumetric.startTime.value)
         if (currentTextureBufferHealth < currentMinBuffer) {
           return
         }
@@ -1269,23 +1276,25 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (component.data.value.audio) {
       _currentTime = audio.currentTime
     } else {
-      _currentTime =
-        volumetric.startTime.value + (engineState.elapsedSeconds * 1000 - component.playbackStartTime.value) / 1000
+      _currentTime = volumetric.startTime.value + (engineState.elapsedSeconds - component.playbackStartTime.value)
     }
-    component.currentTime.set(_currentTime)
 
-    if (component.currentTime.value > component.data.value.duration || audio.ended) {
+    startTransition(() => {
+      volumetric.currentTrackInfo.currentTime.set(_currentTime)
+    })
+
+    if (volumetric.currentTrackInfo.currentTime.value > component.data.value.duration || audio.ended) {
       if (component.data.deletePreviousBuffers.value === false && volumetric.playMode.value === PlayMode.loop) {
-        component.currentTime.set(0)
-        component.playbackStartTime.set(engineState.elapsedSeconds * 1000)
+        volumetric.currentTrackInfo.currentTime.set(0)
+        component.playbackStartTime.set(engineState.elapsedSeconds)
       } else {
         volumetric.ended.set(true)
         return
       }
     }
 
-    updateGeometry(component.currentTime.value)
-    updateAllTextures(component.currentTime.value)
+    updateGeometry(volumetric.currentTrackInfo.currentTime.value)
+    updateAllTextures(volumetric.currentTrackInfo.currentTime.value)
   }
 
   useExecute(update, {

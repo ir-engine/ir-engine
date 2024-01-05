@@ -263,10 +263,10 @@ const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 
 const footBlendTransitionMultiplier = 0.5
 
 //set offsets so hands align with controllers. Multiplying two quaternions because gimbal lock in euler angles prevents setting the offset in one quaternion
-const leftControllerOffset = new Quaternion()
+export const leftControllerOffset = new Quaternion()
   .setFromEuler(new Euler(0, -Math.PI / 2, 0))
   .multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 4, 0, 0)))
-const rightControllerOffset = new Quaternion()
+export const rightControllerOffset = new Quaternion()
   .setFromEuler(new Euler(0, Math.PI / 2, 0))
   .multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 4, 0, 0)))
 
