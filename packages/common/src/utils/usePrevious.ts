@@ -23,22 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
+import { StateMethods } from '@hookstate/core'
+import { useEffect, useRef } from 'react'
 
-export const AppLoadingStates = {
-  START_STATE: 'START_STATE' as const,
-  SCENE_LOADING: 'SCENE_LOADING' as const,
-  SUCCESS: 'SUCCESS' as const,
-  FAIL: 'FAIL' as const
+export const usePrevious = <T>(value: StateMethods<T, object>) => {
+  const ref = useRef(null as T | null)
+  useEffect(() => {
+    ref.current = value.value
+  }, [value])
+  return ref.current
 }
-
-type AppLoadingStatesType = (typeof AppLoadingStates)[keyof typeof AppLoadingStates]
-
-/** @deprecated @todo replace with scene loading state directly */
-export const AppLoadingState = defineState({
-  name: 'AppLoadingState',
-  initial: () => ({
-    loaded: false,
-    state: AppLoadingStates.START_STATE as AppLoadingStatesType
-  })
-})

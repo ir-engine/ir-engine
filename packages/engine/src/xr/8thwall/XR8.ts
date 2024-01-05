@@ -108,7 +108,8 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null)
 
   const cameraCanvas = document.createElement('canvas')
   cameraCanvas.id = 'camera-canvas'
-  cameraCanvas.style.position = 'fixed'
+  cameraCanvas.style.position = 'absolute'
+  cameraCanvas.style.top = '0px'
   cameraCanvas.style.zIndex = '-10000' // put behind canvas (and everything else)
   cameraCanvas.style.height = '100%'
   cameraCanvas.style.width = '100%'
