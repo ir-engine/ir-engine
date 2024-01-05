@@ -193,6 +193,7 @@ export const UVOL2Component = defineComponent({
       hasAudio: false,
       geometryInfo: {
         targets: [] as string[],
+        userTarget: -1, // -1 implies 'auto'
         currentTarget: 0,
 
         /**
@@ -207,30 +208,35 @@ export const UVOL2Component = defineComponent({
         textureTypes: [] as TextureType[],
         baseColor: {
           targets: [] as string[],
+          userTarget: -1,
           currentTarget: 0,
           bufferHealth: 0,
           pendingRequests: 0
         },
         normal: {
           targets: [] as string[],
+          userTarget: -1,
           currentTarget: 0,
           bufferHealth: 0,
           pendingRequests: 0
         },
         metallicRoughness: {
           targets: [] as string[],
+          userTarget: -1,
           currentTarget: 0,
           bufferHealth: 0,
           pendingRequests: 0
         },
         emissive: {
           targets: [] as string[],
+          userTarget: -1,
           currentTarget: 0,
           bufferHealth: 0,
           pendingRequests: 0
         },
         occlusion: {
           targets: [] as string[],
+          userTarget: -1,
           currentTarget: 0,
           bufferHealth: 0,
           pendingRequests: 0
@@ -699,6 +705,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const adjustGeometryTarget = (metric: number) => {
+    const userChoice = component.geometryInfo.userTarget.value
+    if (userChoice !== -1) {
+      component.geometryInfo.currentTarget.set(userChoice)
+      return
+    }
+
     const currentTarget = component.geometryInfo.currentTarget.value
     const targetsCount = component.geometryInfo.targets.value.length
     if (metric >= 0.3) {
@@ -713,6 +725,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const adjustTextureTarget = (textureType: TextureType, metric: number) => {
+    const userChoice = component.textureInfo[textureType].userTarget.value
+    if (userChoice !== -1) {
+      component.textureInfo[textureType].currentTarget.set(userChoice)
+      return
+    }
+
     const currentTarget = component.textureInfo[textureType].currentTarget.value
     const targetsCount = component.textureInfo[textureType].targets.value.length
     if (metric >= 0.3) {

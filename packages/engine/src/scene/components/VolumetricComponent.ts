@@ -185,6 +185,11 @@ export function VolumetricReactor() {
 
       audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
     }
+
+    return () => {
+      removeComponent(entity, UVOL1Component)
+      removeComponent(entity, UVOL2Component)
+    }
   }, [])
 
   useEffect(() => {

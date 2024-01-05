@@ -30,7 +30,8 @@ import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants
 import {
   getOptionalMutableComponent,
   hasComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
@@ -39,6 +40,7 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { UVOL1Component } from '@etherealengine/engine/src/scene/components/UVOL1Component'
 import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL2Component'
+import { TextureType } from '@etherealengine/engine/src/scene/constants/UVOLTypes'
 import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
 import VideocamIcon from '@mui/icons-material/Videocam'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -70,6 +72,13 @@ const PlayModeOptions = [
     value: PlayMode.singleloop
   }
 ]
+
+type TextureTargetLabelsType = {
+  [key in TextureType]: {
+    label: string
+    value: number
+  }[]
+}
 
 /**
  * VolumetricNodeEditor provides the editor view to customize properties.
@@ -111,6 +120,67 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
 
     setTrackLabel(currentTrackPath.slice(prefix.length))
   }, [volumetricComponent.track, volumetricComponent.ended, volumetricComponent.paths])
+
+  const uvol2 = useOptionalComponent(props.entity, UVOL2Component)
+  const [geometryTargets, setGeometryTargets] = React.useState(
+    [] as {
+      label: string
+      value: number
+    }[]
+  )
+
+  useEffect(() => {
+    if (uvol2) {
+      const _geometryTargets = [] as {
+        label: string
+        value: number
+      }[]
+      _geometryTargets.push({
+        label: 'auto',
+        value: -1
+      })
+      uvol2.geometryInfo.targets.value.forEach((target, index) => {
+        _geometryTargets.push({
+          label: target,
+          value: index
+        })
+      })
+      setGeometryTargets(_geometryTargets)
+    }
+  }, [uvol2?.geometryInfo.targets])
+
+  const [textureTargets, setTextureTargets] = React.useState({} as TextureTargetLabelsType)
+  useEffect(() => {
+    if (!uvol2) {
+      return
+    }
+    const textureTypes = uvol2.textureInfo.textureTypes.value
+    const _textureTargets = {} as TextureTargetLabelsType
+    textureTypes.forEach((textureType) => {
+      _textureTargets[textureType] = [] as {
+        label: string
+        value: number
+      }[]
+      _textureTargets[textureType].push({
+        label: 'auto',
+        value: -1
+      })
+      uvol2.textureInfo[textureType].targets.value.forEach((target, index) => {
+        _textureTargets[textureType].push({
+          label: target,
+          value: index
+        })
+      })
+    })
+    setTextureTargets(_textureTargets)
+  }, [
+    uvol2?.textureInfo.textureTypes,
+    uvol2?.textureInfo.baseColor.targets,
+    uvol2?.textureInfo.normal.targets,
+    uvol2?.textureInfo.emissive.targets,
+    uvol2?.textureInfo.metallicRoughness.targets,
+    uvol2?.textureInfo.occlusion.targets
+  ])
 
   return (
     <NodeEditor
@@ -177,6 +247,39 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         )}
       </InputGroup>
 
+      {hasComponent(props.entity, UVOL2Component) && (
+        <>
+          <InputGroup name="Geometry Target" label="Geometry Target">
+            <SelectInput
+              key={props.entity}
+              options={geometryTargets}
+              value={uvol2?.geometryInfo.userTarget.value}
+              onChange={(value: number) => {
+                if (uvol2) {
+                  uvol2.geometryInfo.userTarget.set(value)
+                }
+              }}
+            />
+          </InputGroup>
+          {Object.keys(textureTargets).map((textureType) => {
+            return (
+              <InputGroup name={`${textureType} target`} label={`${textureType} target`}>
+                <SelectInput
+                  key={props.entity}
+                  options={textureTargets[textureType]}
+                  value={uvol2?.textureInfo[textureType].userTarget.value}
+                  onChange={(value: number) => {
+                    if (uvol2) {
+                      uvol2?.textureInfo[textureType].userTarget.set(value)
+                    }
+                  }}
+                />
+              </InputGroup>
+            )
+          })}
+        </>
+      )}
+
       <InputGroup name="Current Track" label="Current Track">
         <StringInput value={trackLabel} />
       </InputGroup>
@@ -196,19 +299,17 @@ function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
         step={0.01}
         onChange={(value) => {
           const uvol2Component = getOptionalMutableComponent(props.entity, UVOL2Component)
-          const engineState = getState(EngineState)
-
-          volumetricComponent.startTime.set(value)
-          volumetricComponent.currentTrackInfo.currentTime.set(value)
-
           if (uvol2Component) {
+            const engineState = getState(EngineState)
+            volumetricComponent.startTime.set(value)
+            volumetricComponent.currentTrackInfo.currentTime.set(value)
             uvol2Component.playbackStartTime.set(engineState.elapsedSeconds)
             uvol2Component.geometryInfo.bufferHealth.set(0)
             uvol2Component.textureInfo.textureTypes.value.forEach((textureType) => {
               uvol2Component.textureInfo[textureType].bufferHealth.set(0)
             })
+            volumetricComponent.startTime.set(volumetricComponent.currentTrackInfo.currentTime.value)
           }
-          volumetricComponent.startTime.set(volumetricComponent.currentTrackInfo.currentTime.value)
         }}
         value={volumetricComponent.currentTrackInfo.currentTime.value}
       />
