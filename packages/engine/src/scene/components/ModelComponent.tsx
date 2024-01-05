@@ -149,9 +149,12 @@ function ModelReactor(): JSX.Element {
 
   useEffect(() => {
     let aborted = false
-    if (variantComponent && !variantComponent.calculated.value) return
     const model = modelComponent.value
     const src = model.src
+
+    if (variantComponent && !variantComponent.calculated.value) {
+      return
+    }
     if (!src) {
       // const dudScene = new Scene() as Scene & Object3D
       // dudScene.entity = entity
@@ -173,8 +176,12 @@ function ModelReactor(): JSX.Element {
         uuid: uuid.value
       },
       (loadedAsset) => {
-        if (variantComponent && !variantComponent.calculated.value) return
+        if (variantComponent && !variantComponent.calculated.value) {
+          // SceneAssetPendingTagComponent.removeResource(entity, src)
+          return
+        }
         if (aborted) return
+
         if (typeof loadedAsset !== 'object') {
           addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
           return
@@ -209,6 +216,7 @@ function ModelReactor(): JSX.Element {
     )
     return () => {
       aborted = true
+      SceneAssetPendingTagComponent.removeResource(entity, src)
     }
   }, [modelComponent.src, modelComponent.convertToVRM, variantComponent?.calculated])
 
@@ -236,6 +244,8 @@ function ModelReactor(): JSX.Element {
     /**hotfix for gltf animations being stored in the root and not scene property */
     if (!asset.scene.animations.length && !(asset instanceof VRM)) asset.scene.animations = asset.animations
 
+    const src = modelComponent.src.value
+
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
 
@@ -256,10 +266,9 @@ function ModelReactor(): JSX.Element {
         .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
         .catch(() => {
           addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
-          SceneAssetPendingTagComponent.removeResource(entity, modelComponent.src.value)
+          SceneAssetPendingTagComponent.removeResource(entity, src)
         })
 
-    const src = modelComponent.src.value
     return () => {
       /** @todo Replace with hooks and refrence counting */
       if (!(asset instanceof VRM)) clearMaterials(src)
