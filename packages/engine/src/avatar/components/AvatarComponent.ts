@@ -24,12 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Box3, Vector3 } from 'three'
+import { Box3, SkinnedMesh, Vector3 } from 'three'
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getOptionalComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
+import { SkinnedMeshComponent } from './SkinnedMeshComponent'
 
 const size = new Vector3()
 const hipsPos = new Vector3(),
@@ -62,7 +64,9 @@ export const AvatarComponent = defineComponent({
       /** The distance between the left and right foot in a t-pose */
       footGap: 0,
       /** The height of the eyes in a t-pose */
-      eyeHeight: 0
+      eyeHeight: 0,
+
+      skinnedMeshes: [] as SkinnedMesh[]
     }
   },
 
@@ -92,6 +96,18 @@ export const AvatarComponent = defineComponent({
       avatarComponent.avatarHeight.set(size.y)
       avatarComponent.avatarHalfHeight.set(size.y * 0.5)
     }, [modelComponent.asset])
+
+    const entityTreeComponent = useComponent(entity, EntityTreeComponent)
+    useEffect(() => {
+      const children = entityTreeComponent.children.value
+      if (!children.length) return
+      const skinnedMeshes = [] as SkinnedMesh[]
+      for (const child of children) {
+        const skinnedMesh = getOptionalComponent(child, SkinnedMeshComponent)
+        if (skinnedMesh) skinnedMeshes.push(skinnedMesh)
+      }
+      avatarComponent.skinnedMeshes.set(skinnedMeshes)
+    }, [entityTreeComponent.children])
 
     const rigComponent = useComponent(entity, AvatarRigComponent)
     useEffect(() => {

@@ -31,7 +31,7 @@ import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ikTargets } from '../animation/Util'
-import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 
 const walkDirection = new Vector3()
@@ -63,8 +63,8 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
 
   if (!leftFootTargetBlendWeight || !rightFootTargetBlendWeight) return
 
-  const rigComponent = getComponent(localClientEntity, AvatarRigComponent)
-  const stepThreshold = rigComponent.upperLegLength + rigComponent.lowerLegLength
+  const avatar = getComponent(localClientEntity, AvatarComponent)
+  const stepThreshold = avatar.upperLegLength + avatar.lowerLegLength
 
   const feet = {
     [ikTargets.rightFoot]: UUIDComponent.getEntityByUUID((userID + ikTargets.rightFoot) as EntityUUID),
@@ -75,11 +75,9 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   if (lastPlayerPosition.x == 0 && lastPlayerPosition.y == 0 && lastPlayerPosition.z == 0)
     lastPlayerPosition.copy(playerTransform.position)
 
-  const playerRig = getComponent(localClientEntity, AvatarRigComponent)
-
   /**calculate foot offset so both feet aren't at the transform's center */
   const calculateFootOffset = () => {
-    footOffset.set(currentStep == ikTargets.leftFoot ? playerRig.footGap : -playerRig.footGap, 0, 0)
+    footOffset.set(currentStep == ikTargets.leftFoot ? avatar.footGap : -avatar.footGap, 0, 0)
     footOffset.applyQuaternion(playerTransform.rotation)
     footOffset.add(playerTransform.position)
     return footOffset

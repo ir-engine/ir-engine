@@ -173,7 +173,7 @@ const execute = () => {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
     avatarAnimationComponent.deltaAccumulator = elapsedSeconds
-    const rig = rigComponent.normalizedRig
+    const rig = rigComponent.rawRig
 
     if (!rig?.hips?.node) continue
 
