@@ -46,7 +46,7 @@ import { addMediaNode } from '../../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../../functions/screenSpaceFunctions'
 import { ContextMenu } from '../../layout/ContextMenu'
 import styles from '../styles.module.scss'
-import { FilesViewModeSettings } from './FileBrowserState'
+import { FilesViewModeSettings, availableTableColumns } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
 
 const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChanged: (newName: string) => void }) => {
@@ -78,16 +78,19 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
     return children
   }
   const { t } = useTranslation()
+  const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
   return (
     <TableContainer component="div">
       <Table size="small" className={styles.table}>
         <TableHead>
           <TableRow className={styles.tableHeaderRow}>
-            {['name', 'type', 'date-modified', 'size'].map((header) => (
-              <TableCell key={header} className={styles.tableCell}>
-                {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
-              </TableCell>
-            ))}
+            {availableTableColumns
+              .filter((header) => selectedTableColumns[header])
+              .map((header) => (
+                <TableCell key={header} className={styles.tableCell}>
+                  {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
+                </TableCell>
+              ))}
           </TableRow>
         </TableHead>
         <TableBody>{children}</TableBody>
@@ -119,8 +122,20 @@ export const FileTableListBody = ({
   isOver: boolean
   drag?: ConnectDragSource
 }) => {
+  const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
+  const tableColumns = {
+    name: (
+      <span className={styles.cellName}>
+        {file.isFolder ? <FolderIcon /> : file.Icon ? <file.Icon /> : <DescriptionIcon />}
+        {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
+      </span>
+    ),
+    type: file.type.toUpperCase(),
+    dateModified: modifiedDate || '',
+    size: file.size
+  }
   return (
     <TableRow
       key={file.key}
@@ -131,19 +146,13 @@ export const FileTableListBody = ({
       hover
       ref={(ref) => dragFn(dropFn(ref))}
     >
-      {[
-        <span className={styles.cellName}>
-          {file.isFolder ? <FolderIcon /> : file.Icon ? <file.Icon /> : <DescriptionIcon />}
-          {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
-        </span>,
-        file.type.toUpperCase(),
-        modifiedDate || '',
-        file.size
-      ].map((data, idx) => (
-        <TableCell key={idx} className={styles.tableCell}>
-          {data}
-        </TableCell>
-      ))}
+      {availableTableColumns
+        .filter((header) => selectedTableColumns[header])
+        .map((header, idx) => (
+          <TableCell key={idx} className={styles.tableCell}>
+            {tableColumns[header]}
+          </TableCell>
+        ))}
     </TableRow>
   )
 }
@@ -157,24 +166,24 @@ type FileGridItemProps = {
 }
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
-  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
   return (
     <div
       className={styles.fileListItemContainer}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.item.isFolder ? undefined : props.onClick}
       style={{
-        fontSize: 0.2 * viewModeSettings.icons.iconSize.value,
-        width: viewModeSettings.icons.iconSize.value + 10,
-        margin: 0.1 * viewModeSettings.icons.iconSize.value
+        fontSize: 0.2 * iconSize,
+        width: iconSize + 10,
+        margin: 0.1 * iconSize
       }}
     >
       <div
         className={styles.fileNameContainer}
         style={{
-          height: viewModeSettings.icons.iconSize.value,
-          width: viewModeSettings.icons.iconSize.value,
-          fontSize: viewModeSettings.icons.iconSize.value
+          height: iconSize,
+          width: iconSize,
+          fontSize: iconSize
         }}
       >
         {props.item.isFolder ? (

@@ -967,18 +967,19 @@
         "save-changes": "Save Changes"
       },
       "view-mode": {
-        "options": "Options",
         "icons": "View: Icons",
         "list": "View: List",
         "settings": {
-          "iconSize": "Icon Size"
+          "name": "View Options",
+          "iconSize": "Icon Size",
+          "select-listColumns": "Select List Columns"
         }
       },
       "table-list": {
         "headers": {
           "name": "Name",
           "type": "Type",
-          "date-modified": "Date Modified",
+          "dateModified": "Date Modified",
           "size": "Size"
         }
       }

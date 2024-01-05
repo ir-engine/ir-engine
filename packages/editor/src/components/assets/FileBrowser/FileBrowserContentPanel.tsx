@@ -71,6 +71,8 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
+import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
@@ -81,7 +83,7 @@ import CompressionPanel from '../CompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
 import styles from '../styles.module.scss'
 import { FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
-import { FilesViewModeSettings, FilesViewModeState } from './FileBrowserState'
+import { availableTableColumns, FilesViewModeSettings, FilesViewModeState } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
 
@@ -475,7 +477,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const ViewModeSettings = () => (
     <>
       <ToolButton
-        tooltip={t('editor:layout.filebrowser.view-mode.options')}
+        tooltip={t('editor:layout.filebrowser.view-mode.settings.name')}
         icon={SettingsIcon}
         onClick={(event) => viewModeSettingsAnchorPosition.set({ left: event.clientX, top: event.clientY })}
         id="viewSettings"
@@ -492,15 +494,37 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       >
         <div className={styles.viewModeSettings}>
           <div style={{ display: 'flex', width: '200px' }}>
-            <InputSlider
-              sx={{ width: '100%', marginTop: '15px' }}
-              min={10}
-              max={100}
-              value={viewModeSettings.icons.iconSize.value}
-              onChange={viewModeSettings.icons.iconSize.set}
-              label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
-              displaySliderLabel={true}
-            />
+            {filesViewMode.value === 'icons' ? (
+              <InputSlider
+                sx={{ width: '100%', marginTop: '15px' }}
+                min={10}
+                max={100}
+                value={viewModeSettings.icons.iconSize.value}
+                onChange={viewModeSettings.icons.iconSize.set}
+                label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
+                displaySliderLabel={true}
+              />
+            ) : (
+              <div>
+                <div>
+                  <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
+                </div>
+                <div>
+                  {availableTableColumns.map((column) => (
+                    <FormControlLabel
+                      label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}
+                      control={
+                        <Checkbox
+                          style={{ color: 'var(--textColor)' }}
+                          checked={viewModeSettings.list.selectedTableColumns[column].value}
+                          onChange={(_, checked) => viewModeSettings.list.selectedTableColumns[column].set(checked)}
+                        />
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </Popover>
