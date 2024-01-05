@@ -146,7 +146,7 @@ function LoadingReactor() {
   /** Scene is loading */
   useEffect(() => {
     const transition = getState(LoadingUISystemState).transition
-    if (transition.state === 'OUT' && state.ready.value) return transition.setState('IN')
+    if (transition.state === 'OUT' && state.ready.value && !sceneLoaded.value) return transition.setState('IN')
   }, [state.ready])
 
   /** Scene has loaded */
