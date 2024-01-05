@@ -341,3 +341,11 @@
     background: var(--dropdownMenuSelectedBackground);
   }
 }
+
+.hideScrollbar {
+  scrollbar-width: none;  /* firefox */
+  -ms-overflow-style: none; /* edge */
+  ::-webkit-scrollbar{/* Hide scrollbar for Chrome, Safari and Opera */
+    display: none;
+  }
+}
