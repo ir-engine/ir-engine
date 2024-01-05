@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, SkinnedMesh } from 'three'
+import { InstancedMesh, Mesh, SkinnedMesh } from 'three'
 
 import {
   defineComponent,
-  getComponent,
   getOptionalComponent,
   setComponent,
   useComponent
@@ -57,10 +56,6 @@ export const MeshBVHComponent = defineComponent({
 
     component.mesh.set(json.mesh)
     if (json.visualizer) component.visualizer.set(json.visualizer)
-
-    generateMeshBVH(json.mesh).then(() => {
-      component.generated.set(true)
-    })
   },
 
   toJSON(entity, component) {
@@ -74,11 +69,17 @@ export const MeshBVHComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const component = useComponent(entity, MeshBVHComponent)
-    const mesh = getComponent(entity, MeshComponent)
+    const mesh = useComponent(entity, MeshComponent)
     const debug = useHookstate(getMutableState(RendererState).physicsDebug)
 
     useEffect(() => {
-      const parentEntity = getOptionalComponent(mesh.entity, EntityTreeComponent)?.parentEntity
+      generateMeshBVH(component.mesh.value).then(() => {
+        component.generated.set(true)
+      })
+    }, [mesh])
+
+    useEffect(() => {
+      const parentEntity = getOptionalComponent(mesh.value.entity, EntityTreeComponent)?.parentEntity
       let meshBVHVisualizer = null as MeshBVHVisualizer | null
 
       const remove = () => {
@@ -90,7 +91,7 @@ export const MeshBVHComponent = defineComponent({
       }
 
       if (component.generated.value && debug.value && parentEntity) {
-        meshBVHVisualizer = new MeshBVHVisualizer(mesh)
+        meshBVHVisualizer = new MeshBVHVisualizer(mesh.value)
         addObjectToGroup(parentEntity, meshBVHVisualizer)
 
         meshBVHVisualizer.depth = 20
@@ -123,6 +124,8 @@ export const MeshComponent = defineComponent({
     component.set(mesh)
     MeshComponent.valueMap[entity] = mesh
 
-    if ((mesh as SkinnedMesh).isSkinnedMesh !== true) setComponent(entity, MeshBVHComponent, { mesh: mesh })
+    if (!(mesh as SkinnedMesh).isSkinnedMesh && !(mesh as InstancedMesh).isInstancedMesh) {
+      setComponent(entity, MeshBVHComponent, { mesh: mesh })
+    }
   }
 })
