@@ -23,96 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, SkinnedMesh } from 'three'
+import { Mesh } from 'three'
 
-import {
-  defineComponent,
-  getComponent,
-  getOptionalComponent,
-  setComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { MeshBVHVisualizer } from 'three-mesh-bvh'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { RendererState } from '../../renderer/RendererState'
-import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-
-export const MeshBVHComponent = defineComponent({
-  name: 'MeshBVHComponent',
-
-  onInit(entity) {
-    return {
-      mesh: null! as Mesh,
-      generated: false,
-      visualizer: null as MeshBVHVisualizer | null
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json || !json.mesh || !json.mesh.isMesh) throw new Error('MeshBVHComponent: Invalid mesh')
-
-    component.mesh.set(json.mesh)
-    if (json.visualizer) component.visualizer.set(json.visualizer)
-
-    generateMeshBVH(json.mesh).then(() => {
-      component.generated.set(true)
-    })
-  },
-
-  toJSON(entity, component) {
-    return {
-      mesh: component.mesh.value,
-      generated: component.generated.value,
-      visualizer: component.visualizer.value
-    }
-  },
-
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, MeshBVHComponent)
-    const mesh = getComponent(entity, MeshComponent)
-    const debug = useHookstate(getMutableState(RendererState).physicsDebug)
-
-    useEffect(() => {
-      const parentEntity = getOptionalComponent(mesh.entity, EntityTreeComponent)?.parentEntity
-      let meshBVHVisualizer = null as MeshBVHVisualizer | null
-
-      const remove = () => {
-        if (meshBVHVisualizer && parentEntity) {
-          removeObjectFromGroup(parentEntity, meshBVHVisualizer)
-          //The MeshBVHVisualizer type def is missing the dispose method
-          ;(meshBVHVisualizer as any).dispose()
-        }
-      }
-
-      if (component.generated.value && debug.value && parentEntity) {
-        meshBVHVisualizer = new MeshBVHVisualizer(mesh)
-        addObjectToGroup(parentEntity, meshBVHVisualizer)
-
-        meshBVHVisualizer.depth = 20
-        meshBVHVisualizer.displayParents = false
-        meshBVHVisualizer.update()
-        component.visualizer.set(meshBVHVisualizer)
-      } else if (component.visualizer.value && !debug.value) {
-        remove()
-        component.visualizer.set(null)
-      }
-
-      return () => {
-        remove()
-      }
-    }, [component.generated, debug])
-
-    return null
-  }
-})
+import { defineComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 export const MeshComponent = defineComponent({
   name: 'Mesh Component',
+
   jsonID: 'mesh',
 
   onInit: (entity) => null! as Mesh,
@@ -122,7 +39,5 @@ export const MeshComponent = defineComponent({
 
     component.set(mesh)
     MeshComponent.valueMap[entity] = mesh
-
-    if ((mesh as SkinnedMesh).isSkinnedMesh !== true) setComponent(entity, MeshBVHComponent, { mesh: mesh })
   }
 })
