@@ -129,7 +129,7 @@ class KTX2Loader extends Loader {
 
 		}
 
-	}
+}
 
 	setTranscoderPath( path ) {
 
@@ -218,7 +218,7 @@ class KTX2Loader extends Loader {
 						fn.substring( fn.indexOf( '{' ) + 1, fn.lastIndexOf( '}' ) )
 					].join( '\n' );
 
-					this.workerSourceURL = URL.createObjectURL( new Blob( [ body ] ) );
+					this.workerSourceURL = URL.createObjectURL( new Blob( [ body ] ), {type: 'text/javascript'} );
 					this.transcoderBinary = binaryContent;
 
 					this.workerPool.setWorkerCreator( () => {
@@ -294,7 +294,7 @@ class KTX2Loader extends Loader {
 		texture.needsUpdate = true;
 		texture.colorSpace = parseColorSpace( container );
 		texture.premultiplyAlpha = !! ( dfdFlags & KHR_DF_FLAG_ALPHA_PREMULTIPLIED );
-
+		
 		return texture;
 
 	}
@@ -310,11 +310,16 @@ class KTX2Loader extends Loader {
 
 		await this.init();
 
-		const response = await this.workerPool.postMessage( { type: 'transcode', url, taskConfig: taskConfig } );
+		const response = await this.workerPool.postMessage( { type: 'transcode', baseURI: document.baseURI, url, taskConfig: taskConfig } );
 
-		if ( response.data.type === 'error' ) return onError(response.data.error);
+		if ( response.data.type === 'error' ) {
+			onError(response.data.error);
+			
+			return
 
-		onLoad(this._createTextureFrom( response.data));
+		}
+		const texture = this._createTextureFrom( response.data );
+		onLoad(texture);
 	}
 
 	dispose() {
@@ -398,9 +403,14 @@ KTX2Loader.BasisWorker = function () {
 			case 'transcode':
 				transcoderPending.then( () => {
 
+					const fullURI = new URL( message.url, message.baseURI );
 					try {
-
-						this.fetch(message.url).then((res) => {
+						this.fetch(fullURI, {
+							credentials: 'same-origin',
+						}).then((res) => {
+							if (!res.ok) {
+								throw new Error(`Network response was not ok: ${message.url}`);
+							}
 							return res.arrayBuffer();
 						})
 						.catch((err) => {
