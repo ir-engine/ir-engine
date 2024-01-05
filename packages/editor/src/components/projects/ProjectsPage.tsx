@@ -30,7 +30,7 @@ import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Proj
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import ArrowRightRounded from '@mui/icons-material/ArrowRightRounded'
 import Check from '@mui/icons-material/Check'
@@ -290,7 +290,7 @@ const ProjectsPage = () => {
   }
 
   const onCreateProject = async (name) => {
-    await ProjectService.createProject(name)
+    await ProjectService.createProject(name, { query: { action: 'studio' } })
     await fetchInstalledProjects()
   }
 
@@ -322,8 +322,8 @@ const ProjectsPage = () => {
     updatingProject.set(true)
     if (activeProject.value) {
       try {
-        const proj = installedProjects.get(NO_PROXY).find((proj) => proj.id === activeProject.value?.id)!
-        await ProjectService.removeProject(proj.id)
+        const proj = installedProjects.get({ noproxy: true }).find((proj) => proj.id === activeProject.value?.id)!
+        await ProjectService.removeProject(proj.id, { query: { action: 'studio' } })
         await fetchInstalledProjects()
       } catch (err) {
         logger.error(err)
