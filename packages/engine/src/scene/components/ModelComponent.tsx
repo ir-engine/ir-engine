@@ -56,12 +56,9 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import { enableObjectLayer } from '../functions/setObjectLayers'
 import { EnvmapComponent } from './EnvmapComponent'
 import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
@@ -291,26 +288,26 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const isSkinnedMesh = useOptionalComponent(props.entity, SkinnedMeshComponent)
   const visible = useOptionalComponent(props.entity, VisibleComponent)
 
-  useEffect(() => {
-    if (!isMesh || isSkinnedMesh) return
-    const mesh = getComponent(props.entity, MeshComponent)
+  // useEffect(() => {
+  //   if (!isMesh || isSkinnedMesh) return
+  //   const mesh = getComponent(props.entity, MeshComponent)
 
-    let aborted = false
+  //   let aborted = false
 
-    /** @todo should we generate a BVH for every mesh, even invisible ones used for collision? */
-    generateMeshBVH(mesh).then(() => {
-      if (aborted) return
-      enableObjectLayer(
-        mesh,
-        ObjectLayers.Camera,
-        modelComponent.cameraOcclusion.value && hasComponent(props.entity, VisibleComponent)
-      )
-    })
+  //   /** @todo should we generate a BVH for every mesh, even invisible ones used for collision? */
+  //   generateMeshBVH(mesh).then(() => {
+  //     if (aborted) return
+  //     enableObjectLayer(
+  //       mesh,
+  //       ObjectLayers.Camera,
+  //       modelComponent.cameraOcclusion.value && hasComponent(props.entity, VisibleComponent)
+  //     )
+  //   })
 
-    return () => {
-      aborted = true
-    }
-  }, [isMesh, isSkinnedMesh, visible, modelComponent.cameraOcclusion])
+  //   return () => {
+  //     aborted = true
+  //   }
+  // }, [isMesh, isSkinnedMesh, visible, modelComponent.cameraOcclusion])
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
