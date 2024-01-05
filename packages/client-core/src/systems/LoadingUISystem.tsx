@@ -28,7 +28,6 @@ import React, { useEffect } from 'react'
 import { BackSide, Color, CompressedTexture, Mesh, MeshBasicMaterial, SphereGeometry, Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -63,6 +62,8 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
+import { useRemoveEngineCanvas } from '../hooks/useRemoveEngineCanvas'
+import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
@@ -71,7 +72,7 @@ const SCREEN_SIZE = new Vector2()
 
 const transitionPeriodSeconds = 1
 
-const LoadingUISystemState = defineState({
+export const LoadingUISystemState = defineState({
   name: 'LoadingUISystemState',
   initial: () => {
     const transition = createTransitionState(transitionPeriodSeconds, 'IN')
@@ -104,7 +105,8 @@ const LoadingUISystemState = defineState({
     return {
       ui,
       meshEntity,
-      transition
+      transition,
+      ready: false
     }
   }
 })
@@ -130,25 +132,28 @@ const setColors = (image: HTMLImageElement) => {
 }
 
 function LoadingReactor() {
-  const loadingState = useHookstate(getMutableState(AppLoadingState))
   const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress)
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
+  const locationState = useHookstate(getMutableState(LocationState))
   const meshEntity = state.meshEntity.value
+  const assetState = useHookstate({
+    mesh: false,
+    thumbnail: false
+  })
 
-  /** Handle loading state changes */
+  /** Scene is loading */
   useEffect(() => {
     const transition = getState(LoadingUISystemState).transition
-    if (loadingState.state.value === AppLoadingStates.SCENE_LOADING && transition.state === 'OUT')
-      return transition.setState('IN')
+    if (transition.state === 'OUT' && state.ready.value) return transition.setState('IN')
+  }, [state.ready])
 
-    if (loadingState.state.value === AppLoadingStates.FAIL && transition.state === 'IN')
-      return transition.setState('OUT')
-
-    if (loadingState.state.value === AppLoadingStates.SUCCESS && transition.state === 'IN' && sceneLoaded.value)
-      return transition.setState('OUT')
-  }, [loadingState.state, sceneLoaded])
+  /** Scene has loaded */
+  useEffect(() => {
+    const transition = getState(LoadingUISystemState).transition
+    if (transition.state === 'IN' && sceneLoaded.value) return transition.setState('OUT')
+  }, [sceneLoaded])
 
   /** Scene data changes */
   useEffect(() => {
@@ -170,10 +175,20 @@ function LoadingReactor() {
           mesh.material.map = texture
           mesh.material.needsUpdate = true
           mesh.material.map.needsUpdate = true
+          EngineRenderer.instance.renderer
+            .compileAsync(mesh, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
+            .then(() => {
+              assetState.mesh.set(true)
+            })
+            .catch((error) => {
+              console.error(error)
+              assetState.mesh.set(true)
+            })
         },
         undefined,
         (error: ErrorEvent) => {
           console.error(error)
+          assetState.mesh.set(true)
         }
       )
 
@@ -186,11 +201,13 @@ function LoadingReactor() {
           const image = texture.image
           setColors(image)
           texture.dispose()
+          assetState.thumbnail.set(true)
         },
         undefined,
         (error: ErrorEvent) => {
           console.error(error)
           setDefaultPalette()
+          assetState.thumbnail.set(true)
         }
       )
     }
@@ -213,6 +230,28 @@ function LoadingReactor() {
     progressBar.updateMatrixWorld(true)
   }, [loadingProgress])
 
+  useEffect(() => {
+    if (locationState.invalidLocation.value || locationState.currentLocation.selfNotAuthorized.value) {
+      state.ready.set(true)
+      const transition = getState(LoadingUISystemState).transition
+      transition.setState('OUT')
+      return
+    }
+    if (assetState.mesh.value && assetState.thumbnail.value) {
+      state.ready.set(true)
+    }
+  }, [
+    assetState.mesh,
+    assetState.thumbnail,
+    locationState.invalidLocation,
+    locationState.currentLocation.selfNotAuthorized
+  ])
+
+  return <>{!state.ready.value && <HideCanvas />}</>
+}
+
+const HideCanvas = () => {
+  useRemoveEngineCanvas()
   return null
 }
 
@@ -220,7 +259,7 @@ const mainThemeColor = new Color()
 const defaultColor = new Color()
 
 const execute = () => {
-  const { transition, ui, meshEntity } = getState(LoadingUISystemState)
+  const { transition, ui, meshEntity, ready } = getState(LoadingUISystemState)
   if (!transition) return
 
   const engineState = getState(EngineState)
@@ -261,9 +300,9 @@ const execute = () => {
   })
 
   const opacity = getState(LoadingSystemState).loadingScreenOpacity
-  const ready = opacity > 0
+  const isReady = opacity > 0 && ready
 
-  setVisibleComponent(meshEntity, ready)
+  setVisibleComponent(meshEntity, isReady)
 
   const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
   mesh.material.opacity = opacity
@@ -271,12 +310,12 @@ const execute = () => {
   xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
     const mat = layer.contentMesh.material as MeshBasicMaterial
     mat.opacity = opacity
-    mat.visible = ready
-    layer.visible = ready
+    mat.visible = isReady
+    layer.visible = isReady
     // mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress * 0.01)
     mat.color.copy(mainThemeColor)
   })
-  setVisibleComponent(ui.entity, ready)
+  setVisibleComponent(ui.entity, isReady)
 }
 
 const reactor = () => {

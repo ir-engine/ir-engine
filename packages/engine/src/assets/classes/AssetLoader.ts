@@ -272,7 +272,7 @@ const audioLoader = () => new AudioLoader()
 const tgaLoader = () => new TGALoader()
 const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
-  load: (src, onLoad) => {
+  load: (src, onLoad, onProgress, onError) => {
     const ktxLoader = getState(AssetLoaderState).gltfLoader!.ktx2Loader
     if (!ktxLoader) throw new Error('KTX2Loader not yet initialized')
     ktxLoader.load(
@@ -282,8 +282,8 @@ const ktx2Loader = () => ({
         texture.source.data.src = src
         onLoad(texture)
       },
-      () => {},
-      () => {}
+      onProgress,
+      onError
     )
   }
 })
