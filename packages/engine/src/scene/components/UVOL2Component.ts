@@ -914,7 +914,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         volumetric.paused.set(false)
       }
     }
-  }, [volumetric.autoplay, volumetric.initialBuffersLoaded, component.loadingEffectEnded])
+  }, [
+    volumetric.autoplay,
+    volumetric.initialBuffersLoaded,
+    component.loadingEffectStarted,
+    component.loadingEffectEnded
+  ])
 
   useEffect(() => {
     if (volumetric.paused.value) {
