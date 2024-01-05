@@ -42,5 +42,5 @@
     "../server-core/**/*",
     "./**/*.ts",
     "./**/*.tsx"
-, "../common/src/schemas/validators.ts"  ]
+  ]
 }
