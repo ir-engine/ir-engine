@@ -38,7 +38,8 @@ const hipsPos = new Vector3(),
   rightFootPos = new Vector3(),
   leftLowerLegPos = new Vector3(),
   leftUpperLegPos = new Vector3(),
-  footGap = new Vector3()
+  footGap = new Vector3(),
+  eyePos = new Vector3()
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',
 
@@ -102,12 +103,13 @@ export const AvatarComponent = defineComponent({
       rig.rightFoot.node.getWorldPosition(rightFootPos)
       rig.leftLowerLeg.node.getWorldPosition(leftLowerLegPos)
       rig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
+      rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos)
 
       avatarComponent.torsoLength.set(headPos.y - hipsPos.y)
       avatarComponent.upperLegLength.set(hipsPos.y - leftLowerLegPos.y)
       avatarComponent.lowerLegLength.set(leftFootPos.y - leftUpperLegPos.y)
       avatarComponent.hipsHeight.set(hipsPos.y)
-      avatarComponent.eyeHeight.set(headPos.y)
+      avatarComponent.eyeHeight.set(eyePos.y)
       avatarComponent.footGap.set(footGap.subVectors(leftFootPos, rightFootPos).length())
     }, [rigComponent.normalizedRig])
     return null
