@@ -469,4 +469,20 @@ export const switchScene = makeFlowNodeDefinition({
   }
 })
 
+export const redirectToURL = makeFlowNodeDefinition({
+  typeName: 'engine/redirectToURL',
+  category: NodeCategory.Action,
+  label: 'Redirect to URL',
+  in: {
+    flow: 'flow',
+    url: 'string'
+  },
+  out: {},
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const url = read<string>('url')
+    window.open(url, '_blank')
+  }
+})
+
 //scene transition
