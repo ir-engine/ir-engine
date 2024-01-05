@@ -31,12 +31,12 @@ import { LoadingCircle } from '@etherealengine/client-core/src/components/Loadin
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
 import { useLoadLocation, useLoadScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { AppLoadingState } from '@etherealengine/engine/src/common/AppLoadingService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import './LocationModule'
 
 import { useLoadEngineWithScene, useOfflineNetwork, useOnlineNetwork } from '../components/World/EngineHooks'
+import { LoadingUISystemState } from '../systems/LoadingUISystem'
 
 type Props = {
   offline?: boolean
@@ -44,7 +44,7 @@ type Props = {
 
 const LocationPage = ({ offline }: Props) => {
   const params = useParams()
-  const appState = useHookstate(getMutableState(AppLoadingState).state)
+  const ready = useHookstate(getMutableState(LoadingUISystemState).ready)
 
   if (offline) {
     useOfflineNetwork()
@@ -64,7 +64,7 @@ const LocationPage = ({ offline }: Props) => {
 
   return (
     <>
-      {appState.value === 'START_STATE' && <LoadingCircle message={t('common:loader.loadingEngine')} />}
+      {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />}
       <LocationIcons />
     </>
   )
