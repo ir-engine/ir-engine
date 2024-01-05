@@ -28,7 +28,8 @@ import { InstancedMesh, Mesh, SkinnedMesh } from 'three'
 import {
   defineComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
@@ -37,6 +38,7 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { VisibleComponent } from './VisibleComponent'
 
 export const MeshBVHComponent = defineComponent({
   name: 'MeshBVHComponent',
@@ -69,12 +71,15 @@ export const MeshBVHComponent = defineComponent({
     const component = useComponent(entity, MeshBVHComponent)
     const mesh = useComponent(entity, MeshComponent)
     const debug = useHookstate(getMutableState(RendererState).physicsDebug)
+    const visible = useOptionalComponent(entity, VisibleComponent)
 
     useEffect(() => {
-      generateMeshBVH(component.mesh.value).then(() => {
-        component.generated.set(true)
-      })
-    }, [mesh])
+      if (!component.generated.value && visible?.value) {
+        generateMeshBVH(component.mesh.value).then(() => {
+          component.generated.set(true)
+        })
+      }
+    }, [mesh, visible])
 
     useEffect(() => {
       let meshBVHVisualizer = null as MeshBVHVisualizer | null
