@@ -54,7 +54,7 @@ import avatarBoneMatching from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { locomotionAnimation } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarRigComponent, AvatarRigSizeComponent } from '../components/AvatarAnimationComponent'
+import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
@@ -137,7 +137,6 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
     normalizedRig: model.humanoid.normalizedHumanBones,
     rawRig: model.humanoid.rawHumanBones
   })
-  setComponent(entity, AvatarRigSizeComponent)
 
   computeTransformMatrix(entity)
 

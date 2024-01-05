@@ -53,7 +53,6 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
@@ -210,66 +209,6 @@ export const AvatarRigComponent = defineComponent({
       }
     }, [manager.loadedAnimations, rigComponent.vrm])
 
-    return null
-  }
-})
-
-const vec3 = new Vector3(),
-  vec3_2 = new Vector3(),
-  vec3_3 = new Vector3(),
-  feetCenter = new Vector3()
-export const AvatarRigSizeComponent = defineComponent({
-  name: 'AvatarRigSizeComponent',
-  onInit: (entity) => {
-    return {
-      /** The length of the torso in a t-pose, from the hip joint to the head joint */
-      torsoLength: 0,
-      /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
-      upperLegLength: 0,
-      /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
-      lowerLegLength: 0,
-      /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
-      footHeight: 0,
-      /** The height of the hips in a t-pose */
-      hipsHeight: 0,
-      armLength: 0,
-      footGap: 0
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
-    if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
-    if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
-    if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
-    if (matches.number.test(json.hipsHeight)) component.hipsHeight.set(json.hipsHeight)
-    if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
-  },
-
-  reactor: () => {
-    const entity = useEntityContext()
-    const rigComponent = useComponent(entity, AvatarRigComponent)
-    const sizeComponent = useComponent(entity, AvatarRigSizeComponent)
-    useEffect(() => {
-      if (!rigComponent.normalizedRig) return
-      const rig = rigComponent.normalizedRig.value
-      const transform = getComponent(entity, TransformComponent)
-      sizeComponent.torsoLength.set(rig.head.node.getWorldPosition(vec3_2).y - rig.hips.node.getWorldPosition(vec3_3).y)
-      sizeComponent.upperLegLength.set(
-        rig.hips.node.getWorldPosition(vec3).y - rig.leftLowerLeg.node.getWorldPosition(vec3_2).y
-      )
-      sizeComponent.lowerLegLength.set(
-        rig.leftFoot.node.getWorldPosition(vec3_2).y - rig.leftUpperLeg.node.getWorldPosition(vec3).y
-      )
-      sizeComponent.hipsHeight.set(rig.hips.node.getWorldPosition(vec3).y - transform.position.y)
-
-      sizeComponent.footGap.set(
-        vec3_2
-          .subVectors(rig.leftFoot.node.getWorldPosition(vec3_2), rig.rightFoot.node.getWorldPosition(vec3_3))
-          .length()
-      )
-    }, [rigComponent.normalizedRig])
     return null
   }
 })

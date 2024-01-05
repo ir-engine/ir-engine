@@ -26,18 +26,33 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { ModelComponent } from '../../scene/components/ModelComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AvatarRigComponent } from './AvatarAnimationComponent'
 
 const size = new Vector3()
+const vec3 = new Vector3()
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',
 
   onInit: (entity) => {
     return {
       avatarHeight: 0,
-      avatarHalfHeight: 0
+      avatarHalfHeight: 0,
+      /** The length of the torso in a t-pose, from the hip joint to the head joint */
+      torsoLength: 0,
+      /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
+      upperLegLength: 0,
+      /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
+      lowerLegLength: 0,
+      /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
+      footHeight: 0,
+      /** The height of the hips in a t-pose */
+      hipsHeight: 0,
+      armLength: 0,
+      footGap: 0
     }
   },
 
@@ -45,6 +60,12 @@ export const AvatarComponent = defineComponent({
     if (!json) return
     if (matches.number.test(json.avatarHeight)) component.avatarHeight.set(json.avatarHeight)
     if (matches.number.test(json.avatarHalfHeight)) component.avatarHalfHeight.set(json.avatarHalfHeight)
+    if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
+    if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
+    if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
+    if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
+    if (matches.number.test(json.hipsHeight)) component.hipsHeight.set(json.hipsHeight)
+    if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
   },
 
   reactor: () => {
@@ -60,6 +81,28 @@ export const AvatarComponent = defineComponent({
       avatarComponent.avatarHeight.set(size.y)
       avatarComponent.avatarHalfHeight.set(size.y * 0.5)
     }, [modelComponent.asset])
+
+    const rigComponent = useComponent(entity, AvatarRigComponent)
+    useEffect(() => {
+      if (!rigComponent.normalizedRig.value) return
+      const rig = rigComponent.normalizedRig.value
+      const transform = getComponent(entity, TransformComponent)
+      avatarComponent.torsoLength.set(rig.head.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y)
+      avatarComponent.upperLegLength.set(
+        rig.hips.node.getWorldPosition(vec3).y - rig.leftLowerLeg.node.getWorldPosition(vec3).y
+      )
+      avatarComponent.lowerLegLength.set(
+        rig.leftFoot.node.getWorldPosition(vec3).y - rig.leftUpperLeg.node.getWorldPosition(vec3).y
+      )
+      avatarComponent.hipsHeight.set(rig.hips.node.getWorldPosition(vec3).y)
+      console.log(rigComponent.value.vrm.scene.getWorldPosition(vec3))
+
+      avatarComponent.footGap.set(
+        vec3.subVectors(rig.leftFoot.node.getWorldPosition(vec3), rig.rightFoot.node.getWorldPosition(vec3)).length()
+      )
+    }, [rigComponent.normalizedRig])
+    return null
+
     return null
   }
 })
