@@ -235,6 +235,7 @@
       "lbl-synchronize": "Synchronize",
       "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
       "lbl-volume": "Volume",
+      "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
       "lbl-size": "Size",
       "seektime": "Start Time"
@@ -934,9 +935,12 @@
         "primitive-geometry": "Add basic Geometry to the scene",
         "link": "Add clickable Link to entity to route to different webpage",
         "dynamic-load": "Load entities dynamically"
-      }
+      },
+      "placeObject": "Place Object",
+      "placeObjectAtOrigin": "Place Object at Origin"
     },
     "filebrowser": {
+      "tab-name": "Project Files",
       "addNewFolder": "Add New Folder",
       "cutAsset": "Cut",
       "copyAsset": "Copy",
@@ -950,6 +954,7 @@
       "convert": "Convert",
       "downloadProject": "Download Project",
       "uploadAsset": "Upload Asset",
+      "search-placeholder": "Search files and folders ...",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
@@ -958,7 +963,20 @@
         "attribution": "Attribution:",
         "licensing": "Licensing:",
         "tag": "Tag:",
-        "addTag": "Add Tag"
+        "addTag": "Add Tag",
+        "save-changes": "Save Changes"
+      },
+      "view-mode": {
+        "icons": "View: Icons",
+        "list": "View: List"
+      },
+      "table-list": {
+        "headers": {
+          "name": "Name",
+          "type": "Type",
+          "date-modified": "Date Modified",
+          "size": "Size"
+        }
       }
     },
     "scene-assets": {

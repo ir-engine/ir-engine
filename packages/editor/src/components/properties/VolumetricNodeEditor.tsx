@@ -23,14 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getOptionalMutableComponent,
+  hasComponent,
+  useComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { UVOL1Component } from '@etherealengine/engine/src/scene/components/UVOL1Component'
+import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL2Component'
+import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
 import VideocamIcon from '@mui/icons-material/Videocam'
 import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
@@ -39,6 +48,7 @@ import { Button } from '../inputs/Button'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
+import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
@@ -69,12 +79,38 @@ const PlayModeOptions = [
  */
 export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const [trackLabel, setTrackLabel] = React.useState('')
 
   const volumetricComponent = useComponent(props.entity, VolumetricComponent)
 
   const toggle = () => {
     volumetricComponent.paused.set(!volumetricComponent.paused.value)
   }
+
+  useEffect(() => {
+    const tracks = volumetricComponent.paths.value
+    if (tracks.length === 0) {
+      return
+    }
+    if (tracks.length === 1) {
+      const segments = tracks[0].split('/')
+      setTrackLabel(segments[segments.length - 1])
+      return
+    }
+
+    let prefix = tracks[0]
+
+    // Don't show the longest common prefix
+    for (let j = 1; j < tracks.length; j++) {
+      while (tracks[j].indexOf(prefix) !== 0) {
+        prefix = prefix.substring(0, prefix.length - 1)
+      }
+    }
+
+    const currentTrackPath = tracks[volumetricComponent.track.value]
+
+    setTrackLabel(currentTrackPath.slice(prefix.length))
+  }, [volumetricComponent.track, volumetricComponent.ended, volumetricComponent.paths])
 
   return (
     <NodeEditor
@@ -121,6 +157,10 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         acceptDropItems={ItemTypes.Volumetrics}
       />
 
+      {(hasComponent(props.entity, UVOL2Component) || hasComponent(props.entity, UVOL1Component)) && (
+        <VolumetricCurrentTimeScrubber entity={props.entity} />
+      )}
+
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
         <SelectInput
           key={props.entity}
@@ -136,7 +176,43 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
           </Button>
         )}
       </InputGroup>
+
+      <InputGroup name="Current Track" label="Current Track">
+        <StringInput value={trackLabel} />
+      </InputGroup>
     </NodeEditor>
+  )
+}
+
+function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
+  const { t } = useTranslation()
+  const volumetricComponent = useComponent(props.entity, VolumetricComponent)
+
+  return (
+    <InputGroup name="CurrentTime" label={t('editor:properties.media.lbl-currentTime')}>
+      <CompoundNumericInput
+        min={0}
+        max={volumetricComponent.currentTrackInfo.duration.value}
+        step={0.01}
+        onChange={(value) => {
+          const uvol2Component = getOptionalMutableComponent(props.entity, UVOL2Component)
+          const engineState = getState(EngineState)
+
+          volumetricComponent.startTime.set(value)
+          volumetricComponent.currentTrackInfo.currentTime.set(value)
+
+          if (uvol2Component) {
+            uvol2Component.playbackStartTime.set(engineState.elapsedSeconds)
+            uvol2Component.geometryInfo.bufferHealth.set(0)
+            uvol2Component.textureInfo.textureTypes.value.forEach((textureType) => {
+              uvol2Component.textureInfo[textureType].bufferHealth.set(0)
+            })
+          }
+          volumetricComponent.startTime.set(volumetricComponent.currentTrackInfo.currentTime.value)
+        }}
+        value={volumetricComponent.currentTrackInfo.currentTime.value}
+      />
+    </InputGroup>
   )
 }
 
