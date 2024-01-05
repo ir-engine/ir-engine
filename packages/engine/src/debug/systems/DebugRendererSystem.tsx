@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments, Mesh } from 'three'
+import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 import { MeshBVHVisualizer } from 'three-mesh-bvh'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -36,49 +36,52 @@ import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RendererState } from '../../renderer/RendererState'
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
 import { createInfiniteGridHelper } from '../../scene/classes/InfiniteGridHelper'
-import {
-  GroupComponent,
-  GroupQueryReactor,
-  GroupReactorProps,
-  addObjectToGroup
-} from '../../scene/components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 const visualizers = [] as MeshBVHVisualizer[]
 
-const DebugGroupChildReactor = (props: GroupReactorProps) => {
-  const obj = props.obj
-  const debug = useHookstate(getMutableState(RendererState).physicsDebug)
+// const DebugGroupChildReactor = (props: GroupReactorProps) => {
+//   const obj = props.obj
+//   const debug = useHookstate(getMutableState(RendererState).physicsDebug)
 
-  // add MeshBVHVisualizer to meshes when debugEnable is true
-  useEffect(() => {
-    if (!debug.value || !obj) return
+//   add MeshBVHVisualizer to meshes when debugEnable is true
+//   useEffect(() => {
+//     if (!debug.value || !obj) return
 
-    const meshBVHVisualizers = [] as MeshBVHVisualizer[]
+//     const meshBVHVisualizers = [] as MeshBVHVisualizer[]
+//     const meshBVHEntities = [] as Entity[]
 
-    const mesh = obj as any as Mesh
-    if (mesh.isMesh && mesh.parent && mesh.geometry?.boundsTree) {
-      const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
-      mesh.parent.add(meshBVHVisualizer)
-      visualizers.push(meshBVHVisualizer)
-      meshBVHVisualizers.push(meshBVHVisualizer)
-      meshBVHVisualizer.depth = 20
-      meshBVHVisualizer.displayParents = false
-      meshBVHVisualizer.update()
-    }
+//     const mesh = obj as any as Mesh
+//     const parentEntity = getOptionalComponent(mesh.entity, EntityTreeComponent)?.parentEntity
+//     if (mesh.isMesh && parentEntity && mesh.geometry?.boundsTree) {
+//       const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
+//       const meshBVHEntity = createEntity()
+//       addObjectToGroup(parentEntity, meshBVHVisualizer)
+//       setComponent(meshBVHEntity, EntityTreeComponent, { parentEntity: parentEntity })
 
-    return () => {
-      for (const visualizer of meshBVHVisualizers) {
-        visualizer.removeFromParent()
-        visualizers.splice(visualizers.indexOf(visualizer), 1)
-      }
-    }
-  }, [obj, debug])
+//       meshBVHVisualizer.depth = 20
+//       meshBVHVisualizer.displayParents = false
+//       meshBVHVisualizer.update()
 
-  return <></>
-}
+//       visualizers.push(meshBVHVisualizer)
+//       meshBVHVisualizers.push(meshBVHVisualizer)
+//       meshBVHEntities.push(meshBVHEntity)
+//     }
+
+//     return () => {
+//       for (let i = 0; i < meshBVHVisualizers.length; i++) {
+//         const parentEntity = getComponent(meshBVHEntities[i], EntityTreeComponent).parentEntity!
+//         removeObjectFromGroup(parentEntity, meshBVHVisualizers[i])
+//         visualizers.splice(visualizers.indexOf(meshBVHVisualizers[i]), 1)
+//       }
+//     }
+//   }, [obj, debug])
+
+//   return <></>
+// }
 
 const execute = () => {
   const physicsDebugEntity = getState(RendererState).physicsDebugEntity
@@ -107,11 +110,11 @@ const reactor = () => {
     const lineMaterial = new LineBasicMaterial({ vertexColors: true })
     const lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
     lineSegments.frustumCulled = false
-    setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
 
     const lineSegmentsEntity = createEntity()
     setVisibleComponent(lineSegmentsEntity, true)
     addObjectToGroup(lineSegmentsEntity, lineSegments)
+    setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
     engineRendererSettings.physicsDebugEntity.set(lineSegmentsEntity)
 
     return () => {
@@ -131,7 +134,8 @@ const reactor = () => {
     }
   }, [engineRendererSettings.gridVisibility])
 
-  return <GroupQueryReactor GroupChildReactor={DebugGroupChildReactor} />
+  // return <GroupQueryReactor GroupChildReactor={DebugGroupChildReactor} />
+  return <></>
 }
 
 export const DebugRendererSystem = defineSystem({
