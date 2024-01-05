@@ -27,7 +27,6 @@ import { InstancedMesh, Mesh, SkinnedMesh } from 'three'
 
 import {
   defineComponent,
-  getOptionalComponent,
   setComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -35,7 +34,6 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { MeshBVHVisualizer } from 'three-mesh-bvh'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -79,20 +77,19 @@ export const MeshBVHComponent = defineComponent({
     }, [mesh])
 
     useEffect(() => {
-      const parentEntity = getOptionalComponent(mesh.value.entity, EntityTreeComponent)?.parentEntity
       let meshBVHVisualizer = null as MeshBVHVisualizer | null
 
       const remove = () => {
-        if (meshBVHVisualizer && parentEntity) {
-          removeObjectFromGroup(parentEntity, meshBVHVisualizer)
+        if (meshBVHVisualizer) {
+          removeObjectFromGroup(entity, meshBVHVisualizer)
           //The MeshBVHVisualizer type def is missing the dispose method
           ;(meshBVHVisualizer as any).dispose()
         }
       }
 
-      if (component.generated.value && debug.value && parentEntity) {
+      if (component.generated.value && debug.value) {
         meshBVHVisualizer = new MeshBVHVisualizer(mesh.value)
-        addObjectToGroup(parentEntity, meshBVHVisualizer)
+        addObjectToGroup(entity, meshBVHVisualizer)
 
         meshBVHVisualizer.depth = 20
         meshBVHVisualizer.displayParents = false
