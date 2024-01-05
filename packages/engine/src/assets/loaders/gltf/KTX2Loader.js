@@ -411,10 +411,15 @@ KTX2Loader.BasisWorker = function () {
 						.then((buffer) => {
 							if (!buffer) return
 
-							const { faces, buffers, width, height, hasAlpha, format, dfdFlags } = transcode( buffer );
-							buffers.push( buffer );
+							try {
+								const { faces, buffers, width, height, hasAlpha, format, dfdFlags } = transcode( buffer );
+								buffers.push( buffer );
+								self.postMessage( { type: 'transcode', requestId: message.requestId, faces, width, height, hasAlpha, format, dfdFlags, buffer }, buffers );
+							} catch (e) {
+								console.error(e)
+								self.postMessage( { type: 'error', requestId: message.requestId, error: e.message } );
+							}
 
-							self.postMessage( { type: 'transcode', requestId: message.requestId, faces, width, height, hasAlpha, format, dfdFlags, buffer }, buffers );
 						})
 
 					} catch ( error ) {
