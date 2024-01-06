@@ -29,8 +29,8 @@ import { v4 as uuidv4 } from 'uuid'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { BotCommandData } from '@etherealengine/common/src/schema.type.module'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Card from '@etherealengine/ui/src/primitives/mui/Card'
@@ -40,10 +40,16 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import {
+  BotData,
+  InstanceID,
+  InstanceType,
+  LocationID,
+  botPath,
+  instancePath,
+  locationPath
+} from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { BotData, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
-import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'

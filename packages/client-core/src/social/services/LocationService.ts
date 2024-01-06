@@ -25,13 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
+import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { LocationID, locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { locationBanPath, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 

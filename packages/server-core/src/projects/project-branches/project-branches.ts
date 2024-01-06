@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   projectBranchesMethods,
   projectBranchesPath
-} from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
+} from '@etherealengine/common/src/schemas/projects/project-branches.schema'
 import { Application } from '../../../declarations'
 import { ProjectBranchesService } from './project-branches.class'
 import projectBranchesDocs from './project-branches.docs'

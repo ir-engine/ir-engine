@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
 
 /**
  * @param { import("knex").Knex } knex

@@ -29,7 +29,7 @@ import {
   userRelationshipTypePath,
   userRelationshipTypes,
   UserRelationshipTypeType
-} from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
+} from '@etherealengine/common/src/schemas/user/user-relationship-type.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export async function seed(knex: Knex): Promise<void> {

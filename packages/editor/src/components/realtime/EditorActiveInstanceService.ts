@@ -28,16 +28,16 @@ import {
   LocationInstanceState
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import logger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   InstanceActiveType,
-  instanceActivePath
-} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
-import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { LocationID } from '@etherealengine/engine/src/schemas/social/location.schema'
+  InstanceID,
+  LocationID,
+  SceneID,
+  instanceActivePath,
+  instanceProvisionPath
+} from '@etherealengine/common/src/schema.type.module'
+import logger from '@etherealengine/engine/src/common/functions/logger'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 export const EditorActiveInstanceState = defineState({

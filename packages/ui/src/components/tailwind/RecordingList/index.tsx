@@ -23,13 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { RecordingID, RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { PlaybackState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import {
-  RecordingID,
-  RecordingType,
-  recordingPath
-} from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
 import React from 'react'

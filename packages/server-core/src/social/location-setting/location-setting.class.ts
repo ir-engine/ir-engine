@@ -31,7 +31,7 @@ import {
   LocationSettingPatch,
   LocationSettingQuery,
   LocationSettingType
-} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+} from '@etherealengine/common/src/schemas/social/location-setting.schema'
 
 export interface LocationSettingParams extends KnexAdapterParams<LocationSettingQuery> {}
 

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserName } from '@etherealengine/common/src/schema.type.module'
 import UserIcon from './assets/user.svg'
 
 export const InvitationSent = () => {

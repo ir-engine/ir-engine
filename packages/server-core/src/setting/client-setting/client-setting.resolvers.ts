@@ -33,7 +33,7 @@ import {
   ClientSettingType,
   ClientSocialLinkType,
   ClientThemeOptionsType
-} from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

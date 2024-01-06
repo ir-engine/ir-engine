@@ -30,7 +30,7 @@ import {
   locationAdminPatchSchema,
   locationAdminQuerySchema,
   locationAdminSchema
-} from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+} from '@etherealengine/common/src/schemas/social/location-admin.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

@@ -30,13 +30,13 @@ import {
   BotCommandData,
   BotCommandType,
   botCommandPath
-} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+} from '@etherealengine/common/src/schemas/bot/bot-command.schema'
 import {
   BotType,
   botDataValidator,
   botPatchValidator,
   botQueryValidator
-} from '@etherealengine/engine/src/schemas/bot/bot.schema'
+} from '@etherealengine/common/src/schemas/bot/bot.schema'
 import { HookContext } from '../../../declarations'
 import {
   botDataResolver,

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 
-import { HelmSettingType, helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { HelmSettingType, helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/datetime-sql'

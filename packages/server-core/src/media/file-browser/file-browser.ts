@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { fileBrowserMethods, fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { fileBrowserMethods, fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { Application } from '../../../declarations'
 import { FileBrowserService } from './file-browser.class'
 import fileBrowserDocs from './file-browser.docs'

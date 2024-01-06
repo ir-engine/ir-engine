@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { inviteTypes } from '@etherealengine/common/src/schemas/social/invite-type.schema'
+import { InviteType, invitePath } from '@etherealengine/common/src/schemas/social/invite.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { inviteTypes } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
-import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'

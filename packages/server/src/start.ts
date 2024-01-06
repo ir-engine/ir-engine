@@ -39,7 +39,7 @@ import { StartCorsServer } from '@etherealengine/server-core/src/createCorsServe
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import channels from './channels'
 
 const logger = multiLogger.child({ component: 'server-core:user' })

@@ -31,7 +31,7 @@ import {
   ClientSettingPatch,
   ClientSettingQuery,
   ClientSettingType
-} from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 
 export interface ClientSettingParams extends KnexAdapterParams<ClientSettingQuery> {}
 

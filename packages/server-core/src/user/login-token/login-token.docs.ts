@@ -30,7 +30,7 @@ import {
   loginTokenPatchSchema,
   loginTokenQuerySchema,
   loginTokenSchema
-} from '@etherealengine/engine/src/schemas/user/login-token.schema'
+} from '@etherealengine/common/src/schemas/user/login-token.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

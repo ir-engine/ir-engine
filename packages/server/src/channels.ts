@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import '@feathersjs/transport-commons'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { Application } from '@etherealengine/server-core/declarations'
 
 export default (app: Application): void => {

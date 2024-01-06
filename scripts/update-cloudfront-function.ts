@@ -27,7 +27,7 @@ import { Application } from '@feathersjs/feathers'
 import cli from 'cli'
 
 import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
-import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { routePath } from '@etherealengine/common/src/schema.type.module'
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'

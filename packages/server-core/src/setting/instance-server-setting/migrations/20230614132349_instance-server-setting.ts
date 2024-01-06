@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { instanceServerSettingPath } from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
+import { instanceServerSettingPath } from '@etherealengine/common/src/schemas/setting/instance-server-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex

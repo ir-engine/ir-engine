@@ -30,7 +30,7 @@ import {
   locationBanDataValidator,
   locationBanPatchValidator,
   locationBanQueryValidator
-} from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+} from '@etherealengine/common/src/schemas/social/location-ban.schema'
 
 import verifyLocationAdmin from '../../hooks/verify-location-admin'
 import {

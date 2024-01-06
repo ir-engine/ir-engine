@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { createNetwork, NetworkTopics } from '../../src/networking/classes/Network'
-import { addNetwork, NetworkState } from '../../src/networking/NetworkState'
-import { InstanceID } from '../../src/schemas/networking/instance.schema'
-import { UserID } from '../../src/schemas/user/user.schema'
+import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { NetworkState, addNetwork } from '../../src/networking/NetworkState'
+import { NetworkTopics, createNetwork } from '../../src/networking/classes/Network'
 
 export const createMockNetwork = (networkType = NetworkTopics.world) => {
   if (networkType === NetworkTopics.world)

@@ -31,20 +31,20 @@ import {
   userDataValidator,
   userPatchValidator,
   userQueryValidator
-} from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/user.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
-import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeType, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
-import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { userAvatarPath } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
+import { userSettingPath } from '@etherealengine/common/src/schemas/user/user-setting.schema'
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { MethodNotAllowed } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'

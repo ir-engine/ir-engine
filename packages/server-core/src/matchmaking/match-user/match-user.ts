@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { matchUserMethods, matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
+import { matchUserMethods, matchUserPath } from '@etherealengine/common/src/schemas/matchmaking/match-user.schema'
 
 import { Application } from '../../../declarations'
 import { MatchUserService } from './match-user.class'

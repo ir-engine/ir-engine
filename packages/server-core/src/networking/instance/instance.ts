@@ -29,10 +29,10 @@ import {
   instanceMethods,
   instancePath,
   InstanceType
-} from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { scopePath, ScopeType, ScopeTypeInterface } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { channelPath, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { scopePath, ScopeType, ScopeTypeInterface } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { channelPath, ChannelType } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 import logger from '../../ServerLogger'
 import { InstanceService } from './instance.class'

@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MessageType, messageMethods, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { MessageType, messageMethods, messagePath } from '@etherealengine/common/src/schemas/social/message.schema'
 
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { UserID, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application, HookContext } from '../../../declarations'
 import { MessageService } from './message.class'
 import messageDocs from './message.docs'

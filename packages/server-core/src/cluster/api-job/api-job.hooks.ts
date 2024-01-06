@@ -30,7 +30,7 @@ import {
   apiJobDataValidator,
   apiJobPatchValidator,
   apiJobQueryValidator
-} from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+} from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {

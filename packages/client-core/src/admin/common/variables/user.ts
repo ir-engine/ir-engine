@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { InviteCode, UserID, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { AvatarID, InviteCode, UserID, UserName } from '@etherealengine/common/src/schema.type.module'
 
 export interface UserColumn {
   id: 'id' | 'name' | 'avatarId' | 'accountIdentifier' | 'isGuest' | 'location' | 'inviteCode' | 'instanceId' | 'action'

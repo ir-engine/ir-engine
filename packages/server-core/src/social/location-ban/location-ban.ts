@@ -27,7 +27,7 @@ import {
   LocationBanType,
   locationBanMethods,
   locationBanPath
-} from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+} from '@etherealengine/common/src/schemas/social/location-ban.schema'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'

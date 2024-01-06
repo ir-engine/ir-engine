@@ -60,9 +60,8 @@ import {
 } from '@mui/material'
 
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
+import { InviteCode, projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { useNavigate } from 'react-router-dom'
 import { getProjects } from '../../functions/projectFunctions'
 import { EditorState } from '../../services/EditorServices'

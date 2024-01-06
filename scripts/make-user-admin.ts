@@ -27,8 +27,13 @@ import appRootPath from 'app-root-path'
 import knex from 'knex'
 import { v4 } from 'uuid'
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { ScopeID, ScopeTypeInterface, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import {
+  ScopeID,
+  ScopeTypeInterface,
+  UserType,
+  scopePath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 

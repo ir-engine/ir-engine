@@ -31,7 +31,7 @@ import {
   ChargebeeSettingPatch,
   ChargebeeSettingQuery,
   ChargebeeSettingType
-} from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/chargebee-setting.schema'
 
 export interface ChargebeeSettingParams extends KnexAdapterParams<ChargebeeSettingQuery> {}
 

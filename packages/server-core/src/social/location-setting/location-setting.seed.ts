@@ -28,10 +28,10 @@ import { Knex } from 'knex'
 import {
   locationSettingPath,
   LocationSettingType
-} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+} from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { LocationID } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID } from '@etherealengine/common/src/schemas/social/location.schema'
 import { getDateTimeSql } from '../../util/datetime-sql'
 
 export const locationSettingSeedData = [

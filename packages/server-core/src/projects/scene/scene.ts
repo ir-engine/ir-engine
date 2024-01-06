@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { instanceActivePath } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import { instanceActivePath } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
 import {
   InstanceAttendanceType,
   instanceAttendancePath
-} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { SceneID, SceneUpdate, sceneMethods, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
+import { SceneID, SceneUpdate, sceneMethods, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { ServerMode, ServerState } from '../../ServerState'
 import { SceneService } from './scene.class'

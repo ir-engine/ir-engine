@@ -30,7 +30,7 @@ import {
   locationAuthorizedUserDataValidator,
   locationAuthorizedUserPatchValidator,
   locationAuthorizedUserQueryValidator
-} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+} from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 import {

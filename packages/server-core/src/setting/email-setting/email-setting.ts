@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { emailSettingMethods, emailSettingPath } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import { emailSettingMethods, emailSettingPath } from '@etherealengine/common/src/schemas/setting/email-setting.schema'
 
 import { Application } from '../../../declarations'
 import { updateAppConfig } from '../../updateAppConfig'

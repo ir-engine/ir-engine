@@ -30,7 +30,7 @@ import {
   inviteTypePatchSchema,
   inviteTypeQuerySchema,
   inviteTypeSchema
-} from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+} from '@etherealengine/common/src/schemas/social/invite-type.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

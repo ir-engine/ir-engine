@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { locationBanPath } from '@etherealengine/common/src/schemas/social/location-ban.schema'
 
 /**
  * @param { import("knex").Knex } knex

@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
+import { ProjectCheckUnfetchedCommitType } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { checkUnfetchedSourceCommit } from '../project/project-helper'
 import { ProjectParams, ProjectParamsClient } from '../project/project.class'

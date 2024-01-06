@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Hook, HookContext } from '@feathersjs/feathers'
 
-import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { matchUserPath } from '@etherealengine/common/src/schemas/matchmaking/match-user.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
