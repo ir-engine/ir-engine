@@ -48,6 +48,7 @@ import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
+import { MeshBVHComponent } from '../components/MeshBVHComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -299,6 +300,9 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   const skinnedMesh = obj as SkinnedMesh
   if (skinnedMesh.isSkinnedMesh) setComponent(objEntity, SkinnedMeshComponent, skinnedMesh)
   else setComponent(objEntity, FrustumCullCameraComponent)
+
+  if (mesh.isMesh && !instancedMesh.isInstancedMesh && !skinnedMesh.isSkinnedMesh)
+    setComponent(objEntity, MeshBVHComponent, { mesh: mesh })
 
   if (obj.userData['componentJson']) {
     eJson.components.push(...obj.userData['componentJson'])
