@@ -90,10 +90,9 @@ export default function ModelCompressionPanel({
 
   const compressContentInBrowser = async () => {
     setCompressionLoading(true)
-
+    saveSelectedLOD()
     await compressModel()
     await onRefreshDirectory()
-
     setCompressionLoading(false)
     openCompress.set(false)
   }
@@ -164,13 +163,11 @@ export default function ModelCompressionPanel({
 
   const saveSelectedLOD = () => {
     const val = transformParms.get(NO_PROXY)
-    console.log('saveSelectedLOD', selectedLOD, val)
     lods[selectedLOD].params.set(val)
   }
 
   const loadSelectedLOD = () => {
     const val = lods[selectedLOD].params.get(NO_PROXY)
-    console.log('loadSelectedLOD', selectedLOD, val)
     transformParms.set(val)
   }
 
@@ -184,20 +181,17 @@ export default function ModelCompressionPanel({
 
     if (selectedLOD === index) {
       setSelectedLOD(Math.min(index, lods.length - 1))
-      loadSelectedLOD()
     }
   }
 
   const handleLODAdd = () => {
     lods.merge([
       {
-        // parms: {...defaultParms},
-        params: lods[selectedLOD].params.get(NO_PROXY),
-        metadata: {}
+        params: JSON.parse(JSON.stringify(lods[selectedLOD].params.value)),
+        metadata: JSON.parse(JSON.stringify(lods[selectedLOD].metadata.value))
       }
     ])
     setSelectedLOD(lods.length - 1)
-    loadSelectedLOD()
   }
 
   return (
