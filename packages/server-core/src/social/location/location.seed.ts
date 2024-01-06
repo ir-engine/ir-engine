@@ -29,10 +29,10 @@ import {
   LocationDatabaseType,
   LocationID,
   locationPath
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+} from '@etherealengine/common/src/schemas/social/location.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { getDateTimeSql } from '../../util/datetime-sql'
 
 export const locationSeedData = [

@@ -31,9 +31,9 @@ import {
   recordingPatchValidator,
   recordingPath,
   recordingQueryValidator
-} from '@etherealengine/engine/src/schemas/recording/recording.schema'
+} from '@etherealengine/common/src/schemas/recording/recording.schema'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { NotFound } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'

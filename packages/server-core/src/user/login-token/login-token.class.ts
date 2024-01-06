@@ -31,7 +31,7 @@ import {
   LoginTokenPatch,
   LoginTokenQuery,
   LoginTokenType
-} from '@etherealengine/engine/src/schemas/user/login-token.schema'
+} from '@etherealengine/common/src/schemas/user/login-token.schema'
 
 export interface LoginTokenParams extends KnexAdapterParams<LoginTokenQuery> {}
 

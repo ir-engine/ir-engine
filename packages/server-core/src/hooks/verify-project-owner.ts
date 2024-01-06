@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest, Forbidden, NotAuthenticated } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import {
   ProjectPermissionType,
   projectPermissionPath
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { Application } from '../../declarations'
 
 export default () => {

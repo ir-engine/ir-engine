@@ -31,7 +31,7 @@ import {
   userKickDataValidator,
   userKickPatchValidator,
   userKickQueryValidator
-} from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+} from '@etherealengine/common/src/schemas/user/user-kick.schema'
 
 import {
   userKickDataResolver,

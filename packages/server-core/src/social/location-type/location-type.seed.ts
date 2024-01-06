@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Knex } from 'knex'
 
-import { locationTypePath, LocationTypeType } from '@etherealengine/engine/src/schemas/social/location-type.schema'
+import { locationTypePath, LocationTypeType } from '@etherealengine/common/src/schemas/social/location-type.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export async function seed(knex: Knex): Promise<void> {

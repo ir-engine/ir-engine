@@ -40,11 +40,14 @@ import { localConfig } from '@etherealengine/server-core/src/config'
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import {
+  RecordingID,
+  recordingResourceUploadPath,
+  RecordingSchemaType
+} from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { recordingResourceUploadPath } from '@etherealengine/engine/src/schemas/recording/recording-resource-upload.schema'
-import { RecordingID, RecordingSchemaType } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 import { PassThrough } from 'stream'
 import { startFFMPEG } from './FFMPEG'

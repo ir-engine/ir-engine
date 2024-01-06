@@ -90,7 +90,7 @@ export const AvatarIKTargetComponent = defineComponent({
       if (!debugEnabled.value) return
       const helper = new AxesHelper(0.5)
       addObjectToGroup(entity, helper)
-      setObjectLayers(helper, ObjectLayers.Gizmos)
+      setObjectLayers(helper, ObjectLayers.AvatarHelper)
       setComponent(entity, VisibleComponent)
       return () => {
         removeObjectFromGroup(entity, helper)

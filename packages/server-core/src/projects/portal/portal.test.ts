@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PortalType, portalPath } from '@etherealengine/common/src/schemas/projects/portal.schema'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { PortalType, portalPath } from '@etherealengine/engine/src/schemas/projects/portal.schema'
 import assert from 'assert'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'

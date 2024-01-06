@@ -46,16 +46,21 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
+import {
+  identityProviderPath,
+  instanceAuthorizedUserPath,
+  instancePath,
+  InstanceType,
+  InviteCode,
+  inviteCodeLookupPath,
+  messagePath,
+  UserID,
+  userKickPath,
+  UserType
+} from '@etherealengine/common/src/schema.type.module'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
-import { instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
-import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
-import { InviteCode, UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'

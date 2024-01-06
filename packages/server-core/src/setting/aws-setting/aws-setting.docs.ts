@@ -30,7 +30,7 @@ import {
   awsSettingPatchSchema,
   awsSettingQuerySchema,
   awsSettingSchema
-} from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/aws-setting.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

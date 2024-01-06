@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { instanceAttendancePath } from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
 
 /**
  * @param { import("knex").Knex } knex

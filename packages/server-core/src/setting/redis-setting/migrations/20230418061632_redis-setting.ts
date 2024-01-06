@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { redisSettingPath } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
+import { redisSettingPath } from '@etherealengine/common/src/schemas/setting/redis-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex

@@ -34,7 +34,7 @@ import {
   scenePatchSchema,
   sceneQuerySchema,
   sceneUpdateSchema
-} from '@etherealengine/engine/src/schemas/projects/scene.schema'
+} from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({

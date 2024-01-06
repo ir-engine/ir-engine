@@ -31,7 +31,7 @@ import {
   StaticResourceDatabaseType,
   StaticResourceQuery,
   StaticResourceType
-} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+} from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { nanoid } from 'nanoid'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

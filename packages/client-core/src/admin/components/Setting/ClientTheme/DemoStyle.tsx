@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
 
 interface DemoStyleProps {
   theme: ClientThemeOptionsType

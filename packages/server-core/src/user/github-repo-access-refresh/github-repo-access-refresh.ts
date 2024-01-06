@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   githubRepoAccessRefreshMethods,
   githubRepoAccessRefreshPath
-} from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
+} from '@etherealengine/common/src/schemas/user/github-repo-access-refresh.schema'
 
 import { Application } from '../../../declarations'
 import { GithubRepoAccessRefreshService } from './github-repo-access-refresh.class'

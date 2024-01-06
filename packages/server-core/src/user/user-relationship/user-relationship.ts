@@ -27,9 +27,9 @@ import {
   UserRelationshipType,
   userRelationshipMethods,
   userRelationshipPath
-} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+} from '@etherealengine/common/src/schemas/user/user-relationship.schema'
 
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserRelationshipService } from './user-relationship.class'

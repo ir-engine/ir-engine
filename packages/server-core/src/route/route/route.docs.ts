@@ -30,7 +30,7 @@ import {
   routePatchSchema,
   routeQuerySchema,
   routeSchema
-} from '@etherealengine/engine/src/schemas/route/route.schema'
+} from '@etherealengine/common/src/schemas/route/route.schema'
 
 export default createSwaggerServiceOptions({
   schemas: { routeDataSchema, routePatchSchema, routeQuerySchema, routeSchema },

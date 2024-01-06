@@ -27,7 +27,7 @@ import assert from 'assert'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { getDateTimeSql } from '../../util/datetime-sql'

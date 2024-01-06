@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Params } from '@feathersjs/feathers'
 
-import { AvatarData, AvatarPatch, AvatarQuery, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarData, AvatarPatch, AvatarQuery, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 export interface AvatarParams extends KnexAdapterParams<AvatarQuery> {}

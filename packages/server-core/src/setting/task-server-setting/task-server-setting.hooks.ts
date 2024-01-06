@@ -30,7 +30,7 @@ import {
   taskServerSettingDataValidator,
   taskServerSettingPatchValidator,
   taskServerSettingQueryValidator
-} from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/task-server-setting.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {

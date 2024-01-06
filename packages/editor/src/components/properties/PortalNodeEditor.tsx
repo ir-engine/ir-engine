@@ -41,7 +41,7 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 
-import { PortalType, portalPath } from '@etherealengine/engine/src/schemas/projects/portal.schema'
+import { PortalType, portalPath } from '@etherealengine/common/src/schema.type.module'
 import { getPreviewBakeTexture, uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'

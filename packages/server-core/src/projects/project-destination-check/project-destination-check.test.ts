@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { projectDestinationCheckPath } from '@etherealengine/common/src/schemas/projects/project-destination-check.schema'
+import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { projectDestinationCheckPath } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
-import { ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import assert from 'assert'
 import nock from 'nock'
 import { v1 } from 'uuid'

@@ -20,9 +20,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { PortalQuery, PortalType } from '@etherealengine/engine/src/schemas/projects/portal.schema'
-import { SceneDataType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { PortalQuery, PortalType } from '@etherealengine/common/src/schemas/projects/portal.schema'
+import { SceneDataType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
 import { getSceneData } from '../scene/scene-helper'
 import { parseScenePortals } from '../scene/scene-parser'

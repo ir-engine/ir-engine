@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { chargebeeSettingPath } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+import { chargebeeSettingPath } from '@etherealengine/common/src/schemas/setting/chargebee-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex

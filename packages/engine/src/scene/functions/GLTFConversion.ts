@@ -28,8 +28,8 @@ import { MathUtils, Object3D } from 'three'
 import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
+import { EntityJsonType, SceneJsonType } from '@etherealengine/common/src/schema.type.module'
 import { sceneRelativePathIdentifier } from '../../common/functions/parseSceneJSON'
-import { EntityJsonType, SceneJsonType } from '../../schemas/projects/scene.schema'
 
 export const nodeToEntityJson = (node: any): EntityJsonType => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}

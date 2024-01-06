@@ -32,7 +32,7 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
-import { ComponentJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**

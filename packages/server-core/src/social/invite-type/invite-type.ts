@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { inviteTypeMethods, inviteTypePath } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+import { inviteTypeMethods, inviteTypePath } from '@etherealengine/common/src/schemas/social/invite-type.schema'
 
 import { Application } from '../../../declarations'
 import { InviteTypeService } from './invite-type.class'

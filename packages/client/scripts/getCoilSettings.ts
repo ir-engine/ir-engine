@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import knex from 'knex'
-
-import { coilSettingPath, CoilSettingType } from '../../engine/src/schemas/setting/coil-setting.schema'
+const { coilSettingPath, CoilSettingType } = require('../../common/src/schemas/setting/coil-setting.schema')
 
 export const getCoilSetting = async () => {
   const knexClient = knex({
@@ -42,7 +41,7 @@ export const getCoilSetting = async () => {
 
   const coilSetting = await knexClient
     .select()
-    .from<CoilSettingType>(coilSettingPath)
+    .from<typeof CoilSettingType>(coilSettingPath)
     .then(([dbCoil]) => {
       if (dbCoil) {
         return dbCoil

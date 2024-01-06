@@ -30,7 +30,7 @@ import {
   botCommandPatchSchema,
   botCommandQuerySchema,
   botCommandSchema
-} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+} from '@etherealengine/common/src/schemas/bot/bot-command.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

@@ -30,7 +30,7 @@ import {
   identityProviderPatchSchema,
   identityProviderQuerySchema,
   identityProviderSchema
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

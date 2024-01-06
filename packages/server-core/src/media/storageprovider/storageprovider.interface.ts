@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { PassThrough } from 'stream'
 
-import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 
 /**
  * Put object parameters interface for adding to storage.

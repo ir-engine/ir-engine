@@ -29,7 +29,7 @@ import cli from 'cli'
 import dotenv from 'dotenv-flow'
 import knex from 'knex'
 
-import { redisSettingPath } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
+import { redisSettingPath } from '@etherealengine/common/src/schema.type.module'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 if (!kubernetesEnabled) {

@@ -30,7 +30,7 @@ import {
   userApiKeyPatchSchema,
   userApiKeyQuerySchema,
   userApiKeySchema
-} from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+} from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

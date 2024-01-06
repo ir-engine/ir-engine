@@ -30,7 +30,7 @@ import {
   botPatchSchema,
   botQuerySchema,
   botSchema
-} from '@etherealengine/engine/src/schemas/bot/bot.schema'
+} from '@etherealengine/common/src/schemas/bot/bot.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

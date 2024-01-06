@@ -26,9 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { none } from '@hookstate/core'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectBranchType } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
-import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
-import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const ProjectUpdateState = defineState({

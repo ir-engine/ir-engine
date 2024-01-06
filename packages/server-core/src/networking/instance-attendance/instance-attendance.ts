@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   instanceAttendanceMethods,
   instanceAttendancePath
-} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
 
 import { Application } from '../../../declarations'
 import { InstanceAttendanceService } from './instance-attendance.class'

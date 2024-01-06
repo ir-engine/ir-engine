@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   instanceAuthorizedUserMethods,
   instanceAuthorizedUserPath
-} from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-authorized-user.schema'
 
 import { Application } from '../../../declarations'
 import { InstanceAuthorizedUserService } from './instance-authorized-user.class'

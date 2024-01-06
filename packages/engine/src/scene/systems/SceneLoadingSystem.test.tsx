@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { SceneDataType, SceneID, SceneJsonType, UserID } from '@etherealengine/common/src/schema.type.module'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { act, render, waitFor } from '@testing-library/react'
 import assert from 'assert'
@@ -41,8 +42,6 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { PhysicsState } from '../../physics/state/PhysicsState'
-import { SceneDataType, SceneID, SceneJsonType } from '../../schemas/projects/scene.schema'
-import { UserID } from '../../schemas/user/user.schema'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'

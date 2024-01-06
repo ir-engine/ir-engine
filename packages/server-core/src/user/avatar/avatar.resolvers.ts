@@ -27,16 +27,16 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import {
   AvatarDatabaseType,
   AvatarID,
   AvatarQuery,
   AvatarType
-} from '@etherealengine/engine/src/schemas/user/avatar.schema'
+} from '@etherealengine/common/src/schemas/user/avatar.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const avatarResolver = resolve<AvatarType, HookContext>({

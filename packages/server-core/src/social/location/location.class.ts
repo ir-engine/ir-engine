@@ -31,7 +31,7 @@ import {
   LocationPatch,
   LocationQuery,
   LocationType
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+} from '@etherealengine/common/src/schemas/social/location.schema'
 
 import { KnexAdapterParams } from '@feathersjs/knex'
 

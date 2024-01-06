@@ -41,8 +41,8 @@ import ActivityGraph from './ActivityGraph'
 
 import './index.scss'
 
+import { analyticsPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 import { useTranslation } from 'react-i18next'
 import AnalyticsService, { AnalyticsQueryMap, AnalyticsQueryTypes } from './AnalyticsService'
 import UserGraph from './UserGraph'

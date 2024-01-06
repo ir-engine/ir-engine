@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   projectDestinationCheckMethods,
   projectDestinationCheckPath
-} from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
+} from '@etherealengine/common/src/schemas/projects/project-destination-check.schema'
 import { Application } from '../../../declarations'
 import { ProjectDestinationCheckService } from './project-destination-check.class'
 import projectDestinationCheckDocs from './project-destination-check.docs'

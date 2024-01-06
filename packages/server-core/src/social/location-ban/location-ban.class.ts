@@ -31,7 +31,7 @@ import {
   LocationBanPatch,
   LocationBanQuery,
   LocationBanType
-} from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+} from '@etherealengine/common/src/schemas/social/location-ban.schema'
 
 export interface LocationBanParams extends KnexAdapterParams<LocationBanQuery> {}
 

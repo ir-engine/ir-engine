@@ -35,7 +35,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
-import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType } from '@etherealengine/common/src/schema.type.module'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 

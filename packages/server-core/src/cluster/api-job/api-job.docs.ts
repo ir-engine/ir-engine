@@ -30,7 +30,7 @@ import {
   apiJobPatchSchema,
   apiJobQuerySchema,
   apiJobSchema
-} from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+} from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

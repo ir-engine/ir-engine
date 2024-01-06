@@ -32,7 +32,7 @@ import {
 } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import linkMatchUserToMatch from '@etherealengine/server-core/src/hooks/matchmaking-link-match-user-to-match'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { getTicketsAssignment } from '@etherealengine/matchmaking/src/functions'
 import { NotFound } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Spark } from 'primus'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 
 import { MediaTagType, PeerMediaType } from '../NetworkState'
 

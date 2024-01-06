@@ -33,7 +33,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { AuthService, AuthState } from '../../services/AuthService'
 
 interface Props {

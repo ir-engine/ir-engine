@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '../../ecs/classes/Engine'
-import { InstanceID } from '../../schemas/networking/instance.schema'
 import { NetworkPeer } from '../interfaces/NetworkPeer'
 
 /**

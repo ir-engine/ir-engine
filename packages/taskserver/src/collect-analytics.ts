@@ -23,11 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
-import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { channelPath, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import {
+  analyticsPath,
+  channelPath,
+  ChannelType,
+  instanceAttendancePath,
+  instancePath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { Knex } from 'knex'

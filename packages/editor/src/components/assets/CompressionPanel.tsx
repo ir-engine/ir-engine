@@ -38,7 +38,7 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
-import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
+import { fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -47,6 +47,7 @@ import { FileType } from './FileBrowser/FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
+import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import {
   DefaultModelTransformParameters,
@@ -54,7 +55,6 @@ import {
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
 const UASTCFlagOptions = [

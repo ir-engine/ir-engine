@@ -31,7 +31,7 @@ import {
   BuildStatusPatch,
   BuildStatusQuery,
   BuildStatusType
-} from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+} from '@etherealengine/common/src/schemas/cluster/build-status.schema'
 
 export interface BuildStatusParams extends KnexAdapterParams<BuildStatusQuery> {}
 

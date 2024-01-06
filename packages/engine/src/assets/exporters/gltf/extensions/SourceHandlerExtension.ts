@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { Object3D } from 'three'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { getComponent, setComponent } from '../../../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '../../../../ecs/functions/EntityTree'
 import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { getModelSceneID } from '../../../../scene/functions/loaders/ModelFunctions'
-import { SceneID } from '../../../../schemas/projects/scene.schema'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

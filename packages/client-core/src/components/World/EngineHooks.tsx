@@ -45,11 +45,11 @@ import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDC
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
