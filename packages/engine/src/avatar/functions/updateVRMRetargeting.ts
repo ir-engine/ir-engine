@@ -61,11 +61,12 @@ export const updateVRMRetargeting = (vrm: VRM, avatarEntity: Entity) => {
         if (!parentBone) continue
         _boneWorldPos.copy(rigBoneNode.position).applyMatrix4(parentBone?.matrixWorld)
         _parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
-        boneNode.position.copy(
-          _boneWorldPos
-            .applyMatrix4(_parentWorldMatrixInverse)
-            .multiplyScalar(getComponent(avatarEntity, AvatarComponent).hipsHeight)
-        )
+
+        _boneWorldPos.applyMatrix4(_parentWorldMatrixInverse)
+        if (getComponent(avatarEntity, AvatarComponent)) {
+          _boneWorldPos.multiplyScalar(getComponent(avatarEntity, AvatarComponent).hipsHeight)
+        }
+        boneNode.position.copy(_boneWorldPos)
       }
     }
   }
