@@ -55,6 +55,7 @@ import {
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { removeEntityNodeRecursively } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { createSceneEntity } from '@etherealengine/engine/src/ecs/functions/createSceneEntity'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
@@ -205,6 +206,7 @@ export default function CompressionPanel({
 
       const combinedModelFormat = modelSrc.endsWith('.gltf') ? 'gltf' : 'glb'
       await exportGLTF(result, modelSrc.replace(/\.[^.]*$/, `-integrated.${combinedModelFormat}`))
+      removeEntityNodeRecursively(result)
     }
   }
 
