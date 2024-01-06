@@ -33,12 +33,12 @@ import { SceneObjectComponent } from '@etherealengine/engine/src/scene/component
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
 import { Group } from 'three'
