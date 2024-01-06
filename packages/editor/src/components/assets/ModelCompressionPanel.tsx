@@ -28,18 +28,17 @@ import React, { useEffect, useState } from 'react'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
-import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
-  DefaultModelTransformParameters,
+  DefaultModelTransformParameters as defaultParms,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
@@ -49,57 +48,67 @@ import { createSceneEntity } from '@etherealengine/engine/src/ecs/functions/crea
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
-import { Box, ListItemButton, ListItemText, Modal } from '@mui/material'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import exportGLTF from '../../functions/exportGLTF'
-import { List } from '../layout/List'
+
+import { Box, ListItemButton, ListItemText, Modal } from '@mui/material'
+import { List, ListItem } from '../layout/List'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
+import { FileType } from './FileBrowser/FileBrowserContentPanel'
+
+type LODVariantDescriptor = {
+  params: ModelTransformParameters
+  metadata: Record<string, any>
+  suffix?: string
+}
 
 // TODO: Find place to put hard-coded list
 const LODList: ModelTransformParameters[] = [
   {
-    ...DefaultModelTransformParameters,
+    ...defaultParms,
     src: 'Desktop - Low',
     dst: 'Desktop - Low',
     maxTextureSize: 1024
   },
   {
-    ...DefaultModelTransformParameters,
+    ...defaultParms,
     src: 'Desktop - Medium',
     dst: 'Desktop - Medium',
     maxTextureSize: 2048
   },
   {
-    ...DefaultModelTransformParameters,
+    ...defaultParms,
     src: 'Desktop - High',
     dst: 'Desktop - High',
     maxTextureSize: 2048
   },
   {
-    ...DefaultModelTransformParameters,
+    ...defaultParms,
     src: 'Mobile - Low',
     dst: 'Mobile - Low',
     maxTextureSize: 512
   },
   {
-    ...DefaultModelTransformParameters,
+    ...defaultParms,
     src: 'Mobile - High',
     dst: 'Mobile - High',
     maxTextureSize: 1024
   },
   {
-    ...DefaultModelTransformParameters,
+    ...defaultParms,
     src: 'XR - Low',
     dst: 'XR - Low',
     maxTextureSize: 1024
   },
   {
-    ...DefaultModelTransformParameters,
+    ...defaultParms,
     src: 'XR - Medium',
     dst: 'XR - Medium',
     maxTextureSize: 1024
   },
   {
-    ...DefaultModelTransformParameters,
+    ...defaultParms,
     src: 'XR - High',
     dst: 'XR - High',
     maxTextureSize: 2048
@@ -115,18 +124,19 @@ export default function ModelCompressionPanel({
   fileProperties: State<FileType>
   onRefreshDirectory: () => Promise<void>
 }) {
-  const compressionLoading = useHookstate(false)
-  const isClientside = useHookstate<boolean>(true)
-  const isBatchCompress = useHookstate<boolean>(true)
-  const isIntegratedPrefab = useHookstate<boolean>(true)
+  const [compressionLoading, setCompressionLoading] = useState<boolean>(false)
+  const [isClientside, setIsClientSide] = useState<boolean>(true)
+  const [isIntegratedPrefab, setIsIntegratedPrefab] = useState<boolean>(true)
+  const [selectedLOD, setSelectedLOD] = useState<number>(0)
+
   const transformParms = useHookstate<ModelTransformParameters>({
-    ...DefaultModelTransformParameters,
-    src: fileProperties.url.value,
-    modelFormat: fileProperties.url.value.endsWith('.gltf') ? 'gltf' : 'glb'
+    ...defaultParms,
+    src: fileProperties.value.url,
+    modelFormat: fileProperties.value.url.endsWith('.gltf') ? 'gltf' : 'glb'
   })
 
   const [modalOpen, setModalOpen] = useState<boolean>(false)
-  const [selectedPreset, setSelectedPreset] = useState<ModelTransformParameters>(DefaultModelTransformParameters)
+  const [selectedPreset, setSelectedPreset] = useState<ModelTransformParameters>(defaultParms)
   const [presetList, setPresetList] = useState<ModelTransformParameters[]>(LODList)
 
   useEffect(() => {
@@ -136,21 +146,19 @@ export default function ModelCompressionPanel({
     }
   }, [])
 
+  const lods = useHookstate<LODVariantDescriptor[]>([
+    { suffix: '-LOD_0', params: { ...defaultParms, maxTextureSize: 2048 }, metadata: { device: 'DESKTOP' } },
+    { suffix: '-LOD_1', params: { ...defaultParms, maxTextureSize: 1024 }, metadata: { device: 'XR' } },
+    { suffix: '-LOD_2', params: { ...defaultParms, maxTextureSize: 512 }, metadata: { device: 'MOBILE' } }
+  ])
+
   const compressContentInBrowser = async () => {
-    compressionLoading.set(true)
-
-    const compressor = compressModel
-    await compressor()
+    setCompressionLoading(true)
+    saveSelectedLOD()
+    await compressModel()
     await onRefreshDirectory()
-
-    compressionLoading.set(false)
+    setCompressionLoading(false)
     openCompress.set(false)
-  }
-
-  type LODVariantDescriptor = {
-    parms: ModelTransformParameters
-    metadata: Record<string, any>
-    suffix?: string
   }
 
   const createLODVariants = async (
@@ -162,9 +170,9 @@ export default function ModelCompressionPanel({
     exportCombined = false
   ) => {
     const lodVariantParms: ModelTransformParameters[] = lods.map((lod) => ({
-      ...lod.parms,
+      ...lod.params,
       src: modelSrc,
-      dst: `${modelDst}${lod.suffix ?? ''}.${lod.parms.modelFormat}`
+      dst: `${modelDst}${lod.suffix ?? ''}.${lod.params.modelFormat}`
     }))
 
     for (const variant of lodVariantParms) {
@@ -217,20 +225,11 @@ export default function ModelCompressionPanel({
   const compressModel = async () => {
     const modelSrc = fileProperties.url.value
     const modelDst = transformParms.dst.value
-    const clientside = isClientside.value
-    const batchCompress = isBatchCompress.value
-    const exportCombined = isIntegratedPrefab.value
+    const clientside = isClientside
+    const exportCombined = isIntegratedPrefab
 
-    const basis = transformParms.get(NO_PROXY)
-    const lods = batchCompress
-      ? [
-          { suffix: '-LOD_0', parms: { ...basis, maxTextureSize: 2048 }, metadata: { device: 'DESKTOP' } },
-          { suffix: '-LOD_1', parms: { ...basis, maxTextureSize: 1024 }, metadata: { device: 'XR' } },
-          { suffix: '-LOD_2', parms: { ...basis, maxTextureSize: 512 }, metadata: { device: 'MOBILE' } }
-        ]
-      : [{ parms: basis, metadata: {} }]
     const heuristic = 'DEVICE'
-    await createLODVariants(modelSrc, modelDst, lods, clientside, heuristic, exportCombined)
+    await createLODVariants(modelSrc, modelDst, lods.value, clientside, heuristic, exportCombined)
 
     const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
     await FileBrowserService.fetchFiles(directoryToRefresh)
@@ -249,6 +248,43 @@ export default function ModelCompressionPanel({
     transformParms.dst.set(dst)
   }, [fileProperties.url])
 
+  useEffect(() => {
+    loadSelectedLOD()
+  }, [selectedLOD])
+
+  const saveSelectedLOD = () => {
+    const val = transformParms.get(NO_PROXY)
+    lods[selectedLOD].params.set(val)
+  }
+
+  const loadSelectedLOD = () => {
+    const val = lods[selectedLOD].params.get(NO_PROXY)
+    transformParms.set(val)
+  }
+
+  const handleLODSelect = (index) => {
+    saveSelectedLOD()
+    setSelectedLOD(index)
+  }
+
+  const handleLODDelete = (index) => {
+    lods[index].set(none)
+
+    if (selectedLOD === index) {
+      setSelectedLOD(Math.min(index, lods.length - 1))
+    }
+  }
+
+  const handleLODAdd = () => {
+    lods.merge([
+      {
+        params: JSON.parse(JSON.stringify(lods[selectedLOD].params.value)),
+        metadata: JSON.parse(JSON.stringify(lods[selectedLOD].metadata.value))
+      }
+    ])
+    setSelectedLOD(lods.length - 1)
+  }
+
   return (
     <Menu
       open={openCompress.value}
@@ -258,7 +294,7 @@ export default function ModelCompressionPanel({
       header={fileProperties.value.name}
       actions={
         <>
-          {!compressionLoading.value ? (
+          {!compressionLoading ? (
             <Button type="gradient" className={styles.horizontalCenter} onClick={compressContentInBrowser}>
               {t('editor:properties.model.transform.compress') as string}
             </Button>
@@ -269,6 +305,38 @@ export default function ModelCompressionPanel({
       }
     >
       <div className={styles.modelMenu}>
+        <Box>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div className={styles.headerContainer}>LOD Levels</div>
+            <List>
+              {lods.map((lod, index) => (
+                <ListItem>
+                  <ListItemButton selected={selectedLOD === index} onClick={() => handleLODSelect(index)}>
+                    {' '}
+                    <ListItemText
+                      primary={`LOD Level ${index}`}
+                      secondary={Object.entries(lod.metadata.value)
+                        .map((a) => a.join(': '))
+                        .join(', ')}
+                    />
+                  </ListItemButton>
+                  {lods.length > 1 && (
+                    <IconButton
+                      onClick={() => handleLODDelete(index)}
+                      icon={<Icon type="Delete" style={{ color: 'var(--iconButtonColor)' }} />}
+                    ></IconButton>
+                  )}
+                </ListItem>
+              ))}
+            </List>
+            <div>
+              <IconButton
+                onClick={() => handleLODAdd()}
+                icon={<Icon type="Add" style={{ color: 'var(--iconButtonColor)' }} />}
+              ></IconButton>
+            </div>
+          </div>
+        </Box>
         <Box>
           <InputGroup name="fileType" label={fileProperties.value?.isFolder ? 'Directory' : 'File'}>
             <Typography variant="body2">{t('editor:properties.model.transform.compress') as string}</Typography>
@@ -290,19 +358,11 @@ export default function ModelCompressionPanel({
                 disabled={true}
               />
             </InputGroup>
-            <InputGroup name="Batch Compress" label="Batch Compress">
-              <BooleanInput
-                value={isBatchCompress.value}
-                onChange={(val: boolean) => {
-                  isBatchCompress.set(val)
-                }}
-              />
-            </InputGroup>
             <InputGroup name="Generate Integrated Variant Prefab" label="Generate Integrated Variant Prefab">
               <BooleanInput
-                value={isIntegratedPrefab.value}
+                value={isIntegratedPrefab}
                 onChange={(val: boolean) => {
-                  isIntegratedPrefab.set(val)
+                  setIsIntegratedPrefab(val)
                 }}
               />
             </InputGroup>

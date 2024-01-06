@@ -125,7 +125,7 @@ export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
   if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
 
-  setComponent(entity, ModelComponent, { src: avatarURL, cameraOcclusion: false })
+  setComponent(entity, ModelComponent, { src: avatarURL, cameraOcclusion: false, convertToVRM: true })
 }
 
 export const unloadAvatarForUser = async (entity: Entity) => {
@@ -141,10 +141,6 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   setupAvatarHeight(entity, model.scene)
 
   computeTransformMatrix(entity)
-
-  const animationState = getState(AnimationState)
-  //set global states if they are not already set
-  if (!animationState.loadedAnimations[locomotionAnimation]) loadLocomotionAnimations()
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
 

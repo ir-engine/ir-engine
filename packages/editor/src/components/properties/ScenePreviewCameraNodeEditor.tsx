@@ -33,6 +33,7 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
+import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { previewScreenshot } from '../../functions/takeScreenshot'
@@ -62,7 +63,12 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   }
 
   const updateScenePreview = async () => {
-    const imageBlob = (await previewScreenshot(512 / 2, 320 / 2))!
+    const imageBlob = (await previewScreenshot(
+      512 / 2,
+      320 / 2,
+      0.9,
+      getComponent(props.entity, ScenePreviewCameraComponent).camera
+    ))!
     const url = URL.createObjectURL(imageBlob)
     setBufferUrl(url)
   }

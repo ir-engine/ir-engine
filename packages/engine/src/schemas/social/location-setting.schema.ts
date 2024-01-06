@@ -43,9 +43,11 @@ export const locationSettingSchema = Type.Object(
     locationId: TypedString<LocationID>({
       format: 'uuid'
     }),
+    /** @todo review */
     locationType: StringEnum(['private', 'public', 'showroom']),
     audioEnabled: Type.Boolean(),
     screenSharingEnabled: Type.Boolean(),
+    /** @todo review */
     faceStreamingEnabled: Type.Boolean(),
     videoEnabled: Type.Boolean(),
     createdAt: Type.String({ format: 'date-time' }),

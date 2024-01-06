@@ -55,6 +55,7 @@ import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/Ob
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
@@ -234,7 +235,8 @@ const execute = () => {
   if (transition.state === 'IN' && transition.alpha === 1) {
     if (!hasComponent(ui.entity, ComputedTransformComponent))
       setComputedTransformComponent(ui.entity, Engine.instance.cameraEntity, () => {
-        const distance = 0.1
+        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+        const distance = camera.near * 1.1 // 10% in front of camera
         const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
         if (!uiContainer) return
         const uiSize = uiContainer.domSize

@@ -237,15 +237,24 @@ describe('ECS', () => {
     assert.ok(!Engine.instance.entityQuery().includes(entity))
   })
 
-  it('should remove entity immediately', async () => {
+  it('should remove entity', async () => {
     const entity = createEntity()
 
     const lengthBefore = Engine.instance.entityQuery().length
     removeEntity(entity)
     const entities = Engine.instance.entityQuery()
     assert.equal(entities.length, lengthBefore - 1)
-    assert.throws(() => {
-      removeEntity(entity)
-    })
+  })
+
+  it('should noop with entity that is already removed', async () => {
+    const entity = createEntity()
+
+    const lengthBefore = Engine.instance.entityQuery().length
+
+    removeEntity(entity)
+    removeEntity(entity)
+
+    const entities = Engine.instance.entityQuery()
+    assert.equal(entities.length, lengthBefore - 1)
   })
 })

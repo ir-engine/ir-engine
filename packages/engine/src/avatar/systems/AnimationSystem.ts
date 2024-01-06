@@ -78,7 +78,7 @@ const execute = () => {
   for (const entity of loopAnimationQuery()) {
     const model = getComponent(entity, ModelComponent)
     if (model.asset instanceof VRM) {
-      updateVRMRetargeting(model.asset, deltaSeconds)
+      updateVRMRetargeting(model.asset)
     }
   }
 }

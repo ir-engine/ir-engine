@@ -57,7 +57,6 @@ export const LoopAnimationComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      hasAvatarAnimations: false,
       activeClipIndex: -1,
       animationPack: '',
 
@@ -82,7 +81,6 @@ export const LoopAnimationComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof (json as any).animationSpeed === 'number') component.timeScale.set((json as any).animationSpeed) // backwards-compat
-    if (typeof json.hasAvatarAnimations === 'boolean') component.hasAvatarAnimations.set(json.hasAvatarAnimations)
     if (typeof json.activeClipIndex === 'number') component.activeClipIndex.set(json.activeClipIndex)
     if (typeof json.animationPack === 'string') component.animationPack.set(json.animationPack)
     if (typeof json.paused === 'number') component.paused.set(json.paused)
@@ -99,7 +97,6 @@ export const LoopAnimationComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      hasAvatarAnimations: component.hasAvatarAnimations.value,
       activeClipIndex: component.activeClipIndex.value,
       animationPack: component.animationPack.value,
       paused: component.paused.value,
@@ -213,10 +210,10 @@ export const LoopAnimationComponent = defineComponent({
       if (!hasComponent(entity, AnimationComponent)) {
         setComponent(entity, AnimationComponent, {
           mixer: new AnimationMixer(model.asset!.scene),
-          animations: []
+          animations: model.scene?.animations ?? []
         })
       }
-    }, [modelComponent?.asset, loopAnimationComponent.hasAvatarAnimations])
+    }, [modelComponent?.asset])
 
     useEffect(() => {
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null

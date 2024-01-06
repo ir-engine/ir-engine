@@ -46,21 +46,84 @@
   margin-left: 5px !important;
 }
 
-.fileListItemContainer {
-  width: 100%;
+.contentContainer {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding-left: 5px;
+  width: 100%;
+  flex-wrap: wrap;
+  overflow: auto;
+}
+
+.fileListItemContainer {
+  display: block;
   color: var(--textColor);
   cursor: pointer;
+  width: 110px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: center;
+  margin: 10px;
+  padding-bottom: 5px;
 
   &:hover {
     background: var(--dropdownMenuHoverBackground);
   }
 
   .fileNameContainer {
-    margin-right: 3px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 90px;
+    width: 90px;
+    font-size: 90px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 5px;
+  }
+
+  .extensionRibbon {
+    /* credits to https://codepen.io/t_afif/pen/dyZOBex */
+
+    --f: 10px; /* control the folded part */
+    --r: 20px; /* control the ribbon shape */
+    --b: -10px; /* the bottom offset */
+
+    text-transform: uppercase;
+    font-size: 10px;
+    position: absolute;
+    inset: auto calc(-1 * var(--f)) var(--b) auto;
+    padding: 0 10px var(--f) calc(10px + var(--r));
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - var(--f)),
+      calc(100% - var(--f)) 100%,
+      calc(100% - var(--f)) calc(100% - var(--f)),
+      0 calc(100% - var(--f))
+    );
+    background: black;
+  }
+}
+
+.table {
+  .tableHeaderRow {
+    background-color: var(--tableHeaderBackground)  ;
+    border-bottom: 2px solid var(--dropdownMenuHoverBackground);
+  }
+
+  .tableCell {
+    color: var(--textColor);
+    border: none;
+    font-weight: 200;
+    cursor: pointer;
+
+    .cellName {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
   }
 }
 
@@ -92,14 +155,6 @@
 .input {
   flex: 1 !important;
   color: var(--textColor) !important;
-}
-
-.contentContainer {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  flex: 1;
-  overflow: auto;
 }
 
 .btnContainer {
@@ -244,13 +299,6 @@
   }
 }
 
-.fileBrowserRoot {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
 .filesLoading {
   position: absolute;
   background: #00000080;
@@ -307,4 +355,36 @@
 
 .confirmModalButtons {
   margin-top: 15px;
+}
+
+.resourceItemContainer {
+  display: flex;
+  flex-direction: column;
+  outline: none;
+  overflow: hidden;
+  background: transparent;
+  margin: 0.25rem 0.5rem;
+  padding: 0.25rem;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    background-color: var(--dropdownMenuHoverBackground);
+    color: var(--textColor);
+  }
+
+  &.selected {
+    background: var(--dropdownMenuSelectedBackground);
+    color: var(--textColor);
+
+    &:hover,
+    &:focus {
+      background-color: var(--dropdownMenuSelectedBackground);
+    }
+  }
+
+  &:active,
+  &.active {
+    background: var(--dropdownMenuSelectedBackground);
+  }
 }
