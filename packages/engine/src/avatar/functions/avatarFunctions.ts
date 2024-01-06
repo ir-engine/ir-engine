@@ -50,6 +50,7 @@ import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { ModelComponent } from '../../scene/components/ModelComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import avatarBoneMatching from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
@@ -148,6 +149,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
     rawRig: model.humanoid.rawHumanBones
   })
 
+  const transform = getComponent(entity, TransformComponent)
   const rig = getComponent(entity, AvatarRigComponent).normalizedRig
   rig.hips.node.getWorldPosition(hipsPos)
   rig.head.node.getWorldPosition(headPos)
@@ -161,8 +163,8 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   avatarComponent.torsoLength.set(Math.abs(headPos.y - hipsPos.y))
   avatarComponent.upperLegLength.set(Math.abs(hipsPos.y - leftLowerLegPos.y))
   avatarComponent.lowerLegLength.set(Math.abs(leftFootPos.y - leftUpperLegPos.y))
-  avatarComponent.hipsHeight.set(hipsPos.y)
-  avatarComponent.eyeHeight.set(eyePos.y)
+  avatarComponent.hipsHeight.set(Math.abs(hipsPos.y - transform.position.y))
+  avatarComponent.eyeHeight.set(Math.abs(eyePos.y - transform.position.y))
   avatarComponent.footGap.set(footGap.subVectors(leftFootPos, rightFootPos).length())
 
   computeTransformMatrix(entity)
