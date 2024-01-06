@@ -30,6 +30,7 @@ import { defineState, getMutableState, getState, none, useHookstate } from '@eth
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { V_001, V_010, V_100, Y_180 } from '../../common/constants/MathConstants'
+import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -309,7 +310,7 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    loadLocomotionAnimations()
+    if (isClient) loadLocomotionAnimations()
 
     const networkState = getMutableState(NetworkState)
 

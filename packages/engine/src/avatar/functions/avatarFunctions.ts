@@ -40,7 +40,6 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
@@ -49,7 +48,6 @@ import { isClient } from '../../common/functions/getEnvironment'
 import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
@@ -142,8 +140,6 @@ const hipsPos = new Vector3(),
   eyePos = new Vector3()
 
 export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
-  iterateEntityNode(entity, computeTransformMatrix)
-
   const transform = getComponent(entity, TransformComponent)
   const rig = vrm.humanoid.rawHumanBones
   rig.hips.node.getWorldPosition(hipsPos)
@@ -171,8 +167,6 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
     normalizedRig: model.humanoid.normalizedHumanBones,
     rawRig: model.humanoid.rawHumanBones
   })
-
-  computeTransformMatrix(entity)
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
 
