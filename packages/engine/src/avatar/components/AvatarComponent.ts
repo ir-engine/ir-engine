@@ -57,6 +57,7 @@ export const AvatarComponent = defineComponent({
       /** The height of the eyes in a t-pose */
       eyeHeight: 0,
 
+      /** @deprecated */
       skinnedMeshes: [] as SkinnedMesh[]
     }
   },
