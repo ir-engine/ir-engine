@@ -24,19 +24,26 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
+import { AxesHelper, Quaternion, Vector3 } from 'three'
 
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { Types } from 'bitecs'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { RendererState } from '../../renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
@@ -73,7 +80,25 @@ export type AvatarIKTargetsType = {
 
 export const AvatarIKTargetComponent = defineComponent({
   name: 'AvatarIKTargetComponent',
-  schema: { blendWeight: Types.f64 }
+  schema: { blendWeight: Types.f64 },
+
+  reactor: function () {
+    const entity = useEntityContext()
+    const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
+
+    useEffect(() => {
+      if (!debugEnabled.value) return
+      const helper = new AxesHelper(0.5)
+      addObjectToGroup(entity, helper)
+      setObjectLayers(helper, ObjectLayers.Gizmos)
+      setComponent(entity, VisibleComponent)
+      return () => {
+        removeObjectFromGroup(entity, helper)
+      }
+    }, [debugEnabled])
+
+    return null
+  }
 })
 
 /**

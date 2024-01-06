@@ -24,32 +24,26 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Euler, MathUtils, Matrix4, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { V_001, V_010, Y_180 } from '../../common/constants/MathConstants'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformSystem } from '../../transform/TransformModule'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
-import { XRControlsState, XRState, isMobileXRHeadset } from '../../xr/XRState'
+import { XRControlsState, XRState } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
@@ -66,7 +60,7 @@ import { AnimationSystem } from './AnimationSystem'
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
   initial: () => {
-    const accumulationBudget = isMobileXRHeadset ? 2 : 6
+    const accumulationBudget = 100 //isMobileXRHeadset ? 2 : 6
 
     const priorityQueue = createPriorityQueue({
       accumulationBudget
@@ -84,37 +78,21 @@ const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationCom
 const avatarComponentQuery = defineQuery([AvatarComponent])
 
 const _quat = new Quaternion()
+const _quat2 = new Quaternion()
 const _vector3 = new Vector3()
 const _right = new Vector3()
 const _forward = new Vector3()
 const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
+const leftHandRotation = new Quaternion()
+  .setFromAxisAngle(V_001, Math.PI / 2)
+  .multiply(new Quaternion().setFromAxisAngle(V_010, -Math.PI / 2))
+const rightHandRotation = new Quaternion()
+  .setFromAxisAngle(V_001, -Math.PI / 2)
+  .multiply(new Quaternion().setFromAxisAngle(V_010, Math.PI / 2))
 
 const midAxisRestriction = new Euler(0, 0, 0)
 const tipAxisRestriction = new Euler(0, 0, 0)
-
-const setVisualizers = () => {
-  const { visualizers } = getMutableState(AvatarAnimationState)
-  const { avatarDebug } = getMutableState(RendererState)
-  if (!avatarDebug.value) {
-    //remove visualizers
-    for (let i = 0; i < visualizers.length; i++) {
-      removeEntity(visualizers[i].value)
-    }
-
-    return
-  }
-  for (let i = 0; i < 11; i++) {
-    const e = createEntity()
-    setComponent(e, VisibleComponent, true)
-    setComponent(e, NameComponent, 'Avatar Debug Visualizer')
-    const mesh = new Mesh(new SphereGeometry(0.05))
-    addObjectToGroup(e, mesh)
-    setComponent(e, TransformComponent)
-    setObjectLayers(mesh, ObjectLayers.AvatarHelper)
-    visualizers[i].set(e)
-  }
-}
 
 const footRaycastInterval = 0.25
 let footRaycastTimer = 0
@@ -169,6 +147,7 @@ const execute = () => {
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
+    const avatarComponent = getComponent(entity, AvatarComponent)
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
     avatarAnimationComponent.deltaAccumulator = elapsedSeconds
@@ -176,7 +155,7 @@ const execute = () => {
 
     if (!rig?.hips?.node) continue
 
-    updateVRMRetargeting(rigComponent.vrm)
+    updateVRMRetargeting(rigComponent.vrm, entity)
 
     const uuid = getComponent(entity, UUIDComponent)
     const leftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
@@ -200,12 +179,15 @@ const execute = () => {
 
     const transform = getComponent(entity, TransformComponent)
 
+    /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/7519 */
+    const isAvatarFlipped = !rigComponent.vrm.userData?.retargeted
+
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
       rig.hips.node.position.set(
         headTransform.position.x,
-        headTransform.position.y - rigComponent.torsoLength - 0.125,
+        headTransform.position.y - avatarComponent.torsoLength - 0.125,
         headTransform.position.z
       )
 
@@ -218,24 +200,33 @@ const execute = () => {
       // convert to local space
       rig.hips.node.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
 
+      _quat2.copy(headTransform.rotation)
+
+      /** @todo hack fix */
+      if (isAvatarFlipped) {
+        // rotate 180
+        _quat2.multiply(Y_180)
+      }
+
       //calculate head look direction and apply to head bone
       //look direction should be set outside of the xr switch
-      rig.head.node.quaternion.multiplyQuaternions(
-        rig.spine.node.getWorldQuaternion(_quat).invert(),
-        headTransform.rotation
-      )
+      rig.head.node.quaternion.multiplyQuaternions(rig.spine.node.getWorldQuaternion(_quat).invert(), _quat2)
     }
 
     const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
     const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
 
     if (rightHandTargetBlendWeight) {
+      _quat2.copy(rightHandTransform.rotation)
+      if (!isAvatarFlipped) {
+        _quat2.multiply(rightHandRotation)
+      }
       solveTwoBoneIK(
         rig.rightUpperArm.node,
         rig.rightLowerArm.node,
         rig.rightHand.node,
         rightHandTransform.position,
-        rightHandTransform.rotation,
+        _quat2,
         null,
         _vector3.copy(transform.position).sub(right),
         tipAxisRestriction,
@@ -247,12 +238,16 @@ const execute = () => {
     }
 
     if (leftHandTargetBlendWeight) {
+      _quat2.copy(leftHandTransform.rotation)
+      if (!isAvatarFlipped) {
+        _quat2.multiply(leftHandRotation)
+      }
       solveTwoBoneIK(
         rig.leftUpperArm.node,
         rig.leftLowerArm.node,
         rig.leftHand.node,
         leftHandTransform.position,
-        leftHandTransform.rotation,
+        _quat2,
         null,
         _vector3.copy(transform.position).add(right),
         tipAxisRestriction,
@@ -321,13 +316,8 @@ const reactor = () => {
 
   const xrState = getMutableState(XRState)
   const session = useHookstate(xrState.session)
-  const renderState = useHookstate(getMutableState(RendererState))
   const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
   const userReady = useHookstate(getMutableState(EngineState).userReady)
-
-  useEffect(() => {
-    setVisualizers()
-  }, [renderState.physicsDebug])
 
   useEffect(() => {
     if (!session.value) return

@@ -210,8 +210,8 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   }, [modelState.src])
 
   useEffect(() => {
-    transformParms.resources.set(getModelResources(entity))
-  }, [modelState.scene])
+    transformParms.resources.set(getModelResources(entity, transformParms.value))
+  }, [modelState.scene, transformParms])
 
   return (
     <CollapsibleBlock label="Model Transform Properties">

@@ -40,3 +40,7 @@ export const Q_IDENTITY = Object.freeze(new Quaternion())
 
 export const MAT3_IDENTITY = Object.freeze(new Matrix3().identity())
 export const MAT4_IDENTITY = Object.freeze(new Matrix4().identity())
+
+export const X_180 = Object.freeze(new Quaternion().setFromAxisAngle(V_100, PI))
+export const Y_180 = Object.freeze(new Quaternion().setFromAxisAngle(V_010, PI))
+export const Z_180 = Object.freeze(new Quaternion().setFromAxisAngle(V_001, PI))

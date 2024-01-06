@@ -52,7 +52,7 @@ import { getSceneData } from './scene-helper'
 
 const DEFAULT_DIRECTORY = 'packages/projects/default-project'
 const NEW_SCENE_NAME = 'New-Scene'
-const SCENE_ASSET_FILES = ['.scene.json', '.thumbnail.ktx2', '.envmap.ktx2']
+const SCENE_ASSET_FILES = ['.scene.json', '.thumbnail.jpg', '.envmap.ktx2']
 
 export interface SceneParams extends Params<SceneQuery> {
   paginate?: false
@@ -271,11 +271,11 @@ export class SceneService
       })
 
       if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
-        const sceneThumbnailPath = `${directory}${name}.thumbnail.ktx2`
+        const sceneThumbnailPath = `${directory}${name}.thumbnail.jpg`
         await storageProvider.putObject({
           Key: sceneThumbnailPath,
           Body: thumbnailBuffer as Buffer,
-          ContentType: 'image/ktx2'
+          ContentType: 'image/jpeg'
         })
       }
 
@@ -299,7 +299,7 @@ export class SceneService
         )
 
         if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
-          const sceneThumbnailPath = path.resolve(appRootPath.path, `${localDirectory}${name}.thumbnail.ktx2`)
+          const sceneThumbnailPath = path.resolve(appRootPath.path, `${localDirectory}${name}.thumbnail.jpg`)
           fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer as Buffer)
         }
       }

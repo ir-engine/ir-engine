@@ -24,7 +24,7 @@ import { JSONTree } from 'react-json-tree'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, syncStateWithLocalStorage, useHookstate } from '@etherealengine/hyperflux'
 
 import styles from './styles.module.scss'
 
@@ -38,18 +38,42 @@ const labelRenderer = (data: Record<string | number, any>) => {
   }
 }
 
+const StateSearchState = defineState({
+  name: 'StateSearchState',
+  initial: {
+    search: ''
+  },
+  onCreate: (store, state) => {
+    syncStateWithLocalStorage(StateSearchState, ['search'])
+  }
+})
+
 export function StateDebug() {
   useHookstate(getMutableState(EngineState).frameTime).value
   const { t } = useTranslation()
+
+  const stateSearch = useHookstate(getMutableState(StateSearchState).search)
+
+  const state =
+    stateSearch.value === ''
+      ? Engine.instance.store.valueMap
+      : Object.fromEntries(
+          Object.entries(Engine.instance.store.valueMap).filter(([key]) =>
+            key.toLowerCase().includes(stateSearch.value)
+          )
+        )
 
   return (
     <>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.state')}</h1>
-        <JSONTree
-          data={Engine.instance.store.stateMap}
-          postprocessValue={(v: any) => (v?.value && v.get(NO_PROXY)) ?? v}
+        <input
+          type="text"
+          placeholder="Search..."
+          value={stateSearch.value}
+          onChange={(e) => stateSearch.set(e.target.value)}
         />
+        <JSONTree data={state} />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.actionsHistory')}</h1>

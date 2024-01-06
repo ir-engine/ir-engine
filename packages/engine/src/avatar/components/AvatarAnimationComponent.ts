@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
+import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -57,7 +57,6 @@ import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
-import { AnimationComponent } from './AnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -102,24 +101,9 @@ export const AvatarRigComponent = defineComponent({
       rawRig: null! as VRMHumanBones,
 
       helperEntity: null as Entity | null,
-      /** The length of the torso in a t-pose, from the hip joint to the head joint */
-      torsoLength: 0,
-      /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
-      upperLegLength: 0,
-      /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
-      lowerLegLength: 0,
-      /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
-      footHeight: 0,
 
-      armLength: 0,
-
-      footGap: 0,
-
-      /** Cache of the skinned meshes currently on the rig */
-      skinnedMeshes: [] as SkinnedMesh[],
       /** The VRM model */
       vrm: null! as VRM,
-
       avatarURL: null as string | null
     }
   },
@@ -128,12 +112,6 @@ export const AvatarRigComponent = defineComponent({
     if (!json) return
     if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
-    if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
-    if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
-    if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
-    if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
-    if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
-    if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
   },
@@ -151,6 +129,7 @@ export const AvatarRigComponent = defineComponent({
     const visible = useOptionalComponent(entity, VisibleComponent)
     const modelComponent = useOptionalComponent(entity, ModelComponent)
     const locomotionAnimationState = useHookstate(getMutableState(AnimationState).loadedAnimations[locomotionAnimation])
+    const avatarComponent = useComponent(entity, AvatarComponent)
 
     useEffect(() => {
       if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
@@ -205,30 +184,12 @@ export const AvatarRigComponent = defineComponent({
       const rig = getComponent(entity, AvatarRigComponent)
       try {
         setupAvatarForUser(entity, rig.vrm)
-        if (manager.loadedAnimations[locomotionAnimation].value) retargetAvatarAnimations(entity)
+        retargetAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
       }
-    }, [rigComponent.vrm, locomotionAnimationState])
-
-    const manager = useHookstate(getMutableState(AnimationState))
-
-    useEffect(() => {
-      if (
-        !manager.loadedAnimations[locomotionAnimation].value ||
-        !rigComponent?.vrm?.value ||
-        !rigComponent?.normalizedRig?.value ||
-        getComponent(entity, AnimationComponent).animations.length
-      )
-        return
-      try {
-        retargetAvatarAnimations(entity)
-      } catch (e) {
-        console.error('Failed to retarget avatar animations', e)
-        if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
-      }
-    }, [manager.loadedAnimations, rigComponent.vrm])
+    }, [rigComponent.vrm])
 
     return null
   }

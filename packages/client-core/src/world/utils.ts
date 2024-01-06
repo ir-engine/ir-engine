@@ -36,12 +36,11 @@ export const loadSceneJsonOffline = async (projectName, sceneName) => {
   const sceneData = (await (
     await fetch(`${fileServer}/projects/${projectName}/${sceneName}.scene.json`)
   ).json()) as SceneJsonType
-  const hasKTX2 = await fetch(`${fileServer}/projects/${projectName}/${sceneName}.thumbnail.ktx2`).then((res) => res.ok)
   SceneState.loadScene(sceneID, {
     scene: parseStorageProviderURLs(sceneData),
     name: sceneName,
     scenePath: sceneID,
-    thumbnailUrl: `${fileServer}/projects/${projectName}/${sceneName}.thumbnail.${hasKTX2 ? 'ktx2' : 'jpeg'}`,
+    thumbnailUrl: `${fileServer}/projects/${projectName}/${sceneName}.thumbnail.jpg`,
     project: projectName
   })
   getMutableState(SceneState).activeScene.set(sceneID)
