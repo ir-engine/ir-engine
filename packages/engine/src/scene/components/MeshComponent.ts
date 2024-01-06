@@ -36,9 +36,11 @@ import { useEffect } from 'react'
 import { MeshBVHVisualizer } from 'three-mesh-bvh'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { ModelComponent } from './ModelComponent'
+import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export const MeshBVHComponent = defineComponent({
@@ -77,9 +79,14 @@ export const MeshBVHComponent = defineComponent({
 
     useEffect(() => {
       let aborted = false
-      if (!component.generated.value && visible?.value && (!model || model.value.cameraOcclusion)) {
+      if (!component.generated.value && visible?.value) {
         generateMeshBVH(component.mesh.value).then(() => {
-          if (!aborted) component.generated.set(true)
+          if (!aborted) {
+            component.generated.set(true)
+            if (model && model.value.cameraOcclusion) {
+              ObjectLayerMaskComponent.enableLayers(entity, ObjectLayers.Camera)
+            }
+          }
         })
       }
 
