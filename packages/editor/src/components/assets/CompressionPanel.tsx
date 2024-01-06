@@ -55,6 +55,13 @@ import {
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { removeEntityNodeRecursively } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { createSceneEntity } from '@etherealengine/engine/src/ecs/functions/createSceneEntity'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
+import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
+import exportGLTF from '../../functions/exportGLTF'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
 const UASTCFlagOptions = [
@@ -93,6 +100,7 @@ export default function CompressionPanel({
   const compressionLoading = useHookstate(false)
   const isClientside = useHookstate<boolean>(true)
   const isBatchCompress = useHookstate<boolean>(true)
+  const isIntegratedPrefab = useHookstate<boolean>(true)
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: fileProperties.url.value,
@@ -156,29 +164,72 @@ export default function CompressionPanel({
     }).promise
   }
 
-  const compressModel = async () => {
-    const modelSrc = fileProperties.url.value
-    const batchCompressed = isBatchCompress.value
-    const clientside = isClientside.value
-    const textureSizes = batchCompressed ? [2048, 1024, 512] : [transformParms.maxTextureSize.value]
-    const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
+  type LODVariantDescriptor = {
+    parms: ModelTransformParameters
+    metadata: Record<string, any>
+    suffix?: string
+  }
 
-    const variants = textureSizes.map((maxTextureSize, index) => {
-      let dst = transformParms.dst.value
-      if (batchCompressed) {
-        dst += `-LOD_${index}`
-      }
-      dst += '.glb'
-      return { ...transformParms.get(NO_PROXY), maxTextureSize, dst }
-    })
+  const createLODVariants = async (
+    modelSrc: string,
+    modelDst: string,
+    lods: LODVariantDescriptor[],
+    clientside: boolean,
+    heuristic: 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE',
+    exportCombined = false
+  ) => {
+    const lodVariantParms: ModelTransformParameters[] = lods.map((lod) => ({
+      ...lod.parms,
+      src: modelSrc,
+      dst: `${modelDst}${lod.suffix ?? ''}.${lod.parms.modelFormat}`
+    }))
 
-    for (const variant of variants) {
+    for (const variant of lodVariantParms) {
       if (clientside) {
         await clientSideTransformModel(variant)
       } else {
         await Engine.instance.api.service(modelTransformPath).create(variant)
       }
     }
+
+    if (exportCombined) {
+      const result = createSceneEntity('container')
+      setComponent(result, ModelComponent)
+      const variant = createSceneEntity('LOD Variant', result)
+      setComponent(variant, ModelComponent)
+      setComponent(variant, VariantComponent, {
+        levels: lods.map((lod, index) => ({
+          src: modelSrc.replace(/[^\/]+$/, lodVariantParms[index].dst),
+          metadata: lod.metadata
+        })),
+        heuristic
+      })
+
+      const combinedModelFormat = modelSrc.endsWith('.gltf') ? 'gltf' : 'glb'
+      await exportGLTF(result, modelSrc.replace(/\.[^.]*$/, `-integrated.${combinedModelFormat}`))
+      removeEntityNodeRecursively(result)
+    }
+  }
+
+  const compressModel = async () => {
+    const modelSrc = fileProperties.url.value
+    const modelDst = transformParms.dst.value
+    const clientside = isClientside.value
+    const batchCompress = isBatchCompress.value
+    const exportCombined = isIntegratedPrefab.value
+
+    const basis = transformParms.get(NO_PROXY)
+    const lods = batchCompress
+      ? [
+          { suffix: '-LOD_0', parms: { ...basis, maxTextureSize: 2048 }, metadata: { device: 'DESKTOP' } },
+          { suffix: '-LOD_1', parms: { ...basis, maxTextureSize: 1024 }, metadata: { device: 'XR' } },
+          { suffix: '-LOD_2', parms: { ...basis, maxTextureSize: 512 }, metadata: { device: 'MOBILE' } }
+        ]
+      : [{ parms: basis, metadata: {} }]
+    const heuristic = 'DEVICE'
+    await createLODVariants(modelSrc, modelDst, lods, clientside, heuristic, exportCombined)
+
+    const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
     await FileBrowserService.fetchFiles(directoryToRefresh)
   }
 
@@ -235,6 +286,14 @@ export default function CompressionPanel({
               value={isBatchCompress.value}
               onChange={(val: boolean) => {
                 isBatchCompress.set(val)
+              }}
+            />
+          </InputGroup>
+          <InputGroup name="Generate Integrated Variant Prefab" label="Generate Integrated Variant Prefab">
+            <BooleanInput
+              value={isIntegratedPrefab.value}
+              onChange={(val: boolean) => {
+                isIntegratedPrefab.set(val)
               }}
             />
           </InputGroup>
