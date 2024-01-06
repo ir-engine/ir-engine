@@ -30,18 +30,9 @@ import { defineComponent, getOptionalComponent, useComponent } from '../../ecs/f
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { AvatarRigComponent } from './AvatarAnimationComponent'
 import { SkinnedMeshComponent } from './SkinnedMeshComponent'
 
 const size = new Vector3()
-const hipsPos = new Vector3(),
-  headPos = new Vector3(),
-  leftFootPos = new Vector3(),
-  rightFootPos = new Vector3(),
-  leftLowerLegPos = new Vector3(),
-  leftUpperLegPos = new Vector3(),
-  footGap = new Vector3(),
-  eyePos = new Vector3()
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',
 
@@ -87,6 +78,8 @@ export const AvatarComponent = defineComponent({
     const entity = useEntityContext()
     const avatarComponent = useComponent(entity, AvatarComponent)
     const modelComponent = useComponent(entity, ModelComponent)
+    const entityTreeComponent = useComponent(entity, EntityTreeComponent)
+
     useEffect(() => {
       if (!modelComponent.asset.value) return
       const scene = modelComponent.asset.value.scene
@@ -97,7 +90,6 @@ export const AvatarComponent = defineComponent({
       avatarComponent.avatarHalfHeight.set(size.y * 0.5)
     }, [modelComponent.asset])
 
-    const entityTreeComponent = useComponent(entity, EntityTreeComponent)
     useEffect(() => {
       const children = entityTreeComponent.children.value
       if (!children.length) return
@@ -109,25 +101,6 @@ export const AvatarComponent = defineComponent({
       avatarComponent.skinnedMeshes.set(skinnedMeshes)
     }, [entityTreeComponent.children])
 
-    const rigComponent = useComponent(entity, AvatarRigComponent)
-    useEffect(() => {
-      if (!rigComponent.normalizedRig.value) return
-      const rig = rigComponent.normalizedRig.value
-      rig.hips.node.getWorldPosition(hipsPos)
-      rig.head.node.getWorldPosition(headPos)
-      rig.leftFoot.node.getWorldPosition(leftFootPos)
-      rig.rightFoot.node.getWorldPosition(rightFootPos)
-      rig.leftLowerLeg.node.getWorldPosition(leftLowerLegPos)
-      rig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
-      rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos)
-
-      avatarComponent.torsoLength.set(headPos.y - hipsPos.y)
-      avatarComponent.upperLegLength.set(hipsPos.y - leftLowerLegPos.y)
-      avatarComponent.lowerLegLength.set(leftFootPos.y - leftUpperLegPos.y)
-      avatarComponent.hipsHeight.set(hipsPos.y)
-      avatarComponent.eyeHeight.set(eyePos.y)
-      avatarComponent.footGap.set(footGap.subVectors(leftFootPos, rightFootPos).length())
-    }, [rigComponent.normalizedRig])
     return null
   }
 })
