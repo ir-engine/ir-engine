@@ -40,6 +40,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
@@ -48,8 +49,8 @@ import { isClient } from '../../common/functions/getEnvironment'
 import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import avatarBoneMatching from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
@@ -140,7 +141,8 @@ const hipsPos = new Vector3(),
   eyePos = new Vector3()
 
 export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
-  const transform = getComponent(entity, TransformComponent)
+  iterateEntityNode(entity, computeTransformMatrix)
+
   const rig = vrm.humanoid.rawHumanBones
   rig.hips.node.getWorldPosition(hipsPos)
   rig.head.node.getWorldPosition(headPos)
@@ -154,8 +156,8 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   avatarComponent.torsoLength.set(Math.abs(headPos.y - hipsPos.y))
   avatarComponent.upperLegLength.set(Math.abs(hipsPos.y - leftLowerLegPos.y))
   avatarComponent.lowerLegLength.set(Math.abs(leftLowerLegPos.y - leftFootPos.y))
-  avatarComponent.hipsHeight.set(Math.abs(hipsPos.y - transform.position.y))
-  avatarComponent.eyeHeight.set(Math.abs(eyePos.y - transform.position.y))
+  avatarComponent.hipsHeight.set(hipsPos.y)
+  avatarComponent.eyeHeight.set(eyePos.y)
   avatarComponent.footGap.set(footGap.subVectors(leftFootPos, rightFootPos).length())
 }
 
