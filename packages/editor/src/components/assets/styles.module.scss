@@ -289,3 +289,22 @@
   width: 100%;
   border-radius: 10px;
 }
+
+.confirmModal {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  top: 50%;
+  left: 50%;
+  transform: 'translate(-50%, -50%)';
+  background-color: rgb(54 54 54);
+  color: white;
+  padding: 30px 30px 15px 15px;
+  border-radius: 10px;
+}
+
+.confirmModalButtons {
+  margin-top: 15px;
+}

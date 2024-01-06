@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
@@ -49,10 +49,62 @@ import { createSceneEntity } from '@etherealengine/engine/src/ecs/functions/crea
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
-import { Box, ListItemButton, ListItemText } from '@mui/material'
+import { Box, ListItemButton, ListItemText, Modal } from '@mui/material'
 import exportGLTF from '../../functions/exportGLTF'
 import { List } from '../layout/List'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
+
+// TODO: Find place to put hard-coded list
+const LODList: ModelTransformParameters[] = [
+  {
+    ...DefaultModelTransformParameters,
+    src: 'Desktop - Low',
+    dst: 'Desktop - Low',
+    maxTextureSize: 1024
+  },
+  {
+    ...DefaultModelTransformParameters,
+    src: 'Desktop - Medium',
+    dst: 'Desktop - Medium',
+    maxTextureSize: 2048
+  },
+  {
+    ...DefaultModelTransformParameters,
+    src: 'Desktop - High',
+    dst: 'Desktop - High',
+    maxTextureSize: 2048
+  },
+  {
+    ...DefaultModelTransformParameters,
+    src: 'Mobile - Low',
+    dst: 'Mobile - Low',
+    maxTextureSize: 512
+  },
+  {
+    ...DefaultModelTransformParameters,
+    src: 'Mobile - High',
+    dst: 'Mobile - High',
+    maxTextureSize: 1024
+  },
+  {
+    ...DefaultModelTransformParameters,
+    src: 'XR - Low',
+    dst: 'XR - Low',
+    maxTextureSize: 1024
+  },
+  {
+    ...DefaultModelTransformParameters,
+    src: 'XR - Medium',
+    dst: 'XR - Medium',
+    maxTextureSize: 1024
+  },
+  {
+    ...DefaultModelTransformParameters,
+    src: 'XR - High',
+    dst: 'XR - High',
+    maxTextureSize: 2048
+  }
+]
 
 export default function ModelCompressionPanel({
   openCompress,
@@ -73,57 +125,16 @@ export default function ModelCompressionPanel({
     modelFormat: fileProperties.url.value.endsWith('.gltf') ? 'gltf' : 'glb'
   })
 
-  // TODO: Replace with actual params and find place to put hard-coded list
-  const LODList: ModelTransformParameters[] = [
-    {
-      ...DefaultModelTransformParameters,
-      src: 'Desktop - Ultra High',
-      dst: 'Desktop - Ultra High',
-      maxTextureSize: 512
-    },
-    {
-      ...DefaultModelTransformParameters,
-      src: 'Desktop - High',
-      dst: 'Desktop - High',
-      maxTextureSize: 1024
-    },
-    {
-      ...DefaultModelTransformParameters,
-      src: 'Desktop - Medium',
-      dst: 'Desktop - Medium',
-      maxTextureSize: 2048
-    },
-    {
-      ...DefaultModelTransformParameters,
-      src: 'Mobile - High',
-      dst: 'Mobile - High',
-      maxTextureSize: 2048
-    },
-    {
-      ...DefaultModelTransformParameters,
-      src: 'Mobile - Low',
-      dst: 'Mobile - Low',
-      maxTextureSize: 2048
-    },
-    {
-      ...DefaultModelTransformParameters,
-      src: 'Apple Vision Pro',
-      dst: 'Apple Vision Pro',
-      maxTextureSize: 2048
-    },
-    {
-      ...DefaultModelTransformParameters,
-      src: 'Quest 3',
-      dst: 'Quest 3',
-      maxTextureSize: 2048
-    },
-    {
-      ...DefaultModelTransformParameters,
-      src: 'Quest Pro',
-      dst: 'Quest Pro',
-      maxTextureSize: 2048
+  const [modalOpen, setModalOpen] = useState<boolean>(false)
+  const [selectedPreset, setSelectedPreset] = useState<ModelTransformParameters>(DefaultModelTransformParameters)
+  const [presetList, setPresetList] = useState<ModelTransformParameters[]>(LODList)
+
+  useEffect(() => {
+    const presets = localStorage.getItem('presets')
+    if (presets !== null) {
+      setPresetList(JSON.parse(presets))
     }
-  ]
+  }, [])
 
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
@@ -183,9 +194,24 @@ export default function ModelCompressionPanel({
   }
 
   const applyPreset = (preset: ModelTransformParameters) => {
-    // TODO: Apply rest of parms and edit name
-    transformParms.dst.set(preset.dst)
-    transformParms.maxTextureSize.set(preset.maxTextureSize)
+    setSelectedPreset(preset)
+    setModalOpen(true)
+  }
+
+  const confirmPreset = () => {
+    if (!LODList.find((l) => l === selectedPreset)) {
+      const prevDst = transformParms.dst.value
+      transformParms.dst.set(`${prevDst}-${selectedPreset.dst.replace(/\s/g, '').toLowerCase()}`)
+      transformParms.maxTextureSize.set(selectedPreset.maxTextureSize)
+    }
+    setModalOpen(false)
+  }
+
+  const savePresetList = (deleting: boolean) => {
+    if (!deleting) {
+      setPresetList([...presetList, transformParms.value])
+    }
+    localStorage.setItem('presets', JSON.stringify(presetList))
   }
 
   const compressModel = async () => {
@@ -208,6 +234,12 @@ export default function ModelCompressionPanel({
 
     const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
     await FileBrowserService.fetchFiles(directoryToRefresh)
+  }
+
+  const deletePreset = (idx: number) => {
+    const newList = [...presetList]
+    newList.splice(idx, 1)
+    setPresetList(newList)
   }
 
   useEffect(() => {
@@ -282,15 +314,31 @@ export default function ModelCompressionPanel({
           </Typography>
           <Box display="flex" alignItems="center">
             <List>
-              {LODList.map((lodItem: ModelTransformParameters) => (
-                <ListItemButton className={styles.presetButton} onClick={() => applyPreset(lodItem)}>
-                  <ListItemText>{lodItem.src}</ListItemText>
-                </ListItemButton>
+              {presetList.map((lodItem: ModelTransformParameters, idx) => (
+                <Box>
+                  <ListItemButton className={styles.presetButton} onClick={() => applyPreset(lodItem)}>
+                    <ListItemText>{lodItem.dst}</ListItemText>
+                  </ListItemButton>
+                  {!LODList.find((l) => l.dst === lodItem.dst) && (
+                    <ListItemButton onClick={() => deletePreset(idx)}>x</ListItemButton>
+                  )}
+                </Box>
               ))}
             </List>
           </Box>
+          <Button onClick={() => savePresetList(false)}>Save Preset</Button>
         </Box>
       </div>
+      <Modal open={modalOpen}>
+        <Box className={styles.confirmModal}>
+          <Typography>Would you like to apply this preset?</Typography>
+          <Typography>{selectedPreset.dst}</Typography>
+          <Box className={styles.confirmModalButtons}>
+            <Button onClick={() => confirmPreset()}>Yes</Button>
+            <Button onClick={() => setModalOpen(false)}>Close</Button>
+          </Box>
+        </Box>
+      </Modal>
     </Menu>
   )
 }
