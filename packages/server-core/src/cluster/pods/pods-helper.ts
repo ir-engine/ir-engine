@@ -205,7 +205,8 @@ const getServerPodInfo = (item: k8s.V1Pod) => {
     name: item.metadata?.name,
     status: item.status?.phase,
     age: item.status?.startTime?.toString(),
-    containers: getServerContainerInfo(item.status?.containerStatuses!)
+    containers: getServerContainerInfo(item.status?.containerStatuses!),
+    imagePullSecrets: item.spec?.imagePullSecrets
   } as ServerPodInfoType
 }
 
