@@ -239,6 +239,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     rotation: obj.quaternion.clone(),
     scale: obj.scale.clone()
   })
+  computeTransformMatrix(objEntity)
   eJson.components.push({
     name: TransformComponent.jsonID,
     props: {
