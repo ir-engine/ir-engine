@@ -29,7 +29,7 @@ import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { V_001, V_010, Y_180 } from '../../common/constants/MathConstants'
+import { V_001, V_010, V_100, Y_180 } from '../../common/constants/MathConstants'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -90,6 +90,7 @@ const leftHandRotation = new Quaternion()
 const rightHandRotation = new Quaternion()
   .setFromAxisAngle(V_001, -Math.PI / 2)
   .multiply(new Quaternion().setFromAxisAngle(V_010, Math.PI / 2))
+const rightFootRotation = new Quaternion().setFromAxisAngle(V_100, Math.PI * 0.5)
 
 const midAxisRestriction = new Euler(0, 0, 0)
 const tipAxisRestriction = new Euler(0, 0, 0)
@@ -263,12 +264,16 @@ const execute = () => {
     }
 
     if (rightFootTargetBlendWeight) {
+      _quat2.copy(rightFootTransform.rotation)
+      if (isAvatarFlipped) {
+        _quat2.multiply(rightFootRotation)
+      }
       solveTwoBoneIK(
         rig.rightUpperLeg.node,
         rig.rightLowerLeg.node,
         rig.rightFoot.node,
         rightFootTransform.position,
-        rightFootTransform.rotation,
+        _quat2,
         null,
         _vector3.copy(transform.position).add(forward),
         null,
@@ -280,12 +285,16 @@ const execute = () => {
     }
 
     if (leftFootTargetBlendWeight) {
+      _quat2.copy(leftFootTransform.rotation)
+      if (isAvatarFlipped) {
+        _quat2.multiply(rightFootRotation)
+      }
       solveTwoBoneIK(
         rig.leftUpperLeg.node,
         rig.leftLowerLeg.node,
         rig.leftFoot.node,
         leftFootTransform.position,
-        leftFootTransform.rotation,
+        _quat2,
         null,
         _vector3.copy(transform.position).add(forward),
         null,

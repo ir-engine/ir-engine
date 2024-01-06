@@ -55,7 +55,7 @@ import {
 } from '../../transform/components/ComputedTransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
-import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
+import { retargetAvatarAnimations, setupAvatarForUser, setupAvatarProportions } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
@@ -129,7 +129,6 @@ export const AvatarRigComponent = defineComponent({
     const visible = useOptionalComponent(entity, VisibleComponent)
     const modelComponent = useOptionalComponent(entity, ModelComponent)
     const locomotionAnimationState = useHookstate(getMutableState(AnimationState).loadedAnimations[locomotionAnimation])
-    const avatarComponent = useComponent(entity, AvatarComponent)
 
     useEffect(() => {
       if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
@@ -160,6 +159,7 @@ export const AvatarRigComponent = defineComponent({
     useEffect(() => {
       if (!modelComponent?.asset?.value) return
       const model = getComponent(entity, ModelComponent)
+      setupAvatarProportions(entity, model.asset as VRM)
       setComponent(entity, AvatarRigComponent, {
         vrm: model.asset as VRM,
         avatarURL: model.src
