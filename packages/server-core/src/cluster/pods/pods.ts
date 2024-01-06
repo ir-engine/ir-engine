@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { podsMethods, podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import { podsMethods, podsPath } from '@etherealengine/common/src/schemas/cluster/pods.schema'
 import { Application } from '../../../declarations'
 import { PodsService } from './pods.class'
 import podsDocs from './pods.docs'

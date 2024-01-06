@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
+import { matchUserPath } from '@etherealengine/common/src/schemas/matchmaking/match-user.schema'
 
 /**
  * @param { import("knex").Knex } knex

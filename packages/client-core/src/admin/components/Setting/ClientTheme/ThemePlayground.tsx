@@ -50,9 +50,7 @@ import TablePagination from '@etherealengine/ui/src/primitives/mui/TablePaginati
 import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationID } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { InviteCode, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InstanceID, InviteCode, LocationID, UserName } from '@etherealengine/common/src/schema.type.module'
 import DrawerView from '../../../common/DrawerView'
 import styles from '../../../styles/settings.module.scss'
 

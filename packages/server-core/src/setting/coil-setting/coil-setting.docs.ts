@@ -30,7 +30,7 @@ import {
   coilSettingPatchSchema,
   coilSettingQuerySchema,
   coilSettingSchema
-} from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/coil-setting.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

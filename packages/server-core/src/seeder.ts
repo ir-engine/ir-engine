@@ -27,7 +27,7 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { Application } from '../declarations'
 import multiLogger from './ServerLogger'
 import config from './appconfig'

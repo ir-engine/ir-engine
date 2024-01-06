@@ -30,7 +30,7 @@ import { clientDbToSchema } from '../../server-core/src/setting/client-setting/c
 const {
   clientSettingPath,
   ClientSettingDatabaseType
-} = require('../../engine/src/schemas/setting/client-setting.schema')
+} = require('../../common/src/schemas/setting/client-setting.schema')
 
 export const getClientSetting = async () => {
   const knexClient = knex({

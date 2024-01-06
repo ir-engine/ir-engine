@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PortalType } from '@etherealengine/engine/src/schemas/projects/portal.schema'
-import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { PortalType } from '@etherealengine/common/src/schemas/projects/portal.schema'
+import { SceneDataType } from '@etherealengine/common/src/schemas/projects/scene.schema'
 
 export const parseScenePortals = (scene: SceneDataType) => {
   const portals: PortalType[] = []

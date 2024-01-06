@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { portalMethods, portalPath } from '@etherealengine/engine/src/schemas/projects/portal.schema'
+import { portalMethods, portalPath } from '@etherealengine/common/src/schemas/projects/portal.schema'
 import { Application } from '../../../declarations'
 import { PortalService } from './portal.class'
 import portalDocs from './portal.docs'

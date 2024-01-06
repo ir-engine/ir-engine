@@ -33,7 +33,7 @@ import {
   authenticationSettingPatchValidator,
   authenticationSettingPath,
   authenticationSettingQueryValidator
-} from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 import * as k8s from '@kubernetes/client-node'
 
 import { getState } from '@etherealengine/hyperflux'

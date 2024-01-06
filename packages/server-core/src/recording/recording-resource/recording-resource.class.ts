@@ -31,7 +31,7 @@ import {
   RecordingResourcePatch,
   RecordingResourceQuery,
   RecordingResourceType
-} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+} from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
 
 export interface RecordingResourceParams extends KnexAdapterParams<RecordingResourceQuery> {}
 

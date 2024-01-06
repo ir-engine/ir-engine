@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import * as authentication from '@feathersjs/authentication'
 import { HookContext, NextFunction, Paginated } from '@feathersjs/feathers'
 
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { AsyncLocalStorage } from 'async_hooks'
 import { isProvider } from 'feathers-hooks-common'
 import config from '../appconfig'

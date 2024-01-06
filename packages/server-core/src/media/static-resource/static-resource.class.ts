@@ -28,7 +28,7 @@ import {
   StaticResourcePatch,
   StaticResourceQuery,
   StaticResourceType
-} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+} from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { Params } from '@feathersjs/feathers'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 

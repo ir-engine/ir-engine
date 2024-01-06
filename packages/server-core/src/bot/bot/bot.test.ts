@@ -26,19 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { v1 } from 'uuid'
 
+import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-import { BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { BotType, botPath } from '@etherealengine/common/src/schemas/bot/bot.schema'
+import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import {
   LocationID,
   LocationType,
   RoomCode,
   locationPath
-} from '@etherealengine/engine/src/schemas/social/location.schema'
-import { UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/social/location.schema'
+import { UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 

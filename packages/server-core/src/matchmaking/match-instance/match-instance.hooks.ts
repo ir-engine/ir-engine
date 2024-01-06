@@ -30,7 +30,7 @@ import {
   matchInstanceDataValidator,
   matchInstancePatchValidator,
   matchInstanceQueryValidator
-} from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+} from '@etherealengine/common/src/schemas/matchmaking/match-instance.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
 import createInstance from '../../hooks/matchmaking-create-instance'

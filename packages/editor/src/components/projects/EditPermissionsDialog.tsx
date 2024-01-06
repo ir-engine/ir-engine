@@ -39,8 +39,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Switch from '@mui/material/Switch'
 
-import { ProjectPermissionType } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectPermissionType, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { Button } from '../inputs/Button'
 import styles from './styles.module.scss'
 

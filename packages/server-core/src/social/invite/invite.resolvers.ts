@@ -27,18 +27,18 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { ChannelID, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
 import {
   InviteDatabaseType,
   InviteQuery,
   InviteType,
   SpawnDetailsType
-} from '@etherealengine/engine/src/schemas/social/invite.schema'
+} from '@etherealengine/common/src/schemas/social/invite.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { Paginated } from '@feathersjs/feathers'
 import crypto from 'crypto'

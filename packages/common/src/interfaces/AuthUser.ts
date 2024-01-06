@@ -23,11 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { IdentityProviderType, identityProviderPath } from '@etherealengine/common/src/schema.type.module'
+import { UserID } from '../schemas/user/user.schema'
 
 export interface AuthUser {
   accessToken: string

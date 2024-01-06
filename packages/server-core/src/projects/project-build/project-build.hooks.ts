@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { projectBuildPatchValidator } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { projectBuildPatchValidator } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import {

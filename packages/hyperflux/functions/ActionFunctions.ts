@@ -28,11 +28,11 @@ import { matches, Parser, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { deepEqual } from '@etherealengine/engine/src/common/functions/deepEqual'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })

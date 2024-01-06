@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InstanceID, InviteCode } from '@etherealengine/common/src/schema.type.module'
 
 export interface LocationColumn {
   id: 'sceneId' | 'maxUsersPerInstance' | 'scene' | 'name' | 'locationType' | 'tags' | 'videoEnabled' | 'action'

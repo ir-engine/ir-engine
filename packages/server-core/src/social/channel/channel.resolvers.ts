@@ -27,9 +27,9 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { ChannelID, ChannelQuery, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { ChannelID, ChannelQuery, ChannelType } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { MessageType, messagePath } from '@etherealengine/common/src/schemas/social/message.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { Paginated } from '@feathersjs/feathers'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

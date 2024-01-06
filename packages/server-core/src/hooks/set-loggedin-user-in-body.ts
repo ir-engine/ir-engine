@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { HookContext } from '@feathersjs/feathers'
 
 // This will attach the owner ID in the contact while creating/updating list item

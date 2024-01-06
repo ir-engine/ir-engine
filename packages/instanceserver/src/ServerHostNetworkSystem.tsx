@@ -28,14 +28,14 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { useEffect } from 'react'
 
+import { RecordingID } from '@etherealengine/common/src/schema.type.module'
 import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { recordingResourceUploadPath } from '@etherealengine/common/src/schema.type.module'
 import { SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { recordingResourceUploadPath } from '@etherealengine/engine/src/schemas/recording/recording-resource-upload.schema'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 export async function validateNetworkObjects(network: SocketWebRTCServerNetwork): Promise<void> {

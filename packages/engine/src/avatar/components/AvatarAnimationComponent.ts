@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
+import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -55,7 +55,7 @@ import {
 } from '../../transform/components/ComputedTransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
-import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
+import { retargetAvatarAnimations, setupAvatarForUser, setupAvatarProportions } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
@@ -101,24 +101,9 @@ export const AvatarRigComponent = defineComponent({
       rawRig: null! as VRMHumanBones,
 
       helperEntity: null as Entity | null,
-      /** The length of the torso in a t-pose, from the hip joint to the head joint */
-      torsoLength: 0,
-      /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
-      upperLegLength: 0,
-      /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
-      lowerLegLength: 0,
-      /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
-      footHeight: 0,
 
-      armLength: 0,
-
-      footGap: 0,
-
-      /** Cache of the skinned meshes currently on the rig */
-      skinnedMeshes: [] as SkinnedMesh[],
       /** The VRM model */
       vrm: null! as VRM,
-
       avatarURL: null as string | null
     }
   },
@@ -127,12 +112,6 @@ export const AvatarRigComponent = defineComponent({
     if (!json) return
     if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
-    if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
-    if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
-    if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
-    if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
-    if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
-    if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
   },
@@ -180,6 +159,7 @@ export const AvatarRigComponent = defineComponent({
     useEffect(() => {
       if (!modelComponent?.asset?.value) return
       const model = getComponent(entity, ModelComponent)
+      setupAvatarProportions(entity, model.asset as VRM)
       setComponent(entity, AvatarRigComponent, {
         vrm: model.asset as VRM,
         avatarURL: model.src

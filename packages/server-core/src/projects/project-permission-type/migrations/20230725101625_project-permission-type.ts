@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { projectPermissionTypePath } from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
+import { projectPermissionTypePath } from '@etherealengine/common/src/schemas/projects/project-permission-type.schema'
 
 /**
  * @param { import("knex").Knex } knex

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   matchInstanceMethods,
   matchInstancePath
-} from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+} from '@etherealengine/common/src/schemas/matchmaking/match-instance.schema'
 
 import { Application } from '../../../declarations'
 import { MatchInstanceService } from './match-instance.class'

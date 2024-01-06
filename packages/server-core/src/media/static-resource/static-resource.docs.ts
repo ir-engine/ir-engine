@@ -30,7 +30,7 @@ import {
   staticResourcePatchSchema,
   staticResourceQuerySchema,
   staticResourceSchema
-} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+} from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

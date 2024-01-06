@@ -31,7 +31,7 @@ import {
   MatchInstancePatch,
   MatchInstanceQuery,
   MatchInstanceType
-} from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+} from '@etherealengine/common/src/schemas/matchmaking/match-instance.schema'
 
 export interface MatchInstanceParams extends KnexAdapterParams<MatchInstanceQuery> {}
 

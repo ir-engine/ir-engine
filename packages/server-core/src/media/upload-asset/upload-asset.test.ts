@@ -31,7 +31,7 @@ import path from 'path'
 import { AdminAssetUploadArgumentsType, UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
 import { createFeathersKoaApp } from '../../createApp'

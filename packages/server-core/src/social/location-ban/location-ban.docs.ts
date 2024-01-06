@@ -30,7 +30,7 @@ import {
   locationBanPatchSchema,
   locationBanQuerySchema,
   locationBanSchema
-} from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+} from '@etherealengine/common/src/schemas/social/location-ban.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

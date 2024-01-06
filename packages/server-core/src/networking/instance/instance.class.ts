@@ -31,9 +31,9 @@ import {
   InstancePatch,
   InstanceQuery,
   InstanceType
-} from '@etherealengine/engine/src/schemas/networking/instance.schema'
+} from '@etherealengine/common/src/schemas/networking/instance.schema'
 
-import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { RoomCode } from '@etherealengine/common/src/schemas/social/location.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
 const roomCodeCharacters = '123456789'

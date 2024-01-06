@@ -32,7 +32,7 @@ import {
   ProjectPermissionPatch,
   ProjectPermissionQuery,
   ProjectPermissionType
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 
 import { KnexAdapterParams } from '@feathersjs/knex'
 

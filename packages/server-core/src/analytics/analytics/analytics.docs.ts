@@ -30,7 +30,7 @@ import {
   analyticsPatchSchema,
   analyticsQuerySchema,
   analyticsSchema
-} from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+} from '@etherealengine/common/src/schemas/analytics/analytics.schema'
 
 export default createSwaggerServiceOptions({
   schemas: { analyticsDataSchema, analyticsPatchSchema, analyticsQuerySchema, analyticsSchema },

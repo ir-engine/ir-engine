@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 import {
   InstanceAttendanceQuery,
   InstanceAttendanceType
-} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

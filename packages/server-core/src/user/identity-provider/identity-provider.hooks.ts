@@ -30,19 +30,19 @@ import {
   identityProviderPatchValidator,
   identityProviderPath,
   identityProviderQueryValidator
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import appConfig from '../../appconfig'
 
 import { isDev } from '@etherealengine/common/src/config'
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { scopeTypePath } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
+import { ScopeType, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { random } from 'lodash'
 import { HookContext } from '../../../declarations'
 import persistData from '../../hooks/persist-data'

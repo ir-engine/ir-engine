@@ -32,7 +32,7 @@ import {
   ServerSettingDatabaseType,
   ServerSettingQuery,
   ServerSettingType
-} from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/server-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

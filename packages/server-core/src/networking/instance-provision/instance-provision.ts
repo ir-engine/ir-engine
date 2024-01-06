@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import {
   instanceProvisionMethods,
   instanceProvisionPath
-} from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { LocationID } from '@etherealengine/engine/src/schemas/social/location.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-provision.schema'
+import { InstanceID } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { ChannelID } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { LocationID } from '@etherealengine/common/src/schemas/social/location.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { InstanceProvisionService } from './instance-provision.class'

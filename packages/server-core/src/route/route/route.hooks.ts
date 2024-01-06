@@ -30,7 +30,7 @@ import {
   routeDataValidator,
   routePatchValidator,
   routeQueryValidator
-} from '@etherealengine/engine/src/schemas/route/route.schema'
+} from '@etherealengine/common/src/schemas/route/route.schema'
 
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'

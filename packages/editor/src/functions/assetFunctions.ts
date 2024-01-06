@@ -35,9 +35,7 @@ import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { assetLibraryPath } from '@etherealengine/engine/src/schemas/assets/asset-library.schema'
-import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
-import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 
 const logger = multiLogger.child({ component: 'editor:assetFunctions' })
 

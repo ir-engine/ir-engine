@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   staticResourceFiltersMethods,
   staticResourceFiltersPath
-} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
+} from '@etherealengine/common/src/schemas/media/static-resource-filters.schema'
 import { Application } from '../../../declarations'
 import { StaticResourceFiltersService } from './static-resource-filters.class'
 import staticResourceFiltersDocs from './static-resource-filters.docs'

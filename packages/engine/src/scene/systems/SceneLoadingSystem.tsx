@@ -38,6 +38,7 @@ import {
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
+import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { Not } from 'bitecs'
 import React from 'react'
 import { Group } from 'three'
@@ -61,7 +62,6 @@ import { QueryReactor, defineSystem, destroySystem } from '../../ecs/functions/S
 import { NetworkState } from '../../networking/NetworkState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { PhysicsState } from '../../physics/state/PhysicsState'
-import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'

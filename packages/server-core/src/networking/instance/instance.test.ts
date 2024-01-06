@@ -27,17 +27,17 @@ import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
 import { v1 } from 'uuid'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   LocationID,
   locationPath,
   LocationType,
   RoomCode
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+} from '@etherealengine/common/src/schemas/social/location.schema'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { instanceActivePath } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
-import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { instanceActivePath } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
+import { InstanceID, instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 

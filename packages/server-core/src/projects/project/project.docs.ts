@@ -30,7 +30,7 @@ import {
   projectPatchSchema,
   projectQuerySchema,
   projectSchema
-} from '@etherealengine/engine/src/schemas/projects/project.schema'
+} from '@etherealengine/common/src/schemas/projects/project.schema'
 
 export default createSwaggerServiceOptions({
   schemas: { projectDataSchema, projectPatchSchema, projectQuerySchema, projectSchema },

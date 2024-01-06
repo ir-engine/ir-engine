@@ -31,7 +31,7 @@ import {
   InstanceServerSettingPatch,
   InstanceServerSettingQuery,
   InstanceServerSettingType
-} from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/instance-server-setting.schema'
 
 export interface InstanceServerSettingParams extends KnexAdapterParams<InstanceServerSettingQuery> {}
 

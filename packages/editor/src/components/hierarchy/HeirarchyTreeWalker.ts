@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { EditorState } from '../../services/EditorServices'
 

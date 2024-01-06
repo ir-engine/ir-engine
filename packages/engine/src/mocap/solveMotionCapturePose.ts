@@ -55,6 +55,7 @@ import {
   POSE_LANDMARKS_RIGHT
 } from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { V_010, V_100 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
@@ -433,6 +434,7 @@ export const solveSpine = (
   trackingLowerBody: boolean
 ) => {
   const rig = getComponent(entity, AvatarRigComponent)
+  const avatar = getComponent(entity, AvatarComponent)
 
   const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP]
   const leftHip = landmarks[POSE_LANDMARKS.LEFT_HIP]
@@ -446,8 +448,6 @@ export const solveSpine = (
 
   spineRotation.identity()
   shoulderRotation.identity()
-
-  const legLength = rig.upperLegLength + rig.lowerLegLength * 2
 
   const hipleft = new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
   const hipright = new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
@@ -463,7 +463,7 @@ export const solveSpine = (
     }
     hipCenter.copy(hipleft).add(hipright).multiplyScalar(0.5)
   } else {
-    hipCenter.copy(new Vector3(0, legLength, 0))
+    hipCenter.copy(new Vector3(0, avatar.hipsHeight, 0))
   }
 
   const shoulderLeft = new Vector3(-rightShoulder.x, lowestWorldY - rightShoulder.y, -rightShoulder.z)

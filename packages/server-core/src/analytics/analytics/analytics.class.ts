@@ -31,7 +31,7 @@ import {
   AnalyticsPatch,
   AnalyticsQuery,
   AnalyticsType
-} from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+} from '@etherealengine/common/src/schemas/analytics/analytics.schema'
 
 import { KnexAdapterParams } from '@feathersjs/knex'
 

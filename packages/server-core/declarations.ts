@@ -32,7 +32,7 @@ import Primus from 'primus'
 import '@feathersjs/transport-commons'
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
 export type PrimusType = Primus & {
   forEach(cb: (spark: Primus.Spark, id: string, connections: { [id: string]: Primus.Spark }) => boolean | void): Primus

@@ -31,7 +31,7 @@ import {
   ServerSettingPatch,
   ServerSettingQuery,
   ServerSettingType
-} from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/server-setting.schema'
 
 export interface ServerSettingParams extends KnexAdapterParams<ServerSettingQuery> {}
 

@@ -30,7 +30,7 @@ import {
   userAvatarDataValidator,
   userAvatarPatchValidator,
   userAvatarQueryValidator
-} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
+} from '@etherealengine/common/src/schemas/user/user-avatar.schema'
 
 import {
   userAvatarDataResolver,

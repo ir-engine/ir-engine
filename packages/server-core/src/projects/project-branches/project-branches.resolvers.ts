@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 
-import { ProjectBranchesType } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
+import { ProjectBranchesType } from '@etherealengine/common/src/schemas/projects/project-branches.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const projectBranchesResolver = resolve<ProjectBranchesType, HookContext>({})

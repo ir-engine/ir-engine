@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { ProjectBranchesType } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
+import { ProjectBranchesType } from '@etherealengine/common/src/schemas/projects/project-branches.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { getBranches } from '../project/project-helper'
 import { ProjectParams, ProjectParamsClient } from '../project/project.class'

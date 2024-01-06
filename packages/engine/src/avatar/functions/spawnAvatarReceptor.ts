@@ -27,10 +27,10 @@ import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapi
 import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getState } from '@etherealengine/hyperflux'
 
-import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
+import { setTargetCameraRotation } from '../../camera/functions/CameraFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
@@ -139,7 +139,6 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   const transform = getComponent(entity, TransformComponent)
   rigidBody.position.copy(transform.position)
   rigidBody.rotation.copy(transform.rotation)
-
   const bodyColliderDesc = ColliderDesc.capsule(
     avatarComponent.avatarHalfHeight - avatarRadius - 0.25,
     avatarRadius

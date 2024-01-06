@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { LocationAdminQuery, LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+import { LocationAdminQuery, LocationAdminType } from '@etherealengine/common/src/schemas/social/location-admin.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+import { locationAuthorizedUserPath } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
 
 /**
  * @param { import("knex").Knex } knex

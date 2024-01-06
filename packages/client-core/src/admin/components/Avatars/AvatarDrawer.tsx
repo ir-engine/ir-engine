@@ -41,8 +41,8 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@etherealengine/common/src/constants/AvatarConstants'
+import { AvatarType } from '@etherealengine/common/src/schema.type.module'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'

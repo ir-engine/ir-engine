@@ -38,11 +38,11 @@ import {
   AuthJwtOptionsType,
   AuthOauthType,
   AuthStrategiesType
-} from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { AuthenticationSettingPatch } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
-import { AuthenticationSettingPatch } from './../../../../engine/src/schemas/setting/authentication-setting.schema'
 
 export const authenticationSettingSchemaToDb = (patch: AuthenticationSettingPatch) => {
   return {

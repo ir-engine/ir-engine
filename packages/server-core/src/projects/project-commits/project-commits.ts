@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   projectCommitsMethods,
   projectCommitsPath
-} from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
+} from '@etherealengine/common/src/schemas/projects/project-commits.schema'
 import { Application } from '../../../declarations'
 import { ProjectCommitsService } from './project-commits.class'
 import projectCommitsDocs from './project-commits.docs'

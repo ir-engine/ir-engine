@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 
 /**
  * @param { import("knex").Knex } knex

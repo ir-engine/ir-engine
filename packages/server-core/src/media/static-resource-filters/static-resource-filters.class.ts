@@ -24,8 +24,8 @@ import { Application } from '../../../declarations'
 import {
   StaticResourceFiltersQuery,
   StaticResourceFiltersType
-} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+} from '@etherealengine/common/src/schemas/media/static-resource-filters.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 

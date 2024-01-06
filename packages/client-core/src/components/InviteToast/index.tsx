@@ -30,7 +30,7 @@ import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFi
 import { Button } from '@etherealengine/editor/src/components/inputs/Button'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserName } from '@etherealengine/common/src/schema.type.module'
 import { InviteService, InviteState } from '../../social/services/InviteService'
 import { AuthState } from '../../user/services/AuthService'
 import styles from './index.module.scss'

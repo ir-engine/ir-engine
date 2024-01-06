@@ -27,15 +27,15 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { BotQuery, BotType } from '@etherealengine/engine/src/schemas/bot/bot.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { BotQuery, BotType } from '@etherealengine/common/src/schemas/bot/bot.schema'
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 
 import {
   BotCommandData,
   BotCommandType,
   botCommandPath
-} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+} from '@etherealengine/common/src/schemas/bot/bot-command.schema'
+import { InstanceID, InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 import { botCommandDataResolver } from '../bot-command/bot-command.resolvers'

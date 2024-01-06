@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import path from 'path'
 
-import { OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath, LocationType, OembedType } from '@etherealengine/common/src/schema.type.module'
 import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import { Application } from '@etherealengine/server-core/declarations'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'

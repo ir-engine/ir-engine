@@ -30,7 +30,7 @@ import { Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 } from 't
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserName } from '@etherealengine/common/src/schema.type.module'
 import {
   applyIncomingActions,
   clearOutgoingActions,

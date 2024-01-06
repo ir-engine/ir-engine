@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import classNames from 'classnames'
 import React from 'react'
 
-import { BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import { BuildStatusType } from '@etherealengine/common/src/schema.type.module'
 import Fade from '@etherealengine/ui/src/primitives/mui/Fade'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
