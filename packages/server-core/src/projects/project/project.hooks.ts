@@ -209,6 +209,7 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
   for (const item of data) {
     try {
       const packageJson = getProjectPackageJson(item.name)
+      if (!packageJson) continue
       const config = getProjectConfig(item.name)
       item.thumbnail = config.thumbnail!
       item.version = packageJson.version

@@ -283,12 +283,16 @@ export const onProjectEvent = async (
   eventType: keyof ProjectEventHooks,
   ...args
 ) => {
-  const hooks = require(path.resolve(projectsRootFolder, projectName, hookPath)).default
-  if (typeof hooks[eventType] === 'function') {
-    if (args && args.length > 0) {
-      return await hooks[eventType](app, ...args)
+  try {
+    const hooks = require(path.resolve(projectsRootFolder, projectName, hookPath)).default
+    if (typeof hooks[eventType] === 'function') {
+      if (args && args.length > 0) {
+        return await hooks[eventType](app, ...args)
+      }
+      return await hooks[eventType](app)
     }
-    return await hooks[eventType](app)
+  } catch (e) {
+    // console.log(e)
   }
 }
 
@@ -305,8 +309,12 @@ export const getProjectConfig = (projectName: string): ProjectConfigInterface =>
   }
 }
 
-export const getProjectPackageJson = (projectName: string): ProjectPackageJsonType => {
-  return require(path.resolve(projectsRootFolder, projectName, 'package.json'))
+export const getProjectPackageJson = (projectName: string): ProjectPackageJsonType | undefined => {
+  try {
+    return require(path.resolve(projectsRootFolder, projectName, 'package.json'))
+  } catch (e) {
+    // console.log(e)
+  }
 }
 
 export const getEnginePackageJson = (): ProjectPackageJsonType => {
