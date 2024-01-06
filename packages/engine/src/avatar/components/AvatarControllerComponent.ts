@@ -93,11 +93,13 @@ export const AvatarControllerComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const avatarComponent = useComponent(entity, AvatarComponent)
+
     useEffect(() => {
       Physics.removeCollidersFromRigidBody(entity, getState(PhysicsState).physicsWorld)
       const collider = createAvatarCollider(entity)
       setComponent(entity, AvatarControllerComponent, { bodyCollider: collider })
     }, [avatarComponent.avatarHeight])
+
     return null
   }
 })

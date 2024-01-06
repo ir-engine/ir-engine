@@ -449,8 +449,6 @@ export const solveSpine = (
   spineRotation.identity()
   shoulderRotation.identity()
 
-  const legLength = avatar.upperLegLength + avatar.lowerLegLength * 2
-
   const hipleft = new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
   const hipright = new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
 
@@ -465,7 +463,7 @@ export const solveSpine = (
     }
     hipCenter.copy(hipleft).add(hipright).multiplyScalar(0.5)
   } else {
-    hipCenter.copy(new Vector3(0, legLength, 0))
+    hipCenter.copy(new Vector3(0, avatar.hipsHeight, 0))
   }
 
   const shoulderLeft = new Vector3(-rightShoulder.x, lowestWorldY - rightShoulder.y, -rightShoulder.z)

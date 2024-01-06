@@ -32,6 +32,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -129,6 +130,15 @@ export const unloadAvatarForUser = async (entity: Entity) => {
   removeComponent(entity, AvatarPendingComponent)
 }
 
+const hipsPos = new Vector3(),
+  headPos = new Vector3(),
+  leftFootPos = new Vector3(),
+  rightFootPos = new Vector3(),
+  leftLowerLegPos = new Vector3(),
+  leftUpperLegPos = new Vector3(),
+  footGap = new Vector3(),
+  eyePos = new Vector3()
+
 /**Kicks off avatar animation loading and setup. Called after an avatar's model asset is
  * successfully loaded.
  */
@@ -137,6 +147,23 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
     normalizedRig: model.humanoid.normalizedHumanBones,
     rawRig: model.humanoid.rawHumanBones
   })
+
+  const rig = getComponent(entity, AvatarRigComponent).normalizedRig
+  rig.hips.node.getWorldPosition(hipsPos)
+  rig.head.node.getWorldPosition(headPos)
+  rig.leftFoot.node.getWorldPosition(leftFootPos)
+  rig.rightFoot.node.getWorldPosition(rightFootPos)
+  rig.leftLowerLeg.node.getWorldPosition(leftLowerLegPos)
+  rig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
+  rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos)
+
+  const avatarComponent = getMutableComponent(entity, AvatarComponent)
+  avatarComponent.torsoLength.set(Math.abs(headPos.y - hipsPos.y))
+  avatarComponent.upperLegLength.set(Math.abs(hipsPos.y - leftLowerLegPos.y))
+  avatarComponent.lowerLegLength.set(Math.abs(leftFootPos.y - leftUpperLegPos.y))
+  avatarComponent.hipsHeight.set(hipsPos.y)
+  avatarComponent.eyeHeight.set(eyePos.y)
+  avatarComponent.footGap.set(footGap.subVectors(leftFootPos, rightFootPos).length())
 
   computeTransformMatrix(entity)
 
