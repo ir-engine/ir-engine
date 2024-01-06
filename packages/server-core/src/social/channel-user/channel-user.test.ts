@@ -27,12 +27,12 @@ import assert from 'assert'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { InviteCode, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { RoomCode } from '@etherealengine/common/src/schemas/social/location.schema'
+import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
 describe('channel-user service', () => {

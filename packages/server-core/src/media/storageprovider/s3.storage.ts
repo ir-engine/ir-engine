@@ -68,7 +68,7 @@ import { PassThrough, Readable } from 'stream'
 import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
 import { Client } from 'minio'
 
-import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import config from '../../appconfig'
 import { getCacheDomain } from './getCacheDomain'
 import { getCachedURL } from './getCachedURL'

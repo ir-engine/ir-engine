@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { BotCommandQuery, BotCommandType } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { BotCommandQuery, BotCommandType } from '@etherealengine/common/src/schemas/bot/bot-command.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

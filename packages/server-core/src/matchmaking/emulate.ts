@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
+import { matchUserPath } from '@etherealengine/common/src/schemas/matchmaking/match-user.schema'
 import { MatchTicketAssignmentType } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import { MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 

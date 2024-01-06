@@ -33,8 +33,8 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { redisSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { redisSettingPath } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const Redis = () => {

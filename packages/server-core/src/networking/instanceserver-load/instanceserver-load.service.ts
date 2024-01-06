@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { LocationID } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { LocationID } from '@etherealengine/common/src/schemas/social/location.schema'
 import { Application } from '../../../declarations'
 import hooks from './instanceserver-load.hooks'
 

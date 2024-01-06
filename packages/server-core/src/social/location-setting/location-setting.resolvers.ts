@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 import {
   LocationSettingQuery,
   LocationSettingType
-} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+} from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

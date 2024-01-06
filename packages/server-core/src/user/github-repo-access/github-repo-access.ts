@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   githubRepoAccessMethods,
   githubRepoAccessPath
-} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+} from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 
 import { Application } from '../../../declarations'
 import { GithubRepoAccessService } from './github-repo-access.class'

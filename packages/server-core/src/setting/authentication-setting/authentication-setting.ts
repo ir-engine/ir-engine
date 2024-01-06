@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   authenticationSettingMethods,
   authenticationSettingPath
-} from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 
 import { Application } from '../../../declarations'
 import { updateAppConfig } from '../../updateAppConfig'

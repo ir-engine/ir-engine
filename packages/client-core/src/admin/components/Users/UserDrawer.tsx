@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import AutoComplete, { AutoCompleteData } from '@etherealengine/client-core/src/common/components/AutoComplete'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { ScopeTypeData, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { ScopeTypeData, scopeTypePath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -42,10 +42,17 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import {
+  AvatarID,
+  UserData,
+  UserID,
+  UserName,
+  UserType,
+  avatarPath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { AvatarID, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { UserData, UserID, UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'

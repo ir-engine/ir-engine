@@ -69,12 +69,10 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
 
+import { archiverPath, fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
-import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'

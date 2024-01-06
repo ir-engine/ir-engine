@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { UserAvatarQuery, UserAvatarType } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
+import { UserAvatarQuery, UserAvatarType } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 

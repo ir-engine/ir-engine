@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Quaternion, Vector3 } from 'three'
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'

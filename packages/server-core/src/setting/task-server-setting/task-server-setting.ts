@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   taskServerSettingMethods,
   taskServerSettingPath
-} from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/task-server-setting.schema'
 
 import { Application } from '../../../declarations'
 import { updateAppConfig } from '../../updateAppConfig'

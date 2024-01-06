@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defaultThemeSettings, getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
-import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'

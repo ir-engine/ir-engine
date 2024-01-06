@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { SceneCreateData, SceneUpdate, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneCreateData, SceneUpdate, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
 

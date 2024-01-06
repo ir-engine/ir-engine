@@ -34,12 +34,12 @@ import {
   inviteDataValidator,
   invitePatchValidator,
   inviteQueryValidator
-} from '@etherealengine/engine/src/schemas/social/invite.schema'
+} from '@etherealengine/common/src/schemas/social/invite.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { userRelationshipPath } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'

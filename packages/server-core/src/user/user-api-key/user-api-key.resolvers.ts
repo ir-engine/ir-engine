@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { UserApiKeyQuery, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { UserApiKeyQuery, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

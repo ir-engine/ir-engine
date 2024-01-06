@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { inviteCodeLookupQueryValidator } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+import { inviteCodeLookupQueryValidator } from '@etherealengine/common/src/schemas/social/invite-code-lookup.schema'
 
 import {
   inviteCodeLookupExternalResolver,

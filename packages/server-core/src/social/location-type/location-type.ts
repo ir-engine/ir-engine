@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { locationTypeMethods, locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
+import { locationTypeMethods, locationTypePath } from '@etherealengine/common/src/schemas/social/location-type.schema'
 
 import { Application } from '../../../declarations'
 import { LocationTypeService } from './location-type.class'

@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {

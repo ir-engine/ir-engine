@@ -29,7 +29,7 @@ import {
   inviteTypePath,
   inviteTypes,
   InviteTypeType
-} from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+} from '@etherealengine/common/src/schemas/social/invite-type.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export async function seed(knex: Knex): Promise<void> {

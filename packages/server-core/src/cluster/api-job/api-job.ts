@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { apiJobMethods, apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+import { apiJobMethods, apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 
 import { Application } from '../../../declarations'
 import { ApiJobService } from './api-job.class'

@@ -45,12 +45,20 @@ import Tabs from '@etherealengine/ui/src/primitives/mui/Tabs'
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
+import {
+  InstanceID,
+  InviteCode,
+  InvitePatch,
+  InviteType,
+  LocationID,
+  UserName,
+  instancePath,
+  invitePath,
+  locationPath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { InvitePatch, InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { InviteCode, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { Id } from '@feathersjs/feathers'
 import { NotificationService } from '../../../common/services/NotificationService'

@@ -34,7 +34,7 @@ import {
   recordingResourcePatchSchema,
   recordingResourceQuerySchema,
   recordingResourceSchema
-} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+} from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

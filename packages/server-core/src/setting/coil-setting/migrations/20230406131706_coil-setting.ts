@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { coilSettingPath } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
+import { coilSettingPath } from '@etherealengine/common/src/schemas/setting/coil-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex

@@ -34,8 +34,8 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import '@etherealengine/engine/src/EngineModule'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import '../EditorModule'
 import EditorContainer from '../components/EditorContainer'
 import { EditorState } from '../services/EditorServices'

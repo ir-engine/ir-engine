@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { taskServerSettingPath } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
+import { taskServerSettingPath } from '@etherealengine/common/src/schemas/setting/task-server-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex

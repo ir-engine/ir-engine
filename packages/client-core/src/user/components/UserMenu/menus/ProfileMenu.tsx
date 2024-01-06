@@ -49,9 +49,7 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { authenticationSettingPath } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
-import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
-import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { authenticationSettingPath, clientSettingPath, UserName } from '@etherealengine/common/src/schema.type.module'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'

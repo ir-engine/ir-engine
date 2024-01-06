@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import type { ServiceInterface } from '@feathersjs/feathers'
 
-import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { instanceAttendancePath } from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
+import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { userRelationshipPath } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'

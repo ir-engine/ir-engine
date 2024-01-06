@@ -27,10 +27,8 @@ import assert from 'assert'
 
 import { Engine, destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { UserID, identityProviderPath, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import appRootPath from 'app-root-path'

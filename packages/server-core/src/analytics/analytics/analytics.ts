@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { analyticsMethods, analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+import { analyticsMethods, analyticsPath } from '@etherealengine/common/src/schemas/analytics/analytics.schema'
 
 import { Application } from '../../../declarations'
 import { AnalyticsService } from './analytics.class'

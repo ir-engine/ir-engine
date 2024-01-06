@@ -31,7 +31,7 @@ import {
   ScopePatch,
   ScopeQuery,
   ScopeTypeInterface
-} from '@etherealengine/engine/src/schemas/scope/scope.schema'
+} from '@etherealengine/common/src/schemas/scope/scope.schema'
 
 export interface ScopeParams extends KnexAdapterParams<ScopeQuery> {}
 

@@ -30,10 +30,10 @@ import ConfirmDialog from '@etherealengine/client-core/src/common/components/Con
 import { useHookstate } from '@etherealengine/hyperflux'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
-import { UserID, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserName } from '@etherealengine/common/src/schema.type.module'
 
+import { InviteType, invitePath } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import TableComponent from '../../common/Table'
 import { InviteColumn, inviteColumns } from '../../common/variables/invite'

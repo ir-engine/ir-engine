@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { HookContext } from '@feathersjs/feathers'
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
 import { NotAuthenticated } from '@feathersjs/errors'
 import { Application } from '../../declarations'

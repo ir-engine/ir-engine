@@ -28,16 +28,16 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
-import { LocationID, LocationQuery, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
+import { LocationID, LocationQuery, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import {
   LocationAuthorizedUserType,
   locationAuthorizedUserPath
-} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
-import { LocationBanType, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
+import { LocationBanType, locationBanPath } from '@etherealengine/common/src/schemas/social/location-ban.schema'
+import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const locationResolver = resolve<LocationType, HookContext>({

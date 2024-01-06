@@ -29,7 +29,7 @@ import {
   userRelationshipTypeDataValidator,
   userRelationshipTypePatchValidator,
   userRelationshipTypeQueryValidator
-} from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
+} from '@etherealengine/common/src/schemas/user/user-relationship-type.schema'
 
 import { disallow } from 'feathers-hooks-common'
 import {

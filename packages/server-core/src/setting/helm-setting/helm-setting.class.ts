@@ -31,7 +31,7 @@ import {
   HelmSettingPatch,
   HelmSettingQuery,
   HelmSettingType
-} from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 
 export interface HelmSettingParams extends KnexAdapterParams<HelmSettingQuery> {}
 
