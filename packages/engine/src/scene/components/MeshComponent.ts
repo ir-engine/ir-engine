@@ -38,6 +38,7 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { ModelComponent } from './ModelComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export const MeshBVHComponent = defineComponent({
@@ -72,14 +73,20 @@ export const MeshBVHComponent = defineComponent({
     const mesh = useComponent(entity, MeshComponent)
     const debug = useHookstate(getMutableState(RendererState).physicsDebug)
     const visible = useOptionalComponent(entity, VisibleComponent)
+    const model = useOptionalComponent(entity, ModelComponent)
 
     useEffect(() => {
-      if (!component.generated.value && visible?.value) {
+      let aborted = false
+      if (!component.generated.value && visible?.value && (!model || model.value.cameraOcclusion)) {
         generateMeshBVH(component.mesh.value).then(() => {
-          component.generated.set(true)
+          if (!aborted) component.generated.set(true)
         })
       }
-    }, [mesh, visible])
+
+      return () => {
+        aborted = true
+      }
+    }, [mesh, visible, model])
 
     useEffect(() => {
       let meshBVHVisualizer = null as MeshBVHVisualizer | null
