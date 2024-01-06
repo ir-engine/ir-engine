@@ -60,7 +60,6 @@ import { removeEntityNodeRecursively } from '@etherealengine/engine/src/ecs/func
 import { createSceneEntity } from '@etherealengine/engine/src/ecs/functions/createSceneEntity'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
 import exportGLTF from '../../functions/exportGLTF'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
