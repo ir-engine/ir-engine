@@ -93,36 +93,40 @@ export function solveTwoBoneIK(
   targetPos.copy(targetPosition)
   targetRot.copy(targetRotation)
 
-  aPosition.setFromMatrixPosition(root.matrixWorld)
-  bPosition.setFromMatrixPosition(mid.matrixWorld)
-  cPosition.setFromMatrixPosition(tip.matrixWorld)
+  rootBoneWorldPosition.setFromMatrixPosition(root.matrixWorld)
+  midBoneWorldPosition.setFromMatrixPosition(mid.matrixWorld)
+  tipBoneWorldPosition.setFromMatrixPosition(tip.matrixWorld)
 
-  targetPos.lerp(cPosition, 1 - targetPosWeight)
+  /** Apply target position weight */
+  if (targetPosWeight) targetPos.lerp(tipBoneWorldPosition, 1 - targetPosWeight)
 
-  ab.subVectors(bPosition, aPosition)
-  bc.subVectors(cPosition, bPosition)
-  ac.subVectors(cPosition, aPosition)
-  at.subVectors(targetPos, aPosition)
+  rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
+  midToTipVecotr.subVectors(tipBoneWorldPosition, midBoneWorldPosition)
+  rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
+  rootToTargetVector.subVectors(targetPos, rootBoneWorldPosition)
+
+  const rootToMidLength = rootToMidVector.length()
+  const midToTipLength = midToTipVecotr.length()
+  const rootToTipLength = rootToTipVector.length()
+
+  /** Restrict target position to always be a lesser distance from the root than a fully extended arm */
+  if (rootToTargetVector.length() > rootToMidLength + midToTipLength) {
+    rootToTargetVector.normalize().multiplyScalar((rootToMidLength + midToTipLength) * 0.999)
+  }
+
+  const atLength = rootToTargetVector.length()
 
   const hasHint = hint && hintWeight > 0
-  if (hasHint) ah.copy(hint).sub(aPosition)
+  if (hasHint) rootToHintVector.copy(hint).sub(rootBoneWorldPosition)
 
-  // Apply twist restriction
-
-  const abLength = ab.length()
-  const bcLength = bc.length()
-  const acLength = ac.length()
-  const atLength = at.length()
-
-  const oldAngle = triangleAngle(acLength, abLength, bcLength)
-  const newAngle = triangleAngle(atLength, abLength, bcLength)
+  /** Apply twist restriction */
+  const oldAngle = triangleAngle(rootToTipLength, rootToMidLength, midToTipLength)
+  const newAngle = triangleAngle(atLength, rootToMidLength, midToTipLength)
   const rotAngle = oldAngle - newAngle
 
-  rotAxis.crossVectors(ab, bc)
+  rotAxis.crossVectors(rootToMidVector, midToTipVecotr)
 
   if (rotAxis.lengthSq() < sqrEpsilon) {
-    hasHint ? rotAxis.crossVectors(ah, bc) : rotAxis.setScalar(0)
-    rotAxis.crossVectors(at, bc)
     rotAxis.set(0, 1, 0)
   }
 
@@ -130,56 +134,61 @@ export function solveTwoBoneIK(
   Object3DUtils.premultiplyWorldQuaternion(mid, rot)
 
   Object3DUtils.updateParentsMatrixWorld(tip, 1)
-  cPosition.setFromMatrixPosition(tip.matrixWorld)
-  ac.subVectors(cPosition, aPosition)
+  tipBoneWorldPosition.setFromMatrixPosition(tip.matrixWorld)
+  rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
+  const rootToTipSqMag = rootToTipVector.lengthSq()
 
-  rot.setFromUnitVectors(acNorm.copy(ac).normalize(), atNorm.copy(at).normalize())
+  rot.setFromUnitVectors(acNorm.copy(rootToTipVector).normalize(), atNorm.copy(rootToTargetVector).normalize())
   Object3DUtils.premultiplyWorldQuaternion(root, rot)
 
-  // Apply hint
+  /** Apply hint */
   if (hasHint) {
-    const acSqMag = ac.lengthSq()
-    if (acSqMag > 0) {
+    if (rootToTipSqMag > 0) {
       Object3DUtils.updateParentsMatrixWorld(tip, 2)
-      bPosition.setFromMatrixPosition(mid.matrixWorld)
-      cPosition.setFromMatrixPosition(tip.matrixWorld)
-      ab.subVectors(bPosition, aPosition)
-      ac.subVectors(cPosition, aPosition)
+      midBoneWorldPosition.setFromMatrixPosition(mid.matrixWorld)
+      tipBoneWorldPosition.setFromMatrixPosition(tip.matrixWorld)
+      rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
+      rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
 
-      acNorm.copy(ac).divideScalar(Math.sqrt(acSqMag))
-      abProj.copy(ab).addScaledVector(acNorm, -ab.dot(acNorm)) // Prependicular component of vector projection
-      ahProj.copy(ah).addScaledVector(acNorm, -ah.dot(acNorm))
+      acNorm.copy(rootToTipVector).divideScalar(Math.sqrt(rootToTipSqMag))
+      abProj.copy(rootToMidVector).addScaledVector(acNorm, -rootToMidVector.dot(acNorm)) // Prependicular component of vector projection
+      ahProj.copy(rootToHintVector).addScaledVector(acNorm, -rootToHintVector.dot(acNorm))
 
-      const maxReach = abLength + bcLength
-
-      if (abProj.lengthSq() > maxReach * maxReach * 0.001 && ahProj.lengthSq() > 0) {
+      if (ahProj.lengthSq() > 0) {
         rot.setFromUnitVectors(abProj.normalize(), ahProj.normalize())
-        rot.x *= hintWeight
-        rot.y *= hintWeight
-        rot.z *= hintWeight
-        Object3DUtils.premultiplyWorldQuaternion(root, rot)
+        if (hintWeight > 0) {
+          rot.x *= hintWeight
+          rot.y *= hintWeight
+          rot.z *= hintWeight
+          Object3DUtils.premultiplyWorldQuaternion(root, rot)
+        }
       }
     }
   }
 
-  // Apply tip rotation
+  /** Apply tip rotation */
   Object3DUtils.getWorldQuaternion(tip, tip.quaternion)
-  tip.quaternion.slerp(targetRot, targetRotWeight)
+
+  /** Apply target rotation weight */
+  if (targetRotWeight === 1) {
+    tip.quaternion.copy(targetRot)
+  } else if (targetRotWeight > 0) {
+    tip.quaternion.fastSlerp(targetRot, targetRotWeight)
+  }
   Object3DUtils.worldQuaternionToLocal(tip.quaternion, mid)
   if (rotationOffset != undefined) tip.quaternion.premultiply(rotationOffset)
 }
 
 const targetPos = new Vector3(),
-  aPosition = new Vector3(),
-  bPosition = new Vector3(),
-  cPosition = new Vector3(),
-  dPosition = new Vector3(),
+  rootBoneWorldPosition = new Vector3(),
+  midBoneWorldPosition = new Vector3(),
+  tipBoneWorldPosition = new Vector3(),
   rotAxis = new Vector3(),
-  ab = new Vector3(),
-  bc = new Vector3(),
-  ac = new Vector3(),
-  at = new Vector3(),
-  ah = new Vector3(),
+  rootToMidVector = new Vector3(),
+  midToTipVecotr = new Vector3(),
+  rootToTipVector = new Vector3(),
+  rootToTargetVector = new Vector3(),
+  rootToHintVector = new Vector3(),
   acNorm = new Vector3(),
   atNorm = new Vector3(),
   abProj = new Vector3(),
