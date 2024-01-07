@@ -63,8 +63,7 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   const rightFootEntity = UUIDComponent.getEntityByUUID((userID + ikTargets.rightFoot) as EntityUUID)
 
   if (!leftFootEntity || !rightFootEntity) return
-  AvatarIKTargetComponent.blendWeight[leftFootEntity] = 1
-  AvatarIKTargetComponent.blendWeight[rightFootEntity] = 1
+
   const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftFootEntity]
   const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightFootEntity]
 
