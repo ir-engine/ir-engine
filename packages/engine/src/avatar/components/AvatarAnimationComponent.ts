@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, Vector3 } from 'three'
+import { AnimationAction, SkeletonHelper, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -57,7 +57,6 @@ import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
 import { retargetAvatarAnimations, setupAvatarForUser, setupAvatarProportions } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
-import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -194,97 +193,3 @@ export const AvatarRigComponent = defineComponent({
     return null
   }
 })
-
-/**Used to generate an offset map that retargets ik position animations to fit any rig */
-export const retargetIkUtility = (entity: Entity, bindTracks: KeyframeTrack[], height: number, flipped: boolean) => {
-  const offset = new Vector3()
-  const foot = new Vector3()
-
-  const rig = getComponent(entity, AvatarRigComponent)
-  if (!rig.normalizedRig.hips?.node) return
-
-  const avatarComponent = getComponent(entity, AvatarComponent)
-  const scaleMultiplier = height / avatarComponent.avatarHeight
-
-  offset.y = rig.normalizedRig.rightFoot.node.getWorldPosition(foot).y * 2 * scaleMultiplier - 0.05
-
-  const direction = flipped ? -1 : 1
-
-  const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, flipped ? Math.PI : 0, 0))
-
-  const ikOffsetsMap = new Map<string, Vector3>()
-
-  for (let i = 0; i < bindTracks.length; i += 3) {
-    const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
-
-    //todo: find a better way to map joints to ik targets here
-    //currently hints are offset by joint forward to estimate where they should be for every rig
-    const bonePos = new Matrix4()
-    switch (key) {
-      case 'rightHandTarget':
-      case 'leftHandTarget':
-      case 'rightFootTarget':
-      case 'leftFootTarget':
-      case 'headTarget':
-        bonePos.copy(
-          rig.normalizedRig[key.replace('Target', '')].node.matrixWorld.multiply(
-            new Matrix4()
-              .setPosition(rig.normalizedRig[key].node.getWorldDirection(new Vector3()))
-              .multiplyScalar(direction * -1)
-          )
-        )
-        break
-      case 'rightElbowHint':
-        bonePos.copy(
-          rig.normalizedRig.rightLowerArm.node.matrixWorld.multiply(
-            new Matrix4()
-              .setPosition(rig.normalizedRig.rightLowerArm.node.getWorldDirection(new Vector3()))
-              .multiplyScalar(direction * -1)
-          )
-        )
-        break
-      case 'leftElbowHint':
-        bonePos.copy(
-          rig.normalizedRig.leftLowerArm.node.matrixWorld.multiply(
-            new Matrix4()
-              .setPosition(rig.normalizedRig.leftLowerArm.node.getWorldDirection(new Vector3()))
-              .multiplyScalar(direction * -1)
-          )
-        )
-        break
-      case 'rightKneeHint':
-        bonePos.copy(
-          rig.normalizedRig.rightLowerLeg.node.matrixWorld.multiply(
-            new Matrix4().setPosition(
-              rig.normalizedRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
-            )
-          )
-        )
-        break
-      case 'leftKneeHint':
-        bonePos.copy(
-          rig.normalizedRig.leftLowerLeg.node.matrixWorld.multiply(
-            new Matrix4().setPosition(
-              rig.normalizedRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
-            )
-          )
-        )
-        break
-      case 'headHint':
-        bonePos.copy(rig.normalizedRig.head.node.matrixWorld)
-      case 'hipsTarget':
-        bonePos.copy(rig.normalizedRig.hips.node.matrixWorld)
-    }
-    const pos = new Vector3()
-    bonePos.decompose(pos, new Quaternion(), new Vector3())
-    pos.applyQuaternion(hipsRotationoffset)
-    pos.sub(
-      new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]).multiplyScalar(
-        scaleMultiplier
-      )
-    )
-    pos.sub(offset)
-    ikOffsetsMap.set(key, pos)
-  }
-  return ikOffsetsMap
-}

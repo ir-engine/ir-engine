@@ -96,9 +96,6 @@ const footAngleQuat = new Quaternion()
 const midAxisRestriction = new Euler(0, 0, 0)
 const tipAxisRestriction = new Euler(0, 0, 0)
 
-const footRaycastInterval = 0.25
-let footRaycastTimer = 0
-
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
 const execute = () => {
@@ -144,7 +141,6 @@ const execute = () => {
     }
   }
 
-  footRaycastTimer += deltaSeconds
   updateAnimationGraph(avatarAnimationEntities)
 
   for (const entity of avatarAnimationEntities) {
@@ -275,10 +271,6 @@ const execute = () => {
         leftHandTargetBlendWeight,
         leftHandTargetBlendWeight
       )
-    }
-
-    if (footRaycastTimer >= footRaycastInterval) {
-      footRaycastTimer = 0
     }
 
     if (rightFootTargetBlendWeight) {
