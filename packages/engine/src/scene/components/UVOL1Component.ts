@@ -271,6 +271,10 @@ function UVOL1Reactor() {
     processFrame(frameToPlay)
   })
 
+  useEffect(() => {
+    video.playbackRate = volumetric.currentTrackInfo.playbackRate.value
+  }, [volumetric.currentTrackInfo.playbackRate])
+
   useExecute(
     () => {
       const delta = getState(EngineState).deltaSeconds

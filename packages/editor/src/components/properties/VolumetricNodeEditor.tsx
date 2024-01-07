@@ -256,6 +256,18 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         <VolumetricCurrentTimeScrubber entity={props.entity} />
       )}
 
+      <InputGroup name="Playback Rate" label="Playback Rate">
+        <CompoundNumericInput
+          value={volumetricComponent.currentTrackInfo.playbackRate.value}
+          min={0.5}
+          max={4}
+          step={0.1}
+          onChange={(value: number) => {
+            volumetricComponent.currentTrackInfo.playbackRate.set(value)
+          }}
+        />
+      </InputGroup>
+
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
         <SelectInput
           key={props.entity}
@@ -333,14 +345,14 @@ function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
           const uvol2Component = getOptionalMutableComponent(props.entity, UVOL2Component)
           if (uvol2Component) {
             const engineState = getState(EngineState)
-            volumetricComponent.startTime.set(value)
+            volumetricComponent.currentTrackInfo.startTime.set(value)
             volumetricComponent.currentTrackInfo.currentTime.set(value)
             uvol2Component.playbackStartTime.set(engineState.elapsedSeconds)
             uvol2Component.geometryInfo.bufferHealth.set(0)
             uvol2Component.textureInfo.textureTypes.value.forEach((textureType) => {
               uvol2Component.textureInfo[textureType].bufferHealth.set(0)
             })
-            volumetricComponent.startTime.set(volumetricComponent.currentTrackInfo.currentTime.value)
+            volumetricComponent.currentTrackInfo.startTime.set(volumetricComponent.currentTrackInfo.currentTime.value)
           }
         }}
         value={volumetricComponent.currentTrackInfo.currentTime.value}

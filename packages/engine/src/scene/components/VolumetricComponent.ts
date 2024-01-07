@@ -89,7 +89,6 @@ export const VolumetricComponent = defineComponent({
       useLoadingEffect: true,
       autoPauseWhenBuffering: true, // TODO: Implement this for UVOL1
       autoplay: true,
-      startTime: 0,
       paused: true,
       initialBuffersLoaded: false,
       hasAudio: true,
@@ -98,6 +97,8 @@ export const VolumetricComponent = defineComponent({
       playMode: PlayMode.loop as PlayMode,
       track: -1,
       currentTrackInfo: {
+        startTime: 0,
+        playbackRate: 1,
         currentTime: 0,
         duration: 0
       }
@@ -228,8 +229,9 @@ export function VolumetricReactor() {
     volumetric.ended.set(false)
     volumetric.initialBuffersLoaded.set(false)
     volumetric.paused.set(true)
-    volumetric.startTime.set(0)
     volumetric.currentTrackInfo.set({
+      startTime: 0,
+      playbackRate: 1,
       currentTime: 0,
       duration: 0
     })
