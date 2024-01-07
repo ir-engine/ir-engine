@@ -41,6 +41,14 @@ export const Q_IDENTITY = Object.freeze(new Quaternion())
 export const MAT3_IDENTITY = Object.freeze(new Matrix3().identity())
 export const MAT4_IDENTITY = Object.freeze(new Matrix4().identity())
 
-export const X_180 = Object.freeze(new Quaternion().setFromAxisAngle(V_100, PI))
-export const Y_180 = Object.freeze(new Quaternion().setFromAxisAngle(V_010, PI))
-export const Z_180 = Object.freeze(new Quaternion().setFromAxisAngle(V_001, PI))
+export const Q_X_90 = Object.freeze(new Quaternion().setFromAxisAngle(V_100, HALF_PI))
+export const Q_Y_90 = Object.freeze(new Quaternion().setFromAxisAngle(V_010, HALF_PI))
+export const Q_Z_90 = Object.freeze(new Quaternion().setFromAxisAngle(V_001, HALF_PI))
+
+export const Q_X_180 = Object.freeze(new Quaternion().setFromAxisAngle(V_100, PI))
+export const Q_Y_180 = Object.freeze(new Quaternion().setFromAxisAngle(V_010, PI))
+export const Q_Z_180 = Object.freeze(new Quaternion().setFromAxisAngle(V_001, PI))
+
+export const Q_X_270 = Object.freeze(new Quaternion().setFromAxisAngle(V_100, PI + HALF_PI))
+export const Q_Y_270 = Object.freeze(new Quaternion().setFromAxisAngle(V_010, PI + HALF_PI))
+export const Q_Z_270 = Object.freeze(new Quaternion().setFromAxisAngle(V_001, PI + HALF_PI))

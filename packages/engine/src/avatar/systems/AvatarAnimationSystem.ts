@@ -29,7 +29,7 @@ import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { V_001, V_010, V_100, Y_180 } from '../../common/constants/MathConstants'
+import { Q_X_90, Q_Y_180, V_001, V_010, V_100 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -52,6 +52,7 @@ import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
+import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
 import { loadLocomotionAnimations } from '../functions/avatarFunctions'
@@ -81,8 +82,7 @@ const avatarComponentQuery = defineQuery([AvatarComponent])
 const _quat = new Quaternion()
 const _quat2 = new Quaternion()
 const _vector3 = new Vector3()
-const _right = new Vector3()
-const _forward = new Vector3()
+const _hint = new Vector3()
 const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
 const leftHandRotation = new Quaternion()
@@ -91,7 +91,7 @@ const leftHandRotation = new Quaternion()
 const rightHandRotation = new Quaternion()
   .setFromAxisAngle(V_001, -Math.PI / 2)
   .multiply(new Quaternion().setFromAxisAngle(V_010, Math.PI / 2))
-const rightFootRotation = new Quaternion().setFromAxisAngle(V_100, Math.PI * 0.5)
+const footAngleQuat = new Quaternion()
 
 const midAxisRestriction = new Euler(0, 0, 0)
 const tipAxisRestriction = new Euler(0, 0, 0)
@@ -207,7 +207,7 @@ const execute = () => {
       /** @todo hack fix */
       if (isAvatarFlipped) {
         // rotate 180
-        _quat2.multiply(Y_180)
+        _quat2.multiply(Q_Y_180)
       }
 
       //calculate head look direction and apply to head bone
@@ -215,14 +215,21 @@ const execute = () => {
       rig.head.node.quaternion.multiplyQuaternions(rig.spine.node.getWorldQuaternion(_quat).invert(), _quat2)
     }
 
-    const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
-    const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
-
     if (rightHandTargetBlendWeight) {
       _quat2.copy(rightHandTransform.rotation)
       if (!isAvatarFlipped) {
         _quat2.multiply(rightHandRotation)
       }
+
+      getArmIKHint(
+        entity,
+        rightHandTransform.position,
+        _quat2,
+        rig.rightUpperArm.node.getWorldPosition(_vector3),
+        'right',
+        _hint
+      )
+
       solveTwoBoneIK(
         rig.rightUpperArm.node,
         rig.rightLowerArm.node,
@@ -230,7 +237,7 @@ const execute = () => {
         rightHandTransform.position,
         _quat2,
         null,
-        _vector3.copy(transform.position).sub(right),
+        _hint,
         tipAxisRestriction,
         null,
         null,
@@ -244,6 +251,16 @@ const execute = () => {
       if (!isAvatarFlipped) {
         _quat2.multiply(leftHandRotation)
       }
+
+      getArmIKHint(
+        entity,
+        leftHandTransform.position,
+        _quat2,
+        rig.leftUpperArm.node.getWorldPosition(_vector3),
+        'left',
+        _hint
+      )
+
       solveTwoBoneIK(
         rig.leftUpperArm.node,
         rig.leftLowerArm.node,
@@ -251,7 +268,7 @@ const execute = () => {
         leftHandTransform.position,
         _quat2,
         null,
-        _vector3.copy(transform.position).add(right),
+        _hint,
         tipAxisRestriction,
         null,
         null,
@@ -267,8 +284,18 @@ const execute = () => {
     if (rightFootTargetBlendWeight) {
       _quat2.copy(rightFootTransform.rotation)
       if (isAvatarFlipped) {
-        _quat2.multiply(rightFootRotation)
+        _quat2.multiply(Q_X_90)
+      } else {
+        /** I don't know why flipped models don't need this foot angle applied, nor why it needs to be halved */
+        footAngleQuat.setFromAxisAngle(V_100, avatarComponent.footAngle / 2)
+        _quat2.multiply(footAngleQuat)
       }
+
+      _hint
+        .set(-avatarComponent.footGap * 1.5, 0, 0.4)
+        .applyQuaternion(transform.rotation)
+        .add(transform.position)
+
       solveTwoBoneIK(
         rig.rightUpperLeg.node,
         rig.rightLowerLeg.node,
@@ -276,7 +303,7 @@ const execute = () => {
         rightFootTransform.position,
         _quat2,
         null,
-        _vector3.copy(transform.position).add(forward),
+        _hint,
         null,
         midAxisRestriction,
         null,
@@ -288,8 +315,17 @@ const execute = () => {
     if (leftFootTargetBlendWeight) {
       _quat2.copy(leftFootTransform.rotation)
       if (isAvatarFlipped) {
-        _quat2.multiply(rightFootRotation)
+        _quat2.multiply(Q_X_90)
+      } else {
+        footAngleQuat.setFromAxisAngle(V_100, avatarComponent.footAngle / 2)
+        _quat2.multiply(footAngleQuat)
       }
+
+      _hint
+        .set(avatarComponent.footGap * 1.5, 0, 1)
+        .applyQuaternion(transform.rotation)
+        .add(transform.position)
+
       solveTwoBoneIK(
         rig.leftUpperLeg.node,
         rig.leftLowerLeg.node,
@@ -297,7 +333,7 @@ const execute = () => {
         leftFootTransform.position,
         _quat2,
         null,
-        _vector3.copy(transform.position).add(forward),
+        _hint,
         null,
         midAxisRestriction,
         null,

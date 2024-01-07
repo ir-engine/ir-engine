@@ -54,6 +54,8 @@ export const AvatarComponent = defineComponent({
       armLength: 0,
       /** The distance between the left and right foot in a t-pose */
       footGap: 0,
+      /** The angle of the foot in a t-pose */
+      footAngle: 0,
       /** The height of the eyes in a t-pose */
       eyeHeight: 0,
 

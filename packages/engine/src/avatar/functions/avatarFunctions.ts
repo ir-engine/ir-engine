@@ -134,6 +134,7 @@ export const unloadAvatarForUser = async (entity: Entity) => {
 const hipsPos = new Vector3(),
   headPos = new Vector3(),
   leftFootPos = new Vector3(),
+  leftToesPos = new Vector3(),
   rightFootPos = new Vector3(),
   leftLowerLegPos = new Vector3(),
   leftUpperLegPos = new Vector3(),
@@ -148,6 +149,7 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rig.head.node.getWorldPosition(headPos)
   rig.leftFoot.node.getWorldPosition(leftFootPos)
   rig.rightFoot.node.getWorldPosition(rightFootPos)
+  rig.leftToes && rig.leftToes.node.getWorldPosition(leftToesPos)
   rig.leftLowerLeg.node.getWorldPosition(leftLowerLegPos)
   rig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
   rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos)
@@ -158,7 +160,11 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   avatarComponent.lowerLegLength.set(Math.abs(leftLowerLegPos.y - leftFootPos.y))
   avatarComponent.hipsHeight.set(hipsPos.y)
   avatarComponent.eyeHeight.set(eyePos.y)
+  avatarComponent.footHeight.set(leftFootPos.y)
   avatarComponent.footGap.set(footGap.subVectors(leftFootPos, rightFootPos).length())
+  // angle from ankle to toes along YZ plane
+  rig.leftToes &&
+    avatarComponent.footAngle.set(Math.atan2(leftFootPos.z - leftToesPos.z, leftFootPos.y - leftToesPos.y))
 }
 
 /**Kicks off avatar animation loading and setup. Called after an avatar's model asset is

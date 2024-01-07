@@ -53,19 +53,20 @@ const speedMultiplier = 2
 const footRotationOffset = new Quaternion()
   .setFromAxisAngle(V_100, Math.PI / 2)
   .multiply(new Quaternion().setFromAxisAngle(V_010, Math.PI))
-  .multiply(new Quaternion().setFromAxisAngle(V_100, -Math.PI / 6))
 
 //step threshold should be a function of leg length
 //walk threshold to determine when to move the feet back into standing position, should be
 export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   const userID = getComponent(localClientEntity, UUIDComponent)
 
-  const ikTargetLeftFoot = UUIDComponent.getEntityByUUID((userID + ikTargets.leftFoot) as EntityUUID)
-  const ikTargetRightFoot = UUIDComponent.getEntityByUUID((userID + ikTargets.rightFoot) as EntityUUID)
-  if (!ikTargetLeftFoot || !ikTargetRightFoot) return
+  const leftFootEntity = UUIDComponent.getEntityByUUID((userID + ikTargets.leftFoot) as EntityUUID)
+  const rightFootEntity = UUIDComponent.getEntityByUUID((userID + ikTargets.rightFoot) as EntityUUID)
 
-  const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot]
-  const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[ikTargetRightFoot]
+  if (!leftFootEntity || !rightFootEntity) return
+  AvatarIKTargetComponent.blendWeight[leftFootEntity] = 1
+  AvatarIKTargetComponent.blendWeight[rightFootEntity] = 1
+  const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftFootEntity]
+  const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightFootEntity]
 
   if (!leftFootTargetBlendWeight || !rightFootTargetBlendWeight) return
 
@@ -73,19 +74,18 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   const avatarTransform = getComponent(localClientEntity, TransformComponent)
   const avatar = getComponent(localClientEntity, AvatarComponent)
 
-  const leftFootEntity = UUIDComponent.getEntityByUUID((userID + ikTargets.leftFoot) as EntityUUID)
-  const rightFootEntity = UUIDComponent.getEntityByUUID((userID + ikTargets.rightFoot) as EntityUUID)
-
   const leftFootTransform = getComponent(leftFootEntity, TransformComponent)
-  leftFootTransform.position.set(avatar.footGap, 0, 0)
-  leftFootTransform.position.applyQuaternion(avatarTransform.rotation)
-  leftFootTransform.position.add(avatarTransform.position)
+  leftFootTransform.position
+    .set(avatar.footGap, avatar.footHeight, 0)
+    .applyQuaternion(avatarTransform.rotation)
+    .add(avatarTransform.position)
   leftFootTransform.rotation.copy(avatarTransform.rotation).multiply(footRotationOffset)
 
   const rightFootTransform = getComponent(rightFootEntity, TransformComponent)
-  rightFootTransform.position.set(-avatar.footGap, 0, 0)
-  rightFootTransform.position.applyQuaternion(avatarTransform.rotation)
-  rightFootTransform.position.add(avatarTransform.position)
+  rightFootTransform.position
+    .set(-avatar.footGap, avatar.footHeight, 0)
+    .applyQuaternion(avatarTransform.rotation)
+    .add(avatarTransform.position)
   rightFootTransform.rotation.copy(avatarTransform.rotation).multiply(footRotationOffset)
 
   /** @todo new implementation */
