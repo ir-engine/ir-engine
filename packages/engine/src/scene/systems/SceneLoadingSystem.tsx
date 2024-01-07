@@ -245,6 +245,9 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     setComponent(entity, TransformComponent)
     setComponent(entity, SceneObjectComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity: null })
+
+    loadComponents(entity, entityState.components.get(NO_PROXY))
+
     return () => {
       removeEntity(entity)
     }
@@ -325,29 +328,7 @@ const EntityChildLoadReactor = (props: {
     }
 
     setComponent(entity, SourceComponent, props.sceneID)
-
-    /** load all components synchronously to ensure no desync */
-    for (const component of entityJSONState.components.get(NO_PROXY)) {
-      /** @todo - we have to check for existence here, as the dynamic loading parent component takes a re-render to load in */
-      if (!entity || !entityExists(entity)) {
-        console.warn('Entity does not exist', entity)
-        continue
-      }
-
-      const Component = ComponentJSONIDMap.get(component.name)
-      if (!Component) {
-        console.warn('[SceneLoading] could not find component name', component.name)
-        continue
-      }
-
-      try {
-        setComponent(entity, Component, component.props)
-      } catch (e) {
-        console.error(`Error loading scene entity: `, getComponent(entity, UUIDComponent), entity, component)
-        console.error(e)
-        continue
-      }
-    }
+    loadComponents(entity, entityJSONState.components.get(NO_PROXY))
 
     return () => {
       removeEntity(entity)
@@ -397,11 +378,8 @@ const ComponentLoadReactor = (props: {
 
   useEffect(() => {
     if (!componentState?.value) return
-
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
-
     const component = componentState.get(NO_PROXY)
-
     return () => {
       // if entity has been removed, we don't need to remove components
       if (!entity || !entityExists(entity)) return
@@ -411,27 +389,36 @@ const ComponentLoadReactor = (props: {
 
   useEffect(() => {
     if (!componentState?.value) return
-
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
+    loadComponents(entity, [componentState.get(NO_PROXY)])
+  }, [componentState])
 
+  return null
+}
+
+/** load all components synchronously to ensure no desync */
+const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
+  for (const component of components) {
     /** @todo - we have to check for existence here, as the dynamic loading parent component takes a re-render to load in */
-    if (!entity || !entityExists(entity)) return console.warn('Entity does not exist', entity)
-
-    const component = componentState.get(NO_PROXY)
+    if (!entity || !entityExists(entity)) {
+      console.warn('Entity does not exist', entity)
+      continue
+    }
 
     const Component = ComponentJSONIDMap.get(component.name)
-    if (!Component) return console.warn('[SceneLoading] could not find component name', component.name)
+    if (!Component) {
+      console.warn('[SceneLoading] could not find component name', component.name)
+      continue
+    }
 
     try {
       setComponent(entity, Component, component.props)
     } catch (e) {
       console.error(`Error loading scene entity: `, getComponent(entity, UUIDComponent), entity, component)
       console.error(e)
-      return
+      continue
     }
-  }, [componentState])
-
-  return null
+  }
 }
 
 const sceneLoadedActionQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
