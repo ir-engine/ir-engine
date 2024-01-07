@@ -218,25 +218,27 @@ export function VolumetricReactor() {
     }
     if (nextTrack === -1 || !volumetric.paths.value[nextTrack]) return
 
-    const resetTrack = () => {
-      // Overwriting with setComponent doesn't cleanup the component
-      removeComponent(entity, UVOL1Component)
-      removeComponent(entity, UVOL2Component)
-      volumetric.ended.set(false)
-      volumetric.initialBuffersLoaded.set(false)
-      volumetric.paused.set(true)
-      volumetric.startTime.set(0)
-      volumetric.currentTrackInfo.set({
-        currentTime: 0,
-        duration: 0
-      })
-    }
-
-    resetTrack()
-
     volumetric.track.set(nextTrack)
+  }, [volumetric.paths, volumetric.playMode, volumetric.ended])
 
-    let manifestPath = volumetric.paths.value[nextTrack]
+  const resetTrack = () => {
+    // Overwriting with setComponent doesn't cleanup the component
+    removeComponent(entity, UVOL1Component)
+    removeComponent(entity, UVOL2Component)
+    volumetric.ended.set(false)
+    volumetric.initialBuffersLoaded.set(false)
+    volumetric.paused.set(true)
+    volumetric.startTime.set(0)
+    volumetric.currentTrackInfo.set({
+      currentTime: 0,
+      duration: 0
+    })
+  }
+
+  useEffect(() => {
+    if (volumetric.track.value === -1) return
+    resetTrack()
+    let manifestPath = volumetric.paths.value[volumetric.track.value]
     if (manifestPath.endsWith('.mp4')) {
       // UVOL1
       manifestPath = manifestPath.replace('.mp4', '.manifest')
@@ -260,7 +262,7 @@ export function VolumetricReactor() {
           })
         }
       })
-  }, [volumetric.paths, volumetric.playMode, volumetric.ended])
+  }, [volumetric.track])
 
   useEffect(() => {
     const volume = volumetric.volume.value

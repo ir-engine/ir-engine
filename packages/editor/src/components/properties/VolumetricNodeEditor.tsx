@@ -50,7 +50,6 @@ import { Button } from '../inputs/Button'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
@@ -88,13 +87,19 @@ type TextureTargetLabelsType = {
  */
 export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [trackLabel, setTrackLabel] = React.useState('')
 
   const volumetricComponent = useComponent(props.entity, VolumetricComponent)
 
   const toggle = () => {
     volumetricComponent.paused.set(!volumetricComponent.paused.value)
   }
+
+  const [trackLabels, setTrackLabels] = React.useState(
+    [] as {
+      label: string
+      value: number
+    }[]
+  )
 
   useEffect(() => {
     const tracks = volumetricComponent.paths.value
@@ -103,7 +108,18 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
     }
     if (tracks.length === 1) {
       const segments = tracks[0].split('/')
-      setTrackLabel(segments[segments.length - 1])
+      setTrackLabels([
+        {
+          label: segments[segments.length - 1],
+          value: 0
+        }
+      ])
+      console.log('Setting labels: ', [
+        {
+          label: segments[segments.length - 1],
+          value: 0
+        }
+      ])
       return
     }
 
@@ -115,11 +131,20 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         prefix = prefix.substring(0, prefix.length - 1)
       }
     }
+    const _trackLabels = [] as {
+      label: string
+      value: number
+    }[]
 
-    const currentTrackPath = tracks[volumetricComponent.track.value]
-
-    setTrackLabel(currentTrackPath.slice(prefix.length))
-  }, [volumetricComponent.track, volumetricComponent.ended, volumetricComponent.paths])
+    for (let i = 0; i < tracks.length; i++) {
+      _trackLabels.push({
+        label: tracks[i].slice(prefix.length),
+        value: i
+      })
+    }
+    setTrackLabels(_trackLabels)
+    console.log('Setting labels: ', _trackLabels)
+  }, [volumetricComponent.paths])
 
   const uvol2 = useOptionalComponent(props.entity, UVOL2Component)
   const [geometryTargets, setGeometryTargets] = React.useState(
@@ -261,9 +286,9 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
               }}
             />
           </InputGroup>
-          {Object.keys(textureTargets).map((textureType) => {
+          {Object.keys(textureTargets).map((textureType, index) => {
             return (
-              <InputGroup name={`${textureType} target`} label={`${textureType} target`}>
+              <InputGroup name={`${textureType} target`} label={`${textureType} target`} key={index}>
                 <SelectInput
                   key={props.entity}
                   options={textureTargets[textureType]}
@@ -281,7 +306,14 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       )}
 
       <InputGroup name="Current Track" label="Current Track">
-        <StringInput value={trackLabel} />
+        <SelectInput
+          key={props.entity}
+          options={trackLabels}
+          value={trackLabels.length ? volumetricComponent.track.value : ''}
+          onChange={(value: number) => {
+            volumetricComponent.track.set(value)
+          }}
+        />
       </InputGroup>
     </NodeEditor>
   )
