@@ -28,6 +28,7 @@ import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { Q_Y_180 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
@@ -275,7 +276,6 @@ export const rightControllerOffset = new Quaternion()
  */
 export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
   const xrFrame = getState(XRState).xrFrame!
-  const referenceSpace = ReferenceSpace.origin
 
   const uuid = getComponent(localClientEntity, UUIDComponent)
   const ikTargetLeftHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftHand) as EntityUUID)
@@ -291,22 +291,29 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
   if (ikTargetLeftFoot) AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] = 0
   if (ikTargetRightFoot) AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] = 0
 
+  const { isCameraAttachedToAvatar } = getState(XRControlsState)
+
+  /**
+   * - When in full scale mode, get pose relative to world origin
+   * - When in miniature mode, get pose relative to local floor
+   */
+  const referenceSpace = isCameraAttachedToAvatar ? ReferenceSpace.origin : ReferenceSpace.viewer
+
   const isInXR = xrFrame && referenceSpace
   if (!isInXR) {
     return
   }
 
-  const { isCameraAttachedToAvatar } = getState(XRControlsState)
+  const avatar = getComponent(localClientEntity, AvatarComponent)
+  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
   /** Head */
   if (isCameraAttachedToAvatar && ikTargetHead) {
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
     const ikTransform = getComponent(ikTargetHead, TransformComponent)
     ikTransform.position.copy(cameraTransform.position)
     ikTransform.rotation.copy(cameraTransform.rotation)
     AvatarIKTargetComponent.blendWeight[ikTargetHead] = 1
     const rigComponent = getComponent(localClientEntity, AvatarRigComponent)
-    const avatar = getComponent(localClientEntity, AvatarComponent)
     if (rigComponent) {
       const avatarTransform = getComponent(localClientEntity, TransformComponent)
       if (cameraTransform.position.y - avatarTransform.position.y < avatar.avatarHeight) {
@@ -341,11 +348,22 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
           const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
           if (jointPose) {
             ikTransform.position.copy(jointPose.transform.position as unknown as Vector3)
-            // .sub(localClientTransform.position)
-            // .multiplyScalar(inverseWorldScale)
-            // .add(localClientTransform.position)
             ikTransform.rotation.copy(jointPose.transform.orientation as unknown as Quaternion)
             ikTransform.rotation.multiply(handedness === 'right' ? rightHandOffset : leftHandOffset)
+
+            if (isCameraAttachedToAvatar) {
+              /** When in attached mode, only need to apply avatar scaling */
+              ikTransform.position.sub(localClientTransform.position)
+              ikTransform.position.multiplyScalar(inverseWorldScale)
+              ikTransform.position.add(localClientTransform.position)
+            } else {
+              /** When in detached mode, make the targets relative to the avatar */
+              // add eye height since this is relative to viewer pose
+              ikTransform.position.y += avatar.eyeHeight
+              avatar180.copy(localClientTransform.rotation).multiply(Q_Y_180)
+              ikTransform.position.applyQuaternion(avatar180).add(localClientTransform.position)
+              ikTransform.rotation.premultiply(avatar180)
+            }
           }
         }
         applyHandPose(inputSourceComponent.source, localClientEntity)
@@ -353,26 +371,33 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
         AvatarIKTargetComponent.blendWeight[entity] = 1
       } else {
         removeComponent(localClientEntity, XRHandComponent)
-        if (inputSourceComponent.source.gripSpace) {
-          const pose = xrFrame.getPose(inputSourceComponent.source.gripSpace, referenceSpace)
+        const space = inputSourceComponent.source.gripSpace ?? inputSourceComponent.source.targetRaySpace
+        if (space) {
+          const pose = xrFrame.getPose(space, referenceSpace)
           if (pose) {
             ikTransform.position.copy(pose.transform.position as any as Vector3)
-            // .sub(localClientTransform.position)
-            // .multiplyScalar(inverseWorldScale)
-            // .add(localClientTransform.position)
             ikTransform.rotation
               .copy(pose.transform.orientation as any as Quaternion)
               .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
 
-            AvatarIKTargetComponent.blendWeight[entity] = 1
-          }
-        } else {
-          const pose = xrFrame.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)
-          if (pose) {
-            ikTransform.position.copy(pose.transform.position as any as Vector3)
-            ikTransform.rotation
-              .copy(pose.transform.orientation as any as Quaternion)
-              .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
+            if (isCameraAttachedToAvatar) {
+              /** When in attached mode, only need to apply avatar scaling */
+              ikTransform.position.sub(localClientTransform.position)
+              ikTransform.position.multiplyScalar(inverseWorldScale)
+              ikTransform.position.add(localClientTransform.position)
+            } else {
+              // extract yaw component from pose quaternion
+              // const yaw = new Quaternion().setFromEuler(new Euler(0, Math.atan2(pose.transform.orientation.y, pose.transform.orientation.x), 0))
+              // ikTransform.rotation.copy(yaw)
+              // ikTransform.position.applyQuaternion(new Quaternion().copy(cameraTransform.rotation).invert())
+
+              /** When in detached mode, make the targets relative to the avatar */
+              // add eye height since this is relative to viewer pose
+              ikTransform.position.y += avatar.eyeHeight
+              avatar180.copy(localClientTransform.rotation) //.multiply(Q_Y_180)
+              ikTransform.position.applyQuaternion(avatar180).add(localClientTransform.position)
+              ikTransform.rotation.premultiply(avatar180)
+            }
 
             AvatarIKTargetComponent.blendWeight[entity] = 1
           }
@@ -381,3 +406,5 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
     }
   }
 }
+
+const avatar180 = new Quaternion()
