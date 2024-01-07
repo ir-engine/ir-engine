@@ -340,11 +340,10 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
         if (wrist) {
           const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
           if (jointPose) {
-            ikTransform.position
-              .copy(jointPose.transform.position as unknown as Vector3)
-              .sub(localClientTransform.position)
-              .multiplyScalar(inverseWorldScale)
-              .add(localClientTransform.position)
+            ikTransform.position.copy(jointPose.transform.position as unknown as Vector3)
+            // .sub(localClientTransform.position)
+            // .multiplyScalar(inverseWorldScale)
+            // .add(localClientTransform.position)
             ikTransform.rotation.copy(jointPose.transform.orientation as unknown as Quaternion)
             ikTransform.rotation.multiply(handedness === 'right' ? rightHandOffset : leftHandOffset)
           }
@@ -357,11 +356,10 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
         if (inputSourceComponent.source.gripSpace) {
           const pose = xrFrame.getPose(inputSourceComponent.source.gripSpace, referenceSpace)
           if (pose) {
-            ikTransform.position
-              .copy(pose.transform.position as any as Vector3)
-              .sub(localClientTransform.position)
-              .multiplyScalar(inverseWorldScale)
-              .add(localClientTransform.position)
+            ikTransform.position.copy(pose.transform.position as any as Vector3)
+            // .sub(localClientTransform.position)
+            // .multiplyScalar(inverseWorldScale)
+            // .add(localClientTransform.position)
             ikTransform.rotation
               .copy(pose.transform.orientation as any as Quaternion)
               .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
