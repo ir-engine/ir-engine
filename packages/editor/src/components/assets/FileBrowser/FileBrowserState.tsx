@@ -44,6 +44,7 @@ export const FilesViewModeSettings = defineState({
       iconSize: 90
     },
     list: {
+      fontSize: 15,
       selectedTableColumns: {
         name: true,
         type: true,

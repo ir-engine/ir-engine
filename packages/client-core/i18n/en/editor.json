@@ -972,7 +972,8 @@
         "settings": {
           "name": "View Options",
           "iconSize": "Icon Size",
-          "select-listColumns": "Select List Columns"
+          "select-listColumns": "Select List Columns",
+          "fontSize": "Font Size"
         }
       },
       "table-list": {

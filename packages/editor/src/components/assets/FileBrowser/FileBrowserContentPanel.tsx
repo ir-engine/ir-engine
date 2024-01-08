@@ -169,7 +169,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
   const viewModeSettingsAnchorPosition = useHookstate({ left: 0, top: 0 })
-  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
 
   const fileState = useHookstate(getMutableState(FileBrowserState))
   const filesValue = fileState.files.attach(Downgraded).value
@@ -472,62 +471,79 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     )
   }
 
-  const ViewModeSettings = () => (
-    <>
-      <ToolButton
-        tooltip={t('editor:layout.filebrowser.view-mode.settings.name')}
-        icon={SettingsIcon}
-        onClick={(event) => viewModeSettingsAnchorPosition.set({ left: event.clientX, top: event.clientY })}
-        id="viewSettings"
-      />
-      <Popover
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        anchorPosition={viewModeSettingsAnchorPosition.get(NO_PROXY)}
-        open={!!viewModeSettingsAnchorPosition.left.value}
-        onClose={() => viewModeSettingsAnchorPosition.set({ left: 0, top: 0 })}
-        anchorReference="anchorPosition"
-      >
-        <div className={styles.viewModeSettings}>
-          <div style={{ display: 'flex', width: '200px' }}>
-            {filesViewMode.value === 'icons' ? (
-              <InputSlider
-                sx={{ width: '100%', marginTop: '15px' }}
-                min={10}
-                max={100}
-                value={viewModeSettings.icons.iconSize.value}
-                onChange={viewModeSettings.icons.iconSize.set}
-                label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
-                displaySliderLabel={true}
-              />
-            ) : (
-              <div>
-                <div>
-                  <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-                </div>
-                <div>
-                  {availableTableColumns.map((column) => (
-                    <FormControlLabel
-                      label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}
-                      control={
-                        <Checkbox
-                          style={{ color: 'var(--textColor)' }}
-                          checked={viewModeSettings.list.selectedTableColumns[column].value}
-                          onChange={(_, checked) => viewModeSettings.list.selectedTableColumns[column].set(checked)}
+  const ViewModeSettings = () => {
+    const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+    return (
+      <>
+        <ToolButton
+          tooltip={t('editor:layout.filebrowser.view-mode.settings.name')}
+          icon={SettingsIcon}
+          onClick={(event) => viewModeSettingsAnchorPosition.set({ left: event.clientX, top: event.clientY })}
+          id="viewSettings"
+        />
+        <Popover
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right'
+          }}
+          anchorPosition={viewModeSettingsAnchorPosition.get(NO_PROXY)}
+          open={!!viewModeSettingsAnchorPosition.left.value}
+          onClose={() => viewModeSettingsAnchorPosition.set({ left: 0, top: 0 })}
+          anchorReference="anchorPosition"
+        >
+          <div className={styles.viewModeSettings}>
+            <div style={{ display: 'flex', width: '200px', flexDirection: 'column' }}>
+              {filesViewMode.value === 'icons' ? (
+                <InputSlider
+                  sx={{ width: '100%', marginTop: '15px' }}
+                  min={10}
+                  max={100}
+                  displaySliderLabel={true}
+                  value={viewModeSettings.icons.iconSize.value}
+                  onChange={viewModeSettings.icons.iconSize.set}
+                  label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
+                />
+              ) : (
+                <>
+                  <InputSlider
+                    sx={{ width: '100%', marginTop: '15px' }}
+                    min={5}
+                    max={30}
+                    displaySliderLabel={true}
+                    value={viewModeSettings.list.fontSize.value}
+                    onChange={viewModeSettings.list.fontSize.set}
+                    label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
+                  />
+                  <div>
+                    <div style={{ marginTop: '1rem' }}>
+                      <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
+                    </div>
+                    <div>
+                      {availableTableColumns.map((column) => (
+                        <FormControlLabel
+                          classes={{
+                            label: styles.viewModeSettingsLabel
+                          }}
+                          label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}
+                          control={
+                            <Checkbox
+                              style={{ color: 'var(--textColor)' }}
+                              checked={viewModeSettings.list.selectedTableColumns[column].value}
+                              onChange={(_, checked) => viewModeSettings.list.selectedTableColumns[column].set(checked)}
+                            />
+                          }
                         />
-                      }
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      </Popover>
-    </>
-  )
+        </Popover>
+      </>
+    )
+  }
 
   const Header = () => (
     <div

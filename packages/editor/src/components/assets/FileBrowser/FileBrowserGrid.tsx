@@ -79,15 +79,16 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
   }
   const { t } = useTranslation()
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
+  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   return (
     <TableContainer component="div">
       <Table size="small" className={styles.table}>
         <TableHead>
-          <TableRow className={styles.tableHeaderRow}>
+          <TableRow className={styles.tableHeaderRow} style={{ height: fontSize * 3 }}>
             {availableTableColumns
               .filter((header) => selectedTableColumns[header])
               .map((header) => (
-                <TableCell key={header} className={styles.tableCell}>
+                <TableCell key={header} className={styles.tableCell} style={{ fontSize }}>
                   {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
                 </TableCell>
               ))}
@@ -123,12 +124,19 @@ export const FileTableListBody = ({
   drag?: ConnectDragSource
 }) => {
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
+  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
   const tableColumns = {
     name: (
       <span className={styles.cellName}>
-        {file.isFolder ? <FolderIcon /> : file.Icon ? <file.Icon /> : <DescriptionIcon />}
+        {file.isFolder ? (
+          <FolderIcon fontSize="inherit" />
+        ) : file.Icon ? (
+          <file.Icon fontSize="inherit" />
+        ) : (
+          <DescriptionIcon fontSize="inherit" />
+        )}
         {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
       </span>
     ),
@@ -139,7 +147,7 @@ export const FileTableListBody = ({
   return (
     <TableRow
       key={file.key}
-      sx={{ border: file.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}
+      sx={{ border: file.isFolder ? (isOver ? '3px solid #ccc' : '') : '', height: fontSize * 3 }}
       onContextMenu={onContextMenu}
       onClick={isRenaming ? () => {} : onClick}
       onDoubleClick={isRenaming ? () => {} : onDoubleClick}
@@ -149,7 +157,7 @@ export const FileTableListBody = ({
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
         .map((header, idx) => (
-          <TableCell key={idx} className={styles.tableCell}>
+          <TableCell key={idx} className={styles.tableCell} style={{ fontSize }}>
             {tableColumns[header]}
           </TableCell>
         ))}
