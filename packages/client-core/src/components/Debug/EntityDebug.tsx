@@ -28,9 +28,12 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   Component,
+  ComponentMap,
+  defineQuery,
   getComponent,
   getOptionalComponent,
-  hasComponent
+  hasComponent,
+  removeQuery
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
@@ -92,10 +95,22 @@ const renderEntityComponents = (entity: Entity) => {
   )
 }
 
-const renderAllEntities = (filter: string) => {
+const getQueryFromString = (queryString: string) => {
+  const queryComponents = queryString
+    .split(',')
+    .filter((name) => ComponentMap.has(name))
+    .map((name) => ComponentMap.get(name)!)
+  const query = defineQuery(queryComponents)
+  const entities = query()
+  removeQuery(query)
+  return entities
+}
+
+const renderAllEntities = (filter: string, queryString: string) => {
+  const entities = queryString ? getQueryFromString(queryString) : Engine.instance.entityQuery()
   return {
     ...Object.fromEntries(
-      [...Engine.instance.entityQuery().entries()]
+      [...entities.entries()]
         .map(([, eid]) => {
           if (!entityExists(eid)) return null!
 
@@ -119,10 +134,11 @@ const renderAllEntities = (filter: string) => {
 const EntitySearchState = defineState({
   name: 'EntitySearchState',
   initial: {
-    search: ''
+    search: '',
+    query: ''
   },
   onCreate: (store, state) => {
-    syncStateWithLocalStorage(EntitySearchState, ['search'])
+    syncStateWithLocalStorage(EntitySearchState, ['search', 'query'])
   }
 })
 
@@ -134,6 +150,7 @@ export const EntityDebug = () => {
   const erroredComponents = useHookstate([] as any[])
   const entityTree = useHookstate({} as any)
   const entitySearch = useHookstate(getMutableState(EntitySearchState).search)
+  const entityQuery = useHookstate(getMutableState(EntitySearchState).query)
 
   erroredComponents.set(
     [...Engine.instance.store.activeReactors.values()]
@@ -149,7 +166,7 @@ export const EntityDebug = () => {
       })
       .flat()
   )
-  namedEntities.set(renderAllEntities(entitySearch.value))
+  namedEntities.set(renderAllEntities(entitySearch.value, entityQuery.value))
   entityTree.set(renderEntityTreeRoots())
 
   return (
@@ -165,6 +182,12 @@ export const EntityDebug = () => {
           placeholder="Search..."
           value={entitySearch.value}
           onChange={(e) => entitySearch.set(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Query..."
+          value={entityQuery.value}
+          onChange={(e) => entityQuery.set(e.target.value)}
         />
         <JSONTree data={namedEntities.get(NO_PROXY)} />
       </div>

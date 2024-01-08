@@ -28,7 +28,7 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import {
   scopeTypeDataValidator,
   scopeTypeQueryValidator
-} from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+} from '@etherealengine/common/src/schemas/scope/scope-type.schema'
 
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import {

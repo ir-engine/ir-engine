@@ -33,7 +33,7 @@ import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'

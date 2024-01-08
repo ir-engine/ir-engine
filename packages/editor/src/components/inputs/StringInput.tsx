@@ -62,9 +62,9 @@ export interface StringInputProps {
   id?: string
   value?: string
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void
-  onRelease?: (e: FocusEvent<HTMLInputElement>) => void
-  onFocus?: (e: FocusEvent<HTMLInputElement>) => void
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void
+  onRelease?: any
+  onFocus?: any
   required?: boolean
   pattern?: string
   title?: string

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { scopeTypePath } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
 
 /**
  * @param { import("knex").Knex } knex

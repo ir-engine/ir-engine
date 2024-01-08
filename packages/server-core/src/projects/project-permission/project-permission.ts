@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   projectPermissionMethods,
   projectPermissionPath
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 
 import { Application } from '../../../declarations'
 import { ProjectPermissionService } from './project-permission.class'

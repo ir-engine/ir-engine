@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ScopeTypeInterface, UserType, scopePath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '../../ecs/classes/Engine'
-import { ScopeTypeInterface, scopePath } from '../../schemas/scope/scope.schema'
-import { UserType } from '../../schemas/user/user.schema'
 
 export const checkScope = async (user: UserType, currentType: string, scopeToVerify: string) => {
   const scopes = (await Engine.instance.api.service(scopePath).find({

@@ -31,9 +31,9 @@ import {
   analyticsDataValidator,
   analyticsPatchValidator,
   analyticsQueryValidator
-} from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
-import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/analytics/analytics.schema'
+import { instanceAttendancePath } from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { Knex } from 'knex'
 import { HookContext } from '../../../declarations'

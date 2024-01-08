@@ -34,7 +34,7 @@ import {
   channelUserPatchSchema,
   channelUserQuerySchema,
   channelUserSchema
-} from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+} from '@etherealengine/common/src/schemas/social/channel-user.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

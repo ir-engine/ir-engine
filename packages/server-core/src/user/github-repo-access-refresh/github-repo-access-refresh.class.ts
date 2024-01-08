@@ -28,12 +28,12 @@ import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 import {
   githubRepoAccessPath,
   GithubRepoAccessType
-} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+} from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 
 import {
   identityProviderPath,
   IdentityProviderType
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import { getUserRepos } from '../../projects/project/github-helper'

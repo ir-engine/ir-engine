@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // Initializes the `login` service on path `/login`
-import { loginMethods, loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
+import { loginMethods, loginPath } from '@etherealengine/common/src/schemas/user/login.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+import { analyticsPath } from '@etherealengine/common/src/schemas/analytics/analytics.schema'
 
 /**
  * @param { import("knex").Knex } knex
