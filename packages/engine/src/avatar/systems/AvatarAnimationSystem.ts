@@ -29,7 +29,8 @@ import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Q_X_90, V_001, V_010, V_100 } from '../../common/constants/MathConstants'
+import { VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
+import { V_001, V_010 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -100,6 +101,19 @@ const footRaycastInterval = 0.25
 let footRaycastTimer = 0
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
+
+const blendIkChain = (
+  normalizedIkBones: VRMHumanBones,
+  normalizedFkBones: VRMHumanBones,
+  root: VRMHumanBoneName,
+  mid: VRMHumanBoneName,
+  tip: VRMHumanBoneName,
+  weight: number
+) => {
+  normalizedFkBones[root]!.node.quaternion.fastSlerp(normalizedIkBones[root]!.node.quaternion, weight)
+  normalizedFkBones[mid]!.node.quaternion.fastSlerp(normalizedIkBones[mid]!.node.quaternion, weight)
+  normalizedFkBones[tip]!.node.quaternion.fastSlerp(normalizedIkBones[tip]!.node.quaternion, weight)
+}
 
 const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
@@ -184,9 +198,8 @@ const execute = () => {
     const isAvatarFlipped = !rigComponent.vrm.userData?.retargeted
 
     /** test */
-    ikRig.hips.node.position.copy(transform.position)
-    ikRig.hips.node.quaternion.copy(transform.rotation)
-    ikRig.hips.node.updateWorldMatrix(false, true)
+    ikRig.hips.node.quaternion.copy(normalizedRig.hips.node.quaternion)
+    ikRig.hips.node.position.copy(normalizedRig.hips.node.position)
 
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
     if (headTargetBlendWeight) {
@@ -214,57 +227,65 @@ const execute = () => {
     }
 
     if (rightHandTargetBlendWeight) {
-      _quat2.copy(rightHandTransform.rotation)
-      if (!isAvatarFlipped) {
-        _quat2.multiply(rightHandRotation)
-      }
-
       getArmIKHint(
         entity,
         rightHandTransform.position,
-        _quat2,
+        rightHandTransform.rotation,
         rawRig.rightUpperArm.node.getWorldPosition(_vector3),
         'right',
         _hint
       )
 
       solveTwoBoneIK(
-        rawRig.rightUpperArm.node,
-        rawRig.rightLowerArm.node,
-        rawRig.rightHand.node,
+        ikRig.rightUpperArm.node,
+        ikRig.rightLowerArm.node,
+        ikRig.rightHand.node,
         rightHandTransform.position,
-        _quat2,
+        rightHandTransform.rotation,
         null,
         _hint,
         rightHandTargetBlendWeight,
         rightHandTargetBlendWeight
       )
+
+      blendIkChain(
+        ikRig,
+        normalizedRig,
+        VRMHumanBoneName.RightUpperArm,
+        VRMHumanBoneName.RightLowerArm,
+        VRMHumanBoneName.RightHand,
+        rightHandTargetBlendWeight
+      )
     }
 
     if (leftHandTargetBlendWeight) {
-      _quat2.copy(leftHandTransform.rotation)
-      if (!isAvatarFlipped) {
-        _quat2.multiply(leftHandRotation)
-      }
-
       getArmIKHint(
         entity,
         leftHandTransform.position,
-        _quat2,
+        leftHandTransform.rotation,
         rawRig.leftUpperArm.node.getWorldPosition(_vector3),
         'left',
         _hint
       )
 
       solveTwoBoneIK(
-        rawRig.leftUpperArm.node,
-        rawRig.leftLowerArm.node,
-        rawRig.leftHand.node,
+        ikRig.leftUpperArm.node,
+        ikRig.leftLowerArm.node,
+        ikRig.leftHand.node,
         leftHandTransform.position,
-        _quat2,
+        leftHandTransform.rotation,
         null,
         _hint,
         leftHandTargetBlendWeight,
+        leftHandTargetBlendWeight
+      )
+
+      blendIkChain(
+        ikRig,
+        normalizedRig,
+        VRMHumanBoneName.LeftUpperArm,
+        VRMHumanBoneName.LeftLowerArm,
+        VRMHumanBoneName.LeftHand,
         leftHandTargetBlendWeight
       )
     }
@@ -274,15 +295,6 @@ const execute = () => {
     }
 
     if (rightFootTargetBlendWeight) {
-      _quat2.copy(rightFootTransform.rotation)
-      if (isAvatarFlipped) {
-        _quat2.multiply(Q_X_90)
-      } else {
-        /** I don't know why flipped models don't need this foot angle applied, nor why it needs to be halved */
-        footAngleQuat.setFromAxisAngle(V_100, avatarComponent.footAngle / 2)
-        _quat2.multiply(footAngleQuat)
-      }
-
       _hint
         .set(-avatarComponent.footGap * 1.5, 0, 0.4)
         .applyQuaternion(transform.rotation)
@@ -293,28 +305,24 @@ const execute = () => {
         ikRig.rightLowerLeg.node,
         ikRig.rightFoot.node,
         rightFootTransform.position,
-        _quat2,
+        rightFootTransform.rotation,
         null,
         _hint,
         rightFootTargetBlendWeight,
         rightFootTargetBlendWeight
       )
 
-      /** test */
-      normalizedRig.rightUpperLeg.node.quaternion.copy(ikRig.rightUpperLeg.node.quaternion)
-      normalizedRig.rightLowerLeg.node.quaternion.copy(ikRig.rightLowerLeg.node.quaternion)
-      normalizedRig.rightFoot.node.quaternion.copy(ikRig.rightFoot.node.quaternion)
+      blendIkChain(
+        ikRig,
+        normalizedRig,
+        VRMHumanBoneName.RightUpperLeg,
+        VRMHumanBoneName.RightLowerLeg,
+        VRMHumanBoneName.RightFoot,
+        1
+      )
     }
 
     if (leftFootTargetBlendWeight) {
-      _quat2.copy(leftFootTransform.rotation)
-      if (isAvatarFlipped) {
-        _quat2.multiply(Q_X_90)
-      } else {
-        footAngleQuat.setFromAxisAngle(V_100, avatarComponent.footAngle / 2)
-        _quat2.multiply(footAngleQuat)
-      }
-
       _hint
         .set(avatarComponent.footGap * 1.5, 0, 1)
         .applyQuaternion(transform.rotation)
@@ -325,11 +333,20 @@ const execute = () => {
         rawRig.leftLowerLeg.node,
         rawRig.leftFoot.node,
         leftFootTransform.position,
-        _quat2,
+        leftFootTransform.rotation,
         null,
         _hint,
         leftFootTargetBlendWeight,
         leftFootTargetBlendWeight
+      )
+
+      blendIkChain(
+        ikRig,
+        normalizedRig,
+        VRMHumanBoneName.LeftUpperLeg,
+        VRMHumanBoneName.LeftLowerLeg,
+        VRMHumanBoneName.LeftFoot,
+        1
       )
     }
     updateAnimationGraph(avatarAnimationEntities)
