@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
-import { MeshBVHVisualizer } from 'three-mesh-bvh'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -41,48 +40,6 @@ import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
-const visualizers = [] as MeshBVHVisualizer[]
-
-// const DebugGroupChildReactor = (props: GroupReactorProps) => {
-//   const obj = props.obj
-//   const debug = useHookstate(getMutableState(RendererState).physicsDebug)
-
-//   add MeshBVHVisualizer to meshes when debugEnable is true
-//   useEffect(() => {
-//     if (!debug.value || !obj) return
-
-//     const meshBVHVisualizers = [] as MeshBVHVisualizer[]
-//     const meshBVHEntities = [] as Entity[]
-
-//     const mesh = obj as any as Mesh
-//     const parentEntity = getOptionalComponent(mesh.entity, EntityTreeComponent)?.parentEntity
-//     if (mesh.isMesh && parentEntity && mesh.geometry?.boundsTree) {
-//       const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
-//       const meshBVHEntity = createEntity()
-//       addObjectToGroup(parentEntity, meshBVHVisualizer)
-//       setComponent(meshBVHEntity, EntityTreeComponent, { parentEntity: parentEntity })
-
-//       meshBVHVisualizer.depth = 20
-//       meshBVHVisualizer.displayParents = false
-//       meshBVHVisualizer.update()
-
-//       visualizers.push(meshBVHVisualizer)
-//       meshBVHVisualizers.push(meshBVHVisualizer)
-//       meshBVHEntities.push(meshBVHEntity)
-//     }
-
-//     return () => {
-//       for (let i = 0; i < meshBVHVisualizers.length; i++) {
-//         const parentEntity = getComponent(meshBVHEntities[i], EntityTreeComponent).parentEntity!
-//         removeObjectFromGroup(parentEntity, meshBVHVisualizers[i])
-//         visualizers.splice(visualizers.indexOf(meshBVHVisualizers[i]), 1)
-//       }
-//     }
-//   }, [obj, debug])
-
-//   return <></>
-// }
-
 const execute = () => {
   const physicsDebugEntity = getState(RendererState).physicsDebugEntity
 
@@ -94,10 +51,6 @@ const execute = () => {
       lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
       lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
     }
-  }
-
-  for (const visualizer of visualizers) {
-    visualizer.updateMatrixWorld(true)
   }
 }
 
