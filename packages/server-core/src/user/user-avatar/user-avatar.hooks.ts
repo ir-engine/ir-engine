@@ -24,17 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { disallow } from 'feathers-hooks-common'
 
 import {
   userAvatarDataValidator,
   userAvatarPatchValidator,
   userAvatarQueryValidator
 } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
-import isAction from '../../hooks/is-action'
-import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
-import verifyScope from '../../hooks/verify-scope'
+
 import {
   userAvatarDataResolver,
   userAvatarExternalResolver,
@@ -50,31 +47,14 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(userAvatarQueryValidator), schemaHooks.resolveQuery(userAvatarQueryResolver)],
-    find: [
-      iff(
-        isProvider('external'),
-        iffElse(isAction('admin'), verifyScope('user', 'read'), setLoggedinUserInQuery('userId'))
-      ),
-      discardQuery('action')
-    ],
+    find: [],
     get: [disallow('external')],
     create: [
       disallow('external'),
       () => schemaHooks.validateData(userAvatarDataValidator),
       schemaHooks.resolveData(userAvatarDataResolver)
     ],
-    patch: [
-      iff(
-        isProvider('external'),
-        iffElse(
-          async (context) => await checkScope(context.params.user, 'user', 'write'),
-          [],
-          [setLoggedinUserInQuery('userId')]
-        )
-      ),
-      () => schemaHooks.validateData(userAvatarPatchValidator),
-      schemaHooks.resolveData(userAvatarPatchResolver)
-    ],
+    patch: [() => schemaHooks.validateData(userAvatarPatchValidator), schemaHooks.resolveData(userAvatarPatchResolver)],
     remove: [disallow('external')]
   },
 
