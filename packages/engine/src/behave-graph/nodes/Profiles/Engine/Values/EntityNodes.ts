@@ -33,7 +33,8 @@ import {
 import { toQuat, toVector3 } from '@behave-graph/scene'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getState, startReactor } from '@etherealengine/hyperflux'
-import { isEqual, uniqueId } from 'lodash'
+import { uniqueId } from 'lodash'
+import { useEffect } from 'react'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
@@ -43,7 +44,8 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  setComponent
+  setComponent,
+  useComponent
 } from '../../../../../ecs/functions/ComponentFunctions'
 import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
 import { removeEntity, useEntityContext } from '../../../../../ecs/functions/EntityFunctions'
@@ -267,9 +269,9 @@ export const setEntityTransform = makeFlowNodeDefinition({
 })
 
 export const useEntityTransform = makeEventNodeDefinition({
-  typeName: 'engine/entity/onEntityTransformChange',
+  typeName: 'engine/entity/useEntityTransform',
   category: NodeCategory.Event,
-  label: 'On entity transform change',
+  label: 'Use entity transform',
   in: {
     entity: 'entity'
   },
@@ -288,17 +290,22 @@ export const useEntityTransform = makeEventNodeDefinition({
     const systemUUID = defineSystem({
       uuid: 'behave-graph-useTransform-' + uniqueId(),
       insert: { with: InputSystemGroup },
-      execute: () => {
-        const transform = getComponent(entity, TransformComponent)
-        Object.entries(transform).forEach(([key, value]) => {
-          if (Object.hasOwn(prevTransform, key)) {
-            if (isEqual(prevTransform[key], structuredClone(transform[key]))) return
-          }
-          if (!Object.keys(useEntityTransform.out).includes(key)) return
-          write(key as any, value)
-          commit(`${key}Change` as any)
-          prevTransform[key] = structuredClone(transform[key])
-        })
+      execute: () => {},
+      reactor: () => {
+        const transformState = useComponent(entity, TransformComponent)
+        useEffect(() => {
+          write('position', transformState.position.value)
+          commit(`positionChange` as any)
+        }, [transformState.position])
+        useEffect(() => {
+          write('rotation', transformState.rotation.value)
+          commit(`rotationChange` as any)
+        }, [transformState.rotation])
+        useEffect(() => {
+          write('scale', transformState.scale.value)
+          commit(`scaleChange` as any)
+        }, [transformState.scale])
+        return null
       }
     })
     const state: State = {
@@ -335,6 +342,7 @@ export const getSelfEntity = makeFunctionNodeDefinition({
     write('entity', entity)
   }
 })
+
 export const getUUID = makeInNOutFunctionDesc({
   name: 'engine/entity/getUuid',
   label: 'Entity uuid',
