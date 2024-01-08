@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 
-import { LocationTypeQuery, LocationTypeType } from '@etherealengine/engine/src/schemas/social/location-type.schema'
+import { LocationTypeQuery, LocationTypeType } from '@etherealengine/common/src/schemas/social/location-type.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const locationTypeResolver = resolve<LocationTypeType, HookContext>({})

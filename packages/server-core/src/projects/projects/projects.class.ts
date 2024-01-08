@@ -18,7 +18,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { Application } from '../../../declarations'
 
 import { ServiceInterface } from '@feathersjs/feathers'

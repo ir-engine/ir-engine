@@ -27,7 +27,7 @@ import assert from 'assert'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { getStorageProvider } from '../storageprovider/storageprovider'

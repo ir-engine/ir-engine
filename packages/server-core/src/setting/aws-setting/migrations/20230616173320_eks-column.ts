@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { awsSettingPath } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
+import { awsSettingPath } from '@etherealengine/common/src/schemas/setting/aws-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex

@@ -29,7 +29,7 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import {
   botCommandDataValidator,
   botCommandQueryValidator
-} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+} from '@etherealengine/common/src/schemas/bot/bot-command.schema'
 import verifyScope from '../../hooks/verify-scope'
 import {
   botCommandDataResolver,

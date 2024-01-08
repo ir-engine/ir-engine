@@ -30,7 +30,7 @@ import {
   locationTypeDataValidator,
   locationTypePatchValidator,
   locationTypeQueryValidator
-} from '@etherealengine/engine/src/schemas/social/location-type.schema'
+} from '@etherealengine/common/src/schemas/social/location-type.schema'
 
 import {
   locationTypeDataResolver,

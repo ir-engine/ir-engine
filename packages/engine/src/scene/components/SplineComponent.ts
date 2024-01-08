@@ -42,6 +42,7 @@ import {
 import { useEffect } from 'react'
 
 import { NO_PROXY } from '@etherealengine/hyperflux'
+import { V_010 } from '../../common/constants/MathConstants'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -53,18 +54,30 @@ const _point = new Vector3()
 const lineGeometry = new BufferGeometry()
 lineGeometry.setAttribute('position', new BufferAttribute(new Float32Array(ARC_SEGMENTS * 3), 3))
 
-export interface ISplineElement {
-  position: Vector3
-  quaternion: Quaternion
-}
-
 export const SplineComponent = defineComponent({
   name: 'SplineComponent',
   jsonID: 'spline',
 
   onInit: (entity) => {
     return {
-      elements: [] as ISplineElement[],
+      elements: [
+        { position: new Vector3(-1, 0, -1), quaternion: new Quaternion() },
+        {
+          position: new Vector3(1, 0, -1),
+          quaternion: new Quaternion().setFromAxisAngle(V_010, Math.PI / 2)
+        },
+        {
+          position: new Vector3(1, 0, 1),
+          quaternion: new Quaternion().setFromAxisAngle(V_010, Math.PI)
+        },
+        {
+          position: new Vector3(-1, 0, 1),
+          quaternion: new Quaternion().setFromAxisAngle(V_010, (3 * Math.PI) / 2)
+        }
+      ] as Array<{
+        position: Vector3
+        quaternion: Quaternion
+      }>,
       // internal
       curve: new CatmullRomCurve3([], true)
     }
@@ -72,7 +85,13 @@ export const SplineComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    json.elements && component.elements.set(json.elements)
+    json.elements &&
+      component.elements.set(
+        json.elements.map((e) => ({
+          position: new Vector3().copy(e.position),
+          quaternion: new Quaternion().copy(e.quaternion)
+        }))
+      )
   },
 
   toJSON: (entity, component) => {

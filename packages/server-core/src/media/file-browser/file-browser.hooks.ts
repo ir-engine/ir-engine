@@ -30,7 +30,7 @@ import { SYNC } from 'feathers-sync'
 import {
   fileBrowserPatchValidator,
   fileBrowserUpdateValidator
-} from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+} from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import verifyScope from '../../hooks/verify-scope'
 
 export default {

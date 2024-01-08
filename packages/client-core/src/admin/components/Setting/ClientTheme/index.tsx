@@ -31,7 +31,7 @@ import {
   defaultThemeSettings,
   getCurrentTheme
 } from '@etherealengine/common/src/constants/DefaultThemeSettings'
-import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 

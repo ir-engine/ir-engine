@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+import { matchInstancePath } from '@etherealengine/common/src/schemas/matchmaking/match-instance.schema'
 
 /**
  * @param { import("knex").Knex } knex

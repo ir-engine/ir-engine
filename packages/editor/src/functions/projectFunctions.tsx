@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { API } from '@etherealengine/client-core/src/API'
 
-import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { Paginated } from '@feathersjs/feathers'
 
 /**

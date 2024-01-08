@@ -169,6 +169,7 @@ function UVOL1Reactor() {
       volumetric.ended.set(true)
       video.removeEventListener('ended', setEnded)
     })
+    volumetric.currentTrackInfo.duration.set(component.data.frameData.length / component.data.frameRate.value)
 
     return () => {
       removeObjectFromGroup(entity, mesh)
@@ -253,6 +254,7 @@ function UVOL1Reactor() {
         mesh.material.needsUpdate = true
         oldMaterial.dispose()
       }
+      volumetric.currentTrackInfo.currentTime.set(frameToPlay / component.data.frameRate.value)
 
       if (meshBuffer.has(frameToPlay)) {
         // @ts-ignore: value cannot be anything else other than BufferGeometry
