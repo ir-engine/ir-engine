@@ -77,6 +77,16 @@ export const DirectionalLightComponent = defineComponent({
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
     if (matches.boolean.test(json.useInCSM)) component.useInCSM.set(json.useInCSM)
+
+    const light = component.light.value
+    light.color.copy(component.color.value)
+    light.intensity = component.intensity.value
+    light.castShadow = component.castShadow.value
+    light.shadow.bias = component.shadowBias.value
+    light.shadow.radius = component.shadowRadius.value
+    light.shadow.camera.far = component.cameraFar.value
+    light.shadow.camera.updateProjectionMatrix()
+    light.shadow.needsUpdate = true
   },
 
   toJSON: (entity, component) => {
