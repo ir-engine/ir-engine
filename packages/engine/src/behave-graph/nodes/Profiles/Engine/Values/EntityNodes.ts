@@ -286,7 +286,7 @@ export const useEntityTransform = makeEventNodeDefinition({
     const entity = Number(read('entity')) as Entity
     const prevTransform = {}
     const systemUUID = defineSystem({
-      uuid: 'behave-graph-transformChange-' + uniqueId(),
+      uuid: 'behave-graph-useTransform-' + uniqueId(),
       insert: { with: InputSystemGroup },
       execute: () => {
         const transform = getComponent(entity, TransformComponent)
