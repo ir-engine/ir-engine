@@ -97,6 +97,7 @@ export const TransformGizmoComponent = defineComponent({
       addObjectToGroup(entity, dummy)
       gizmoComponent.value.attach(dummy)
       addObjectToGroup(dummyEntity, gizmoComponent.value)
+      setObjectLayers(gizmoComponent.value, ObjectLayers.TransformGizmo)
       setObjectLayers(dummy, ObjectLayers.TransformGizmo)
       removeComponent(dummyEntity, TransformComponent)
 

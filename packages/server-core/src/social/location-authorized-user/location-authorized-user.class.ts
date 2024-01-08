@@ -31,7 +31,7 @@ import {
   LocationAuthorizedUserPatch,
   LocationAuthorizedUserQuery,
   LocationAuthorizedUserType
-} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+} from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
 
 export interface LocationAuthorizedUserParams extends KnexAdapterParams<LocationAuthorizedUserQuery> {}
 

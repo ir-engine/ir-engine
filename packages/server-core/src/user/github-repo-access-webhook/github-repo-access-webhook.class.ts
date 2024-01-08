@@ -26,14 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 import crypto from 'crypto'
 
-import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
-import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
+import { serverSettingPath, ServerSettingType } from '@etherealengine/common/src/schemas/setting/server-setting.schema'
+import { githubRepoAccessRefreshPath } from '@etherealengine/common/src/schemas/user/github-repo-access-refresh.schema'
 
 import {
   identityProviderPath,
   IdentityProviderType
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { NotAuthenticated } from '@feathersjs/errors'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'

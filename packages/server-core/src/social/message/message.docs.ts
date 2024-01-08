@@ -30,7 +30,7 @@ import {
   messagePatchSchema,
   messageQuerySchema,
   messageSchema
-} from '@etherealengine/engine/src/schemas/social/message.schema'
+} from '@etherealengine/common/src/schemas/social/message.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

@@ -29,14 +29,14 @@ import fs from 'fs'
 import path from 'path'
 import { v4 as generateUUID } from 'uuid'
 
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import {
   LocationData,
   LocationID,
   locationPath,
-  LocationType
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+  LocationSettingType,
+  LocationType,
+  SceneID
+} from '@etherealengine/common/src/schema.type.module'
 import { Application } from '@etherealengine/server-core/declarations'
 
 function toCapitalCase(str: string) {

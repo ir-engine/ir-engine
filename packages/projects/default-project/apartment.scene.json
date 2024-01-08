@@ -57,8 +57,8 @@
           "name": "camera-settings",
           "props": {
             "fov": 50,
-            "cameraNearClip": 0.01,
-            "cameraFarClip": 10000,
+            "cameraNearClip": 0.1,
+            "cameraFarClip": 1000,
             "projectionType": 1,
             "minCameraDistance": 1,
             "maxCameraDistance": 50,

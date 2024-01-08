@@ -27,7 +27,7 @@ import {
   fileBrowserContentSchema,
   fileBrowserPatchSchema,
   fileBrowserUpdateSchema
-} from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+} from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({

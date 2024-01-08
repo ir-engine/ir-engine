@@ -106,9 +106,7 @@ const PostProcessingEffectPropertyReactor = (props: {
     if (effect && property in effect) {
       effect[property] = value
     }
-    if (property === 'isActive') {
-      configureEffectComposer()
-    }
+    configureEffectComposer()
   }, [value, effectState[property]])
 
   return null

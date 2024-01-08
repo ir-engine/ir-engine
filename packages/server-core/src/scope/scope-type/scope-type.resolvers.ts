@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
 
-import { ScopeTypeQuery, ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { ScopeTypeQuery, ScopeTypeType } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

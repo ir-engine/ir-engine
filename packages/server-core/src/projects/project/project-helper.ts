@@ -34,35 +34,36 @@ import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
 
-import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import fs from 'fs'
 
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
-import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
-import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
-import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
-import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
-import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
-import { ProjectDestinationCheckType } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
+import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { ProjectBuilderTagsType } from '@etherealengine/common/src/schemas/projects/project-builder-tags.schema'
+import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/common/src/schemas/projects/project-check-source-destination-match.schema'
+import { ProjectCheckUnfetchedCommitType } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
+import { ProjectCommitType } from '@etherealengine/common/src/schemas/projects/project-commits.schema'
+import { ProjectDestinationCheckType } from '@etherealengine/common/src/schemas/projects/project-destination-check.schema'
 import {
   projectPath,
   ProjectSettingType,
   ProjectType
-} from '@etherealengine/engine/src/schemas/projects/project.schema'
+} from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
   identityProviderPath,
   IdentityProviderType
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { RestEndpointMethodTypes } from '@octokit/rest'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -345,7 +346,7 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
       error: 'invalidSourceURL',
       text: 'The source URL is not valid, or you do not have access to it'
     }
-  let commit
+  let commit: RestEndpointMethodTypes['repos']['getCommit']['response']
   try {
     commit = await sourceOctoKit.rest.repos.getCommit({
       owner,
@@ -379,7 +380,7 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
       commitSHA: commit.data.sha,
       error: '',
       text: '',
-      datetime: commit.data.commit.committer.date,
+      datetime: commit.data.commit.committer?.date,
       matchesEngineVersion: content.etherealEngine?.version
         ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
         : false
@@ -1689,8 +1690,30 @@ export const uploadLocalProjectToProvider = async (
       const url = getCachedURL(item.key, cacheDomain)
       //remove userId if exists
       if (item.userId) delete (item as any).userId
+
+      const newResource: Partial<StaticResourceType> = {}
+
+      const validFields: (keyof StaticResourceType)[] = [
+        'attribution',
+        'createdAt',
+        'hash',
+        'key',
+        'licensing',
+        'metadata',
+        'mimeType',
+        'project',
+        'sid',
+        'stats',
+        'tags',
+        'updatedAt'
+      ]
+
+      for (const field of validFields) {
+        if (item[field]) newResource[field] = item[field]
+      }
+
       await app.service(staticResourcePath).create({
-        ...item,
+        ...newResource,
         url
       })
       logger.info(`Uploaded static resource ${item.key} from resources.json`)
@@ -1728,12 +1751,21 @@ export const uploadLocalProjectToProvider = async (
             logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
           } else if (existingKeySet.has(key)) {
             logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
-            await app.service(staticResourcePath).patch(null, {
-              hash,
-              url,
-              mimeType: contentType,
-              tags: [thisFileClass]
-            })
+            await app.service(staticResourcePath).patch(
+              null,
+              {
+                hash,
+                url,
+                mimeType: contentType,
+                tags: [thisFileClass]
+              },
+              {
+                query: {
+                  key,
+                  project: projectName
+                }
+              }
+            )
           }
           {
             await app.service(staticResourcePath).create({

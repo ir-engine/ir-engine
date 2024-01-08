@@ -31,12 +31,8 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { RecordingID, RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import {
-  RecordingID,
-  RecordingType,
-  recordingPath
-} from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { recordingColumns } from '../../common/variables/recording'

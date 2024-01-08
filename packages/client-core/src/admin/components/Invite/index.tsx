@@ -36,7 +36,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { invitePath } from '@etherealengine/common/src/schema.type.module'
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
 import AdminInvites from './AdminInvites'

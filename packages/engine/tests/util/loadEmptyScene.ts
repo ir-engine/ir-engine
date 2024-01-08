@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { SceneState } from '../../src/ecs/classes/Scene'
 import { setComponent } from '../../src/ecs/functions/ComponentFunctions'
@@ -32,9 +33,9 @@ import { EntityTreeComponent } from '../../src/ecs/functions/EntityTree'
 import { NameComponent } from '../../src/scene/components/NameComponent'
 import { SceneObjectComponent } from '../../src/scene/components/SceneObjectComponent'
 import { SceneTagComponent } from '../../src/scene/components/SceneTagComponent'
+import { SourceComponent } from '../../src/scene/components/SourceComponent'
 import { UUIDComponent } from '../../src/scene/components/UUIDComponent'
 import { VisibleComponent } from '../../src/scene/components/VisibleComponent'
-import { SceneID } from '../../src/schemas/projects/scene.schema'
 import { TransformComponent } from '../../src/transform/components/TransformComponent'
 
 export const loadEmptyScene = () => {
@@ -63,4 +64,5 @@ export const loadEmptyScene = () => {
   setComponent(entity, TransformComponent)
   setComponent(entity, SceneObjectComponent)
   setComponent(entity, EntityTreeComponent, { parentEntity: null })
+  setComponent(entity, SourceComponent, 'test' as SceneID)
 }

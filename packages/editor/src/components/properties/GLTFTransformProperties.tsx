@@ -71,7 +71,7 @@ export default function GLTFTransformProperties({
   )
 
   return (
-    <CollapsibleBlock label="glTF-Transform">
+    <>
       <div
         style={{
           margin: '2rem',
@@ -407,6 +407,6 @@ export default function GLTFTransformProperties({
           />
         </CollapsibleBlock>
       </div>
-    </CollapsibleBlock>
+    </>
   )
 }

@@ -73,7 +73,6 @@ export const updateProperties = <C extends Component>(
     : selectionState.selectedEntities.value
   for (let i = 0; i < affectedNodes.length; i++) {
     const node = affectedNodes[i]
-    if (typeof node === 'string') continue
     updateComponent(node, component, properties)
   }
 }

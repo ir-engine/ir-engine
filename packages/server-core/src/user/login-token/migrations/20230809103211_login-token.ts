@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import { loginTokenPath } from '@etherealengine/common/src/schemas/user/login-token.schema'
 
 /**
  * @param { import("knex").Knex } knex

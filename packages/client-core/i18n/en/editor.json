@@ -187,6 +187,7 @@
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",
     "lbl-dynamicLoadDistance": "Distance",
+    "lbl-addComponent": "Add Component",
     "multipleNodeSelected": "Multiple Nodes of different types selected",
     "noNodeSelected": "No node selected",
     "ambientLight": {
@@ -234,6 +235,7 @@
       "lbl-synchronize": "Synchronize",
       "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
       "lbl-volume": "Volume",
+      "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
       "lbl-size": "Size",
       "seektime": "Start Time"
@@ -366,7 +368,7 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-animationSpeed": "Animation Speed",
-      "lbl-isAvatar": "Force Avatar Animations",
+      "lbl-convertToVRM": "Convert to VRM",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-cameraOcclusion": "Occlude Camera",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
@@ -892,15 +894,18 @@
       "lbl-newProject": "New Project"
     }
   },
+  "graphPanel":{
+    "addGraph" : "Add Behave Graph"
+  },
   "layout": {
     "assetGrid": {
       "loading": "Loading...",
-      "placeObject": "Place Object",
-      "placeObjectAtOrigin": "Place Object at Origin",
       "copyURL": "Copy URL",
       "openInNewTab": "Open URL in New Tab",
       "deleteAsset": "Delete Asset",
-      "tooltip": {
+      "components": "Components",
+      "components-search": "Search Components ...",
+      "component-detail": {
         "gltf-model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
         "volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
         "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
@@ -930,9 +935,12 @@
         "primitive-geometry": "Add basic Geometry to the scene",
         "link": "Add clickable Link to entity to route to different webpage",
         "dynamic-load": "Load entities dynamically"
-      }
+      },
+      "placeObject": "Place Object",
+      "placeObjectAtOrigin": "Place Object at Origin"
     },
     "filebrowser": {
+      "tab-name": "Project Files",
       "addNewFolder": "Add New Folder",
       "cutAsset": "Cut",
       "copyAsset": "Copy",
@@ -946,6 +954,7 @@
       "convert": "Convert",
       "downloadProject": "Download Project",
       "uploadAsset": "Upload Asset",
+      "search-placeholder": "Search files and folders ...",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
@@ -954,8 +963,26 @@
         "attribution": "Attribution:",
         "licensing": "Licensing:",
         "tag": "Tag:",
-        "addTag": "Add Tag"
+        "addTag": "Add Tag",
+        "save-changes": "Save Changes"
+      },
+      "view-mode": {
+        "icons": "View: Icons",
+        "list": "View: List"
+      },
+      "table-list": {
+        "headers": {
+          "name": "Name",
+          "type": "Type",
+          "date-modified": "Date Modified",
+          "size": "Size"
+        }
       }
+    },
+    "scene-assets": {
+      "no-category": "No category selected",
+      "search-placeholder": "Search for an asset ...",
+      "preview" : "Preview"
     }
   },
   "hierarchy": {
@@ -1117,5 +1144,9 @@
   },
   "corsProxyButton": {
     "tooltip": "Use Cors Proxy Server"
+  },
+  "tabs": {
+    "scene-assets": "Assets",
+    "project-assets": "Project Assets"
   }
 }

@@ -264,10 +264,8 @@ export const playAnimation = makeFlowNodeDefinition({
     const timeScale = read<number>('timeScale')
     const animationPack = read<string>('animationPack')
     const activeClipIndex = read<number>('activeClipIndex')
-    const isAvatar = read<boolean>('isAvatar')
 
     setComponent(entity, LoopAnimationComponent, {
-      hasAvatarAnimations: isAvatar,
       paused: paused,
       timeScale: timeScale,
       animationPack: animationPack,
@@ -468,6 +466,22 @@ export const switchScene = makeFlowNodeDefinition({
     // const projectName = read<string>('projectName')
     // const sceneName = read<string>('sceneName')
     // SceneServices.setCurrentScene(projectName, sceneName)
+  }
+})
+
+export const redirectToURL = makeFlowNodeDefinition({
+  typeName: 'engine/redirectToURL',
+  category: NodeCategory.Action,
+  label: 'Redirect to URL',
+  in: {
+    flow: 'flow',
+    url: 'string'
+  },
+  out: {},
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const url = read<string>('url')
+    window.open(url, '_blank')
   }
 })
 

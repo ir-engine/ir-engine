@@ -30,7 +30,7 @@ import {
   staticResourcePatchValidator,
   staticResourcePath,
   staticResourceQueryValidator
-} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+} from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
 import verifyScope from '../../hooks/verify-scope'
 

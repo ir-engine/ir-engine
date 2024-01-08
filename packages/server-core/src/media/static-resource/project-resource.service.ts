@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { Application } from '@feathersjs/koa'
 
 import { isDev } from '@etherealengine/common/src/config'
@@ -52,6 +52,10 @@ const createProjectResource =
       query: { project },
       paginate: false
     })
+    //if no resources, return
+    if (resources.length === 0) {
+      return
+    }
     //wipe URLs from resources
     for (const resource of resources) {
       for (const field of Object.keys(resource)) {

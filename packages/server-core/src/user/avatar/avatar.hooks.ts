@@ -34,14 +34,14 @@ import {
   avatarPatchValidator,
   avatarPath,
   avatarQueryValidator
-} from '@etherealengine/engine/src/schemas/user/avatar.schema'
+} from '@etherealengine/common/src/schemas/user/avatar.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import logger from '../../ServerLogger'
 
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { userAvatarPath } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -199,7 +199,7 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
   })
 
   if (avatars.data.length > 0) {
-    const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.data.length)]
+    const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
     await context.app.service(userAvatarPath).patch(
       null,
       {
