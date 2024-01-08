@@ -181,9 +181,9 @@ export function getComponentListeners() {
     }
 
     const node = makeEventNodeDefinition({
-      typeName: `engine/component/on ${componentName} change`,
+      typeName: `engine/component/use${componentName}`,
       category: NodeCategory.Event,
-      label: `on ${componentName} change`,
+      label: `use ${componentName}`,
       in: {
         entity: 'entity'
       },
@@ -203,7 +203,7 @@ export function getComponentListeners() {
 
         let prevComponentValue = {}
         const systemUUID = defineSystem({
-          uuid: `behave-graph-on-${componentName}-change` + uniqueId(),
+          uuid: `behave-graph-use-${componentName}` + uniqueId(),
           insert: { with: InputSystemGroup },
           execute: () => {
             const componentValue = getComponent(entity, component)

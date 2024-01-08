@@ -153,7 +153,7 @@ export function getStateListeners() {
       continue
     }
     const node = makeEventNodeDefinition({
-      typeName: `engine/component/on ${stateName} change`,
+      typeName: `engine/component/use${stateName}`,
       category: NodeCategory.Event,
       label: `on ${stateName} change`,
       in: {
@@ -175,7 +175,7 @@ export function getStateListeners() {
 
         let prevStateValue = {}
         const systemUUID = defineSystem({
-          uuid: `behave-graph-on-${stateName}-change` + uniqueId(),
+          uuid: `behave-graph-use-${stateName}` + uniqueId(),
           insert: { with: InputSystemGroup },
           execute: () => {
             const stateValue = state

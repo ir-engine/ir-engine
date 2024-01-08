@@ -32,7 +32,7 @@ import {
 } from '@behave-graph/core'
 import { toQuat, toVector3 } from '@behave-graph/scene'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getState } from '@etherealengine/hyperflux'
+import { getState, startReactor } from '@etherealengine/hyperflux'
 import { isEqual, uniqueId } from 'lodash'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { Engine } from '../../../../../ecs/classes/Engine'
@@ -46,7 +46,7 @@ import {
   setComponent
 } from '../../../../../ecs/functions/ComponentFunctions'
 import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { removeEntity } from '../../../../../ecs/functions/EntityFunctions'
+import { removeEntity, useEntityContext } from '../../../../../ecs/functions/EntityFunctions'
 import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
 import { RigidBodyComponent } from '../../../../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
@@ -266,7 +266,7 @@ export const setEntityTransform = makeFlowNodeDefinition({
   }
 })
 
-export const listenEntityTransform = makeEventNodeDefinition({
+export const useEntityTransform = makeEventNodeDefinition({
   typeName: 'engine/entity/onEntityTransformChange',
   category: NodeCategory.Event,
   label: 'On entity transform change',
@@ -294,7 +294,7 @@ export const listenEntityTransform = makeEventNodeDefinition({
           if (Object.hasOwn(prevTransform, key)) {
             if (isEqual(prevTransform[key], structuredClone(transform[key]))) return
           }
-          if (!Object.keys(listenEntityTransform.out).includes(key)) return
+          if (!Object.keys(useEntityTransform.out).includes(key)) return
           write(key as any, value)
           commit(`${key}Change` as any)
           prevTransform[key] = structuredClone(transform[key])
@@ -312,6 +312,29 @@ export const listenEntityTransform = makeEventNodeDefinition({
   }
 })
 
+export const getSelfEntity = makeFunctionNodeDefinition({
+  typeName: 'engine/entity/getSelfEntity',
+  category: NodeCategory.Query,
+  label: 'Get self entity',
+  in: {},
+  out: { entity: 'entity' },
+  exec: ({ read, write, graph: { getDependency } }) => {
+    let entity = UndefinedEntity
+    const useEntityReactor: any = defineSystem({
+      uuid: 'behave-graph-getEntityReactor-' + uniqueId(),
+      insert: { after: InputSystemGroup },
+      execute: () => {},
+      reactor: function () {
+        entity = useEntityContext()
+        console.log('in reactor', entity, useEntityContext())
+        return null
+      }
+    })
+    const reactor = startReactor(useEntityReactor.reactor)
+    console.log('reactor', entity, reactor)
+    write('entity', entity)
+  }
+})
 export const getUUID = makeInNOutFunctionDesc({
   name: 'engine/entity/getUuid',
   label: 'Entity uuid',
