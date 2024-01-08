@@ -107,13 +107,21 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
   const activeLightEntity = props.entity
 
   const directionalLightComponent = useComponent(activeLightEntity, DirectionalLightComponent)
+  const shadowMapResolution = useHookstate(getMutableState(RendererState).shadowMapResolution)
 
   const directionalLight = directionalLightComponent.light.value
 
   useEffect(() => {
     /** @todo fix useInCSM reactivity */
     // if (!directionalLightComponent.useInCSM.value) return
-    getMutableState(RendererState).csm.set(new CSM({ light: directionalLight }))
+    getMutableState(RendererState).csm.set(
+      new CSM({
+        light: directionalLight,
+        shadowBias: directionalLightComponent.shadowBias.value,
+        maxFar: directionalLightComponent.cameraFar.value,
+        lightIntensity: directionalLightComponent.intensity.value
+      })
+    )
     return () => {
       getState(RendererState).csm?.dispose()
       getMutableState(RendererState).csm.set(null)
@@ -132,19 +140,22 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
     const csm = getState(RendererState).csm!
     if (!csm) return
 
+    csm.shadowBias = directionalLight.shadow.bias
+
     for (const light of csm.lights) {
       light.color = directionalLight.color
       light.intensity = directionalLight.intensity
       light.shadow.bias = directionalLight.shadow.bias
-      light.shadow.radius = directionalLight.shadow.radius
-      light.shadow.mapSize.copy(directionalLight.shadow.mapSize)
-      light.shadow.camera.far = directionalLight.shadow.camera.far
+      light.shadow.mapSize.setScalar(shadowMapResolution.value)
+      light.shadow.camera.near = 0
+      light.shadow.camera.far = 1
       light.shadow.camera.updateProjectionMatrix()
       light.shadow.map?.dispose()
       light.shadow.map = null as any
       light.shadow.needsUpdate = true
     }
   }, [
+    shadowMapResolution,
     directionalLightComponent?.useInCSM,
     directionalLightComponent?.shadowBias,
     directionalLightComponent?.intensity,
@@ -254,13 +265,7 @@ const DropShadowReactor = () => {
   const entityTree = useComponent(entity, EntityTreeComponent)
 
   useEffect(() => {
-    if (
-      getState(EngineState).isEditor ||
-      !shadow.cast.value ||
-      !shadowMaterial.value ||
-      !isMeshOrModel ||
-      hasComponent(entity, DropShadowComponent)
-    )
+    if (!shadow.cast.value || !shadowMaterial.value || !isMeshOrModel || hasComponent(entity, DropShadowComponent))
       return
 
     box3.makeEmpty()
@@ -315,7 +320,7 @@ function ShadowMeshReactor(props: { entity: Entity; obj: Mesh<any, Material> }) 
     }
 
     return () => {
-      if (obj.material) csm?.teardownMaterial(obj)
+      if (obj.material) csm?.teardownMaterial(obj.material)
     }
   }, [shadowComponent.cast, shadowComponent.receive, csm])
 
@@ -366,11 +371,13 @@ const updateDropShadowTransforms = () => {
   }
 }
 
+const groupQuery = defineQuery([GroupComponent, VisibleComponent, ShadowComponent])
+
 const execute = () => {
   if (!isClient) return
 
   const useShadows = getShadowsEnabled()
-  if (!useShadows && !getState(EngineState).isEditor) {
+  if (!useShadows) {
     updateDropShadowTransforms()
     return
   }
@@ -379,6 +386,13 @@ const execute = () => {
   if (csm) {
     csm.update()
     if (csmHelper) csmHelper.update(csm)
+
+    /** hack fix to ensure CSM material is applied to all materials (which are not set reactively) */
+    for (const entity of groupQuery()) {
+      for (const obj of getComponent(entity, GroupComponent) as any as Mesh[]) {
+        if (obj.material && obj.receiveShadow) csm.setupMaterial(obj)
+      }
+    }
   }
 }
 
