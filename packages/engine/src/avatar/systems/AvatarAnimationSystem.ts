@@ -29,7 +29,7 @@ import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Q_X_90, Q_Y_180, V_001, V_010, V_100 } from '../../common/constants/MathConstants'
+import { Q_X_90, V_001, V_010, V_100 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -96,6 +96,9 @@ const footAngleQuat = new Quaternion()
 const midAxisRestriction = new Euler(0, 0, 0)
 const tipAxisRestriction = new Euler(0, 0, 0)
 
+const footRaycastInterval = 0.25
+let footRaycastTimer = 0
+
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
 const execute = () => {
@@ -141,7 +144,7 @@ const execute = () => {
     }
   }
 
-  updateAnimationGraph(avatarAnimationEntities)
+  footRaycastTimer += deltaSeconds
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
@@ -149,11 +152,11 @@ const execute = () => {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
     avatarAnimationComponent.deltaAccumulator = elapsedSeconds
-    const rig = rigComponent.rawRig
+    const rawRig = rigComponent.rawRig
+    const normalizedRig = rigComponent.normalizedRig
+    const ikRig = rigComponent.ikRig
 
-    if (!rig?.hips?.node) continue
-
-    updateVRMRetargeting(rigComponent.vrm, entity)
+    if (!rawRig?.hips?.node) continue
 
     const uuid = getComponent(entity, UUIDComponent)
     const leftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
@@ -180,10 +183,15 @@ const execute = () => {
     /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/7519 */
     const isAvatarFlipped = !rigComponent.vrm.userData?.retargeted
 
+    /** test */
+    ikRig.hips.node.position.copy(transform.position)
+    ikRig.hips.node.quaternion.copy(transform.rotation)
+    ikRig.hips.node.updateWorldMatrix(false, true)
+
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
-      rig.hips.node.position.set(
+      rawRig.hips.node.position.set(
         headTransform.position.x,
         headTransform.position.y - avatarComponent.torsoLength - 0.125,
         headTransform.position.z
@@ -193,22 +201,16 @@ const execute = () => {
       hipsForward.set(0, 0, 1)
       hipsForward.applyQuaternion(rigidbodyComponent.rotation)
       hipsForward.multiplyScalar(0.125)
-      rig.hips.node.position.sub(hipsForward)
+      rawRig.hips.node.position.sub(hipsForward)
 
       // convert to local space
-      rig.hips.node.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
+      rawRig.hips.node.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
 
       _quat2.copy(headTransform.rotation)
 
-      /** @todo hack fix */
-      if (isAvatarFlipped) {
-        // rotate 180
-        _quat2.multiply(Q_Y_180)
-      }
-
       //calculate head look direction and apply to head bone
       //look direction should be set outside of the xr switch
-      rig.head.node.quaternion.multiplyQuaternions(rig.spine.node.getWorldQuaternion(_quat).invert(), _quat2)
+      rawRig.head.node.quaternion.multiplyQuaternions(rawRig.spine.node.getWorldQuaternion(_quat).invert(), _quat2)
     }
 
     if (rightHandTargetBlendWeight) {
@@ -221,22 +223,19 @@ const execute = () => {
         entity,
         rightHandTransform.position,
         _quat2,
-        rig.rightUpperArm.node.getWorldPosition(_vector3),
+        rawRig.rightUpperArm.node.getWorldPosition(_vector3),
         'right',
         _hint
       )
 
       solveTwoBoneIK(
-        rig.rightUpperArm.node,
-        rig.rightLowerArm.node,
-        rig.rightHand.node,
+        rawRig.rightUpperArm.node,
+        rawRig.rightLowerArm.node,
+        rawRig.rightHand.node,
         rightHandTransform.position,
         _quat2,
         null,
         _hint,
-        tipAxisRestriction,
-        null,
-        null,
         rightHandTargetBlendWeight,
         rightHandTargetBlendWeight
       )
@@ -252,25 +251,26 @@ const execute = () => {
         entity,
         leftHandTransform.position,
         _quat2,
-        rig.leftUpperArm.node.getWorldPosition(_vector3),
+        rawRig.leftUpperArm.node.getWorldPosition(_vector3),
         'left',
         _hint
       )
 
       solveTwoBoneIK(
-        rig.leftUpperArm.node,
-        rig.leftLowerArm.node,
-        rig.leftHand.node,
+        rawRig.leftUpperArm.node,
+        rawRig.leftLowerArm.node,
+        rawRig.leftHand.node,
         leftHandTransform.position,
         _quat2,
         null,
         _hint,
-        tipAxisRestriction,
-        null,
-        null,
         leftHandTargetBlendWeight,
         leftHandTargetBlendWeight
       )
+    }
+
+    if (footRaycastTimer >= footRaycastInterval) {
+      footRaycastTimer = 0
     }
 
     if (rightFootTargetBlendWeight) {
@@ -289,19 +289,21 @@ const execute = () => {
         .add(transform.position)
 
       solveTwoBoneIK(
-        rig.rightUpperLeg.node,
-        rig.rightLowerLeg.node,
-        rig.rightFoot.node,
+        ikRig.rightUpperLeg.node,
+        ikRig.rightLowerLeg.node,
+        ikRig.rightFoot.node,
         rightFootTransform.position,
         _quat2,
         null,
         _hint,
-        null,
-        midAxisRestriction,
-        null,
         rightFootTargetBlendWeight,
         rightFootTargetBlendWeight
       )
+
+      /** test */
+      normalizedRig.rightUpperLeg.node.quaternion.copy(ikRig.rightUpperLeg.node.quaternion)
+      normalizedRig.rightLowerLeg.node.quaternion.copy(ikRig.rightLowerLeg.node.quaternion)
+      normalizedRig.rightFoot.node.quaternion.copy(ikRig.rightFoot.node.quaternion)
     }
 
     if (leftFootTargetBlendWeight) {
@@ -319,20 +321,19 @@ const execute = () => {
         .add(transform.position)
 
       solveTwoBoneIK(
-        rig.leftUpperLeg.node,
-        rig.leftLowerLeg.node,
-        rig.leftFoot.node,
+        rawRig.leftUpperLeg.node,
+        rawRig.leftLowerLeg.node,
+        rawRig.leftFoot.node,
         leftFootTransform.position,
         _quat2,
         null,
         _hint,
-        null,
-        midAxisRestriction,
-        null,
         leftFootTargetBlendWeight,
         leftFootTargetBlendWeight
       )
     }
+    updateAnimationGraph(avatarAnimationEntities)
+    updateVRMRetargeting(rigComponent.vrm, entity)
   }
 }
 

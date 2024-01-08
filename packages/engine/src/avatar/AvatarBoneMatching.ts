@@ -31,6 +31,7 @@ import { Bone, Euler, Group, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector
 
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 import { Object3DUtils } from '../common/functions/Object3DUtils'
+import { addRigsToScene } from './functions/avatarFunctions'
 
 export type BoneNames =
   | 'Root'
@@ -686,8 +687,6 @@ export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
 
   const humanoid = enforceTPose(new VRMHumanoid(bones))
 
-  asset.scene.add(humanoid.normalizedHumanBonesRoot)
-
   const scene = asset.scene as any as Group
 
   const vrm = new VRM({
@@ -695,6 +694,8 @@ export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
     scene: scene,
     meta: { name: scene.children[0].name } as VRM1Meta
   } as VRMParameters)
+
+  addRigsToScene(vrm, humanoid.normalizedHumanBonesRoot)
 
   if (!vrm.userData) vrm.userData = {}
   vrm.userData.retargeted = true

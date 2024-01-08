@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Bone, Euler, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
+import { Bone, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 
@@ -70,26 +70,10 @@ export function solveTwoBoneIK(
   targetRotation: Quaternion, // world space
   rotationOffset: Quaternion | null = null,
   hint: Vector3 | null = null,
-  rootAxisRestriction: Euler | null = null,
-  midAxisRestriction: Euler | null = null,
-  tipAxisRestriction: Euler | null = null,
   targetPosWeight = 1,
   targetRotWeight = 0,
   hintWeight = 1
 ) {
-  if (rootAxisRestriction) {
-    root.quaternion.setFromEuler(rootAxisRestriction)
-    root.updateWorldMatrix(false, true)
-  }
-  if (midAxisRestriction) {
-    mid.quaternion.setFromEuler(midAxisRestriction)
-    mid.updateWorldMatrix(false, true)
-  }
-  if (tipAxisRestriction) {
-    tip.quaternion.setFromEuler(tipAxisRestriction)
-    tip.updateWorldMatrix(false, true)
-  }
-
   targetPos.copy(targetPosition)
   targetRot.copy(targetRotation)
 

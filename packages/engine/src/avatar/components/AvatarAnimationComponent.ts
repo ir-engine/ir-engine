@@ -95,12 +95,13 @@ export const AvatarRigComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      /** Holds all the bones */
+      /** rig bones with quaternions relative to the raw bones in their bind pose */
       normalizedRig: null! as VRMHumanBones,
+      /** contains the raw bone quaternions */
       rawRig: null! as VRMHumanBones,
-
+      /** clone of the normalized rig that is used for the ik pass */
+      ikRig: null! as VRMHumanBones,
       helperEntity: null as Entity | null,
-
       /** The VRM model */
       vrm: null! as VRM,
       avatarURL: null as string | null
@@ -111,6 +112,7 @@ export const AvatarRigComponent = defineComponent({
     if (!json) return
     if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
+    if (matches.object.test(json.ikRig)) component.ikRig.set(json.ikRig)
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
   },

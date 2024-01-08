@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRM1Meta, VRMHumanBone, VRMHumanoid } from '@pixiv/three-vrm'
-import { AnimationClip, AnimationMixer, Vector3 } from 'three'
+import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBones, VRMHumanoid } from '@pixiv/three-vrm'
+import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -44,6 +44,7 @@ import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
+import { cloneDeep } from 'lodash'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { iOS } from '../../common/functions/isMobile'
@@ -73,6 +74,12 @@ declare module '@pixiv/three-vrm/types/VRM' {
   }
 }
 
+declare module '@pixiv/three-vrm-core/types/humanoid' {
+  export interface VRMHumanoid {
+    normalizedIkHumanBones: VRMHumanBones
+  }
+}
+
 export const getPreloaded = () => {
   return ['sitting']
 }
@@ -82,6 +89,7 @@ export const getPreloaded = () => {
 export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
   const scene = model.scene ?? model // FBX assets do not have 'scene' property
   if (!scene) return null!
+
   //vrm1's vrm object is in the userData property
   if (model.userData?.vrm instanceof VRM) {
     return model.userData.vrm
@@ -93,17 +101,33 @@ export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
     model.humanoid.normalizedHumanBonesRoot.removeFromParent()
     bones.hips.node.rotateY(Math.PI)
     const humanoid = new VRMHumanoid(bones)
-    model.scene.add(humanoid.normalizedHumanBonesRoot)
     const vrm = new VRM({
       humanoid,
       scene: model.scene,
       meta: { name: model.scene.children[0].name } as VRM1Meta
     })
+    addRigsToScene(vrm, humanoid.normalizedHumanBonesRoot)
     if (!vrm.userData) vrm.userData = {}
     return vrm
   }
 
   return avatarBoneMatching(model)
+}
+
+/** Adds the normalized bones and the normalized IK bones to the avatar
+ *  for proxification to the ECS in the model component's reactor
+ */
+export const addRigsToScene = (vrm: VRM, root: Object3D) => {
+  //normalized bones are already in the root
+  vrm.scene.add(root)
+  //next add the ik bones to the root
+  const ikRig = cloneDeep(vrm.humanoid.normalizedHumanBones)
+  root.add(ikRig.hips.node)
+  ikRig.hips.node.traverse((child) => {
+    child.name = `IK_${child.name}`
+    child.uuid = child.uuid + '_IK'
+  })
+  vrm.humanoid.normalizedIkHumanBones = ikRig
 }
 
 export const isAvaturn = (url: string) => {
@@ -173,7 +197,8 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   setComponent(entity, AvatarRigComponent, {
     normalizedRig: model.humanoid.normalizedHumanBones,
-    rawRig: model.humanoid.rawHumanBones
+    rawRig: model.humanoid.rawHumanBones,
+    ikRig: model.humanoid.normalizedIkHumanBones
   })
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
