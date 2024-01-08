@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { acceptInviteMethods, acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
+import { acceptInviteMethods, acceptInvitePath } from '@etherealengine/common/src/schemas/user/accept-invite.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'

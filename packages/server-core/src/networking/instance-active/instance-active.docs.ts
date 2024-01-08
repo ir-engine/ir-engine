@@ -28,7 +28,7 @@ import { createSwaggerServiceOptions } from 'feathers-swagger'
 import {
   instanceActiveQuerySchema,
   instanceActiveSchema
-} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-active.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

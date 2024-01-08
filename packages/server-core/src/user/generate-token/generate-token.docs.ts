@@ -30,7 +30,7 @@ import {
   generateTokenPatchSchema,
   generateTokenQuerySchema,
   generateTokenSchema
-} from '@etherealengine/engine/src/schemas/user/generate-token.schema'
+} from '@etherealengine/common/src/schemas/user/generate-token.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

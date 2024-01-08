@@ -43,6 +43,7 @@ import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   serializeComponent,
@@ -66,6 +67,7 @@ import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
+import { VariantComponent } from './VariantComponent'
 
 function clearMaterials(src: string) {
   try {
@@ -137,11 +139,12 @@ export const ModelComponent = defineComponent({
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
+  const variantComponent = useOptionalComponent(entity, VariantComponent)
   const uuid = useComponent(entity, UUIDComponent)
 
   useEffect(() => {
     let aborted = false
-
+    if (variantComponent && !variantComponent.calculated.value) return
     const model = modelComponent.value
     if (!model.src) {
       // const dudScene = new Scene() as Scene & Object3D
@@ -164,6 +167,7 @@ function ModelReactor(): JSX.Element {
         uuid: uuid.value
       },
       (loadedAsset) => {
+        if (variantComponent && !variantComponent.calculated.value) return
         if (aborted) return
         if (typeof loadedAsset !== 'object') {
           addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
@@ -200,15 +204,17 @@ function ModelReactor(): JSX.Element {
     return () => {
       aborted = true
     }
-  }, [modelComponent.src, modelComponent.convertToVRM])
+  }, [modelComponent.src, modelComponent.convertToVRM, variantComponent?.calculated])
 
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
     const asset = model.asset as GLTF | null
     if (!asset) return
+    const group = getOptionalComponent(entity, GroupComponent)
+    if (!group) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    const sceneObj = getComponent(entity, GroupComponent)[0] as Scene
+    const sceneObj = group[0] as Scene
 
     sceneObj.userData.src = model.src
     sceneObj.userData.sceneID = getModelSceneID(entity)

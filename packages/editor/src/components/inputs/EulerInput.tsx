@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useState } from '@hookstate/core'
+import { useHookstate } from '@hookstate/core'
 import React, { useCallback, useEffect } from 'react'
 import { Euler, Quaternion, MathUtils as _Math } from 'three'
 
@@ -49,10 +49,12 @@ type EulerInputProps = {
  * @type {Object}
  */
 export const EulerInput = (props: EulerInputProps) => {
-  const euler = useState(new Euler().setFromQuaternion(props.quaternion, 'YXZ'))
+  const euler = useHookstate(new Euler().setFromQuaternion(props.quaternion, 'YXZ'))
+
   useEffect(() => {
     euler.value.setFromQuaternion(props.quaternion, 'YXZ')
   }, [props])
+
   const onSetEuler = useCallback(
     (component: keyof typeof euler) => (value: number) => {
       const radVal = value * DEG2RAD
@@ -60,6 +62,7 @@ export const EulerInput = (props: EulerInputProps) => {
     },
     []
   )
+
   return (
     <Vector3InputContainer>
       <UniformButtonContainer />

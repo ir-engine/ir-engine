@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 
-import { AwsSettingDatabaseType, awsSettingPath } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
+import { AwsSettingDatabaseType, awsSettingPath } from '@etherealengine/common/src/schemas/setting/aws-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/datetime-sql'

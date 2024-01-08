@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserName } from '@etherealengine/common/src/schema.type.module'
 import { Resizable } from 're-resizable'
 import DownloadIcon from './assets/download-icon.svg'
 import DownloadImage1 from './assets/download-image1.png'

@@ -32,7 +32,7 @@ import {
   scopeDataValidator,
   scopePath,
   scopeQueryValidator
-} from '@etherealengine/engine/src/schemas/scope/scope.schema'
+} from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import enableClientPagination from '../../hooks/enable-client-pagination'
