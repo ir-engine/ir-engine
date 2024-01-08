@@ -110,7 +110,7 @@ export const ProjectBrowserPanelTab: TabData = {
   title: (
     <PanelDragContainer>
       <PanelIcon as={Inventory2Icon} size={12} />
-      <PanelTitle>Files</PanelTitle>
+      <PanelTitle>{t('editor:tabs.file-browser')}</PanelTitle>
     </PanelDragContainer>
   ),
   content: <ProjectBrowserPanel />

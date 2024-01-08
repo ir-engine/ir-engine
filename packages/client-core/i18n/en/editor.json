@@ -895,6 +895,7 @@
     }
   },
   "graphPanel":{
+    "name": "Graph",
     "addGraph" : "Add Behave Graph"
   },
   "layout": {
@@ -1146,6 +1147,7 @@
     "tooltip": "Use Cors Proxy Server"
   },
   "tabs": {
+    "file-browser": "Files",
     "scene-assets": "Assets",
     "project-assets": "Project Assets"
   }

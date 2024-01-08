@@ -66,8 +66,7 @@ export const ActiveBehaveGraph = (props: { entity }) => {
 }
 
 const BehaveFlow = () => {
-  const selectionState = useHookstate(getMutableState(SelectionState))
-  const entities = selectionState.selectedEntities.value
+  const entities = useHookstate(getMutableState(SelectionState).selectedEntities).value
   const entity = entities[entities.length - 1]
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
   const { t } = useTranslation()

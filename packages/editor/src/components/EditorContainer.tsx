@@ -39,8 +39,9 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Dialog from '@mui/material/Dialog'
 
 import { scenePath } from '@etherealengine/common/src/schema.type.module'
+import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { t } from 'i18next'
@@ -52,6 +53,7 @@ import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
+import { SelectionState } from '../services/SelectionServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
@@ -347,7 +349,8 @@ const defaultLayout: LayoutData = {
             tabs: [HierarchyPanelTab, MaterialLibraryPanelTab]
           },
           {
-            tabs: [PropertiesPanelTab, GraphPanelTab]
+            id: 'ComponentPropertiesTab',
+            tabs: [PropertiesPanelTab]
           }
         ]
       }
@@ -372,6 +375,7 @@ const EditorContainer = () => {
   const { sceneName, projectName, sceneID, sceneModified } = useHookstate(getMutableState(EditorState))
   const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
+  const entity = useHookstate(getMutableState(SelectionState).selectedEntities).value.at(-1)
 
   const sceneLoading = sceneID.value && !sceneLoaded.value
 
@@ -412,6 +416,17 @@ const EditorContainer = () => {
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
 
   useEffect(() => {
+    if (!dockPanelRef.current) return
+    const activePanel = sceneLoaded.value ? 'filesPanel' : 'scenePanel'
+    dockPanelRef.current.loadLayout(defaultLayout)
+    dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
+
+    if (entity && hasComponent(entity, BehaveGraphComponent)) {
+      dockPanelRef.current.dockMove(GraphPanelTab, 'ComponentPropertiesTab', 'middle')
+    }
+  }, [entity, sceneLoaded])
+
+  useEffect(() => {
     if (!sceneModified.value) return
     const onBeforeUnload = (e) => {
       alert('You have unsaved changes. Please save before leaving.')
@@ -437,12 +452,6 @@ const EditorContainer = () => {
     sceneName.set(scene.metadata.name)
     projectName.set(scene.metadata.project)
   }, [activeScene])
-
-  useEffect(() => {
-    if (!dockPanelRef.current) return
-    const activePanel = sceneLoaded.value ? 'filesPanel' : 'scenePanel'
-    dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
-  }, [sceneLoaded])
 
   useEffect(() => {
     if (errorState.value) {
