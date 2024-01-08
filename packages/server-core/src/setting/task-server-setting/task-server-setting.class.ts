@@ -31,7 +31,7 @@ import {
   TaskServerSettingPatch,
   TaskServerSettingQuery,
   TaskServerSettingType
-} from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/task-server-setting.schema'
 
 export interface TaskServerSettingParams extends KnexAdapterParams<TaskServerSettingQuery> {}
 

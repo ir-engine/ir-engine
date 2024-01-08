@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { defineAction, defineState, getState, none, receiveActions } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { InstanceID } from '../../schemas/networking/instance.schema'
 
 export class MediasoupDataProducerActions {
   static requestProducer = defineAction({

@@ -32,7 +32,7 @@ import {
   InstanceAttendancePatch,
   InstanceAttendanceQuery,
   InstanceAttendanceType
-} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
 
 export interface InstanceAttendanceParams extends KnexAdapterParams<InstanceAttendanceQuery> {}
 

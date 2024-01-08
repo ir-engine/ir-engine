@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Params } from '@feathersjs/feathers'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import { UserData, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserData, UserPatch, UserQuery, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
 export interface UserParams extends KnexAdapterParams<UserQuery> {}
 

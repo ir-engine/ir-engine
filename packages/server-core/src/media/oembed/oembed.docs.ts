@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { oembedSchema } from '@etherealengine/engine/src/schemas/media/oembed.schema'
+import { oembedSchema } from '@etherealengine/common/src/schemas/media/oembed.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({

@@ -29,7 +29,7 @@ import {
   generateTokenDataValidator,
   generateTokenPatchValidator,
   generateTokenQueryValidator
-} from '@etherealengine/engine/src/schemas/user/generate-token.schema'
+} from '@etherealengine/common/src/schemas/user/generate-token.schema'
 import {
   generateTokenDataResolver,
   generateTokenExternalResolver,

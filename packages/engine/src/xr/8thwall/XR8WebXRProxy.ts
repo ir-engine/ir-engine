@@ -166,7 +166,9 @@ export class XRHitTestSource {
 
 export class XRSessionProxy extends EventDispatcher {
   readonly inputSources: XRInputSource[]
-  readonly interactionMode: 'screen-space' | 'world-space' = 'screen-space'
+  readonly interactionMode = 'screen-space'
+  readonly environmentBlendMode = 'alpha-blend'
+  // readonly visibilityState = 'visible' // Do not enable this
   readonly domOverlayState: XRDOMOverlayState = { type: 'screen' }
 
   constructor(inputSources: XRInputSource[]) {

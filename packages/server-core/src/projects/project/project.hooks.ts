@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
-import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import {
   ProjectData,
   ProjectPatch,
@@ -34,7 +34,7 @@ import {
   projectPatchValidator,
   projectPath,
   projectQueryValidator
-} from '@etherealengine/engine/src/schemas/projects/project.schema'
+} from '@etherealengine/common/src/schemas/projects/project.schema'
 import fs from 'fs'
 import path from 'path'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
@@ -42,22 +42,22 @@ import verifyScope from '../../hooks/verify-scope'
 import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
-import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { ProjectBuildUpdateItemType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
+import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { AvatarType, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import {
   GithubRepoAccessType,
   githubRepoAccessPath
-} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+} from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'

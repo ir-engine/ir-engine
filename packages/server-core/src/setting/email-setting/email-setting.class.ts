@@ -31,7 +31,7 @@ import {
   EmailSettingPatch,
   EmailSettingQuery,
   EmailSettingType
-} from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/email-setting.schema'
 
 export interface EmailSettingParams extends KnexAdapterParams<EmailSettingQuery> {}
 

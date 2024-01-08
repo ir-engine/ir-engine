@@ -62,7 +62,7 @@ import {
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { QueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
+import { QueryReactor, defineSystem, useExecute } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
@@ -80,6 +80,7 @@ import { ObjectLayerComponents } from '../components/ObjectLayerComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { SceneObjectSystem } from './SceneObjectSystem'
 
 export const ShadowSystemState = defineState({
   name: 'ee.engine.scene.ShadowSystemState',
@@ -107,15 +108,25 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
 
   const directionalLightComponent = useComponent(activeLightEntity, DirectionalLightComponent)
 
-  const directionalLight = directionalLightComponent?.light.value
+  const directionalLight = directionalLightComponent.light.value
 
   useEffect(() => {
+    /** @todo fix useInCSM reactivity */
+    // if (!directionalLightComponent.useInCSM.value) return
     getMutableState(RendererState).csm.set(new CSM({ light: directionalLight }))
     return () => {
       getState(RendererState).csm?.dispose()
       getMutableState(RendererState).csm.set(null)
     }
   }, [directionalLightComponent.useInCSM])
+
+  /** Must run after scene object system to ensure source light is not lit */
+  useExecute(
+    () => {
+      directionalLight.visible = false //!directionalLightComponent.useInCSM.value
+    },
+    { after: SceneObjectSystem }
+  )
 
   useEffect(() => {
     const csm = getState(RendererState).csm!

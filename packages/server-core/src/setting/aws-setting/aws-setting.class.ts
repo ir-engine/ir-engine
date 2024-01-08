@@ -31,7 +31,7 @@ import {
   AwsSettingPatch,
   AwsSettingQuery,
   AwsSettingType
-} from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/aws-setting.schema'
 
 export interface AwsSettingParams extends KnexAdapterParams<AwsSettingQuery> {}
 

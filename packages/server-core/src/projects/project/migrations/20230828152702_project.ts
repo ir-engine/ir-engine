@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import type { Knex } from 'knex'
 
 export async function up(knex: Knex): Promise<void> {

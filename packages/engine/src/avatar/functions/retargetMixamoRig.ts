@@ -24,25 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM } from '@pixiv/three-vrm'
-import {
-  AnimationClip,
-  Euler,
-  KeyframeTrack,
-  Object3D,
-  Quaternion,
-  QuaternionKeyframeTrack,
-  Vector3,
-  VectorKeyframeTrack
-} from 'three'
+import { AnimationClip, KeyframeTrack, Object3D, Quaternion, QuaternionKeyframeTrack, VectorKeyframeTrack } from 'three'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
-
-const rightArmOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.325, 0, -Math.PI * 0.1))
-const leftArmOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.325, 0, Math.PI * 0.1))
 
 const restRotationInverse = new Quaternion()
 const parentRestWorldRotation = new Quaternion()
 const _quatA = new Quaternion()
-const _vec3 = new Vector3()
 
 /**Retargets an animation clip into normalized bone space for use with any T-Posed normalized humanoid rig */
 export const retargetAnimationClip = (clip: AnimationClip, mixamoScene: Object3D) => {

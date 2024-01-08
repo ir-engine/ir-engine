@@ -31,7 +31,7 @@ import {
   MatchUserPatch,
   MatchUserQuery,
   MatchUserType
-} from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
+} from '@etherealengine/common/src/schemas/matchmaking/match-user.schema'
 
 export interface MatchUserParams extends KnexAdapterParams<MatchUserQuery> {}
 

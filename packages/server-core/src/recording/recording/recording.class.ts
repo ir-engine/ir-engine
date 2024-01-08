@@ -31,7 +31,7 @@ import {
   RecordingPatch,
   RecordingQuery,
   RecordingType
-} from '@etherealengine/engine/src/schemas/recording/recording.schema'
+} from '@etherealengine/common/src/schemas/recording/recording.schema'
 
 export interface RecordingParams extends KnexAdapterParams<RecordingQuery> {}
 

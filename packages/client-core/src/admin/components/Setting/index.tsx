@@ -40,7 +40,7 @@ import ListItemAvatar from '@etherealengine/ui/src/primitives/mui/ListItemAvatar
 import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { userHasAccess } from '../../../user/userHasAccess'
 import styles from '../../styles/settings.module.scss'
 import Authentication from './Authentication'

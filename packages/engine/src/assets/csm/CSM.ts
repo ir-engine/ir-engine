@@ -315,7 +315,7 @@ export class CSM {
   }
 
   update(): void {
-    this.sourceLight?.getWorldDirection(this.lightDirection)
+    if (this.sourceLight) this.lightDirection.subVectors(this.sourceLight.target.position, this.sourceLight.position)
     if (this.needsUpdate) {
       this.updateFrustums()
       for (const light of this.lights) {

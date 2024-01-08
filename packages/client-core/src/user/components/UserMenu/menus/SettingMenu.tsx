@@ -50,7 +50,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { UserSettingPatch } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'

@@ -30,7 +30,7 @@ import {
   redisSettingDataValidator,
   redisSettingPatchValidator,
   redisSettingQueryValidator
-} from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/redis-setting.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {
