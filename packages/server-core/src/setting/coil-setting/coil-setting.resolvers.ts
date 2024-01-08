@@ -27,10 +27,10 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { CoilSettingQuery, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
+import { CoilSettingQuery, CoilSettingType } from '@etherealengine/common/src/schemas/setting/coil-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const coilSettingResolver = resolve<CoilSettingType, HookContext>({

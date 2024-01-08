@@ -31,7 +31,7 @@ import {
   IdentityProviderPatch,
   IdentityProviderQuery,
   IdentityProviderType
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 
 import { KnexAdapterParams } from '@feathersjs/knex'
 

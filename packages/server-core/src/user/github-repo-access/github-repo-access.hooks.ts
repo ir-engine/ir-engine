@@ -30,7 +30,7 @@ import {
   githubRepoAccessDataValidator,
   githubRepoAccessPatchValidator,
   githubRepoAccessQueryValidator
-} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+} from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {

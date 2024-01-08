@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { RedisSettingQuery, RedisSettingType } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
+import { RedisSettingQuery, RedisSettingType } from '@etherealengine/common/src/schemas/setting/redis-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

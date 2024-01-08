@@ -30,7 +30,7 @@ import {
   chargebeeSettingDataValidator,
   chargebeeSettingPatchValidator,
   chargebeeSettingQueryValidator
-} from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/chargebee-setting.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {

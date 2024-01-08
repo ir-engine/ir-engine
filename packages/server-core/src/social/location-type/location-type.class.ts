@@ -31,7 +31,7 @@ import {
   LocationTypePatch,
   LocationTypeQuery,
   LocationTypeType
-} from '@etherealengine/engine/src/schemas/social/location-type.schema'
+} from '@etherealengine/common/src/schemas/social/location-type.schema'
 
 export interface LocationTypeParams extends KnexAdapterParams<LocationTypeQuery> {}
 

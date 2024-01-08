@@ -60,11 +60,12 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
   const { t } = useTranslation()
 
   const uuid = useOptionalComponent(entity, UUIDComponent)
-  if (!uuid) return null
 
   const components = useAllComponents(entity).filter((c) => EntityNodeEditor.has(c))
 
   const open = !!anchorEl.value
+
+  if (!uuid) return null
 
   return (
     <PopoverContext.Provider
@@ -136,7 +137,7 @@ export const PropertiesPanelContainer = () => {
     >
       {materialID ? (
         <MaterialEditor materialID={materialID} />
-      ) : entity ? (
+      ) : entity.value ? (
         <EntityEditor entity={entity.value} key={entity.value} multiEdit={multiEdit.value} />
       ) : (
         <div

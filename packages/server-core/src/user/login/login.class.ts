@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { LoginTokenType, loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { LoginTokenType, loginTokenPath } from '@etherealengine/common/src/schemas/user/login-token.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'

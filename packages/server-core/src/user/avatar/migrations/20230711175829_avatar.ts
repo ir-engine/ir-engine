@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 
 /**
  * @param { import("knex").Knex } knex

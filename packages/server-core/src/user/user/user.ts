@@ -29,13 +29,13 @@ import {
   UserType,
   userMethods,
   userPath
-} from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/user.schema'
 import _ from 'lodash'
 
 import {
   InstanceAttendanceType,
   instanceAttendancePath
-} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
 import { Knex } from 'knex'
 import { Application, HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'

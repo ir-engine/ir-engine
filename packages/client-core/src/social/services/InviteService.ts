@@ -35,10 +35,14 @@ import {
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
-import { InviteData, InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
-import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
+import {
+  InviteCode,
+  InviteData,
+  InviteType,
+  acceptInvitePath,
+  inviteCodeLookupPath,
+  invitePath
+} from '@etherealengine/common/src/schema.type.module'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { emailDataValidator } from '@etherealengine/engine/src/schemas/user/email.schema'
+import { emailDataValidator } from '@etherealengine/common/src/schemas/user/email.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 

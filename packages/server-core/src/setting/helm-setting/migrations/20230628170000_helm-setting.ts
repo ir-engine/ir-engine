@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex

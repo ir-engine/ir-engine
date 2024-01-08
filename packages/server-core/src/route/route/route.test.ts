@@ -31,8 +31,8 @@ import { v4 as uuid } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { RouteType, routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { RouteType, routePath } from '@etherealengine/common/src/schemas/route/route.schema'
 import { Paginated } from '@feathersjs/feathers/lib'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'

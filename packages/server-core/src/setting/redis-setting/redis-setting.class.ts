@@ -31,7 +31,7 @@ import {
   RedisSettingPatch,
   RedisSettingQuery,
   RedisSettingType
-} from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/redis-setting.schema'
 
 export interface RedisSettingParams extends KnexAdapterParams<RedisSettingQuery> {}
 

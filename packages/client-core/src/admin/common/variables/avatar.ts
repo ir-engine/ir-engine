@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarType } from '@etherealengine/common/src/schema.type.module'
 
 export interface AvatarColumn {
   id: 'select' | 'id' | 'name' | 'user' | 'isPublic' | 'thumbnail' | 'action'
