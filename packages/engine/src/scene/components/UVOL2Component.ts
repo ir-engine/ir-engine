@@ -242,7 +242,7 @@ export const UVOL2Component = defineComponent({
           pendingRequests: 0
         }
       },
-      playbackStartTime: 0,
+      playbackStartDate: 0,
       initialGeometryBuffersLoaded: false,
       initialTextureBuffersLoaded: false,
       firstGeometryFrameLoaded: false,
@@ -379,7 +379,7 @@ function UVOL2Reactor() {
   let bufferThreshold = 13 // seconds. If buffer health is less than this, fetch new data
   const repeat = useMemo(() => new Vector2(1, 1), [])
   const offset = useMemo(() => new Vector2(0, 0), [])
-  const previousStartTime = usePrevious(volumetric.currentTrackInfo.startTime)
+  const previousStartTime = usePrevious(volumetric.currentTrackInfo.mediaStartTime)
 
   const material = useMemo(() => {
     const manifest = component.data.value
@@ -532,7 +532,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       audio.playbackRate = sortedManifest.audio.playbackRate
     }
 
-    volumetric.currentTrackInfo.currentTime.set(volumetric.currentTrackInfo.startTime.value)
+    volumetric.currentTrackInfo.currentTime.set(volumetric.currentTrackInfo.mediaStartTime.value)
     volumetric.currentTrackInfo.duration.set(sortedManifest.duration)
     const intervalId = setInterval(bufferLoop, 500)
     bufferLoop() // calling now because setInterval will call after 1 second
@@ -747,7 +747,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const fetchGeometry = () => {
     const currentBufferLength =
       component.geometryInfo.bufferHealth.value -
-      (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.startTime.value)
+      (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
     if (
       currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) ||
       component.geometryInfo.pendingRequests.value > 0
@@ -762,7 +762,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const frameCount = targetData.frameCount
 
     const startFrame = Math.round(
-      (component.geometryInfo.bufferHealth.value + volumetric.currentTrackInfo.startTime.value) * frameRate
+      (component.geometryInfo.bufferHealth.value + volumetric.currentTrackInfo.mediaStartTime.value) * frameRate
     )
     if (startFrame >= frameCount) {
       // fetched all frames
@@ -796,7 +796,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (!textureTypeData) return
     const currentBufferLength =
       component.textureInfo[textureType].bufferHealth.value -
-      (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.startTime.value)
+      (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
     if (
       currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) ||
       component.textureInfo[textureType].pendingRequests.value > 0
@@ -808,7 +808,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const targetData = textureTypeData.targets[target]
     const frameRate = targetData.frameRate
     const startFrame = Math.round(
-      (component.textureInfo[textureType].bufferHealth.value + volumetric.currentTrackInfo.startTime.value) * frameRate
+      (component.textureInfo[textureType].bufferHealth.value + volumetric.currentTrackInfo.mediaStartTime.value) *
+        frameRate
     )
     if (startFrame >= targetData.frameCount) {
       // fetched all frames
@@ -949,18 +950,19 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       }
       return
     }
-    component.playbackStartTime.set(engineState.elapsedSeconds)
+    component.playbackStartDate.set(engineState.elapsedSeconds)
     component.geometryInfo.bufferHealth.set(
       component.geometryInfo.bufferHealth.value -
-        (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.startTime.value)
+        (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
     )
     component.textureInfo.textureTypes.value.forEach((textureType) => {
       const currentHealth = component.textureInfo[textureType].bufferHealth.value
       component.textureInfo[textureType].bufferHealth.set(
-        currentHealth - (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.startTime.value)
+        currentHealth -
+          (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
       )
     })
-    volumetric.currentTrackInfo.startTime.set(volumetric.currentTrackInfo.currentTime.value)
+    volumetric.currentTrackInfo.mediaStartTime.set(volumetric.currentTrackInfo.currentTime.value)
 
     if (mesh.material !== material) {
       mesh.material = material
@@ -1275,7 +1277,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (volumetric.autoPauseWhenBuffering.value) {
       const currentGeometryBufferHealth =
         component.geometryInfo.bufferHealth.value -
-        (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.startTime.value)
+        (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
       const currentMinBuffer = Math.min(
         minBufferToPlay,
         component.data.duration.value - volumetric.currentTrackInfo.currentTime.value
@@ -1287,7 +1289,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         const textureType = component.textureInfo.textureTypes[i].value
         const currentTextureBufferHealth =
           component.textureInfo[textureType].bufferHealth.value -
-          (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.startTime.value)
+          (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
         if (currentTextureBufferHealth < currentMinBuffer) {
           return
         }
@@ -1299,7 +1301,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       _currentTime = audio.currentTime
     } else {
       _currentTime =
-        volumetric.currentTrackInfo.startTime.value + (engineState.elapsedSeconds - component.playbackStartTime.value)
+        volumetric.currentTrackInfo.mediaStartTime.value +
+        (engineState.elapsedSeconds - component.playbackStartDate.value)
     }
     _currentTime *= volumetric.currentTrackInfo.playbackRate.value
 
@@ -1310,7 +1313,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (volumetric.currentTrackInfo.currentTime.value > component.data.value.duration || audio.ended) {
       if (component.data.deletePreviousBuffers.value === false && volumetric.playMode.value === PlayMode.loop) {
         volumetric.currentTrackInfo.currentTime.set(0)
-        component.playbackStartTime.set(engineState.elapsedSeconds)
+        component.playbackStartDate.set(engineState.elapsedSeconds)
       } else {
         volumetric.ended.set(true)
         return

@@ -96,8 +96,9 @@ export const VolumetricComponent = defineComponent({
       volume: 1,
       playMode: PlayMode.loop as PlayMode,
       track: -1,
+      forceChangeTrack: false,
       currentTrackInfo: {
-        startTime: 0,
+        mediaStartTime: 0,
         playbackRate: 1,
         currentTime: 0,
         duration: 0
@@ -220,6 +221,7 @@ export function VolumetricReactor() {
     if (nextTrack === -1 || !volumetric.paths.value[nextTrack]) return
 
     volumetric.track.set(nextTrack)
+    volumetric.forceChangeTrack.set(!volumetric.forceChangeTrack.value)
   }, [volumetric.paths, volumetric.playMode, volumetric.ended])
 
   const resetTrack = () => {
@@ -230,7 +232,7 @@ export function VolumetricReactor() {
     volumetric.initialBuffersLoaded.set(false)
     volumetric.paused.set(true)
     volumetric.currentTrackInfo.set({
-      startTime: 0,
+      mediaStartTime: 0,
       playbackRate: 1,
       currentTime: 0,
       duration: 0
@@ -264,7 +266,7 @@ export function VolumetricReactor() {
           })
         }
       })
-  }, [volumetric.track])
+  }, [volumetric.track, volumetric.forceChangeTrack])
 
   useEffect(() => {
     const volume = volumetric.volume.value

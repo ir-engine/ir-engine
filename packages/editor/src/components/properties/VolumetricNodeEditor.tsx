@@ -345,14 +345,16 @@ function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
           const uvol2Component = getOptionalMutableComponent(props.entity, UVOL2Component)
           if (uvol2Component) {
             const engineState = getState(EngineState)
-            volumetricComponent.currentTrackInfo.startTime.set(value)
+            volumetricComponent.currentTrackInfo.mediaStartTime.set(value)
             volumetricComponent.currentTrackInfo.currentTime.set(value)
-            uvol2Component.playbackStartTime.set(engineState.elapsedSeconds)
+            uvol2Component.playbackStartDate.set(engineState.elapsedSeconds)
             uvol2Component.geometryInfo.bufferHealth.set(0)
             uvol2Component.textureInfo.textureTypes.value.forEach((textureType) => {
               uvol2Component.textureInfo[textureType].bufferHealth.set(0)
             })
-            volumetricComponent.currentTrackInfo.startTime.set(volumetricComponent.currentTrackInfo.currentTime.value)
+            volumetricComponent.currentTrackInfo.mediaStartTime.set(
+              volumetricComponent.currentTrackInfo.currentTime.value
+            )
           }
         }}
         value={volumetricComponent.currentTrackInfo.currentTime.value}
