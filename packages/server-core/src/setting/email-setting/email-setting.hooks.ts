@@ -30,7 +30,7 @@ import {
   emailSettingDataValidator,
   emailSettingPatchValidator,
   emailSettingQueryValidator
-} from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/email-setting.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {

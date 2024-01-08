@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import i18n from 'i18next'
 
 export interface ResourceColumn {

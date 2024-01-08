@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { buildStatusMethods, buildStatusPath } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import { buildStatusMethods, buildStatusPath } from '@etherealengine/common/src/schemas/cluster/build-status.schema'
 
 import { Application } from '../../../declarations'
 import { BuildStatusService } from './build-status.class'

@@ -27,10 +27,14 @@ import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
+import {
+  UserID,
+  UserType,
+  identityProviderPath,
+  instancePath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { AuthError, AuthTask } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleConnectingPeer, handleDisconnect } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'

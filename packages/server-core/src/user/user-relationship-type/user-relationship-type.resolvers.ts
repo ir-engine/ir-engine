@@ -29,7 +29,7 @@ import { resolve } from '@feathersjs/schema'
 import {
   UserRelationshipTypeQuery,
   UserRelationshipTypeType
-} from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
+} from '@etherealengine/common/src/schemas/user/user-relationship-type.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const userRelationshipTypeResolver = resolve<UserRelationshipTypeType, HookContext>({})

@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 import { LayoutData } from 'rc-dock'
 

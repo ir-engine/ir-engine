@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { ProjectBuildPatch, ProjectBuildType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { ProjectBuildPatch, ProjectBuildType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { checkBuilderService, updateBuilder } from '../project/project-helper'
 import { ProjectParams, ProjectParamsClient } from '../project/project.class'

@@ -31,8 +31,8 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { taskServerSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { taskServerSettingPath } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const TaskServer = () => {

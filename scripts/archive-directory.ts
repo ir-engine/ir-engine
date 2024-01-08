@@ -27,7 +27,7 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
-import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
+import { archiverPath } from '@etherealengine/common/src/schema.type.module'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 

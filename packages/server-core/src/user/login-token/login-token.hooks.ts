@@ -30,7 +30,7 @@ import {
   loginTokenDataValidator,
   loginTokenPatchValidator,
   loginTokenQueryValidator
-} from '@etherealengine/engine/src/schemas/user/login-token.schema'
+} from '@etherealengine/common/src/schemas/user/login-token.schema'
 import { HookContext } from '../../../declarations'
 
 import { BadRequest } from '@feathersjs/errors'

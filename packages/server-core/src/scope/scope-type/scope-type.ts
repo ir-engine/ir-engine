@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { scopeTypeMethods, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { scopeTypeMethods, scopeTypePath } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
 
 import { Application } from '../../../declarations'
 import { ScopeTypeService } from './scope-type.class'

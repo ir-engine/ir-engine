@@ -30,7 +30,7 @@ import {
   githubRepoAccessPatchSchema,
   githubRepoAccessQuerySchema,
   githubRepoAccessSchema
-} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+} from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {
