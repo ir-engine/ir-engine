@@ -207,10 +207,11 @@ export default function ModelCompressionPanel({
   }
 
   const confirmPreset = () => {
-    if (!LODList.find((l) => l === selectedPreset)) {
+    if (LODList.includes(selectedPreset)) {
       const prevDst = transformParms.dst.value
       transformParms.dst.set(`${prevDst}-${selectedPreset.dst.replace(/\s/g, '').toLowerCase()}`)
       transformParms.maxTextureSize.set(selectedPreset.maxTextureSize)
+      saveSelectedLOD()
     }
     setModalOpen(false)
   }
