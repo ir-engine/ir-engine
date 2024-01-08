@@ -315,7 +315,7 @@ export class CSM {
   }
 
   update(): void {
-    if (this.sourceLight) this.lightDirection.subVectors(this.sourceLight.position, this.sourceLight.target.position)
+    if (this.sourceLight) this.lightDirection.subVectors(this.sourceLight.target.position, this.sourceLight.position)
     if (this.needsUpdate) {
       this.updateFrustums()
       for (const light of this.lights) {
@@ -362,6 +362,7 @@ export class CSM {
       // Center is currently in light space, so we need to go back to light parent space
       _center.applyMatrix4(_lightOrientationMatrix)
 
+      getComponent(this.lightEntities[i], TransformComponent).position.copy(_center)
       light.target.position.copy(_center).add(this.lightDirection)
 
       light.target.matrix.compose(light.target.position, light.target.quaternion, light.target.scale)
