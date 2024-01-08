@@ -30,7 +30,7 @@ import {
   helmSettingPatchSchema,
   helmSettingQuerySchema,
   helmSettingSchema
-} from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

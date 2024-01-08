@@ -30,39 +30,37 @@ import { v1 } from 'uuid'
 
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
+import { AuthStrategiesType } from '@etherealengine/common/src/schema.type.module'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
-import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { generateTokenPath } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
 import {
+  AvatarID,
   IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
-import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
-import { magicLinkPath } from '@etherealengine/engine/src/schemas/user/magic-link.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { UserAvatarPatch, userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
-import {
-  UserSettingID,
-  UserSettingPatch,
-  UserSettingType,
-  userSettingPath
-} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
-import {
+  InstanceID,
+  UserApiKeyType,
+  UserAvatarPatch,
   UserID,
   UserName,
   UserPatch,
   UserPublicPatch,
+  UserSettingID,
+  UserSettingPatch,
+  UserSettingType,
   UserType,
-  userPath
-} from '@etherealengine/engine/src/schemas/user/user.schema'
+  generateTokenPath,
+  identityProviderPath,
+  locationBanPath,
+  loginPath,
+  loginTokenPath,
+  magicLinkPath,
+  userApiKeyPath,
+  userAvatarPath,
+  userPath,
+  userSettingPath
+} from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { AuthenticationResult } from '@feathersjs/authentication'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'

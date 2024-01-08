@@ -27,8 +27,8 @@ import { NullableId, ServiceInterface } from '@feathersjs/feathers/lib/declarati
 import JSZip from 'jszip'
 import fetch from 'node-fetch'
 
-import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
-import { ArchiverQuery } from '@etherealengine/engine/src/schemas/media/archiver.schema'
+import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { ArchiverQuery } from '@etherealengine/common/src/schemas/media/archiver.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'

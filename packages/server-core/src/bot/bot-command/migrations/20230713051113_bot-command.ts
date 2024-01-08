@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { botCommandPath } from '@etherealengine/common/src/schemas/bot/bot-command.schema'
 
 /**
  * @param { import("knex").Knex } knex

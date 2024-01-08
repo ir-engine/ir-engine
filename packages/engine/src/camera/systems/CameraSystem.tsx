@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { getState } from '@etherealengine/hyperflux'

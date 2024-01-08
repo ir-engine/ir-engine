@@ -30,14 +30,14 @@ import path from 'path'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 
-import { ProjectBuildUpdateItemType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import {
   ProjectData,
   ProjectPatch,
   ProjectQuery,
   ProjectType
-} from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/projects/project.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'

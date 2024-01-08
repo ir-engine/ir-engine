@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { sceneUploadMethods, sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
+import { sceneUploadMethods, sceneUploadPath } from '@etherealengine/common/src/schemas/projects/scene-upload.schema'
 import Multer from '@koa/multer'
 import { Application } from '../../../declarations'
 import { SceneUploadService } from './scene-upload.class'

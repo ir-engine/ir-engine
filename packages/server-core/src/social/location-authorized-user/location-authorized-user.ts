@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   locationAuthorizedUserMethods,
   locationAuthorizedUserPath
-} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+} from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
 
 import { Application } from '../../../declarations'
 import { LocationAuthorizedUserService } from './location-authorized-user.class'

@@ -35,8 +35,8 @@ import styles from '../styles.module.scss'
 import { FileType } from './FileBrowserContentPanel'
 
 import { logger } from '@etherealengine/client-core/src/user/services/AuthService'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { saveProjectResources } from '../../../functions/saveProjectResources'
 import { Button } from '../../inputs/Button'
 

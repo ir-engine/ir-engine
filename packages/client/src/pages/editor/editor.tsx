@@ -33,10 +33,10 @@ import { LoadingCircle } from '@etherealengine/client-core/src/components/Loadin
 import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
+import { scenePath } from '@etherealengine/common/src/schema.type.module'
 import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/EditorPage'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 const RedirectStudio = () => {

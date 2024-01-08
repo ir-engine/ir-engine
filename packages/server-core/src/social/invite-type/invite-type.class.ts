@@ -31,7 +31,7 @@ import {
   InviteTypePatch,
   InviteTypeQuery,
   InviteTypeType
-} from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+} from '@etherealengine/common/src/schemas/social/invite-type.schema'
 
 export interface InviteTypeParams extends KnexAdapterParams<InviteTypeQuery> {}
 

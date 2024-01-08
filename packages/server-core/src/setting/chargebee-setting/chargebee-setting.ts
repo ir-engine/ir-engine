@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   chargebeeSettingMethods,
   chargebeeSettingPath
-} from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/chargebee-setting.schema'
 
 import { Application } from '../../../declarations'
 import { updateAppConfig } from '../../updateAppConfig'

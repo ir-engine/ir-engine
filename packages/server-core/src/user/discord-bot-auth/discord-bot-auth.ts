@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   discordBotAuthMethods,
   discordBotAuthPath
-} from '@etherealengine/engine/src/schemas/user/discord-bot-auth.schema'
+} from '@etherealengine/common/src/schemas/user/discord-bot-auth.schema'
 import { Application } from '../../../declarations'
 import { DiscordBotAuthService } from './discord-bot-auth.class'
 import discordBotAuthDocs from './discord-bot-auth.docs'

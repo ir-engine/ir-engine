@@ -42,9 +42,7 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import Groups from '@mui/icons-material/Groups'
 
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { LocationID, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { InstanceID, LocationID, RoomCode, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
 import { connectToNetwork } from '../transports/SocketWebRTCClientFunctions'

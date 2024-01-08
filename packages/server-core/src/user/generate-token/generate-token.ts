@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { generateTokenMethods, generateTokenPath } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
+import { generateTokenMethods, generateTokenPath } from '@etherealengine/common/src/schemas/user/generate-token.schema'
 import { Application } from '../../../declarations'
 import { GenerateTokenService } from './generate-token.class'
 import generateTokenDocs from './generate-token.docs'

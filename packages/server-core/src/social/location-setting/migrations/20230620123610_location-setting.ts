@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
-import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
+import { locationTypePath } from '@etherealengine/common/src/schemas/social/location-type.schema'
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 
 /**
  * @param { import("knex").Knex } knex

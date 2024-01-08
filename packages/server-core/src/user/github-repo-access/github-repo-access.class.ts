@@ -31,7 +31,7 @@ import {
   GithubRepoAccessPatch,
   GithubRepoAccessQuery,
   GithubRepoAccessType
-} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+} from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 
 export interface GithubRepoAccessParams extends KnexAdapterParams<GithubRepoAccessQuery> {}
 

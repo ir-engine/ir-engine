@@ -30,7 +30,7 @@ import {
   scopeTypePatchSchema,
   scopeTypeQuerySchema,
   scopeTypeSchema
-} from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+} from '@etherealengine/common/src/schemas/scope/scope-type.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

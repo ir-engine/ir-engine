@@ -27,8 +27,8 @@ import i18n from 'i18next'
 import { lazy, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { routePath, RouteType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { defineState, getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { loadRoute } from '@etherealengine/projects/loadRoute'
 

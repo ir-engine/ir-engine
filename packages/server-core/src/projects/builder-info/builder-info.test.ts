@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { builderInfoPath } from '@etherealengine/common/src/schemas/projects/builder-info.schema'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { builderInfoPath } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
 import assert from 'assert'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
