@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, FocusEvent, useEffect, useRef, useState } from 'react'
 
 import './Input.css'
 
@@ -35,10 +35,10 @@ const inputStyle = {
 
 interface StyledStringInputProps {
   className?: string
-  onChange?: (e: any) => void
-  onRelease?: (e: any) => void
-  onFocus?: any
-  onBlur?: any
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
+  onRelease?: (e: FocusEvent<HTMLInputElement>) => void
+  onFocus?: (e: FocusEvent<HTMLInputElement>) => void
+  onBlur?: (e: FocusEvent<HTMLInputElement>) => void
   onKeyUp?: any
   value?: string
 }
@@ -61,15 +61,15 @@ const StyledStringInput = React.forwardRef<any, StyledStringInputProps>(
 export interface StringInputProps {
   id?: string
   value?: string
-  onChange?: (e: any) => void
-  onRelease?: (e: any) => void
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
+  onRelease?: (e: FocusEvent<HTMLInputElement>) => void
+  onFocus?: (e: FocusEvent<HTMLInputElement>) => void
+  onBlur?: (e: FocusEvent<HTMLInputElement>) => void
   required?: boolean
   pattern?: string
   title?: string
   error?: boolean
   canDrop?: boolean
-  onFocus?: any
-  onBlur?: any
   onKeyUp?: any
   type?: string
   placeholder?: string
