@@ -63,11 +63,6 @@ export async function addMediaNode(
 
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
-      EditorControlFunctions.createObjectFromSceneElement(
-        [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
-        parent!,
-        before
-      )
       // find current intersected object
       const objectLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
       const sceneObjects = objectLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
@@ -90,6 +85,11 @@ export async function addMediaNode(
       inter.intersected = intersected
       const addmaterial = getState(AddMaterial)
       addmaterial.IsMaterial = true
+      EditorControlFunctions.createObjectFromSceneElement(
+        [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+        parent!,
+        before
+      )
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],

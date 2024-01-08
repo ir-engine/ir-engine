@@ -64,7 +64,7 @@ export const AddMaterial = defineState({
   initial: {
     IsMaterial: false,
     materialEntity: undefined as Entity | undefined,
-    uuid: undefined as string | undefined
+    uuid: null as string | null
   }
 })
 export function initializeMaterialLibrary() {

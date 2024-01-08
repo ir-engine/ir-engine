@@ -46,7 +46,7 @@ import {
   traverseEntityNode
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { AddMaterial, MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { TransformSpace, TransformSpaceType } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
@@ -234,6 +234,8 @@ const createObjectFromSceneElement = (
   if (!componentJson.some((comp) => comp.name === TransformComponent.jsonID)) {
     componentJson.push({ name: TransformComponent.jsonID })
   }
+  const mat = getState(AddMaterial)
+  if (mat.IsMaterial) mat.uuid = entityUUID
   const fullComponentJson = [...componentJson, { name: VisibleComponent.jsonID }].map((comp) => ({
     name: comp.name,
     props: {

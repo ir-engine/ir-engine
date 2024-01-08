@@ -27,6 +27,8 @@ import { Mesh, Object3D } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { removeEntity } from '../../../../ecs/functions/EntityFunctions'
 import { AddMaterial, IntersectObject, MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
 import { SourceType } from '../../../../renderer/materials/components/MaterialSource'
 import {
@@ -35,6 +37,7 @@ import {
   registerMaterial,
   removeMaterialSource
 } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
+import { UUIDComponent } from '../../../../scene/components/UUIDComponent'
 import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
@@ -61,6 +64,7 @@ export function registerMaterials(root: Object3D, type: SourceType = SourceType.
             mats.forEach((mat) => {
               const prototypeId = mat.userData.type ?? mat.type
               const prototype = prototypeFromId(prototypeId)
+
               let parameters = Object.fromEntries(
                 Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, mat[k]])
               )
@@ -79,9 +83,8 @@ export function registerMaterials(root: Object3D, type: SourceType = SourceType.
           removeMaterialSource({ type, path })
 
           //remove material from hierarchy
-          //if(addmaterial.materialEntity){
-          //  removeEntity(addmaterial.materialEntity as Entity)
-          // }
+          const entity = UUIDComponent.getEntityByUUID(addmaterial.uuid as EntityUUID)
+          removeEntity(entity)
           addmaterial.IsMaterial = false
         }
       })
