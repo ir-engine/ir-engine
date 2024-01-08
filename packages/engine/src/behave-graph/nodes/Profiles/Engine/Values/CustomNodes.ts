@@ -481,7 +481,7 @@ export const redirectToURL = makeFlowNodeDefinition({
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const url = read<string>('url')
-    window.open(url, '_blank')
+    window.location.assign(url)
   }
 })
 
