@@ -180,10 +180,11 @@ export const usePortalTeleport = () => {
       return
     }
 
-    if (activePortal.redirect) {
-      window.location.href = engineState.publicPath.value + '/location/' + activePortal.location
-      return
-    }
+    //@todo Fix Portal logic and remove forced hard redirect
+    // if (activePortal.redirect) {
+    window.location.href = engineState.publicPath.value + '/location/' + activePortal.location
+    return
+    // }
 
     if (activePortal.effectType !== 'None') {
       PortalComponent.setPlayerInPortalEffect(activePortal.effectType)
