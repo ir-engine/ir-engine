@@ -24,13 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
-import { V_001, V_010 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -58,7 +57,6 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
 import { loadLocomotionAnimations } from '../functions/avatarFunctions'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
-import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -86,19 +84,6 @@ const _vector3 = new Vector3()
 const _hint = new Vector3()
 const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
-const leftHandRotation = new Quaternion()
-  .setFromAxisAngle(V_001, Math.PI / 2)
-  .multiply(new Quaternion().setFromAxisAngle(V_010, -Math.PI / 2))
-const rightHandRotation = new Quaternion()
-  .setFromAxisAngle(V_001, -Math.PI / 2)
-  .multiply(new Quaternion().setFromAxisAngle(V_010, Math.PI / 2))
-const footAngleQuat = new Quaternion()
-
-const midAxisRestriction = new Euler(0, 0, 0)
-const tipAxisRestriction = new Euler(0, 0, 0)
-
-const footRaycastInterval = 0.25
-let footRaycastTimer = 0
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
@@ -157,8 +142,6 @@ const execute = () => {
       avatarAnimationEntities.push(_entity)
     }
   }
-
-  footRaycastTimer += deltaSeconds
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
@@ -264,7 +247,6 @@ const execute = () => {
         'left',
         _hint
       )
-
       solveTwoBoneIK(
         ikRig.leftUpperArm.node,
         ikRig.leftLowerArm.node,
@@ -285,10 +267,6 @@ const execute = () => {
         VRMHumanBoneName.LeftHand,
         leftHandTargetBlendWeight
       )
-    }
-
-    if (footRaycastTimer >= footRaycastInterval) {
-      footRaycastTimer = 0
     }
 
     if (rightFootTargetBlendWeight) {
@@ -394,7 +372,7 @@ const reactor = () => {
 
 export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
-  insert: { before: AnimationSystem },
+  insert: { before: TransformSystem },
   execute,
   reactor
 })
