@@ -37,9 +37,11 @@ import {
   VSMShadowMap
 } from 'three'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 
+import { DirectionalLightQuery } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -103,6 +105,20 @@ const ShadowTypeOptions = [
   }
 ]
 
+const DirectionalLightOptions = () => {
+  const directionalLightOptions = [] as Array<{ label: string; value: number; info?: string }>
+
+  for (const entity of DirectionalLightQuery()) {
+    const name = getComponent(entity, NameComponent)
+    directionalLightOptions.push({
+      label: name,
+      value: entity
+    })
+  }
+
+  return directionalLightOptions
+}
+
 export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const rendererSettingsState = useComponent(props.entity, RenderSettingsComponent)
@@ -112,6 +128,17 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       name={t('editor:properties.renderSettings.name')}
       description={t('editor:properties.renderSettings.description')}
     >
+      <InputGroup
+        name="Primary Light"
+        label={t('editor:properties.renderSettings.lbl-primaryLight')}
+        info={t('editor:properties.renderSettings.info-primaryLight')}
+      >
+        <SelectInput
+          options={DirectionalLightOptions()}
+          value={rendererSettingsState.primaryLight.value!}
+          onChange={commitProperty(RenderSettingsComponent, 'primaryLight')}
+        />
+      </InputGroup>
       <InputGroup
         name="Use Cascading Shadow Maps"
         label={t('editor:properties.renderSettings.lbl-csm')}

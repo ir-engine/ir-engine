@@ -30,7 +30,13 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  defineQuery,
+  getComponent,
+  setComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
@@ -199,3 +205,5 @@ export const DirectionalLightComponent = defineComponent({
 })
 
 const _vec3 = new Vector3()
+
+export const DirectionalLightQuery = defineQuery([DirectionalLightComponent])
