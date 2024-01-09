@@ -27,70 +27,28 @@ import { Mesh, Object3D } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { removeEntity } from '../../../../ecs/functions/EntityFunctions'
-import { AddMaterial, IntersectObject, MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
+import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
 import { SourceType } from '../../../../renderer/materials/components/MaterialSource'
-import {
-  extractDefaults,
-  prototypeFromId,
-  registerMaterial,
-  removeMaterialSource
-} from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
-import { UUIDComponent } from '../../../../scene/components/UUIDComponent'
+import { registerMaterial } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
 import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
 export function registerMaterials(root: Object3D, type: SourceType = SourceType.EDITOR_SESSION, path = '') {
   const materialLibrary = getState(MaterialLibraryState)
-  const intersected = getState(IntersectObject)
-  const addmaterial = getState(AddMaterial)
   iterateObject3D(root, (mesh: Mesh) => {
     //root.traverse((mesh: Mesh) => {
     if (!mesh?.isMesh) return
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-
     materials
       //.filter((material) => !materialLibrary.materials[material.uuid])
       .map((material) => {
         const materialComponent = registerMaterial(material, { type, path })
         material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
         //iterate intersected object in the scene and set material
-        if (addmaterial.IsMaterial) {
-          iterateObject3D(intersected.intersected.object, (mesh: Mesh) => {
-            if (!mesh?.isMesh) return
-            const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-            mats.forEach((mat) => {
-              const prototypeId = mat.userData.type ?? mat.type
-              const prototype = prototypeFromId(prototypeId)
-
-              let parameters = Object.fromEntries(
-                Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, mat[k]])
-              )
-
-              const currentparameters = Object.fromEntries(
-                Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]])
-              )
-              parameters = currentparameters
-              mat.setValues(parameters)
-            })
-          })
-          //remove material file in case conflict
-          const currentprototypeId = material.userData.type ?? material.type
-          const currentprototype = prototypeFromId(currentprototypeId)
-          //remove material from material library
-          removeMaterialSource({ type, path })
-
-          //remove material from hierarchy
-          const entity = UUIDComponent.getEntityByUUID(addmaterial.uuid as EntityUUID)
-          removeEntity(entity)
-          addmaterial.IsMaterial = false
-        }
       })
   })
 }
-
 export default class RegisterMaterialsExtension extends ImporterExtension implements GLTFLoaderPlugin {
   name = 'EE_RegisterMaterialsExtension'
   async afterRoot(result: GLTF) {

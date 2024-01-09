@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { Intersection, Object3D, Object3DEventMap } from 'three'
-import { Entity } from '../../ecs/classes/Entity'
 import { MaterialComponentType } from './components/MaterialComponent'
 import { MaterialPluginType } from './components/MaterialPluginComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
@@ -51,20 +49,6 @@ export const MaterialLibraryState = defineState({
     plugins: {} as Record<string, MaterialPluginType>,
     sources: {} as Record<string, MaterialSourceComponentType>,
     initialized: false
-  }
-})
-export const IntersectObject = defineState({
-  name: 'IntersectState',
-  initial: {
-    intersected: {} as Intersection<Object3D<Object3DEventMap>>
-  }
-})
-export const AddMaterial = defineState({
-  name: 'AddMaterial',
-  initial: {
-    IsMaterial: false,
-    materialEntity: undefined as Entity | undefined,
-    uuid: null as string | null
   }
 })
 export function initializeMaterialLibrary() {

@@ -33,15 +33,20 @@ import { VideoComponent } from '@etherealengine/engine/src/scene/components/Vide
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
 import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
+import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { AddMaterial, IntersectObject } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import {
+  extractDefaults,
+  prototypeFromId
+} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
 import { getState } from '@etherealengine/hyperflux'
-import { Raycaster, Vector2 } from 'three'
+import { Material, Mesh, Raycaster, Vector2 } from 'three'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -81,15 +86,32 @@ export async function addMediaNode(
       const intersect = pointerScreenRaycaster.intersectObjects(sceneObjects, true)
       //change states
       const intersected = pointerScreenRaycaster.intersectObjects(sceneObjects)[0]
-      const inter = getState(IntersectObject)
-      inter.intersected = intersected
-      const addmaterial = getState(AddMaterial)
-      addmaterial.IsMaterial = true
-      EditorControlFunctions.createObjectFromSceneElement(
-        [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
-        parent!,
-        before
-      )
+      const gltfLoader = getState(AssetLoaderState).gltfLoader
+      gltfLoader.load(url, (gltf) => {
+        const material = iterateObject3D(
+          gltf.scene,
+          (mesh: Mesh) => mesh.material as Material,
+          (mesh: Mesh) => mesh?.isMesh
+        )[0]
+        iterateObject3D(intersected.object, (mesh: Mesh) => {
+          if (!mesh?.isMesh) return
+          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+          mats.forEach((mat) => {
+            const prototypeId = mat.userData.type ?? mat.type
+            const prototype = prototypeFromId(prototypeId)
+
+            let parameters = Object.fromEntries(
+              Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, mat[k]])
+            )
+
+            const currentparameters = Object.fromEntries(
+              Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]])
+            )
+            parameters = currentparameters
+            mat.setValues(parameters)
+          })
+        })
+      })
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
