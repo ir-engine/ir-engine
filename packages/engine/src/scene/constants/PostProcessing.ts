@@ -109,20 +109,7 @@ export type OutlineEffectProps = EffectProps & {
   opacity: number
 }
 
-export type SSAOEffectProps = EffectProps & {
-  distanceScaling: boolean
-  blendFunction: BlendFunction
-  depthAwareUpsampling: boolean
-  samples: number
-  rings: number
-  distanceThreshold: number // Render up to a distance of ~20 world units
-  distanceFalloff: number // with an additional ~2.5 units of falloff.
-  minRadiusScale: number
-  bias: number
-  radius: number
-  intensity: number
-  fade: number
-}
+export type SSAOEffectProps = EffectProps & SSAOEffect
 
 const defaultSSROptions = {
   distance: 10,
@@ -234,7 +221,7 @@ export type EffectPropsSchema = {
   // [Effects.FXAAEffect]: FXAAEffectProps
   // [Effects.SMAAEffect]: SMAAEffectProps
   // [Effects.OutlineEffect]: OutlineEffectProps
-  [Effects.SSAOEffect]: SSAOEffectProps
+  [Effects.SSAOEffect]: SSAOEffect
   [Effects.SSREffect]: SSREffectProps
   [Effects.DepthOfFieldEffect]: DepthOfFieldEffectProps
   [Effects.BloomEffect]: BloomEffectProps
@@ -281,17 +268,21 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   [Effects.SSAOEffect]: {
     isActive: false,
     blendFunction: BlendFunction.MULTIPLY,
-    distanceScaling: true,
+    distanceScaling: true, // deprecated
     depthAwareUpsampling: true,
     samples: 16,
     rings: 7,
-    distanceThreshold: 0.125, // Render up to a distance of ~20 world units
-    distanceFalloff: 0.02, // with an additional ~2.5 units of falloff.
-    minRadiusScale: 1,
-    bias: 0.25,
-    radius: 0.01,
-    intensity: 2,
-    fade: 0.05
+    distanceThreshold: 0.97, // Render up to a distance of ~20 world units
+    distanceFalloff: 0.03, // with an additional ~2.5 units of falloff.
+    rangeThreshold: 0.0005,
+    rangeFalloff: 0.001,
+    minRadiusScale: 0.1,
+    //@ts-ignore
+    luminanceInfluence: 0.7,
+    radius: 0.1825,
+    intensity: 1,
+    bias: 0.025,
+    fade: 0.01
   },
   [Effects.SSREffect]: {
     isActive: false,

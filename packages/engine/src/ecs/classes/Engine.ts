@@ -102,6 +102,11 @@ export class Engine {
   cameraEntity = UndefinedEntity
 
   /**
+   * The Sun entity
+   */
+  sunEntity = UndefinedEntity
+
+  /**
    * The local client entity
    */
   get localClientEntity() {

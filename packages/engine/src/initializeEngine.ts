@@ -44,6 +44,9 @@ import { TransformComponent } from './transform/components/TransformComponent'
 
 // core module
 import '@etherealengine/engine/src/ecs/ECSModule'
+import { DirectionalLightComponent } from './scene/components/DirectionalLightComponent'
+import { PrimitiveGeometryComponent } from './scene/components/PrimitiveGeometryComponent'
+import { GeometryTypeEnum } from './scene/constants/GeometryTypeEnum'
 
 /**
  * Creates a new instance of the engine and engine renderer. This initializes all properties and state for the engine,
@@ -80,6 +83,22 @@ export const createEngine = () => {
   setComponent(Engine.instance.cameraEntity, VisibleComponent, true)
   getComponent(Engine.instance.cameraEntity, TransformComponent).position.set(0, 5, 2)
   setComponent(Engine.instance.cameraEntity, EntityTreeComponent, { parentEntity: null })
+
+  Engine.instance.sunEntity = createEntity()
+  setComponent(Engine.instance.sunEntity, NameComponent, 'Sun')
+  setComponent(Engine.instance.sunEntity, DirectionalLightComponent, {
+    intensity: 1,
+    shadowBias: -0.000001,
+    shadowRadius: 1,
+    cameraFar: 2000,
+    castShadow: false,
+    useInCSM: false
+  })
+  setComponent(Engine.instance.sunEntity, VisibleComponent, true)
+  setComponent(Engine.instance.sunEntity, EntityTreeComponent, { parentEntity: null })
+  setComponent(Engine.instance.sunEntity, PrimitiveGeometryComponent, { geometryType: GeometryTypeEnum.SphereGeometry })
+  setComponent(Engine.instance.sunEntity, TransformComponent)
+  getComponent(Engine.instance.sunEntity, TransformComponent).position.set(0, 20, 2)
 
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   camera.matrixAutoUpdate = false

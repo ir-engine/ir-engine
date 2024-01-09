@@ -28,6 +28,7 @@ import {
   DepthDownsamplingPass,
   EffectComposer,
   EffectPass,
+  GodRaysEffect,
   NormalPass,
   OutlineEffect,
   RenderPass,
@@ -35,7 +36,7 @@ import {
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 'three'
+import { Mesh, MeshBasicMaterial, NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -43,6 +44,7 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
@@ -122,10 +124,7 @@ export const configureEffectComposer = (
     if (!EffectClass) continue
 
     if (key === Effects.SSAOEffect) {
-      const eff = new EffectClass(camera, normalPass.texture, {
-        ...effect,
-        normalDepthBuffer: depthDownsamplingPass.texture
-      })
+      const eff = new EffectClass(camera, normalPass.texture)
       useDepthDownsamplingPass = true
       composer[key] = eff
       effects.push(eff)
@@ -161,7 +160,20 @@ export const configureEffectComposer = (
       effects.push(eff)
     }
   }
+
+  //@ts-ignore
+  const sun = getComponent(Engine.instance.sunEntity, GroupComponent)[1] as Mesh
+  const sunMaterial = new MeshBasicMaterial({
+    color: 0xffddaa,
+    transparent: true,
+    fog: false
+  })
+
+  sun.material = sunMaterial
+  effects.push(new GodRaysEffect(camera, sun))
+
   if (effects.length) {
+    composer.addPass(normalPass)
     if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
 
     if (useDepthDownsamplingPass) {
