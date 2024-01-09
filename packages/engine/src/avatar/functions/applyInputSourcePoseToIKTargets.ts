@@ -316,6 +316,9 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
     }
   }
 
+  /** In miniature mode, IK doesn't make much sense */
+  if (!isCameraAttachedToAvatar) return
+
   const inverseWorldScale = 1 / XRState.worldScale
 
   const localClientTransform = getComponent(localClientEntity, TransformComponent)
