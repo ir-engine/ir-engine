@@ -147,12 +147,7 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
       light.intensity = directionalLight.intensity
       light.shadow.bias = directionalLight.shadow.bias
       light.shadow.mapSize.setScalar(shadowMapResolution.value)
-      light.shadow.camera.near = 0
-      light.shadow.camera.far = 1
-      light.shadow.camera.updateProjectionMatrix()
-      light.shadow.map?.dispose()
-      light.shadow.map = null as any
-      light.shadow.needsUpdate = true
+      csm.needsUpdate = true
     }
   }, [
     shadowMapResolution,
