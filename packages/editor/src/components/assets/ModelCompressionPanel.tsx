@@ -28,7 +28,7 @@ import React, { useEffect, useState } from 'react'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
+import { none, State, useHookstate } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
@@ -59,8 +59,7 @@ import { FileType } from './FileBrowser/FileBrowserContentPanel'
 
 type LODVariantDescriptor = {
   params: ModelTransformParameters
-  metadata: Record<string, any>
-  suffix?: string
+  variantMetadata: Record<string, any>[]
 }
 
 // TODO: Find place to put hard-coded list
@@ -127,14 +126,7 @@ export default function ModelCompressionPanel({
   const [compressionLoading, setCompressionLoading] = useState<boolean>(false)
   const [isClientside, setIsClientSide] = useState<boolean>(true)
   const [isIntegratedPrefab, setIsIntegratedPrefab] = useState<boolean>(true)
-  const [selectedLOD, setSelectedLOD] = useState<number>(0)
-
-  const transformParms = useHookstate<ModelTransformParameters>({
-    ...defaultParms,
-    src: fileProperties.value.url,
-    modelFormat: fileProperties.value.url.endsWith('.gltf') ? 'gltf' : 'glb'
-  })
-
+  const [selectedLODIndex, setSelectedLODIndex] = useState<number>(0)
   const [modalOpen, setModalOpen] = useState<boolean>(false)
   const [selectedPreset, setSelectedPreset] = useState<ModelTransformParameters>(defaultParms)
   const [presetList, setPresetList] = useState<ModelTransformParameters[]>(LODList)
@@ -147,14 +139,18 @@ export default function ModelCompressionPanel({
   }, [])
 
   const lods = useHookstate<LODVariantDescriptor[]>([
-    { suffix: '-LOD_0', params: { ...defaultParms, maxTextureSize: 2048 }, metadata: { device: 'DESKTOP' } },
-    { suffix: '-LOD_1', params: { ...defaultParms, maxTextureSize: 1024 }, metadata: { device: 'XR' } },
-    { suffix: '-LOD_2', params: { ...defaultParms, maxTextureSize: 512 }, metadata: { device: 'MOBILE' } }
+    {
+      params: {
+        ...defaultParms,
+        src: fileProperties.value.url,
+        modelFormat: fileProperties.value.url.endsWith('.gltf') ? 'gltf' : 'glb'
+      },
+      variantMetadata: []
+    }
   ])
 
   const compressContentInBrowser = async () => {
     setCompressionLoading(true)
-    saveSelectedLOD()
     await compressModel()
     await onRefreshDirectory()
     setCompressionLoading(false)
@@ -172,7 +168,7 @@ export default function ModelCompressionPanel({
     const lodVariantParms: ModelTransformParameters[] = lods.map((lod) => ({
       ...lod.params,
       src: modelSrc,
-      dst: `${modelDst}${lod.suffix ?? ''}.${lod.params.modelFormat}`
+      dst: `${modelDst}.${lod.params.modelFormat}`
     }))
 
     for (const variant of lodVariantParms) {
@@ -189,10 +185,14 @@ export default function ModelCompressionPanel({
       const variant = createSceneEntity('LOD Variant', result)
       setComponent(variant, ModelComponent)
       setComponent(variant, VariantComponent, {
-        levels: lods.map((lod, index) => ({
-          src: modelSrc.replace(/[^\/]+$/, lodVariantParms[index].dst),
-          metadata: lod.metadata
-        })),
+        levels: lods
+          .map((lod, index) =>
+            lod.variantMetadata.map((metadata) => ({
+              src: modelSrc.replace(/[^\/]+$/, lodVariantParms[index].dst),
+              metadata
+            }))
+          )
+          .flat(),
         heuristic
       })
 
@@ -208,24 +208,24 @@ export default function ModelCompressionPanel({
 
   const confirmPreset = () => {
     if (LODList.includes(selectedPreset)) {
-      const prevDst = transformParms.dst.value
-      transformParms.dst.set(`${prevDst}-${selectedPreset.dst.replace(/\s/g, '').toLowerCase()}`)
-      transformParms.maxTextureSize.set(selectedPreset.maxTextureSize)
-      saveSelectedLOD()
+      const selectedLOD = lods[selectedLODIndex]
+      const prevDst = selectedLOD.params.dst.value
+      selectedLOD.params.dst.set(`${prevDst}-${selectedPreset.dst.replace(/\s/g, '').toLowerCase()}`)
+      selectedLOD.params.maxTextureSize.set(selectedPreset.maxTextureSize)
     }
     setModalOpen(false)
   }
 
   const savePresetList = (deleting: boolean) => {
     if (!deleting) {
-      setPresetList([...presetList, transformParms.value])
+      setPresetList([...presetList, lods[selectedLODIndex].params.value])
     }
     localStorage.setItem('presets', JSON.stringify(presetList))
   }
 
   const compressModel = async () => {
     const modelSrc = fileProperties.url.value
-    const modelDst = transformParms.dst.value
+    const modelDst = lods[selectedLODIndex].params.dst.value
     const clientside = isClientside
     const exportCombined = isIntegratedPrefab
 
@@ -246,44 +246,29 @@ export default function ModelCompressionPanel({
     const fullSrc = fileProperties.url.value
     const fileName = fullSrc.split('/').pop()!.split('.').shift()!
     const dst = `${fileName}-transformed`
-    transformParms.dst.set(dst)
+    lods[selectedLODIndex].params.dst.set(dst)
   }, [fileProperties.url])
 
-  useEffect(() => {
-    loadSelectedLOD()
-  }, [selectedLOD])
-
-  const saveSelectedLOD = () => {
-    const val = transformParms.get(NO_PROXY)
-    lods[selectedLOD].params.set(val)
-  }
-
-  const loadSelectedLOD = () => {
-    const val = lods[selectedLOD].params.get(NO_PROXY)
-    transformParms.set(val)
-  }
-
   const handleLODSelect = (index) => {
-    saveSelectedLOD()
-    setSelectedLOD(index)
+    setSelectedLODIndex(index)
   }
 
   const handleLODDelete = (index) => {
     lods[index].set(none)
 
-    if (selectedLOD === index) {
-      setSelectedLOD(Math.min(index, lods.length - 1))
+    if (selectedLODIndex === index) {
+      setSelectedLODIndex(Math.min(index, lods.length - 1))
     }
   }
 
   const handleLODAdd = () => {
     lods.merge([
       {
-        params: JSON.parse(JSON.stringify(lods[selectedLOD].params.value)),
-        metadata: JSON.parse(JSON.stringify(lods[selectedLOD].metadata.value))
+        params: JSON.parse(JSON.stringify(lods[selectedLODIndex].params.value)),
+        variantMetadata: []
       }
     ])
-    setSelectedLOD(lods.length - 1)
+    setSelectedLODIndex(lods.length - 1)
   }
 
   return (
@@ -312,11 +297,11 @@ export default function ModelCompressionPanel({
             <List>
               {lods.map((lod, index) => (
                 <ListItem>
-                  <ListItemButton selected={selectedLOD === index} onClick={() => handleLODSelect(index)}>
+                  <ListItemButton selected={selectedLODIndex === index} onClick={() => handleLODSelect(index)}>
                     {' '}
                     <ListItemText
                       primary={`LOD Level ${index}`}
-                      secondary={Object.entries(lod.metadata.value)
+                      secondary={Object.entries(lod.variantMetadata?.value ?? '')
                         .map((a) => a.join(': '))
                         .join(', ')}
                     />
@@ -344,7 +329,7 @@ export default function ModelCompressionPanel({
           </InputGroup>
           <>
             <GLTFTransformProperties
-              transformParms={transformParms}
+              transformParms={lods[selectedLODIndex].params}
               onChange={(transformParms: ModelTransformParameters) => {}}
             />
             <InputGroup name="Clientside Transform" label="Clientside Transform">
