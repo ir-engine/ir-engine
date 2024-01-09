@@ -277,6 +277,9 @@ function UVOL1Reactor() {
 
   useExecute(
     () => {
+      //do not execute if the cortoloader has not been initialized
+      if (getState(AssetLoaderState).cortoLoader === null) return
+
       const delta = getState(EngineState).deltaSeconds
 
       if (
