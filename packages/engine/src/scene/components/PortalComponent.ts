@@ -244,9 +244,7 @@ export const PortalComponent = defineComponent({
       if (!portalDetails.value?.previewImageURL) return
       portalComponent.remoteSpawnPosition.value.copy(portalDetails.value.spawnPosition)
       portalComponent.remoteSpawnRotation.value.copy(portalDetails.value.spawnRotation)
-      console.log('PortalComponent', portalDetails.value.previewImageURL)
       AssetLoader.loadAsync(portalDetails.value.previewImageURL).then((texture: Texture) => {
-        console.log('PortalComponent texture', texture, portalComponent.mesh.value, aborted)
         if (!portalComponent.mesh.value || aborted) return
         portalComponent.mesh.value.material.map = texture
         portalComponent.mesh.value.material.needsUpdate = true
@@ -278,7 +276,6 @@ export const PortalComponent = defineComponent({
           .service(portalPath)
           .get(portalComponent.linkedPortalId.value, { query: { locationName: portalComponent.location.value } })
           .then((data) => {
-            console.log('PortalComponent portalDetails', data)
             if (data && !aborted) portalDetails.set(data)
           })
           .catch((e) => {
