@@ -23,50 +23,43 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 
 import { FullscreenContext } from '@etherealengine/client-core/src/components/useFullscreen'
 import { iOS } from '@etherealengine/engine/src/common/functions/isMobile'
-import { useHookstate } from '@etherealengine/hyperflux'
 
 type Props = { children: JSX.Element | JSX.Element[] }
 
 export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => {
-  const fullScreenActive = useHookstate(false)
   const handle = useFullScreenHandle()
 
-  useEffect(() => {
-    if (ref?.current) {
-      const canvas = document.getElementById('engine-renderer-canvas')!
-      canvas.parentElement?.removeChild(canvas)
-      ref.current.appendChild(canvas)
-    }
-  }, [ref, fullScreenActive])
+  const renderEngineCanvas = () => {
+    const canvas = document.getElementById('engine-renderer-canvas')!
+    canvas.parentElement?.removeChild(canvas)
+    ref.current.appendChild(canvas)
+  }
 
-  const reportChange = useCallback((state) => {
-    if (state) {
-      fullScreenActive.set(state)
-    } else {
-      fullScreenActive.set(state)
-    }
+  useEffect(() => {
+    renderEngineCanvas()
   }, [])
 
-  useEffect(() => {
-    if (fullScreenActive.value) {
+  const setFullScreen = (value: boolean) => {
+    if (value) {
       handle.enter().catch((err) => console.log(err))
+      renderEngineCanvas()
     } else {
       handle.exit().catch((err) => console.log(err))
     }
-  }, [fullScreenActive])
+  }
 
   return iOS ? (
     <div id={'engine-container'} ref={ref}>
       {props.children}
     </div>
   ) : (
-    <FullscreenContext.Provider value={[fullScreenActive.value, fullScreenActive.set]}>
-      <FullScreen handle={handle} onChange={reportChange}>
+    <FullscreenContext.Provider value={[handle.active, setFullScreen]}>
+      <FullScreen handle={handle}>
         <div id={'engine-container'} ref={ref}>
           {props.children}
         </div>
