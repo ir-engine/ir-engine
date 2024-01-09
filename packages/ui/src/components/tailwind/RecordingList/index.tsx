@@ -60,7 +60,7 @@ const RecordingsList = (props: {
     query: { $sort: { createdAt: -1 }, $limit: 10, $skip: 0 }
   })
 
-  const sortedRecordings = recording.data.sort(sortByNewest)
+  const sortedRecordings = [...recording.data].sort(sortByNewest)
 
   const RecordingItem = (props: { recording: RecordingType }) => {
     const { recording } = props

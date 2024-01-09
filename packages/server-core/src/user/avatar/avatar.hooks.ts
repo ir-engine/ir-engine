@@ -208,7 +208,8 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
       {
         query: {
           avatarId: context.id?.toString() as AvatarID
-        }
+        },
+        user: context.params.user
       }
     )
   }

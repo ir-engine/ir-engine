@@ -41,6 +41,7 @@ import * as CustomNodes from './Values/CustomNodes'
 import * as EntityNodes from './Values/EntityNodes'
 import { EntityValue } from './Values/EntityValue'
 import * as SplineNodes from './Values/SplineNodes'
+import * as VolumetricNodes from './Values/VolumetricNodes'
 import { registerActionDispatchers } from './helper/actionHelper'
 import {
   registerComponentGetters,
@@ -71,7 +72,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...getNodeDescriptions(ComponentNodes),
     ...getNodeDescriptions(CustomNodes),
     ...getNodeDescriptions(SplineNodes),
-
+    ...getNodeDescriptions(VolumetricNodes),
     // variables
 
     // complex logic
