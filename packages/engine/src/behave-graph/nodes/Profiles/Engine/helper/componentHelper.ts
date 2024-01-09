@@ -24,10 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, NodeDefinition, makeEventNodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
-import { isEqual, uniqueId } from 'lodash'
+import { uniqueId } from 'lodash'
+import { useEffect } from 'react'
 import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
 import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
-import { Component, ComponentMap, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import {
+  Component,
+  ComponentMap,
+  getComponent,
+  setComponent,
+  useComponent
+} from '../../../../../ecs/functions/ComponentFunctions'
 import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
 import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
 import { PostProcessingComponent } from '../../../../../scene/components/PostProcessingComponent'
@@ -65,7 +72,7 @@ export function generateComponentNodeSchema(component: Component, withFlow = fal
   return nodeschema
 }
 
-export function getComponentSetters() {
+export function registerComponentSetters() {
   const setters: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [componentName, component] of ComponentMap) {
@@ -91,7 +98,6 @@ export function getComponentSetters() {
       initialState: undefined,
       triggered: ({ read, write, commit, graph }) => {
         const entity = Number.parseInt(read('entity')) as Entity
-        //read from the read and set dict acccordingly
         const inputs = Object.entries(node.in).splice(2)
         let values = {} as any
         if (inputs.length === 1) {
@@ -111,7 +117,7 @@ export function getComponentSetters() {
   return setters
 }
 
-export function getComponentGetters() {
+export function registerComponentGetters() {
   const getters: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [componentName, component] of ComponentMap) {
@@ -140,8 +146,10 @@ export function getComponentGetters() {
       initialState: undefined,
       triggered: ({ read, write, commit, graph }) => {
         const entity = Number.parseInt(read('entity')) as Entity
+
         const props = getComponent(entity, component)
         const outputs = Object.entries(node.out).splice(2)
+
         if (typeof props !== 'object') {
           write(outputs[outputs.length - 1][0] as any, EnginetoNodetype(props))
         } else {
@@ -166,7 +174,7 @@ const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
 
-export function getComponentListeners() {
+export function registerComponentListeners() {
   const getters: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [componentName, component] of ComponentMap) {
@@ -194,36 +202,36 @@ export function getComponentListeners() {
       initialState: initialState(),
       init: ({ read, write, commit, graph }) => {
         const entity = Number.parseInt(read('entity')) as Entity
-        const valueOutputs = Object.entries(node.out)
+        const valueOutputs: any = Object.entries(node.out)
           .splice(1)
           .filter(([output, type]) => type !== 'flow')
-        const flowOutputs = Object.entries(node.out)
+        const flowOutputs: any = Object.entries(node.out)
           .splice(1)
           .filter(([output, type]) => type === 'flow')
 
-        let prevComponentValue = {}
         const systemUUID = defineSystem({
           uuid: `behave-graph-use-${componentName}` + uniqueId(),
           insert: { with: InputSystemGroup },
-          execute: () => {
-            const componentValue = getComponent(entity, component)
+          execute: () => {},
+          reactor: () => {
+            const componentValue = useComponent(entity, component)
             if (typeof componentValue !== 'object') {
-              if (prevComponentValue === componentValue) return
-              const value = EnginetoNodetype(componentValue)
-              write(valueOutputs[valueOutputs.length - 1][0] as any, value)
-              commit(flowOutputs[flowOutputs.length - 1][0] as any)
-              prevComponentValue = structuredClone(componentValue)
+              useEffect(() => {
+                const value = EnginetoNodetype((componentValue as any).value)
+                write(valueOutputs[valueOutputs.length - 1][0] as any, value)
+                commit(flowOutputs[flowOutputs.length - 1][0] as any)
+              }, [componentValue])
             } else {
               valueOutputs.forEach(([output, type], index) => {
-                if (Object.hasOwn(prevComponentValue, output)) {
-                  if (isEqual(prevComponentValue[output], structuredClone(componentValue[output]))) return
-                }
-                const value = EnginetoNodetype(componentValue[output])
-                write(output as any, value)
-                commit(flowOutputs[index][0] as any)
-                prevComponentValue[output] = structuredClone(componentValue[output])
+                useEffect(() => {
+                  const value = EnginetoNodetype(componentValue[output].value)
+                  const flowSocket = flowOutputs.find(([flowOutput, flowType]) => flowOutput === `${output}Change`)
+                  write(output as any, value)
+                  commit(flowSocket[0] as any)
+                }, [componentValue[output]])
               })
             }
+            return null
           }
         })
 

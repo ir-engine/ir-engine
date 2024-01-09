@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, NodeDefinition, makeEventNodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
-import { NO_PROXY } from '@etherealengine/hyperflux'
-import { isEqual, uniqueId } from 'lodash'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { uniqueId } from 'lodash'
+import { useEffect } from 'react'
 import { Engine } from '../../../../../ecs/classes/Engine'
-import { Entity } from '../../../../../ecs/classes/Entity'
 import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { SystemUUID, defineSystem } from '../../../../../ecs/functions/SystemFunctions'
+import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
 const skipState = [''] // behave graph state is skipped since its a type of record we do want to skip it anyways
@@ -51,7 +51,7 @@ export function generateStateNodeSchema(state, withFlow = false) {
   return nodeschema
 }
 
-export function getStateSetters() {
+export function registerStateSetters() {
   const setters: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [stateName, state] of Object.entries(Engine.instance.store.stateMap)) {
@@ -88,7 +88,7 @@ export function getStateSetters() {
   return setters
 }
 
-export function getStateGetters() {
+export function registerStateGetters() {
   const getters: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [stateName, state] of Object.entries(Engine.instance.store.stateMap)) {
@@ -139,7 +139,7 @@ const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
 
-export function getStateListeners() {
+export function registerStateListeners() {
   const getters: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [stateName, state] of Object.entries(Engine.instance.store.stateMap)) {
@@ -147,64 +147,58 @@ export function getStateListeners() {
       skipped.push(stateName)
       continue
     }
-    const outputsockets = generateStateNodeSchema(state)
+    const outputsockets: any = generateStateNodeSchema(state, true)
     if (Object.keys(outputsockets).length === 0) {
       skipped.push(stateName)
       continue
     }
     const node = makeEventNodeDefinition({
-      typeName: `engine/component/use${stateName}`,
+      typeName: `engine/state/use${stateName}`,
       category: NodeCategory.Event,
-      label: `on ${stateName} change`,
-      in: {
-        entity: 'entity'
-      },
+      label: `Use ${stateName}`,
+      in: {},
       out: {
-        entity: 'entity',
         ...outputsockets
       },
       initialState: initialState(),
       init: ({ read, write, commit, graph }) => {
-        const entity = Number.parseInt(read('entity')) as Entity
         const valueOutputs = Object.entries(node.out)
           .splice(1)
-          .filter(([output, type]) => type !== 'flow')
+          .filter(([output, type]) => type !== 'flow') as any
         const flowOutputs = Object.entries(node.out)
           .splice(1)
-          .filter(([output, type]) => type === 'flow')
-
-        let prevStateValue = {}
+          .filter(([output, type]) => type === 'flow') as any
         const systemUUID = defineSystem({
           uuid: `behave-graph-use-${stateName}` + uniqueId(),
           insert: { with: InputSystemGroup },
-          execute: () => {
-            const stateValue = state
-            if (typeof stateValue !== 'object') {
-              if (prevStateValue === stateValue) return
-              const value = EnginetoNodetype(stateValue)
-              write(valueOutputs[valueOutputs.length - 1][0] as any, value)
-              commit(flowOutputs[flowOutputs.length - 1][0] as any)
-              prevStateValue = structuredClone(stateValue)
+          execute: () => {},
+          reactor: () => {
+            const stateValue = useHookstate(state)
+            if (typeof stateValue.value !== 'object') {
+              useEffect(() => {
+                const value = EnginetoNodetype(stateValue.value)
+                write(valueOutputs[valueOutputs.length - 1][0] as any, value)
+                commit(flowOutputs[flowOutputs.length - 1][0] as any)
+              }, [stateValue])
             } else {
               valueOutputs.forEach(([output, type], index) => {
-                if (Object.hasOwn(prevStateValue, output)) {
-                  if (isEqual(prevStateValue[output], structuredClone(stateValue[output]))) return
-                }
-                const value = EnginetoNodetype(stateValue[output])
-                write(output as any, value)
-                commit(flowOutputs[index][0] as any)
-                prevStateValue[output] = structuredClone(stateValue[output])
+                useEffect(() => {
+                  const value = EnginetoNodetype(stateValue[output].value)
+                  const flowSocket = flowOutputs.find(([flowOutput, flowType]) => flowOutput === `${output}Change`)
+                  write(output as any, value)
+                  commit(flowSocket[0] as any)
+                }, [stateValue[output]])
               })
             }
+            return null
           }
         })
 
-        write('entity', entity)
-        const state: State = {
+        const outputState: State = {
           systemUUID
         }
 
-        return state
+        return outputState
       },
       dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
         destroySystem(systemUUID)

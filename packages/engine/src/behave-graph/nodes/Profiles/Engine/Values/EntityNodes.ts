@@ -205,7 +205,7 @@ export const addEntity = makeFlowNodeDefinition({
     const parentEntity: Entity =
       parentEntityUUID == '' ? UndefinedEntity : UUIDComponent.getEntityByUUID(parentEntityUUID)
     const componentName = read<string>('componentName')
-    const entity = addEntityToScene([{ name: ComponentMap.get(componentName)?.jsonID! }], parentEntity)
+    const entity = addEntityToScene([{ name: ComponentMap.get(componentName)!.jsonID! }], parentEntity)
     const entityName = read<string>('entityName')
     if (entityName.length > 0) setComponent(entity, NameComponent, entityName)
     write('entity', entity)
@@ -293,18 +293,13 @@ export const useEntityTransform = makeEventNodeDefinition({
       execute: () => {},
       reactor: () => {
         const transformState = useComponent(entity, TransformComponent)
-        useEffect(() => {
-          write('position', transformState.position.value)
-          commit(`positionChange` as any)
-        }, [transformState.position])
-        useEffect(() => {
-          write('rotation', transformState.rotation.value)
-          commit(`rotationChange` as any)
-        }, [transformState.rotation])
-        useEffect(() => {
-          write('scale', transformState.scale.value)
-          commit(`scaleChange` as any)
-        }, [transformState.scale])
+        Object.entries(transformState.value).forEach(([key, value]) => {
+          if (!Object.keys(useEntityTransform.out).includes(key)) return
+          useEffect(() => {
+            write(key as any, value)
+            commit(`${key}Change` as any)
+          }, [transformState[key]])
+        })
         return null
       }
     })
