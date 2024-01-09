@@ -72,8 +72,8 @@ export interface NumericInputProp {
   convertFrom?: any
   precision?: number
   mediumStep?: number
-  onChange?: (n: any) => void
-  onRelease?: (n: any) => void
+  onChange?: (n: number) => void
+  onRelease?: (n: number) => void
   smallStep?: number
   largeStep?: number
   min?: number

@@ -30,7 +30,7 @@ import {
   helmSettingDataValidator,
   helmSettingPatchValidator,
   helmSettingQueryValidator
-} from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {

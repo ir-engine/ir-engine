@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { LoginTokenQuery, LoginTokenType } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import { LoginTokenQuery, LoginTokenType } from '@etherealengine/common/src/schemas/user/login-token.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import crypto from 'crypto'

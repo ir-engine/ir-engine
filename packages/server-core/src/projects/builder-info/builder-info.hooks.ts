@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import { builderInfoExternalResolver, builderInfoResolver } from './builder-info.resolvers'
 
@@ -31,12 +31,12 @@ export default {
 
   before: {
     all: [],
-    find: [],
+    find: [disallow()],
     get: [iff(isProvider('external'), verifyScope('projects', 'read'))],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    create: [disallow()],
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
   after: {
     all: [],

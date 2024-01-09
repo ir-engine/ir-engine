@@ -32,6 +32,7 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
+import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -39,7 +40,6 @@ import { AddMaterial, IntersectObject } from '@etherealengine/engine/src/rendere
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { ComponentJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { Raycaster, Vector2 } from 'three'
 import { EditorControlFunctions } from './EditorControlFunctions'

@@ -38,10 +38,10 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import Dialog from '@mui/material/Dialog'
 
+import { scenePath } from '@etherealengine/common/src/schema.type.module'
 import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
-import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { t } from 'i18next'
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
@@ -65,12 +65,11 @@ import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
 import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
-import ElementList from './element/ElementList'
+import { PropertiesPanelTab } from './element/PropertiesPanel'
 import { GraphPanelTab } from './graph/GraphPanel'
 import { HierarchyPanelTab } from './hierarchy/HierarchyPanel'
 import { MaterialLibraryPanelTab } from './materials/MaterialLibraryPanel'
 import { ViewportPanelTab } from './panels/ViewportPanel'
-import { PropertiesPanelTab } from './properties/PropertiesPanel'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
 
@@ -178,8 +177,8 @@ const onSaveAs = async () => {
   const abortController = new AbortController()
   try {
     if (sceneName || editorState.sceneModified.value) {
-      const [ktx2Blob, thumbnailBlob] = await takeScreenshot(512, 320, 'jpeg')
-      const file = new File([ktx2Blob!], editorState.sceneName + '.thumbnail.ktx2')
+      const thumbnailBlob = await takeScreenshot(512, 320, 'jpeg')
+      const file = new File([thumbnailBlob!], editorState.sceneName + '.thumbnail.jpg')
       const result: { name: string } | void = await new Promise((resolve) => {
         DialogState.setDialog(
           <SaveNewSceneDialog
@@ -233,8 +232,8 @@ const onSaveScene = async () => {
     return
   }
 
-  const [ktx2Blob, thumbnailBlob] = await takeScreenshot(512, 320)
-  const file = new File([ktx2Blob!], sceneName + '.thumbnail.ktx2')
+  const thumbnailBlob = await takeScreenshot(512, 320)
+  const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpg')
 
   const result = (await new Promise((resolve) => {
     DialogState.setDialog(
@@ -461,7 +460,6 @@ const EditorContainer = () => {
         <DndWrapper id="editor-container">
           <DragLayer />
           <ToolBar menu={toolbarMenu} panels={panelMenu} />
-          <ElementList />
           <ControlText />
           {sceneLoading && <SceneLoadingProgress />}
           <div className={styles.workspaceContainer}>
@@ -470,7 +468,7 @@ const EditorContainer = () => {
               <DockLayout
                 ref={dockPanelRef}
                 defaultLayout={defaultLayout}
-                style={{ position: 'absolute', left: 5, top: 55, right: 130, bottom: 5 }}
+                style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
               />
             </DockContainer>
           </div>

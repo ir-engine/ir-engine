@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { Hook, HookContext } from '@feathersjs/feathers'
 
-import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { matchUserPath } from '@etherealengine/common/src/schemas/matchmaking/match-user.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
 /**
  * prevent user to join new search game more then once at time

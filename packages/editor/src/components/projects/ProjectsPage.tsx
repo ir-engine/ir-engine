@@ -60,9 +60,8 @@ import {
 } from '@mui/material'
 
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
+import { InviteCode, projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { useNavigate } from 'react-router-dom'
 import { getProjects } from '../../functions/projectFunctions'
 import { EditorState } from '../../services/EditorServices'
@@ -289,7 +288,7 @@ const ProjectsPage = () => {
   }
 
   const onCreateProject = async (name) => {
-    await ProjectService.createProject(name)
+    await ProjectService.createProject(name, { query: { action: 'studio' } })
     await fetchInstalledProjects()
   }
 
@@ -322,7 +321,7 @@ const ProjectsPage = () => {
     if (activeProject.value) {
       try {
         const proj = installedProjects.get({ noproxy: true }).find((proj) => proj.id === activeProject.value?.id)!
-        await ProjectService.removeProject(proj.id)
+        await ProjectService.removeProject(proj.id, { query: { action: 'studio' } })
         await fetchInstalledProjects()
       } catch (err) {
         logger.error(err)

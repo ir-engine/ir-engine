@@ -31,8 +31,13 @@ module.exports = {
     'tests/mocha.env', // init env here
     'jsdom-global/register'
   ],
+  spec: [
+    './**/*.test.ts',
+    './**/*.test.tsx'
+  ],
   extension: [
-    'ts'
+    'ts',
+    'tsx'
   ],
   bail: true,
   exit: true,

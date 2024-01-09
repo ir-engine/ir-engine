@@ -54,7 +54,8 @@ import {
 import { Engine } from '../classes/Engine'
 import { Entity, UndefinedEntity } from '../classes/Entity'
 import { EntityContext } from './EntityFunctions'
-import { ComponentTypeToTypedArray } from '@gltf-transform/core'
+import { useExecute } from './SystemFunctions'
+import { PresentationSystemGroup } from './EngineFunctions'
 
 /**
  * @description `@internal`
@@ -457,6 +458,21 @@ export const componentJsonDefaults = <C extends Component>(component: C) => {
 export const getAllComponents = (entity: Entity): Component[] => {
   if (!bitECS.entityExists(Engine.instance, entity)) return []
   return bitECS.getEntityComponents(Engine.instance, entity) as Component[]
+}
+
+export const useAllComponents = (entity: Entity) => {
+  const result = useHookstate([] as Component[])
+
+  useExecute(
+    () => {
+      const components = getAllComponents(entity)
+      /** @todo we need a better strategy than relying on lengths */
+      if (components.length !== result.length) result.set(components)
+    },
+    { after: PresentationSystemGroup }
+  )
+
+  return result.get(NO_PROXY) // for some reason .value does not work
 }
 
 /**

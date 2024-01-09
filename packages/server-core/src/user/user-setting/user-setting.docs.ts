@@ -30,7 +30,7 @@ import {
   userSettingPatchSchema,
   userSettingQuerySchema,
   userSettingSchema
-} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+} from '@etherealengine/common/src/schemas/user/user-setting.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

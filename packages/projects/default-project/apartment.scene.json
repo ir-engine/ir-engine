@@ -57,8 +57,8 @@
           "name": "camera-settings",
           "props": {
             "fov": 50,
-            "cameraNearClip": 0.01,
-            "cameraFarClip": 10000,
+            "cameraNearClip": 0.1,
+            "cameraFarClip": 1000,
             "projectionType": 1,
             "minCameraDistance": 1,
             "maxCameraDistance": 50,
@@ -962,7 +962,7 @@
           "props": {
             "location": "sky-station",
             "linkedPortalId": "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae",
-            "redirect": false,
+            "redirect": true,
             "effectType": "Hyperspace",
             "previewType": "Spherical",
             "previewImageURL": "__$project$__/default-project/apartment-Portal.png",

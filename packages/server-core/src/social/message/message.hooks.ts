@@ -30,7 +30,7 @@ import {
   messageDataValidator,
   messagePatchValidator,
   messageQueryValidator
-} from '@etherealengine/engine/src/schemas/social/message.schema'
+} from '@etherealengine/common/src/schemas/social/message.schema'
 import channelPermissionAuthenticate from '../../hooks/channel-permission-authenticate'
 import messagePermissionAuthenticate from '../../hooks/message-permission-authenticate'
 import {
@@ -41,8 +41,8 @@ import {
   messageResolver
 } from '../../social/message/message.resolvers'
 
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { ChannelType, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'

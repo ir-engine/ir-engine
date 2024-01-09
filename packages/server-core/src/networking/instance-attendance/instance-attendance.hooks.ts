@@ -30,7 +30,7 @@ import {
   instanceAttendanceDataValidator,
   instanceAttendancePatchValidator,
   instanceAttendanceQueryValidator
-} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {

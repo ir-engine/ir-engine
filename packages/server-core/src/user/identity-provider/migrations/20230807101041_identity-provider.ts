@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import type { Knex } from 'knex'
 
 /**

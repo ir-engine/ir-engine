@@ -31,7 +31,7 @@ import {
   UserAvatarPatch,
   UserAvatarQuery,
   UserAvatarType
-} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
+} from '@etherealengine/common/src/schemas/user/user-avatar.schema'
 
 export interface UserAvatarParams extends KnexAdapterParams<UserAvatarQuery> {}
 
