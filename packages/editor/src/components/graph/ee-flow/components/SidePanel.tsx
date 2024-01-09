@@ -34,6 +34,7 @@ import { XYPosition, useReactFlow } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 import { Button } from '../../../inputs/Button'
 import StringInput from '../../../inputs/StringInput'
+import CollapsibleBlock from '../../../layout/CollapsibleBlock'
 import PaginatedList from '../../../layout/PaginatedList'
 import Panel from '../../../layout/Panel'
 import NodeEditor from '../../../properties/NodeEditor'
@@ -82,12 +83,8 @@ export const SidePanel = ({
         padding: '5px'
       }}
     >
-      <div style={{ flex: '50%', overflow: 'scroll' }}>
-        <NodeEditor
-          entity={UndefinedEntity}
-          name={t('editor:graphPanel.sidePanel.node.name')}
-          description={t('editor:graphPanel.sidePanel.node.description')}
-        >
+      <CollapsibleBlock label={t('editor:graphPanel.sidePanel.node.name')}>
+        <NodeEditor entity={UndefinedEntity} description={t('editor:graphPanel.sidePanel.node.description')}>
           <PaginatedList
             options={{ countPerPage: 10 }}
             list={Object.keys(behaveGraphState.registries[BehaveGraphDomain.ECS].nodes)}
@@ -123,13 +120,9 @@ export const SidePanel = ({
             }}
           ></PaginatedList>
         </NodeEditor>
-      </div>
-      <div style={{ flex: '50%', overflow: 'scroll' }}>
-        <NodeEditor
-          entity={UndefinedEntity}
-          name={t('editor:graphPanel.sidePanel.template.name')}
-          description={t('editor:graphPanel.sidePanel.template.description')}
-        >
+      </CollapsibleBlock>
+      <CollapsibleBlock label={t('editor:graphPanel.sidePanel.template.name')}>
+        <NodeEditor entity={UndefinedEntity} description={t('editor:graphPanel.sidePanel.template.description')}>
           <PaginatedList
             options={{ countPerPage: 5 }}
             list={behaveGraphState.templates.get(NO_PROXY)}
@@ -165,7 +158,7 @@ export const SidePanel = ({
             }}
           ></PaginatedList>
         </NodeEditor>
-      </div>
+      </CollapsibleBlock>
     </div>
   )
 }
