@@ -61,8 +61,8 @@ const StyledStringInput = React.forwardRef<any, StyledStringInputProps>(
 export interface StringInputProps {
   id?: string
   value?: string
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
-  onBlur?: (e: FocusEvent<HTMLInputElement>) => void
+  onChange?: (e: any) => void
+  onBlur?: (e: any) => void
   onRelease?: any
   onFocus?: any
   required?: boolean
