@@ -57,7 +57,7 @@ import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
 
-export const ShadowMapResolutionOptions = [
+export const ShadowMapResolutionOptions: InputMenuItem[] = [
   {
     label: '256px',
     value: 256
@@ -118,7 +118,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     admin: userSettings?.themeModes?.admin ?? defaultThemeModes.admin
   }
 
-  const showWorldSettings = Engine.instance.localClientEntity || engineState.value
+  const showWorldSettings = !!Engine.instance.localClientEntity
 
   const handleChangeUserThemeMode = (event) => {
     if (!userSettings) return
@@ -179,13 +179,6 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     return {
       label: el,
       value: el
-    }
-  })
-
-  const shadowMapResolutionSchemesMenu: InputMenuItem[] = ShadowMapResolutionOptions.map((el) => {
-    return {
-      label: el.label,
-      value: String(el.value)
     }
   })
 
@@ -507,10 +500,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               <InputSelect
                 label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
                 value={rendererState.shadowMapResolution.value}
-                menu={shadowMapResolutionSchemesMenu}
-                onChange={(event) => {
-                  ;(resolution: number) => rendererState.shadowMapResolution.set(Number(resolution))
-                }}
+                menu={ShadowMapResolutionOptions}
+                onChange={(event) => rendererState.shadowMapResolution.set(event.target.value)}
               />
             )}
           </>

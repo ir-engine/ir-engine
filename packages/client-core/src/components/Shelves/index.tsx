@@ -53,7 +53,7 @@ export const Shelves = () => {
     <div style={{ pointerEvents: 'auto' }}>
       <IconButtonWithTooltip
         className={`${showTopShelf ? styles.btn : styles.smBtn} ${showTopShelf ? styles.rotate : styles.rotateBack}`}
-        tooltipClassName={styles.showIconMedia}
+        tooltipClassName={styles.topIcon}
         title={showTopShelf ? t('user:menu.hide') : t('user:menu.show')}
         onClick={handleShowMediaIcons}
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -64,7 +64,7 @@ export const Shelves = () => {
         className={`${showBottomShelf ? styles.btn : styles.smBtn} ${
           showBottomShelf ? styles.rotate : styles.rotateBack
         } `}
-        tooltipClassName={styles.showIcon}
+        tooltipClassName={styles.bottomIcon}
         title={showBottomShelf ? t('user:menu.hide') : t('user:menu.show')}
         onClick={handleShowBottomIcons}
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
