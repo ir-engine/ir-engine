@@ -968,13 +968,19 @@
       },
       "view-mode": {
         "icons": "View: Icons",
-        "list": "View: List"
+        "list": "View: List",
+        "settings": {
+          "name": "View Options",
+          "iconSize": "Icon Size",
+          "select-listColumns": "Select List Columns",
+          "fontSize": "Font Size"
+        }
       },
       "table-list": {
         "headers": {
           "name": "Name",
           "type": "Type",
-          "date-modified": "Date Modified",
+          "dateModified": "Date Modified",
           "size": "Size"
         }
       }
