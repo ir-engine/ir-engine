@@ -79,6 +79,7 @@ const reactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
+  const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
 
   const physicsWorld = useHookstate(getMutableState(PhysicsState).physicsWorld)
 
@@ -100,7 +101,7 @@ const reactor = () => {
       dispatchAction(EngineActions.sceneLoaded({}))
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }
-  }, [sceneAssetPendingTagQuery.length, assetLoadingState])
+  }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
 
   if (!physicsWorld.value) return null
 
