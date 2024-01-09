@@ -39,12 +39,11 @@ export const Fullscreen = () => {
   const [fullScreenActive, setFullScreenActive] = useFullscreen()
   const { bottomShelfStyle } = useShelfStyles()
   return (
-    <>
+    <div className={styles.fullScreen}>
       {fullScreenActive ? (
         <IconButtonWithTooltip
           title={t('user:menu.exitFullScreen')}
-          className={`${styles.btn} ${bottomShelfStyle} `}
-          tooltipClassName={styles.fullScreen}
+          className={`${styles.btn} ${bottomShelfStyle}`}
           background="white"
           onClick={() => setFullScreenActive(false)}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -54,8 +53,7 @@ export const Fullscreen = () => {
       ) : (
         <IconButtonWithTooltip
           title={t('user:menu.enterFullScreen')}
-          className={`${styles.btn} ${bottomShelfStyle} `}
-          tooltipClassName={styles.fullScreen}
+          className={`${styles.btn} ${bottomShelfStyle}`}
           background="white"
           onClick={() => setFullScreenActive(true)}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -63,6 +61,6 @@ export const Fullscreen = () => {
           icon={<Icon type="ZoomOutMap" />}
         />
       )}
-    </>
+    </div>
   )
 }
