@@ -42,7 +42,7 @@ export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => 
       canvas.parentElement?.removeChild(canvas)
       ref.current.appendChild(canvas)
     }
-  }, [ref])
+  }, [ref, fullScreenActive])
 
   const reportChange = useCallback((state) => {
     if (state) {
@@ -58,7 +58,7 @@ export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => 
     } else {
       handle.exit().catch((err) => console.log(err))
     }
-  }, [fullScreenActive.value])
+  }, [fullScreenActive])
 
   return iOS ? (
     <div id={'engine-container'} ref={ref}>
