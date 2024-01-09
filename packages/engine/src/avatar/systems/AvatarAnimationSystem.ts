@@ -194,9 +194,6 @@ const execute = () => {
 
     const transform = getComponent(entity, TransformComponent)
 
-    /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/7519 */
-    const isAvatarFlipped = !rigComponent.vrm.userData?.retargeted
-
     /** test */
     ikRig.hips.node.quaternion.copy(normalizedRig.hips.node.quaternion)
     ikRig.hips.node.position.copy(normalizedRig.hips.node.position)
