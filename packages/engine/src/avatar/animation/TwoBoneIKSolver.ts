@@ -93,26 +93,24 @@ export function solveTwoBoneIK(
   const midToTipLength = midToTipVecotr.length()
   const rootToTipLength = rootToTipVector.length()
 
+  const maxLength = rootToMidLength + midToTipLength
+
   /** Restrict target position to always be a lesser distance from the root than a fully extended arm */
-  if (rootToTargetVector.length() > rootToMidLength + midToTipLength) {
+  if (rootToTargetVector.lengthSq() > maxLength * maxLength) {
     rootToTargetVector.normalize().multiplyScalar((rootToMidLength + midToTipLength) * 0.999)
   }
 
-  const atLength = rootToTargetVector.length()
+  const rootToTargetLength = rootToTargetVector.length()
 
   const hasHint = hint && hintWeight > 0
   if (hasHint) rootToHintVector.copy(hint).sub(rootBoneWorldPosition)
 
   /** Apply twist restriction */
   const oldAngle = triangleAngle(rootToTipLength, rootToMidLength, midToTipLength)
-  const newAngle = triangleAngle(atLength, rootToMidLength, midToTipLength)
+  const newAngle = triangleAngle(rootToTargetLength, rootToMidLength, midToTipLength)
   const rotAngle = oldAngle - newAngle
 
   rotAxis.crossVectors(rootToMidVector, midToTipVecotr)
-
-  if (rotAxis.lengthSq() < sqrEpsilon) {
-    rotAxis.set(0, 1, 0)
-  }
 
   rot.setFromAxisAngle(rotAxis.normalize(), rotAngle)
   Object3DUtils.premultiplyWorldQuaternion(mid, rot)
@@ -120,26 +118,26 @@ export function solveTwoBoneIK(
   Object3DUtils.updateParentsMatrixWorld(tip, 1)
   tipBoneWorldPosition.setFromMatrixPosition(tip.matrixWorld)
   rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
-  const rootToTipSqMag = rootToTipVector.lengthSq()
 
   rot.setFromUnitVectors(acNorm.copy(rootToTipVector).normalize(), atNorm.copy(rootToTargetVector).normalize())
   Object3DUtils.premultiplyWorldQuaternion(root, rot)
 
   /** Apply hint */
   if (hasHint) {
-    if (rootToTipSqMag > 0) {
+    if (rootToTipLength > 0) {
       Object3DUtils.updateParentsMatrixWorld(tip, 2)
+
       midBoneWorldPosition.setFromMatrixPosition(mid.matrixWorld)
       tipBoneWorldPosition.setFromMatrixPosition(tip.matrixWorld)
       rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
       rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
 
-      acNorm.copy(rootToTipVector).divideScalar(Math.sqrt(rootToTipSqMag))
+      acNorm.copy(rootToTipVector).divideScalar(rootToTipLength)
       abProj.copy(rootToMidVector).addScaledVector(acNorm, -rootToMidVector.dot(acNorm)) // Prependicular component of vector projection
       ahProj.copy(rootToHintVector).addScaledVector(acNorm, -rootToHintVector.dot(acNorm))
 
       if (ahProj.lengthSq() > 0) {
-        rot.setFromUnitVectors(abProj.normalize(), ahProj.normalize())
+        rot.setFromUnitVectors(abProj.normalize(), ahProj)
         if (hintWeight > 0) {
           rot.x *= hintWeight
           rot.y *= hintWeight
