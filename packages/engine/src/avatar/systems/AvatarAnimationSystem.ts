@@ -318,7 +318,7 @@ const execute = () => {
         VRMHumanBoneName.RightUpperLeg,
         VRMHumanBoneName.RightLowerLeg,
         VRMHumanBoneName.RightFoot,
-        1
+        rightFootTargetBlendWeight
       )
     }
 
@@ -329,9 +329,9 @@ const execute = () => {
         .add(transform.position)
 
       solveTwoBoneIK(
-        rawRig.leftUpperLeg.node,
-        rawRig.leftLowerLeg.node,
-        rawRig.leftFoot.node,
+        ikRig.leftUpperLeg.node,
+        ikRig.leftLowerLeg.node,
+        ikRig.leftFoot.node,
         leftFootTransform.position,
         leftFootTransform.rotation,
         null,
@@ -346,7 +346,7 @@ const execute = () => {
         VRMHumanBoneName.LeftUpperLeg,
         VRMHumanBoneName.LeftLowerLeg,
         VRMHumanBoneName.LeftFoot,
-        1
+        leftFootTargetBlendWeight
       )
     }
     updateAnimationGraph(avatarAnimationEntities)
