@@ -32,7 +32,7 @@ import {
 } from '@behave-graph/core'
 import { toQuat, toVector3 } from '@behave-graph/scene'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getState, startReactor } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
@@ -47,7 +47,7 @@ import {
   setComponent,
   useComponent
 } from '../../../../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
+import { InputSystemGroup, PresentationSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
 import { removeEntity, useEntityContext } from '../../../../../ecs/functions/EntityFunctions'
 import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
 import { RigidBodyComponent } from '../../../../../physics/components/RigidBodyComponent'
@@ -321,20 +321,19 @@ export const getSelfEntity = makeFunctionNodeDefinition({
   in: {},
   out: { entity: 'entity' },
   exec: ({ read, write, graph: { getDependency } }) => {
-    let entity = UndefinedEntity
     const useEntityReactor: any = defineSystem({
       uuid: 'behave-graph-getEntityReactor-' + uniqueId(),
-      insert: { after: InputSystemGroup },
+      insert: { after: PresentationSystemGroup },
       execute: () => {},
       reactor: function () {
-        entity = useEntityContext()
-        console.log('in reactor', entity, useEntityContext())
+        const entity = useEntityContext()
+        useEffect(() => {
+          console.log('entity', entity)
+          write('entity', entity)
+        }, [entity])
         return null
       }
     })
-    const reactor = startReactor(useEntityReactor.reactor)
-    console.log('reactor', entity, reactor)
-    write('entity', entity)
   }
 })
 
