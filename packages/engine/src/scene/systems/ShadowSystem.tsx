@@ -233,13 +233,14 @@ function CSMReactor() {
   return <EntityCSMReactor entity={activeLightEntity} key={activeLightEntity} />
 }
 
-const shadowGeometry = new PlaneGeometry(1, 1, 1, 1)
+const shadowGeometry = new PlaneGeometry(1, 1, 1, 1).rotateX(-Math.PI)
 const shadowMaterial = new MeshBasicMaterial({
   side: DoubleSide,
   transparent: true,
   opacity: 1,
-  depthTest: true,
-  depthWrite: false
+  polygonOffset: true,
+  polygonOffsetFactor: -2,
+  polygonOffsetUnits: 0.01
 })
 
 const shadowState = hookstate(null as MeshBasicMaterial | null)
@@ -362,7 +363,7 @@ const updateDropShadowTransforms = () => {
     shadowRotation.setFromUnitVectors(intersected.face.normal, V_001)
     dropShadowTransform.rotation.copy(shadowRotation)
     dropShadowTransform.scale.setScalar(finalRadius * 2)
-    dropShadowTransform.position.copy(intersected.point.add(shadowOffset))
+    dropShadowTransform.position.copy(intersected.point).add(shadowOffset)
   }
 }
 
