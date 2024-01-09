@@ -34,7 +34,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 
-import { SceneID, locationTypePath } from '@etherealengine/common/src/schema.type.module'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
 import { locationColumns } from '../../common/variables/location'
@@ -77,7 +77,7 @@ const LocationTable = ({ className, search }: Props) => {
     }
   })
 
-  const adminLocationMutation = useMutation(locationTypePath)
+  const adminLocationMutation = useMutation(locationPath)
 
   const submitRemoveLocation = async () => {
     adminLocationMutation.remove(locationId.value)
