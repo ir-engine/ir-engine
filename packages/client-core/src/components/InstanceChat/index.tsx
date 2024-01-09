@@ -218,7 +218,7 @@ export const InstanceChat = ({ styles = defaultStyles }: InstanceChatProps) => {
     messageRefInput: messageRefInput as any
   })
 
-  const sortedMessages = (messages.data ?? []).reverse()
+  const sortedMessages = [...messages.data].reverse()
 
   const user = useHookstate(getMutableState(AuthState).user)
 

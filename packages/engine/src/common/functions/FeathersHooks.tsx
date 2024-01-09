@@ -208,7 +208,7 @@ export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Pa
     skip: paginate.query.$skip,
     limit: paginate.query.$limit,
     sort: paginate.query.$sort,
-    data: data as ArrayOrPaginatedType<(typeof response)['data']>
+    data: data as Readonly<ArrayOrPaginatedType<(typeof response)['data']>>
   }
 }
 
