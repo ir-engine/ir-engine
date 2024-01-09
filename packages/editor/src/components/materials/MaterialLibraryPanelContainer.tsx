@@ -172,10 +172,10 @@ export default function MaterialLibraryPanel() {
                 const projectName = editorState.projectName.value!
                 const materials = selectedMaterial.value ? [materialFromId(selectedMaterial.value)] : []
                 const libraryName = srcPath.value
-                const path = `${publicPath}/projects/${projectName}/assets/${libraryName}`
+                const relativePath = `${publicPath}/projects/${projectName}/assets/${libraryName}`
                 const gltf = (await exportMaterialsGLTF(materials, {
                   binary: false,
-                  path
+                  relativePath
                 })!) as /*ArrayBuffer*/ { [key: string]: any }
 
                 const blob = [JSON.stringify(gltf)]

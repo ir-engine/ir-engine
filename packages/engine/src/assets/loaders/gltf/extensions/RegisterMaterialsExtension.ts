@@ -37,11 +37,10 @@ import { ImporterExtension } from './ImporterExtension'
 export function registerMaterials(root: Object3D, type: SourceType = SourceType.EDITOR_SESSION, path = '') {
   const materialLibrary = getState(MaterialLibraryState)
   iterateObject3D(root, (mesh: Mesh) => {
-    //root.traverse((mesh: Mesh) => {
     if (!mesh?.isMesh) return
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
     materials
-      //.filter((material) => !materialLibrary.materials[material.uuid])
+      .filter((material) => !materialLibrary.materials[material.uuid])
       .map((material) => {
         const materialComponent = registerMaterial(material, { type, path })
         material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
