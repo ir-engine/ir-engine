@@ -105,7 +105,8 @@ export const GroundPlaneComponent = defineComponent({
       mesh.geometry.rotateX(-Math.PI / 2)
       mesh.name = 'GroundPlaneMesh'
       mesh.material.polygonOffset = true
-      mesh.material.polygonOffsetUnits = -0.01
+      mesh.material.polygonOffsetFactor = -0.01
+      mesh.material.polygonOffsetUnits = 1
 
       addObjectToGroup(entity, mesh)
       enableObjectLayer(mesh, ObjectLayers.Camera, true)
