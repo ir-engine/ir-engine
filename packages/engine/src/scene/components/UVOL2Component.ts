@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { usePrevious } from '@etherealengine/common/src/utils/usePrevious'
 import { getState } from '@etherealengine/hyperflux'
-import { startTransition, useEffect, useMemo } from 'react'
+import { startTransition, useEffect, useMemo, useRef } from 'react'
 import {
   BufferGeometry,
   CompressedTexture,
@@ -242,7 +242,6 @@ export const UVOL2Component = defineComponent({
           pendingRequests: 0
         }
       },
-      playbackStartDate: 0,
       initialGeometryBuffersLoaded: false,
       initialTextureBuffersLoaded: false,
       firstGeometryFrameLoaded: false,
@@ -260,6 +259,23 @@ export const UVOL2Component = defineComponent({
     if (json.data) {
       component.data.set(json.data)
     }
+  },
+
+  setStartAndPlaybackTime: (entity, newMediaStartTime: number, newPlaybackStartDate: number) => {
+    const volumetric = getMutableComponent(entity, VolumetricComponent)
+    const component = getMutableComponent(entity, UVOL2Component)
+
+    volumetric.currentTrackInfo.playbackStartDate.set(newPlaybackStartDate)
+    component.geometryInfo.bufferHealth.set(
+      component.geometryInfo.bufferHealth.value - (newMediaStartTime - volumetric.currentTrackInfo.mediaStartTime.value)
+    )
+    component.textureInfo.textureTypes.value.forEach((textureType) => {
+      const currentHealth = component.textureInfo[textureType].bufferHealth.value
+      component.textureInfo[textureType].bufferHealth.set(
+        currentHealth - (newMediaStartTime - volumetric.currentTrackInfo.mediaStartTime.value)
+      )
+    })
+    volumetric.currentTrackInfo.mediaStartTime.set(newMediaStartTime)
   },
 
   reactor: UVOL2Reactor
@@ -950,19 +966,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       }
       return
     }
-    component.playbackStartDate.set(engineState.elapsedSeconds)
-    component.geometryInfo.bufferHealth.set(
-      component.geometryInfo.bufferHealth.value -
-        (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
+    UVOL2Component.setStartAndPlaybackTime(
+      entity,
+      volumetric.currentTrackInfo.currentTime.value,
+      engineState.elapsedSeconds
     )
-    component.textureInfo.textureTypes.value.forEach((textureType) => {
-      const currentHealth = component.textureInfo[textureType].bufferHealth.value
-      component.textureInfo[textureType].bufferHealth.set(
-        currentHealth -
-          (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
-      )
-    })
-    volumetric.currentTrackInfo.mediaStartTime.set(volumetric.currentTrackInfo.currentTime.value)
 
     if (mesh.material !== material) {
       mesh.material = material
@@ -1254,6 +1262,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     setTexture(textureType, textureTarget, textureFrame, currentTime)
   }
 
+  const isWaiting = useRef(false)
+
   const update = () => {
     const delta = getState(EngineState).deltaSeconds
 
@@ -1275,6 +1285,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     if (volumetric.autoPauseWhenBuffering.value) {
+      let isWaitingNow = false
+
       const currentGeometryBufferHealth =
         component.geometryInfo.bufferHealth.value -
         (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
@@ -1283,7 +1295,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         component.data.duration.value - volumetric.currentTrackInfo.currentTime.value
       )
       if (currentGeometryBufferHealth < currentMinBuffer) {
-        return
+        isWaitingNow = true
       }
       for (let i = 0; i < component.textureInfo.textureTypes.value.length; i++) {
         const textureType = component.textureInfo.textureTypes[i].value
@@ -1291,8 +1303,23 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           component.textureInfo[textureType].bufferHealth.value -
           (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
         if (currentTextureBufferHealth < currentMinBuffer) {
-          return
+          isWaitingNow = true
         }
+      }
+      if (!isWaiting.current && !isWaitingNow) {
+        // Continue
+      } else if (!isWaiting.current && isWaitingNow) {
+        isWaiting.current = true
+        return
+      } else if (isWaiting.current && !isWaitingNow) {
+        UVOL2Component.setStartAndPlaybackTime(
+          entity,
+          volumetric.currentTrackInfo.currentTime.value,
+          engineState.elapsedSeconds
+        )
+        isWaiting.current = false
+      } else if (isWaiting.current && isWaitingNow) {
+        return
       }
     }
 
@@ -1302,7 +1329,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     } else {
       _currentTime =
         volumetric.currentTrackInfo.mediaStartTime.value +
-        (engineState.elapsedSeconds - component.playbackStartDate.value)
+        (engineState.elapsedSeconds - volumetric.currentTrackInfo.playbackStartDate.value)
     }
     _currentTime *= volumetric.currentTrackInfo.playbackRate.value
 
@@ -1313,7 +1340,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (volumetric.currentTrackInfo.currentTime.value > component.data.value.duration || audio.ended) {
       if (component.data.deletePreviousBuffers.value === false && volumetric.playMode.value === PlayMode.loop) {
         volumetric.currentTrackInfo.currentTime.set(0)
-        component.playbackStartDate.set(engineState.elapsedSeconds)
+        volumetric.currentTrackInfo.playbackStartDate.set(engineState.elapsedSeconds)
       } else {
         volumetric.ended.set(true)
         return

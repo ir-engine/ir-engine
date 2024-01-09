@@ -98,7 +98,9 @@ export const VolumetricComponent = defineComponent({
       track: -1,
       forceChangeTrack: false,
       currentTrackInfo: {
+        dontReset: false,
         mediaStartTime: 0,
+        playbackStartDate: 0,
         playbackRate: 1,
         currentTime: 0,
         duration: 0
@@ -220,6 +222,9 @@ export function VolumetricReactor() {
     }
     if (nextTrack === -1 || !volumetric.paths.value[nextTrack]) return
 
+    if (!volumetric.currentTrackInfo.dontReset.value) {
+      resetTrack()
+    }
     volumetric.track.set(nextTrack)
     volumetric.forceChangeTrack.set(!volumetric.forceChangeTrack.value)
   }, [volumetric.paths, volumetric.playMode, volumetric.ended])
@@ -228,11 +233,12 @@ export function VolumetricReactor() {
     // Overwriting with setComponent doesn't cleanup the component
     removeComponent(entity, UVOL1Component)
     removeComponent(entity, UVOL2Component)
-    volumetric.ended.set(false)
     volumetric.initialBuffersLoaded.set(false)
     volumetric.paused.set(true)
     volumetric.currentTrackInfo.set({
+      dontReset: false,
       mediaStartTime: 0,
+      playbackStartDate: 0,
       playbackRate: 1,
       currentTime: 0,
       duration: 0
@@ -241,7 +247,7 @@ export function VolumetricReactor() {
 
   useEffect(() => {
     if (volumetric.track.value === -1) return
-    resetTrack()
+    volumetric.ended.set(false)
     let manifestPath = volumetric.paths.value[volumetric.track.value]
     if (manifestPath.endsWith('.mp4')) {
       // UVOL1
