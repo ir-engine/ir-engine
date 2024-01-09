@@ -85,7 +85,9 @@ export default class BasisuExporterExtension extends ExporterExtension implement
     if (!_texture?.isCompressedTexture) return
     const writer = this.writer
     //if we're not embedding images and this image already has a src, ignore it
-    if (!writer.options.embedImages && _texture.userData.src) return
+    if (!writer.options.embedImages && _texture.userData.src) {
+      return
+    }
     _texture.colorSpace = NoColorSpace
     writer.pending.push(
       new Promise((resolve) => {
