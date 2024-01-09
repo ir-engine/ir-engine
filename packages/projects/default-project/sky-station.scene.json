@@ -471,19 +471,19 @@
           "props": {
             "position": {
               "x": 49.5,
-              "y": 3.5,
+              "y": 2,
               "z": 0
             },
             "rotation": {
               "x": 0,
-              "y": 0.7069759720303314,
+              "y": 0,
               "z": 0,
-              "w": 0.7072375661485808
+              "w": 1
             },
             "scale": {
-              "x": 0.5,
-              "y": 0.5,
-              "z": 0.5
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
         },
@@ -521,7 +521,7 @@
             "redirect": true,
             "effectType": "Hyperspace",
             "previewType": "Spherical",
-            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20to%20Apartment.png",
+            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20to%20Apartment.ktx2",
             "spawnPosition": {
               "x": 49.5,
               "y": 2,
@@ -551,7 +551,7 @@
           "props": {
             "position": {
               "x": 15,
-              "y": 9.5,
+              "y": 8,
               "z": -5
             },
             "rotation": {
@@ -566,10 +566,6 @@
               "z": 1
             }
           }
-        },
-        {
-          "name": "visible",
-          "props": {}
         },
         {
           "name": "shadow",
@@ -605,7 +601,7 @@
             "redirect": false,
             "effectType": "None",
             "previewType": "Spherical",
-            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Interior.png",
+            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Interior.ktx2",
             "spawnPosition": {
               "x": 15,
               "y": 8,
@@ -618,6 +614,10 @@
               "w": 1
             }
           }
+        },
+        {
+          "name": "visible",
+          "props": true
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
@@ -631,7 +631,7 @@
           "props": {
             "position": {
               "x": -60,
-              "y": 3.5,
+              "y": 2,
               "z": 0
             },
             "rotation": {
@@ -646,10 +646,6 @@
               "z": 1
             }
           }
-        },
-        {
-          "name": "visible",
-          "props": {}
         },
         {
           "name": "shadow",
@@ -685,7 +681,7 @@
             "redirect": false,
             "effectType": "None",
             "previewType": "Spherical",
-            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Exterior.png",
+            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Exterior.ktx2",
             "spawnPosition": {
               "x": -60,
               "y": 2,
@@ -698,6 +694,10 @@
               "w": 1
             }
           }
+        },
+        {
+          "name": "visible",
+          "props": true
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
