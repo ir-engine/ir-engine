@@ -52,7 +52,8 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import exportGLTF from '../../functions/exportGLTF'
 
-import { Box, ListItemButton, ListItemText, Modal } from '@mui/material'
+import { Box, ListItemButton, ListItemText, MenuItem, Modal, PopoverPosition } from '@mui/material'
+import { ContextMenu } from '../layout/ContextMenu'
 import { List, ListItem } from '../layout/List'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 import { FileType } from './FileBrowser/FileBrowserContentPanel'
@@ -254,10 +255,7 @@ export default function ModelCompressionPanel({
 
   const handleLODDelete = (index) => {
     lods[index].set(none)
-
-    if (selectedLODIndex === index) {
-      setSelectedLODIndex(Math.min(index, lods.length - 1))
-    }
+    setSelectedLODIndex(Math.min(selectedLODIndex, lods.length - 1))
   }
 
   const handleLODAdd = () => {
@@ -268,6 +266,37 @@ export default function ModelCompressionPanel({
       }
     ])
     setSelectedLODIndex(lods.length - 1)
+  }
+
+  const handleVariantMetadataDelete = (index, mIndex) => {
+    lods[index].variantMetadata[mIndex].set(none)
+  }
+
+  const handleVariantMetadataAdd = (index, variantMetadata: Record<string, any>) => {
+    lods[index].variantMetadata.merge([variantMetadata])
+  }
+
+  const variantMetadataPresets: Map<string, Record<string, any>> = new Map([
+    ['DESKTOP', { device: 'DESKTOP' }],
+    ['XR', { device: 'XR' }],
+    ['MOBILE', { device: 'MOBILE' }]
+  ])
+
+  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
+
+  const showVariantMetadataMenu = (event) => {
+    setAnchorEl(event.currentTarget)
+    setAnchorPosition({
+      left: event.clientX + 2,
+      top: event.clientY - 6
+    })
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+    setAnchorPosition(undefined)
   }
 
   return (
@@ -296,14 +325,68 @@ export default function ModelCompressionPanel({
             <List>
               {lods.map((lod, index) => (
                 <ListItem>
-                  <ListItemButton selected={selectedLODIndex === index} onClick={() => handleLODSelect(index)}>
-                    {' '}
+                  <ListItemButton
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'start'
+                    }}
+                    selected={selectedLODIndex === index}
+                    onClick={() => handleLODSelect(index)}
+                  >
                     <ListItemText
                       primary={`LOD Level ${index}`}
-                      secondary={Object.entries(lod.variantMetadata?.value ?? '')
-                        .map((a) => a.join(': '))
-                        .join(', ')}
+                      secondary={lod.params.dst.value}
+                      style={{ color: 'white' }}
                     />
+                    <List>
+                      {lod.variantMetadata.map((metadata, mIndex) => (
+                        <ListItem>
+                          <ListItemButton>
+                            {' '}
+                            <ListItemText
+                              style={{ fontSize: '0.5rem' }}
+                              primary={Object.entries(metadata.value)
+                                .map((a) => a.join(': '))
+                                .join(', ')}
+                            />
+                          </ListItemButton>
+                          <IconButton
+                            onClick={() => handleVariantMetadataDelete(index, mIndex)}
+                            icon={<Icon type="Close" style={{ color: 'var(--iconButtonColor)' }} />}
+                          ></IconButton>
+                        </ListItem>
+                      ))}
+                    </List>
+                    <IconButton
+                      onClick={showVariantMetadataMenu}
+                      icon={<Icon type="Add" style={{ color: 'var(--iconButtonColor)' }} />}
+                    ></IconButton>
+                    <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
+                      {Array.from(variantMetadataPresets.entries()).map(([label, value]) => (
+                        <MenuItem
+                          onClick={() => {
+                            handleVariantMetadataAdd(index, value)
+                            handleClose()
+                          }}
+                        >
+                          {label}
+                        </MenuItem>
+                      ))}
+                    </ContextMenu>
+                    {/* <IconButton
+                      icon={<Icon type="Add" style={{ color: 'var(--iconButtonColor)' }} />}
+                    >
+                      <SelectInput
+                        onChange={(metadata) => handleVariantMetadataAdd(index, metadata)}
+                        options={
+                          Array.from(variantMetadataPresets.entries()).map(([label, value]) => 
+                            ({label, value } as {label: string, value: any})
+                          )
+                        }
+                      ></SelectInput>
+                    </IconButton> 
+                    */}
                   </ListItemButton>
                   {lods.length > 1 && (
                     <IconButton
@@ -327,10 +410,7 @@ export default function ModelCompressionPanel({
             <Typography variant="body2">{t('editor:properties.model.transform.compress') as string}</Typography>
           </InputGroup>
           <>
-            <GLTFTransformProperties
-              transformParms={lods[selectedLODIndex].params}
-              onChange={(transformParms: ModelTransformParameters) => {}}
-            />
+            <GLTFTransformProperties transformParms={lods[selectedLODIndex].params} onChange={() => {}} />
             <InputGroup name="Clientside Transform" label="Clientside Transform">
               <BooleanInput
                 value={
