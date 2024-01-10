@@ -91,8 +91,9 @@ const AxisComponent = () => {
         height: '100vh',
         width: '100vw',
         overflow: 'hidden',
-        position: 'relative',
-        zIndex: 100000 // zindex must be higher than engine canvas and anything else
+        position: 'fixed',
+        top: '0px',
+        zIndex: 1 // zindex must be higher than engine canvas and anything else
       }}
     >
       {/* Y-axis on the left */}
@@ -105,7 +106,7 @@ const AxisComponent = () => {
             height: '80%',
             width: '1px',
             backgroundColor: 'lightgray',
-            zIndex: 100000
+            zIndex: 1
           }}
         />
       )}
@@ -119,7 +120,7 @@ const AxisComponent = () => {
           width: '80%',
           height: '1px',
           backgroundColor: 'lightgray',
-          zIndex: 100000
+          zIndex: 1
         }}
       />
     </div>
