@@ -30,7 +30,7 @@ import dotenv from 'dotenv-flow'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { getState } from '@etherealengine/hyperflux'
 import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 import { getCronJobBody } from '@etherealengine/server-core/src/projects/project/project-helper'
 
 dotenv.config({
@@ -61,7 +61,7 @@ const options = cli.parse({
 
 cli.main(async () => {
   try {
-    const app = createFeathersKoaApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const autoUpdateProjects = (await app.service(projectPath).find({
       query: {
