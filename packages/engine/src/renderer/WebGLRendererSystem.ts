@@ -45,7 +45,6 @@ import { isClient } from '../common/functions/getEnvironment'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
-import { UndefinedEntity } from '../ecs/classes/Entity'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
@@ -286,7 +285,7 @@ export class EngineRenderer {
 export const RenderSettingsState = defineState({
   name: 'RenderSettingsState',
   initial: {
-    primaryLight: UndefinedEntity,
+    primaryLight: '',
     csm: true,
     toneMapping: LinearToneMapping as ToneMapping,
     toneMappingExposure: 0.8,

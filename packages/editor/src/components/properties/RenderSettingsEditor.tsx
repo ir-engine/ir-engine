@@ -42,6 +42,7 @@ import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/compon
 
 import { DirectionalLightQuery } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -106,13 +107,12 @@ const ShadowTypeOptions = [
 ]
 
 const DirectionalLightOptions = () => {
-  const directionalLightOptions = [] as Array<{ label: string; value: number; info?: string }>
+  const directionalLightOptions = [] as Array<{ label: string; value: string; info?: string }>
 
   for (const entity of DirectionalLightQuery()) {
-    const name = getComponent(entity, NameComponent)
     directionalLightOptions.push({
-      label: name,
-      value: entity
+      label: getComponent(entity, NameComponent),
+      value: getComponent(entity, UUIDComponent)
     })
   }
 
@@ -135,7 +135,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       >
         <SelectInput
           options={DirectionalLightOptions()}
-          value={rendererSettingsState.primaryLight.value!}
+          value={rendererSettingsState.primaryLight.value}
           onChange={commitProperty(RenderSettingsComponent, 'primaryLight')}
         />
       </InputGroup>
