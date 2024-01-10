@@ -59,7 +59,16 @@ export const flowToBehave = (nodes: Node[], edges: Edge[], specGenerator: NodeSp
       }
       behaveNode.parameters[key] = { value: value as string }
     })
-
+    if (node.parentNode) {
+      behaveNode.metadata!.parentNode = node.parentNode
+    }
+    if (node.style) {
+      behaveNode.metadata!.style = node.style as any
+    }
+    if (node.data.label) {
+      behaveNode.metadata!.label = node.data.label as any
+    }
+    // check for
     edges
       .filter((edge) => edge.target === node.id)
       .forEach((edge) => {
@@ -99,8 +108,6 @@ export const flowToBehave = (nodes: Node[], edges: Edge[], specGenerator: NodeSp
           socket: edge.targetHandle
         }
       })
-
-    // TODO filter out any orphan nodes at this point, to avoid errors further down inside behave-graph
 
     graph.nodes?.push(behaveNode)
   })

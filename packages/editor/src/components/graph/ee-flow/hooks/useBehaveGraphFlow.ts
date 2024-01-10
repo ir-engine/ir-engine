@@ -28,6 +28,7 @@ import { useEdgesState, useNodesState } from 'reactflow'
 
 import { GraphJSON } from '@behave-graph/core'
 
+import { omit } from 'lodash'
 import { behaveToFlow } from '../transformers/behaveToFlow'
 import { flowToBehave } from '../transformers/flowToBehave'
 import { autoLayout } from '../util/autoLayout'
@@ -88,11 +89,25 @@ export const useBehaveGraphFlow = ({
     specGenerator
   })
 
+  const deleteNodes = (deletedNodes) => {
+    const filterNodes = nodes.map((node) => {
+      if (!node.parentNode) return node
+      const parentNode = deletedNodes.find((deletedNode) => deletedNode.id === node.parentNode)
+      if (parentNode === undefined) return node
+      const newNode = omit(node, 'parentNode')
+      newNode.position.x += parentNode.position.x
+      newNode.position.y += parentNode.position.y
+      return newNode
+    })
+    setNodes(filterNodes)
+  }
+
   return {
     nodes,
     edges,
     onEdgesChange,
     onNodesChange,
+    deleteNodes,
     setGraphJson,
     graphJson,
     nodeTypes

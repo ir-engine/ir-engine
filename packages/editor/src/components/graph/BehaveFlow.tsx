@@ -31,6 +31,7 @@ import { isEqual } from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
+import { ReactFlowProvider } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
@@ -49,29 +50,31 @@ export const ActiveBehaveGraph = (props: { entity }) => {
   const graphComponent = getComponent(entity, BehaveGraphComponent)
 
   return (
-    <Flow
-      initialGraph={graphComponent.graph}
-      examples={{}}
-      registry={behaveGraphState.registries[graphComponent.domain]}
-      onChangeGraph={
-        (newGraph) => {
-          if (!newGraph) return
-          if (isEqual(graphComponent.graph, newGraph)) return
-          commitProperty(BehaveGraphComponent, 'graph')(newGraph)
+    <ReactFlowProvider>
+      <Flow
+        initialGraph={graphComponent.graph}
+        examples={{}}
+        registry={behaveGraphState.registries[graphComponent.domain]}
+        onChangeGraph={
+          (newGraph) => {
+            if (!newGraph) return
+            if (isEqual(graphComponent.graph, newGraph)) return
+            commitProperty(BehaveGraphComponent, 'graph')(newGraph)
+          }
+          // need this to smoothen UX
         }
-        // need this to smoothen UX
-      }
-    />
+      />
+    </ReactFlowProvider>
   )
 }
 
 const BehaveFlow = () => {
   const selectionState = useHookstate(getMutableState(SelectionState))
+
   const entities = selectionState.selectedEntities.value
   const entity = entities[entities.length - 1]
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
   const { t } = useTranslation()
-
   const addGraph = () => EditorControlFunctions.addOrRemoveComponent([entity], BehaveGraphComponent, true)
 
   // ensure reactivity of adding new graph

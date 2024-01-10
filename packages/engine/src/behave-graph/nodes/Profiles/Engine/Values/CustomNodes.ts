@@ -478,6 +478,13 @@ export const switchScene = makeFlowNodeDefinition({
   }
 })
 
+export const group = makeFunctionNodeDefinition({
+  typeName: 'group',
+  in: {},
+  out: {},
+  exec: ({ read, write, graph }) => {}
+})
+
 export const redirectToURL = makeFlowNodeDefinition({
   typeName: 'engine/redirectToURL',
   category: NodeCategory.Action,

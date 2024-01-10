@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, FocusEvent, useEffect, useRef, useState } from 'react'
 
 import './Input.css'
 
@@ -33,21 +33,27 @@ const inputStyle = {
   margin: 0
 }
 
-interface StyledNumericInputProps {
+interface StyledStringInputProps {
   className?: string
-  onChange?: any
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
+  onRelease?: (e: FocusEvent<HTMLInputElement>) => void
+  onFocus?: (e: FocusEvent<HTMLInputElement>) => void
+  onBlur?: (e: FocusEvent<HTMLInputElement>) => void
+  onKeyUp?: any
   value?: string
 }
 
-const StyledNumericInput = React.forwardRef<any, StyledNumericInputProps>(
-  ({ className = '', onChange, ...rest }, ref) => {
-    if (!onChange) {
-      return (
-        <input className={`StyledNumericInput ${className}`} readOnly={true} style={inputStyle} {...rest} ref={ref} />
-      )
-    }
+const StyledStringInput = React.forwardRef<any, StyledStringInputProps>(
+  ({ className = '', onChange, onRelease, ...rest }, ref) => {
     return (
-      <input className={`StyledNumericInput ${className}`} onChange={onChange} style={inputStyle} {...rest} ref={ref} />
+      <input
+        className={`StyledNumericInput ${className}`}
+        style={inputStyle}
+        onBlur={onRelease}
+        onChange={onChange}
+        {...rest}
+        ref={ref}
+      />
     )
   }
 )
@@ -55,15 +61,15 @@ const StyledNumericInput = React.forwardRef<any, StyledNumericInputProps>(
 export interface StringInputProps {
   id?: string
   value?: string
-  onChange?: (e: any) => void
-  onRelease?: (e: any) => void
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
+  onBlur?: (e: FocusEvent<HTMLInputElement>) => void
+  onRelease?: any
+  onFocus?: any
   required?: boolean
   pattern?: string
   title?: string
   error?: boolean
   canDrop?: boolean
-  onFocus?: any
-  onBlur?: any
   onKeyUp?: any
   type?: string
   placeholder?: string
@@ -92,40 +98,38 @@ const containerStyle = {
 }
 
 export const ControlledStringInput = React.forwardRef<any, StringInputProps>((values, ref) => {
-  const { onChange, value, ...rest } = values
+  const { onChange, onRelease, value, ...rest } = values
   const { error, canDrop, ...other } = rest
   const inputRef = useRef<HTMLInputElement>()
   const [tempValue, setTempValue] = useState(value)
 
-  const onKeyUp = useCallback((e) => {
+  const onKeyUp = (e) => {
     if (e.key === 'Enter' || e.key === 'Escape') {
       inputRef.current?.blur()
     }
-  }, [])
+  }
 
   useEffect(() => {
     setTempValue(value)
   }, [value])
 
-  const onBlur = useCallback(() => {
-    onChange?.(tempValue)
-  }, [onChange, tempValue])
+  const onBlur = () => {
+    onRelease?.(tempValue)
+  }
 
-  const onChangeValue = useCallback(
-    (e) => {
-      setTempValue(e.target.value)
-    },
-    [setTempValue]
-  )
+  const onChangeValue = (e) => {
+    setTempValue(e.target.value)
+    onChange?.(e.target.value)
+  }
 
-  const onFocus = useCallback(() => {
+  const onFocus = () => {
     inputRef.current?.select()
     if (rest.onFocus) rest.onFocus()
-  }, [rest.onFocus])
+  }
 
   return (
     <div style={containerStyle} ref={ref}>
-      <StyledNumericInput
+      <StyledStringInput
         ref={inputRef}
         className="Input"
         onChange={onChangeValue}

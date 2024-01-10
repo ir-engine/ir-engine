@@ -24,18 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useRef } from 'react'
-import { Background, BackgroundVariant, ReactFlow, ReactFlowProvider } from 'reactflow'
+import { Background, BackgroundVariant, NodeToolbar, Panel, Position, ReactFlow } from 'reactflow'
 
 import { GraphJSON, IRegistry } from '@behave-graph/core'
 
 import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/functions/useGraphRunner.js'
 import { useHookstate } from '@hookstate/core'
+import { useTranslation } from 'react-i18next'
+import { PropertiesPanelButton } from '../../../inputs/Button.js'
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
 import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator.js'
 import { useSelectionHandler } from '../hooks/useSelectionHandler.js'
+import { useTemplateHandler } from '../hooks/useTemplateHandler.js'
 import CustomControls from './Controls.js'
 import { NodePicker } from './NodePicker.js'
+import SidePanel from './SidePanel.js'
 import { Examples } from './modals/LoadModal.js'
 
 type FlowProps = {
@@ -47,16 +51,16 @@ type FlowProps = {
 
 export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, registry, onChangeGraph }) => {
   const specGenerator = useNodeSpecGenerator(registry)
-
   const flowRef = useRef(null)
-
   const dragging = useHookstate(false)
   const mouseOver = useHookstate(false)
+  const { t } = useTranslation()
 
-  const { nodes, edges, onNodesChange, onEdgesChange, graphJson, setGraphJson, nodeTypes } = useBehaveGraphFlow({
-    initialGraphJson: graph,
-    specGenerator
-  })
+  const { nodes, edges, onNodesChange, onEdgesChange, graphJson, setGraphJson, deleteNodes, nodeTypes } =
+    useBehaveGraphFlow({
+      initialGraphJson: graph,
+      specGenerator
+    })
 
   const {
     onConnect,
@@ -81,10 +85,17 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     registry
   })
 
-  const { onSelectionChange } = useSelectionHandler({
+  const { selectedNodes, selectedEdges, onSelectionChange, copyNodes, pasteNodes } = useSelectionHandler({
     nodes,
     onNodesChange,
     onEdgesChange
+  })
+
+  const { handleAddTemplate, handleEditTemplate, handleDeleteTemplate, handleApplyTemplate } = useTemplateHandler({
+    selectedNodes,
+    selectedEdges,
+    pasteNodes,
+    onNodesChange
   })
 
   useEffect(() => {
@@ -93,49 +104,75 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   }, [graphJson]) // change in node position triggers reactor
 
   return (
-    <ReactFlowProvider>
-      <ReactFlow
-        ref={flowRef}
-        nodeTypes={nodeTypes}
-        nodes={nodes}
-        edges={edges}
-        onNodeDragStart={() => dragging.set(true)}
-        onNodeDragStop={() => dragging.set(false)}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onConnectStart={handleStartConnect}
-        onConnectEnd={handleStopConnect}
-        onPaneMouseEnter={() => mouseOver.set(true)}
-        onPaneMouseLeave={() => mouseOver.set(false)}
-        fitView
-        fitViewOptions={{ maxZoom: 1 }}
-        onPaneClick={handlePaneClick}
-        onPaneContextMenu={handlePaneContextMenu}
-        onSelectionChange={onSelectionChange}
-        multiSelectionKeyCode={'Shift'}
-        deleteKeyCode={'Backspace'}
-      >
-        <CustomControls
-          playing={playing}
-          togglePlay={togglePlay}
-          onSaveGraph={onChangeGraph}
-          setBehaviorGraph={setGraphJson}
+    <ReactFlow
+      ref={flowRef}
+      nodeTypes={nodeTypes}
+      nodes={nodes}
+      edges={edges}
+      onNodeDragStart={() => dragging.set(true)}
+      onNodeDragStop={() => dragging.set(false)}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onNodesDelete={deleteNodes}
+      onConnectStart={handleStartConnect}
+      onConnectEnd={handleStopConnect}
+      onPaneMouseEnter={() => mouseOver.set(true)}
+      onPaneMouseLeave={() => mouseOver.set(false)}
+      fitView
+      fitViewOptions={{ maxZoom: 1 }}
+      onPaneClick={handlePaneClick}
+      onPaneContextMenu={handlePaneContextMenu}
+      onSelectionChange={onSelectionChange}
+      multiSelectionKeyCode={'Shift'}
+      deleteKeyCode={'Backspace'}
+    >
+      <Panel position="top-left" style={{ width: '20%' }}>
+        <SidePanel
+          flowref={flowRef}
           examples={examples}
-          specGenerator={specGenerator}
+          onNodesChange={onNodesChange}
+          handleAddTemplate={handleAddTemplate}
+          handleApplyTemplate={handleApplyTemplate}
+          handleDeleteTemplate={handleDeleteTemplate}
+          handleEditTemplate={handleEditTemplate}
         />
-        <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
-        {nodePickerVisibility && (
-          <NodePicker
-            flowRef={flowRef}
-            position={nodePickerVisibility}
-            filters={nodePickFilters}
-            onPickNode={handleAddNode}
-            onClose={closeNodePicker}
-            specJSON={specGenerator?.getAllNodeSpecs()}
-          />
-        )}
-      </ReactFlow>
-    </ReactFlowProvider>
+      </Panel>
+
+      <CustomControls
+        playing={playing}
+        togglePlay={togglePlay}
+        onSaveGraph={onChangeGraph}
+        setBehaviorGraph={setGraphJson}
+        examples={examples}
+        specGenerator={specGenerator}
+      />
+      <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
+      {nodePickerVisibility && (
+        <NodePicker
+          flowRef={flowRef}
+          position={nodePickerVisibility}
+          filters={nodePickFilters}
+          onPickNode={handleAddNode}
+          onClose={closeNodePicker}
+          specJSON={specGenerator?.getAllNodeSpecs()}
+        />
+      )}
+
+      <NodeToolbar
+        nodeId={selectedNodes.map((node) => node.id)}
+        isVisible={selectedNodes.length > 1}
+        position={Position.Top}
+      >
+        <PropertiesPanelButton
+          style={{}}
+          onClick={() => {
+            handleAddTemplate()
+          }}
+        >
+          {t('editor:graphPanel.editorPanel.makeTemplate')}
+        </PropertiesPanelButton>
+      </NodeToolbar>
+    </ReactFlow>
   )
 }

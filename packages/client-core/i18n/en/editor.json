@@ -895,8 +895,22 @@
     }
   },
   "graphPanel":{
-    "addGraph" : "Add Behave Graph"
-  },
+    "addGraph" : "Add Behave Graph",
+    "editorPanel":{
+      "makeTemplate": "Make into template"
+    },
+    "sidePanel":{
+      "node":{
+        "name": "Nodes",
+        "description": "Individual logic units connected together to create a graph"
+        },
+      "template":{
+        "name": "Templates",
+        "description": "Reusable graphs that can be added to other graphs."
+        }
+    }
+  }
+  ,
   "layout": {
     "assetGrid": {
       "loading": "Loading...",

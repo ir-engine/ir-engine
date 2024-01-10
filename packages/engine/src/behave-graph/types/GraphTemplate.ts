@@ -23,16 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IRegistry } from '@behave-graph/core'
-import { defineState } from '@etherealengine/hyperflux'
-import { BehaveGraphDomain } from '../components/BehaveGraphComponent'
-import { createECSRegistry } from '../functions/createECSRegistry'
-import { GraphTemplate } from '../types/GraphTemplate'
+import { Edge, Node } from 'reactflow'
 
-export const BehaveGraphState = defineState({
-  name: 'BehaveGraphState',
-  initial: () => ({
-    registries: { ECS: createECSRegistry() } as Record<BehaveGraphDomain, IRegistry>,
-    templates: [] as GraphTemplate[]
-  })
-})
+export interface GraphTemplate {
+  id: string
+  name: string
+  nodes: Node[]
+  edges: Edge[]
+}

@@ -86,8 +86,9 @@ export const Node: React.FC<NodeProps> = ({ id, data, spec, selected, specGenera
     padding: '0 8px'
   }
 
+  const label = spec.label === '' ? data.label : spec.label
   return (
-    <NodeContainer title={spec.label} category={spec.category} selected={selected}>
+    <NodeContainer title={label} category={spec.category} selected={selected} isGroup={spec.type === 'group'}>
       {pairs.map(([input, output], ix) => (
         <div key={ix} className="node-container-row" style={containerRowStyle}>
           {input && (
