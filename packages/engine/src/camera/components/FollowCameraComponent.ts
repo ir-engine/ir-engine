@@ -27,18 +27,12 @@ import { ArrowHelper, Clock, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraMode } from '../types/CameraMode'
 
-//const cameraRayCount = 1
 export const coneDebugHelpers: ArrowHelper[] = []
-// todo properly turn into gizmo
-export const debugRays = false
 
 export const FollowCameraComponent = defineComponent({
   name: 'FollowCameraComponent',
@@ -80,13 +74,6 @@ export const FollowCameraComponent = defineComponent({
 
     for (let i = 0; i < raycastProps.rayCount; i++) {
       cameraRays.push(new Vector3())
-      if (debugRays) {
-        const arrow = new ArrowHelper()
-        arrow.setColor('red')
-        coneDebugHelpers.push(arrow)
-        setObjectLayers(arrow, ObjectLayers.Gizmos)
-        Engine.instance.scene.add(arrow)
-      }
     }
 
     return {

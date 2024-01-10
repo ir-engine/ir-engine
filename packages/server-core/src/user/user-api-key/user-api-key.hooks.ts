@@ -30,7 +30,7 @@ import {
   userApiKeyDataValidator,
   userApiKeyPatchValidator,
   userApiKeyQueryValidator
-} from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+} from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest } from '@feathersjs/errors'
@@ -106,7 +106,8 @@ export default {
       () => schemaHooks.validateData(userApiKeyPatchValidator),
       schemaHooks.resolveData(userApiKeyPatchResolver),
       iff(isProvider('external'), ensureUserOwnsApiKey),
-      iff(isProvider('external'), attachOwnerIdInQuery('userId'), setLoggedInUser('userId'))
+      iff(isProvider('external'), attachOwnerIdInQuery('userId')),
+      iff(isProvider('external'), setLoggedInUser('userId'))
     ],
     remove: [disallow('external')]
   },

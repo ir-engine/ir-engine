@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
+import { dataValidator, queryValidator } from '@etherealengine/common/src/schemas/validators'
 import type { Static } from '@feathersjs/typebox'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 
@@ -48,7 +48,7 @@ export const matchTicketAssignmentSchema = Type.Object(
   },
   { $id: 'MatchTicketAssignment', additionalProperties: false }
 )
-export type MatchTicketAssignmentType = Static<typeof matchTicketAssignmentSchema>
+export interface MatchTicketAssignmentType extends Static<typeof matchTicketAssignmentSchema> {}
 
 // Schema for allowed query properties
 export const matchTicketAssignmentQueryProperties = Type.Pick(matchTicketAssignmentSchema, ['connection', 'extensions'])
@@ -60,7 +60,10 @@ export const matchTicketAssignmentQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export type MatchTicketAssignmentQuery = Static<typeof matchTicketAssignmentQuerySchema>
+export interface MatchTicketAssignmentQuery extends Static<typeof matchTicketAssignmentQuerySchema> {}
 
-export const matchTicketAssignmentValidator = getValidator(matchTicketAssignmentSchema, dataValidator)
-export const matchTicketAssignmentQueryValidator = getValidator(matchTicketAssignmentQuerySchema, queryValidator)
+export const matchTicketAssignmentValidator = /* @__PURE__ */ getValidator(matchTicketAssignmentSchema, dataValidator)
+export const matchTicketAssignmentQueryValidator = /* @__PURE__ */ getValidator(
+  matchTicketAssignmentQuerySchema,
+  queryValidator
+)

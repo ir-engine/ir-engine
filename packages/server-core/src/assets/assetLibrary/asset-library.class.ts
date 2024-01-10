@@ -32,7 +32,6 @@ import { Application } from '@etherealengine/server-core/declarations'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AssetLibraryParams extends KnexAdapterParams {
   path: string
 }

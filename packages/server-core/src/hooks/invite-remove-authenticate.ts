@@ -29,16 +29,16 @@ import { HookContext, Paginated } from '@feathersjs/feathers'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 
-import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { invitePath } from '@etherealengine/common/src/schemas/social/invite.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     let inviteIdentityProviderUser
-    // Getting logged in user and attaching owner of user
+    // Getting logged-in user and attaching owner of user
     const { id, params, app } = context
     const loggedInUser = params.user as UserType
     const invite = await app.service(invitePath).get(id!)

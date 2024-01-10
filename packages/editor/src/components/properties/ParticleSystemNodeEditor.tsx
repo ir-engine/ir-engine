@@ -54,7 +54,7 @@ import {
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux'
 
-import { ScatterPlotOutlined } from '@mui/icons-material'
+import ScatterPlotOutlined from '@mui/icons-material/ScatterPlotOutlined'
 
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -82,7 +82,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
     const parm = particleSystem.systemParameters[field]
     return (value: typeof parm) => {
       particleSystemState._refresh.set(particleSystem._refresh + 1)
-      commitProperty(ParticleSystemComponent, ('systemParameters' + field) as any)(value)
+      commitProperty(ParticleSystemComponent, ('systemParameters.' + field) as any)(value)
     }
   }, [])
 
@@ -105,13 +105,14 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
     return (value: any) => {
       const nuParms = JSON.parse(JSON.stringify(particleSystem.systemParameters.shape))
       nuParms[field] = value
-      commitProperty(ParticleSystemComponent, ('systemParameters.shape' + field) as any)(nuParms)
+      commitProperty(ParticleSystemComponent, 'systemParameters.shape' as any)(nuParms)
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
     }
   }, [])
 
   const onSetState = useCallback((state: State<any>) => {
     return (value: any) => {
+      state.set(value)
       const { systemParameters, behaviorParameters } = JSON.parse(
         JSON.stringify(getComponent(entity, ParticleSystemComponent))
       )
@@ -181,7 +182,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.particle-system.name')}
       description={t('editor:properties.particle-system.description')}
     >
-      <h4>Options</h4>
+      <h4 style={{ fontSize: '100%', fontWeight: 'normal' }}>Options</h4>
       <InputGroup name="Looping" label={t('editor:properties.particle-system.looping')}>
         <BooleanInput value={particleSystem.systemParameters.looping} onChange={onSetSystemParm('looping')} />
       </InputGroup>
@@ -250,7 +251,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
                 value={burst.probability.value}
                 onChange={onSetState(burst.probability)}
               />
-              <Button onClick={onRemoveBurst(burst)}>Remove Burst</Button>
+              <Button onClick={onRemoveBurst(burst as any)}>Remove Burst</Button>
             </div>
           )
         }}
@@ -328,7 +329,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
             <ValueGenerator
               value={particleSystem.systemParameters.rendererEmitterSettings.startLength as ValueGeneratorJSON}
               scope={
-                particleSystemState.systemParameters.rendererEmitterSettings
+                (particleSystemState.systemParameters.rendererEmitterSettings as any)
                   .startLength as unknown as State<ValueGeneratorJSON>
               }
               onChange={onSetState}
@@ -417,7 +418,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="World Space" label={t('editor:properties.particle-system.world-space')}>
         <BooleanInput value={particleSystem.systemParameters.worldSpace} onChange={onSetSystemParm('worldSpace')} />
       </InputGroup>
-      <h4>Behaviors</h4>
+      <h4 style={{ fontSize: '100%', fontWeight: 'normal' }}>Behaviors</h4>
       <Button onClick={onAddBehavior}>Add Behavior</Button>
       <PaginatedList
         list={particleSystemState.behaviorParameters}

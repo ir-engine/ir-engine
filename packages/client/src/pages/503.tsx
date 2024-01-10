@@ -31,7 +31,13 @@ export const Custom503 = (): any => {
   return (
     <>
       <h1 style={{ color: 'black' }}>{t('503.msg')}</h1>
-      <img src="/static/etherealengine.png" />
+      <img
+        style={{
+          height: 'auto',
+          maxWidth: '100%'
+        }}
+        src="/static/etherealengine.png"
+      />
     </>
   )
 }

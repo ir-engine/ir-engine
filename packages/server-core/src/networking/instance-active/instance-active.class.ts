@@ -26,14 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import {
   InstanceActiveQuery,
   InstanceActiveType
-} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-active.schema'
+import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InstanceActiveParams extends KnexAdapterParams<InstanceActiveQuery> {}
 
 /**
@@ -61,11 +60,11 @@ export class InstanceActiveService implements ServiceInterface<InstanceActiveTyp
 
     if (locations.length === 0) return []
 
-    const instances = (await this.app.service(instancePath)._find({
+    const instances = (await this.app.service(instancePath).find({
       query: {
         ended: false,
         locationId: {
-          $in: locations.map((location) => location.id)
+          $in: locations.map((location) => location.id as LocationID)
         }
       },
       paginate: false

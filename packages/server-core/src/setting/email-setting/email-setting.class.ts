@@ -31,9 +31,8 @@ import {
   EmailSettingPatch,
   EmailSettingQuery,
   EmailSettingType
-} from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/email-setting.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface EmailSettingParams extends KnexAdapterParams<EmailSettingQuery> {}
 
 export class EmailSettingService<

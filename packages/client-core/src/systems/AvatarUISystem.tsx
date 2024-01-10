@@ -27,6 +27,7 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Group, Vector3 } from 'three'
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { easeOutElastic } from '@etherealengine/engine/src/common/functions/MathFunctions'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
@@ -50,7 +51,6 @@ import { SceneQueryType } from '@etherealengine/engine/src/physics/types/Physics
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
@@ -60,9 +60,9 @@ import { CameraComponent } from '@etherealengine/engine/src/camera/components/Ca
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { MediasoupMediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
+import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
-import { AvatarUIStateSystem } from './state/AvatarUIState'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { AvatarUIContextMenuState } from './ui/UserMenuView'
 
@@ -157,14 +157,12 @@ const execute = () => {
   const engineState = getState(EngineState)
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  if (!nonCapturedInputSource) return
-
-  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
-
-  const keys = inputSource.buttons
-
-  if (keys.PrimaryClick?.down) onPrimaryClick()
-  if (keys.SecondaryClick?.down) onSecondaryClick()
+  if (nonCapturedInputSource) {
+    const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+    const keys = inputSource.buttons
+    if (keys.PrimaryClick?.down) onPrimaryClick()
+    if (keys.SecondaryClick?.down) onSecondaryClick()
+  }
 
   videoPreviewTimer += engineState.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0
@@ -227,39 +225,41 @@ const execute = () => {
         const peer = peers.find((peer) => {
           return peer.userId === ownerId
         })
-        const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-          mediaNetwork.id,
-          peer!.peerID,
-          webcamVideoDataChannelType
-        ) as any
-        const active = !consumer?.paused
-        if (videoPreviewMesh.material.map) {
-          if (!active) {
-            videoPreviewMesh.material.map = null!
-            videoPreviewMesh.visible = false
-          }
-        } else {
-          if (active && !applyingVideo.has(ownerId)) {
-            applyingVideo.set(ownerId, true)
-            const track = (consumer as any).track
-            const newVideoTrack = track.clone()
-            const newVideo = document.createElement('video')
-            newVideo.autoplay = true
-            newVideo.id = `${ownerId}_video_immersive`
-            newVideo.muted = true
-            newVideo.setAttribute('playsinline', 'true')
-            newVideo.srcObject = new MediaStream([newVideoTrack])
-            newVideo.play()
-            if (!newVideo.readyState) {
-              newVideo.onloadeddata = () => {
+        if (peer) {
+          const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
+            mediaNetwork.id,
+            peer.peerID,
+            webcamVideoDataChannelType
+          ) as any
+          const active = !consumer?.paused
+          if (videoPreviewMesh.material.map) {
+            if (!active) {
+              videoPreviewMesh.material.map = null!
+              videoPreviewMesh.visible = false
+            }
+          } else {
+            if (active && !applyingVideo.has(ownerId)) {
+              applyingVideo.set(ownerId, true)
+              const track = (consumer as any).track
+              const newVideoTrack = track.clone()
+              const newVideo = document.createElement('video')
+              newVideo.autoplay = true
+              newVideo.id = `${ownerId}_video_immersive`
+              newVideo.muted = true
+              newVideo.setAttribute('playsinline', 'true')
+              newVideo.srcObject = new MediaStream([newVideoTrack])
+              newVideo.play()
+              if (!newVideo.readyState) {
+                newVideo.onloadeddata = () => {
+                  applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
+                  videoPreviewMesh.visible = true
+                  applyingVideo.delete(ownerId)
+                }
+              } else {
                 applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
                 videoPreviewMesh.visible = true
                 applyingVideo.delete(ownerId)
               }
-            } else {
-              applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
-              videoPreviewMesh.visible = true
-              applyingVideo.delete(ownerId)
             }
           }
         }
@@ -300,7 +300,7 @@ const reactor = () => {
 
 export const AvatarUISystem = defineSystem({
   uuid: 'ee.client.AvatarUISystem',
+  insert: { before: TransformSystem },
   execute,
-  reactor,
-  subSystems: [AvatarUIStateSystem]
+  reactor
 })

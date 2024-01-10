@@ -34,41 +34,46 @@ import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
 
-import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import fs from 'fs'
 
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
-import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
-import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
-import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
-import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
-import { ProjectDestinationCheckType } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
-import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { ProjectBuilderTagsType } from '@etherealengine/common/src/schemas/projects/project-builder-tags.schema'
+import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/common/src/schemas/projects/project-check-source-destination-match.schema'
+import { ProjectCheckUnfetchedCommitType } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
+import { ProjectCommitType } from '@etherealengine/common/src/schemas/projects/project-commits.schema'
+import { ProjectDestinationCheckType } from '@etherealengine/common/src/schemas/projects/project-destination-check.schema'
 import {
   projectPath,
   ProjectSettingType,
   ProjectType
-} from '@etherealengine/engine/src/schemas/projects/project.schema'
+} from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
   identityProviderPath,
   IdentityProviderType
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { RestEndpointMethodTypes } from '@octokit/rest'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
+import { projectResourcesPath } from '../../media/static-resource/project-resource.service'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
@@ -77,7 +82,6 @@ import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
-import { uploadSceneToStaticResources } from '../scene/scene-helper'
 import { getAuthenticatedRepo, getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
@@ -131,7 +135,7 @@ export const updateBuilder = async (
   }
 
   if (data.updateProjects) {
-    await Promise.all(data.projectsToUpdate.map((project) => app.service(projectPath).update(project, null, params)))
+    await Promise.all(data.projectsToUpdate.map((project) => app.service(projectPath).update('', project, params)))
   }
 
   const helmSettingsResult = await app.service(helmSettingPath).find()
@@ -315,6 +319,7 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
   const project = (await app.service(projectPath).find({
     query: {
       $limit: 1,
+      action: 'admin',
       name: projectName
     }
   })) as Paginated<ProjectType>
@@ -341,7 +346,7 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
       error: 'invalidSourceURL',
       text: 'The source URL is not valid, or you do not have access to it'
     }
-  let commit
+  let commit: RestEndpointMethodTypes['repos']['getCommit']['response']
   try {
     commit = await sourceOctoKit.rest.repos.getCommit({
       owner,
@@ -375,7 +380,7 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
       commitSHA: commit.data.sha,
       error: '',
       text: '',
-      datetime: commit.data.commit.committer.date,
+      datetime: commit.data.commit.committer?.date,
       matchesEngineVersion: content.etherealEngine?.version
         ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
         : false
@@ -492,6 +497,7 @@ export const checkProjectDestinationMatch = async (
   if (!existingProject) {
     const projectExists = (await app.service(projectPath).find({
       query: {
+        action: 'admin',
         name: {
           $like: sourceContent.name
         },
@@ -711,7 +717,7 @@ export const getProjectCommits = async (
       per_page: COMMIT_PER_PAGE
     })
     const commits = headResponse.data
-    const mappedCommits = (await Promise.all(
+    return (await Promise.all(
       commits.map(
         (commit) =>
           new Promise(async (resolve, reject) => {
@@ -738,13 +744,17 @@ export const getProjectCommits = async (
             } catch (err) {
               logger.error("Error getting commit's package.json %s/%s:%s %s", owner, repo, branchName, err.toString())
               resolve({
-                discard: true
+                projectName: undefined,
+                projectVersion: undefined,
+                engineVersion: undefined,
+                commitSHA: commit.sha,
+                datetime: commit?.commit?.committer?.date || new Date().toString(),
+                matchesEngineVersion: false
               })
             }
           })
       )
     )) as ProjectCommitType[]
-    return mappedCommits.filter((commit) => !commit.discard)
   } catch (err) {
     logger.error('error getting repo commits %o', err)
     if (err.status === 404)
@@ -1208,8 +1218,9 @@ export async function getDirectoryArchiveJobBody(
 }
 
 export const createOrUpdateProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
-  const projectData = (await app.service(projectPath)._find({
+  const projectData = (await app.service(projectPath).find({
     query: {
+      action: 'admin',
       name: projectName,
       $limit: 1
     }
@@ -1264,8 +1275,9 @@ export const removeProjectUpdateJob = async (app: Application, projectName: stri
 
 export const checkProjectAutoUpdate = async (app: Application, projectName: string): Promise<void> => {
   let commitSHA
-  const projectData = (await app.service(projectPath)._find({
+  const projectData = (await app.service(projectPath).find({
     query: {
+      action: 'admin',
       name: projectName,
       $limit: 1
     }
@@ -1273,7 +1285,7 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
 
   const project = projectData.data[0]
 
-  const user = await app.service(userPath).get(project.updateUserId!)
+  const user = await app.service(userPath)._get(project.updateUserId!)
   if (project.updateType === 'tag') {
     const latestTaggedCommit = await getLatestProjectTaggedCommitInBranch(
       app,
@@ -1293,6 +1305,7 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
   }
   if (commitSHA)
     await app.service(projectPath).update(
+      '',
       {
         sourceURL: project.sourceRepo!,
         destinationURL: project.repositoryPath,
@@ -1303,7 +1316,6 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
         updateType: project.updateType,
         updateSchedule: project.updateSchedule!
       },
-      null,
       { user: user }
     )
 }
@@ -1411,6 +1423,7 @@ export const updateProject = async (
     return (
       (await app.service(projectPath).find({
         query: {
+          action: 'admin',
           name: 'default-project',
           $limit: 1
         }
@@ -1434,8 +1447,9 @@ export const updateProject = async (
     deleteFolderRecursive(projectDirectory)
   }
 
-  const projectResult = (await app.service(projectPath)._find({
+  const projectResult = (await app.service(projectPath).find({
     query: {
+      action: 'admin',
       name: projectName
     }
   })) as Paginated<ProjectType>
@@ -1446,7 +1460,7 @@ export const updateProject = async (
   const userId = params!.user?.id || project?.updateUserId
   if (!userId) throw new BadRequest('No user ID from call or existing project owner')
 
-  const githubIdentityProvider = (await app.service(identityProviderPath)._find({
+  const githubIdentityProvider = (await app.service(identityProviderPath).find({
     query: {
       userId: userId,
       type: 'github',
@@ -1492,8 +1506,9 @@ export const updateProject = async (
   const projectConfig = getProjectConfig(projectName) ?? {}
 
   // when we have successfully re-installed the project, remove the database entry if it already exists
-  const existingProjectResult = (await app.service(projectPath)._find({
+  const existingProjectResult = (await app.service(projectPath).find({
     query: {
+      action: 'admin',
       name: {
         $like: projectName
       }
@@ -1509,7 +1524,7 @@ export const updateProject = async (
 
   const returned = !existingProject
     ? // Add to DB
-      await app.service(projectPath)._create(
+      await app.service(projectPath).create(
         {
           id: v4(),
           name: projectName,
@@ -1527,27 +1542,24 @@ export const updateProject = async (
         },
         params || {}
       )
-    : await app.service(projectPath)._patch(existingProject.id, {
-        commitSHA,
-        commitDate: toDateTimeSql(commitDate),
-        sourceRepo: data.sourceURL,
-        sourceBranch: data.sourceBranch,
-        updateType: data.updateType,
-        updateSchedule: data.updateSchedule,
-        updateUserId: userId
-      })
+    : await app.service(projectPath).patch(
+        existingProject.id,
+        {
+          commitSHA,
+          commitDate: toDateTimeSql(commitDate),
+          sourceRepo: data.sourceURL,
+          sourceBranch: data.sourceBranch,
+          updateType: data.updateType,
+          updateSchedule: data.updateSchedule,
+          updateUserId: userId
+        },
+        params
+      )
 
   returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
 
-  if (!existingProject) {
-    await app.service(projectPermissionPath).create({
-      projectId: returned.id,
-      userId
-    })
-  }
-
   if (returned.name !== projectName)
-    await app.service(projectPath)._patch(existingProject!.id, {
+    await app.service(projectPath).patch(existingProject!.id, {
       name: projectName
     })
 
@@ -1558,10 +1570,14 @@ export const updateProject = async (
     await git.raw(['lfs', 'fetch', '--all'])
     await git.push('destination', branchName, ['-f', '--tags'])
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
-    await app.service(projectPath)._patch(returned.id, {
-      commitSHA,
-      commitDate: toDateTimeSql(commitDate)
-    })
+    await app.service(projectPath).patch(
+      returned.id,
+      {
+        commitSHA,
+        commitDate: toDateTimeSql(commitDate)
+      },
+      params
+    )
   }
   // run project install script
   if (projectConfig.onEvent) {
@@ -1570,9 +1586,9 @@ export const updateProject = async (
 
   const k8BatchClient = getState(ServerState).k8BatchClient
 
-  if (k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
+  if (k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit'))
     await createOrUpdateProjectUpdateJob(app, projectName)
-  } else if (k8BatchClient && (data.updateType === 'none' || data.updateType == null))
+  else if (k8BatchClient && (data.updateType === 'none' || data.updateType == null))
     await removeProjectUpdateJob(app, projectName)
 
   if (params?.jobId) {
@@ -1628,7 +1644,7 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string, s
  */
 export const uploadLocalProjectToProvider = async (
   app: Application,
-  projectName,
+  projectName: string,
   remove = true,
   storageProviderName?: string
 ) => {
@@ -1643,26 +1659,135 @@ export const uploadLocalProjectToProvider = async (
 
   // upload new files to storage provider
   const projectRootPath = path.resolve(projectsRootFolder, projectName)
+  const resourceDBPath = path.join(projectRootPath, 'resources.json')
+  const hasResourceDB = fs.existsSync(resourceDBPath)
+
   const files = getFilesRecursive(projectRootPath)
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
+  const resourceKey = (key, hash) => `${key}#${hash}`
+  const existingResources = await app.service(staticResourcePath).find({
+    query: {
+      project: projectName
+    },
+    paginate: false
+  })
+  const existingContentSet = new Set<string>()
+  const existingKeySet = new Set<string>()
+  for (const item of existingResources) {
+    existingContentSet.add(resourceKey(item.key, item.hash))
+    existingKeySet.add(item.key)
+  }
+  if (hasResourceDB) {
+    //if we have a resources.sql file, use it to populate static-resource table
+    const manifest: StaticResourceType[] = JSON.parse(fs.readFileSync(resourceDBPath).toString())
+
+    for (const item of manifest) {
+      if (existingKeySet.has(item.key)) {
+        logger.info(`Skipping upload of static resource: "${item.key}"`)
+        continue
+      }
+      const url = getCachedURL(item.key, cacheDomain)
+      //remove userId if exists
+      if (item.userId) delete (item as any).userId
+
+      const newResource: Partial<StaticResourceType> = {}
+
+      const validFields: (keyof StaticResourceType)[] = [
+        'attribution',
+        'createdAt',
+        'hash',
+        'key',
+        'licensing',
+        'metadata',
+        'mimeType',
+        'project',
+        'sid',
+        'stats',
+        'tags',
+        'updatedAt'
+      ]
+
+      for (const field of validFields) {
+        if (item[field]) newResource[field] = item[field]
+      }
+
+      await app.service(staticResourcePath).create({
+        ...newResource,
+        url
+      })
+      logger.info(`Uploaded static resource ${item.key} from resources.json`)
+    }
+  }
+
   for (const file of filtered) {
     try {
-      const fileResult = await uploadSceneToStaticResources(app, projectName, file)
+      const fileResult = fs.readFileSync(file)
       const filePathRelative = processFileName(file.slice(projectRootPath.length))
+      const contentType = getContentType(file)
+      const key = `projects/${projectName}${filePathRelative}`
+      const url = getCachedURL(key, getCacheDomain(storageProvider))
       await storageProvider.putObject(
         {
           Body: fileResult,
-          ContentType: getContentType(file),
-          Key: `projects/${projectName}${filePathRelative}`
+          ContentType: contentType,
+          Key: key
         },
         { isDirectory: false }
       )
+      if (!hasResourceDB) {
+        //otherwise, upload the files into static resources individually
+        const staticResourceClasses = [
+          AssetClass.Audio,
+          AssetClass.Image,
+          AssetClass.Model,
+          AssetClass.Video,
+          AssetClass.Volumetric
+        ]
+        const thisFileClass = AssetLoader.getAssetClass(file)
+        if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
+          const hash = createStaticResourceHash(fileResult, { mimeType: contentType, assetURL: key })
+          if (existingContentSet.has(resourceKey(key, hash))) {
+            logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
+          } else if (existingKeySet.has(key)) {
+            logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
+            await app.service(staticResourcePath).patch(
+              null,
+              {
+                hash,
+                url,
+                mimeType: contentType,
+                tags: [thisFileClass]
+              },
+              {
+                query: {
+                  key,
+                  project: projectName
+                }
+              }
+            )
+          }
+          {
+            await app.service(staticResourcePath).create({
+              key: `projects/${projectName}${filePathRelative}`,
+              project: projectName,
+              hash,
+              url,
+              mimeType: contentType,
+              tags: [thisFileClass]
+            })
+            logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
+          }
+        }
+      }
       results.push(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
     } catch (e) {
       logger.error(e)
       results.push(null)
     }
+  }
+  if (!hasResourceDB) {
+    await app.service(projectResourcesPath).create({ project: projectName })
   }
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   return results.filter((success) => !!success) as string[]

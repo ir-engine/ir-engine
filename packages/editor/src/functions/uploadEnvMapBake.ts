@@ -39,7 +39,6 @@ import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCap
 import {
   blurAndScaleImageData,
   convertCubemapToEquiImageData,
-  convertCubemapToImageData,
   convertImageDataToKTX2Blob
 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
@@ -81,7 +80,7 @@ const getScenePositionForBake = (entity?: Entity) => {
  */
 
 export const uploadBPCEMBakeToServer = async (entity: Entity) => {
-  const isSceneEntity = entity === getState(SceneState).sceneEntity
+  const isSceneEntity = entity === SceneState.getRootEntity()
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {
@@ -101,12 +100,12 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   if (isSceneEntity) Engine.instance.scene.environment = renderTarget.texture
 
-  const envmapImageData = convertCubemapToImageData(
+  const envmapImageData = convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
     bakeComponent.resolution,
     bakeComponent.resolution
-  )
+  ) as ImageData
 
   const envmap = await convertImageDataToKTX2Blob(envmapImageData)
 
@@ -124,7 +123,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 }
 
 export const uploadSceneBakeToServer = async () => {
-  const entity = getState(SceneState).sceneEntity
+  const entity = SceneState.getRootEntity()
 
   if (!hasComponent(entity, EnvMapBakeComponent)) {
     setComponent(entity, EnvMapBakeComponent, { resolution: 2048 })
@@ -142,12 +141,12 @@ export const uploadSceneBakeToServer = async () => {
 
   Engine.instance.scene.environment = renderTarget.texture
 
-  const envmapImageData = convertCubemapToImageData(
+  const envmapImageData = convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
     bakeComponent.resolution,
     bakeComponent.resolution
-  )
+  ) as ImageData
 
   const loadingScreenImageData = blurAndScaleImageData(
     envmapImageData,
@@ -182,27 +181,22 @@ export const uploadSceneBakeToServer = async () => {
 
 const resolution = 1024
 
-const previewCubemapCapturer = new CubemapCapturer(
-  EngineRenderer.instance.renderer,
-  Engine.instance.scene,
-  resolution / 8
-)
+const previewCubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
 /**
  * Generates a low res cubemap at a specific position in the world for preview.
  *
  * @param position
  * @returns
  */
-export const getPreviewBakeTexture = async (position: Vector3) => {
+export const bakeEnvmapTexture = async (position: Vector3) => {
   const renderTarget = previewCubemapCapturer.update(position)
-  const imageBlob = (await convertCubemapToEquiImageData(
+  const bake = (await convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
-    resolution / 4,
-    resolution / 4,
-    true
-  )) as Blob
-  return imageBlob
+    resolution,
+    resolution
+  )) as ImageData
+  return bake
 }
 
 /**
@@ -211,12 +205,8 @@ export const getPreviewBakeTexture = async (position: Vector3) => {
  * @param position
  * @returns
  */
-const saveCubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
-export const uploadCubemapBakeToServer = async (name: string, position: Vector3, res: number = resolution) => {
-  const renderTarget = saveCubemapCapturer.update(position)
-  const bake = await convertCubemapToImageData(EngineRenderer.instance.renderer, renderTarget.texture, res, res)
-
-  const blob = await convertImageDataToKTX2Blob(bake)
+export const uploadCubemapBakeToServer = async (name: string, data: ImageData) => {
+  const blob = await convertImageDataToKTX2Blob(data)
 
   if (!blob) return null!
 

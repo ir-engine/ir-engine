@@ -24,116 +24,141 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useCallback, useEffect } from 'react'
-import { Material, Texture } from 'three'
+import { Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
 import {
   changeMaterialPrototype,
   entryId,
-  materialFromId,
-  prototypeFromId
+  materialFromId
 } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { removeMaterialPlugin } from '@etherealengine/engine/src/renderer/materials/functions/MaterialPluginFunctions'
-import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { getMutableState, getState, none, State, useState } from '@etherealengine/hyperflux'
+import { State, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
 import { Box, Divider, Stack } from '@mui/material'
 
+import { materialPrototypeUnavailableComponent } from '@etherealengine/engine/src/renderer/materials/components/MaterialPrototypeComponent'
+import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { SelectionState } from '../../services/SelectionServices'
 import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import PaginatedList from '../layout/PaginatedList'
+import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
+import { InfoTooltip } from '../layout/Tooltip'
 
-export default function MaterialEditor({ material, ...rest }: { material: Material }) {
-  if (material === undefined) return <></>
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
-  const materialComponent = materialLibrary.materials[material.uuid]
-  let prototypeComponent = materialLibrary.prototypes[materialComponent.prototype.value].value
-  const loadingData = useState(false)
+type ThumbnailData = {
+  src: string
+  blob: string
+}
+
+const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, string> => {
+  const blobs = {}
+  Object.entries(thumbnails).map(([k, { blob }]) => {
+    blobs[k] = blob
+  })
+  return blobs
+}
+
+export function MaterialEditor(props: { materialID: string }) {
+  const { t } = useTranslation()
+  const { materialID } = props
+  const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
+  const materialComponent = materialLibrary.materials[materialID]
+  const prototypeComponent =
+    materialLibrary.prototypes.value[materialComponent.prototype.value] ?? materialPrototypeUnavailableComponent
+  const material = materialFromId(materialID).material
   const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
     label: prototype.prototypeId,
     value: prototype.prototypeId
   }))
-  const thumbnails = useState<Record<string, string>>({})
+  const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
+  const selectedPlugin = useHookstate('vegetation')
 
-  const createThumbnails = useCallback(async () => {
-    const result = {} as Record<string, string>
-    await Promise.allSettled(
-      Object.entries(material).map(([k, field]: [string, Texture]) => {
-        if (field?.isTexture) {
-          try {
-            return createReadableTexture(field, { maxDimensions: { width: 256, height: 256 }, url: true }).then(
-              (src) => {
-                result[k] = src as string
-              }
-            )
-          } catch (e) {
-            console.warn('failed loading thumbnail: ' + e)
-          }
+  const createThumbnail = async (field: string, texture: Texture) => {
+    if (texture?.isTexture) {
+      try {
+        const blob: string = (await createReadableTexture(texture, {
+          maxDimensions: { width: 256, height: 256 },
+          url: true
+        })) as string
+        const thumbData: ThumbnailData = {
+          src: texture.image?.src ?? 'BLOB',
+          blob
         }
-      })
-    )
-    return result
-  }, [materialComponent.material, materialComponent.prototype])
+        thumbnails[field].set(thumbData)
+        return Promise.resolve()
+      } catch (e) {
+        console.warn('failed loading thumbnail: ' + e)
+      }
+    }
+  }
 
-  const checkThumbs = useCallback(async () => {
+  const createThumbnails = async () => {
+    const promises = Object.entries(material).map(([field, texture]: [string, Texture]) =>
+      createThumbnail(field, texture)
+    )
+    return Promise.all(promises)
+  }
+
+  const checkThumbs = async () => {
     thumbnails.promised && (await thumbnails.promise)
     const thumbnailVals = thumbnails.value
-    Object.entries(thumbnailVals).map(([k, v]) => {
+    Object.entries(thumbnailVals).map(([k, { blob }]) => {
       if (!material[k]) {
-        URL.revokeObjectURL(v)
+        URL.revokeObjectURL(blob)
         thumbnails[k].set(none)
       }
     })
-  }, [materialComponent.parameters])
+    await Promise.all(
+      Object.entries(material).map(async ([field, texture]: [string, Texture]) => {
+        if (texture?.isTexture) {
+          if (!thumbnails[field]?.value || thumbnails[field]?.value?.src !== texture.image?.src)
+            await createThumbnail(field, texture)
+        }
+      })
+    )
+  }
 
   const clearThumbs = useCallback(async () => {
-    thumbnails.promised && (await thumbnails.promise)
-    Object.values(thumbnails.value).map(URL.revokeObjectURL)
+    Object.values(thumbnails.value).map(({ blob }) => URL.revokeObjectURL(blob))
     thumbnails.set({})
   }, [])
 
   useEffect(() => {
-    loadingData.set(true)
-    clearThumbs()
-      .then(createThumbnails)
-      .then((nuThumbs) => {
-        thumbnails.set(nuThumbs)
-        loadingData.set(false)
-      })
-  }, [materialComponent.prototype, materialComponent.material, materialComponent.parameters])
-
-  useEffect(() => {
-    checkThumbs()
-  }, [materialComponent.parameters])
-
-  const selectedPlugin = useState('vegetation')
+    clearThumbs().then(createThumbnails).then(checkThumbs)
+  }, [materialComponent.prototype, materialComponent.material.uuid])
 
   return (
-    <div {...rest}>
-      <InputGroup name="Name" label="Name">
-        <StringInput value={materialComponent.material.name.value} onChange={materialComponent.material.name.set} />
+    <div style={{ position: 'relative' }}>
+      <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
+        <StringInput
+          value={materialComponent.material.name.value}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            materialComponent.material.name.set(event.target.value)
+          }
+        />
       </InputGroup>
-      <InputGroup name="Source" label="Source">
+      <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
         <div className={styles.contentContainer}>
           <Box className="Box" sx={{ padding: '8px', overflow: 'scroll' }}>
             <Stack className="Stack" spacing={2} direction="column" alignContent={'center'}>
               <Stack className="Stack" spacing={2} direction="row" alignContent={'flex-start'}>
                 <div>
-                  <label>Type:</label>
+                  <label>{t('editor:properties.mesh.material.type')}</label>
                 </div>
                 <div>{materialComponent.src.type.value}</div>
               </Stack>
               <Stack className="Stack" spacing={2} direction="row">
                 <div>
-                  <label>Path:</label>
+                  <label>{t('editor:properties.mesh.material.path')}</label>
                 </div>
                 <div>{materialComponent.src.value.path}</div>
               </Stack>
@@ -142,44 +167,41 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
         </div>
       </InputGroup>
       <br />
-      {!loadingData.value && (
-        <InputGroup name="Prototype" label="Prototype">
-          <SelectInput
-            value={materialComponent.prototype.value}
-            options={prototypes}
-            onChange={(protoId) => {
-              const nuMat = changeMaterialPrototype(material, protoId)
-              materialComponent.set(materialFromId(nuMat!.uuid))
-              prototypeComponent = prototypeFromId(materialComponent.prototype.value)
-            }}
-          />
-        </InputGroup>
-      )}
+      <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
+        <SelectInput
+          value={materialComponent.prototype.value}
+          options={prototypes}
+          onChange={(protoId) => {
+            const nuMat = changeMaterialPrototype(material, protoId)
+            materialComponent.set(materialFromId(nuMat!.uuid))
+            // prototypeComponent = prototypeFromId(materialComponent.prototype.value)
+          }}
+        />
+      </InputGroup>
       <Divider className={styles.divider} />
-      <br />
       <ParameterInput
         entity={material.uuid}
-        values={loadingData.value ? {} : materialComponent.parameters.value}
+        values={materialComponent.parameters.value}
         onChange={(k) => async (val) => {
           let prop
           if (prototypeComponent.arguments[k].type === 'texture' && typeof val === 'string') {
             if (val) {
               prop = await AssetLoader.loadAsync(val)
             } else {
-              prop = undefined
+              prop = null
             }
           } else {
             prop = val
           }
           EditorControlFunctions.modifyMaterial(
-            getState(SelectionState).selectedEntities.filter((val) => typeof val === 'string') as string[],
+            [materialID],
             entryId(materialComponent.value, LibraryEntryType.MATERIAL),
             [{ [k]: prop }]
           )
           materialComponent.parameters[k].set(prop)
         }}
-        defaults={loadingData.value ? {} : prototypeComponent.arguments}
-        thumbnails={thumbnails.value}
+        defaults={prototypeComponent.arguments}
+        thumbnails={toBlobs(thumbnails.value)}
       />
       <br />
       <div
@@ -203,7 +225,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
             materialComponent.plugins.set(materialComponent.plugins.value.concat(selectedPlugin.value))
           }}
         >
-          Add Plugin
+          {t('editor:properties.mesh.material.addPlugin')}
         </Button>
       </div>
       <PaginatedList
@@ -211,7 +233,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
         element={(plugin: State<string>) => {
           return (
             <div className={styles.contentContainer}>
-              <InputGroup name="Plugin" label="Plugin">
+              <InputGroup name="Plugin" label={t('editor:properties.mesh.material.plugin')}>
                 <SelectInput
                   value={plugin.value}
                   options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
@@ -234,3 +256,22 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
     </div>
   )
 }
+
+export const MaterialPropertyTitle = () => {
+  const { t } = useTranslation()
+
+  return (
+    <div className={styles.dockableTab}>
+      <PanelDragContainer>
+        <PanelIcon as={MaterialLibraryIcon} size={12} />
+        <PanelTitle>
+          <InfoTooltip title={t('editor:properties.mesh.materialProperties.info')}>
+            <span>{t('editor:properties.mesh.materialProperties.title')}</span>
+          </InfoTooltip>
+        </PanelTitle>
+      </PanelDragContainer>
+    </div>
+  )
+}
+
+export default MaterialEditor

@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   githubRepoAccessDataValidator,
   githubRepoAccessPatchValidator,
   githubRepoAccessQueryValidator
-} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+} from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {
@@ -51,22 +51,23 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(githubRepoAccessQueryValidator),
       schemaHooks.resolveQuery(githubRepoAccessQueryResolver)
     ],
-    find: [],
-    get: [],
+    find: [iff(isProvider('external'), verifyScope('projects', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('projects', 'read'))],
     create: [
+      iff(isProvider('external'), verifyScope('projects', 'write')),
       () => schemaHooks.validateData(githubRepoAccessDataValidator),
       schemaHooks.resolveData(githubRepoAccessDataResolver)
     ],
-    update: [],
+    update: [disallow()],
     patch: [
+      iff(isProvider('external'), verifyScope('projects', 'write')),
       () => schemaHooks.validateData(githubRepoAccessPatchValidator),
       schemaHooks.resolveData(githubRepoAccessPatchResolver)
     ],
-    remove: []
+    remove: [iff(isProvider('external'), verifyScope('projects', 'write'))]
   },
   after: {
     all: [],

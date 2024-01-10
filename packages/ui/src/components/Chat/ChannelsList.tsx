@@ -27,9 +27,8 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect } from 'react'
 import UserIcon from './assets/user.svg'
 
+import { ChannelID, channelPath, messagePath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { Resizable } from 're-resizable'
 import { ChatState } from './ChatState'
 import { DrawerCreateChannel } from './DrawerCreateChannel'
@@ -90,7 +89,11 @@ export const ChannelsList = () => {
             }`}
             onClick={() => selectedChannelId.set(props.channel.id)}
           >
-            <img className="mt-3 ml-5 rounded-8xs w-11 h-11 object-cover" alt="" src={UserIcon /**userThumbnail */} />
+            <img
+              className="max-w-full mt-3 ml-5 rounded-8xs w-11 h-11 object-cover"
+              alt=""
+              src={UserIcon /**userThumbnail */}
+            />
             <div className="mt-3 justify-start w-[200px] whitespace-nowrap overflow-hidden text-ellipsis">
               <p className="font-bold text-[#3F3960]">{getChannelName(props.channel)}</p>
               <p className="h-4 text-xs text-[#787589]">{latestMessage}</p>
@@ -105,7 +108,7 @@ export const ChannelsList = () => {
     <>
       <div className="w-full h-[10vh] flex justify-center items-center">
         <button
-          className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8"
+          className="m-0 cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8"
           onClick={() => isDrawerOpen.set(true)}
         >
           <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">

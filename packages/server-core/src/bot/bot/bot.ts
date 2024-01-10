@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { botMethods, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
+import { botMethods, botPath } from '@etherealengine/common/src/schemas/bot/bot.schema'
 
 import { Application } from '../../../declarations'
 import { BotService } from './bot.class'
@@ -44,7 +44,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(botPath, new BotService(options, app), {
+  app.use(botPath, new BotService(options), {
     // A list of all methods this service exposes externally
     methods: botMethods,
     // You can add additional custom events to be sent to clients here

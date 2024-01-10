@@ -28,7 +28,6 @@ import React from 'react'
 import { TouchGamepad } from '@etherealengine/client-core/src/common/components/TouchGamepad'
 import { UserMenu } from '@etherealengine/client-core/src/user/components/UserMenu'
 import { iOS } from '@etherealengine/engine/src/common/functions/isMobile'
-import { getCameraMode, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { LoadingSystemState } from '../../systems/state/LoadingState'
@@ -43,9 +42,6 @@ import styles from './index.module.scss'
 
 export const LocationIcons = () => {
   const loadingScreenOpacity = useHookstate(getMutableState(LoadingSystemState).loadingScreenOpacity)
-  useHookstate(getMutableState(XRState))
-  const cameraMode = getCameraMode()
-
   return (
     <>
       <UserMenu />
@@ -59,7 +55,7 @@ export const LocationIcons = () => {
         <ARPlacement />
         <XRLoading />
         <MediaIconsBox />
-        {cameraMode === 'detached' && <TouchGamepad />}
+        <TouchGamepad />
         {!iOS && <Fullscreen />}
       </div>
     </>

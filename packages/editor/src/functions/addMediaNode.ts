@@ -32,7 +32,17 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
-import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
+import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { ObjectLayerComponents } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
+import { getState } from '@etherealengine/hyperflux'
+import { Material, Mesh, Raycaster, Vector2 } from 'three'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -42,21 +52,55 @@ import { EditorControlFunctions } from './EditorControlFunctions'
  * @param before Newly created node will be set before this node in parent's children array
  * @returns Newly created media node
  */
+
 export async function addMediaNode(
   url: string,
-  parent: Entity | null = null,
-  before: Entity | null = null,
-  extraComponentJson: ComponentJson[] = []
+  parent?: Entity,
+  before?: Entity,
+  extraComponentJson: ComponentJsonType[] = []
 ) {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
 
   if (contentType.startsWith('model/')) {
-    EditorControlFunctions.createObjectFromSceneElement(
-      [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
-      parent!,
-      before
-    )
+    if (contentType.startsWith('model/material')) {
+      // find current intersected object
+      const objectLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
+      const sceneObjects = objectLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
+      //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
+      let mouse = new Vector2()
+      const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+      const pointerScreenRaycaster = new Raycaster()
+
+      const mouseEvent = event as MouseEvent // Type assertion
+      mouse.x = (mouseEvent.clientX / window.innerWidth) * 2 - 1
+      mouse.y = -(mouseEvent.clientY / window.innerHeight) * 2 + 1
+      pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
+
+      pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
+
+      const intersect = pointerScreenRaycaster.intersectObjects(sceneObjects, true)
+      //change states
+      const intersected = pointerScreenRaycaster.intersectObjects(sceneObjects)[0]
+      const gltfLoader = getState(AssetLoaderState).gltfLoader
+      gltfLoader.load(url, (gltf) => {
+        const material = iterateObject3D(
+          gltf.scene,
+          (mesh: Mesh) => mesh.material as Material,
+          (mesh: Mesh) => mesh?.isMesh
+        )[0]
+        iterateObject3D(intersected.object, (mesh: Mesh) => {
+          if (!mesh?.isMesh) return
+          mesh.material = material
+        })
+      })
+    } else {
+      EditorControlFunctions.createObjectFromSceneElement(
+        [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+        parent!,
+        before
+      )
+    }
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
     EditorControlFunctions.createObjectFromSceneElement(
       [

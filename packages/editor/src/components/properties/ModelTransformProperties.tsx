@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
@@ -37,7 +36,8 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   ComponentType,
   getMutableComponent,
-  hasComponent
+  hasComponent,
+  useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { MaterialSource, SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
 import MeshBasicMaterial from '@etherealengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
@@ -46,8 +46,10 @@ import { materialsFromSource } from '@etherealengine/engine/src/renderer/materia
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { getMutableState, State } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { getMutableState, NO_PROXY, State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
+import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
+import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import exportGLTF from '../../functions/exportGLTF'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
@@ -57,26 +59,19 @@ import StringInput from '../inputs/StringInput'
 import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import GLTFTransformProperties from './GLTFTransformProperties'
-import LightmapBakerProperties from './LightmapBakerProperties'
-
-import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
 import './ModelTransformProperties.css'
 
-export default function ModelTransformProperties({
-  modelState,
-  onChangeModel
-}: {
-  modelState: State<ComponentType<typeof ModelComponent>>
-  onChangeModel: any
-}) {
-  const { t } = useTranslation()
+export default function ModelTransformProperties({ entity, onChangeModel }: { entity: Entity; onChangeModel: any }) {
+  const modelState = useComponent(entity, ModelComponent)
   const selectionState = useHookstate(getMutableState(SelectionState))
   const transforming = useHookstate<boolean>(false)
   const transformHistory = useHookstate<string[]>([])
-
+  const isClientside = useHookstate<boolean>(true)
+  const isBatchCompress = useHookstate<boolean>(false)
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
-    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : 'glb'
+    src: modelState.src.value,
+    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : modelState.src.value.endsWith('.vrm') ? 'vrm' : 'glb'
   })
 
   const vertexBakeOptions = useHookstate({
@@ -133,14 +128,33 @@ export default function ModelTransformProperties({
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
       const modelSrc = modelState.src.value
-      const nuPath = await Engine.instance.api.service(modelTransformPath).create({
-        src: modelSrc,
-        transformParameters: transformParms.value
-      })
-      transformHistory.set([modelSrc, ...transformHistory.value])
-      const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
+      const batchCompressed = isBatchCompress.value
+      const clientside = isClientside.value
+      const textureSizes = batchCompressed ? [2048, 1024, 512] : [transformParms.maxTextureSize.value]
+      const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
+      let nuPath: string | null = null
+
+      const variants = batchCompressed
+        ? textureSizes.map((maxTextureSize, index) => {
+            const suffix = `-LOD_${index}`
+            const dst = transformParms.dst.value.replace(/\.(glb|gltf|vrm)$/, `${suffix}.$1`)
+            return { ...transformParms.get(NO_PROXY), maxTextureSize, dst }
+          })
+        : [transformParms.get(NO_PROXY)]
+
+      for (const variant of variants) {
+        if (clientside) {
+          await clientSideTransformModel(variant)
+        } else {
+          await Engine.instance.api.service(modelTransformPath).create(variant)
+        }
+      }
+
+      if (!batchCompressed) {
+        onChangeModel(nuPath)
+      }
       await FileBrowserService.fetchFiles(directoryToRefresh)
-      onChangeModel(nuPath)
+      transformHistory.set([modelSrc, ...transformHistory.value])
       transforming.set(false)
     },
     [transformParms]
@@ -182,10 +196,7 @@ export default function ModelTransformProperties({
       console.log('saved baked model')
       //perform gltf transform
       console.log('transforming model at ' + bakedPath + '...')
-      const transformedPath = await Engine.instance.api.service(modelTransformPath).create({
-        src: bakedPath,
-        transformParameters: transformParms.value
-      })
+      const transformedPath = await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
       console.log('transformed model into ' + transformedPath)
       onChangeModel(transformedPath)
     }
@@ -199,21 +210,40 @@ export default function ModelTransformProperties({
   }, [modelState.src])
 
   useEffect(() => {
-    transformParms.resources.set(getModelResources(modelState.value))
-  }, [modelState.scene])
+    transformParms.resources.set(getModelResources(entity, transformParms.value))
+  }, [modelState.scene, transformParms])
 
   return (
     <CollapsibleBlock label="Model Transform Properties">
       <div className="TransformContainer">
-        <LightmapBakerProperties modelState={modelState} />
-        <GLTFTransformProperties
-          transformParms={transformParms}
-          onChange={(transformParms: ModelTransformParameters) => {}}
-        />
+        <CollapsibleBlock label="glTF-Transform">
+          <GLTFTransformProperties
+            transformParms={transformParms}
+            onChange={(transformParms: ModelTransformParameters) => {}}
+          />
+        </CollapsibleBlock>
         {!transforming.value && (
-          <button className="OptimizeButton button" onClick={onTransformModel(modelState)}>
-            Optimize
-          </button>
+          <>
+            <InputGroup name="Clientside Transform" label="Clientside Transform">
+              <BooleanInput
+                value={isClientside.value}
+                onChange={(val: boolean) => {
+                  isClientside.set(val)
+                }}
+              />
+            </InputGroup>
+            <InputGroup name="Batch Compress" label="Batch Compress">
+              <BooleanInput
+                value={isBatchCompress.value}
+                onChange={(val: boolean) => {
+                  isBatchCompress.set(val)
+                }}
+              />
+            </InputGroup>
+            <button className="OptimizeButton button" onClick={onTransformModel(modelState)}>
+              Optimize
+            </button>
+          </>
         )}
         {transforming.value && <p>Transforming...</p>}
         {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}

@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
+import { ChannelID, InstanceID, LocationID, RoomCode } from '@etherealengine/common/src/schema.type.module'
 import { defineAction, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Validator, matches } from '../common/functions/MatchesUtils'
-import { InstanceID } from '../schemas/networking/instance.schema'
-import { ChannelID } from '../schemas/social/channel.schema'
 import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
 
@@ -61,6 +60,13 @@ export const NetworkState = defineState({
       /** Use room IDs in url */
       roomID: false
     }
+  },
+
+  /** must be explicitly ordered as objects return keys in assignment order */
+  get orderedNetworkSchema() {
+    return Object.keys(getState(NetworkState).networkSchema)
+      .sort()
+      .map((key) => getState(NetworkState).networkSchema[key])
   },
 
   get worldNetwork() {
@@ -139,4 +145,15 @@ export const updateNetworkID = (network: Network, newID: InstanceID) => {
   state.networks[newID].set(network)
   state.networks[newID].hostId.set(newID as any)
   state.networks[newID].id.set(newID)
+}
+
+export type NetworkConnectionParams = {
+  token: string
+  locationId?: LocationID
+  instanceID?: InstanceID
+  channelId?: ChannelID
+  roomCode?: RoomCode
+  /** Address and port are used by ingress to route traffic */
+  address?: string
+  port?: string
 }

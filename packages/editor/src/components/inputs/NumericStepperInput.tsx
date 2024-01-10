@@ -47,7 +47,8 @@ const stepperButtonStyle = {
   border: '1px solid var(--inputOutline)',
   color: 'var(--textColor)',
   width: '20px',
-  padding: '0'
+  padding: '0',
+  margin: 0
 }
 
 const leftStepperButtonStyle = {

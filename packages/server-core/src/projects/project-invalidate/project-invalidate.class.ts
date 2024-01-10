@@ -18,12 +18,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectInvalidatePatch } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
+import { ProjectInvalidatePatch } from '@etherealengine/common/src/schemas/projects/project-invalidate.schema'
 import { NullableId, ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 //export interface ProjectInvalidateParams extends KnexAdapterParams<ProjectInvalidateQuery> {}
 
 export class ProjectInvalidateService implements ServiceInterface<void, ProjectInvalidatePatch> {

@@ -23,15 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
+import {
+  UserID,
+  UserType,
+  identityProviderPath,
+  instancePath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { AuthError, AuthTask } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleConnectingPeer, handleDisconnect } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
@@ -49,7 +52,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
    **/
   await new Promise<void>((resolve) => {
     const interval = setInterval(() => {
-      if (getState(EngineState).connectedWorld) {
+      if (getState(InstanceServerState).ready) {
         clearInterval(interval)
         resolve()
       }
@@ -59,7 +62,6 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
   const network = getServerNetwork(app)
 
   const onAuthenticationRequest = async (data) => {
-    console.log(data)
     const peerID = data.peerID
 
     if (authTask) return
@@ -91,7 +93,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
         {}
       )
       userId = authResult[identityProviderPath].userId as UserID
-      user = await app.service(userPath).get(userId)
+      user = await app.service(userPath).get(userId, { headers: spark.headers })
 
       if (!user) {
         authTask.status = 'fail'

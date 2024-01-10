@@ -46,16 +46,21 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
+import {
+  identityProviderPath,
+  instanceAuthorizedUserPath,
+  instancePath,
+  InstanceType,
+  InviteCode,
+  inviteCodeLookupPath,
+  messagePath,
+  UserID,
+  userKickPath,
+  UserType
+} from '@etherealengine/common/src/schema.type.module'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
-import { instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
-import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
-import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
@@ -103,7 +108,7 @@ export const setupIPs = async () => {
 export async function cleanupOldInstanceservers(app: Application): Promise<void> {
   const serverState = getState(ServerState)
 
-  const instances = (await app.service(instancePath)._find({
+  const instances = (await app.service(instancePath).find({
     query: {
       ended: false
     },
@@ -197,7 +202,7 @@ export const handleConnectingPeer = (
   spark: Spark,
   peerID: PeerID,
   user: UserType,
-  inviteCode?: string
+  inviteCode?: InviteCode
 ) => {
   const userId = user.id
 
@@ -237,7 +242,7 @@ export const handleConnectingPeer = (
 const getUserSpawnFromInvite = async (
   network: SocketWebRTCServerNetwork,
   user: UserType,
-  inviteCode: string,
+  inviteCode: InviteCode,
   iteration = 0
 ) => {
   if (inviteCode) {
@@ -324,7 +329,8 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
         {
           instanceId: instanceServerState.instance.id,
           text: `${userName} left`,
-          isNotification: true
+          isNotification: true,
+          senderId: userId
         },
         {
           [identityProviderPath]: {

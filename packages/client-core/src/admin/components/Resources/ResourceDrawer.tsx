@@ -46,11 +46,11 @@ import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
-import { AdminResourceState, ResourceService } from '../../services/ResourceService'
+import { ResourceService } from '../../services/ResourceService'
 import styles from '../../styles/admin.module.scss'
 
 export enum ResourceDrawerMode {
@@ -87,7 +87,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
 
-  const adminResourceState = useHookstate(getMutableState(AdminResourceState))
   const user = useHookstate(getMutableState(AuthState).user).value
 
   const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'static_resource:write')

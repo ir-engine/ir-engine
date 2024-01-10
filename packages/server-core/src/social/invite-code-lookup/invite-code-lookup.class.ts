@@ -28,12 +28,11 @@ import { Application } from '../../../declarations'
 import {
   InviteCodeLookupQuery,
   InviteCodeLookupType
-} from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/social/invite-code-lookup.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InviteCodeLookupParams extends KnexAdapterParams<InviteCodeLookupQuery> {}
 
 export class InviteCodeLookupService implements ServiceInterface<InviteCodeLookupType, InviteCodeLookupParams> {

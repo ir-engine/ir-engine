@@ -29,16 +29,16 @@ import { resolve, virtual } from '@feathersjs/schema'
 import {
   InstanceAttendanceType,
   instanceAttendancePath
-} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
 import {
   InviteCodeLookupQuery,
   InviteCodeLookupType
-} from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+} from '@etherealengine/common/src/schemas/social/invite-code-lookup.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const inviteCodeLookupResolver = resolve<InviteCodeLookupType, HookContext>({
   instanceAttendance: virtual(async (inviteCodeLookup, context) => {
-    if (context.params.user?.id === context.arguments[0])
+    if (context.params.user?.id === context.id)
       return (await context.app.service(instanceAttendancePath).find({
         query: {
           userId: inviteCodeLookup.id,

@@ -102,6 +102,7 @@ const AutoComplete = ({ data, label, disabled, error, onChange, value = '', free
               </legend>
             </fieldset>
             <input
+              style={{ margin: 0 }}
               disabled={disabled}
               {...getInputProps()}
               onBlur={(event: any) => {

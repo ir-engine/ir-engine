@@ -31,9 +31,8 @@ import {
   LocationBanPatch,
   LocationBanQuery,
   LocationBanType
-} from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+} from '@etherealengine/common/src/schemas/social/location-ban.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LocationBanParams extends KnexAdapterParams<LocationBanQuery> {}
 
 export class LocationBanService<

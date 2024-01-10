@@ -23,11 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState } from '@etherealengine/hyperflux'
-
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from './TransformComponent'
 
 export const ComputedTransformComponent = defineComponent({
   name: 'ComputedTransformComponent',
@@ -45,7 +43,7 @@ export const ComputedTransformComponent = defineComponent({
     if (typeof json.referenceEntity === 'number') component.referenceEntity.set(json.referenceEntity)
     if (typeof json.computeFunction === 'function') component.merge({ computeFunction: json.computeFunction })
 
-    getMutableState(EngineState).transformsNeedSorting.set(true)
+    TransformComponent.transformsNeedSorting = true
   }
 })
 

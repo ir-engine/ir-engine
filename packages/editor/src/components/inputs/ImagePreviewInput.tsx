@@ -32,7 +32,6 @@ import InputGroup from './InputGroup'
 import { StringInputProps } from './StringInput'
 
 const imageContainerStyle = {
-  display: 'flex',
   width: '100%',
   borderRadius: '4px',
   border: 'solid',

@@ -40,13 +40,13 @@ import {
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
-import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
-import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -69,7 +69,6 @@ const PUSH_TIMEOUT = 60 * 10 //10 minute timeout on GitHub push jobs completing 
 export const getAuthenticatedRepo = async (token: string, repositoryPath: string) => {
   try {
     if (!/.git$/.test(repositoryPath)) repositoryPath = repositoryPath + '.git'
-    repositoryPath = repositoryPath.toLowerCase()
     const user = await getUser(token)
     return repositoryPath.replace('https://', `https://${user.data.login}:${token}@`)
   } catch (error) {
@@ -330,8 +329,14 @@ const uploadToRepo = async (
     currentCommit = await getCurrentCommit(octo, org, repo, branch)
   } catch (err) {
     if (err.status === 409 && err.message === 'Git Repository is empty.') {
-      await octo.repos.delete({ owner: org, repo })
-      await octo.repos.createInOrg({ org, name: repo, auto_init: true })
+      await octo.repos.createOrUpdateFileContents({
+        owner: org,
+        repo,
+        path: 'README.md',
+        message: 'Initial commit',
+        content: 'ZHVtbXk=',
+        branch: 'main'
+      })
       currentCommit = await getCurrentCommit(octo, org, repo, branch)
     } else throw err
   }
@@ -386,7 +391,7 @@ const uploadToRepo = async (
   //Create the new commit with all of the file changes
   const newCommit = await createNewCommit(octo, org, repo, commitMessage, newTree.sha, currentCommit.commitSha)
 
-  await app.service(projectPath)._patch(project.id, { commitSHA: newCommit.sha, commitDate: toDateTimeSql(new Date()) })
+  await app.service(projectPath).patch(project.id, { commitSHA: newCommit.sha, commitDate: toDateTimeSql(new Date()) })
 
   try {
     //This pushes the commit to the main branch in GitHub

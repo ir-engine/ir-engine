@@ -30,19 +30,11 @@ import { AuthState } from './services/AuthService'
 export const useUserHasAccessHook = (scope: string) => {
   const authState = useHookstate(getMutableState(AuthState))
   const hasScope = authState.value.user?.scopes?.find((r) => r.type === scope)
-  const isAdmin = authState.value.user?.scopes?.find((r) => r.type === 'admin:admin')
-  return Boolean(hasScope || isAdmin)
+  return Boolean(hasScope)
 }
 
 export const userHasAccess = (scope: string) => {
   const authState = getState(AuthState)
   const hasScope = authState.user?.scopes?.find((r) => r.type === scope)
-  const isAdmin = authState.user?.scopes?.find((r) => r.type === 'admin:admin')
-  return Boolean(hasScope || isAdmin)
-}
-
-export const userIsAdmin = () => {
-  const authState = getState(AuthState)
-  const isAdmin = authState.user?.scopes?.find((r) => r.type === 'admin:admin')
-  return Boolean(isAdmin)
+  return Boolean(hasScope)
 }

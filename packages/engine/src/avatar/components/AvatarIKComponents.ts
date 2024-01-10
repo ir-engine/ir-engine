@@ -24,14 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
+import { AxesHelper, Quaternion, Vector3 } from 'three'
 
-import matches from 'ts-matches'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { Types } from 'bitecs'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { RendererState } from '../../renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
@@ -43,18 +49,18 @@ export const AvatarHeadDecapComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
 
-    const headDecap = useOptionalComponent(entity, AvatarHeadDecapComponent)
-    const rig = useOptionalComponent(entity, AvatarRigComponent)
+    const headDecap = useComponent(entity, AvatarHeadDecapComponent)
+    const rig = useComponent(entity, AvatarRigComponent)
 
     useEffect(() => {
-      if (!rig?.value?.vrm?.humanoid?.rawHumanBones?.head?.node || !headDecap?.value) return
+      if (!rig.rawRig.value?.head?.node || !headDecap?.value) return
 
-      rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(EPSILON)
+      rig.rawRig.value.head.node.scale.setScalar(EPSILON)
 
       return () => {
-        rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(1)
+        rig.rawRig.value.head.node.scale.setScalar(1)
       }
-    }, [headDecap, rig])
+    }, [headDecap, rig.rawRig])
 
     return null
   }
@@ -68,13 +74,24 @@ export type AvatarIKTargetsType = {
 
 export const AvatarIKTargetComponent = defineComponent({
   name: 'AvatarIKTargetComponent',
+  schema: { blendWeight: Types.f64 },
 
-  onInit(entity) {
-    return { blendWeight: 0 }
-  },
+  reactor: function () {
+    const entity = useEntityContext()
+    const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
 
-  onSet(entity, component, json) {
-    if (json && matches.number.test(json?.blendWeight)) component.blendWeight.set(json.blendWeight)
+    useEffect(() => {
+      if (!debugEnabled.value) return
+      const helper = new AxesHelper(0.5)
+      addObjectToGroup(entity, helper)
+      setObjectLayers(helper, ObjectLayers.AvatarHelper)
+      setComponent(entity, VisibleComponent)
+      return () => {
+        removeObjectFromGroup(entity, helper)
+      }
+    }, [debugEnabled])
+
+    return null
   }
 })
 
@@ -91,8 +108,10 @@ const quat = new Quaternion()
 type HandTargetReturn = { position: Vector3; rotation: Quaternion } | null
 export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetReturn => {
   const networkComponent = getComponent(entity, NetworkObjectComponent)
+
   const targetEntity = NameComponent.entitiesByName[networkComponent.ownerId + '_' + hand]?.[0] // todo, how should be choose which one to use?
-  if (targetEntity) return getComponent(targetEntity, TransformComponent)
+  if (targetEntity && AvatarIKTargetComponent.blendWeight[targetEntity] > 0)
+    return getComponent(targetEntity, TransformComponent)
 
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig) return getComponent(entity, TransformComponent)
@@ -100,19 +119,19 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   switch (hand) {
     case 'left':
       return {
-        position: rig.rig.leftHand.node.getWorldPosition(vec3),
-        rotation: rig.rig.leftHand.node.getWorldQuaternion(quat)
+        position: rig.rawRig.leftHand.node.getWorldPosition(vec3),
+        rotation: rig.rawRig.leftHand.node.getWorldQuaternion(quat)
       }
     case 'right':
       return {
-        position: rig.rig.rightHand.node.getWorldPosition(vec3),
-        rotation: rig.rig.rightHand.node.getWorldQuaternion(quat)
+        position: rig.rawRig.rightHand.node.getWorldPosition(vec3),
+        rotation: rig.rawRig.rightHand.node.getWorldQuaternion(quat)
       }
     default:
     case 'none':
       return {
-        position: rig.rig.head.node.getWorldPosition(vec3),
-        rotation: rig.rig.head.node.getWorldQuaternion(quat)
+        position: rig.rawRig.head.node.getWorldPosition(vec3),
+        rotation: rig.rawRig.head.node.getWorldQuaternion(quat)
       }
   }
 }

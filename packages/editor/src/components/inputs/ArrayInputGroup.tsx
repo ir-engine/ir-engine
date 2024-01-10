@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/Delete'
 import IconButton from '@mui/material/IconButton'
 import React from 'react'
 import styles from './ArrayInputGroup.module.scss'
@@ -37,6 +37,7 @@ export interface ArrayInputGroupProp {
   label?: any
   values: string[]
   onChange?: (values: string[]) => void
+  onRelease?: (values: string[]) => void
   acceptFileTypes?: any
   acceptDropItems?: any
 }
@@ -46,92 +47,89 @@ export interface ArrayInputGroupState {
   values: string[]
 }
 
-const ArrayInputGroup = ({
-  prefix,
-  label,
-  values,
-  onChange,
-  acceptFileTypes,
-  acceptDropItems
-}: ArrayInputGroupProp) => {
-  const addInput = (count = 1) => {
-    const valuesCopy = [...values]
-    for (let i = 0; i < count; i++) {
-      valuesCopy.push('')
+const ArrayInputGroup = React.memo(
+  ({ prefix, label, values, onChange, acceptFileTypes, acceptDropItems, ...rest }: ArrayInputGroupProp) => {
+    const addInput = (count = 1) => {
+      const valuesCopy = [...values]
+      for (let i = 0; i < count; i++) {
+        valuesCopy.push('')
+      }
+      onChange?.(valuesCopy)
     }
-    onChange?.(valuesCopy)
-  }
 
-  const deleteInput = (index: number) => {
-    const valuesCopy = [...values]
-    valuesCopy.splice(index, 1)
-    onChange?.(valuesCopy)
-  }
+    const deleteInput = (index: number) => {
+      const valuesCopy = [...values]
+      valuesCopy.splice(index, 1)
+      onChange?.(valuesCopy)
+    }
 
-  const onChangeText = (text: string, index: number) => {
-    // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
-    const valuesCopy = [...values]
-    valuesCopy[index] = text
-    onChange?.(valuesCopy)
-  }
+    const onChangeText = (text: string, index: number) => {
+      // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
+      const valuesCopy = [...values]
+      valuesCopy[index] = text
+      onChange?.(valuesCopy)
+    }
 
-  return (
-    <InputGroup name="label" label={label} labelClasses={styles.sizeLabel}>
-      <div className={styles.arrayInputGroupContent}>
-        <InputGroup name={`${prefix} 1`} label={`${prefix} 1`}>
-          <FileBrowserInput
-            value={values.length > 0 ? values[0] : ''}
-            onChange={(value) => {
-              if (values.length > 0) {
-                onChangeText(value, 0)
-              } else {
-                addInput()
-                onChangeText(value, 0)
-              }
-            }}
-            acceptFileTypes={acceptFileTypes}
-            acceptDropItems={acceptDropItems}
-          />
-          <IconButton
-            disableRipple
-            onClick={() => {
-              if (values.length === 0) {
-                addInput(2)
-              } else {
-                addInput(1)
-              }
-            }}
-            style={{
-              padding: 0
-            }}
-          >
-            <AddIcon sx={{ color: 'primary.contrastText' }} />
-          </IconButton>
-        </InputGroup>
-        {values &&
-          values.length > 0 &&
-          values.slice(1).map((value, index) => (
-            <InputGroup name={`${prefix} ${index + 2}`} label={`${prefix} ${index + 2}`} key={value + '' + index}>
-              <FileBrowserInput
-                value={value}
-                onChange={(value) => onChangeText(value, index + 1)}
-                acceptFileTypes={acceptFileTypes}
-                acceptDropItems={acceptDropItems}
-              />
-              <IconButton
-                disableRipple
-                style={{
-                  padding: 0
-                }}
-                onClick={() => deleteInput(index + 1)}
-              >
-                <DeleteIcon sx={{ color: 'primary.contrastText' }} />
-              </IconButton>
-            </InputGroup>
-          ))}
-      </div>
-    </InputGroup>
-  )
-}
+    return (
+      <InputGroup name="label" label={label} labelClasses={styles.sizeLabel}>
+        <div className={styles.arrayInputGroupContent}>
+          <InputGroup name={`${prefix} 1`} label={`${prefix} 1`}>
+            <FileBrowserInput
+              value={values.length > 0 ? values[0] : ''}
+              onChange={(value) => {
+                if (values.length > 0) {
+                  onChangeText(value, 0)
+                } else {
+                  addInput()
+                  onChangeText(value, 0)
+                }
+              }}
+              acceptFileTypes={acceptFileTypes}
+              acceptDropItems={acceptDropItems}
+              {...rest}
+            />
+            <IconButton
+              disableRipple
+              onClick={() => {
+                if (values.length === 0) {
+                  addInput(2)
+                } else {
+                  addInput(1)
+                }
+              }}
+              style={{
+                padding: 0
+              }}
+            >
+              <AddIcon sx={{ color: 'var(--textColor)' }} />
+            </IconButton>
+          </InputGroup>
+          {values &&
+            values.length > 0 &&
+            values.slice(1).map((value, index) => (
+              <InputGroup name={`${prefix} ${index + 2}`} label={`${prefix} ${index + 2}`} key={value + '' + index}>
+                <FileBrowserInput
+                  value={value}
+                  onChange={(value) => onChangeText(value, index + 1)}
+                  acceptFileTypes={acceptFileTypes}
+                  acceptDropItems={acceptDropItems}
+                  {...rest}
+                />
+                <IconButton
+                  disableRipple
+                  style={{
+                    padding: 0
+                  }}
+                  onClick={() => deleteInput(index + 1)}
+                >
+                  <Icon type="Delete" style={{ color: 'var(--textColor)' }} />
+                </IconButton>
+              </InputGroup>
+            ))}
+        </div>
+      </InputGroup>
+    )
+  }
+)
 
 export default ArrayInputGroup

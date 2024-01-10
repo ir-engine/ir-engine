@@ -1,4 +1,9 @@
-@import "@etherealengine/client-core/src/styles/imports.module.scss";
+@import '@etherealengine/client-core/src/styles/imports.module.scss';
+
+.defaultFont {
+  font-family: var(--lato);
+  font-size: 12px;
+}
 
 .openModalBtn {
   height: 50px;
@@ -9,6 +14,7 @@
 
   &:hover {
     opacity: 0.8;
+    background-color: var(--buttonFilled);
   }
 
   &:disabled {
@@ -69,6 +75,7 @@
 .gradientButton {
   background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
   color: var(--buttonTextColor) !important;
+  width: 100%;
 
   &.forceVaporwave {
     background: linear-gradient(90deg, #5236ff, #c20560);
@@ -88,6 +95,7 @@
   background: transparent;
   border: solid 1px var(--buttonOutlined);
   color: var(--buttonTextColor) !important;
+  width: 100%;
 
   &:hover {
     opacity: 0.7;
@@ -325,7 +333,9 @@
 }
 
 .textAlign {
+  display: flex;
   text-align: center;
+  justify-content: center;
 }
 
 .mb10px {
@@ -364,7 +374,7 @@
     color: var(--iconButtonColor);
   }
 
-  [class*="Mui-disabled"] {
+  [class*='Mui-disabled'] {
     opacity: 0.38;
     color: var(--textColor) !important;
   }
@@ -625,19 +635,19 @@
   max-width: 90%;
 }
 
-[class*="MuiDialog-root"] {
-  [class*=".MuiTabs-root"] {
+[class*='MuiDialog-root'] {
+  [class*='.MuiTabs-root'] {
     min-height: initial;
   }
 
-  [class*="MuiPickersToolbar-root"] {
+  [class*='MuiPickersToolbar-root'] {
     button {
       width: initial;
       margin: initial;
     }
   }
 
-  [class*="MuiDialogActions-root"] {
+  [class*='MuiDialogActions-root'] {
     button {
       background-color: var(--popupBackground) !important;
       color: var(--iconButtonColor) !important;
@@ -677,6 +687,8 @@
   text-align: center;
   display: flex;
   align-items: center;
+  font-family: var(--lato);
+  font-size: 12px;
 
   & > svg {
     font-size: 2.5em;
@@ -693,6 +705,8 @@
 
 .validContainer {
   display: flex;
+  text-align: center;
+  align-items: center;
 
   &.valid > svg {
     color: var(--green);
@@ -709,10 +723,14 @@
 
 .errorText {
   color: var(--red);
+  font-family: var(--lato);
+  font-size: 12px;
 }
 
 .projectVersion {
   color: var(--yellow);
+  font-family: var(--lato);
+  font-size: 12px;
 }
 
 .projectSelector {
@@ -791,10 +809,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
 
       .title {
+        flex: 1;
+        text-align: left;
         font-size: 1.5em;
-        text-align: center;
       }
 
       .closeButton {
@@ -820,11 +840,23 @@
   color: var(--textColor);
   text-align: center;
   margin-bottom: 10px;
-  font-weight: 300;
   font-size: 18px;
   display: flex;
+  font-family: var(--lato);
 
   a {
     margin-left: 2px;
+  }
+}
+
+a {
+  color: var(--textColor);
+
+  &:hover {
+    color: var(--blueHover);
+  }
+
+  & :active {
+    color: var(--bluePressed);
   }
 }

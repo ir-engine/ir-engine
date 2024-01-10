@@ -32,9 +32,8 @@ import {
   UserRelationshipPatch,
   UserRelationshipQuery,
   UserRelationshipType
-} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+} from '@etherealengine/common/src/schemas/user/user-relationship.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface UserRelationshipParams extends KnexAdapterParams<UserRelationshipQuery> {}
 
 /**

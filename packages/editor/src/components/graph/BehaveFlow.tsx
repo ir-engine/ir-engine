@@ -23,47 +23,65 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState'
-import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  getMutableComponent,
-  hasComponent,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getComponent, hasComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { isEqual } from 'lodash'
-import React, { useEffect } from 'react'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import 'reactflow/dist/style.css'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
+import { commitProperty } from '../properties/Util'
 import { Flow } from './ee-flow'
 import './ee-flow/styles.css'
+
+export const ActiveBehaveGraph = (props: { entity }) => {
+  const { entity } = props
+
+  // reactivity
+  const behaveGraphState = getState(BehaveGraphState)
+
+  // get underlying data, avoid hookstate error 202
+  const graphComponent = getComponent(entity, BehaveGraphComponent)
+
+  return (
+    <Flow
+      initialGraph={graphComponent.graph}
+      examples={{}}
+      registry={behaveGraphState.registries[graphComponent.domain]}
+      onChangeGraph={
+        (newGraph) => {
+          if (!newGraph) return
+          if (isEqual(graphComponent.graph, newGraph)) return
+          commitProperty(BehaveGraphComponent, 'graph')(newGraph)
+        }
+        // need this to smoothen UX
+      }
+    />
+  )
+}
 
 const BehaveFlow = () => {
   const selectionState = useHookstate(getMutableState(SelectionState))
   const entities = selectionState.selectedEntities.value
   const entity = entities[entities.length - 1]
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
-  const graphComponent = getMutableComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
-  const forceUpdate = useForceUpdate()
-  const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
+  const { t } = useTranslation()
 
-  const addGraph = () => {
-    setComponent(entity as Entity, BehaveGraphComponent)
-    forceUpdate()
-  }
-  useEffect(() => {
-    forceUpdate()
-  }, [selectionState.objectChangeCounter])
+  const addGraph = () => EditorControlFunctions.addOrRemoveComponent([entity], BehaveGraphComponent, true)
+
+  // ensure reactivity of adding new graph
+  useQuery([BehaveGraphComponent])
 
   return (
     <AutoSizer>
       {({ width, height }) => (
         <div style={{ width, height }}>
-          {!validEntity && (
+          {entities.length && !validEntity ? (
             <PropertiesPanelButton
               style={{
                 position: 'absolute',
@@ -75,21 +93,12 @@ const BehaveFlow = () => {
                 addGraph()
               }}
             >
-              {' '}
-              Add Graph
+              {t('editor:graphPanel.addGraph')}
             </PropertiesPanelButton>
+          ) : (
+            <></>
           )}
-          {validEntity && (
-            <Flow
-              initialGraph={graphComponent?.value?.graph}
-              examples={{}}
-              registry={behaveGraphState.registries.get(NO_PROXY)[graphComponent?.domain.value]}
-              onChangeGraph={(newGraph) => {
-                if (!graphComponent.graph || isEqual(graphComponent.graph.get(NO_PROXY), newGraph)) return
-                graphComponent.graph.set(JSON.parse(JSON.stringify(newGraph)))
-              }}
-            />
-          )}
+          {validEntity && <ActiveBehaveGraph entity={entity} />}
         </div>
       )}
     </AutoSizer>

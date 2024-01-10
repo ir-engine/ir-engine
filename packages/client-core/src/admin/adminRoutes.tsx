@@ -24,74 +24,57 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { lazy, Suspense, useEffect } from 'react'
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Dashboard from '@etherealengine/ui/src/primitives/mui/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
 import { AuthState } from '../user/services/AuthService'
-import { UserUISystem } from '../user/UserUISystem'
+import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
 import Analytics from './components/Analytics'
+import { DefaultAdminRoutes } from './DefaultAdminRoutes'
+
+import '@etherealengine/engine/src/EngineModule'
+import { RouterState } from '../common/services/RouterService'
 
 const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
-
-const AdminSystemInjection = () => {
-  startSystems([UserUISystem], { after: PresentationSystemGroup })
-}
 
 const AdminRoutes = () => {
   const location = useLocation()
   const admin = useHookstate(getMutableState(AuthState)).user
 
-  let allowedRoutes = {
-    analytics: false,
-    location: false,
-    user: false,
-    bot: false,
-    scene: false,
-    channel: false,
-    instance: false,
-    invite: false,
-    globalAvatars: false,
-    static_resource: false,
-    benchmarking: false,
-    routes: false,
-    projects: false,
-    settings: false,
-    server: false,
-    recording: false
-  }
-  const scopes = admin?.scopes?.value || []
+  const allowedRoutes = useHookstate(getMutableState(AllowedAdminRoutesState))
+
+  const scopes = admin?.scopes?.value
 
   useEffect(() => {
-    AdminSystemInjection()
-    dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+    allowedRoutes.set(DefaultAdminRoutes)
   }, [])
 
-  scopes.forEach((scope) => {
-    if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
-      if (scope.type.split(':')[1] === 'read') {
-        allowedRoutes = {
-          ...allowedRoutes,
-          [scope.type.split(':')[0]]: true
-        }
-      }
+  useEffect(() => {
+    for (const [route, state] of Object.entries(allowedRoutes)) {
+      const routeScope = state.scope.value
+      const hasScope =
+        routeScope === '' ||
+        scopes?.find((scope) => {
+          const [scopeKey, type] = scope.type.split(':')
+          return Array.isArray(routeScope) ? routeScope.includes(scopeKey) : scopeKey === routeScope
+        })
+      state.access.set(!!hasScope)
     }
-  })
+  }, [scopes])
 
   if (admin?.id?.value?.length! > 0 && !admin?.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
-    return <Navigate to={{ pathname: '/' }} />
+    RouterState.navigate('/', { redirectUrl: location.pathname })
+    return <></>
   }
 
   return (
     <Dashboard>
       <Suspense fallback={<LoadingCircle message={`Loading ${location.pathname.split('/')[2]}...`} />}>
         <Routes>
-          <Route path="/*" element={<$allowed allowedRoutes={allowedRoutes} />} />
+          <Route path="/*" element={<$allowed />} />
           {<Route path="/" element={<Analytics />} />}
         </Routes>
       </Suspense>

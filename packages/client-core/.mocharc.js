@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 
 module.exports = {
   failZero: false,
-  parallel: true,
+  parallel: false,
   spec: ['**/*.test.*'],
   require: [
     'tests/mocha.env', // init env here

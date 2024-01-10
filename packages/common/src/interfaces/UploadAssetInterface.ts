@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { AvatarID } from '@etherealengine/common/src/schema.type.module'
+import { UserID } from '../schemas/user/user.schema'
 
 export type AvatarUploadArgsType = {
   avatarName: string
-  avatarId: string
+  avatarId: AvatarID
   isPublic: boolean
 }
 
@@ -35,6 +36,7 @@ export type AvatarUploadType = {
   type: 'user-avatar-upload'
   files: (Blob | Buffer)[]
   userId?: UserID
+  path?: string
   args: string | AvatarUploadArgsType
 }
 

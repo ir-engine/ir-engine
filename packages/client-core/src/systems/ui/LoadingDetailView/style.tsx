@@ -44,6 +44,8 @@ const LoadingDetailViewStyle = () => {
         transform: translate(-50%, -50%);
         filter: blur(5px);
         color: #FFFFFF;
+        height: 'auto';
+        max-width: '100%;
       }
 
       #loading-ui {

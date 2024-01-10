@@ -27,16 +27,16 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { InstanceID, InstanceQuery, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, InstanceQuery, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const instanceResolver = resolve<InstanceType, HookContext>({
   location: virtual(async (instance, context) => {
     if (context.event !== 'removed' && instance.locationId)
-      return await context.app.service(locationPath)._get(instance.locationId)
+      return await context.app.service(locationPath).get(instance.locationId)
   }),
   assignedAt: virtual(async (location) => (location.assignedAt ? fromDateTimeSql(location.assignedAt) : '')),
   createdAt: virtual(async (location) => fromDateTimeSql(location.createdAt)),

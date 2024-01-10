@@ -23,8 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 
+import { getMutableState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const SpectatorComponent = defineComponent({
@@ -40,5 +43,15 @@ export const SpectatorComponent = defineComponent({
     if (!json) return
 
     if (json.userId) component.userId.set(json.userId)
+  },
+
+  reactor: () => {
+    useEffect(() => {
+      getMutableState(EngineState).spectating.set(true)
+      return () => {
+        getMutableState(EngineState).spectating.set(false)
+      }
+    }, [])
+    return null
   }
 })

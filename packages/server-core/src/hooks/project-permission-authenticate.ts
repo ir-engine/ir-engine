@@ -25,23 +25,24 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
+import { Application } from '../../declarations'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 
 import {
   ProjectPermissionType,
   projectPermissionPath
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
 
 export default (writeAccess) => {
-  return async (context: HookContext): Promise<HookContext> => {
+  return async (context: HookContext<Application>) => {
     const { params, app } = context
     if (context.params.isInternal) return context
     const loggedInUser = params.user as UserType
@@ -55,6 +56,7 @@ export default (writeAccess) => {
     if (projectName) {
       const project = (await app.service(projectPath).find({
         query: {
+          action: 'admin',
           name: projectName,
           $limit: 1
         }
@@ -67,7 +69,7 @@ export default (writeAccess) => {
     }
     if (!projectId) projectId = params.id || context.id
     // @ts-ignore
-    const projectPermissionResult = (await app.service(projectPermissionPath)._find({
+    const projectPermissionResult = (await app.service(projectPermissionPath).find({
       query: {
         projectId: projectId,
         userId: loggedInUser.id,

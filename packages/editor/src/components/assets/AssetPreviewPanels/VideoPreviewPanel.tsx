@@ -29,7 +29,8 @@ const videoStyles = {
   display: 'block',
   marginLeft: 'auto',
   marginRight: 'auto',
-  maxWidth: '500px'
+  maxWidth: '500px',
+  height: 'auto'
 }
 
 /**

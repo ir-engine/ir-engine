@@ -28,26 +28,23 @@ import { useTranslation } from 'react-i18next'
 
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import {
-  ArrowRightRounded,
-  Check,
-  Clear,
-  Delete,
-  Download,
-  DownloadDone,
-  FilterList,
-  Group,
-  Link,
-  LinkOff,
-  Search,
-  Settings,
-  Upload
-} from '@mui/icons-material'
+import ArrowRightRounded from '@mui/icons-material/ArrowRightRounded'
+import Check from '@mui/icons-material/Check'
+import Clear from '@mui/icons-material/Clear'
+import Delete from '@mui/icons-material/Delete'
+import Download from '@mui/icons-material/Download'
+import DownloadDone from '@mui/icons-material/DownloadDone'
+import FilterList from '@mui/icons-material/FilterList'
+import Group from '@mui/icons-material/Group'
+import Link from '@mui/icons-material/Link'
+import LinkOff from '@mui/icons-material/LinkOff'
+import Search from '@mui/icons-material/Search'
+import Settings from '@mui/icons-material/Settings'
+import Upload from '@mui/icons-material/Upload'
 import {
   Accordion,
   AccordionDetails,
@@ -62,13 +59,17 @@ import {
   Paper
 } from '@mui/material'
 
-import { userIsAdmin } from '@etherealengine/client-core/src/user/userHasAccess'
-import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
+import { InviteCode, projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { useNavigate } from 'react-router-dom'
 import { getProjects } from '../../functions/projectFunctions'
+import { EditorState } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
 import { EditPermissionsDialog } from './EditPermissionsDialog'
+
 import styles from './styles.module.scss'
 
 const logger = multiLogger.child({ component: 'editor:ProjectsPage' })
@@ -172,7 +173,7 @@ const ProjectsPage = () => {
   const query = useHookstate('')
   const filterAnchorEl = useHookstate<any>(null)
   const projectAnchorEl = useHookstate<any>(null)
-  const filter = useHookstate({ installed: false, official: true, community: true })
+  const filter = useHookstate({ installed: true, official: true, community: true })
   const isCreateDialogOpen = useHookstate(false)
   const isDeleteDialogOpen = useHookstate(false)
   const updatingProject = useHookstate(false)
@@ -181,8 +182,9 @@ const ProjectsPage = () => {
   const projectDrawerOpen = useHookstate(false)
   const changeDestination = useHookstate(false)
 
-  const isAdmin = userIsAdmin()
-  const hasProjectWriteAccess = activeProject.value?.hasWriteAccess || isAdmin
+  const navigate = useNavigate()
+  const hasWriteAccess =
+    activeProject.value?.hasWriteAccess || (userHasAccess('admin:admin') && userHasAccess('projects:write'))
 
   const authState = useHookstate(getMutableState(AuthState))
   const projectState = useHookstate(getMutableState(ProjectState))
@@ -193,13 +195,20 @@ const ProjectsPage = () => {
 
   const { t } = useTranslation()
 
-  const fetchInstalledProjects = async () => {
+  useEffect(() => {
+    Engine.instance.api.service(projectPath).on('patched', () => fetchInstalledProjects())
+  }, [])
+
+  const fetchInstalledProjects = async (query?: string) => {
     loading.set(true)
     try {
       const data = await getProjects()
-      installedProjects.set(data.sort(sortAlphabetical) ?? [])
+      const filteredData = query ? data.filter((p) => p.name.includes(query)) : data
+
       if (activeProject.value)
         activeProject.set(data.find((item) => item.id === activeProject.value?.id) as ProjectType | null)
+
+      installedProjects.set((filteredData.sort(sortAlphabetical) as ProjectType[]) ?? [])
     } catch (error) {
       logger.error(error)
       error.set(error)
@@ -216,7 +225,6 @@ const ProjectsPage = () => {
           : OfficialProjectData
       ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
 
-      console.log(OfficialProjectData, installedProjects, data)
       officialProjects.set((data.sort(sortAlphabetical) as ProjectType[]) ?? [])
     } catch (error) {
       logger.error(error)
@@ -233,7 +241,6 @@ const ProjectsPage = () => {
           ? CommunityProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
           : CommunityProjectData
       ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
-
       communityProjects.set(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
       logger.error(error)
@@ -269,15 +276,23 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
-    RouterState.navigate(`/studio/${project.name}`)
+    navigate(`/studio?project=${project.name}`)
+    getMutableState(EditorState).projectName.set(project.name)
+    const parsed = new URL(window.location.href)
+    const query = parsed.searchParams
+    query.set('project', project.name)
+    parsed.search = query.toString()
+    if (typeof history.pushState !== 'undefined') {
+      window.history.replaceState({}, '', parsed.toString())
+    }
   }
 
   const onCreateProject = async (name) => {
-    await ProjectService.createProject(name)
+    await ProjectService.createProject(name, { query: { action: 'studio' } })
     await fetchInstalledProjects()
   }
 
-  const onCreatePermission = async (userInviteCode: string, projectId: string) => {
+  const onCreatePermission = async (userInviteCode: InviteCode, projectId: string) => {
     await ProjectService.createPermission(userInviteCode, projectId)
     await fetchInstalledProjects()
   }
@@ -306,7 +321,7 @@ const ProjectsPage = () => {
     if (activeProject.value) {
       try {
         const proj = installedProjects.get({ noproxy: true }).find((proj) => proj.id === activeProject.value?.id)!
-        await ProjectService.removeProject(proj.id)
+        await ProjectService.removeProject(proj.id, { query: { action: 'studio' } })
         await fetchInstalledProjects()
       } catch (err) {
         logger.error(err)
@@ -346,10 +361,8 @@ const ProjectsPage = () => {
 
   const handleSearch = (e) => {
     query.set(e.target.value)
-
-    if (filter.value.installed) {
-      // todo
-    }
+    // debounce these calls?
+    if (filter.value.installed) fetchInstalledProjects(e.target.value)
     if (filter.value.official) fetchOfficialProjects(e.target.value)
     if (filter.value.community) fetchCommunityProjects(e.target.value)
   }
@@ -432,7 +445,6 @@ const ProjectsPage = () => {
    *
    */
   if (!authUser?.accessToken.value || authUser.accessToken.value.length === 0 || !user?.id.value) return <></>
-
   return (
     <main className={styles.projectPage}>
       <style>
@@ -540,7 +552,7 @@ const ProjectsPage = () => {
                 {renderProjectList(officialProjects.value)}
               </ProjectExpansionList>
             )}
-            {(!query.value || (!query.value && filter.value.community && communityProjects.value.length > 0)) && (
+            {(!query.value || (query.value && filter.value.community && communityProjects.value.length > 0)) && (
               <ProjectExpansionList
                 id={t(`editor.projects.community`)}
                 summary={`${t('editor.projects.community')} (${communityProjects.value.length})`}
@@ -575,7 +587,7 @@ const ProjectsPage = () => {
           {activeProject.value &&
             isInstalled(activeProject.value) &&
             hasRepo(activeProject.value) &&
-            hasProjectWriteAccess && (
+            hasWriteAccess && (
               <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(false)}>
                 <Download />
                 {t(`editor.projects.updateFromGithub`)}
@@ -584,7 +596,7 @@ const ProjectsPage = () => {
           {activeProject.value &&
             isInstalled(activeProject.value) &&
             !hasRepo(activeProject.value) &&
-            hasProjectWriteAccess && (
+            hasWriteAccess && (
               <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
                 <Link />
                 {t(`editor.projects.link`)}
@@ -593,13 +605,13 @@ const ProjectsPage = () => {
           {activeProject.value &&
             isInstalled(activeProject.value) &&
             hasRepo(activeProject.value) &&
-            hasProjectWriteAccess && (
+            hasWriteAccess && (
               <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
                 <LinkOff />
                 {t(`editor.projects.unlink`)}
               </MenuItem>
             )}
-          {hasProjectWriteAccess && hasRepo(activeProject.value) && (
+          {hasWriteAccess && hasRepo(activeProject.value) && (
             <MenuItem
               classes={{ root: styles.filterMenuItem }}
               onClick={() => activeProject?.value?.id && pushProject(activeProject.value.id)}
@@ -608,7 +620,7 @@ const ProjectsPage = () => {
               {t(`editor.projects.pushToGithub`)}
             </MenuItem>
           )}
-          {isInstalled(activeProject.value) && hasProjectWriteAccess && (
+          {isInstalled(activeProject.value) && hasWriteAccess && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
               {updatingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
               {t(`editor.projects.uninstall`)}

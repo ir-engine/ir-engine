@@ -29,6 +29,7 @@ import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendere
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getState } from '@etherealengine/hyperflux'
 
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
@@ -40,6 +41,9 @@ import { getIntersectingNodeOnScreen } from './getIntersectingNode'
  */
 export const getScreenSpacePosition = (() => {
   const raycaster = new Raycaster()
+  raycaster.layers.disable(ObjectLayers.Camera)
+  raycaster.layers.enable(ObjectLayers.NodeHelper)
+  raycaster.layers.enable(ObjectLayers.Scene)
   const raycastTargets: Intersection<Object3D>[] = []
 
   return (screenSpacePosition: Vector2, target = new Vector3()): Vector3 => {

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import logger from '@etherealengine/engine/src/common/functions/logger'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
@@ -35,13 +36,13 @@ import {
   MediasoupDataProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { none, useHookstate } from '@hookstate/core'
 import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
 import { decode } from 'msgpackr'
 import React, { useEffect } from 'react'
 import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from '../transports/SocketWebRTCClientFunctions'
+import { ClientNetworkingSystem } from './ClientNetworkingSystem'
 
 export async function createDataConsumer(
   network: SocketWebRTCClientNetwork,
@@ -189,6 +190,7 @@ export const DataChannels = () => {
 
 export const DataChannelSystem = defineSystem({
   uuid: 'ee.client.DataChannelSystem',
+  insert: { after: ClientNetworkingSystem },
   execute,
   reactor: DataChannels
 })

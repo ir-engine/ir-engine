@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { InviteType, inviteMethods, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { InviteType, inviteMethods, invitePath } from '@etherealengine/common/src/schemas/social/invite.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 import logger from '../../ServerLogger'
 import { InviteService } from './invite.class'
@@ -51,7 +51,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(invitePath, new InviteService(options, app), {
+  app.use(invitePath, new InviteService(options), {
     // A list of all methods this service exposes externally
     methods: inviteMethods,
     // You can add additional custom events to be sent to clients here

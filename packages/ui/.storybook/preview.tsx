@@ -28,18 +28,15 @@ import { Preview } from '@storybook/react'
 import React from 'react'
 import { withRouter } from 'storybook-addon-react-router-v6'
 
-import Engine_tw from '@etherealengine/client/src/engine_tw'
 import { ThemeContextProvider } from '@etherealengine/client/src/themes/themeContext'
 
 export const decorators = [
   withRouter,
   (Story) => {
     return (
-      <Engine_tw>
-        <ThemeContextProvider>
-          <Story />
-        </ThemeContextProvider>
-      </Engine_tw>
+      <ThemeContextProvider>
+        <Story />
+      </ThemeContextProvider>
     )
   }
 ]

@@ -30,9 +30,10 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import {
   StaticResourceFiltersType,
-  staticResourceFiltersPath
-} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+  StaticResourceType,
+  staticResourceFiltersPath,
+  staticResourcePath
+} from '@etherealengine/common/src/schema.type.module'
 import { Paginated } from '@feathersjs/feathers'
 import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
@@ -107,6 +108,7 @@ export const ResourceService = {
         $limit: limit,
         $skip: skip * RESOURCE_PAGE_LIMIT,
         $or,
+        action: 'admin',
         mimeType: {
           $in: mimeTypes
         }

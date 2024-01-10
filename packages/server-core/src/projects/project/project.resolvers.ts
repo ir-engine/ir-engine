@@ -30,46 +30,51 @@ import { v4 } from 'uuid'
 import {
   ProjectPermissionType,
   projectPermissionPath
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import {
   ProjectDatabaseType,
   ProjectQuery,
   ProjectSettingType,
   ProjectType
-} from '@etherealengine/engine/src/schemas/projects/project.schema'
+} from '@etherealengine/common/src/schemas/projects/project.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => {
-  let settings = JSON.parse(rawData.settings) as ProjectSettingType[]
+  let settings: ProjectSettingType[]
 
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof settings === 'string') {
-    settings = JSON.parse(settings)
+  if (typeof rawData.settings === 'string') {
+    settings = JSON.parse(rawData.settings) as ProjectSettingType[]
 
-    // There are some old records in our database that requires further parsing.
+    // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+    // was serialized multiple times, therefore we need to parse it twice.
     if (typeof settings === 'string') {
       settings = JSON.parse(settings)
+
+      // There are some old records in our database that requires further parsing.
+      if (typeof settings === 'string') {
+        settings = JSON.parse(settings)
+      }
     }
+  } else {
+    settings = rawData.settings
   }
 
   return {
     ...rawData,
     settings
-  }
+  } as ProjectType
 }
 
 export const projectResolver = resolve<ProjectType, HookContext>(
   {
     projectPermissions: virtual(async (project, context) => {
-      if (context.params?.query?.allowed)
-        return (await context.app.service(projectPermissionPath).find({
-          query: {
-            projectId: project.id
-          },
-          paginate: false
-        })) as ProjectPermissionType[]
+      return (await context.app.service(projectPermissionPath).find({
+        query: {
+          projectId: project.id
+        },
+        paginate: false
+      })) as any as ProjectPermissionType[]
     }),
 
     commitDate: virtual(async (project) => {

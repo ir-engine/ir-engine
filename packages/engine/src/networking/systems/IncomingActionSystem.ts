@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { applyIncomingActions } from '@etherealengine/hyperflux'
 
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 
 const execute = () => {
@@ -33,5 +34,6 @@ const execute = () => {
 
 export const IncomingActionSystem = defineSystem({
   uuid: 'ee.engine.IncomingActionSystem',
+  insert: { before: SimulationSystemGroup },
   execute
 })

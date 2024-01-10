@@ -30,9 +30,8 @@ import {
   BotCommandPatch,
   BotCommandQuery,
   BotCommandType
-} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+} from '@etherealengine/common/src/schemas/bot/bot-command.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface BotCommandParams extends KnexAdapterParams<BotCommandQuery> {}
 
 export class BotCommandService<T = BotCommandType, ServiceParams extends Params = BotCommandParams> extends KnexService<

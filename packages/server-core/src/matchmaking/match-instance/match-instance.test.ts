@@ -26,17 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import nock from 'nock'
 
+import { matchInstancePath } from '@etherealengine/common/src/schemas/matchmaking/match-instance.schema'
+import { LocationID, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
 import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
-import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
+import { MatchTicketType, matchTicketPath } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { LocationSettingType } from '@etherealengine/common/src/schemas/social/location-setting.schema'
+import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -66,7 +68,7 @@ describe.skip('matchmaking match-instance service', () => {
     audioEnabled: false,
     screenSharingEnabled: false,
     faceStreamingEnabled: false,
-    locationId: '',
+    locationId: '' as LocationID,
     createdAt: '',
     updatedAt: ''
   } as LocationSettingType
@@ -108,7 +110,7 @@ describe.skip('matchmaking match-instance service', () => {
       name: `game-${gameMode}`,
       slugifiedName: `game-${gameMode}`,
       maxUsersPerInstance: 30,
-      sceneId: `test/game-${gameMode}`,
+      sceneId: `test/game-${gameMode}` as SceneID,
       locationSetting: commonlocationSetting,
       isLobby: false,
       isFeatured: false
@@ -119,10 +121,10 @@ describe.skip('matchmaking match-instance service', () => {
     connections.forEach((connection) => {
       for (let i = 0; i < ticketsNumber; i++) {
         const userPromise = app.service(userPath).create({
-          name: 'Test #' + Math.random(),
+          name: ('Test #' + Math.random()) as UserName,
           isGuest: true,
-          avatarId: '',
-          inviteCode: '',
+          avatarId: '' as AvatarID,
+          inviteCode: '' as InviteCode,
           scopes: []
         })
         usersPromises.push(userPromise)
@@ -224,7 +226,7 @@ describe.skip('matchmaking match-instance service', () => {
     assert((assignments[0] as any).locationName)
 
     // cleanup created instance
-    await app.service(instancePath)._remove(instanceServerInstance.id)
+    await app.service(instancePath).remove(instanceServerInstance.id)
   })
 
   // it will create null:null instance server on localhost for second match
@@ -256,7 +258,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     // test cleanup
     await Promise.all(matchInstance.map((mi) => app.service(matchInstancePath).remove(mi.id)))
-    await Promise.all(matchInstance.map((mi) => app.service(instancePath)._remove(mi.instanceServer!)))
+    await Promise.all(matchInstance.map((mi) => app.service(instancePath).remove(mi.instanceServer!)))
   })
 
   it('does not assign players if match is not found', async () => {

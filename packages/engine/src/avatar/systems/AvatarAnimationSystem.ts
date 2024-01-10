@@ -24,43 +24,45 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { Q_X_90, Q_Y_180, V_001, V_010, V_100 } from '../../common/constants/MathConstants'
+import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { MotionCaptureState } from '../../mocap/MotionCaptureState'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkState } from '../../networking/NetworkState'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { TransformSystem } from '../../transform/TransformModule'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
-import { XRState, isMobileXRHeadset } from '../../xr/XRState'
+import { XRControlsState, XRState } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
-import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
-import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
+import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
+import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
-import { ikTargets } from '../animation/Util'
+import { emoteAnimations, ikTargets } from '../animation/Util'
+import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { setIkFootTarget } from '../functions/avatarFootHeuristics'
+import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
+import { loadAnimationArray, loadLocomotionAnimations } from '../functions/avatarFunctions'
+import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
+import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
   initial: () => {
-    const accumulationBudget = isMobileXRHeadset ? 2 : 6
+    const accumulationBudget = 100 //isMobileXRHeadset ? 2 : 6
 
     const priorityQueue = createPriorityQueue({
       accumulationBudget
@@ -77,58 +79,48 @@ export const AvatarAnimationState = defineState({
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 const avatarComponentQuery = defineQuery([AvatarComponent])
 
-const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
-
 const _quat = new Quaternion()
+const _quat2 = new Quaternion()
 const _vector3 = new Vector3()
-const _right = new Vector3()
-const _forward = new Vector3()
-const _hipVector = new Vector3()
-const _hipRot = new Quaternion()
-const leftLegVector = new Vector3()
-const rightLegVector = new Vector3()
+const _hint = new Vector3()
+const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
+const leftHandRotation = new Quaternion()
+  .setFromAxisAngle(V_001, Math.PI / 2)
+  .multiply(new Quaternion().setFromAxisAngle(V_010, -Math.PI / 2))
+const rightHandRotation = new Quaternion()
+  .setFromAxisAngle(V_001, -Math.PI / 2)
+  .multiply(new Quaternion().setFromAxisAngle(V_010, Math.PI / 2))
+const footAngleQuat = new Quaternion()
 
 const midAxisRestriction = new Euler(0, 0, 0)
 const tipAxisRestriction = new Euler(0, 0, 0)
-
-const setVisualizers = () => {
-  const { visualizers } = getMutableState(AvatarAnimationState)
-  const { physicsDebug: debugEnable } = getMutableState(RendererState)
-  if (!debugEnable.value) {
-    //remove visualizers
-    for (let i = 0; i < visualizers.length; i++) {
-      removeEntity(visualizers[i].value)
-    }
-
-    return
-  }
-  for (let i = 0; i < 11; i++) {
-    const e = createEntity()
-    setComponent(e, VisibleComponent, true)
-    addObjectToGroup(e, new Mesh(new SphereGeometry(0.05)))
-    setComponent(e, TransformComponent)
-    visualizers[i].set(e)
-  }
-}
-
-interface targetTransform {
-  position: Vector3
-  rotation: Quaternion
-  blendWeight: number
-}
-
-const ikDataByName = {} as Record<string, targetTransform>
-
-const footRaycastInterval = 0.25
-let footRaycastTimer = 0
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
 const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds } = getState(EngineState)
-  const { avatarDebug } = getState(RendererState)
+
+  /** Calculate avatar locomotion animations outside of priority queue */
+
+  for (const entity of avatarComponentQuery()) {
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+    const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+    if (rigidbodyComponent.body.isEnabled()) {
+      // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
+      avatarAnimationComponent.locomotion.x = 0
+      avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
+      // lerp animated forward animation to smoothly animate to a stop
+      avatarAnimationComponent.locomotion.z = MathUtils.lerp(
+        avatarAnimationComponent.locomotion.z || 0,
+        _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
+        10 * getState(EngineState).deltaSeconds
+      )
+    } else {
+      avatarAnimationComponent.locomotion.setScalar(0)
+    }
+  }
 
   /**
    * 1 - Sort & apply avatar priority queue
@@ -149,224 +141,269 @@ const execute = () => {
     }
   }
 
-  const ikEntities = ikTargetQuery()
-
-  footRaycastTimer += deltaSeconds
   updateAnimationGraph(avatarAnimationEntities)
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
+    const avatarComponent = getComponent(entity, AvatarComponent)
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-    const deltaTime = elapsedSeconds - avatarAnimationComponent.deltaAccumulator
     avatarAnimationComponent.deltaAccumulator = elapsedSeconds
-    const rig = rigComponent.rig
+    const rig = rigComponent.rawRig
 
     if (!rig?.hips?.node) continue
 
-    const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
-    if (rigidbodyComponent) {
-      // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
-      avatarAnimationComponent.locomotion.x = 0
-      avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
-      // lerp animated forward animation to smoothly animate to a stop
-      avatarAnimationComponent.locomotion.z = MathUtils.lerp(
-        avatarAnimationComponent.locomotion.z || 0,
-        _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
-        10 * deltaTime
+    updateVRMRetargeting(rigComponent.vrm, entity)
+
+    const uuid = getComponent(entity, UUIDComponent)
+    const leftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
+    const leftFootTransform = getComponent(leftFoot, TransformComponent)
+    const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftFoot]
+
+    const rightFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightFoot) as EntityUUID)
+    const rightFootTransform = getComponent(rightFoot, TransformComponent)
+    const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightFoot]
+
+    const leftHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftHand) as EntityUUID)
+    const leftHandTransform = getComponent(leftHand, TransformComponent)
+    const leftHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftHand]
+
+    const rightHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightHand) as EntityUUID)
+    const rightHandTransform = getComponent(rightHand, TransformComponent)
+    const rightHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightHand]
+
+    const head = UUIDComponent.getEntityByUUID((uuid + ikTargets.head) as EntityUUID)
+    const headTargetBlendWeight = AvatarIKTargetComponent.blendWeight[head]
+
+    const transform = getComponent(entity, TransformComponent)
+
+    /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/7519 */
+    const isAvatarFlipped = !rigComponent.vrm.userData?.retargeted
+
+    const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+    if (headTargetBlendWeight) {
+      const headTransform = getComponent(head, TransformComponent)
+      rig.hips.node.position.set(
+        headTransform.position.x,
+        headTransform.position.y - avatarComponent.torsoLength - 0.125,
+        headTransform.position.z
       )
-    } else {
-      avatarAnimationComponent.locomotion.setScalar(0)
-    }
 
-    /**
-     * Apply procedural IK based animations or FK animations depending on the animation state
-     * First reset targets
-     */
-
-    rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
-    for (let i = 0; i < VRMHumanBoneList.length; i++) {
-      if (rigComponent.localRig[VRMHumanBoneList[i]]) {
-        rigComponent.rig[VRMHumanBoneList[i]]?.node.quaternion.copy(
-          rigComponent.localRig[VRMHumanBoneList[i]]!.node.quaternion
-        )
-      }
-    }
-
-    if (!getState(MotionCaptureState).trackingLowerBody || getState(XRState).sessionActive) {
+      //offset target forward to account for hips being behind the head
       hipsForward.set(0, 0, 1)
+      hipsForward.applyQuaternion(rigidbodyComponent.rotation)
+      hipsForward.multiplyScalar(0.125)
+      rig.hips.node.position.sub(hipsForward)
 
-      //calculate world positions
+      // convert to local space
+      rig.hips.node.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
 
-      applyInputSourcePoseToIKTargets()
-      setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
+      _quat2.copy(headTransform.rotation)
 
-      for (const ikEntity of ikEntities) {
-        const networkObject = getComponent(ikEntity, NetworkObjectComponent)
-        const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
-        if (ownerEntity !== entity) continue
-
-        const rigidbodyComponent = getComponent(ownerEntity, RigidBodyComponent)
-        const rigComponent = getComponent(ownerEntity, AvatarRigComponent)
-
-        const ikTargetName = getComponent(ikEntity, NameComponent).split('_').pop()!
-        const ikTransform = getComponent(ikEntity, TransformComponent)
-        const ikComponent = getComponent(ikEntity, AvatarIKTargetComponent)
-
-        ikDataByName[ikTargetName] = {
-          position: ikTransform.position,
-          rotation: ikTransform.rotation,
-          blendWeight: ikComponent.blendWeight
-        }
-
-        //special case for the head if we're in xr mode
-        //todo: automatically infer whether or not we need to set hips position from the head position
-        if (getState(XRState).sessionActive && ikTargetName == 'head') {
-          rig.hips.node.position.copy(
-            _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
-          )
-
-          //offset target forward to account for hips being behind the head
-          hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
-          hipsForward.multiplyScalar(0.125)
-          rig.hips.node.position.sub(hipsForward)
-
-          //calculate head look direction and apply to head bone
-          //look direction should be set outside of the xr switch
-          rig.head.node.quaternion.copy(
-            _quat.multiplyQuaternions(
-              rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
-              ikTransform.rotation
-            )
-          )
-          continue
-        }
+      /** @todo hack fix */
+      if (isAvatarFlipped) {
+        // rotate 180
+        _quat2.multiply(Q_Y_180)
       }
 
-      const transform = getComponent(entity, TransformComponent)
-
-      const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
-      const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
-
-      if (getState(XRState).sessionActive) rig.hips.node.position.applyMatrix4(transform.matrixInverse)
-
-      if (ikDataByName[ikTargets.rightHand]) {
-        solveTwoBoneIK(
-          rig.rightUpperArm.node,
-          rig.rightLowerArm.node,
-          rig.rightHand.node,
-          ikDataByName[ikTargets.rightHand].position,
-          ikDataByName[ikTargets.rightHand].rotation,
-          null,
-          ikDataByName[ikTargets.rightElbowHint]
-            ? ikDataByName[ikTargets.rightElbowHint].position
-            : _vector3.copy(transform.position).sub(right),
-          tipAxisRestriction,
-          null,
-          null,
-          ikDataByName[ikTargets.rightHand].blendWeight,
-          ikDataByName[ikTargets.rightHand].blendWeight
-        )
-      }
-
-      if (ikDataByName[ikTargets.leftHand]) {
-        solveTwoBoneIK(
-          rig.leftUpperArm.node,
-          rig.leftLowerArm.node,
-          rig.leftHand.node,
-          ikDataByName[ikTargets.leftHand].position,
-          ikDataByName[ikTargets.leftHand].rotation,
-          null,
-          ikDataByName[ikTargets.leftElbowHint]
-            ? ikDataByName[ikTargets.leftElbowHint].position
-            : _vector3.copy(transform.position).add(right),
-          tipAxisRestriction,
-          null,
-          null,
-          ikDataByName[ikTargets.leftHand].blendWeight,
-          ikDataByName[ikTargets.leftHand].blendWeight
-        )
-      }
-
-      if (footRaycastTimer >= footRaycastInterval) {
-        footRaycastTimer = 0
-      }
-
-      if (ikDataByName[ikTargets.rightFoot]) {
-        solveTwoBoneIK(
-          rig.rightUpperLeg.node,
-          rig.rightLowerLeg.node,
-          rig.rightFoot.node,
-          ikDataByName[ikTargets.rightFoot].position,
-          ikDataByName[ikTargets.rightFoot].rotation,
-          null,
-          ikDataByName[ikTargets.rightKneeHint]
-            ? ikDataByName[ikTargets.rightKneeHint].position
-            : _vector3.copy(transform.position).add(forward),
-          null,
-          midAxisRestriction,
-          null,
-          ikDataByName[ikTargets.rightFoot].blendWeight,
-          ikDataByName[ikTargets.rightFoot].blendWeight
-        )
-      }
-
-      if (ikDataByName[ikTargets.leftFoot]) {
-        solveTwoBoneIK(
-          rig.leftUpperLeg.node,
-          rig.leftLowerLeg.node,
-          rig.leftFoot.node,
-          ikDataByName[ikTargets.leftFoot].position,
-          ikDataByName[ikTargets.leftFoot].rotation,
-          null,
-          ikDataByName[ikTargets.leftKneeHint]
-            ? ikDataByName[ikTargets.leftKneeHint].position
-            : _vector3.copy(transform.position).add(forward),
-          null,
-          midAxisRestriction,
-          null,
-          ikDataByName[ikTargets.leftFoot].blendWeight,
-          ikDataByName[ikTargets.leftFoot].blendWeight
-        )
-      }
+      //calculate head look direction and apply to head bone
+      //look direction should be set outside of the xr switch
+      rig.head.node.quaternion.multiplyQuaternions(rig.spine.node.getWorldQuaternion(_quat).invert(), _quat2)
     }
 
-    rigComponent.vrm.update(deltaTime)
-  }
-
-  /** Run debug */
-  if (avatarDebug) {
-    for (const entity of priorityQueue.priorityEntities) {
-      const rigComponent = getComponent(entity, AvatarRigComponent)
-      if (rigComponent?.helper) {
-        rigComponent.rig.hips.node.updateWorldMatrix(true, true)
-        rigComponent.helper?.updateMatrixWorld(true)
+    if (rightHandTargetBlendWeight) {
+      _quat2.copy(rightHandTransform.rotation)
+      if (!isAvatarFlipped) {
+        _quat2.multiply(rightHandRotation)
       }
+
+      getArmIKHint(
+        entity,
+        rightHandTransform.position,
+        _quat2,
+        rig.rightUpperArm.node.getWorldPosition(_vector3),
+        'right',
+        _hint
+      )
+
+      solveTwoBoneIK(
+        rig.rightUpperArm.node,
+        rig.rightLowerArm.node,
+        rig.rightHand.node,
+        rightHandTransform.position,
+        _quat2,
+        null,
+        _hint,
+        tipAxisRestriction,
+        null,
+        null,
+        rightHandTargetBlendWeight,
+        rightHandTargetBlendWeight
+      )
+    }
+
+    if (leftHandTargetBlendWeight) {
+      _quat2.copy(leftHandTransform.rotation)
+      if (!isAvatarFlipped) {
+        _quat2.multiply(leftHandRotation)
+      }
+
+      getArmIKHint(
+        entity,
+        leftHandTransform.position,
+        _quat2,
+        rig.leftUpperArm.node.getWorldPosition(_vector3),
+        'left',
+        _hint
+      )
+
+      solveTwoBoneIK(
+        rig.leftUpperArm.node,
+        rig.leftLowerArm.node,
+        rig.leftHand.node,
+        leftHandTransform.position,
+        _quat2,
+        null,
+        _hint,
+        tipAxisRestriction,
+        null,
+        null,
+        leftHandTargetBlendWeight,
+        leftHandTargetBlendWeight
+      )
+    }
+
+    if (rightFootTargetBlendWeight) {
+      _quat2.copy(rightFootTransform.rotation)
+      if (isAvatarFlipped) {
+        _quat2.multiply(Q_X_90)
+      } else {
+        /** I don't know why flipped models don't need this foot angle applied, nor why it needs to be halved */
+        footAngleQuat.setFromAxisAngle(V_100, avatarComponent.footAngle / 2)
+        _quat2.multiply(footAngleQuat)
+      }
+
+      _hint
+        .set(-avatarComponent.footGap * 1.5, 0, 0.4)
+        .applyQuaternion(transform.rotation)
+        .add(transform.position)
+
+      solveTwoBoneIK(
+        rig.rightUpperLeg.node,
+        rig.rightLowerLeg.node,
+        rig.rightFoot.node,
+        rightFootTransform.position,
+        _quat2,
+        null,
+        _hint,
+        null,
+        midAxisRestriction,
+        null,
+        rightFootTargetBlendWeight,
+        rightFootTargetBlendWeight
+      )
+    }
+
+    if (leftFootTargetBlendWeight) {
+      _quat2.copy(leftFootTransform.rotation)
+      if (isAvatarFlipped) {
+        _quat2.multiply(Q_X_90)
+      } else {
+        footAngleQuat.setFromAxisAngle(V_100, avatarComponent.footAngle / 2)
+        _quat2.multiply(footAngleQuat)
+      }
+
+      _hint
+        .set(avatarComponent.footGap * 1.5, 0, 1)
+        .applyQuaternion(transform.rotation)
+        .add(transform.position)
+
+      solveTwoBoneIK(
+        rig.leftUpperLeg.node,
+        rig.leftLowerLeg.node,
+        rig.leftFoot.node,
+        leftFootTransform.position,
+        _quat2,
+        null,
+        _hint,
+        null,
+        midAxisRestriction,
+        null,
+        leftFootTargetBlendWeight,
+        leftFootTargetBlendWeight
+      )
     }
   }
 }
 
 const reactor = () => {
+  useEffect(() => {
+    if (isClient) {
+      loadLocomotionAnimations()
+      loadAnimationArray(Object.values(emoteAnimations), 'emotes')
+    }
+
+    const networkState = getMutableState(NetworkState)
+
+    networkState.networkSchema[IKSerialization.ID].set({
+      read: IKSerialization.readBlendWeight,
+      write: IKSerialization.writeBlendWeight
+    })
+
+    return () => {
+      networkState.networkSchema[IKSerialization.ID].set(none)
+    }
+  }, [])
+
   const xrState = getMutableState(XRState)
-  const heightDifference = useHookstate(xrState.userAvatarHeightDifference)
-  const sessionMode = useHookstate(xrState.sessionMode)
-  const pose = useHookstate(xrState.viewerPose)
+  const session = useHookstate(xrState.session)
+  const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
+  const userReady = useHookstate(getMutableState(EngineState).userReady)
+
   useEffect(() => {
-    if (xrState.sessionMode.value == 'immersive-vr' && heightDifference.value)
-      xrState.sceneScale.set(Math.max(heightDifference.value, 0.5))
-  }, [heightDifference, sessionMode])
+    if (!session.value) return
+
+    const entity = Engine.instance.localClientEntity
+    if (!entity) return
+
+    if (isCameraAttachedToAvatar.value) {
+      setComponent(entity, AvatarHeadDecapComponent, true)
+    } else {
+      removeComponent(entity, AvatarHeadDecapComponent)
+    }
+  }, [isCameraAttachedToAvatar, session])
+
   useEffect(() => {
-    if (xrState.sessionMode.value == 'immersive-vr' && !heightDifference.value) setTrackingSpace()
-  }, [pose])
-  const renderState = useHookstate(getMutableState(RendererState))
-  useEffect(() => {
-    setVisualizers()
-  }, [renderState.physicsDebug])
+    if (userReady.value) setTrackingSpace()
+  }, [userReady])
+
   return null
 }
 
 export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
+  insert: { before: AnimationSystem },
   execute,
   reactor
+})
+
+const skinnedMeshQuery = defineQuery([SkinnedMeshComponent])
+
+const updateSkinnedMeshes = () => {
+  for (const entity of skinnedMeshQuery()) {
+    const skinnedMesh = getComponent(entity, SkinnedMeshComponent)
+    if (skinnedMesh.bindMode === 'attached') {
+      skinnedMesh.bindMatrixInverse.copy(skinnedMesh.matrixWorld).invert()
+    } else if (skinnedMesh.bindMode === 'detached') {
+      skinnedMesh.bindMatrixInverse.copy(skinnedMesh.bindMatrix).invert()
+    } else {
+      console.warn('THREE.SkinnedMesh: Unrecognized bindMode: ' + skinnedMesh.bindMode)
+    }
+  }
+}
+
+export const SkinnedMeshTransformSystem = defineSystem({
+  uuid: 'ee.engine.SkinnedMeshTransformSystem',
+  insert: { after: TransformSystem },
+  execute: updateSkinnedMeshes
 })

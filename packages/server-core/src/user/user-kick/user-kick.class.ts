@@ -32,9 +32,8 @@ import {
   UserKickPatch,
   UserKickQuery,
   UserKickType
-} from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+} from '@etherealengine/common/src/schemas/user/user-kick.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface UserKickParams extends KnexAdapterParams<UserKickQuery> {}
 
 export class UserKickService<T = UserKickType, ServiceParams extends Params = UserKickParams> extends KnexService<

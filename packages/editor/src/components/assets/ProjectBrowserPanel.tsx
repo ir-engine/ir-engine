@@ -23,15 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import DockLayout, { DockMode } from 'rc-dock'
+import Inventory2Icon from '@mui/icons-material/Inventory2'
+import DockLayout, { DockMode, TabData } from 'rc-dock'
 import React from 'react'
 
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
-import FileBrowserContentPanel from './FileBrowserContentPanel'
+import FileBrowserContentPanel from './FileBrowser/FileBrowserContentPanel'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { t } from 'i18next'
 import { EditorState } from '../../services/EditorServices'
 import { DockContainer } from '../EditorContainer'
+import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 
 /**
  * ProjectBrowserPanel used to render view for Project Panel.
@@ -60,7 +63,7 @@ export default function ProjectBrowserPanel() {
               tabs: [
                 {
                   id: 'filesPanel',
-                  title: 'Project Files',
+                  title: t('editor:layout.filebrowser.tab-name'),
                   content: (
                     <FileBrowserContentPanel
                       selectedFile={projectName ?? undefined}
@@ -74,7 +77,14 @@ export default function ProjectBrowserPanel() {
         },
         {
           size: 3,
-          tabs: [{ id: 'previewPanel', title: 'Preview', content: <AssetsPreviewPanel ref={assetsPreviewPanelRef} /> }]
+          tabs: [
+            {
+              id: 'previewPanel',
+              title: t('editor:layout.scene-assets.preview'),
+              cached: true,
+              content: <AssetsPreviewPanel ref={assetsPreviewPanelRef} />
+            }
+          ]
         }
       ]
     }
@@ -91,4 +101,17 @@ export default function ProjectBrowserPanel() {
       </DockContainer>
     </>
   )
+}
+
+export const ProjectBrowserPanelTab: TabData = {
+  id: 'filesPanel',
+  closable: true,
+  cached: true,
+  title: (
+    <PanelDragContainer>
+      <PanelIcon as={Inventory2Icon} size={12} />
+      <PanelTitle>Files</PanelTitle>
+    </PanelDragContainer>
+  ),
+  content: <ProjectBrowserPanel />
 }

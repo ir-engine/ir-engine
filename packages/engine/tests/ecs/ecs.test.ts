@@ -26,23 +26,23 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { getState } from '@etherealengine/hyperflux'
-
 import { destroyEngine, Engine } from '../../src/ecs/classes/Engine'
 import { Entity } from '../../src/ecs/classes/Entity'
 import { SceneState } from '../../src/ecs/classes/Scene'
 import {
-  addComponent,
   defineComponent,
   defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../src/ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup, executeSystems } from '../../src/ecs/functions/EngineFunctions'
+import { executeSystems, RootSystemGroup } from '../../src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
-import { defineSystem, startSystem } from '../../src/ecs/functions/SystemFunctions'
+import { defineSystem } from '../../src/ecs/functions/SystemFunctions'
 import { createEngine } from '../../src/initializeEngine'
+import { loadEmptyScene } from '../util/loadEmptyScene'
 
 const mockDeltaMillis = 1000 / 60
 
@@ -68,7 +68,7 @@ const MockSystemState = new Map<Entity, Array<number>>()
 const mockQuery = defineQuery([MockComponent])
 
 const execute = () => {
-  const mockState = MockSystemState.get(getState(SceneState).sceneEntity)!
+  const mockState = MockSystemState.get(SceneState.getRootEntity(getState(SceneState).activeScene!))!
 
   for (const entity of mockQuery.enter()) {
     mockState.push(entity)
@@ -81,14 +81,15 @@ const execute = () => {
 
 const MockSystem = defineSystem({
   uuid: 'MockSystem',
+  insert: { with: RootSystemGroup },
   execute
 })
 
 describe('ECS', () => {
   beforeEach(async () => {
     createEngine()
-    startSystem(MockSystem, { with: AnimationSystemGroup })
-    MockSystemState.set(getState(SceneState).sceneEntity, [])
+    loadEmptyScene()
+    MockSystemState.set(SceneState.getRootEntity(getState(SceneState).activeScene!), [])
   })
 
   afterEach(() => {
@@ -97,7 +98,7 @@ describe('ECS', () => {
 
   it('should create ECS world', () => {
     const entities = Engine.instance.entityQuery()
-    assert(entities.includes(getState(SceneState).sceneEntity))
+    assert(entities.includes(SceneState.getRootEntity(getState(SceneState).activeScene!)))
     assert(entities.includes(Engine.instance.cameraEntity))
   })
 
@@ -105,7 +106,7 @@ describe('ECS', () => {
     const entityLengthBeforeCreate = Engine.instance.entityQuery().length
     const entity = createEntity()
     const entitiesAfterCreate = Engine.instance.entityQuery()
-    assert(entitiesAfterCreate.includes(getState(SceneState).sceneEntity))
+    assert(entitiesAfterCreate.includes(SceneState.getRootEntity(getState(SceneState).activeScene!)))
     assert(entitiesAfterCreate.includes(entity))
     assert.strictEqual(entitiesAfterCreate.length, entityLengthBeforeCreate + 1)
   })
@@ -118,7 +119,7 @@ describe('ECS', () => {
     assert.equal(query.enter().length, 0)
     assert.equal(query.exit().length, 0)
 
-    addComponent(entity, MockComponent, { mockValue: 42 })
+    setComponent(entity, MockComponent, { mockValue: 42 })
     assert.ok(query().includes(entity))
     assert.equal(query.enter()[0], entity)
     assert.equal(query.exit().length, 0)
@@ -128,13 +129,13 @@ describe('ECS', () => {
     assert.equal(query.enter().length, 0)
     assert.equal(query.exit()[0], entity)
 
-    addComponent(entity, MockComponent, { mockValue: 43 })
+    setComponent(entity, MockComponent, { mockValue: 43 })
     assert.ok(query().includes(entity))
     assert.equal(query.enter()[0], entity)
     assert.equal(query.exit().length, 0)
 
     removeComponent(entity, MockComponent)
-    addComponent(entity, MockComponent, { mockValue: 44 })
+    setComponent(entity, MockComponent, { mockValue: 44 })
     assert.ok(query().includes(entity))
     let enter = query.enter()
     let exit = query.exit()
@@ -148,21 +149,21 @@ describe('ECS', () => {
 
     removeComponent(entity, MockComponent)
     // @ts-expect-error - should have type error for wrong unknown property
-    addComponent(entity, MockComponent, { mockValueWrong: 44 })
+    setComponent(entity, MockComponent, { mockValueWrong: 44 })
 
     removeComponent(entity, MockComponent)
     // @ts-expect-error - should have type error for wrong missing required property
-    addComponent(entity, MockComponent, {})
+    setComponent(entity, MockComponent, {})
 
     removeComponent(entity, MockComponent)
     // @ts-expect-error - should have type error for wrong value type
-    addComponent(entity, MockComponent, { mockValue: 'hi' })
+    setComponent(entity, MockComponent, { mockValue: 'hi' })
   })
 
   it('should add component', async () => {
     const entity = createEntity()
     const mockValue = Math.random()
-    addComponent(entity, MockComponent, { mockValue })
+    setComponent(entity, MockComponent, { mockValue })
     const component = getComponent(entity, MockComponent)
     assert(component)
     assert.strictEqual(component.mockValue, mockValue)
@@ -171,24 +172,24 @@ describe('ECS', () => {
   it('should query component in systems', async () => {
     const entity = createEntity()
     const mockValue = Math.random()
-    addComponent(entity, MockComponent, { mockValue })
+    setComponent(entity, MockComponent, { mockValue })
     const component = getComponent(entity, MockComponent)
     executeSystems(mockDeltaMillis)
-    assert.strictEqual(entity, MockSystemState.get(getState(SceneState).sceneEntity)![0])
+    assert.strictEqual(entity, MockSystemState.get(SceneState.getRootEntity(getState(SceneState).activeScene!))![0])
 
     const entity2 = createEntity()
     const mockValue2 = Math.random()
-    addComponent(entity2, MockComponent, { mockValue: mockValue2 })
+    setComponent(entity2, MockComponent, { mockValue: mockValue2 })
     const component2 = getComponent(entity2, MockComponent)
     executeSystems(mockDeltaMillis * 2)
-    assert.strictEqual(entity2, MockSystemState.get(getState(SceneState).sceneEntity)![1])
+    assert.strictEqual(entity2, MockSystemState.get(SceneState.getRootEntity(getState(SceneState).activeScene!))![1])
   })
 
   it('should remove and clean up component', async () => {
     const entity = createEntity()
     const mockValue = Math.random()
 
-    addComponent(entity, MockComponent, { mockValue })
+    setComponent(entity, MockComponent, { mockValue })
     removeComponent(entity, MockComponent)
 
     const query = defineQuery([MockComponent])
@@ -197,15 +198,15 @@ describe('ECS', () => {
     assert.deepStrictEqual(query.exit(), [])
 
     executeSystems(mockDeltaMillis)
-    assert.deepStrictEqual(MockSystemState.get(getState(SceneState).sceneEntity)!, [])
+    assert.deepStrictEqual(MockSystemState.get(SceneState.getRootEntity(getState(SceneState).activeScene!))!, [])
   })
 
   it('should re-add component', async () => {
     const entity = createEntity()
-    const state = MockSystemState.get(getState(SceneState).sceneEntity)!
+    const state = MockSystemState.get(SceneState.getRootEntity(getState(SceneState).activeScene!))!
 
     const mockValue = Math.random()
-    addComponent(entity, MockComponent, { mockValue })
+    setComponent(entity, MockComponent, { mockValue })
 
     removeComponent(entity, MockComponent)
     executeSystems(mockDeltaMillis)
@@ -213,7 +214,7 @@ describe('ECS', () => {
 
     const newMockValue = 1 + Math.random()
     assert.equal(hasComponent(entity, MockComponent), false)
-    addComponent(entity, MockComponent, { mockValue: newMockValue })
+    setComponent(entity, MockComponent, { mockValue: newMockValue })
     assert.equal(hasComponent(entity, MockComponent), true)
     const component = getComponent(entity, MockComponent)
     assert(component)
@@ -226,25 +227,34 @@ describe('ECS', () => {
   it('should remove and clean up entity', async () => {
     const entity = createEntity()
     const mockValue = Math.random()
-    addComponent(entity, MockComponent, { mockValue })
+    setComponent(entity, MockComponent, { mockValue })
     const entities = Engine.instance.entityQuery()
     assert(entities.includes(entity))
     removeEntity(entity)
     assert.ok(!getOptionalComponent(entity, MockComponent))
     executeSystems(mockDeltaMillis)
-    assert.deepStrictEqual(MockSystemState.get(getState(SceneState).sceneEntity)!, [])
+    assert.deepStrictEqual(MockSystemState.get(SceneState.getRootEntity(getState(SceneState).activeScene!))!, [])
     assert.ok(!Engine.instance.entityQuery().includes(entity))
   })
 
-  it('should remove entity immediately', async () => {
+  it('should remove entity', async () => {
     const entity = createEntity()
 
     const lengthBefore = Engine.instance.entityQuery().length
     removeEntity(entity)
     const entities = Engine.instance.entityQuery()
     assert.equal(entities.length, lengthBefore - 1)
-    assert.throws(() => {
-      removeEntity(entity)
-    })
+  })
+
+  it('should noop with entity that is already removed', async () => {
+    const entity = createEntity()
+
+    const lengthBefore = Engine.instance.entityQuery().length
+
+    removeEntity(entity)
+    removeEntity(entity)
+
+    const entities = Engine.instance.entityQuery()
+    assert.equal(entities.length, lengthBefore - 1)
   })
 })

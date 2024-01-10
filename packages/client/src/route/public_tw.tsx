@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { lazy, Suspense, useEffect } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import React, { lazy, Suspense } from 'react'
+import { Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
-import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
@@ -38,10 +38,10 @@ import $503 from '../pages/503'
 
 const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
 
-const CenteredLoadingCircle = () => {
+export const CenteredLoadingCircle = ({ message }: { message: string }) => {
   return (
     <div className="absolute w-screen h-screen flex justify-center items-center">
-      <LoadingCircle className={`block w-12 h-12`} message={t('common:loader.loadingRoutes')} />
+      <LoadingCircle className={`block w-12 h-12`} message={message} />
     </div>
   )
 }
@@ -49,25 +49,14 @@ const CenteredLoadingCircle = () => {
 function PublicRouter() {
   const customRoutes = useCustomRoutes()
   const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
-  const location = useLocation()
-
-  useEffect(() => {
-    // Oauth callbacks may be running when a guest identity-provider has been deleted.
-    // This would normally cause doLoginAuto to make a guest user, which we do not want.
-    // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
-    // The client and auth settigns will not be needed on these routes
-    if (!/auth\/oauth/.test(location.pathname)) {
-      AuthService.doLoginAuto()
-    }
-  }, [])
 
   if (!/auth\/oauth/.test(location.pathname) && (!customRoutes.length || !isLoggedIn.value)) {
-    return <CenteredLoadingCircle />
+    return <CenteredLoadingCircle message={t('common:loader.loadingRoutes')} />
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<CenteredLoadingCircle />}>
+      <Suspense fallback={<CenteredLoadingCircle message={t('common:loader.loadingRoutes')} />}>
         <Routes>
           <Route
             key={'custom'}

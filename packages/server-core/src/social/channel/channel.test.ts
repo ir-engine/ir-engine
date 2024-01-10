@@ -27,10 +27,12 @@ import assert from 'assert'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { ChannelType, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { RoomCode } from '@etherealengine/common/src/schemas/social/location.schema'
+import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
 describe('channel service', () => {
@@ -56,10 +58,10 @@ describe('channel service', () => {
 
   it('creates and finds channel with userId', async () => {
     const user = await app.service(userPath).create({
-      name: 'user',
+      name: 'user' as UserName,
       isGuest: false,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
@@ -102,15 +104,15 @@ describe('channel service', () => {
 
   it('can remove and finds channel with instanceId', async () => {
     const user = await app.service(userPath).create({
-      name: 'user',
+      name: 'user' as UserName,
       isGuest: false,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
     const instance = (await app.service(instancePath).create(
-      { roomCode: '', currentUsers: 0 },
+      { roomCode: '' as RoomCode, currentUsers: 0 },
       {
         // @ts-ignore
         isInternal: true
@@ -151,15 +153,15 @@ describe('channel service', () => {
 
   it('will not create a channel with both userId and instanceId', async () => {
     const user = await app.service(userPath).create({
-      name: 'user',
+      name: 'user' as UserName,
       isGuest: false,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
     const instance = (await app.service(instancePath).create(
-      { roomCode: '', currentUsers: 0 },
+      { roomCode: '' as RoomCode, currentUsers: 0 },
       {
         // @ts-ignore
         isInternal: true
@@ -180,15 +182,15 @@ describe('channel service', () => {
 
   it('creates and finds channel with instanceId', async () => {
     const user = await app.service(userPath).create({
-      name: 'user',
+      name: 'user' as UserName,
       isGuest: false,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
 
     const instance = (await app.service(instancePath).create(
-      { roomCode: '', currentUsers: 0 },
+      { roomCode: '' as RoomCode, currentUsers: 0 },
       {
         // @ts-ignore
         isInternal: true

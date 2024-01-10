@@ -26,11 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getMutableComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 
+import { Vector3 } from 'three'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
+import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { EditorPropType, commitProperty } from './Util'
 
@@ -40,6 +42,10 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
   const { t } = useTranslation()
 
   const mountPointComponent = useComponent(props.entity, MountPointComponent)
+
+  const onChangeOffset = (value: Vector3) => {
+    getMutableComponent(props.entity, MountPointComponent).dismountOffset.set(value)
+  }
 
   return (
     <NodeEditor
@@ -53,6 +59,15 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
           options={MountPointTypes}
           value={mountPointComponent.type.value}
           onChange={commitProperty(MountPointComponent, 'type')}
+        />
+      </InputGroup>
+      <InputGroup name="Position Offset" label={t('editor:properties.mountPoint.lbl-dismount')}>
+        <Vector3Input
+          value={mountPointComponent.dismountOffset.value}
+          smallStep={0.01}
+          mediumStep={0.1}
+          largeStep={1}
+          onChange={onChangeOffset}
         />
       </InputGroup>
     </NodeEditor>

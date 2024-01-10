@@ -24,15 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { CubeTexture, DirectionalLight, LightProbe, Vector3, WebGLCubeRenderTarget } from 'three'
+import { Color, CubeTexture, LightProbe, Vector3, WebGLCubeRenderTarget } from 'three'
 
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { Engine } from '../ecs/classes/Engine'
+import { V_000 } from '../common/constants/MathConstants'
+import { Entity } from '../ecs/classes/Entity'
+import { getComponent, getMutableComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { createEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { RendererState } from '../renderer/RendererState'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
+import { DirectionalLightComponent } from '../scene/components/DirectionalLightComponent'
+import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { setVisibleComponent } from '../scene/components/VisibleComponent'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 
 type XRPreferredReflectionFormat = 'srgba8' | 'rgba16f'
 declare global {
@@ -48,6 +55,7 @@ declare global {
   }
   interface XRLightProbe {
     probeSpace: XRSpace
+    addEventListener: (type: 'reflectionchange', listener: () => void) => void
   }
   interface XRLightEstimate {
     primaryLightDirection: DOMPointReadOnly
@@ -61,7 +69,7 @@ export const XRLightProbeState = defineState({
     isEstimatingLight: false,
     lightProbe: new LightProbe(),
     probe: null as XRLightProbe | null,
-    directionalLight: new DirectionalLight(),
+    directionalLightEntity: null as Entity | null,
     environment: null as CubeTexture | null,
     xrWebGLBinding: null as XRWebGLBinding | null
   })
@@ -99,6 +107,7 @@ const execute = () => {
   const lightEstimate = xrFrame.getLightEstimate!(xrLightProbeState.probe)
   if (lightEstimate) {
     if (!xrLightProbeState.isEstimatingLight) getMutableState(XRLightProbeState).isEstimatingLight.set(true)
+    if (!xrLightProbeState.directionalLightEntity) return
 
     // We can copy the estimate's spherical harmonics array directly into the light probe.
     xrLightProbeState.lightProbe.sh.fromArray(lightEstimate.sphericalHarmonicsCoefficients)
@@ -114,18 +123,24 @@ const execute = () => {
       )
     )
 
-    xrLightProbeState.directionalLight.color.setRGB(
-      lightEstimate.primaryLightIntensity.x / intensityScalar,
-      lightEstimate.primaryLightIntensity.y / intensityScalar,
-      lightEstimate.primaryLightIntensity.z / intensityScalar
+    const directionalLightState = getMutableComponent(
+      xrLightProbeState.directionalLightEntity,
+      DirectionalLightComponent
     )
-    xrLightProbeState.directionalLight.intensity = intensityScalar
-    xrLightProbeState.directionalLight.position.copy(lightEstimate.primaryLightDirection as any as Vector3)
-  }
 
-  if (getState(RendererState).csm && xrLightProbeState.isEstimatingLight) {
-    // maybe use -1 * pos
-    xrLightProbeState.directionalLight.getWorldDirection(getState(RendererState).csm!.lightDirection)
+    directionalLightState.color.set(
+      new Color(
+        lightEstimate.primaryLightIntensity.x / intensityScalar,
+        lightEstimate.primaryLightIntensity.y / intensityScalar,
+        lightEstimate.primaryLightIntensity.z / intensityScalar
+      )
+    )
+    directionalLightState.intensity.set(intensityScalar)
+
+    getComponent(xrLightProbeState.directionalLightEntity, TransformComponent).rotation.setFromUnitVectors(
+      V_000,
+      lightEstimate.primaryLightDirection as any as Vector3
+    )
   }
 }
 
@@ -136,11 +151,6 @@ const reactor = () => {
   useEffect(() => {
     const xrLightProbeState = getState(XRLightProbeState)
     xrLightProbeState.lightProbe.intensity = 0
-    xrLightProbeState.directionalLight.intensity = 0
-    xrLightProbeState.directionalLight.shadow.bias = -0.000001
-    xrLightProbeState.directionalLight.shadow.radius = 1
-    xrLightProbeState.directionalLight.shadow.camera.far = 2000
-    xrLightProbeState.directionalLight.castShadow = true
   }, [])
 
   useEffect(() => {
@@ -148,9 +158,7 @@ const reactor = () => {
     if (!session) return
 
     const lightingSupported = 'requestLightProbe' in session
-    if (!lightingSupported) return
-
-    const environmentEstimation = true
+    if (!lightingSupported) return console.warn('No light probe available')
 
     session
       .requestLightProbe({
@@ -163,9 +171,46 @@ const reactor = () => {
         console.warn('Tried to initialize light probe but failed with error', err)
       })
 
+    return () => {
+      xrLightProbeState.environment.set(null)
+      xrLightProbeState.xrWebGLBinding.set(null)
+      xrLightProbeState.isEstimatingLight.set(false)
+      xrLightProbeState.probe.set(null)
+    }
+  }, [xrState.session])
+
+  useEffect(() => {
+    if (!xrLightProbeState.isEstimatingLight.value) return
+
+    if (xrState.sessionMode.value !== 'immersive-ar') return
+
+    const directionalLightEntity = createEntity()
+    setComponent(directionalLightEntity, DirectionalLightComponent, {
+      intensity: 0,
+      shadowBias: -0.000001,
+      shadowRadius: 1,
+      cameraFar: 2000,
+      castShadow: true,
+      useInCSM: true
+    })
+    addObjectToGroup(directionalLightEntity, xrLightProbeState.lightProbe.value)
+    setVisibleComponent(directionalLightEntity, true)
+
+    xrLightProbeState.directionalLightEntity.set(directionalLightEntity)
+
+    return () => {
+      xrLightProbeState.directionalLightEntity.set(null)
+    }
+  }, [xrLightProbeState.isEstimatingLight])
+
+  useEffect(() => {
+    const session = xrState.session.value
+    const probe = xrLightProbeState.probe.value
+    if (!probe || !session) return
+
     // If the XRWebGLBinding class is available then we can also query an
     // estimated reflection cube map.
-    if (environmentEstimation && 'XRWebGLBinding' in window) {
+    if ('XRWebGLBinding' in window) {
       // This is the simplest way I know of to initialize a WebGL cubemap in Three.
       const cubeRenderTarget = new WebGLCubeRenderTarget(16)
       xrLightProbeState.environment.set(cubeRenderTarget.texture)
@@ -185,41 +230,18 @@ const reactor = () => {
 
       xrLightProbeState.xrWebGLBinding.set(new XRWebGLBinding(session, gl))
 
-      xrLightProbeState.lightProbe.value.addEventListener('reflectionchange', () => {
+      probe.addEventListener('reflectionchange', () => {
         updateReflection()
       })
     }
-
-    return () => {
-      xrLightProbeState.isEstimatingLight.set(false)
-    }
-  }, [xrState.session])
-
-  useEffect(() => {
-    if (!xrLightProbeState.isEstimatingLight.value) return
-
-    if (xrState.sessionMode.value !== 'immersive-ar') return
-
-    let previousEnvironment
-
-    // The estimated lighting also provides an environment cubemap, which we can apply here.
-    if (xrLightProbeState.environment.value) {
-      previousEnvironment = Engine.instance.scene.environment
-      Engine.instance.scene.environment = xrLightProbeState.environment.value
-      Engine.instance.scene.add(xrLightProbeState.directionalLight.value)
-    }
-
-    return () => {
-      Engine.instance.scene.environment = previousEnvironment
-      Engine.instance.scene.remove(xrLightProbeState.directionalLight.value)
-    }
-  }, [xrLightProbeState.isEstimatingLight])
+  }, [xrLightProbeState.probe])
 
   return null
 }
 
 export const XRLightProbeSystem = defineSystem({
   uuid: 'ee.engine.XRLightProbeSystem',
+  insert: { with: XRSystem },
   execute,
   reactor
 })

@@ -58,6 +58,13 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import {
+  RecordingID,
+  recordingPath,
+  RecordingSchemaType,
+  UserID,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
@@ -68,16 +75,11 @@ import {
 } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import {
-  RecordingID,
-  recordingPath,
-  RecordingSchemaType
-} from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import matches, { Validator } from 'ts-matches'
 import { checkScope } from '../common/functions/checkScope'
 import { isClient } from '../common/functions/getEnvironment'
 import { matchesUserId } from '../common/functions/MatchesUtils'
+import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'
 import { PhysicsSerialization } from '../physics/PhysicsSerialization'
 
@@ -475,9 +477,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     if (!createMediaRecording) return dispatchError('Media recording not available', action.$peer, action.$topic)
 
     try {
-      const mediaRecorder = await createMediaRecording(recording.id, schema.peers)
-
-      activeRecording.mediaChannelRecorder = mediaRecorder
+      activeRecording.mediaChannelRecorder = await createMediaRecording(recording.id, schema.peers)
 
       dispatchAction(
         ECSRecordingActions.recordingStarted({
@@ -546,7 +546,6 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const api = Engine.instance.api
 
   const recording = await api.service(recordingPath).get(action.recordingID, { isInternal: true })
-  console.log(recording)
 
   let schema = recording.schema
 
@@ -574,10 +573,6 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     (resource) =>
       !resource.key.includes('entities-') &&
       resource.key.substring(resource.key.length - 3, resource.key.length) === '.ee'
-  )
-
-  const mediaFiles = recording.resources.filter(
-    (resource) => resource.key.substring(resource.key.length - 3, resource.key.length) !== '.ee'
   )
 
   const entityChunks = (await Promise.all(
@@ -657,7 +652,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
               }
             }
 
-            if (!UUIDComponent.entitiesByUUID[entityID]) {
+            if (!UUIDComponent.getEntityByUUID(entityID) && isClone) {
               dispatchAction(
                 AvatarNetworkAction.spawn({
                   $from: entityID,
@@ -862,5 +857,6 @@ const execute = () => {
 
 export const ECSRecordingSystem = defineSystem({
   uuid: 'ee.engine.ECSRecordingSystem',
+  insert: { after: PresentationSystemGroup },
   execute
 })

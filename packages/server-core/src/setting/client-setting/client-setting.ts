@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   clientSettingMethods,
   clientSettingPath
-} from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 
 import { Application } from '../../../declarations'
 import { updateAppConfig } from '../../updateAppConfig'
@@ -48,7 +48,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(clientSettingPath, new ClientSettingService(options, app), {
+  app.use(clientSettingPath, new ClientSettingService(options), {
     // A list of all methods this service exposes externally
     methods: clientSettingMethods,
     // You can add additional custom events to be sent to clients here

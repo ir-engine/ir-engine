@@ -32,10 +32,10 @@ import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
-import { TriggerSystem } from '../../scene/systems/TriggerSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PhysicsSerialization } from '../PhysicsSerialization'
 import { Physics } from '../classes/Physics'
@@ -114,7 +114,6 @@ let drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
 const execute = () => {
   const { physicsWorld, physicsCollisionEventQueue } = getState(PhysicsState)
   if (!physicsWorld) return
-  if (!getState(EngineState).sceneLoaded) return
 
   const allRigidBodies = allRigidBodyQuery()
 
@@ -204,6 +203,13 @@ const execute = () => {
     RigidBodyComponent.angularVelocity.y[entity] = angvel.y
     RigidBodyComponent.angularVelocity.z[entity] = angvel.z
   }
+
+  for (const collisionEntity of collisionQuery()) {
+    const collisionComponent = getComponent(collisionEntity, CollisionComponent)
+    if (!collisionComponent.size) {
+      removeComponent(collisionEntity, CollisionComponent)
+    }
+  }
 }
 
 const reactor = () => {
@@ -226,7 +232,7 @@ const reactor = () => {
 
     return () => {
       const physicsWorld = getMutableState(PhysicsState).physicsWorld
-      physicsWorld.value.free()
+      physicsWorld.value?.free()
       physicsWorld.set(null!)
       drainCollisions = null!
       drainContacts = null!
@@ -239,7 +245,7 @@ const reactor = () => {
 
 export const PhysicsSystem = defineSystem({
   uuid: 'ee.engine.PhysicsSystem',
+  insert: { with: SimulationSystemGroup },
   execute,
-  reactor,
-  subSystems: [TriggerSystem]
+  reactor
 })

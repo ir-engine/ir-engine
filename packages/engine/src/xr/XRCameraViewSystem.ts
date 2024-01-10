@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { XRSystem } from './XRSystem'
 
 /**
  * https://github.com/immersive-web/raw-camera-access/blob/main/explainer.md
@@ -66,5 +67,6 @@ const execute = () => {}
 
 export const XRCameraViewSystem = defineSystem({
   uuid: 'ee.engine.XRCameraViewSystem',
+  insert: { with: XRSystem },
   execute
 })

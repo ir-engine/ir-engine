@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MessageType, messageMethods, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { MessageType, messageMethods, messagePath } from '@etherealengine/common/src/schemas/social/message.schema'
 
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Application } from '../../../declarations'
+import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { UserID, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { Application, HookContext } from '../../../declarations'
 import { MessageService } from './message.class'
 import messageDocs from './message.docs'
 import hooks from './message.hooks'
@@ -59,16 +59,17 @@ export default (app: Application): void => {
 
   const onCRUD =
     (app: Application) =>
-    async (data: MessageType): Promise<any> => {
-      if (!data.sender) {
-        data.sender = await app.service(userPath).get(data.senderId)
+    async (data: MessageType, context: HookContext): Promise<any> => {
+      if (!data.sender && data.senderId) {
+        data.sender = await app.service(userPath).get(data.senderId, { headers: context.params.headers })
       }
       const channelUsers = (await app.service(channelUserPath).find({
         query: {
           channelId: data.channelId
         },
+        headers: context.params.headers,
         paginate: false
-      })) as ChannelUserType[]
+      })) as unknown as ChannelUserType[]
       const userIds = channelUsers.map((channelUser) => {
         return channelUser.userId
       })

@@ -23,23 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { ReferenceSpace, XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
+import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
-import { defineActionQueue, dispatchAction, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import {
+  defineActionQueue,
+  dispatchAction,
+  getMutableState,
+  getState,
+  removeActionQueue,
+  startReactor,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
+import { AvatarInputSettingsState } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
+import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
+import { XRStandardGamepadAxes, XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
+import { XRAnchorSystemState } from '@etherealengine/engine/src/xr/XRAnchorSystem'
+import { useEffect } from 'react'
+import { MathUtils } from 'three'
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
 
 export function createAnchorWidget() {
   const ui = createXRUI(AnchorWidgetUI)
   removeComponent(ui.entity, VisibleComponent)
   const xrState = getMutableState(XRState)
-  // const avatarInputSettings = getMutableState(AvatarInputSettingsState)
-
-  const widgetMutableState = getMutableState(WidgetAppState)
 
   const xrSessionQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
@@ -48,25 +61,50 @@ export function createAnchorWidget() {
     label: 'World Anchor',
     icon: 'Anchor',
     onOpen: () => {
-      const xrSession = xrState.session.value
-      if (!xrSession || !ReferenceSpace.viewer) return
       xrState.scenePlacementMode.set('placing')
+      dispatchAction(WidgetAppActions.showWidgetMenu({ shown: false }))
     },
     system: () => {
-      for (const action of xrSessionQueue()) {
-        const widgetEnabled = xrState.sessionMode.value === 'immersive-ar'
-        if (widgetMutableState.widgets[id].enabled.value !== widgetEnabled)
-          dispatchAction(WidgetAppActions.enableWidget({ id, enabled: widgetEnabled }))
+      if (xrState.session.value?.interactionMode !== 'world-space') return
+      if (xrState.scenePlacementMode.value !== 'placing') return
+      const preferredHand = getState(AvatarInputSettingsState).preferredHand
+
+      const scenePlacementEntity = getState(XRAnchorSystemState).scenePlacementEntity
+      const inputSourceEntities = getComponent(scenePlacementEntity, InputComponent).inputSources
+      for (const inputEntity of inputSourceEntities) {
+        const inputComponent = getComponent(inputEntity, InputSourceComponent)
+        if (inputComponent.source.gamepad?.mapping !== 'xr-standard') continue
+        if (inputComponent.source.handedness !== preferredHand) continue
+
+        const buttonInputPressed = inputComponent.buttons[XRStandardGamepadButton.Trigger]?.down
+
+        if (buttonInputPressed) {
+          xrState.scenePlacementMode.set('placed')
+          return
+        }
+
+        const { deltaSeconds } = getState(EngineState)
+
+        const xAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.ThumbstickX]
+        const yAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.ThumbstickY]
+
+        const xDelta = xAxisInput * Math.PI * deltaSeconds
+        getMutableState(XRState).sceneRotationOffset.set((currentValue) => currentValue + xDelta)
+
+        if (!xrState.sceneScaleAutoMode.value) {
+          const yDelta = yAxisInput * deltaSeconds * 0.25
+          xrState.sceneScaleTarget.set((currentValue) => MathUtils.clamp(currentValue + yDelta, 0.01, 0.2))
+        }
+
+        const triggerButtonPressed = inputComponent.buttons[XRStandardGamepadButton.Stick]?.down
+
+        if (triggerButtonPressed) {
+          xrState.sceneScaleAutoMode.set(!xrState.sceneScaleAutoMode.value)
+          if (!xrState.sceneScaleAutoMode.value) {
+            xrState.sceneScaleTarget.set(0.2)
+          }
+        }
       }
-      if (!xrState.scenePlacementMode.value) return
-      // const flipped = avatarInputSettings.preferredHand.value === 'left'
-      // const buttonInput = flipped ? Engine.instance.buttons.ButtonX?.down : Engine.instance.buttons.ButtonA?.down
-      // if (buttonInput) {
-      //   createAnchor().then((anchor: XRAnchor) => {
-      //     setComponent(entity, XRAnchorComponent, { anchor })
-      //   })
-      //   removeComponent(xrState.scenePlacementEntity.value, XRHitTestComponent)
-      // }
     },
     cleanup: async () => {
       removeActionQueue(xrSessionQueue)
@@ -74,6 +112,15 @@ export function createAnchorWidget() {
   }
 
   const id = Widgets.registerWidget(ui.entity, widget)
-  /** @todo better API to disable */
-  dispatchAction(WidgetAppActions.enableWidget({ id, enabled: false }))
+
+  const reactor = startReactor(() => {
+    const sessionMode = useHookstate(getMutableState(XRState).sessionMode)
+
+    useEffect(() => {
+      const widgetEnabled = sessionMode.value === 'immersive-ar'
+      dispatchAction(WidgetAppActions.enableWidget({ id, enabled: widgetEnabled }))
+    }, [sessionMode])
+
+    return null
+  })
 }

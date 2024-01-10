@@ -31,9 +31,8 @@ import {
   RecordingPatch,
   RecordingQuery,
   RecordingType
-} from '@etherealengine/engine/src/schemas/recording/recording.schema'
+} from '@etherealengine/common/src/schemas/recording/recording.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RecordingParams extends KnexAdapterParams<RecordingQuery> {}
 
 export class RecordingService<T = RecordingType, ServiceParams extends Params = RecordingParams> extends KnexService<

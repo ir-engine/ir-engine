@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { projectsPath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { loadConfigForProject } from './loadConfigForProject'
 
-export const loadEngineInjection = async (projects: string[]) => {
-  for (const project of projects) {
-    if (!globalThis[project]) globalThis[project] = {}
-  }
+export const loadEngineInjection = async () => {
+  const projects = await Engine.instance.api.service(projectsPath).find()
   return Promise.all(
     projects
       .map(async (project) => {
@@ -37,7 +37,7 @@ export const loadEngineInjection = async (projects: string[]) => {
           if (typeof projectConfig.worldInjection !== 'function') return null!
           return (await projectConfig.worldInjection()).default()
         } catch (e) {
-          console.log(`Failed to import world load event for project ${project} with reason ${e}`)
+          console.error(`Failed to import world load event for project ${project} with reason ${e}`)
           return null!
         }
       })

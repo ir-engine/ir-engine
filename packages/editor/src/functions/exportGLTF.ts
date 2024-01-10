@@ -30,16 +30,21 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { uploadProjectFiles } from './assetFunctions'
 
 export default async function exportGLTF(entity: Entity, path: string) {
-  const isGLTF = /\.gltf$/.test(path)
+  const [, pName, fileName] = pathResolver().exec(path)!
+  return exportRelativeGLTF(entity, pName, fileName)
+}
+
+export async function exportRelativeGLTF(entity: Entity, projectName: string, relativePath: string) {
+  const isGLTF = /\.gltf$/.test(relativePath)
   const gltf = await exportModelGLTF(entity, {
-    path,
+    projectName,
+    relativePath,
     binary: !isGLTF,
     embedImages: !isGLTF,
     includeCustomExtensions: true
-  }) //, {binary: false, embedImages: false, includeCustomExtensions: true})
-  const [, pName, fileName] = pathResolver().exec(path)!
+  })
   const blob = isGLTF ? [JSON.stringify(gltf)] : [gltf]
-  const file = new File(blob, fileName)
-  const urls = await Promise.all(uploadProjectFiles(pName, [file]).promises)
+  const file = new File(blob, relativePath)
+  const urls = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
   console.log('exported model data to ', ...urls)
 }

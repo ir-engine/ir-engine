@@ -97,6 +97,12 @@
             "type": "node-terminal",
         },
         {
+            "command": "npm run dev-tabs",
+            "name": "npm run dev-tabs",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
             "command": "npm run prepare-database",
             "name": "npm run prepare-database",
             "request": "launch",

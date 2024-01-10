@@ -23,50 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   SnapMode,
-  TransformMode,
   TransformModeType,
   TransformPivot,
   TransformPivotType,
-  TransformSpace
+  TransformSpace,
+  TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EditorHelperState } from '../services/EditorHelperState'
-import { SelectionState } from '../services/SelectionServices'
 
 export const setTransformMode = (mode: TransformModeType): void => {
-  if (mode === TransformMode.Placement || mode === TransformMode.Grab) {
-    let stop = false
-    const selectedEntities = getState(SelectionState).selectedEntities
-
-    // Dont allow grabbing / placing objects with transform disabled.
-    for (const entity of selectedEntities) {
-      const isUuid = typeof entity === 'string'
-      const node = isUuid ? Engine.instance.scene.getObjectByProperty('uuid', entity) : entity
-
-      if (!isUuid && node) {
-        traverseEntityNode(node as Entity, (child) => {
-          if (!hasComponent(child, TransformComponent)) stop = true
-        })
-      }
-
-      if (stop) return
-    }
-  }
-
-  if (mode !== TransformMode.Placement && mode !== TransformMode.Grab) {
-    getMutableState(EditorHelperState).transformModeOnCancel.set(mode)
-  }
-
-  // EditorHistory.grabCheckPoint = undefined
-
   getMutableState(EditorHelperState).transformMode.set(mode)
 }
 
@@ -87,12 +56,12 @@ export const toggleTransformPivot = () => {
   getMutableState(EditorHelperState).transformPivot.set(TransformPivot[pivots[nextIndex]])
 }
 
-export const setTransformSpace = (transformSpace: TransformSpace) => {
+export const setTransformSpace = (transformSpace: TransformSpaceType) => {
   getMutableState(EditorHelperState).transformSpace.set(transformSpace)
 }
 
 export const toggleTransformSpace = () => {
-  getMutableState(EditorHelperState).transformSpace.set((value) =>
-    value === TransformSpace.World ? TransformSpace.Local : TransformSpace.World
+  getMutableState(EditorHelperState).transformSpace.set((transformSpace) =>
+    transformSpace === TransformSpace.world ? TransformSpace.local : TransformSpace.world
   )
 }

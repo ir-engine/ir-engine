@@ -27,17 +27,10 @@ import { DracoOptions, JoinOptions, PaletteOptions } from '@gltf-transform/funct
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
-export type GLTFPackOptions = {
-  compression?: boolean
-  basisU?: boolean
-  instancing?: boolean
-  mergeNodes?: boolean
-  mergeMaterials?: boolean
-}
-
 export type ResourceID = OpaqueType<'ResourceID'> & string
 
 export type ParameterOverride<T> = OpaqueType<'ParameterOverride'> & {
+  isParameterOverride: true
   enabled: boolean
   parameters: T
 }
@@ -47,7 +40,7 @@ export function extractParameters<T>(parameters: ParameterOverride<T>) {
   if (typeof parameters.parameters === 'object' && !Array.isArray(parameters.parameters)) {
     return Object.fromEntries(
       Object.entries(parameters.parameters as object).map(([key, value]: [string, ParameterOverride<any>]) => {
-        if (value.__opaqueType === 'ParameterOverride') {
+        if (value.isParameterOverride) {
           if (value.enabled) return [key, extractParameters(value)]
           else return []
         } else return [key, value]
@@ -56,7 +49,7 @@ export function extractParameters<T>(parameters: ParameterOverride<T>) {
   } else if (Array.isArray(parameters.parameters)) {
     return [
       ...parameters.parameters.map((value) => {
-        if (value.__opaqueType === 'ParameterOverride') {
+        if (value.isParameterOverride) {
           if (value.enabled) return [extractParameters(value)]
           else return []
         } else return [value]
@@ -101,6 +94,7 @@ export type ResourceTransforms = {
 }
 
 export type ModelTransformParameters = ExtractedImageTransformParameters & {
+  src: string
   dst: string
   resourceUri: string
   split: boolean
@@ -108,6 +102,7 @@ export type ModelTransformParameters = ExtractedImageTransformParameters & {
   instance: boolean
   dedup: boolean
   flatten: boolean
+
   join: {
     enabled: boolean
     options: JoinOptions
@@ -117,27 +112,32 @@ export type ModelTransformParameters = ExtractedImageTransformParameters & {
     enabled: boolean
     options: PaletteOptions
   }
+
   prune: boolean
   reorder: boolean
   resample: boolean
+
   weld: {
     enabled: boolean
     tolerance: number
   }
+
   meshoptCompression: {
     enabled: boolean
-    options: GLTFPackOptions
   }
+
   dracoCompression: {
     enabled: boolean
     options: DracoOptions
   }
-  modelFormat: 'glb' | 'gltf'
+
+  modelFormat: 'glb' | 'gltf' | 'vrm'
 
   resources: ResourceTransforms
 }
 
 export const DefaultModelTransformParameters: ModelTransformParameters = {
+  src: '',
   dst: '',
   resourceUri: '',
   modelFormat: 'gltf',
@@ -168,14 +168,7 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
     tolerance: 0.001
   },
   meshoptCompression: {
-    enabled: false,
-    options: {
-      compression: true,
-      basisU: true,
-      instancing: false,
-      mergeNodes: true,
-      mergeMaterials: true
-    }
+    enabled: true
   },
   dracoCompression: {
     enabled: false,

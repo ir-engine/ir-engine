@@ -37,10 +37,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
 import config from '@etherealengine/common/src/config'
-import { FeathersApplication } from '@feathersjs/feathers'
+import { logsApiPath } from '@etherealengine/common/src/schema.type.module'
+import type { FeathersApplication } from '@feathersjs/feathers'
 import NodeCache from 'node-cache'
 import schedule from 'node-schedule'
-import { logsApiPath } from '../../schemas/cluster/logs-api.schema'
 
 // Initialize the cache
 const engineCache = new NodeCache()
@@ -65,7 +65,11 @@ function pushToEngine(): void {
     })
 
     if (cachedData.length > 0) {
-      LogConfig.api.service(logsApiPath).create(cachedData)
+      try {
+        LogConfig.api.service(logsApiPath).create(cachedData)
+      } catch (err) {
+        console.log(err)
+      }
 
       engineCache.flushAll()
     }
@@ -116,7 +120,7 @@ const multiLogger = {
    * @param opts {object}
    * @param opts.component {string}
    */
-  child: (opts: any) => {
+  child: (opts: { component: string }) => {
     if (!config.client.serverHost || (config.client.localBuildOrDev && !config.client.logs.forceClientAggregate)) {
       // Locally, this will provide correct file & line numbers in browser console
       return {

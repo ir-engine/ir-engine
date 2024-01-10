@@ -31,9 +31,8 @@ import {
   LocationAdminPatch,
   LocationAdminQuery,
   LocationAdminType
-} from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+} from '@etherealengine/common/src/schemas/social/location-admin.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LocationAdminParams extends KnexAdapterParams<LocationAdminQuery> {}
 
 export class LocationAdminService<

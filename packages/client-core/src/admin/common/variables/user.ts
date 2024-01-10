@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AvatarID, InviteCode, UserID, UserName } from '@etherealengine/common/src/schema.type.module'
+
 export interface UserColumn {
   id: 'id' | 'name' | 'avatarId' | 'accountIdentifier' | 'isGuest' | 'location' | 'inviteCode' | 'instanceId' | 'action'
   label: string
@@ -69,13 +71,13 @@ export const userColumns: UserColumn[] = [
 ]
 
 export interface UserData {
-  id: string
+  id: UserID
   el: any
-  name: string
-  avatarId: string | JSX.Element
+  name: UserName
+  avatarId: AvatarID | JSX.Element
   accountIdentifier: string | JSX.Element
   isGuest: string
-  inviteCode: string | JSX.Element
+  inviteCode: InviteCode | JSX.Element
   action: any
 }
 export interface UserProps {

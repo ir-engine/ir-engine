@@ -31,8 +31,8 @@ import Button from '@etherealengine/client-core/src/common/components/Button'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
@@ -114,7 +114,10 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
       }}
     >
       {userId && (
-        <Box className={styles.menuContent} display={'flex'} flexDirection={'column'}>
+        <Box
+          className={styles.menuContent}
+          style={{ display: 'flex', alignItems: 'center', flexDirection: 'column', gap: '10px' }}
+        >
           <Avatar imageSrc={userThumbnail} size={150} sx={{ margin: '0 auto' }} />
 
           <Text variant="h6" align="center" mt={2} mb={1}>

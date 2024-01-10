@@ -53,7 +53,7 @@ const XRIconButton = (props) => {
       <button
         className={`iconButtonContainer ${className} ${variant} ${size}`}
         {...buttonProps}
-        style={backgroundColor ? { backgroundColor: backgroundColor } : {}}
+        style={backgroundColor ? { backgroundColor: backgroundColor, margin: 0 } : { margin: 0 }}
       >
         {content}
       </button>

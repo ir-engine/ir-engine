@@ -23,23 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NormalizedLandmarkList } from '@mediapipe/pose'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/createThreejsProxy'
 import { defineComponent } from '../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../ecs/functions/EntityFunctions'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',
-
+  onInit: () => {
+    return {
+      prevWorldLandmarks: null as NormalizedLandmarkList | null,
+      prevScreenLandmarks: null as NormalizedLandmarkList | null
+    }
+  },
   schema: {
     rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionSchema])) as Record<
       VRMHumanBoneName,
       typeof QuaternionSchema
     >,
-    hipPosition: Vector3Schema
+    hipPosition: Vector3Schema,
+    hipRotation: QuaternionSchema,
+    footOffset: 'f64',
+    solvingLowerBody: 'ui8'
   },
 
   reactor: function () {
@@ -47,9 +54,11 @@ export const MotionCaptureRigComponent = defineComponent({
 
     useEffect(() => {
       for (const boneName of VRMHumanBoneList) {
-        proxifyVector3(AvatarRigComponent.rig[boneName].position, entity)
-        proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity)
+        //causes issues with ik solves, commenting out for now
+        //proxifyVector3(AvatarRigComponent.rig[boneName].position, entity)
+        //proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity)
       }
+      MotionCaptureRigComponent.solvingLowerBody[entity] = 1
     }, [])
 
     return null

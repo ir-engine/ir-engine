@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 
-import { OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
-import { RouteType, routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
-import { ClientSettingType, clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
-import { ServerSettingType, serverSettingPath } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
+import { OembedType } from '@etherealengine/common/src/schemas/media/oembed.schema'
+import { RouteType, routePath } from '@etherealengine/common/src/schemas/route/route.schema'
+import { ClientSettingType, clientSettingPath } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
+import { ServerSettingType, serverSettingPath } from '@etherealengine/common/src/schemas/setting/server-setting.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import { getProjectConfig, onProjectEvent } from '../../projects/project/project-helper'
@@ -70,7 +70,9 @@ export class OembedService implements ServiceInterface<OembedType | BadRequest |
         query_url: queryURL
       } as OembedType
 
-      const activeRoutes = (await this.app.service(routePath).find({ query: { paginate: false } })) as RouteType[]
+      const activeRoutes = (await this.app
+        .service(routePath)
+        .find({ query: { paginate: false } })) as any as RouteType[]
       const uniqueProjects = [...new Set<string>(activeRoutes.map((item) => item.project))]
 
       for (const projectName of uniqueProjects) {

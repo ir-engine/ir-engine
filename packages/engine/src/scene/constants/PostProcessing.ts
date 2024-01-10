@@ -383,9 +383,9 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
 
 /**
  * Based on Unity's post processing pipelines
- * - https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@16.0/manual/Post-Processing-Execution-Order.html
- * - https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@16.0/manual/EffectList.html
- * - https://docs.unity3d.com/Packages/com.unity.render-pipelines.core@16.0/manual
+ * - https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@17.0/manual/rendering-excecution-order.html
+ * - https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@17.0/manual/EffectList.html
+ * - https://docs.unity3d.com/Packages/com.unity.render-pipelines.core@17.0/manual
  */
 
 /** 1. input aliasing */

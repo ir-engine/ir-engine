@@ -68,7 +68,7 @@ function PostProcessingComponentReactor(): ReactElement {
     getMutableState(PostProcessingSettingsState).enabled.set(component.enabled.value)
   }, [component.enabled])
 
-  if (!EngineRenderer.instance.effectComposer) return <></>
+  if (!EngineRenderer.instance?.effectComposer) return <></>
 
   return (
     <>
@@ -106,9 +106,7 @@ const PostProcessingEffectPropertyReactor = (props: {
     if (effect && property in effect) {
       effect[property] = value
     }
-    if (property === 'isActive') {
-      configureEffectComposer()
-    }
+    configureEffectComposer()
   }, [value, effectState[property]])
 
   return null

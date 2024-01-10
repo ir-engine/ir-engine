@@ -55,15 +55,13 @@ import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/engine/src/
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 import { useTranslation } from 'react-i18next'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
-import { RecordingTimer, RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
+import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
-import { useUserHasAccessHook } from '../../user/userHasAccess'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
   const { t } = useTranslation()
-  const recordScopes = useUserHasAccessHook('record')
   const playbackState = useHookstate(getMutableState(PlaybackState))
   const recordingState = useHookstate(getMutableState(RecordingState))
 
@@ -246,7 +244,7 @@ export const MediaIconsBox = () => {
           Exit Spectate
         </button>
       )}
-      {recordScopes && (
+      {/* {recordScopes && (
         <>
           {recordingState.recordingID.value || playbackState.recordingID.value ? (
             <button
@@ -272,7 +270,7 @@ export const MediaIconsBox = () => {
             />
           )}
         </>
-      )}
+      )} */}
     </section>
   )
 }

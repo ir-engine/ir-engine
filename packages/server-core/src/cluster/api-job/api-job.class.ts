@@ -31,9 +31,8 @@ import {
   ApiJobPatch,
   ApiJobQuery,
   ApiJobType
-} from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+} from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ApiJobParams extends KnexAdapterParams<ApiJobQuery> {}
 
 export class ApiJobService<T = ApiJobType, ServiceParams extends Params = ApiJobParams> extends KnexService<

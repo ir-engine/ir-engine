@@ -27,6 +27,7 @@ import { useEffect } from 'react'
 
 import {
   defineComponent,
+  hasComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -38,6 +39,7 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { AudioNodeGroups, MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
+import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -71,6 +73,7 @@ export const PositionalAudioComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    if (hasComponent(entity, VolumetricComponent) || hasComponent(entity, MediaComponent)) return
     setComponent(entity, MediaComponent, {})
 
     if (!json) return
@@ -124,8 +127,8 @@ export const PositionalAudioComponent = defineComponent({
         if (audioNodes) {
           const helper = new PositionalAudioHelper(audioNodes)
           helper.name = `positional-audio-helper-${entity}`
-          setObjectLayers(helper, ObjectLayers.NodeHelper)
           addObjectToGroup(entity, helper)
+          setObjectLayers(helper, ObjectLayers.NodeHelper)
           audio.helper.set(helper)
         }
       }

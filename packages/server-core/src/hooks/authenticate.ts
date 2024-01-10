@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import * as authentication from '@feathersjs/authentication'
 import { HookContext, NextFunction, Paginated } from '@feathersjs/feathers'
 
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { AsyncLocalStorage } from 'async_hooks'
 import { isProvider } from 'feathers-hooks-common'
 import config from '../appconfig'
@@ -45,7 +45,7 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
 
   // If user param is already stored then we don't need to
   // authenticate. This is typically an internal service call.
-  if (store && store.user) {
+  if (!config.testEnabled && store && store.user) {
     if (!context.params.user) {
       context.params.user = store.user
     }
@@ -56,6 +56,10 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
   // No need to authenticate if it's an internal call.
   const isInternal = isProvider('server')(context)
   if (isInternal) {
+    if (context.params.user) {
+      asyncLocalStorage.enterWith({ user: context.params.user })
+    }
+
     return next()
   }
 

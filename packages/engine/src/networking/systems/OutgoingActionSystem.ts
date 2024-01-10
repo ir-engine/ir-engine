@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkActions } from '../NetworkState'
 import { Network } from '../classes/Network'
@@ -59,5 +60,6 @@ const execute = () => {
 
 export const OutgoingActionSystem = defineSystem({
   uuid: 'ee.engine.OutgoingActionSystem',
+  insert: { after: SimulationSystemGroup },
   execute
 })

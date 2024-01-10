@@ -27,31 +27,24 @@ import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import {
-  useLoadEngineWithScene,
-  useOfflineNetwork,
-  useOnlineNetwork
-} from '@etherealengine/client-core/src/components/World/EngineHooks'
-import {
-  useLoadLocation,
-  useLoadLocationScene,
-  useLoadScene
-} from '@etherealengine/client-core/src/components/World/LoadLocationScene'
+import { useOfflineNetwork, useOnlineNetwork } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
-import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { defineSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { ECSRecordingActions } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
+
+import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import '@etherealengine/client-core/src/world/ClientNetworkModule'
+import '@etherealengine/engine/src/EngineModule'
 
 const ecsRecordingErrorActionQueue = defineActionQueue(ECSRecordingActions.error.matches)
 
 const NotifyRecordingErrorSystem = defineSystem({
   uuid: 'notifyRecordingErrorSystem',
+  insert: { after: PresentationSystemGroup },
   execute: () => {
     for (const action of ecsRecordingErrorActionQueue()) {
       NotificationService.dispatchNotify(action.error, { variant: 'error' })
@@ -59,11 +52,8 @@ const NotifyRecordingErrorSystem = defineSystem({
   }
 })
 
-const startCaptureSystems = () => {
-  startSystems([ClientNetworkingSystem, NotifyRecordingErrorSystem], { after: PresentationSystemGroup })
-}
-
 export const CaptureLocation = () => {
+  const locationState = useHookstate(getMutableState(LocationState))
   useRemoveEngineCanvas()
 
   const params = useParams()
@@ -71,14 +61,13 @@ export const CaptureLocation = () => {
   const locationName = params?.locationName as string | undefined
   const offline = !locationName
 
-  useLoadLocationScene()
-  useLoadEngineWithScene({ spectate: true })
+  useEffect(() => {
+    if (locationName) LocationState.setLocationName(locationName)
+  }, [])
 
-  if (offline) {
-    useLoadScene({ projectName: 'default-project', sceneName: 'default' })
-  } else {
-    useLoadLocation({ locationName: params.locationName! })
-  }
+  useEffect(() => {
+    if (locationState.locationName.value) LocationService.getLocationByName(locationState.locationName.value)
+  }, [locationState.locationName.value])
 
   if (offline) {
     useOfflineNetwork()
@@ -87,15 +76,6 @@ export const CaptureLocation = () => {
   }
 
   AuthService.useAPIListeners()
-  SceneService.useAPIListeners()
-
-  useEffect(() => {
-    startCaptureSystems()
-  }, [])
-
-  const engineState = useHookstate(getMutableState(EngineState))
-
-  if (!engineState.connectedWorld.value) return <></>
 
   return <CaptureUI />
 }

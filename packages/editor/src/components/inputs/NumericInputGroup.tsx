@@ -58,14 +58,14 @@ function BaseNumericInputGroup({ name, className, label, ...rest }: NumericInput
   return (
     <InputGroupContainer>
       <Grid container spacing="10px">
-        <Grid item xs={3} display="flex" alignItems="center" justifyContent="end">
-          <InfoTooltip className="tooltip" title={label ?? name}>
+        <Grid item xs={4} display="flex" alignItems="center" justifyContent="end">
+          <InfoTooltip className="tooltip" title={label ?? name} style={{ textAlign: 'end', overflow: 'hidden' }}>
             <Scrubber onChange={onChange} value={value} {...scrubberProps}>
               {label}
             </Scrubber>
           </InfoTooltip>
         </Grid>
-        <Grid item xs={9}>
+        <Grid item xs={8}>
           <InputGroupContent>
             <NumericInput {...rest} />
           </InputGroupContent>

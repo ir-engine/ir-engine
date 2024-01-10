@@ -43,7 +43,7 @@ import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
 
-import { SportsBarTwoTone } from '@mui/icons-material'
+import SportsBarTwoTone from '@mui/icons-material/SportsBarTwoTone'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -137,7 +137,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Equirectangular && (
               <ImagePreviewInput
                 value={envmapComponent.envMapSourceURL.value}
-                onChange={updateProperty(EnvmapComponent, 'envMapSourceURL')}
+                onChange={commitProperty(EnvmapComponent, 'envMapSourceURL')}
               />
             )}
             {errors?.MISSING_FILE && (

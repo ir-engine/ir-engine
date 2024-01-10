@@ -78,9 +78,19 @@ export const useAudioState = () => {
   const audioState = useHookstate(getMutableState(AudioState))
 
   useEffect(() => {
-    const audioContext = getState(AudioState).audioContext
+    const AudioContext = globalThis.AudioContext || globalThis.webkitAudioContext
+    if (!AudioContext) return
+
+    const audioContext = new AudioContext()
+    audioContext.resume()
 
     const audioState = getMutableState(AudioState)
+    audioState.audioContext.set(audioContext)
+
+    const cameraGainNode = audioContext.createGain()
+    audioState.cameraGainNode.set(cameraGainNode)
+    cameraGainNode.connect(audioContext.destination)
+
     const currentTime = audioState.audioContext.currentTime.value
 
     audioState.cameraGainNode.gain.value.setTargetAtTime(audioState.masterVolume.value, currentTime, 0.01)
@@ -131,48 +141,54 @@ export const useAudioState = () => {
   }, [])
 
   useEffect(() => {
+    if (!audioState.audioContext.value) return
     audioState.cameraGainNode.value.gain.setTargetAtTime(
       audioState.masterVolume.value,
       audioState.audioContext.value.currentTime,
       0.01
     )
-  }, [audioState.masterVolume])
+  }, [audioState.audioContext, audioState.masterVolume])
 
   useEffect(() => {
+    if (!audioState.audioContext.value) return
     audioState.gainNodeMixBuses.value.mediaStreams.gain.setTargetAtTime(
       audioState.mediaStreamVolume.value,
       audioState.audioContext.value.currentTime,
       0.01
     )
-  }, [audioState.mediaStreamVolume])
+  }, [audioState.audioContext, audioState.mediaStreamVolume])
 
   useEffect(() => {
+    if (!audioState.audioContext.value) return
     audioState.gainNodeMixBuses.value.notifications.gain.setTargetAtTime(
       audioState.notificationVolume.value,
       audioState.audioContext.value.currentTime,
       0.01
     )
-  }, [audioState.notificationVolume])
+  }, [audioState.audioContext, audioState.notificationVolume])
 
   useEffect(() => {
+    if (!audioState.audioContext.value) return
     audioState.gainNodeMixBuses.value.soundEffects.gain.setTargetAtTime(
       audioState.soundEffectsVolume.value,
       audioState.audioContext.value.currentTime,
       0.01
     )
-  }, [audioState.soundEffectsVolume])
+  }, [audioState.audioContext, audioState.soundEffectsVolume])
 
   useEffect(() => {
+    if (!audioState.audioContext.value) return
     audioState.gainNodeMixBuses.value.music.gain.setTargetAtTime(
       audioState.backgroundMusicVolume.value,
       audioState.audioContext.value.currentTime,
       0.01
     )
-  }, [audioState.backgroundMusicVolume])
+  }, [audioState.audioContext, audioState.backgroundMusicVolume])
 
   useEffect(() => {
+    if (!audioState.positionalMedia.value) return
     getMutableState(MediaSettingsState).immersiveMedia.set(audioState.positionalMedia.value)
-  }, [audioState.positionalMedia])
+  }, [audioState.audioContext, audioState.positionalMedia])
 }
 
 export const getPositionalMedia = () => {

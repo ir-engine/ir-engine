@@ -44,41 +44,32 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-
-export type Object3DWithEntity = Object3D & { entity: Entity }
+import { Layer } from './ObjectLayerComponent'
+import { RenderOrderComponent } from './RenderOrderComponent'
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
-  jsonID: 'group',
 
   onInit: (entity: Entity) => {
-    return [] as Object3DWithEntity[]
+    return [] as Object3D[]
   },
 
   onRemove: (entity, component) => {
-    // console.log(component.value)
     for (const obj of component.value) {
-      obj.removeFromParent()
-      // obj.traverse((mesh: Mesh) => {
-      //   console.log('removed mesh', mesh)
-      //   if (Array.isArray(mesh.material)) {
-      //     mesh.material.forEach(disposeMaterial)
-      //   } else if (mesh.material) {
-      //     disposeMaterial(mesh.material)
-      //   }
-      //   mesh.geometry?.dispose()
-      // })
-      // TODO: only dispose geometries/materials when no other entities are using them...
+      if (obj.parent) {
+        obj.removeFromParent()
+      }
     }
   }
 })
 
 export function addObjectToGroup(entity: Entity, object: Object3D) {
-  const obj = object as Object3DWithEntity & Camera
+  const obj = object as Object3D & Camera
   obj.entity = entity
 
   if (!hasComponent(entity, GroupComponent)) setComponent(entity, GroupComponent, [])
-  if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
+  if (getComponent(entity, GroupComponent).includes(obj))
+    return console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
   if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
 
   getMutableComponent(entity, GroupComponent).merge([obj])
@@ -90,8 +81,20 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.matrixAutoUpdate = false
   obj.matrixWorldAutoUpdate = false
   obj.matrix = transform.matrix
-  obj.matrixWorld = transform.matrix
-  obj.matrixWorldInverse = transform.matrixInverse
+  obj.matrixWorld = transform.matrixWorld
+  obj.layers = new Layer(entity)
+  obj.frustumCulled = false
+
+  Object.defineProperty(obj, 'renderOrder', {
+    get: () => RenderOrderComponent.renderOrder[entity],
+    set: (val: number) => setComponent(entity, RenderOrderComponent, val)
+  })
+  obj.renderOrder = 0
+
+  Object.assign(obj, {
+    updateWorldMatrix: () => {}
+  })
+
   if (object !== Engine.instance.scene) Engine.instance.scene.add(object)
 
   // sometimes it's convenient to update the entity transform via the Object3D,
@@ -109,7 +112,7 @@ export function removeGroupComponent(entity: Entity) {
 }
 
 export function removeObjectFromGroup(entity: Entity, object: Object3D) {
-  const obj = object as Object3DWithEntity & Camera
+  const obj = object as Object3D & Camera
 
   if (hasComponent(entity, GroupComponent)) {
     const group = getComponent(entity, GroupComponent)
@@ -124,7 +127,7 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
 
 export type GroupReactorProps = {
   entity: Entity
-  obj: Object3DWithEntity
+  obj: Object3D
 }
 
 export const GroupReactor = memo((props: { GroupChildReactor: FC<GroupReactorProps> }) => {

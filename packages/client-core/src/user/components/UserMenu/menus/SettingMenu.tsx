@@ -35,8 +35,6 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
-import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
@@ -52,14 +50,14 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { UserSettingPatch } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
 
-export const ShadowMapResolutionOptions = [
+export const ShadowMapResolutionOptions: InputMenuItem[] = [
   {
     label: '256px',
     value: 256
@@ -111,8 +109,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const [clientSetting] = clientSettingState?.client?.value || []
   const userSettings = selfUser.userSetting.value
 
-  const hasAdminAccess =
-    selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
+  const hasAdminAccess = userHasAccess('admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
   const themeModes = {
@@ -121,7 +118,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     admin: userSettings?.themeModes?.admin ?? defaultThemeModes.admin
   }
 
-  const showWorldSettings = Engine.instance.localClientEntity || engineState.value
+  const showWorldSettings = !!Engine.instance.localClientEntity
 
   const handleChangeUserThemeMode = (event) => {
     if (!userSettings) return
@@ -474,17 +471,6 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               onChange={handleQualityLevelChange}
             />
 
-            <InputGroup
-              name="Shadow Map Resolution"
-              label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
-            >
-              <SelectInput
-                options={ShadowMapResolutionOptions}
-                value={rendererState.shadowMapResolution.value}
-                onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
-              />
-            </InputGroup>
-
             <Grid container spacing={{ xs: 0, sm: 2 }}>
               <Grid item xs={12} sm={4}>
                 <InputCheck
@@ -510,6 +496,14 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                 />
               </Grid>
             </Grid>
+            {rendererState.useShadows.value && (
+              <InputSelect
+                label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
+                value={rendererState.shadowMapResolution.value}
+                menu={ShadowMapResolutionOptions}
+                onChange={(event) => rendererState.shadowMapResolution.set(event.target.value)}
+              />
+            )}
           </>
         )}
       </Box>

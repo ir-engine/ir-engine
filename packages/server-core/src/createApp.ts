@@ -51,6 +51,7 @@ import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import { default as appConfig, default as config } from './appconfig'
 import authenticate from './hooks/authenticate'
+import { logError } from './hooks/log-error'
 import persistHeaders from './hooks/persist-headers'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import mysql from './mysql'
@@ -164,6 +165,8 @@ export const serverPipe = pipe(configureOpenAPI(), configurePrimus(), configureR
   app: Application
 ) => Application
 
+export const serverJobPipe = pipe(configurePrimus(), configureK8s()) as (app: Application) => Application
+
 export const createFeathersKoaApp = (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
@@ -238,7 +241,9 @@ export const createFeathersKoaApp = (
 
   // Store headers across internal service calls
   app.hooks({
-    around: [authenticate, persistHeaders]
+    around: {
+      all: [logError, persistHeaders, authenticate]
+    }
   })
 
   pipeLogs(Engine.instance.api)

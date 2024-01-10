@@ -31,6 +31,7 @@ import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/component
 
 import SquareIcon from '@mui/icons-material/Square'
 
+import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
@@ -53,6 +54,16 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
           value={groundPlaneComponent.color.value}
           onChange={updateProperty(GroundPlaneComponent, 'color')}
           onRelease={commitProperty(GroundPlaneComponent, 'color')}
+        />
+      </InputGroup>
+      <InputGroup
+        name="Visible"
+        label={t('editor:properties.groundPlane.lbl-visible')}
+        info={t('editor:properties.groundPlane.info-visible')}
+      >
+        <BooleanInput
+          value={groundPlaneComponent.visible.value}
+          onChange={commitProperty(GroundPlaneComponent, 'visible')}
         />
       </InputGroup>
       <ShadowProperties entity={props.entity} />

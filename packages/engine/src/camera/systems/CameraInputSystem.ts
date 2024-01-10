@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { clamp } from 'lodash'
 import { Vector2 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
@@ -36,101 +35,23 @@ import { throttle } from '../../common/functions/FunctionHelpers'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  ComponentType,
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 
 import { XRState } from '../../xr/XRState'
 
 import { InputState } from '../../input/state/InputState'
 
+import { isMobile } from '../../common/functions/isMobile'
+import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
+import { handleCameraZoom, setTargetCameraRotation } from '../functions/CameraFunctions'
 import { CameraMode } from '../types/CameraMode'
 
-export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number, time = 0.3) => {
-  const cameraRotationTransition = getOptionalComponent(entity, TargetCameraRotationComponent) as
-    | ComponentType<typeof TargetCameraRotationComponent>
-    | undefined
-  if (!cameraRotationTransition) {
-    setComponent(entity, TargetCameraRotationComponent, {
-      phi: phi,
-      phiVelocity: { value: 0 },
-      theta: theta,
-      thetaVelocity: { value: 0 },
-      time: time
-    })
-  } else {
-    cameraRotationTransition.phi = phi
-    cameraRotationTransition.theta = theta
-    cameraRotationTransition.time = time
-  }
-}
-
-let lastScrollValue = 0
-
-/**
- * Change camera distance.
- * @param cameraEntity Entity holding camera and input component.
- */
-export const handleCameraZoom = (cameraEntity: Entity, value: number): void => {
-  const scrollDelta = Math.sign(value - lastScrollValue) * 0.5
-  lastScrollValue = value
-
-  if (scrollDelta === 0) {
-    return
-  }
-
-  const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent) as
-    | ComponentType<typeof FollowCameraComponent>
-    | undefined
-
-  if (!followComponent) {
-    return
-  }
-
-  const epsilon = 0.001
-  const nextZoomLevel = clamp(followComponent.zoomLevel + scrollDelta, epsilon, followComponent.maxDistance)
-
-  // Move out of first person mode
-  if (followComponent.zoomLevel <= epsilon && scrollDelta > 0) {
-    followComponent.zoomLevel = followComponent.minDistance
-    return
-  }
-
-  // Move to first person mode
-  if (nextZoomLevel < followComponent.minDistance) {
-    followComponent.zoomLevel = epsilon
-    setTargetCameraRotation(cameraEntity, 0, followComponent.theta)
-    return
-  }
-
-  // Rotate camera to the top but let the player rotate if he/she desires
-  if (Math.abs(followComponent.maxDistance - nextZoomLevel) <= 1.0 && scrollDelta > 0) {
-    setTargetCameraRotation(cameraEntity, 85, followComponent.theta)
-  }
-
-  // Rotate from top
-  if (
-    Math.abs(followComponent.maxDistance - followComponent.zoomLevel) <= 1.0 &&
-    scrollDelta < 0 &&
-    followComponent.phi >= 80
-  ) {
-    setTargetCameraRotation(cameraEntity, 45, followComponent.theta)
-  }
-
-  followComponent.zoomLevel = nextZoomLevel
-}
-
-const avatarControllerQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
+const avatarControllerQuery = defineQuery([AvatarControllerComponent])
 
 const onKeyV = () => {
   for (const entity of avatarControllerQuery()) {
@@ -180,13 +101,16 @@ const onKeyC = () => {
 
 const lastLookDelta = new Vector2()
 let lastMouseMoved = false
+const INPUT_CAPTURE_DELAY = 0.2
+let accumulator = 0
 
 const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
-
+let capturedInputSource: Entity | undefined = undefined
 const execute = () => {
   if (getState(XRState).xrFrame) return
 
   const deltaSeconds = getState(EngineState).deltaSeconds
+  accumulator += deltaSeconds
 
   const { localClientEntity } = Engine.instance
   if (!localClientEntity) return
@@ -195,23 +119,29 @@ const execute = () => {
 
   const avatarControllerEntities = avatarControllerQuery()
 
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  if (!nonCapturedInputSource) return
+  let inputSourceEntity = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  if (!inputSourceEntity && capturedInputSource) {
+    inputSourceEntity = capturedInputSource
+  }
 
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
-  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+  const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
 
-  const keys = inputSource.buttons
+  const keys = inputSource?.buttons
 
-  if (keys.KeyV?.down) onKeyV()
-  if (keys.KeyF?.down) onKeyF()
-  if (keys.KeyC?.down) onKeyC()
+  if (keys?.KeyV?.down) onKeyV()
+  if (keys?.KeyF?.down) onKeyF()
+  if (keys?.KeyC?.down) onKeyC()
 
   const pointerState = getState(InputState).pointerState
-  const mouseMoved = pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed
+  const mouseMoved = isMobile
+    ? pointerState.movement.lengthSq() > 0 && keys?.PrimaryClick?.pressed
+    : keys?.PrimaryClick?.pressed
 
   for (const entity of avatarControllerEntities) {
+    if (!inputSource) continue
+
     const avatarController = getComponent(entity, AvatarControllerComponent)
     const cameraEntity = avatarController.cameraEntity
     const target =
@@ -230,7 +160,7 @@ const execute = () => {
       target.phi += z * 2
     }
 
-    const keyDelta = (keys.ArrowLeft ? 1 : 0) + (keys.ArrowRight ? -1 : 0)
+    const keyDelta = (keys?.ArrowLeft ? 1 : 0) + (keys?.ArrowRight ? -1 : 0)
     target.theta += 100 * deltaSeconds * keyDelta
     setTargetCameraRotation(cameraEntity, target.phi, target.theta)
 
@@ -242,7 +172,17 @@ const execute = () => {
         0.1
       )
     }
-
+    if (keys?.PrimaryClick?.pressed) {
+      if (accumulator > INPUT_CAPTURE_DELAY) {
+        InputSourceComponent.captureButtons(cameraEntity)
+        capturedInputSource = inputSourceEntity
+        accumulator = 0
+      }
+    } else {
+      InputSourceComponent.releaseButtons()
+      capturedInputSource = undefined
+      accumulator = 0
+    }
     throttleHandleCameraZoom(cameraEntity, pointerState.scroll.y)
   }
 
@@ -253,5 +193,6 @@ const execute = () => {
 
 export const CameraInputSystem = defineSystem({
   uuid: 'ee.engine.CameraInputSystem',
+  insert: { with: InputSystemGroup },
   execute
 })

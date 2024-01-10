@@ -30,7 +30,7 @@ import {
   locationAdminDataValidator,
   locationAdminPatchValidator,
   locationAdminQueryValidator
-} from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+} from '@etherealengine/common/src/schemas/social/location-admin.schema'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 import verifyScope from '../../hooks/verify-scope'
@@ -55,17 +55,17 @@ export default {
     find: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     get: [disallow('external')],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationAdminDataValidator),
       schemaHooks.resolveData(locationAdminDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationAdminPatchValidator),
       schemaHooks.resolveData(locationAdminPatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]
+    remove: [iff(isProvider('external'), verifyScope('location', 'write'))]
   },
 
   after: {

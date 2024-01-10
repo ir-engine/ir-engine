@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   recordingResourceDataValidator,
   recordingResourcePatchValidator,
   recordingResourceQueryValidator
-} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+} from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
 import verifyScope from '../../hooks/verify-scope'
 
 import {
@@ -56,11 +56,11 @@ export default {
     find: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     get: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
+      iff(isProvider('external'), verifyScope('recording', 'write'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(recordingResourceDataValidator),
       schemaHooks.resolveData(recordingResourceDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('recording', 'write'))],
+    update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('recording', 'write')),
       () => schemaHooks.validateData(recordingResourcePatchValidator),

@@ -9,6 +9,7 @@
   color: var(--iconButtonColor);
   cursor: pointer;
   position: relative;
+  margin:0;
   background-color: var(--toolbar);
 }
 

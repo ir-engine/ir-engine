@@ -28,8 +28,9 @@ import BufferHandlerExtension from '../exporters/gltf/extensions/BufferHandlerEx
 import { EEECSExporterExtension } from '../exporters/gltf/extensions/EEECSExporterExtension'
 import EEMaterialExporterExtension from '../exporters/gltf/extensions/EEMaterialExporterExtension'
 import GPUInstancingExporterExtension from '../exporters/gltf/extensions/GPUInstancingExporterExtension'
-import ImageProcessingExtension from '../exporters/gltf/extensions/ImageProcessingExtension'
+import ImageRoutingExtension from '../exporters/gltf/extensions/ImageRoutingExtension'
 import ResourceIDExtension from '../exporters/gltf/extensions/ResourceIDExtension'
+import SourceHandlerExtension from '../exporters/gltf/extensions/SourceHandlerExtension'
 import { GLTFExporter, GLTFWriter } from '../exporters/gltf/GLTFExporter'
 
 export default function createGLTFExporter() {
@@ -37,10 +38,12 @@ export default function createGLTFExporter() {
 
   const extensions = [
     GPUInstancingExporterExtension,
+    ImageRoutingExtension,
     EEMaterialExporterExtension,
     EEECSExporterExtension,
     ResourceIDExtension,
-    ImageProcessingExtension
+    SourceHandlerExtension
+    //ImageProcessingExtension
   ]
   extensions.forEach((extension) => exporter.register((writer) => new extension(writer)))
 

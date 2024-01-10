@@ -56,7 +56,6 @@ import BooleanInput from '../../inputs/BooleanInput'
 import { Button } from '../../inputs/Button'
 import InputGroup from '../../inputs/InputGroup'
 import NumericInputGroup from '../../inputs/NumericInputGroup'
-import { SceneObjectInput } from '../../inputs/SceneObjectInput'
 import SelectInput from '../../inputs/SelectInput'
 import TexturePreviewInput from '../../inputs/TexturePreviewInput'
 import Vector3Input from '../../inputs/Vector3Input'
@@ -329,10 +328,11 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="subParticleSystem" label="Sub Particle System">
-            <SceneObjectInput
+            {/*  @todo */}
+            {/* <SceneObjectInput
               value={value.subParticleSystem}
               onChange={onChange(emitSubParticleSystemScope.subParticleSystem)}
-            />
+            /> */}
           </InputGroup>
         </>
       )

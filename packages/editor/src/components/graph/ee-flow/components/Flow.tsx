@@ -24,15 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useRef } from 'react'
-import { Background, BackgroundVariant, ReactFlow } from 'reactflow'
+import { Background, BackgroundVariant, ReactFlow, ReactFlowProvider } from 'reactflow'
 
 import { GraphJSON, IRegistry } from '@behave-graph/core'
 
 import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/functions/useGraphRunner.js'
-import _ from 'lodash'
+import { useHookstate } from '@hookstate/core'
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
 import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator.js'
+import { useSelectionHandler } from '../hooks/useSelectionHandler.js'
 import CustomControls from './Controls.js'
 import { NodePicker } from './NodePicker.js'
 import { Examples } from './modals/LoadModal.js'
@@ -48,6 +49,9 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   const specGenerator = useNodeSpecGenerator(registry)
 
   const flowRef = useRef(null)
+
+  const dragging = useHookstate(false)
+  const mouseOver = useHookstate(false)
 
   const { nodes, edges, onNodesChange, onEdgesChange, graphJson, setGraphJson, nodeTypes } = useBehaveGraphFlow({
     initialGraphJson: graph,
@@ -77,54 +81,61 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     registry
   })
 
-  const debouncedOnChangeGraph = _.debounce(() => {
-    onChangeGraph(graphJson ?? graph)
-  }, 2000)
+  const { onSelectionChange } = useSelectionHandler({
+    nodes,
+    onNodesChange,
+    onEdgesChange
+  })
 
   useEffect(() => {
-    debouncedOnChangeGraph()
-    return () => {
-      debouncedOnChangeGraph.cancel()
-    }
-  }, [graphJson])
+    if (dragging.value || !mouseOver.value) return
+    onChangeGraph(graphJson ?? graph)
+  }, [graphJson]) // change in node position triggers reactor
 
   return (
-    <ReactFlow
-      ref={flowRef}
-      nodeTypes={nodeTypes}
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      // @ts-ignore
-      onConnectStart={handleStartConnect}
-      // @ts-ignore
-      onConnectEnd={handleStopConnect}
-      fitView
-      fitViewOptions={{ maxZoom: 1 }}
-      onPaneClick={handlePaneClick}
-      onPaneContextMenu={handlePaneContextMenu}
-    >
-      <CustomControls
-        playing={playing}
-        togglePlay={togglePlay}
-        onSaveGraph={onChangeGraph}
-        setBehaviorGraph={setGraphJson}
-        examples={examples}
-        specGenerator={specGenerator}
-      />
-      <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
-      {nodePickerVisibility && (
-        <NodePicker
-          flowRef={flowRef}
-          position={nodePickerVisibility}
-          filters={nodePickFilters}
-          onPickNode={handleAddNode}
-          onClose={closeNodePicker}
-          specJSON={specGenerator?.getAllNodeSpecs()}
+    <ReactFlowProvider>
+      <ReactFlow
+        ref={flowRef}
+        nodeTypes={nodeTypes}
+        nodes={nodes}
+        edges={edges}
+        onNodeDragStart={() => dragging.set(true)}
+        onNodeDragStop={() => dragging.set(false)}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onConnectStart={handleStartConnect}
+        onConnectEnd={handleStopConnect}
+        onPaneMouseEnter={() => mouseOver.set(true)}
+        onPaneMouseLeave={() => mouseOver.set(false)}
+        fitView
+        fitViewOptions={{ maxZoom: 1 }}
+        onPaneClick={handlePaneClick}
+        onPaneContextMenu={handlePaneContextMenu}
+        onSelectionChange={onSelectionChange}
+        multiSelectionKeyCode={'Shift'}
+        deleteKeyCode={'Backspace'}
+      >
+        <CustomControls
+          playing={playing}
+          togglePlay={togglePlay}
+          onSaveGraph={onChangeGraph}
+          setBehaviorGraph={setGraphJson}
+          examples={examples}
+          specGenerator={specGenerator}
         />
-      )}
-    </ReactFlow>
+        <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
+        {nodePickerVisibility && (
+          <NodePicker
+            flowRef={flowRef}
+            position={nodePickerVisibility}
+            filters={nodePickFilters}
+            onPickNode={handleAddNode}
+            onClose={closeNodePicker}
+            specJSON={specGenerator?.getAllNodeSpecs()}
+          />
+        )}
+      </ReactFlow>
+    </ReactFlowProvider>
   )
 }

@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   buildStatusDataValidator,
   buildStatusPatchValidator,
   buildStatusQueryValidator
-} from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+} from '@etherealengine/common/src/schemas/cluster/build-status.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {
@@ -48,22 +48,23 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(buildStatusQueryValidator),
       schemaHooks.resolveQuery(buildStatusQueryResolver)
     ],
-    find: [],
-    get: [],
+    find: [iff(isProvider('external'), verifyScope('server', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('server', 'read'))],
     create: [
+      iff(isProvider('external'), verifyScope('server', 'write')),
       () => schemaHooks.validateData(buildStatusDataValidator),
       schemaHooks.resolveData(buildStatusDataResolver)
     ],
-    update: [],
+    update: [disallow()],
     patch: [
+      iff(isProvider('external'), verifyScope('server', 'write')),
       () => schemaHooks.validateData(buildStatusPatchValidator),
       schemaHooks.resolveData(buildStatusPatchResolver)
     ],
-    remove: []
+    remove: [iff(isProvider('external'), verifyScope('server', 'read'))]
   },
 
   after: {

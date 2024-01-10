@@ -9,7 +9,7 @@ case "$(uname -s)" in
      ;;
    Linux)
     mkdir -p ../certs
-    openssl req -nodes -new -x509 -keyout ../certs/key.pem -out ../certs/cert.pem
+    openssl req -nodes -new -x509 -keyout ../certs/key.pem -out ../certs/cert.pem ./opensslcnf
     cp ../certs/cert.pem /usr/local/share/ca-certificates/etherealengine-local-certificate.crt
     dpkg-reconfigure ca-certificates
      ;;

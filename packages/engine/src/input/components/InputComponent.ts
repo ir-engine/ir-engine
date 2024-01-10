@@ -28,7 +28,6 @@ import { useLayoutEffect } from 'react'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, removeComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { AnimateScaleComponent } from '../../renderer/components/AnimateScaleComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 
 export const InputComponent = defineComponent({
@@ -63,13 +62,14 @@ export const InputComponent = defineComponent({
       }
     }, [input.inputSources, input.highlight])
 
-    useLayoutEffect(() => {
-      if (!input.inputSources.length || !input.grow.value) return
-      setComponent(entity, AnimateScaleComponent)
-      return () => {
-        removeComponent(entity, AnimateScaleComponent)
-      }
-    }, [input.inputSources, input.grow])
+    /** @todo - fix */
+    // useLayoutEffect(() => {
+    //   if (!input.inputSources.length || !input.grow.value) return
+    //   setComponent(entity, AnimateScaleComponent)
+    //   return () => {
+    //     removeComponent(entity, AnimateScaleComponent)
+    //   }
+    // }, [input.inputSources, input.grow])
 
     return null
   }

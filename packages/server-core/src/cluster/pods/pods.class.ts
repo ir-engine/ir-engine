@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PodsType, ServerPodInfoType } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import { PodsType, ServerPodInfoType } from '@etherealengine/common/src/schemas/cluster/pods.schema'
 import { BadRequest } from '@feathersjs/errors/lib'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
@@ -31,7 +31,6 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getServerInfo, getServerLogs, removePod } from './pods-helper'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PodsParams extends KnexAdapterParams {}
 
 /**
@@ -61,7 +60,7 @@ export class PodsService implements ServiceInterface<PodsType | string, ServerPo
     return await getServerLogs(podName, containerName, this.app)
   }
 
-  async remove(podName: string, params?: PodsParams) {
+  async remove(podName: string) {
     return await removePod(this.app, podName)
   }
 }

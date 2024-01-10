@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -286,7 +286,7 @@ export const writeEntity = (
 }
 
 export const writeEntities = (v: ViewCursor, network: Network, entities: Entity[]) => {
-  const entitySchema = Object.values(getState(NetworkState).networkSchema)
+  const entitySchema = NetworkState.orderedNetworkSchema
 
   const writeCount = spaceUint32(v)
 

@@ -25,10 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState } from '@etherealengine/hyperflux'
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
+import { CORTOLoader } from '../loaders/corto/CORTOLoader'
 
 export const AssetLoaderState = defineState({
   name: 'AssetLoaderState',
   initial: () => ({
-    gltfLoader: createGLTFLoader()
+    gltfLoader: createGLTFLoader(),
+    cortoLoader: null! as CORTOLoader
   })
 })

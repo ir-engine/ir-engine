@@ -27,7 +27,7 @@ import {
   LocationBanType,
   locationBanMethods,
   locationBanPath
-} from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+} from '@etherealengine/common/src/schemas/social/location-ban.schema'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -60,7 +60,7 @@ export default (app: Application): void => {
   const service = app.service(locationBanPath)
   service.hooks(hooks)
 
-  service.publish('created', async (data: LocationBanType, params) => {
+  service.publish('created', async (data: LocationBanType) => {
     try {
       return Promise.all([app.channel(`userIds/${data.userId}`).send({ locationBan: data })])
     } catch (err) {

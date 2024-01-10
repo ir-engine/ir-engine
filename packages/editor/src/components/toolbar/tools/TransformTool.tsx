@@ -49,24 +49,24 @@ const TransformTool = () => {
       <div className={styles.toolbarInputGroup}>
         <InfoTooltip title={t('editor:toolbar.gizmo.translate')} placement="bottom">
           <button
-            className={styles.toolButton + ' ' + (transformMode === TransformMode.Translate ? styles.selected : '')}
-            onClick={() => setTransformMode(TransformMode.Translate)}
+            className={styles.toolButton + ' ' + (transformMode === TransformMode.translate ? styles.selected : '')}
+            onClick={() => setTransformMode(TransformMode.translate)}
           >
             <OpenWithIcon fontSize="small" />
           </button>
         </InfoTooltip>
         <InfoTooltip title={t('editor:toolbar.gizmo.rotate')} placement="bottom">
           <button
-            className={styles.toolButton + ' ' + (transformMode === TransformMode.Rotate ? styles.selected : '')}
-            onClick={() => setTransformMode(TransformMode.Rotate)}
+            className={styles.toolButton + ' ' + (transformMode === TransformMode.rotate ? styles.selected : '')}
+            onClick={() => setTransformMode(TransformMode.rotate)}
           >
             <SyncIcon fontSize="small" />
           </button>
         </InfoTooltip>
         <InfoTooltip title={t('editor:toolbar.gizmo.scale')} placement="bottom">
           <button
-            className={styles.toolButton + ' ' + (transformMode === TransformMode.Scale ? styles.selected : '')}
-            onClick={() => setTransformMode(TransformMode.Scale)}
+            className={styles.toolButton + ' ' + (transformMode === TransformMode.scale ? styles.selected : '')}
+            onClick={() => setTransformMode(TransformMode.scale)}
           >
             <HeightIcon fontSize="small" />
           </button>

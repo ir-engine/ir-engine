@@ -26,7 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import {
   instanceProvisionMethods,
   instanceProvisionPath
-} from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-provision.schema'
+import { InstanceID } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { ChannelID } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { LocationID } from '@etherealengine/common/src/schemas/social/location.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { InstanceProvisionService } from './instance-provision.class'
@@ -62,10 +66,10 @@ export default (app: Application): void => {
       return app.channel(`userIds/${data.userId}`).send({
         ipAddress: data.ipAddress,
         port: data.port,
-        locationId: data.locationId,
-        sceneId: data.sceneId,
-        channelId: data.channelId,
-        instanceId: data.instanceId
+        locationId: data.locationId as LocationID,
+        sceneId: data.sceneId as SceneID,
+        channelId: data.channelId as ChannelID,
+        instanceId: data.instanceId as InstanceID
       })
     } catch (err) {
       logger.error(err)

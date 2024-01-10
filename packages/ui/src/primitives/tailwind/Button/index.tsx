@@ -47,7 +47,7 @@ interface ButtonProps {
 }
 
 const Button = ({ icon, title, showLabel, labelPosition, className, ...props }: ButtonProps & any): JSX.Element => (
-  <button className={twMerge('btn h-auto tooltip', className)} {...props} data-tip={title}>
+  <button className={twMerge('m-0 btn h-auto tooltip', className)} {...props} data-tip={title}>
     {labelPosition === 'above' ? (
       <span className="flex flex-col items-center">
         {showLabel === true ? <span className="mb-1">{title}</span> : null}

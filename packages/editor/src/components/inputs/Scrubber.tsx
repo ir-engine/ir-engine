@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode, useEffect, useRef } from 'react'
-import './Scrubber.css'
 
 import { clamp } from '@etherealengine/engine/src/common/functions/MathLerpFunctions'
 
@@ -58,7 +57,19 @@ type CursorProps = {
 }
 
 const Cursor = ({ x, y }: CursorProps) => {
-  return <MultipleStopIcon className="Cursor" style={{ transform: `translate(${x}px,${y}px)` }} />
+  return (
+    <MultipleStopIcon
+      className="Cursor"
+      style={{
+        position: 'absolute',
+        width: '20px',
+        transform: `translate(${x}px,${y}px)`,
+        stroke: 'white',
+        strokeWidth: '20px',
+        fill: 'black'
+      }}
+    />
+  )
 }
 
 type ScrubberProps = {

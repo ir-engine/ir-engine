@@ -31,12 +31,12 @@ import { getState } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { defineQuery, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
-import { VolumetricComponent, endLoadingEffect } from '../../scene/components/VolumetricComponent'
 import { AudioState, useAudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
@@ -102,7 +102,6 @@ globalThis.AudioEffectPlayer = AudioEffectPlayer
 
 const mediaQuery = defineQuery([MediaComponent])
 const videoQuery = defineQuery([VideoComponent])
-const volumetricQuery = defineQuery([VolumetricComponent])
 const audioQuery = defineQuery([PositionalAudioComponent])
 
 const execute = () => {
@@ -112,30 +111,6 @@ const execute = () => {
     setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
   }
 
-  for (const entity of volumetricQuery()) {
-    const volumetric = getComponent(entity, VolumetricComponent)
-    const player = volumetric.player
-    if (player) {
-      player.update()
-      const height = volumetric.height
-      const step = volumetric.height / 150
-      if (volumetric.loadingEffectActive && player.mesh) {
-        if (volumetric.loadingEffectTime <= height) {
-          player.mesh.traverse((child: any) => {
-            if (child['material']) {
-              if (child.material.uniforms) {
-                child.material.uniforms.time = volumetric.loadingEffectTime
-              }
-            }
-          })
-          volumetric.loadingEffectTime += step
-        } else {
-          volumetric.loadingEffectActive = false
-          endLoadingEffect(entity, player.mesh)
-        }
-      }
-    }
-  }
   for (const entity of audioQuery()) getComponent(entity, PositionalAudioComponent).helper?.update()
 
   const videoPriorityQueue = getState(VideoTexturePriorityQueueState).queue
@@ -163,31 +138,30 @@ const execute = () => {
 }
 
 const reactor = () => {
-  useEffect(() => {
-    const audioContext = getState(AudioState).audioContext
+  if (!isClient) return null
 
+  useEffect(() => {
     const enableAudioContext = () => {
+      const audioContext = getState(AudioState).audioContext
       if (audioContext.state === 'suspended') audioContext.resume()
     }
 
-    if (isClient) {
-      // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
-      // in order to ensure media will play programmatically
-      const handleAutoplay = () => {
-        enableAudioContext()
-        window.removeEventListener('pointerup', handleAutoplay)
-        window.removeEventListener('keypress', handleAutoplay)
-        window.removeEventListener('touchend', handleAutoplay)
-        EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
-        EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
-      }
-      // TODO: add destroy callbacks
-      window.addEventListener('pointerup', handleAutoplay)
-      window.addEventListener('keypress', handleAutoplay)
-      window.addEventListener('touchend', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
+    // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
+    // in order to ensure media will play programmatically
+    const handleAutoplay = () => {
+      enableAudioContext()
+      window.removeEventListener('pointerup', handleAutoplay)
+      window.removeEventListener('keypress', handleAutoplay)
+      window.removeEventListener('touchend', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
     }
+    // TODO: add destroy callbacks
+    window.addEventListener('pointerup', handleAutoplay)
+    window.addEventListener('keypress', handleAutoplay)
+    window.addEventListener('touchend', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
 
     return () => {
       for (const sound of Object.values(AudioEffectPlayer.SOUNDS)) delete AudioEffectPlayer.instance.bufferMap[sound]
@@ -201,6 +175,7 @@ const reactor = () => {
 
 export const MediaSystem = defineSystem({
   uuid: 'ee.engine.MediaSystem',
+  insert: { before: PresentationSystemGroup },
   execute,
   reactor
 })

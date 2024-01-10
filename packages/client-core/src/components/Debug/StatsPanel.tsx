@@ -87,10 +87,10 @@ export const StatsPanel = (props: { show: boolean }) => {
         {renderInfoState.visible.value ? 'Hide' : 'Show'}
       </button>
       {info && (
-        <ul>
+        <ul style={{ listStyle: 'none' }}>
           <li>
             {t('editor:viewport.state.memory')}
-            <ul>
+            <ul style={{ listStyle: 'none' }}>
               <li>
                 {t('editor:viewport.state.geometries')}: {info.geometries}
               </li>
@@ -101,7 +101,7 @@ export const StatsPanel = (props: { show: boolean }) => {
           </li>
           <li>
             {t('editor:viewport.state.render')}:
-            <ul>
+            <ul style={{ listStyle: 'none' }}>
               <li>
                 {t('editor:viewport.state.FPS')}: {Math.round(info.fps)}
               </li>

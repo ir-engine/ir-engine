@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
 
 interface DemoStyleProps {
   theme: ClientThemeOptionsType
@@ -111,6 +111,7 @@ const DemoStyle = ({ theme }: DemoStyleProps) => {
         font-size: 16px;
         color: ${theme.textHeading};
         margin-bottom: 10px;
+        font-family: var(--lato);
       }
 
       .textSubheading {
@@ -121,11 +122,13 @@ const DemoStyle = ({ theme }: DemoStyleProps) => {
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
+        font-family: var(--lato);
       }
 
       .textDescription {
         font-size: 12px;
         color: ${theme.textDescription};
+        font-family: var(--lato);
       }
 
       .panelCardContainer {

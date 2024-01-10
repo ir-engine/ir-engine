@@ -31,9 +31,8 @@ import {
   ServerSettingPatch,
   ServerSettingQuery,
   ServerSettingType
-} from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/server-setting.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ServerSettingParams extends KnexAdapterParams<ServerSettingQuery> {}
 
 export class ServerSettingService<

@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { createStyles, Tooltip, TooltipProps } from '@mui/material'
+import { Tooltip, TooltipProps } from '@mui/material'
+import createStyles from '@mui/styles/createStyles'
 import makeStyles from '@mui/styles/makeStyles'
 
 const useStyles = makeStyles<any, any, any>((theme: any) => {
@@ -58,7 +59,7 @@ export function InfoTooltip(props: TooltipProps & { info?: string }) {
   return (
     <Tooltip {...props} title={title} classes={{ tooltip: styles.tooltip }} arrow disableInteractive>
       {/* Span is required to trigger events like hover in safari for disabled elements */}
-      {props.children}
+      <span>{props.children}</span>
     </Tooltip>
   )
 }

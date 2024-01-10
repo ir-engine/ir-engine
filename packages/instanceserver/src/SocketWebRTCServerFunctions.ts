@@ -26,23 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import { Consumer, DataProducer, Producer, TransportInternal, WebRtcTransport } from 'mediasoup/node/lib/types'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { MediaStreamAppData, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/functions/NetworkActionFunctions'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { encode } from 'msgpackr'
 import { InstanceServerState } from './InstanceServerState'
-import { MediasoupServerSystem } from './MediasoupServerSystem'
-import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
 import { startWebRTC } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc:network' })
@@ -110,10 +107,6 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostId
     outgoingDataTransport,
     outgoingDataProducers: {} as Record<DataChannelType, DataProducer>
   }
-
-  startSystem(MediasoupServerSystem, {
-    before: ServerHostNetworkSystem
-  })
 
   const network = createNetwork(id, hostId, topic, transport)
 

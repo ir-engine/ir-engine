@@ -32,7 +32,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import { animationStates, defaultAnimationPath } from '@etherealengine/engine/src/avatar/animation/Util'
+import { emoteAnimationPath, emoteAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -58,63 +58,153 @@ export const useEmoteMenuHooks = () => {
 
   let [items, setItems] = useState([
     {
-      body: <img src="/static/Wave.svg" alt="Wave" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Wave.svg"
+          alt="Wave"
+        />
+      ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.wave)
+        onClick: () => playAnimation(emoteAnimations.wave)
       }
     },
     {
-      body: <img src="/static/clap1.svg" alt="Clap" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/clap1.svg"
+          alt="Clap"
+        />
+      ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.clap)
+        onClick: () => playAnimation(emoteAnimations.clap)
       }
     },
     {
-      body: <img src="/static/Dance1.svg" alt="Dance 1" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Dance1.svg"
+          alt="Dance 1"
+        />
+      ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.dance1)
+        onClick: () => playAnimation(emoteAnimations.dance1)
       }
     },
     {
-      body: <img src="/static/Dance2.svg" alt="Dance 2" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Dance2.svg"
+          alt="Dance 2"
+        />
+      ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.dance2)
+        onClick: () => playAnimation(emoteAnimations.dance2)
       }
     },
     {
-      body: <img src="/static/Dance3.svg" alt="Dance 3" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Dance3.svg"
+          alt="Dance 3"
+        />
+      ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.dance3)
+        onClick: () => playAnimation(emoteAnimations.dance3)
       }
     },
     {
-      body: <img src="/static/Dance4.svg" alt="Dance 4" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Dance4.svg"
+          alt="Dance 4"
+        />
+      ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.dance4)
+        onClick: () => playAnimation(emoteAnimations.dance4)
       }
     },
     {
-      body: <img src="/static/Kiss.svg" alt="Kiss" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Kiss.svg"
+          alt="Kiss"
+        />
+      ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.kiss)
+        onClick: () => playAnimation(emoteAnimations.kiss)
       }
     },
     {
-      body: <img src="/static/Cry.svg" alt="Cry" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Cry.svg"
+          alt="Cry"
+        />
+      ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.cry)
+        onClick: () => playAnimation(emoteAnimations.cry)
       }
     },
     {
-      body: <img src="/static/Laugh.svg" alt="Laugh" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Laugh.svg"
+          alt="Laugh"
+        />
+      ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.laugh)
+        onClick: () => playAnimation(emoteAnimations.laugh)
       }
     },
     {
-      body: <img src="/static/Defeat.svg" alt="Defeat" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Defeat.svg"
+          alt="Defeat"
+        />
+      ),
       containerProps: {
-        onClick: () => runAnimation(animationStates.defeat)
+        onClick: () => playAnimation(emoteAnimations.defeat)
       }
     }
   ])
@@ -142,11 +232,11 @@ export const useEmoteMenuHooks = () => {
     effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
   }
 
-  const runAnimation = (stateName: string) => {
+  const playAnimation = (stateName: string) => {
     const entity = Engine.instance.localClientEntity
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
-        filePath: defaultAnimationPath + stateName + '.fbx',
+        filePath: emoteAnimationPath + stateName + '.fbx',
         loop: false,
         layer: 0,
         entityUUID: getComponent(entity, UUIDComponent)

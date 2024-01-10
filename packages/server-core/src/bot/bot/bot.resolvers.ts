@@ -27,15 +27,15 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { BotQuery, BotType } from '@etherealengine/engine/src/schemas/bot/bot.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { BotQuery, BotType } from '@etherealengine/common/src/schemas/bot/bot.schema'
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 
 import {
   BotCommandData,
   BotCommandType,
   botCommandPath
-} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+} from '@etherealengine/common/src/schemas/bot/bot-command.schema'
+import { InstanceID, InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 import { botCommandDataResolver } from '../bot-command/bot-command.resolvers'
@@ -45,11 +45,11 @@ export const botResolver = resolve<BotType, HookContext>({})
 export const botExternalResolver = resolve<BotType, HookContext>({
   location: virtual(async (bot, context) => {
     if (context.event !== 'removed' && bot.locationId)
-      return await context.app.service(locationPath)._get(bot.locationId)
+      return await context.app.service(locationPath).get(bot.locationId)
   }),
   instance: virtual(async (bot, context) => {
     if (context.event !== 'removed' && bot.instanceId)
-      return (await context.app.service(instancePath)._get(bot.instanceId)) as any as InstanceType
+      return (await context.app.service(instancePath).get(bot.instanceId)) as any as InstanceType
   }),
   botCommands: virtual(async (bot, context) => {
     if (context.event !== 'removed' && bot.id)
@@ -67,6 +67,9 @@ export const botExternalResolver = resolve<BotType, HookContext>({
 export const botDataResolver = resolve<BotType, HookContext>({
   id: async () => {
     return v4()
+  },
+  instanceId: async (instanceId) => {
+    return instanceId ?? ('' as InstanceID)
   },
   botCommands: async (value, bot, context) => {
     const botCommands: BotCommandData[] = []

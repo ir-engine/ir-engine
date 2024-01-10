@@ -29,13 +29,13 @@ import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
-import { oembedPath } from '@etherealengine/engine/src/schemas/media/oembed.schema'
-import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
-import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
-import { discordBotAuthPath } from '@etherealengine/engine/src/schemas/user/discord-bot-auth.schema'
-import { githubRepoAccessWebhookPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-webhook.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
+import { oembedPath } from '@etherealengine/common/src/schemas/media/oembed.schema'
+import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
+import { acceptInvitePath } from '@etherealengine/common/src/schemas/user/accept-invite.schema'
+import { discordBotAuthPath } from '@etherealengine/common/src/schemas/user/discord-bot-auth.schema'
+import { githubRepoAccessWebhookPath } from '@etherealengine/common/src/schemas/user/github-repo-access-webhook.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { loginPath } from '@etherealengine/common/src/schemas/user/login.schema'
 import multiLogger from './ServerLogger'
 
 const logger = multiLogger.child({ component: 'server-core:config' })
@@ -82,7 +82,7 @@ if (!testEnabled) {
 if (!kubernetesEnabled) {
   dotenv.config({
     path: appRootPath.path,
-    silent: true
+    node_env: 'local'
   })
 }
 
@@ -145,8 +145,6 @@ const server = {
   corsServerPort: process.env.CORS_SERVER_PORT!,
   storageProvider: process.env.STORAGE_PROVIDER!,
   storageProviderExternalEndpoint: process.env.STORAGE_PROVIDER_EXTERNAL_ENDPOINT!,
-  cloneProjectStaticResources:
-    typeof process.env.CLONE_STATIC_RESOURCES === 'undefined' ? true : process.env.CLONE_STATIC_RESOURCES === 'true',
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID!,
   hub: {
     endpoint: process.env.HUB_ENDPOINT!
@@ -375,9 +373,6 @@ const redis = {
   password: process.env.REDIS_PASSWORD == '' || process.env.REDIS_PASSWORD == null ? null! : process.env.REDIS_PASSWORD!
 }
 
-/**
- * Scope
- */
 const scopes = {
   guest: process.env.DEFAULT_GUEST_SCOPES?.split(',') || [],
   user: process.env.DEFAULT_USER_SCOPES?.split(',') || []

@@ -32,9 +32,9 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { getEntries, uploadProjectAssetsFromUpload } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
+import { DialogState } from '../dialogs/DialogState'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { ProgressDialog } from '../dialogs/ProgressDialog'
-import { useDialog } from '../hooks/useDialog'
 
 const logger = multiLogger.child({ component: 'editor:useUpload' })
 
@@ -45,8 +45,6 @@ type Props = {
 
 export default function useUpload(options: Props = {}) {
   const { t } = useTranslation()
-
-  const [DialogComponent, setDialogComponent] = useDialog()
 
   const multiple = !!options.multiple
   const accepts = options.accepts || AllFileTypes
@@ -90,19 +88,19 @@ export default function useUpload(options: Props = {}) {
           }
         }
         const abortController = new AbortController()
-        setDialogComponent(
+        DialogState.setDialog(
           <ProgressDialog
             message={t('editor:asset.useUpload.progressMsg', { uploaded: 0, total: entries.length, percentage: 0 })}
             cancelable={true}
             onCancel={() => {
               abortController.abort()
-              setDialogComponent(null)
+              DialogState.setDialog(null)
             }}
           />
         )
         const { projectName } = getState(EditorState)
         const assets = await uploadProjectAssetsFromUpload(projectName!, entries, (item, total, progress) => {
-          setDialogComponent(
+          DialogState.setDialog(
             <ProgressDialog
               message={t('editor:asset.useUpload.progressMsg', {
                 uploaded: item,
@@ -113,17 +111,17 @@ export default function useUpload(options: Props = {}) {
               onCancel={() => {
                 assets.cancel()
                 abortController.abort()
-                setDialogComponent(null)
+                DialogState.setDialog(null)
               }}
             />
           )
         })
         const result = await Promise.all(assets.promises)
-        setDialogComponent(null)
+        DialogState.setDialog(null)
         return result.flat()
       } catch (error) {
         logger.error(error, 'Error on upload')
-        setDialogComponent(
+        DialogState.setDialog(
           <ErrorDialog
             title={t('editor:asset.useUpload.uploadError')}
             message={t('editor:asset.useUpload.uploadErrorMsg', {

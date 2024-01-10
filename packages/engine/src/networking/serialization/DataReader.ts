@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getState } from '@etherealengine/hyperflux'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -229,7 +228,7 @@ export const readEntity = (
 }
 
 export const readEntities = (v: ViewCursor, network: Network, byteLength: number, fromUserID: UserID) => {
-  const entitySchema = Object.values(getState(NetworkState).networkSchema)
+  const entitySchema = NetworkState.orderedNetworkSchema
   while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {

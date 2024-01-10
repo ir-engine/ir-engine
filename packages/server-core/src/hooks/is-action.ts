@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext } from '../../declarations'
 
 export default (...params: string[]) => {
   const args = Array.from(params)

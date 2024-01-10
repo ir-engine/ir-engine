@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { getState } from '@etherealengine/hyperflux'
@@ -47,9 +47,12 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { MeshComponent } from '../../scene/components/MeshComponent'
+import { ObjectLayerComponents } from '../../scene/components/ObjectLayerComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import {
   ComputedTransformComponent,
@@ -58,10 +61,9 @@ import {
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraComponent } from '../components/CameraComponent'
-import { FollowCameraComponent, coneDebugHelpers, debugRays } from '../components/FollowCameraComponent'
+import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { CameraFadeBlackEffectSystem } from './CameraFadeBlackEffectSystem'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
@@ -116,6 +118,8 @@ export const updateCameraTargetRotation = (cameraEntity: Entity) => {
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
 
+const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
+
 export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
 
@@ -128,7 +132,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   camRayCastClock.start()
 
-  const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
+  const sceneObjects = cameraLayerQuery().flatMap((e) => getComponent(e, MeshComponent))
 
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
@@ -144,7 +148,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   raycaster.firstHitOnly = true // three-mesh-bvh setting
   raycaster.far = followCamera.maxDistance
   raycaster.set(target, targetToCamVec.normalize())
-  const hits = raycaster.intersectObjects(sceneObjects, true)
+  const hits = raycaster.intersectObjects(sceneObjects, false)
 
   if (hits[0] && hits[0].distance < maxDistance) {
     maxDistance = hits[0].distance
@@ -153,22 +157,10 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   //Check the cone for minimum distance
   cameraRays.forEach((rayDir, i) => {
     raycaster.set(target, rayDir)
-    const hits = raycaster.intersectObjects(sceneObjects, true)
+    const hits = raycaster.intersectObjects(sceneObjects, false)
 
     if (hits[0] && hits[0].distance < maxDistance) {
       maxDistance = hits[0].distance
-    }
-
-    if (debugRays) {
-      const helper = coneDebugHelpers[i]
-      helper.setDirection(rayDir)
-      helper.position.copy(target)
-
-      if (hits[0]) {
-        helper.setColor('red')
-      } else {
-        helper.setColor('green')
-      }
     }
   })
 
@@ -289,6 +281,7 @@ const execute = () => {
   for (const action of cameraSpawnActions()) cameraSpawnReceptor(action)
 
   for (const action of spectateUserActions()) {
+    getMutableState(EngineState).userReady.set(true)
     const cameraEntity = Engine.instance.cameraEntity
     if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserID })
     else
@@ -347,7 +340,7 @@ const reactor = () => {
 
 export const CameraSystem = defineSystem({
   uuid: 'ee.engine.CameraSystem',
+  insert: { with: AnimationSystemGroup },
   execute,
-  reactor,
-  subSystems: [CameraFadeBlackEffectSystem]
+  reactor
 })

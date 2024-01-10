@@ -26,9 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { HookContext } from '@feathersjs/feathers'
 
 import { BadRequest } from '@feathersjs/errors'
-import { AsyncLocalStorage } from 'async_hooks'
-
-export const asyncLocalStorage = new AsyncLocalStorage<{ headers: any }>()
 
 /**
  * A method that disallows the use of non id in request.

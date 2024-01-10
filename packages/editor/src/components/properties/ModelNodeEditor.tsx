@@ -23,22 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { useState } from '@etherealengine/hyperflux'
+import { getState, useState } from '@etherealengine/hyperflux'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
-import exportGLTF from '../../functions/exportGLTF'
+import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import config from '@etherealengine/common/src/config'
+import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
+import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { recursiveHipsLookup } from '@etherealengine/engine/src/avatar/AvatarBoneMatching'
+import { exportRelativeGLTF } from '../../functions/exportGLTF'
+import { EditorState } from '../../services/EditorServices'
 import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
+import StringInput from '../inputs/StringInput'
 import Well from '../layout/Well'
 import ErrorPopUp from '../popup/ErrorPopUp'
 import ModelTransformProperties from './ModelTransformProperties'
@@ -56,35 +63,32 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
   const exporting = useState(false)
+  const bonematchable = useState(false)
+  const editorState = getState(EditorState)
+  const projectState = getState(ProjectState)
+  const loadedProjects = useState(() => projectState.projects.map((project) => project.name))
+  const srcProject = useState(() => pathResolver().exec(modelComponent.src.value)?.[1] ?? editorState.projectName!)
 
-  const exportPath = useState(() => modelComponent.src.value)
-  const exportType = useState(modelComponent.src.value.endsWith('.gltf') ? 'gltf' : 'glb')
+  const getRelativePath = useCallback(() => {
+    const relativePath = pathResolver().exec(modelComponent.src.value)?.[2]
+    if (!relativePath) {
+      return 'assets/new-model'
+    } else {
+      //return relativePath without file extension
+      return relativePath.replace(/\.[^.]*$/, '')
+    }
+  }, [modelComponent.src])
+
+  const getExportExtension = useCallback(() => {
+    if (!modelComponent.src.value) return 'gltf'
+    else return modelComponent.src.value.endsWith('.gltf') ? 'gltf' : 'glb'
+  }, [modelComponent.src])
+
+  const srcPath = useState(getRelativePath())
+
+  const exportType = useState(getExportExtension())
 
   const errors = getEntityErrors(props.entity, ModelComponent)
-
-  const onChangeExportPath = useCallback(
-    (path: string) => {
-      let finalPath = path
-      if (finalPath.endsWith('.gltf')) {
-        exportType.set('gltf')
-      } else if (path.endsWith('.glb')) {
-        exportType.set('glb')
-      } else {
-        finalPath = `${finalPath}.${exportType.value}`
-      }
-      exportPath.set(finalPath)
-    },
-    [exportType, exportPath]
-  )
-
-  const onChangeExportType = useCallback(
-    (type: string) => {
-      const finalPath = exportPath.value.replace(/\.[^.]*$/, `.${type}`)
-      exportPath.set(finalPath)
-      exportType.set(type)
-    },
-    [exportPath, exportType]
-  )
 
   const onExportModel = () => {
     if (exporting.value) {
@@ -92,8 +96,21 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       return
     }
     exporting.set(true)
-    exportGLTF(entity, exportPath.value).then(() => exporting.set(false))
+    const fileName = `${srcPath.value}.${exportType.value}`
+    exportRelativeGLTF(entity, srcProject.value, fileName).then(() => {
+      modelComponent.src.set(pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName))
+      exporting.set(false)
+    })
   }
+
+  useEffect(() => {
+    srcPath.set(getRelativePath())
+    exportType.set(getExportExtension())
+  }, [modelComponent.src])
+
+  useEffect(() => {
+    bonematchable.set(modelComponent.asset.value && recursiveHipsLookup(modelComponent.asset.value?.scene))
+  }, [modelComponent.asset])
 
   return (
     <NodeEditor
@@ -104,26 +121,40 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput value={modelComponent.src.value} onChange={commitProperty(ModelComponent, 'src')} />
         {errors?.LOADING_ERROR ||
-          (errors?.INVALID_URL && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
+          (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
-      <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
+      <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>
         <BooleanInput
-          value={modelComponent.generateBVH.value}
-          onChange={commitProperty(ModelComponent, 'generateBVH')}
-          disabled={modelComponent.hasSkinnedMesh.value}
+          value={modelComponent.cameraOcclusion.value}
+          onChange={commitProperty(ModelComponent, 'cameraOcclusion')}
         />
       </InputGroup>
-      <InputGroup name="Avoid Camera Occlusion" label={t('editor:properties.model.lbl-avoidCameraOcclusion')}>
-        <BooleanInput
-          value={modelComponent.avoidCameraOcclusion.value}
-          onChange={commitProperty(ModelComponent, 'avoidCameraOcclusion')}
-        />
-      </InputGroup>
-      <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
-      <ModelTransformProperties modelState={modelComponent} onChangeModel={commitProperty(ModelComponent, 'src')} />
-      {!exporting.value && modelComponent.src.value && (
+      {bonematchable.value && (
+        <InputGroup name="Convert to VRM" label={t('editor:properties.model.lbl-convertToVRM')}>
+          <BooleanInput
+            value={modelComponent.convertToVRM.value}
+            onChange={commitProperty(ModelComponent, 'convertToVRM')}
+          />
+        </InputGroup>
+      )}
+      {!exporting.value && (
         <Well>
-          <ModelInput value={exportPath.value} onChange={onChangeExportPath} />
+          <div className="property-group-header">{t('editor:properties.model.lbl-export')}</div>
+          <InputGroup name="Export Project" label="Project">
+            <SelectInput
+              value={srcProject.value}
+              options={
+                loadedProjects.value.map((project) => ({
+                  label: project,
+                  value: project
+                })) ?? []
+              }
+              onChange={srcProject.set}
+            />
+          </InputGroup>
+          <InputGroup name="File Path" label="File Path">
+            <StringInput value={srcPath.value} onChange={(e) => srcPath.set(e.target.value)} />
+          </InputGroup>
           <InputGroup name="Export Type" label={t('editor:properties.model.lbl-exportType')}>
             <SelectInput<string>
               options={[
@@ -137,13 +168,15 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
                 }
               ]}
               value={exportType.value}
-              onChange={onChangeExportType}
+              onChange={exportType.set}
             />
           </InputGroup>
           <PropertiesPanelButton onClick={onExportModel}>Save Changes</PropertiesPanelButton>
         </Well>
       )}
       {exporting.value && <p>Exporting...</p>}
+      <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
+      <ModelTransformProperties entity={entity} onChangeModel={commitProperty(ModelComponent, 'src')} />
     </NodeEditor>
   )
 }

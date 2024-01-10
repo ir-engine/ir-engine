@@ -30,6 +30,7 @@ import { isDev } from '@etherealengine/common/src/config'
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
 import Fade from '@mui/material/Fade'
 
+import { useTranslation } from 'react-i18next'
 import { Button } from '../inputs/Button'
 import styles from './styles.module.scss'
 
@@ -42,10 +43,10 @@ interface Props {
 }
 
 export const DeleteDialog = (props: Props): any => {
-  const str =
-    props.isProjectMenu && isDev
-      ? `To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead.`
-      : `Are you sure`
+  const { t } = useTranslation()
+
+  const dialogTitle =
+    props.isProjectMenu && isDev ? t('editor:dialog.delete.not-allowed-local-dev') : t('editor:dialog.sure-confirm')
 
   return (
     <Dialog
@@ -56,10 +57,10 @@ export const DeleteDialog = (props: Props): any => {
       TransitionComponent={Fade}
       TransitionProps={{ in: props.open }}
     >
-      <DialogTitle>{str}</DialogTitle>
+      <DialogTitle>{dialogTitle}</DialogTitle>
       <DialogContent classes={{ root: styles.contentWrapper }}>
         <Button onClick={props.onCancel} className={styles.cancelBtn}>
-          Cancel
+          {t('editor:dialog.lbl-cancel')}
         </Button>
         <Button
           disabled={props.isProjectMenu && isDev}
@@ -67,7 +68,7 @@ export const DeleteDialog = (props: Props): any => {
           onClick={props.onConfirm}
           autoFocus
         >
-          Confirm
+          {t('editor:dialog.lbl-confirm')}
         </Button>
       </DialogContent>
     </Dialog>

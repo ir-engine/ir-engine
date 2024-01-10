@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { inviteTypePath } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+import { inviteTypePath } from '@etherealengine/common/src/schemas/social/invite-type.schema'
 
 /**
  * @param { import("knex").Knex } knex

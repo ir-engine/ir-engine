@@ -23,21 +23,45 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineActionQueue, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { useEffect } from 'react'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
+import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
+import { CameraMode } from '../../camera/types/CameraMode'
+import { Engine } from '../../ecs/classes/Engine'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { revertAvatarToMovingStateFromTeleport } from '../functions/loaders/PortalFunctions'
-import { HyperspacePortalSystem } from './HyperspacePortalSystem'
+import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
+import { PortalComponent, PortalState } from '../components/PortalComponent'
+import { UUIDComponent } from '../components/UUIDComponent'
 
-const sceneLoadedQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
+const reactor = () => {
+  const activePortalEntityState = useHookstate(getMutableState(PortalState).activePortalEntity)
 
-const execute = () => {
-  if (sceneLoadedQueue().length && getState(EngineState).isTeleporting) revertAvatarToMovingStateFromTeleport()
+  useEffect(() => {
+    const activePortalEntity = activePortalEntityState.value
+    if (!activePortalEntity) return
+    const activePortal = getComponent(activePortalEntity, PortalComponent)
+    switchCameraMode(Engine.instance.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
+    AvatarControllerComponent.captureMovement(Engine.instance.localClientEntity, activePortalEntity)
+
+    return () => {
+      const localClientEntity = Engine.instance.localClientEntity
+      getState(EntityNetworkState)[getComponent(localClientEntity, UUIDComponent)].spawnPosition.copy(
+        activePortal.remoteSpawnPosition
+      )
+      AvatarControllerComponent.releaseMovement(Engine.instance.localClientEntity, activePortalEntity)
+      getMutableState(PortalState).lastPortalTimeout.set(Date.now())
+    }
+  }, [activePortalEntityState])
+
+  return null
 }
 
 export const PortalSystem = defineSystem({
   uuid: 'ee.engine.PortalSystem',
-  execute,
-  subSystems: [HyperspacePortalSystem]
+  insert: { after: PresentationSystemGroup },
+  reactor
 })

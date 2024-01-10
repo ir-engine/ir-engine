@@ -29,9 +29,10 @@ import { HookContext, Paginated } from '@feathersjs/feathers'
 import {
   ProjectPermissionType,
   projectPermissionPath
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { Application } from '../../declarations'
 
 export default () => {
@@ -39,14 +40,14 @@ export default () => {
     if (context.params.isInternal) return context
     const loggedInUser = context.params.user as UserType
     if (!loggedInUser) throw new NotAuthenticated('No logged in user')
-    if (loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) return context
+    if (loggedInUser.scopes && (await checkScope(loggedInUser, 'projects', 'write'))) return context
     const app = context.app
     const projectId =
       context.service === 'project'
         ? context.id
         : context.id && typeof context.id === 'string'
         ? (
-            (await app.service(projectPermissionPath)._find({
+            (await app.service(projectPermissionPath).find({
               query: {
                 id: context.id,
                 $limit: 1
@@ -56,7 +57,7 @@ export default () => {
         : context.data.id || context.data.projectId
     const project = await app.service(projectPath).get(projectId)
     if (!project) throw new BadRequest('Invalid project ID')
-    const projectPermission = (await app.service(projectPermissionPath)._find({
+    const projectPermission = (await app.service(projectPermissionPath).find({
       query: {
         userId: loggedInUser.id,
         projectId: projectId,

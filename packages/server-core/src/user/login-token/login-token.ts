@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { loginTokenMethods, loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import { loginTokenMethods, loginTokenPath } from '@etherealengine/common/src/schemas/user/login-token.schema'
 
 import { Application } from '../../../declarations'
 import { LoginTokenService } from './login-token.class'
@@ -44,7 +44,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(loginTokenPath, new LoginTokenService(options, app), {
+  app.use(loginTokenPath, new LoginTokenService(options), {
     // A list of all methods this service exposes externally
     methods: loginTokenMethods,
     // You can add additional custom events to be sent to clients here

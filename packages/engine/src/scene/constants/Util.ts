@@ -67,7 +67,7 @@ export const loadCubeMapTexture = (
     (res) => {
       if (onProgress) onProgress(res)
     },
-    (error) => {
+    (error: any) => {
       if (onError) onError(error)
     }
   )
@@ -89,7 +89,7 @@ export const loadDDSTexture = (
     (res) => {
       if (onProgress) onProgress(res)
     },
-    (error) => {
+    (error: any) => {
       if (onError) onError(error)
     }
   )

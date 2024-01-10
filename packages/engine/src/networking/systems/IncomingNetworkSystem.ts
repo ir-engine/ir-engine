@@ -31,6 +31,7 @@ import { defineState, getState } from '@etherealengine/hyperflux'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../NetworkState'
 import { JitterBufferEntry, Network } from '../classes/Network'
@@ -121,6 +122,7 @@ const reactor = () => {
 
 export const IncomingNetworkSystem = defineSystem({
   uuid: 'ee.engine.IncomingNetworkSystem',
+  insert: { before: SimulationSystemGroup },
   execute,
   reactor
 })

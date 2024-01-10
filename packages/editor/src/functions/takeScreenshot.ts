@@ -39,9 +39,8 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { defineQuery, getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { ScreenshotSettings } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
@@ -62,7 +61,7 @@ function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: numb
   return tmpCanvas
 }
 
-const query = defineQuery([ScenePreviewCameraComponent])
+const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
 
 const ktx2Encoder = new KTX2Encoder()
 
@@ -85,7 +84,7 @@ export async function previewScreenshot(
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
-    for (const entity of query()) {
+    for (const entity of scenePreviewCameraQuery()) {
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     }
 
@@ -96,7 +95,7 @@ export async function previewScreenshot(
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
-      addEntityNodeChild(entity, getState(SceneState).sceneEntity)
+      setComponent(entity, EntityTreeComponent, { parentEntity: SceneState.getRootEntity() })
       scenePreviewCamera.updateMatrixWorld(true)
     }
   }
@@ -162,13 +161,13 @@ export async function previewScreenshot(
 export async function takeScreenshot(
   width: number,
   height: number,
-  format = 'ktx2' as 'png' | 'ktx2' | 'jpeg',
+  format = 'jpeg' as 'jpeg' | 'png',
   scenePreviewCamera?: PerspectiveCamera,
   hideHelpers = true
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
-    for (const entity of query()) {
+    for (const entity of scenePreviewCameraQuery()) {
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     }
 
@@ -179,7 +178,7 @@ export async function takeScreenshot(
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
-      addEntityNodeChild(entity, getState(SceneState).sceneEntity)
+      setComponent(entity, EntityTreeComponent, { parentEntity: SceneState.getRootEntity() })
       scenePreviewCamera.updateMatrixWorld(true)
     }
   }
@@ -192,9 +191,9 @@ export async function takeScreenshot(
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
-  const selection = EngineRenderer.instance.effectComposer.HighlightEffect.selection.values()
+  const selection = EngineRenderer.instance.effectComposer.HighlightEffect?.selection.values()
   if (hideHelpers) {
-    EngineRenderer.instance.effectComposer.HighlightEffect.clearSelection()
+    EngineRenderer.instance.effectComposer.HighlightEffect?.clearSelection()
   }
 
   const originalSize = EngineRenderer.instance.renderer.getSize(new Vector2())
@@ -230,24 +229,16 @@ export async function takeScreenshot(
   EngineRenderer.instance.effectComposer.render()
 
   if (hideHelpers) {
-    EngineRenderer.instance.effectComposer.HighlightEffect.setSelection(selection)
+    EngineRenderer.instance.effectComposer.HighlightEffect?.setSelection(selection)
   }
 
   const canvas = getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height)
 
-  let blob: Blob | null = null
-
-  if (format === 'ktx2') {
-    const imageData = canvas.getContext('2d')!.getImageData(0, 0, width, height)
-    const ktx2texture = (await ktx2Encoder.encode(imageData, {
-      ...getState(ScreenshotSettings).ktx2,
-      yFlip: true
-    })) as ArrayBuffer
-
-    blob = new Blob([ktx2texture])
-  } else {
-    blob = await getCanvasBlob(canvas, format === 'jpeg' ? 'image/jpeg' : 'image/png', format === 'jpeg' ? 0.9 : 1)
-  }
+  const imageBlob = await getCanvasBlob(
+    canvas,
+    format === 'jpeg' ? 'image/jpeg' : 'image/png',
+    format === 'jpeg' ? 0.9 : 1
+  )
 
   // restore
   EngineRenderer.instance.effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
@@ -258,7 +249,7 @@ export async function takeScreenshot(
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
 
-  return blob
+  return imageBlob
 }
 
 /** @todo make size, compression & format configurable */

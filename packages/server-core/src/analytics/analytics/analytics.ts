@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { analyticsMethods, analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+import { analyticsMethods, analyticsPath } from '@etherealengine/common/src/schemas/analytics/analytics.schema'
 
 import { Application } from '../../../declarations'
 import { AnalyticsService } from './analytics.class'
@@ -44,7 +44,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(analyticsPath, new AnalyticsService(options, app), {
+  app.use(analyticsPath, new AnalyticsService(options), {
     // A list of all methods this service exposes externally
     methods: analyticsMethods,
     // You can add additional custom events to be sent to clients here

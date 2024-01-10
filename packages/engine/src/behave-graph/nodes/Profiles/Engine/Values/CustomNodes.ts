@@ -30,6 +30,7 @@ import {
   makeFunctionNodeDefinition
 } from '@behave-graph/core'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { Tween } from '@tweenjs/tween.js'
 import {
   AdditiveAnimationBlendMode,
   AnimationActionLoopStyles,
@@ -37,8 +38,11 @@ import {
   LoopOnce,
   LoopPingPong,
   LoopRepeat,
+  Material,
   MathUtils,
-  NormalAnimationBlendMode
+  Mesh,
+  NormalAnimationBlendMode,
+  Object3D
 } from 'three'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
 import { AnimationState } from '../../../../../avatar/AnimationManager'
@@ -47,16 +51,20 @@ import { CameraActions } from '../../../../../camera/CameraState'
 import { FollowCameraComponent } from '../../../../../camera/components/FollowCameraComponent'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { SceneServices } from '../../../../../ecs/classes/Scene'
 import {
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   hasComponent,
+  removeComponent,
   setComponent
 } from '../../../../../ecs/functions/ComponentFunctions'
+import { GroupComponent } from '../../../../../scene/components/GroupComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
+import iterateObject3D from '../../../../../scene/util/iterateObject3D'
+import { TweenComponent } from '../../../../../transform/components/TweenComponent'
 import { endXRSession, requestXRSession } from '../../../../../xr/XRSessionFunctions'
 import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
 import { addMediaComponent } from '../helper/assetHelper'
@@ -76,21 +84,19 @@ export const playVideo = makeFlowNodeDefinition({
         text: key,
         value: PlayMode[key as keyof typeof PlayMode]
       }))
+
       return {
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     },
     videoFit: (_, graphApi) => {
-      const choices = [
-        { text: 'cover', value: 'cover' },
-        { text: 'contain', value: 'contain' },
-        { text: 'vertical', value: 'vertical' },
-        { text: 'horizontal', value: 'horizontal' }
-      ]
+      const choices = ['cover', 'contain', 'vertical', 'horizontal']
       return {
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     }
   },
@@ -143,7 +149,8 @@ export const playAudio = makeFlowNodeDefinition({
       }))
       return {
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     }
   },
@@ -223,8 +230,8 @@ export const makeRaycast = makeFlowNodeDefinition({
   }
 })*/
 
-export const getAvatarAnimations = makeFunctionNodeDefinition({
-  typeName: 'engine/media/getAvatarAnimations',
+export const getAnimationPack = makeFunctionNodeDefinition({
+  typeName: 'engine/media/getAnimationPack',
   category: NodeCategory.Query,
   label: 'Get Avatar Animations',
   in: {
@@ -238,10 +245,10 @@ export const getAvatarAnimations = makeFunctionNodeDefinition({
       }
     }
   },
-  out: { animationName: 'string' },
+  out: { animationPack: 'string' },
   exec: ({ read, write, graph }) => {
-    const animationName: string = read('animationName')
-    write('animationName', animationName)
+    const animationPack: string = read('animationName')
+    write('animationPack', animationPack)
   }
 })
 
@@ -266,10 +273,8 @@ export const playAnimation = makeFlowNodeDefinition({
     const timeScale = read<number>('timeScale')
     const animationPack = read<string>('animationPack')
     const activeClipIndex = read<number>('activeClipIndex')
-    const isAvatar = read<boolean>('isAvatar')
 
     setComponent(entity, LoopAnimationComponent, {
-      hasAvatarAnimations: isAvatar,
       paused: paused,
       timeScale: timeScale,
       animationPack: animationPack,
@@ -295,7 +300,8 @@ export const setAnimationAction = makeFlowNodeDefinition({
       ]
       return {
         valueType: 'number',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     },
     loopMode: (_, graphApi) => {
@@ -306,7 +312,8 @@ export const setAnimationAction = makeFlowNodeDefinition({
       ]
       return {
         valueType: 'number',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     },
     weight: 'float',
@@ -362,9 +369,11 @@ export const loadAsset = makeAsyncNodeDefinition({
       const entity = await loadAsset()
       write('entity', entity)
       commit('loadEnd', () => {
+        write('entity', entity)
         finished?.()
       })
     })
+
     return null
   },
   dispose: ({ state, graph: { getDependency } }) => {
@@ -422,7 +431,8 @@ export const startXRSession = makeFlowNodeDefinition({
       const choices = ['inline', 'immersive-ar', 'immersive-vr']
       return {
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: choices[0]
       }
     }
   },
@@ -456,15 +466,107 @@ export const switchScene = makeFlowNodeDefinition({
   label: 'Switch Scene',
   in: {
     flow: 'flow',
-    projectName: 'string',
+    projectName: 'string', // i wish i could access the ProjectState
     sceneName: 'string'
   },
   out: {},
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const projectName = read<string>('projectName')
-    const sceneName = read<string>('sceneName')
-    SceneServices.setCurrentScene(projectName, sceneName)
+    // const projectName = read<string>('projectName')
+    // const sceneName = read<string>('sceneName')
+    // SceneServices.setCurrentScene(projectName, sceneName)
+  }
+})
+
+export const redirectToURL = makeFlowNodeDefinition({
+  typeName: 'engine/redirectToURL',
+  category: NodeCategory.Action,
+  label: 'Redirect to URL',
+  in: {
+    flow: 'flow',
+    url: 'string'
+  },
+  out: {},
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const url = read<string>('url')
+    window.location.assign(url)
+  }
+})
+
+/**
+ * fadeMesh: fade in/out mesh
+ */
+export const fadeMesh = makeFlowNodeDefinition({
+  typeName: 'engine/fadeMesh',
+  category: NodeCategory.Effect,
+  label: 'Fade Mesh',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    fadeOut: 'boolean',
+    duration: 'float'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const entity = read<Entity>('entity')
+    const fadeOut = read<boolean>('fadeOut')
+    const duration = read<number>('duration')
+
+    const obj3d: Object3D | null = getOptionalComponent(entity, GroupComponent)?.[0] ?? null
+    const meshMaterials = obj3d
+      ? iterateObject3D(
+          obj3d,
+          (child: Mesh) => {
+            const result = child.material as Material
+            result.transparent = true
+            return result
+          },
+          (child: Mesh) =>
+            child?.isMesh &&
+            !!child.material &&
+            !Array.isArray(child.material) &&
+            typeof child.material.transparent === 'boolean'
+        )
+      : []
+
+    const opacitySlider: { opacity: number; _opacity: number } = { opacity: 1, _opacity: 1 }
+    Object.defineProperty(opacitySlider, 'opacity', {
+      get: () => opacitySlider._opacity,
+      set: (value) => {
+        opacitySlider._opacity = value
+        for (const material of meshMaterials) {
+          material.opacity = value
+        }
+      }
+    })
+    if (fadeOut) {
+      opacitySlider.opacity = 1
+      setComponent(
+        entity,
+        TweenComponent,
+        new Tween<any>(opacitySlider)
+          .to({ opacity: 0 }, duration * 1000)
+          .start()
+          .onComplete(() => {
+            removeComponent(entity, TweenComponent)
+          })
+      )
+    } else {
+      opacitySlider.opacity = 0
+      setComponent(
+        entity,
+        TweenComponent,
+        new Tween<any>(opacitySlider)
+          .to({ opacity: 1 }, duration * 1000)
+          .start()
+          .onComplete(() => {
+            removeComponent(entity, TweenComponent)
+          })
+      )
+    }
+    commit('flow')
   }
 })
 

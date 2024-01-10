@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,31 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-
 /** @type {import('tailwindcss').Config} */
 
 module.exports = {
   mode: 'jit',
-  content: [
-    './src/**/*.{js,jsx,ts,tsx}',
-    '../ui/src/**/*.{js,jsx,ts,tsx}',
-    './public/index.html'
-  ],
-  darkMode: "class",
+  content: ['../**/*.{tsx,ts}'],
+  darkMode: 'class',
   important: true, // important in prod is must be
-  theme: ["default"],
+  theme: ['default'],
   daisyui: {
     themes: ['default', 'dark', 'vaporwave'],
     // daisyUI config (optional)
     styled: true,
-    base: true,
+    base: false,
     utils: true,
     logs: false,
     rtl: false,
-    prefix: "",
-    darkTheme: "dark",
+    prefix: '',
+    darkTheme: 'dark'
   },
-  plugins: [
-    require("daisyui"),
-  ],
+  plugins: [require('daisyui')]
 }

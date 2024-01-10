@@ -29,12 +29,12 @@ import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
-    all: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
+    all: [],
     find: [disallow()],
     get: [disallow()],
     create: [disallow()],
     update: [disallow()],
-    patch: [],
+    patch: [iff(isProvider('external'), verifyScope('instance', 'write'))],
     remove: [disallow()]
   },
 

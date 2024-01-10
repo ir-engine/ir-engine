@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
 import {
   ChannelData,
   ChannelID,
@@ -34,11 +34,11 @@ import {
   channelDataValidator,
   channelPatchValidator,
   channelPath
-} from '@etherealengine/engine/src/schemas/social/channel.schema'
+} from '@etherealengine/common/src/schemas/social/channel.schema'
 import {
   UserRelationshipType,
   userRelationshipPath
-} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+} from '@etherealengine/common/src/schemas/user/user-relationship.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
@@ -288,7 +288,7 @@ export default {
     find: [
       enableClientPagination(),
       iff(isProvider('external'), verifyUserId()),
-      iff(isProvider('external'), iffElse(isAction('admin'), verifyScope('admin', 'admin'), handleChannelInstance)),
+      iff(isProvider('external'), iffElse(isAction('admin'), verifyScope('channel', 'read'), handleChannelInstance)),
       discardQuery('action')
     ],
     get: [setLoggedInUser('userId'), iff(isProvider('external'), ensureUserHasChannelAccess)],
@@ -302,7 +302,7 @@ export default {
     ],
     update: [disallow('external')],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('channel', 'write')),
       () => schemaHooks.validateData(channelPatchValidator),
       schemaHooks.resolveData(channelPatchResolver)
     ],

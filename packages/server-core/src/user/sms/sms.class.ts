@@ -25,12 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { ServiceInterface } from '@feathersjs/feathers'
 
-import { SmsData } from '@etherealengine/engine/src/schemas/user/sms.schema'
+import { SmsData } from '@etherealengine/common/src/schemas/user/sms.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import { sendSmsWithAWS } from './awssns'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SmsParams extends KnexAdapterParams {}
 
 /**

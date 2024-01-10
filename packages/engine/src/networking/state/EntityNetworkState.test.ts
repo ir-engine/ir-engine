@@ -29,18 +29,17 @@ import assert from 'assert'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, receiveActions } from '@etherealengine/hyperflux'
 import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { startSystem } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -50,12 +49,7 @@ import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../components/Net
 import { NetworkPeerFunctions } from '../functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 import { NetworkState } from '../NetworkState'
-import {
-  EntityNetworkState,
-  EntityNetworkStateSystem,
-  receiveRequestAuthorityOverObject,
-  receiveTransferAuthorityOfObject
-} from './EntityNetworkState'
+import { EntityNetworkState, receiveRequestAuthorityOverObject } from './EntityNetworkState'
 
 describe('EntityNetworkState', () => {
   beforeEach(async () => {
@@ -64,7 +58,7 @@ describe('EntityNetworkState', () => {
     await Physics.load()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.store.defaultDispatchDelay = () => 0
-    startSystem(EntityNetworkStateSystem, { with: SimulationSystemGroup })
+    loadEmptyScene()
   })
 
   afterEach(() => {
@@ -75,12 +69,11 @@ describe('EntityNetworkState', () => {
     it('should spawn object owned by host', () => {
       const hostUserId = 'world' as UserID
       const userId = 'user id' as UserID
-      const peerID = 'peer id' as PeerID
+      const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
 
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
-      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
@@ -120,12 +113,11 @@ describe('EntityNetworkState', () => {
       const userId = 'user id' as UserID
       const hostId = 'host' as UserID
       const peerID = 'peer id' as PeerID
-      const peerID2 = 'peer id 2' as PeerID
+      const peerID2 = Engine.instance.store.peerID
 
       Engine.instance.userID = userId
 
       const network = NetworkState.worldNetwork as Network
-      Engine.instance.peerID = peerID2
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
@@ -165,13 +157,12 @@ describe('EntityNetworkState', () => {
       const hostUserId = 'world' as UserID
       const userId = 'user id' as UserID
       const userId2 = 'second user id' as UserID
-      const peerID = 'peer id' as PeerID
+      const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
       const peerID3 = 'peer id 3' as PeerID
 
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
-      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
@@ -209,11 +200,10 @@ describe('EntityNetworkState', () => {
 
     it('should spawn avatar owned by user', async () => {
       const userId = 'user id' as UserID
-      const peerID = 'peer id' as PeerID
+      const peerID = Engine.instance.store.peerID
 
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
-      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
 
@@ -227,7 +217,7 @@ describe('EntityNetworkState', () => {
       applyIncomingActions()
       await act(() => receiveActions(EntityNetworkState))
 
-      const entity = UUIDComponent.entitiesByUUID[Engine.instance.userID as any as EntityUUID]
+      const entity = UUIDComponent.getEntityByUUID(Engine.instance.userID as any as EntityUUID)
 
       spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 
@@ -244,12 +234,11 @@ describe('EntityNetworkState', () => {
       const hostUserId = 'world' as UserID
       const hostPeerId = 'host peer id' as PeerID
       const userId = 'user id' as UserID
-      const peerID = 'peer id' as PeerID
+      const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
 
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
-      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
@@ -284,10 +273,6 @@ describe('EntityNetworkState', () => {
       assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
       assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), true)
 
-      const transferAuthorityOfObjectQueue = ActionFunctions.defineActionQueue(
-        WorldNetworkAction.transferAuthorityOfObject.matches
-      )
-
       receiveRequestAuthorityOverObject(
         WorldNetworkAction.requestAuthorityOverObject({
           $from: userId,
@@ -300,7 +285,7 @@ describe('EntityNetworkState', () => {
 
       ActionFunctions.applyIncomingActions()
 
-      for (const action of transferAuthorityOfObjectQueue()) receiveTransferAuthorityOfObject(action)
+      await act(() => receiveActions(EntityNetworkState))
 
       const networkObjectEntitiesAfter = networkObjectQuery()
       const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
@@ -318,12 +303,11 @@ describe('EntityNetworkState', () => {
     const hostUserId = 'world' as UserID
     const hostPeerId = 'host peer id' as PeerID
     const userId = 'user id' as UserID
-    const peerID = 'peer id' as PeerID
+    const peerID = Engine.instance.store.peerID
     const peerID2 = 'peer id 2' as PeerID
 
     Engine.instance.userID = userId // user being the action dispatcher
     const network = NetworkState.worldNetwork as Network
-    Engine.instance.peerID = peerID
 
     NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
     NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
@@ -359,10 +343,6 @@ describe('EntityNetworkState', () => {
     assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
     assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), false)
 
-    const transferAuthorityOfObjectQueue = ActionFunctions.defineActionQueue(
-      WorldNetworkAction.transferAuthorityOfObject.matches
-    )
-
     receiveRequestAuthorityOverObject(
       WorldNetworkAction.requestAuthorityOverObject({
         $from: userId, // from user
@@ -374,9 +354,8 @@ describe('EntityNetworkState', () => {
     )
 
     applyIncomingActions()
-    await act(() => receiveActions(EntityNetworkState))
 
-    for (const action of transferAuthorityOfObjectQueue()) receiveTransferAuthorityOfObject(action)
+    await act(() => receiveActions(EntityNetworkState))
 
     const networkObjectEntitiesAfter = networkObjectQuery()
     const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()

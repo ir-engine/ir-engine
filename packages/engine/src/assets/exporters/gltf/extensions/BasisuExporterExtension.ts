@@ -81,8 +81,16 @@ export default class BasisuExporterExtension extends ExporterExtension implement
   sampler: number
 
   writeTexture(_texture: CompressedTexture, textureDef) {
+    //only operate on compressed textures
     if (!_texture?.isCompressedTexture) return
     const writer = this.writer
+    //if we're not embedding images and this image already has a src, just use that
+    if (!writer.options.embedImages && _texture.userData.src) {
+      textureDef.extensions[this.name] = { source: textureDef.source }
+      writer.extensionsUsed[this.name] = true
+      delete textureDef.source
+      return
+    }
     _texture.colorSpace = NoColorSpace
     writer.pending.push(
       new Promise((resolve) => {
@@ -132,7 +140,9 @@ export default class BasisuExporterExtension extends ExporterExtension implement
 
                   imageDef.bufferView = bufferViewIdx
                 } else {
-                  const [_, projectName, basePath] = /projects\/([^/]+)\/assets\/(.*)$/.exec(writer.options.path!)!
+                  //const [_, projectName, basePath] = /projects\/([^/]+)\/assets\/(.*)$/.exec(writer.options.path!)!
+                  const projectName = writer.options.projectName!
+                  const basePath = writer.options.relativePath!.replace(/^\/*assets\//, '')
                   const baseURI = basePath.includes('/') ? basePath.slice(0, basePath.lastIndexOf('/')) : '.'
                   const relativeURI = `${writer.options.resourceURI ?? baseURI}/images/${imgId}.ktx2`
                   const projectSpaceURI = `${baseURI}/${

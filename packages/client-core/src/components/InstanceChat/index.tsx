@@ -31,7 +31,6 @@ import { ChannelService, ChannelState } from '@etherealengine/client-core/src/so
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Badge from '@etherealengine/ui/src/primitives/mui/Badge'
@@ -41,11 +40,12 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 
-import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
+import CloseIcon from '@mui/icons-material/Close'
+import MessageIcon from '@mui/icons-material/Message'
 import Fab from '@mui/material/Fab'
 
+import { InstanceID, MessageID, UserName, messagePath } from '@etherealengine/common/src/schema.type.module'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
@@ -65,12 +65,15 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
 
   const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
 
+  /** @todo allow paginated scrolling to retrieve earlier messages */
   const messages = useFind(messagePath, {
     query: {
-      channelId: targetChannelId.value
+      channelId: targetChannelId.value,
+      $limit: 20,
+      $sort: { createdAt: -1 }
     }
   })
-  const mutateMessage = useMutation(messagePath)
+  const mutateMessage = useMutation(messagePath, false)
 
   useEffect(() => {
     if (messages.data?.length && !chatWindowOpen) setUnreadMessages(true)
@@ -146,7 +149,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   }
 
   const packageMessage = (): void => {
-    const instanceId = NetworkState.worldNetwork.id
+    const instanceId = NetworkState.worldNetwork.id as InstanceID
     if (composingMessage?.value?.length && instanceId) {
       if (usersTyping) {
         dispatchAction(
@@ -200,17 +203,9 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
 
 interface InstanceChatProps {
   styles?: any
-  MessageButton?: any
-  CloseButton?: any
-  newMessageLabel?: string
 }
 
-export const InstanceChat = ({
-  styles = defaultStyles,
-  MessageButton = MessageIcon,
-  CloseButton = CloseIcon,
-  newMessageLabel = 'World Chat...'
-}: InstanceChatProps): any => {
+export const InstanceChat = ({ styles = defaultStyles }: InstanceChatProps) => {
   const { t } = useTranslation()
   const chatWindowOpen = useHookstate(false)
   const unreadMessages = useHookstate(false)
@@ -223,9 +218,7 @@ export const InstanceChat = ({
     messageRefInput: messageRefInput as any
   })
 
-  const sortedMessages = messages.data
-    ? messages.data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-    : []
+  const sortedMessages = [...messages.data].reverse()
 
   const user = useHookstate(getMutableState(AuthState).user)
 
@@ -295,9 +288,9 @@ export const InstanceChat = ({
     const userThumbnail = useUserAvatarThumbnail(message.senderId)
 
     return (
-      <Fragment key={message.id}>
+      <Fragment key={message.id as MessageID}>
         {message.isNotification ? (
-          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+          <div key={message.id as MessageID} className={`${styles.selfEnd} ${styles.noMargin}`}>
             <div className={styles.dFlex}>
               <div className={`${styles.msgNotification} ${styles.mx2}`}>
                 <p className={styles.shadowText}>{message.text}</p>
@@ -305,7 +298,7 @@ export const InstanceChat = ({
             </div>
           </div>
         ) : (
-          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+          <div key={message.id as MessageID} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
               <div
                 className={`${message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner} ${
@@ -313,21 +306,21 @@ export const InstanceChat = ({
                 } ${styles.dFlex}`}
               >
                 <div className={styles.msgWrapper}>
-                  {messages[index - 1] && messages[index - 1].isNotification ? (
-                    <h3 className={styles.sender}>{message.sender.name}</h3>
+                  {sortedMessages[index - 1] && sortedMessages[index - 1].isNotification ? (
+                    <h3 className={styles.sender}>{message.sender.name as UserName}</h3>
                   ) : (
-                    messages[index - 1] &&
-                    message.senderId !== messages[index - 1].senderId && (
-                      <h3 className={styles.sender}>{message.sender.name}</h3>
+                    sortedMessages[index - 1] &&
+                    message.senderId !== sortedMessages[index - 1].senderId && (
+                      <h3 className={styles.sender}>{message.sender.name as UserName}</h3>
                     )
                   )}
                   <p className={styles.text}>{message.text}</p>
                 </div>
-                {index !== 0 && messages[index - 1] && messages[index - 1].isNotification ? (
+                {index !== 0 && sortedMessages[index - 1] && sortedMessages[index - 1].isNotification ? (
                   <Avatar src={userThumbnail} className={styles.avatar} />
                 ) : (
-                  messages[index - 1] &&
-                  message.senderId !== messages[index - 1].senderId && (
+                  sortedMessages[index - 1] &&
+                  message.senderId !== sortedMessages[index - 1].senderId && (
                     <Avatar src={userThumbnail} className={styles.avatar} />
                   )
                 )}
@@ -360,7 +353,7 @@ export const InstanceChat = ({
           >
             <div className={styles.scrollFix} />
             {sortedMessages?.map((message, index, messages) => (
-              <Message message={message} index={index} key={message.id} />
+              <Message message={message} index={index} key={message.id as MessageID} />
             ))}
           </div>
         )}
@@ -375,7 +368,7 @@ export const InstanceChat = ({
                   maxRows={10}
                   fullWidth
                   id="newMessage"
-                  label={newMessageLabel}
+                  label={'World Chat...'}
                   name="newMessage"
                   variant="standard"
                   value={composingMessage}
@@ -429,14 +422,14 @@ export const InstanceChat = ({
                 onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
-                {!chatWindowOpen.value ? (
-                  <MessageButton />
-                ) : (
-                  <CloseButton
+                {chatWindowOpen.value ? (
+                  <CloseIcon
                     onClick={() => {
                       getMutableState(AppState).showTouchPad.set(true)
                     }}
                   />
+                ) : (
+                  <MessageIcon />
                 )}
               </Fab>
             </Badge>
@@ -448,7 +441,6 @@ export const InstanceChat = ({
 }
 
 export const InstanceChatWrapper = () => {
-  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
 
@@ -460,14 +452,12 @@ export const InstanceChatWrapper = () => {
   const worldNetwork = useWorldNetwork()
 
   useEffect(() => {
-    if (worldNetwork?.connected?.value) {
-      ChannelService.getInstanceChannel()
-    }
-  }, [worldNetwork?.connected?.value])
+    if (worldNetwork?.connected?.value) ChannelService.getInstanceChannel()
+  }, [worldNetwork?.connected])
 
   return (
     <>
-      {engineState.connectedWorld.value && targetChannelId.value ? (
+      {targetChannelId.value ? (
         <div className={`${bottomShelfStyle} ${styles.chatRoot}`}>
           <InstanceChat />
         </div>

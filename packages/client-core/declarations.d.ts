@@ -24,7 +24,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-
 // We need to tell TypeScript that when we write "import styles from './styles.scss'
 declare module '*.scss'
 declare module '*.scss?inline'

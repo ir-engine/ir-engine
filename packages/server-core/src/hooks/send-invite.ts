@@ -27,24 +27,23 @@ import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
-import { EmailData, emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
+import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { ChannelID, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { InviteType } from '@etherealengine/common/src/schemas/social/invite.schema'
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { acceptInvitePath } from '@etherealengine/common/src/schemas/user/accept-invite.schema'
+import { EmailData, emailPath } from '@etherealengine/common/src/schemas/user/email.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { SmsData, smsPath } from '@etherealengine/engine/src/schemas/user/sms.schema'
-import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { SmsData, smsPath } from '@etherealengine/common/src/schemas/user/sms.schema'
+import { userRelationshipPath } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
+import { UserID, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
+import { Application, HookContext } from '../../declarations'
 import logger from '../ServerLogger'
 import config from '../appconfig'
-import { InviteParams } from '../social/invite/invite.class'
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'invite')
 
@@ -60,14 +59,25 @@ export function getInviteLink(type: string, id: string, passcode: string): strin
   return `${config.server.url}/${acceptInvitePath}/${id}?t=${passcode}`
 }
 
-async function generateEmail(
-  app: Application,
-  result: InviteType,
-  toEmail: string,
-  inviteType: string,
-  inviterUsername: string,
+async function generateEmail({
+  app,
+  result,
+  toEmail,
+  inviteType,
+  inviterUsername,
+  targetObjectId
+}: {
+  app: Application
+  result: InviteType
+  toEmail: string
+  inviteType: string
+  inviterUsername: string
   targetObjectId?: string
-): Promise<void> {
+}): Promise<void> {
+  if (config.testEnabled) {
+    return
+  }
+
   let channelName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode!)
 
@@ -85,8 +95,7 @@ async function generateEmail(
 
   if (inviteType === 'instance') {
     const instance = await app.service(instancePath).get(targetObjectId!)
-    const location = await app.service(locationPath).get(instance.locationId!)
-    locationName = location.name
+    locationName = instance.location.name
   }
 
   const compiledHTML = pug.compileFile(templatePath)({
@@ -109,16 +118,28 @@ async function generateEmail(
   await app.service(emailPath).create(email)
 }
 
-async function generateSMS(
-  app: Application,
-  result: InviteType,
-  mobile: string,
-  inviteType: string,
-  inviterUsername: string,
+async function generateSMS({
+  app,
+  result,
+  mobile,
+  inviteType,
+  inviterUsername,
+  targetObjectId
+}: {
+  app: Application
+  result: InviteType
+  mobile: string
+  inviteType: string
+  inviterUsername: string
   targetObjectId?: string
-): Promise<void> {
+}): Promise<void> {
+  if (config.testEnabled) {
+    return
+  }
+
   let channelName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode!)
+
   if (inviteType === 'channel') {
     const channel = await app.service(channelPath).get(targetObjectId! as ChannelID)
     channelName = channel.name
@@ -131,8 +152,7 @@ async function generateSMS(
 
   if (inviteType === 'instance') {
     const instance = await app.service(instancePath).get(targetObjectId!)
-    const location = await app.service(locationPath).get(instance.locationId!)
-    locationName = location.name
+    locationName = instance.location.name
   }
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-sms-invite-${inviteType}.pug`)
   const compiledHTML = pug
@@ -158,7 +178,8 @@ async function generateSMS(
 }
 
 // This will attach the owner ID in the contact while creating/updating list item
-export const sendInvite = async (app: Application, result: InviteType, params: InviteParams) => {
+export const sendInvite = async (context: HookContext) => {
+  const { app, result, params } = context
   try {
     let token = ''
     if (result.identityProviderType === 'email' || (result.identityProviderType === 'sms' && result.token)) {
@@ -172,9 +193,23 @@ export const sendInvite = async (app: Application, result: InviteType, params: I
     const authUser = params.user as UserType
 
     if (result.identityProviderType === 'email') {
-      await generateEmail(app, result, token, inviteType, authUser.name, targetObjectId)
+      await generateEmail({
+        app,
+        result,
+        toEmail: token,
+        inviteType,
+        inviterUsername: authUser.name,
+        targetObjectId
+      })
     } else if (result.identityProviderType === 'sms') {
-      await generateSMS(app, result, token, inviteType, authUser.name, targetObjectId)
+      await generateSMS({
+        app,
+        result,
+        mobile: token,
+        inviteType,
+        inviterUsername: authUser.name,
+        targetObjectId
+      })
     } else if (result.inviteeId != null) {
       if (inviteType === 'friend') {
         const existingRelationshipStatus = await app.service(userRelationshipPath).find({
@@ -211,14 +246,14 @@ export const sendInvite = async (app: Application, result: InviteType, params: I
       })) as Paginated<IdentityProviderType>
 
       if (emailIdentityProviderResult.total > 0) {
-        await generateEmail(
+        await generateEmail({
           app,
           result,
-          emailIdentityProviderResult.data[0].token,
+          toEmail: emailIdentityProviderResult.data[0].token,
           inviteType,
-          authUser.name,
+          inviterUsername: authUser.name,
           targetObjectId
-        )
+        })
       } else {
         const SMSIdentityProviderResult = (await app.service(identityProviderPath).find({
           query: {
@@ -228,14 +263,14 @@ export const sendInvite = async (app: Application, result: InviteType, params: I
         })) as Paginated<IdentityProviderType>
 
         if (SMSIdentityProviderResult.total > 0) {
-          await generateSMS(
+          await generateSMS({
             app,
             result,
-            SMSIdentityProviderResult.data[0].token,
+            mobile: SMSIdentityProviderResult.data[0].token,
             inviteType,
-            authUser.name,
+            inviterUsername: authUser.name,
             targetObjectId
-          )
+          })
         }
       }
     }

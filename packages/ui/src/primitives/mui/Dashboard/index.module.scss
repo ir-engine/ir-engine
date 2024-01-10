@@ -98,6 +98,7 @@
 
 .appBar {
   z-index: 1000;
+  background: var(--mainBackground);
 }
 
 .drawer {
@@ -108,6 +109,13 @@
   position: fixed;
   height: "100vh";
   pointer-events: auto;
+  
+  ::-webkit-scrollbar{/* Hide scrollbar for Chrome, Safari and Opera */
+    display: none;
+  }
+
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 .drawerOpen {
@@ -147,6 +155,9 @@
   padding: 24px;
   background-color: var(--mainBackground);
   height: calc(100vh - 50px);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .contentWidthDrawerOpen {

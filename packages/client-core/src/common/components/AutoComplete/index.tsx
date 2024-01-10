@@ -93,7 +93,7 @@ const AutoComplete = ({ data, label, disabled, onChange, value = [] }: Props) =>
             {value.map((option: AutoCompleteData, index: number) => (
               <Tag className={styles.tag} label={option.type} disabled={disabled} {...getTagProps({ index })} />
             ))}
-            <input disabled={disabled} {...getInputProps()} />
+            <input style={{ margin: 0 }} disabled={disabled} {...getInputProps()} />
           </div>
         </div>
         {groupedOptions.length > 0 && (

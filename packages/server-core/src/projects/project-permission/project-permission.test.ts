@@ -33,11 +33,12 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   ProjectPermissionType,
   projectPermissionPath
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { ScopeType, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { InviteCode, UserID, UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
@@ -48,7 +49,7 @@ const cleanup = async (app: Application) => {
   const project1Dir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName1}/`)
   deleteFolderRecursive(project1Dir)
   try {
-    await app.service(projectPath)._remove(null, { query: { name: newProjectName1 } })
+    await app.service(projectPath).remove(null, { query: { name: newProjectName1 } })
   } catch (e) {
     //
   }
@@ -76,31 +77,31 @@ describe('project-permission.test', () => {
     await cleanup(app)
 
     user1 = await app.service(userPath).create({
-      name: `Test #${Math.random()}`,
+      name: `Test #${Math.random()}` as UserName,
       isGuest: false,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
     user2 = await app.service(userPath).create({
-      name: `Test #${Math.random()}`,
+      name: `Test #${Math.random()}` as UserName,
       isGuest: false,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
     user3 = await app.service(userPath).create({
-      name: `Test #${Math.random()}`,
+      name: `Test #${Math.random()}` as UserName,
       isGuest: false,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
     user4 = await app.service(userPath).create({
-      name: `Test #${Math.random()}`,
+      name: `Test #${Math.random()}` as UserName,
       isGuest: false,
-      avatarId: '',
-      inviteCode: '',
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
       scopes: []
     })
     const user1ApiKeys = (await app.service(userApiKeyPath).find({
@@ -128,23 +129,27 @@ describe('project-permission.test', () => {
     })) as Paginated<UserApiKeyType>
     user4.apiKey = user4ApiKeys.data.length > 0 ? user4ApiKeys.data[0] : user4.apiKey
     await app.service(scopePath).create({
-      type: 'editor:write',
+      type: 'editor:write' as ScopeType,
       userId: user1.id
     })
     await app.service(scopePath).create({
-      type: 'editor:write',
+      type: 'editor:write' as ScopeType,
       userId: user2.id
     })
     await app.service(scopePath).create({
-      type: 'editor:write',
+      type: 'editor:write' as ScopeType,
       userId: user3.id
     })
     await app.service(scopePath).create({
-      type: 'editor:write',
+      type: 'editor:write' as ScopeType,
       userId: user4.id
     })
     await app.service(scopePath).create({
-      type: 'admin:admin',
+      type: 'projects:read' as ScopeType,
+      userId: user4.id
+    })
+    await app.service(scopePath).create({
+      type: 'projects:write' as ScopeType,
       userId: user4.id
     })
   })
@@ -324,7 +329,7 @@ describe('project-permission.test', () => {
           params
         )
 
-        const permissions = await app.service(projectPermissionPath)._find({
+        const permissions = await app.service(projectPermissionPath).find({
           query: {
             projectId: project1.id
           },
@@ -345,15 +350,15 @@ describe('project-permission.test', () => {
           },
           provider: 'rest'
         }
-        const update = await app.service(projectPermissionPath).patch(
+        const update = (await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
             projectId: project1.id,
             userId: 'abcdefg' as UserID,
             type: 'owner'
-          },
-          params
-        )
+          }
+          // params
+        )) as any as ProjectPermissionType
         assert.strictEqual(update.type, 'owner')
         assert.strictEqual(update.userId, user2.id)
       })
@@ -366,7 +371,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        const update = await app.service(projectPermissionPath).patch(
+        const update = (await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
             projectId: project1.id,
@@ -374,7 +379,7 @@ describe('project-permission.test', () => {
             type: 'user'
           },
           params
-        )
+        )) as any as ProjectPermissionType
         assert.strictEqual(update.type, 'user')
         assert.strictEqual(update.userId, user2.id)
       })
@@ -411,7 +416,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        const permissions = await app.service(projectPermissionPath)._find({
+        const permissions = await app.service(projectPermissionPath).find({
           query: {
             projectId: project1.id
           },
@@ -494,7 +499,7 @@ describe('project-permission.test', () => {
         }
 
         await app.service(projectPermissionPath).remove(project1Permission1.id, params)
-        const permissions = (await app.service(projectPermissionPath)._find({
+        const permissions = (await app.service(projectPermissionPath).find({
           query: {
             projectId: project1.id
           },

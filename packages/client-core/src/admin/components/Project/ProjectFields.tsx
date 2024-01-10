@@ -42,9 +42,7 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectBranchType } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
-import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
-import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -394,7 +392,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
               onBlur={handleChangeDestinationRepo}
             />
           ) : (
-            <div className={styles.textAlign}>{t('admin:components.project.needsGithubProvider')}</div>
+            <div className={classNames(styles.textAlign, styles.defaultFont)}>
+              {t('admin:components.project.needsGithubProvider')}
+            </div>
           )}
 
           {!projectUpdateStatus.value?.destinationProcessing &&
@@ -448,7 +448,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                   </Tooltip>
                 </div>
               ) : (
-                <div className={styles.textAlign}>{t('admin:components.project.needsGithubProvider')}</div>
+                <div className={classNames(styles.textAlign, styles.defaultFont)}>
+                  {t('admin:components.project.needsGithubProvider')}
+                </div>
               )}
 
               {!processing &&
@@ -523,21 +525,22 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
             projectUpdateStatus.value?.selectedSHA.length > 0 &&
             projectUpdateStatus.value?.commitData.length > 0 &&
             !matchesEngineVersion && (
-              <div className={styles.projectMismatchWarning}>
+              <div className={classNames(styles.projectMismatchWarning)}>
                 <Icon type="WarningAmber" />
                 {t('admin:components.project.mismatchedProjectWarning')}
               </div>
             )}
 
           {projectUpdateStatus.value?.sourceVsDestinationError.length > 0 && (
-            <div className={styles.errorText}>{projectUpdateStatus.value?.sourceVsDestinationError}</div>
+            <div className={classNames(styles.errorText)}>{projectUpdateStatus.value?.sourceVsDestinationError}</div>
           )}
 
           <div
             className={classNames({
               [styles.validContainer]: true,
               [styles.valid]: projectUpdateStatus.value?.destinationValid,
-              [styles.invalid]: !projectUpdateStatus.value?.destinationValid
+              [styles.invalid]: !projectUpdateStatus.value?.destinationValid,
+              [styles.defaultFont]: true
             })}
           >
             {projectUpdateStatus.value?.destinationValid && <Icon type="CheckCircle" />}
@@ -550,7 +553,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
               className={classNames({
                 [styles.validContainer]: true,
                 [styles.valid]: projectUpdateStatus.value?.sourceValid,
-                [styles.invalid]: !projectUpdateStatus.value?.sourceValid
+                [styles.invalid]: !projectUpdateStatus.value?.sourceValid,
+                [styles.defaultFont]: true
               })}
             >
               {projectUpdateStatus.value?.sourceValid && <Icon type="CheckCircle" />}
@@ -564,7 +568,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
               className={classNames({
                 [styles.validContainer]: true,
                 [styles.valid]: projectUpdateStatus.value?.sourceProjectMatchesDestination,
-                [styles.invalid]: !projectUpdateStatus.value?.sourceProjectMatchesDestination
+                [styles.invalid]: !projectUpdateStatus.value?.sourceProjectMatchesDestination,
+                [styles.defaultFont]: true
               })}
             >
               {projectUpdateStatus.value?.sourceProjectMatchesDestination && <Icon type="CheckCircle" />}

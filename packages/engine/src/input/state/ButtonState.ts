@@ -183,6 +183,13 @@ export enum StandardGamepadButton {
   'ButtonHome' = 16
 }
 
+export enum StandardGamepadAxes {
+  'LeftStickX' = 0,
+  'LeftStickY' = 1,
+  'RightStickX' = 2,
+  'RightStickY' = 3
+}
+
 /**
  * XR standard gamepad button mapping
  * https://www.w3.org/TR/webxr-gamepads-module-1/#xr-standard-gamepad-mapping
@@ -194,6 +201,13 @@ export enum XRStandardGamepadButton {
   'Stick' = 3,
   'ButtonA' = 4,
   'ButtonB' = 5
+}
+
+export enum XRStandardGamepadAxes {
+  'TouchpadX' = 0,
+  'TouchpadY' = 1,
+  'ThumbstickX' = 2,
+  'ThumbstickY' = 3
 }
 
 export type AnyButton = MouseButton | KeyboardButton | StandardGamepadButton | XRStandardGamepadButton

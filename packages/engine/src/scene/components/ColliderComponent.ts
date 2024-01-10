@@ -27,8 +27,9 @@ import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { NO_PROXY, getState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import matches from 'ts-matches'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
@@ -42,20 +43,22 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { InputComponent } from '../../input/components/InputComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { GroupComponent } from './GroupComponent'
+import { ModelComponent } from './ModelComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const ColliderComponent = defineComponent({
-  name: 'ColliderComponent',
+  name: 'Collider Component',
   jsonID: 'collider',
 
   onInit(entity) {
@@ -88,7 +91,7 @@ export const ColliderComponent = defineComponent({
            *
            * TODO: how do we handle non-scene entities?
            */
-          target: null as null | string | undefined
+          target: null as null | EntityUUID | undefined
         }
       ]
     }
@@ -129,16 +132,12 @@ export const ColliderComponent = defineComponent({
       }
     }
 
-    /**
-     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
-     */
     if (
       !getState(EngineState).sceneLoaded &&
       hasComponent(entity, SceneObjectComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )
       setComponent(entity, SceneAssetPendingTagComponent)
-
     setComponent(entity, InputComponent)
   },
 
@@ -161,12 +160,14 @@ export const ColliderComponent = defineComponent({
     const entity = useEntityContext()
 
     const transformComponent = useComponent(entity, TransformComponent)
-    const localTransformComponent = useOptionalComponent(entity, LocalTransformComponent)
     const colliderComponent = useComponent(entity, ColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
+    const modelHierarchy = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
     useEffect(() => {
+      removeComponent(entity, SceneAssetPendingTagComponent)
+
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
       const physicsWorld = getState(PhysicsState).physicsWorld
 
@@ -178,6 +179,7 @@ export const ColliderComponent = defineComponent({
         }
 
         computeTransformMatrix(entity)
+        iterateEntityNode(entity, computeTransformMatrix)
         if (hasComponent(entity, GroupComponent)) {
           updateGroupChildren(entity)
         }
@@ -264,9 +266,7 @@ export const ColliderComponent = defineComponent({
         rigidbody.body.setRotation(transformComponent.rotation.value, true)
         rigidbody.scale.copy(transformComponent.scale.value)
       }
-
-      if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
-    }, [isLoadedFromGLTF, transformComponent, localTransformComponent, colliderComponent, groupComponent?.length])
+    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, modelHierarchy])
 
     return null
   }

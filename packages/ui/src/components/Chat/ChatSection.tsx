@@ -108,11 +108,11 @@ export const ChatSection = () => {
               <b className="text-3xl">Chats</b>
             </div>
             <div className="flex justify-center gap-2">
-              <button className="">
-                <img className="w-6 h-6 overflow-hidden" alt="" src={NotificationIcon} />
+              <button className="m-0">
+                <img className="max-w-full w-6 h-6 overflow-hidden" alt="" src={NotificationIcon} />
               </button>
-              <button className="">
-                <img className="w-6 h-6 overflow-hidden" alt="" src={BoxSearch} />
+              <button className="m-0">
+                <img className="max-w-full w-6 h-6 overflow-hidden" alt="" src={BoxSearch} />
               </button>
               <button onClick={() => openModal(1)}>
                 <img className="w-6 h-6 overflow-hidden" alt="" src={AddSquare} />
@@ -133,7 +133,7 @@ export const ChatSection = () => {
             <ChannelsList />
           </div>
           <div className="absolute bottom-0 w-full h-[75px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
-            <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={userThumbnail} />
+            <img className="max-w-full rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={userThumbnail} />
             <div className="mt-3">
               <p className="font-bold text-[#3F3960]">{userName}</p>
               <div className="flex flex-wrap gap-1">
@@ -147,7 +147,7 @@ export const ChatSection = () => {
               <div className="relative">
                 <input
                   type="checkbox"
-                  className="hidden"
+                  className="m-0 hidden"
                   checked={checked}
                   onChange={handleToggle}
                   onClick={switchToggle}
@@ -164,8 +164,8 @@ export const ChatSection = () => {
                 ></div>
               </div>
             </label>
-            <button className="">
-              <img className="w-6 h-6 overflow-hidden" alt="" src={SettingIcon} />
+            <button className="m-0">
+              <img className="max-w-full w-6 h-6 overflow-hidden" alt="" src={SettingIcon} />
             </button>
           </div>
         </div>

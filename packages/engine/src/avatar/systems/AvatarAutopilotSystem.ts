@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { applyAutopilotInput } from '../functions/moveAvatar'
+import { AvatarMovementSystem } from './AvatarMovementSystem'
 
 const execute = () => {
   applyAutopilotInput(Engine.instance.localClientEntity)
@@ -33,5 +34,6 @@ const execute = () => {
 
 export const AvatarAutopilotSystem = defineSystem({
   uuid: 'ee.engine.AvatarAutopilotSystem',
+  insert: { after: AvatarMovementSystem },
   execute
 })

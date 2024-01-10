@@ -26,26 +26,25 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+import { InstanceID, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { ScopeType, ScopeTypeInterface, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { ChannelType, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { invitePath } from '@etherealengine/common/src/schemas/social/invite.schema'
+import { locationAuthorizedUserPath } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { userRelationshipPath } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
+import { UserID, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { v1 as uuidv1 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AcceptInviteParams extends KnexAdapterParams {
   preventUserRelationshipRemoval?: boolean
 }
@@ -66,7 +65,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
    *
    * @param id of specific accept invite
    * @param params query which contain passcode
-   * @returns {@Object} contains single invite
+   * @returns {Object} contains single invite
    */
 
   async get(id: Id, params?: AcceptInviteParams) {
@@ -152,13 +151,13 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
         const existingAdminScope = (await this.app.service(scopePath).find({
           query: {
             userId: inviteeIdentityProvider.userId,
-            type: 'admin:admin'
+            type: 'admin:admin' as ScopeType
           }
-        })) as Paginated<ScopeType>
+        })) as Paginated<ScopeTypeInterface>
         if (existingAdminScope.total === 0)
           await this.app.service(scopePath).create({
             userId: inviteeIdentityProvider.userId,
-            type: 'admin:admin'
+            type: 'admin:admin' as ScopeType
           })
       }
 
@@ -261,18 +260,18 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         const instance =
-          invite.inviteType === 'instance' ? await this.app.service(instancePath)._get(invite.targetObjectId) : null
-        const locationId = instance ? instance.locationId : invite.targetObjectId
+          invite.inviteType === 'instance' ? await this.app.service(instancePath).get(invite.targetObjectId) : null
+        const locationId = instance ? (instance.locationId as LocationID) : (invite.targetObjectId as LocationID)
         const location = await this.app.service(locationPath).get(locationId)
         returned.locationName = location.slugifiedName
-        if (instance) returned.instanceId = instance.id
+        if (instance) returned.instanceId = instance.id as InstanceID
 
         if (location.locationSetting?.locationType === 'private') {
           const userId = inviteeIdentityProvider.userId
           if (!location.locationAuthorizedUsers.find((authUser) => authUser.userId === userId))
             await this.app.service(locationAuthorizedUserPath).create({
-              locationId: location.id,
-              userId: userId
+              locationId: location.id as LocationID,
+              userId: userId as UserID
             })
         }
         if (invite.spawnDetails) {

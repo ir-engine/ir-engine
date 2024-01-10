@@ -59,15 +59,14 @@ export const AmbientLightComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    removeObjectFromGroup(entity, component.light.value)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const light = useComponent(entity, AmbientLightComponent)
     useEffect(() => {
       addObjectToGroup(entity, light.light.value)
+      return () => {
+        removeObjectFromGroup(entity, light.light.value)
+      }
     }, [])
 
     useEffect(() => {

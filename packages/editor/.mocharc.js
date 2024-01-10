@@ -29,14 +29,16 @@ module.exports = {
   failZero: false,
   parallel: false,
   spec: [
-    '**/*.test.ts'
+    '**/*.test.ts',
+    '**/*.test.tsx'
   ],
   require: [
     'tests/mocha.env', // init env here
     'jsdom-global/register'
   ],
   extension: [
-    'ts'
+    'ts',
+    'tsx'
   ],
   bail: true,
   exit: true,

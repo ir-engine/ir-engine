@@ -42,6 +42,7 @@ import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
 import { ReferenceSpace, XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 import { XRCPUDepthInformation } from './XRTypes'
 
 const DepthOcclusionPluginID = 'DepthOcclusionPlugin'
@@ -264,17 +265,13 @@ function DepthOcclusionReactor({ obj }) {
 
   useEffect(() => {
     const mesh = obj as any as Mesh<any, Material>
-    if (depthDataTexture && depthSupported)
-      mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.addDepthOBCPlugin(o.material, depthDataTexture.value!))
-    else mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
-  }, [depthDataTexture])
+    if (!mesh.isMesh || !depthDataTexture || !depthSupported) return
 
-  useEffect(() => {
+    XRDepthOcclusion.addDepthOBCPlugin(mesh.material, depthDataTexture.value!)
     return () => {
-      const mesh = obj as any as Mesh<any, Material>
-      mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
+      XRDepthOcclusion.removeDepthOBCPlugin(mesh.material)
     }
-  }, [])
+  }, [depthDataTexture])
 
   return null
 }
@@ -310,6 +307,7 @@ const reactor = () => {
 
 export const XRDepthOcclusionSystem = defineSystem({
   uuid: 'ee.engine.XRDepthOcclusionSystem',
+  insert: { after: XRSystem },
   execute,
   reactor
 })

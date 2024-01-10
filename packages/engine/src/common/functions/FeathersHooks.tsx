@@ -168,13 +168,25 @@ export type PaginationQuery = Partial<PaginationProps> & Query
 export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Params<PaginationQuery> = {}) => {
   const paginate = usePaginate(params.query)
 
-  const response = useService(serviceName, 'find', {
-    ...params,
-    query: {
-      ...params.query,
-      ...paginate.query
+  let requestParams
+  if (params.query?.paginate === false || params.query?.$paginate === false) {
+    requestParams = {
+      ...params,
+      query: {
+        ...params.query
+      }
     }
-  })
+  } else {
+    requestParams = {
+      ...params,
+      query: {
+        ...params.query,
+        ...paginate.query
+      }
+    }
+  }
+
+  const response = useService(serviceName, 'find', requestParams)
 
   const data = response?.data
     ? Array.isArray(response.data)
@@ -191,11 +203,12 @@ export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Pa
     setSort: paginate.setSort,
     setLimit: paginate.setLimit,
     setPage: paginate.setPage,
+    search: paginate.search,
     page: paginate.page,
     skip: paginate.query.$skip,
     limit: paginate.query.$limit,
     sort: paginate.query.$sort,
-    data: data as ArrayOrPaginatedType<(typeof response)['data']>
+    data: data as Readonly<ArrayOrPaginatedType<(typeof response)['data']>>
   }
 }
 
@@ -231,17 +244,32 @@ type RemoveMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['rem
  * by the caller. as you create/update/patch/remove
  * entities using this helper, the entities cache gets updated
  */
-export function useMutation<S extends keyof ServiceTypes>(serviceName: S) {
+export function useMutation<S extends keyof ServiceTypes>(serviceName: S, forceRefetch = true) {
   const state = useHookstate({
     status: 'idle',
     data: null as unknown | null,
     error: null as string | null
   })
 
-  const create = useMethod('create', created, serviceName, state) as CreateMethodParameters<S>
-  const update = useMethod('update', updated, serviceName, state) as UpdateMethodParameters<S>
-  const patch = useMethod('patch', updated, serviceName, state) as PatchMethodParameters<S>
-  const remove = useMethod('remove', removed, serviceName, state) as RemoveMethodParameters<S>
+  const create = useMethod(
+    'create',
+    forceRefetch ? created : undefined,
+    serviceName,
+    state
+  ) as CreateMethodParameters<S>
+  const update = useMethod(
+    'update',
+    forceRefetch ? updated : undefined,
+    serviceName,
+    state
+  ) as UpdateMethodParameters<S>
+  const patch = useMethod('patch', forceRefetch ? updated : undefined, serviceName, state) as PatchMethodParameters<S>
+  const remove = useMethod(
+    'remove',
+    forceRefetch ? removed : undefined,
+    serviceName,
+    state
+  ) as RemoveMethodParameters<S>
 
   const mutation = useMemo(
     () => ({
@@ -261,7 +289,7 @@ export function useMutation<S extends keyof ServiceTypes>(serviceName: S) {
 
 function useMethod(
   method: Methods,
-  action: (props: { serviceName: keyof ServiceTypes; item: any }) => void,
+  action: undefined | ((props: { serviceName: keyof ServiceTypes; item: any }) => void),
   serviceName: keyof ServiceTypes,
   state: State<any>
 ) {
@@ -271,7 +299,7 @@ function useMethod(
       state.merge({ status: 'loading', loading: true, data: null, error: null })
       return service[method](...args)
         .then((item) => {
-          action({ serviceName, item })
+          action && action({ serviceName, item })
           state.merge({ status: 'success', loading: false, data: item })
           return item
         })
@@ -327,14 +355,19 @@ type PaginationProps = {
   $sort: Record<string, FeathersOrder>
 }
 
-export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
-  const store = useHookstate({
+function resetPaginationProps(defaultProps: Partial<PaginationProps>) {
+  return {
     $skip: defaultProps.$skip ?? 0,
     $limit: defaultProps.$limit ?? 10,
     $sort: defaultProps.$sort ?? {}
-  } as PaginationProps)
+  } as PaginationProps
+}
+
+export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
+  const store = useHookstate(resetPaginationProps(defaultProps))
 
   const query = store.get(NO_PROXY)
+  const storedPagination = useHookstate({ stored: false, query })
 
   const setSort = (sort: Record<string, FeathersOrder>) => {
     store.$sort.set(sort)
@@ -348,11 +381,50 @@ export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
     store.$skip.set(page * store.$limit.value)
   }
 
+  const reset = () => {
+    store.set(resetPaginationProps(defaultProps))
+  }
+
+  const _storePagination = () => {
+    if (storedPagination.stored.value) return
+    storedPagination.set({ stored: true, query: structuredClone(query) })
+    reset()
+  }
+
+  const _restorePagination = () => {
+    if (!storedPagination.stored.value) return
+    store.set(structuredClone(storedPagination.get(NO_PROXY).query))
+    storedPagination.merge({ stored: false })
+  }
+
+  const search = (searchQuery?: object) => {
+    if (searchQuery) {
+      _storePagination()
+      store.merge(searchQuery)
+    } else {
+      _restorePagination()
+    }
+  }
+
   return {
     query,
     page: Math.floor(store.$skip.value / store.$limit.value),
     setSort,
     setLimit,
-    setPage
+    setPage,
+    search
   }
+}
+
+/**
+ * Mutates the query object to store the pagination props, and add the search query
+ */
+export const useSearch = (query: ReturnType<typeof useFind>, searchQuery: object, active: any) => {
+  useEffect(() => {
+    if (active) {
+      query.search(searchQuery)
+    } else {
+      query.search()
+    }
+  }, [active])
 }

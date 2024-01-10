@@ -30,11 +30,7 @@ import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import Card from '@etherealengine/ui/src/primitives/mui/Card'
-import CardActionArea from '@etherealengine/ui/src/primitives/mui/CardActionArea'
-import CardContent from '@etherealengine/ui/src/primitives/mui/CardContent'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
@@ -42,7 +38,7 @@ import ServerTable from './ServerTable'
 
 import 'react-reflex/styles.css'
 
-import { PodsType } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import ServerItemCard from './ServerItemCard'
 import ServerLogs, { ServerLogsInputsType } from './ServerLogs'
 
 const Server = () => {
@@ -66,7 +62,9 @@ const Server = () => {
           <Grid item key={item.id} xs={12} sm={6} md={2}>
             <ServerItemCard
               key={index}
-              data={item}
+              id={item.id}
+              title={item.label}
+              description={`${item.pods.filter((item) => item.status === 'Running').length}/${item.pods.length}`}
               isSelected={selectedCard.value === item.id}
               onCardClick={selectedCard.set}
             />
@@ -90,29 +88,6 @@ const Server = () => {
         </ReflexContainer>
       )}
     </Box>
-  )
-}
-
-interface ServerItemProps {
-  data: PodsType
-  isSelected: boolean
-  onCardClick: (key: string) => void
-}
-
-const ServerItemCard = ({ data, isSelected, onCardClick }: ServerItemProps) => {
-  return (
-    <Card className={`${styles.rootCardNumber} ${isSelected ? styles.selectedCard : ''}`}>
-      <CardActionArea onClick={() => onCardClick(data.id)}>
-        <CardContent className="text-center">
-          <Typography variant="h5" component="h5" className={styles.label}>
-            {data.label}
-          </Typography>
-          <Typography variant="body1" component="p" className={styles.label}>
-            {data.pods.filter((item) => item.status === 'Running').length}/{data.pods.length}
-          </Typography>
-        </CardContent>
-      </CardActionArea>
-    </Card>
   )
 }
 

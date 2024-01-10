@@ -31,9 +31,8 @@ import {
   LocationTypePatch,
   LocationTypeQuery,
   LocationTypeType
-} from '@etherealengine/engine/src/schemas/social/location-type.schema'
+} from '@etherealengine/common/src/schemas/social/location-type.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LocationTypeParams extends KnexAdapterParams<LocationTypeQuery> {}
 
 export class LocationTypeService<

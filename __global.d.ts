@@ -24,6 +24,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+/// <reference types="vite-plugin-svgr/client" />
+
 
 /* eslint-disable no-unused-vars */
 declare module '*.jpg'

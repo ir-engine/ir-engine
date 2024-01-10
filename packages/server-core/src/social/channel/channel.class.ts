@@ -30,10 +30,9 @@ import {
   ChannelPatch,
   ChannelQuery,
   ChannelType
-} from '@etherealengine/engine/src/schemas/social/channel.schema'
+} from '@etherealengine/common/src/schemas/social/channel.schema'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ChannelParams extends KnexAdapterParams<ChannelQuery> {}
 
 export class ChannelService<T = ChannelType, ServiceParams extends Params = ChannelParams> extends KnexService<

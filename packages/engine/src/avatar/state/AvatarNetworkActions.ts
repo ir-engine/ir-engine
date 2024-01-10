@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AvatarID } from '@etherealengine/common/src/schema.type.module'
 import { defineAction } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
@@ -50,7 +51,7 @@ export class AvatarNetworkAction {
   static setAvatarID = defineAction({
     type: 'ee.engine.avatar.SET_AVATAR_ID',
     entityUUID: matchesEntityUUID,
-    avatarID: matches.string,
+    avatarID: matches.string as any as AvatarID,
     $cache: {
       removePrevious: true
     },
@@ -63,7 +64,7 @@ export class AvatarNetworkAction {
     name: matchesIkTarget,
     blendWeight: matches.number,
     $cache: {
-      removePrevious: true
+      removePrevious: false
     },
     $topic: NetworkTopics.world
   })

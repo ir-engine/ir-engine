@@ -33,9 +33,9 @@ import {
   userRelationshipPatchValidator,
   userRelationshipPath,
   userRelationshipQueryValidator
-} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+} from '@etherealengine/common/src/schemas/user/user-relationship.schema'
 
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import setLoggedInUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
@@ -109,9 +109,7 @@ const clearBlockingRelationships = async (context: HookContext<UserRelationshipS
   const user = context.params.user
 
   if (userRelationshipType === 'blocking') {
-    context.app.service(userRelationshipPath).remove(relatedUserId, {
-      user
-    })
+    await context.app.service(userRelationshipPath).remove(relatedUserId, { user })
   }
 }
 

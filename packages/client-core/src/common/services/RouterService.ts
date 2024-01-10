@@ -25,20 +25,26 @@ Ethereal Engine. All Rights Reserved.
 
 import i18n from 'i18next'
 import { lazy, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
+import { routePath, RouteType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { defineState, getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { loadRoute } from '@etherealengine/projects/loadRoute'
+
+type QueryParamsType = { [key: string]: string }
 
 export const RouterState = defineState({
   name: 'RouterState',
   initial: () => ({
-    pathname: location.pathname
+    pathname: location.pathname,
+    queryParams: null as QueryParamsType | null
   }),
-  navigate: (pathname: string) => {
-    getMutableState(RouterState).pathname.set(pathname)
+  navigate: (pathname: string, queryParams: QueryParamsType | { redirectUrl: string } = {}) => {
+    getMutableState(RouterState).set({
+      pathname,
+      queryParams
+    })
   }
 })
 
@@ -54,8 +60,9 @@ export type CustomRoute = {
  * @return {Promise}
  */
 export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
-  const routes = (await Engine.instance.api.service(routePath).find({ query: { paginate: false } })) as RouteType[]
-  console.log(routes)
+  const routes = (await Engine.instance.api
+    .service(routePath)
+    .find({ query: { paginate: false } })) as any as RouteType[]
 
   const elements: CustomRoute[] = []
 
@@ -82,6 +89,7 @@ export const useCustomRoutes = () => {
 
   const navigate = useNavigate()
   const routerState = useHookstate(getMutableState(RouterState))
+  const [_, setSearchParams] = useSearchParams()
 
   useEffect(() => {
     getCustomRoutes().then((routes) => {
@@ -94,6 +102,12 @@ export const useCustomRoutes = () => {
       routerState.pathname.set(location.pathname)
     }
   }, [location.pathname])
+
+  useEffect(() => {
+    if (routerState.queryParams.value) {
+      setSearchParams(routerState.queryParams.value)
+    }
+  }, [routerState.queryParams])
 
   useEffect(() => {
     if (location.pathname !== routerState.pathname.value) {

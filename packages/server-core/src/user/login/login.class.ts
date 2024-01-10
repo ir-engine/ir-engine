@@ -25,16 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { LoginTokenType, loginTokenPath } from '@etherealengine/common/src/schemas/user/login-token.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import makeInitialAdmin from '../../util/make-initial-admin'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LoginParams extends KnexAdapterParams {}
 
 /**
@@ -52,7 +51,7 @@ export class LoginService implements ServiceInterface {
    *
    * @param id of specific login detail
    * @param params
-   * @returns {@token}
+   * @returns {token}
    */
   async get(id: Id, params?: LoginParams) {
     try {
@@ -62,11 +61,11 @@ export class LoginService implements ServiceInterface {
           error: 'invalid login token id, cannot be null or undefined'
         }
       }
-      const result = await this.app.service(loginTokenPath)._find({
+      const result = (await this.app.service(loginTokenPath).find({
         query: {
           token: id.toString()
         }
-      })
+      })) as Paginated<LoginTokenType>
 
       if (result.data.length === 0) {
         logger.info('Invalid login token')
@@ -78,7 +77,7 @@ export class LoginService implements ServiceInterface {
         logger.info('Login Token has expired')
         return { error: 'Login link has expired' }
       }
-      const identityProvider = await this.app.service(identityProviderPath)._get(result.data[0].identityProviderId)
+      const identityProvider = await this.app.service(identityProviderPath).get(result.data[0].identityProviderId)
       await makeInitialAdmin(this.app, identityProvider.userId)
       const apiKey = (await this.app.service(userApiKeyPath).find({
         query: {
@@ -92,7 +91,7 @@ export class LoginService implements ServiceInterface {
       const token = await this.app
         .service('authentication')
         .createAccessToken({}, { subject: identityProvider.id.toString() })
-      await this.app.service(loginTokenPath)._remove(result.data[0].id)
+      await this.app.service(loginTokenPath).remove(result.data[0].id)
       await this.app.service(userPath).patch(identityProvider.userId, {
         isGuest: false
       })

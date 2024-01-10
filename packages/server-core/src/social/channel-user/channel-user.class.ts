@@ -30,10 +30,9 @@ import {
   ChannelUserPatch,
   ChannelUserQuery,
   ChannelUserType
-} from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+} from '@etherealengine/common/src/schemas/social/channel-user.schema'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ChannelUserParams extends KnexAdapterParams<ChannelUserQuery> {}
 
 export class ChannelUserService<

@@ -33,9 +33,11 @@ import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
+import { ReferenceSpaceTransformSystem } from '../transform/TransformModule'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 
 const cameraLPos = new Vector3()
 const cameraRPos = new Vector3()
@@ -140,13 +142,13 @@ function updateCameraFromXRViewerPose() {
       renderer.setRenderTarget(newRenderTarget)
     }
 
-    cameraTransform.position.copy(pose.transform.position as any).multiplyScalar(1 / xrState.sceneScale)
+    cameraTransform.position.copy(pose.transform.position as any)
     cameraTransform.rotation.copy(pose.transform.orientation as any)
-    cameraTransform.matrix
+    cameraTransform.matrixWorld
       .compose(cameraTransform.position, cameraTransform.rotation, V_111)
-      .premultiply(originTransform.matrix)
+      .premultiply(originTransform.matrixWorld)
       .decompose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
-    cameraTransform.matrixInverse.copy(cameraTransform.matrix).invert()
+    camera.matrixWorldInverse.copy(cameraTransform.matrixWorld).invert()
 
     // check if it's necessary to rebuild camera list
     let cameraListNeedsUpdate = false
@@ -190,11 +192,11 @@ function updateCameraFromXRViewerPose() {
         viewCamera.matrixWorldAutoUpdate = false
       }
 
-      viewCamera.position.copy(view.transform.position as any).multiplyScalar(1 / xrState.sceneScale)
+      viewCamera.position.copy(view.transform.position as any)
       viewCamera.quaternion.copy(view.transform.orientation as any)
       viewCamera.matrixWorld
         .compose(viewCamera.position, viewCamera.quaternion, V_111)
-        .premultiply(originTransform.matrix)
+        .premultiply(originTransform.matrixWorld)
         .decompose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
       viewCamera.matrixWorldInverse.copy(viewCamera.matrixWorld).invert()
       viewCamera.projectionMatrix.fromArray(view.projectionMatrix)
@@ -212,7 +214,8 @@ let _currentDepthFar = null as number | null
 const _vec = new Vector2()
 
 export function updateXRCamera() {
-  const renderer = EngineRenderer.instance.renderer
+  const renderer = EngineRenderer.instance?.renderer
+  if (!renderer) return
 
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   const xrState = getState(XRState)
@@ -270,7 +273,17 @@ const execute = () => {
   )
 }
 
-export const XRCameraSystem = defineSystem({
-  uuid: 'ee.engine.XRCameraSystem',
+export const XRCameraInputSystem = defineSystem({
+  uuid: 'ee.engine.XRCameraInputSystem',
+  insert: { with: XRSystem },
   execute
+})
+
+/**
+ * 2 - Update XR camera positions based on world origin and viewer pose
+ */
+export const XRCameraUpdateSystem = defineSystem({
+  uuid: 'ee.engine.XRCameraUpdateSystem',
+  insert: { after: ReferenceSpaceTransformSystem },
+  execute: updateXRCamera
 })

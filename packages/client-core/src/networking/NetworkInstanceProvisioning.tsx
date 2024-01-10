@@ -37,13 +37,12 @@ import {
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { Groups } from '@mui/icons-material'
+import Groups from '@mui/icons-material/Groups'
 
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, LocationID, RoomCode, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
 import { connectToNetwork } from '../transports/SocketWebRTCClientFunctions'
@@ -54,7 +53,6 @@ import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
 export const WorldInstanceProvisioning = () => {
   const locationState = useHookstate(getMutableState(LocationState))
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
-  const engineState = useHookstate(getMutableState(EngineState))
 
   const worldNetwork = NetworkState.worldNetwork
   const worldNetworkState = useWorldNetwork()
@@ -67,8 +65,6 @@ export const WorldInstanceProvisioning = () => {
 
   // Once we have the location, provision the instance server
   useEffect(() => {
-    if (!engineState.sceneLoaded.value || locationInstances.keys.length) return
-
     const currentLocation = locationState.currentLocation.location
     const hasJoined = !!worldNetwork
 
@@ -76,34 +72,36 @@ export const WorldInstanceProvisioning = () => {
       currentLocation.id?.value &&
       !isUserBanned &&
       !hasJoined &&
+      !locationInstances.keys.length &&
       !Object.values(locationInstances).find((instance) => instance.locationId.value === currentLocation.id?.value)
     ) {
       const search = window.location.search
-      let instanceId
-      let roomCode
+      let instanceId = '' as InstanceID
+      let roomCode = '' as RoomCode
 
       if (search != null) {
         if (networkConfigState.instanceID.value)
-          instanceId = new URL(window.location.href).searchParams.get('instanceId')
-        if (networkConfigState.roomID.value) roomCode = new URL(window.location.href).searchParams.get('roomCode')
+          instanceId = new URL(window.location.href).searchParams.get('instanceId') as InstanceID
+        if (networkConfigState.roomID.value)
+          roomCode = new URL(window.location.href).searchParams.get('roomCode') as RoomCode
       }
 
       if (!networkConfigState.instanceID.value && networkConfigState.roomID.value) {
         LocationInstanceConnectionService.provisionExistingServerByRoomCode(
-          currentLocation.id.value,
-          roomCode,
-          currentLocation.sceneId.value
+          currentLocation.id.value as LocationID,
+          roomCode as RoomCode,
+          currentLocation.sceneId.value as SceneID
         )
       } else {
         LocationInstanceConnectionService.provisionServer(
-          currentLocation.id.value,
+          currentLocation.id.value as LocationID,
           instanceId || undefined,
-          currentLocation.sceneId.value,
+          currentLocation.sceneId.value as SceneID,
           roomCode || undefined
         )
       }
     }
-  }, [engineState.sceneLoaded, locationState.currentLocation.location, locationInstances.keys])
+  }, [locationState.currentLocation.location])
 
   // Populate the URL with the room code and instance id
   useEffect(() => {

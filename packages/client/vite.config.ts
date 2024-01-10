@@ -27,14 +27,14 @@ import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
-import { isArray, mergeWith } from 'lodash'
+import lodash from 'lodash'
 import path from 'path'
 import { UserConfig, defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import OptimizationPersist from 'vite-plugin-optimize-persist'
-import PkgConfig from 'vite-plugin-package-config'
+import svgr from 'vite-plugin-svgr'
+const { isArray, mergeWith } = lodash
 
 import manifest from './manifest.default.json'
 import PWA from './pwa.config'
@@ -79,12 +79,10 @@ const parseModuleName = (moduleName: string) => {
   }
   // chunk @pixiv vrm
   if (moduleName.includes('@pixiv')) {
-    if (moduleName.includes('@pixiv')) {
-      if (moduleName.includes('@pixiv/three-vrm')) {
-        return `vendor_@pixiv_three-vrm_${moduleName.toString().split('three-vrm')[1].split('/')[0].toString()}`
-      }
-      return `vendor_@pixiv_${moduleName.toString().split('@pixiv/')[1].split('/')[0].toString()}`
+    if (moduleName.includes('@pixiv/three-vrm')) {
+      return `vendor_@pixiv_three-vrm_${moduleName.toString().split('three-vrm')[1].split('/')[0].toString()}`
     }
+    return `vendor_@pixiv_${moduleName.toString().split('@pixiv/')[1].split('/')[0].toString()}`
   }
   // chunk three
   if (moduleName.includes('three')) {
@@ -125,8 +123,10 @@ const merge = (src, dest) =>
   })
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-require('ts-node').register({
-  project: './tsconfig.json'
+import('ts-node').then((tsnode) => {
+  tsnode.register({
+    project: './tsconfig.json'
+  })
 })
 
 const getProjectConfigExtensions = async (config: UserConfig) => {
@@ -135,16 +135,20 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name)
   for (const project of projects) {
-    const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'vite.config.extension.ts')
+    const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'vite.config.extension')
     if (fs.existsSync(staticPath)) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { default: viteConfigExtension } = require(staticPath)
-      if (typeof viteConfigExtension === 'function') {
-        const configExtension = await viteConfigExtension()
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        config.plugins = [...config.plugins!, ...configExtension.default.plugins]
-        delete configExtension.default.plugins
-        config = merge(config, configExtension.default)
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { default: viteConfigExtension } = await import(staticPath)
+        if (typeof viteConfigExtension === 'function') {
+          const configExtension = await viteConfigExtension()
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          config.plugins = [...config.plugins!, ...configExtension.default.plugins]
+          delete configExtension.default.plugins
+          config = merge(config, configExtension.default)
+        }
+      } catch (e) {
+        console.error(e)
       }
     }
   }
@@ -245,8 +249,15 @@ export default defineConfig(async () => {
     }
   }
 
+  const define = {}
+  for (const [key, value] of Object.entries(process.env)) {
+    define[`globalThis.process.env.${key}`] = JSON.stringify(value)
+  }
+
   const returned = {
+    define: define,
     server: {
+      proxy: {},
       cors: isDevOrLocal ? false : true,
       hmr:
         process.env.VITE_HMR === 'true'
@@ -280,8 +291,7 @@ export default defineConfig(async () => {
       }
     },
     plugins: [
-      PkgConfig(), // must be in front of optimizationPersist
-      OptimizationPersist(),
+      svgr(),
       nodePolyfills(),
       mediapipe_workaround(),
       process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
@@ -304,7 +314,7 @@ export default defineConfig(async () => {
               ? 'dev-sw.js?dev-sw'
               : 'service-worker.js'
             : '',
-        paymentPointer: coilSetting.paymentPointer || ''
+        paymentPointer: coilSetting?.paymentPointer || ''
       }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,
@@ -317,14 +327,13 @@ export default defineConfig(async () => {
     ].filter(Boolean),
     resolve: {
       alias: {
-        'react-json-tree': 'react-json-tree/lib/umd/react-json-tree',
-        '@mui/styled-engine': '@mui/styled-engine-sc/'
+        'react-json-tree': 'react-json-tree/lib/umd/react-json-tree'
       }
     },
     build: {
       target: 'esnext',
-      sourcemap: 'inline',
-      minify: 'esbuild',
+      sourcemap: process.env.VITE_SOURCEMAPS === 'true' ? true : false,
+      minify: 'terser',
       dynamicImportVarsOptions: {
         warnOnError: true
       },

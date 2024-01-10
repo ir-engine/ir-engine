@@ -1,5 +1,5 @@
 .fullScreen {
-  position: fixed;
+  position: absolute;
   bottom: 20px;
   left: 66.4px;
 
@@ -23,7 +23,8 @@
   border-radius: 50%;
   opacity: 0.99;
   pointer-events: auto;
-
+  margin:0;
+  
   &:hover {
     box-shadow: 0 1rem 2rem rgba(#000, 0.2);
     opacity: 1;

@@ -47,7 +47,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(matchTicketAssignmentPath, new MatchTicketAssignmentService(options, app), {
+  app.use(matchTicketAssignmentPath, new MatchTicketAssignmentService(options), {
     // A list of all methods this service exposes externally
     methods: matchTicketAssignmentMethods,
     // You can add additional custom events to be sent to clients here

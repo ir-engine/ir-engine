@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import appRootPath from 'app-root-path'
 import cli from 'cli'
-import fs from 'fs'
+import { existsSync, rmSync, writeFileSync } from 'fs'
 
 const prefixRegex = /^VITE_/
 const lowercaseEnv = process.env.APP_ENV!.toLowerCase()
@@ -39,8 +39,8 @@ cli.main(async () => {
     }
   }
 
-  if (fs.existsSync(envPath)) fs.rmSync(envPath)
-  fs.writeFileSync(envPath, output)
+  if (existsSync(envPath)) rmSync(envPath)
+  writeFileSync(envPath, output)
 
   process.exit(0)
 })

@@ -27,7 +27,7 @@ import { defineState, getMutableState, getState } from '@etherealengine/hyperflu
 
 import { EngineState } from '../ecs/classes/EngineState'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { EngineRenderer } from './WebGLRendererSystem'
+import { EngineRenderer, WebGLRendererSystem } from './WebGLRendererSystem'
 
 export const RenderInfoState = defineState({
   name: 'RenderInfoState',
@@ -47,6 +47,8 @@ export const RenderInfoState = defineState({
 })
 
 const execute = () => {
+  if (!EngineRenderer.instance) return
+
   const state = getState(RenderInfoState)
   if (state.visible) {
     const info = EngineRenderer.instance.renderer.info
@@ -74,5 +76,6 @@ const execute = () => {
 
 export const RenderInfoSystem = defineSystem({
   uuid: 'ee.editor.RenderInfoSystem',
+  insert: { with: WebGLRendererSystem },
   execute
 })

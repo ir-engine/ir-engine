@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   staticResourceMethods,
   staticResourcePath
-} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+} from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import { StaticResourceService } from './static-resource.class'
 import staticResourceDocs from './static-resource.docs'

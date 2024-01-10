@@ -34,8 +34,8 @@ import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
+import { LocationID, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
@@ -53,7 +53,7 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
   })
 
   const { t } = useTranslation()
-  const adminLocations = useFind(locationPath).data
+  const adminLocations = useFind(locationPath, { query: { action: 'admin' } }).data
   const patchInstanceserver = useMutation('instanceserver-provision').patch
 
   const locationsMenu: InputMenuItem[] = adminLocations.map((el) => {
@@ -82,10 +82,11 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
       locationError = "Location can't be empty"
       state.locationError.set(locationError)
     } else {
-      patchInstanceserver({ locationId: state.location.value, count: state.count.value }).then((patchResponse) =>
-        NotificationService.dispatchNotify(patchResponse.message, {
-          variant: patchResponse.status ? 'success' : 'error'
-        })
+      patchInstanceserver({ locationId: state.location.value as LocationID, count: state.count.value }).then(
+        (patchResponse) =>
+          NotificationService.dispatchNotify(patchResponse.message, {
+            variant: patchResponse.status ? 'success' : 'error'
+          })
       )
       onClose()
     }

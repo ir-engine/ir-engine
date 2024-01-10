@@ -40,6 +40,7 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserName } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
@@ -93,7 +94,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
 
   const { videoStream: videoStreamState } = peerMediaChannelState
 
-  const username = getUsername()
+  const username = getUsername() as UserName
 
   const ref = useRef<HTMLVideoElement>(null)
 
@@ -176,7 +177,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
             alt=""
             crossOrigin="anonymous"
             draggable={false}
-            className="rounded-full w-[40px] h-[40px]"
+            className="max-w-full rounded-full w-[40px] h-[40px]"
             id={peerID + '-thumbnail'}
           />
         ) : (
@@ -193,7 +194,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
           </p>
         </div>
         <button
-          className="absolute bottom-1 right-1 w-[20px] h-[20px] flex px-1 justify-center  items-center rounded-full bg-[#EDEEF0]"
+          className="m-0 absolute bottom-1 right-1 w-[20px] h-[20px] flex px-1 justify-center  items-center rounded-full bg-[#EDEEF0]"
           onClick={toggleAudio}
         >
           {audioStreamPaused ? (

@@ -27,7 +27,7 @@ import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
 import { Fog, FogExp2, Mesh, MeshStandardMaterial, Shader } from 'three'
 
-import { defineState, getMutableState, getState, State, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
@@ -38,7 +38,9 @@ import { GroupQueryReactor, GroupReactorProps } from '../components/GroupCompone
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { FogType } from '../constants/FogType'
+import { FogSettingState } from '../FogState'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from '../functions/FogShaders'
+import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 export const FogShaders = [] as Shader[]
 
@@ -55,23 +57,6 @@ const getFogPlugin = (): PluginType => {
   }
 }
 
-export const DefaultFogState = {
-  type: FogType.Disabled as FogType,
-  color: '#FFFFFF',
-  density: 0.005,
-  near: 1,
-  far: 1000,
-  timeScale: 1,
-  height: 0.05
-}
-
-export type FogState = State<typeof DefaultFogState>
-
-export const FogSettingState = defineState({
-  name: 'FogSettingState',
-  initial: DefaultFogState
-})
-
 function addFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
   if (!obj.material || !obj.material.fog || obj.material.userData.fogPlugin) return
   obj.material.userData.fogPlugin = getFogPlugin()
@@ -83,9 +68,7 @@ function removeFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
   if (!obj.material?.userData?.fogPlugin) return
   removeOBCPlugin(obj.material, obj.material.userData.fogPlugin)
   delete obj.material.userData.fogPlugin
-  // material.needsUpdate is not working. Therefore have to invalidate the cache manually
-  const key = Math.random()
-  obj.material.customProgramCacheKey = () => key.toString()
+  obj.material.needsUpdate = true
   const shader = (obj.material as any).shader // todo add typings somehow
   FogShaders.splice(FogShaders.indexOf(shader), 1)
 }
@@ -96,9 +79,9 @@ function FogGroupReactor({ obj }: GroupReactorProps) {
   useEffect(() => {
     const customShader = fog.type.value === FogType.Brownian || fog.type.value === FogType.Height
     if (customShader) {
-      obj.traverse(addFogShaderPlugin)
+      addFogShaderPlugin(obj as any)
       return () => {
-        obj.traverse(removeFogShaderPlugin)
+        removeFogShaderPlugin(obj as any)
       }
     }
   }, [fog.type])
@@ -182,6 +165,6 @@ const reactor = () => {
 
 export const FogSystem = defineSystem({
   uuid: 'ee.engine.FogSystem',
-  execute: () => {},
+  insert: { with: SceneLoadingSystem },
   reactor
 })

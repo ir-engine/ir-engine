@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ButtonStateMap } from '../state/ButtonState'
@@ -37,6 +38,8 @@ function cleanupButton(key: string, buttons: ButtonStateMap, hasFocus: boolean) 
 }
 
 const execute = () => {
+  if (typeof globalThis.document === 'undefined') return
+
   const hasFocus = document.hasFocus()
 
   for (const eid of inputSources()) {
@@ -49,5 +52,6 @@ const execute = () => {
 
 export const ButtonCleanupSystem = defineSystem({
   uuid: 'ee.engine.input.ButtonCleanupSystem',
+  insert: { after: PresentationSystemGroup },
   execute
 })

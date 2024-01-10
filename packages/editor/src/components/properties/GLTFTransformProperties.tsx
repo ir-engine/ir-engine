@@ -71,7 +71,7 @@ export default function GLTFTransformProperties({
   )
 
   return (
-    <CollapsibleBlock label="glTF-Transform">
+    <>
       <div
         style={{
           margin: '2rem',
@@ -196,15 +196,6 @@ export default function GLTFTransformProperties({
             onChange={onChangeTransformParm(transformParms.meshoptCompression.enabled)}
           />
         </InputGroup>
-        {transformParms.meshoptCompression.enabled.value && (
-          <>
-            <ParameterInput
-              entity={`${transformParms}-meshopt-compression`}
-              values={transformParms.meshoptCompression.options.value}
-              onChange={onChangeParameter.bind({}, transformParms.meshoptCompression.options)}
-            />
-          </>
-        )}
         <InputGroup name="Use DRACO Compression" label={t('editor:properties.model.transform.useDraco')}>
           <BooleanInput
             value={transformParms.dracoCompression.enabled.value}
@@ -416,6 +407,6 @@ export default function GLTFTransformProperties({
           />
         </CollapsibleBlock>
       </div>
-    </CollapsibleBlock>
+    </>
   )
 }

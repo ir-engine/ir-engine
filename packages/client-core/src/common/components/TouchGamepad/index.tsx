@@ -36,7 +36,7 @@ import {
   XRStandardGamepadButton
 } from '@etherealengine/engine/src/input/state/ButtonState'
 import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
-import { isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
+import { isMobileXRHeadset, XRControlsState } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
@@ -89,6 +89,8 @@ export const TouchGamepad = () => {
   const availableInteractable = interactState.available.value?.[0]
   const appState = useHookstate(getMutableState(AppState))
 
+  const isMovementControlsEnabled = useHookstate(getMutableState(XRControlsState).isMovementControlsEnabled)
+
   const hasGamepad = useHookstate(false)
 
   useEffect(() => {
@@ -104,7 +106,14 @@ export const TouchGamepad = () => {
     }
   }, [])
 
-  if (!isTouchAvailable || isMobileXRHeadset || !appState.showTouchPad.value || hasGamepad.value) return <></>
+  if (
+    !isMovementControlsEnabled ||
+    !isTouchAvailable ||
+    isMobileXRHeadset ||
+    !appState.showTouchPad.value ||
+    hasGamepad.value
+  )
+    return <></>
 
   const buttons = buttonsConfig.map((value, index) => {
     return (
