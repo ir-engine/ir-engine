@@ -330,7 +330,7 @@ const RecordingPlayback = () => {
 const RecordingsList = () => {
   const recording = useFind(recordingPath)
 
-  const sortedRecordings = recording.data.sort(
+  const sortedRecordings = [...recording.data].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   )
 
