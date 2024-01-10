@@ -57,7 +57,7 @@ export default function MaterialLibraryPanel() {
   const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useState(0)
-  const srcPath = useState('/mat/material-test.material.gltf')
+  const srcPath = useState('/mat/material-test')
 
   const createSrcs = useCallback(() => Object.values(materialLibrary.sources.get(NO_PROXY)), [materialLibrary.sources])
   const srcs = useState(createSrcs())
@@ -170,7 +170,10 @@ export default function MaterialLibraryPanel() {
               onClick={async () => {
                 const projectName = editorState.projectName.value!
                 const materials = selectedMaterial.value ? [materialFromId(selectedMaterial.value)] : []
-                const libraryName = srcPath.value
+                let libraryName = srcPath.value
+                if (!libraryName.endsWith('.material.gltf')) {
+                  libraryName += '.material.gltf'
+                }
                 const relativePath = pathJoin('assets', libraryName)
                 const gltf = (await exportMaterialsGLTF(materials, {
                   binary: false,
