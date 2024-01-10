@@ -37,10 +37,6 @@ import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetL
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import {
-  extractDefaults,
-  prototypeFromId
-} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
@@ -95,21 +91,7 @@ export async function addMediaNode(
         )[0]
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
-          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-          mats.forEach((mat) => {
-            const prototypeId = mat.userData.type ?? mat.type
-            const prototype = prototypeFromId(prototypeId)
-
-            let parameters = Object.fromEntries(
-              Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, mat[k]])
-            )
-
-            const currentparameters = Object.fromEntries(
-              Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]])
-            )
-            parameters = currentparameters
-            mat.setValues(parameters)
-          })
+          mesh.material = material
         })
       })
     } else {

@@ -29,7 +29,6 @@ import { areEqual, FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
 import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
 import {
@@ -42,6 +41,7 @@ import { getMutableState, getState, NO_PROXY, useHookstate, useState } from '@et
 
 import { Stack } from '@mui/material'
 
+import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import styles from '../hierarchy/styles.module.scss'
@@ -57,7 +57,6 @@ export default function MaterialLibraryPanel() {
   const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useState(0)
-  const publicPath = getState(EngineState).publicPath
   const srcPath = useState('/mat/material-test.material.gltf')
 
   const createSrcs = useCallback(() => Object.values(materialLibrary.sources.get(NO_PROXY)), [materialLibrary.sources])
@@ -172,7 +171,7 @@ export default function MaterialLibraryPanel() {
                 const projectName = editorState.projectName.value!
                 const materials = selectedMaterial.value ? [materialFromId(selectedMaterial.value)] : []
                 const libraryName = srcPath.value
-                const relativePath = `${publicPath}/projects/${projectName}/assets/${libraryName}`
+                const relativePath = pathJoin('assets', libraryName)
                 const gltf = (await exportMaterialsGLTF(materials, {
                   binary: false,
                   relativePath

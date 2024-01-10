@@ -23,13 +23,56 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { pathJoin, relativePathTo } from '@etherealengine/common/src/utils/miscUtils'
+import { Material, Object3D, Object3DEventMap, Texture } from 'three'
+import { materialFromId } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
+import { pathResolver } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
 export default class ImageRoutingExtension extends ExporterExtension implements GLTFExporterPlugin {
-  originalSrc: string
+  replacementImages: { texture: Texture; original: HTMLImageElement }[]
 
   constructor(writer: GLTFWriter) {
     super(writer)
+    this.replacementImages = []
+  }
+
+  writeMaterial(material: Material, materialDef: { [key: string]: any }): void {
+    if (this.writer.options.binary || this.writer.options.embedImages) return
+    const materialComponent = materialFromId(material.uuid)
+    if (!materialComponent) return
+    const src = materialComponent.src
+    const resolvedPath = pathResolver().exec(src.path)!
+    let relativeSrc = resolvedPath[2]
+    relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
+    const dst = this.writer.options.relativePath!.replace(/\/[^\/]*$/, '')
+    const relativeBridge = relativePathTo(dst, relativeSrc)
+
+    for (const [field, value] of Object.entries(material)) {
+      if (field === 'envMap') continue
+      if (value instanceof Texture) {
+        const texture = value as Texture
+        let oldURI = texture.userData.src
+        if (!oldURI) {
+          const resolved = pathResolver().exec(texture.image.src)!
+          const relativeOldURL = resolved[2]
+          oldURI = relativePathTo(relativeSrc, relativeOldURL)
+        }
+        const newURI = pathJoin(relativeBridge, oldURI)
+        if (!texture.image.src) {
+          texture.image.src = newURI
+        } else {
+          this.replacementImages.push({ texture, original: texture.image })
+          texture.image = { src: newURI } as any
+        }
+      }
+    }
+  }
+
+  afterParse(input: Object3D<Object3DEventMap> | Object3D<Object3DEventMap>[]) {
+    for (const { texture, original } of this.replacementImages) {
+      texture.image = original
+    }
   }
 }
