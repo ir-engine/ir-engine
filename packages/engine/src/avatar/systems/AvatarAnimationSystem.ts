@@ -215,7 +215,7 @@ const execute = () => {
         entity,
         rightHandTransform.position,
         rightHandTransform.rotation,
-        ikRig.rightUpperArm.node.getWorldPosition(_vector3),
+        rawRig.rightUpperArm.node.getWorldPosition(_vector3),
         'right',
         _hint
       )
@@ -247,7 +247,7 @@ const execute = () => {
         entity,
         leftHandTransform.position,
         leftHandTransform.rotation,
-        ikRig.leftUpperArm.node.getWorldPosition(_vector3),
+        rawRig.leftUpperArm.node.getWorldPosition(_vector3),
         'left',
         _hint
       )

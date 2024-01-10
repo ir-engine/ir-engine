@@ -23,9 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Bone, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
+import { Bone, MathUtils, Mesh, MeshBasicMaterial, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
 
+import { isDev } from '@etherealengine/common/src/config'
+import { getState } from '@etherealengine/hyperflux'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
+import { Engine } from '../../ecs/classes/Engine'
+import { RendererState } from '../../renderer/RendererState'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 
 const sqrEpsilon = 1e-8
 
@@ -48,6 +53,8 @@ export function constrainTargetPosition(targetPosition: Vector3, constraintCente
   distVector.clampLength(0, distance)
   targetPosition.copy(constraintCenter).add(distVector)
 }
+
+const hintHelpers = {} as Record<string, Mesh>
 
 /**
  * Solves Two-Bone IK.
@@ -144,6 +151,26 @@ export function solveTwoBoneIK(
           rot.z *= hintWeight
           Object3DUtils.premultiplyWorldQuaternion(root, rot)
         }
+      }
+    }
+
+    if (isDev && hint && !hintHelpers[root.uuid] && getState(RendererState).avatarDebug) {
+      hintHelpers[root.uuid] = new Mesh(
+        new SphereGeometry(0.025),
+        new MeshBasicMaterial({
+          color:
+            root.name.toLowerCase().includes('left') || root.name.toLowerCase().includes('_l_') ? 0xff0000 : 0x0000ff
+        })
+      )
+      hintHelpers[root.uuid].layers.set(ObjectLayers.AvatarHelper)
+      Engine.instance.scene.add(hintHelpers[root.uuid])
+    }
+    if (hint && hintHelpers[root.uuid]) {
+      hintHelpers[root.uuid].position.copy(targetPos)
+      hintHelpers[root.uuid].updateMatrixWorld()
+      if (!getState(RendererState).avatarDebug) {
+        Engine.instance.scene.remove(hintHelpers[root.uuid])
+        delete hintHelpers[root.uuid]
       }
     }
   }
