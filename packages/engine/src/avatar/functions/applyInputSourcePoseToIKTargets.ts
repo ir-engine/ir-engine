@@ -256,19 +256,9 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
 */
 }
 
-const handOffsetRadians = Math.PI / 2.5
-const rightHandOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
-const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
-
-const footBlendTransitionMultiplier = 0.5
-
 //set offsets so hands align with controllers. Multiplying two quaternions because gimbal lock in euler angles prevents setting the offset in one quaternion
-export const leftControllerOffset = new Quaternion()
-  .setFromEuler(new Euler(0, -Math.PI / 2, 0))
-  .multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 4, 0, 0)))
-export const rightControllerOffset = new Quaternion()
-  .setFromEuler(new Euler(0, Math.PI / 2, 0))
-  .multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 4, 0, 0)))
+export const leftControllerOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
+export const rightControllerOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
 
 /**
  * Pulls pose data from input sources into the ECS
@@ -316,9 +306,6 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
     }
   }
 
-  const inverseWorldScale = 1 / XRState.worldScale
-
-  const localClientTransform = getComponent(localClientEntity, TransformComponent)
   const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
   for (const inputSourceEntity of nonCapturedInputSourceEntities) {
@@ -345,7 +332,6 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
             // .multiplyScalar(inverseWorldScale)
             // .add(localClientTransform.position)
             ikTransform.rotation.copy(jointPose.transform.orientation as unknown as Quaternion)
-            ikTransform.rotation.multiply(handedness === 'right' ? rightHandOffset : leftHandOffset)
           }
         }
         applyHandPose(inputSourceComponent.source, localClientEntity)

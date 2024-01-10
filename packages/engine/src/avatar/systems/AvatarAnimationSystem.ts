@@ -185,7 +185,7 @@ const execute = () => {
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
-      rawRig.hips.node.position.set(
+      normalizedRig.hips.node.position.set(
         headTransform.position.x,
         headTransform.position.y - avatarComponent.torsoLength - 0.125,
         headTransform.position.z
@@ -195,16 +195,19 @@ const execute = () => {
       hipsForward.set(0, 0, 1)
       hipsForward.applyQuaternion(rigidbodyComponent.rotation)
       hipsForward.multiplyScalar(0.125)
-      rawRig.hips.node.position.sub(hipsForward)
+      normalizedRig.hips.node.position.sub(hipsForward)
 
       // convert to local space
-      rawRig.hips.node.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
+      normalizedRig.hips.node.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
 
       _quat2.copy(headTransform.rotation)
 
       //calculate head look direction and apply to head bone
       //look direction should be set outside of the xr switch
-      rawRig.head.node.quaternion.multiplyQuaternions(rawRig.spine.node.getWorldQuaternion(_quat).invert(), _quat2)
+      normalizedRig.head.node.quaternion.multiplyQuaternions(
+        normalizedRig.spine.node.getWorldQuaternion(_quat).invert(),
+        _quat2
+      )
     }
 
     if (rightHandTargetBlendWeight) {
@@ -212,7 +215,7 @@ const execute = () => {
         entity,
         rightHandTransform.position,
         rightHandTransform.rotation,
-        rawRig.rightUpperArm.node.getWorldPosition(_vector3),
+        ikRig.rightUpperArm.node.getWorldPosition(_vector3),
         'right',
         _hint
       )
@@ -244,7 +247,7 @@ const execute = () => {
         entity,
         leftHandTransform.position,
         leftHandTransform.rotation,
-        rawRig.leftUpperArm.node.getWorldPosition(_vector3),
+        ikRig.leftUpperArm.node.getWorldPosition(_vector3),
         'left',
         _hint
       )
