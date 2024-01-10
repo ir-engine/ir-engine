@@ -36,17 +36,19 @@ import './PropertyGroup.css'
 interface Props {
   name?: string
   description?: string
+  openDetails?: boolean
   onClose?: () => void
   onOpenInPanelClick?: () => void
   children?: React.ReactNode
   rest?: Record<string, unknown>
 }
 
-const PropertyGroup = ({ name, description, children, onClose, onOpenInPanelClick, ...rest }: Props) => {
+const PropertyGroup = ({ name, description, openDetails, onClose, onOpenInPanelClick, children, ...rest }: Props) => {
   const { t } = useTranslation()
   return (
     <div className="property-group" {...rest}>
       <CollapsibleBlock
+        defaultOpen={openDetails}
         label={name}
         labelContent={
           <>

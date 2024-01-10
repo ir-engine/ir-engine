@@ -96,6 +96,7 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
     <PropertyGroup
       name={name}
       description={description}
+      openDetails={component && !!dockPanel?.find(component.name)}
       onClose={
         component && hasComponent(entity, component)
           ? () => {

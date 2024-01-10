@@ -34,11 +34,18 @@ import styles from './styles.module.scss'
 interface CollapsibleBlockProps {
   label?: string
   labelContent?: ReactNode
+  defaultOpen?: boolean
   children: ReactNode
 }
 
-export default function CollapsibleBlock({ label, labelContent, children, ...rest }: CollapsibleBlockProps) {
-  const [expand, setExpand] = useState<boolean>(false)
+export default function CollapsibleBlock({
+  label,
+  labelContent,
+  defaultOpen = false,
+  children,
+  ...rest
+}: CollapsibleBlockProps) {
+  const [expand, setExpand] = useState<boolean>(defaultOpen)
   function toggleExpand() {
     setExpand(!expand)
   }
