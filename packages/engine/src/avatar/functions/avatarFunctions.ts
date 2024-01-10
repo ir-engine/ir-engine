@@ -73,10 +73,6 @@ declare module '@pixiv/three-vrm/types/VRM' {
   }
 }
 
-export const getPreloaded = () => {
-  return ['sitting']
-}
-
 /** Checks if the asset is a VRM. If not, attempt to use
  *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
 export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
