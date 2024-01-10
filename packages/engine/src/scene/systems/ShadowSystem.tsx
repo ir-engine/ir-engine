@@ -41,7 +41,6 @@ import {
 import config from '@etherealengine/common/src/config'
 import { defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
 import { CSMHelper } from '../../assets/csm/CSMHelper'
@@ -220,7 +219,7 @@ function CSMReactor() {
 
   if (xrLightProbeEntity.value) activeLightEntity = xrLightProbeEntity.value
   /** @todo support multiple lights #8277 */ else
-    activeLightEntity = UUIDComponent.getEntityByUUID(renderSettingsState.primaryLight.value as EntityUUID)
+    activeLightEntity = UUIDComponent.getEntityByUUID(renderSettingsState.primaryLight.value)
 
   /** @todo directional light useInCSM does not reactivly update between these when switching in studio */
   if (!activeLightEntity) return <PlainCSMReactor />

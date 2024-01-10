@@ -37,10 +37,10 @@ import {
   VSMShadowMap
 } from 'three'
 
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 
-import { DirectionalLightQuery } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
+import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import BooleanInput from '../inputs/BooleanInput'
@@ -106,22 +106,16 @@ const ShadowTypeOptions = [
   }
 ]
 
-const DirectionalLightOptions = () => {
-  const directionalLightOptions = [] as Array<{ label: string; value: string; info?: string }>
-
-  for (const entity of DirectionalLightQuery()) {
-    directionalLightOptions.push({
-      label: getComponent(entity, NameComponent),
-      value: getComponent(entity, UUIDComponent)
-    })
-  }
-
-  return directionalLightOptions
-}
-
 export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const rendererSettingsState = useComponent(props.entity, RenderSettingsComponent)
+
+  const directionalLightOptions = useQuery([DirectionalLightComponent]).map((entity) => {
+    return {
+      label: getComponent(entity, NameComponent),
+      value: getComponent(entity, UUIDComponent)
+    }
+  })
 
   return (
     <PropertyGroup
@@ -134,7 +128,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
         info={t('editor:properties.renderSettings.info-primaryLight')}
       >
         <SelectInput
-          options={DirectionalLightOptions()}
+          options={directionalLightOptions}
           value={rendererSettingsState.primaryLight.value}
           onChange={commitProperty(RenderSettingsComponent, 'primaryLight')}
         />
