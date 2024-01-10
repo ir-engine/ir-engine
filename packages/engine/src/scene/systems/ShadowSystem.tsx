@@ -41,6 +41,7 @@ import {
 import config from '@etherealengine/common/src/config'
 import { defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
 import { CSMHelper } from '../../assets/csm/CSMHelper'
@@ -56,8 +57,7 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent,
-  useQuery
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -78,6 +78,7 @@ import { useMeshOrModel } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ObjectLayerComponents } from '../components/ObjectLayerComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
+import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { SceneObjectSystem } from './SceneObjectSystem'
@@ -126,7 +127,7 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
       getState(RendererState).csm?.dispose()
       getMutableState(RendererState).csm.set(null)
     }
-  }, [directionalLightComponent.useInCSM])
+  }, [activeLightEntity])
 
   /** Must run after scene object system to ensure source light is not lit */
   useExecute(
@@ -199,7 +200,6 @@ const directionalLightQuery = defineQuery([VisibleComponent, DirectionalLightCom
 function CSMReactor() {
   const xrLightProbeState = getMutableState(XRLightProbeState)
   const xrLightProbeEntity = useHookstate(xrLightProbeState.directionalLightEntity)
-  const directionalLights = useQuery([VisibleComponent, DirectionalLightComponent])
 
   const rendererState = useHookstate(getMutableState(RendererState))
   useEffect(() => {
@@ -212,20 +212,15 @@ function CSMReactor() {
     }
   }, [rendererState.csm, rendererState.nodeHelperVisibility])
 
-  const csmEnabled = useHookstate(getMutableState(RenderSettingsState))?.csm?.value
+  const renderSettingsState = useHookstate(getMutableState(RenderSettingsState))
+  const csmEnabled = renderSettingsState?.csm?.value
   if (!csmEnabled) return null
 
   let activeLightEntity = null as Entity | null
 
   if (xrLightProbeEntity.value) activeLightEntity = xrLightProbeEntity.value
-  /** @todo support multiple lights #8277 */
-  /** @todo useQuery returns no results for the mount render, so use a query directly here (query will still rerender) #9015 */
-  // for (const entity of directionalLights) {
-  else
-    for (const entity of directionalLightQuery()) {
-      if (getComponent(entity, DirectionalLightComponent).useInCSM) activeLightEntity = entity
-      break
-    }
+  /** @todo support multiple lights #8277 */ else
+    activeLightEntity = UUIDComponent.getEntityByUUID(renderSettingsState.primaryLight.value as EntityUUID)
 
   /** @todo directional light useInCSM does not reactivly update between these when switching in studio */
   if (!activeLightEntity) return <PlainCSMReactor />
