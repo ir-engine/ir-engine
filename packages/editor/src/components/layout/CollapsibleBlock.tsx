@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { Box, Collapse, Divider, Stack } from '@mui/material'
@@ -31,7 +31,13 @@ import { Box, Collapse, Divider, Stack } from '@mui/material'
 import ExpandMore from './ExpandMore'
 import styles from './styles.module.scss'
 
-export default function CollapsibleBlock({ label, children, ...rest }) {
+interface CollapsibleBlockProps {
+  label?: string
+  labelContent?: ReactNode
+  children: ReactNode
+}
+
+export default function CollapsibleBlock({ label, labelContent, children, ...rest }: CollapsibleBlockProps) {
   const [expand, setExpand] = useState<boolean>(false)
   function toggleExpand() {
     setExpand(!expand)
@@ -44,6 +50,7 @@ export default function CollapsibleBlock({ label, children, ...rest }) {
             <ExpandMoreIcon />
           </ExpandMore>
           <label>{label}</label>
+          {labelContent}
         </Stack>
       </Box>
       <br />

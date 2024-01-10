@@ -27,6 +27,7 @@ import React, { Fragment } from 'react'
 
 import CloseIcon from '@mui/icons-material/Close'
 
+import CollapsibleBlock from '../layout/CollapsibleBlock'
 import './PropertyGroup.css'
 
 // Import the external CSS file
@@ -41,25 +42,32 @@ interface Props {
 const PropertyGroup = ({ name, description, children, onClose, ...rest }: Props) => {
   return (
     <div className="property-group" {...rest}>
-      <div className="property-group-header">
-        {name}
-        {onClose && (
-          <button className="property-close-button" onPointerUp={onClose}>
-            <CloseIcon fontSize="inherit" />
-          </button>
+      <CollapsibleBlock
+        label={name}
+        labelContent={
+          <>
+            <div style={{ flexGrow: 1 }} />
+            {onClose && (
+              <button className="property-close-button" onPointerUp={onClose}>
+                <CloseIcon fontSize="inherit" />
+              </button>
+            )}
+          </>
+        }
+      >
+        <div className="property-group-header">{name}</div>
+        {description && (
+          <div className="property-group-description">
+            {description.split('\\n').map((line, i) => (
+              <Fragment key={i}>
+                {line}
+                <br />
+              </Fragment>
+            ))}
+          </div>
         )}
-      </div>
-      {description && (
-        <div className="property-group-description">
-          {description.split('\\n').map((line, i) => (
-            <Fragment key={i}>
-              {line}
-              <br />
-            </Fragment>
-          ))}
-        </div>
-      )}
-      <div className="property-group-content">{children}</div>
+        <div className="property-group-content">{children}</div>
+      </CollapsibleBlock>
     </div>
   )
 }

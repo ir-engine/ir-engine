@@ -97,7 +97,7 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
         <ElementList />
       </Popover>
       <CoreNodeEditor entity={entity} key={uuid.value} />
-      {components.map((c, i) => (
+      {components.map((c) => (
         <EntityComponentEditor key={`${uuid.value}-${c.name}`} multiEdit={multiEdit} entity={entity} component={c} />
       ))}
     </PopoverContext.Provider>

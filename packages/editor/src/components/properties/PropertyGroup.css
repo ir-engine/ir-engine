@@ -1,4 +1,3 @@
-/* styles.css */
 .property-group {
   display: flex;
   flex-direction: column;
@@ -14,7 +13,6 @@
   flex-direction: row;
   align-items: left;
   font-weight: bold;
-  color: var(--textColor);
   padding: 0 8px;
   height: 16px;
 }
