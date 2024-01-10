@@ -280,7 +280,7 @@ const execute = () => {
 
     if (rightFootTargetBlendWeight) {
       _hint
-        .set(-avatarComponent.footGap * 1.5, 0, 0.4)
+        .set(-avatarComponent.footGap * 1.5, 0, 1)
         .applyQuaternion(transform.rotation)
         .add(transform.position)
 
