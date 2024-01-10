@@ -110,8 +110,6 @@ function handler(event) {
  */
 export class S3Provider implements StorageProviderInterface {
   constructor() {
-    console.log('S3Provider is being called and minioClient is ', this.minioClient)
-    console.log('App Config', config.aws)
     if (!this.minioClient) this.getOriginURLs().then((result) => (this.originURLs = result))
   }
   /**
@@ -307,7 +305,6 @@ export class S3Provider implements StorageProviderInterface {
     if (!data.Key) return
     // key should not contain '/' at the begining
     const key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
-    console.log('[DO] Key is ', key)
     const args = params.isDirectory
       ? {
           ACL: ObjectCannedACL.public_read,
