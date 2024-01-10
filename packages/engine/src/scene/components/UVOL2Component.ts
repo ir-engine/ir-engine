@@ -242,6 +242,7 @@ export const UVOL2Component = defineComponent({
           pendingRequests: 0
         }
       },
+      forceFetchTextures: false,
       initialGeometryBuffersLoaded: false,
       initialTextureBuffersLoaded: false,
       firstGeometryFrameLoaded: false,
@@ -814,8 +815,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       component.textureInfo[textureType].bufferHealth.value -
       (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
     if (
-      currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) ||
-      component.textureInfo[textureType].pendingRequests.value > 0
+      (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) ||
+        component.textureInfo[textureType].pendingRequests.value > 0) &&
+      !component.forceFetchTextures.value
     ) {
       return
     }
@@ -827,13 +829,13 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       (component.textureInfo[textureType].bufferHealth.value + volumetric.currentTrackInfo.mediaStartTime.value) *
         frameRate
     )
-    if (startFrame >= targetData.frameCount) {
+    if (startFrame >= targetData.frameCount && !component.forceFetchTextures.value) {
       // fetched all frames
       return
     }
 
     const framesToFetch = Math.round((maxBufferHealth - currentBufferLength) * frameRate)
-    const endFrame = Math.min(startFrame + framesToFetch, targetData.frameCount - 1)
+    const endFrame = Math.max(0, Math.min(startFrame + framesToFetch, targetData.frameCount - 1))
 
     if (!getState(AssetLoaderState).gltfLoader.ktx2Loader) {
       throw new Error('KTX2Loader not initialized')
@@ -859,6 +861,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     Promise.allSettled(promises).then((values) => {
+      if (component.forceFetchTextures.value) {
+        component.forceFetchTextures.set(false)
+      }
       values.forEach((result, j) => {
         const texture = result.status === 'fulfilled' ? (result.value as CompressedTexture) : null
         if (!texture) {
@@ -869,7 +874,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         texture.name = key
         textureBuffer.set(key, texture)
         component.textureInfo[textureType].merge({
-          bufferHealth: component.textureInfo[textureType].bufferHealth.value + 1 / frameRate,
+          bufferHealth: Math.min(
+            component.textureInfo[textureType].bufferHealth.value + 1 / frameRate,
+            component.data.duration.value - volumetric.currentTrackInfo.mediaStartTime.value
+          ),
           pendingRequests: component.textureInfo[textureType].pendingRequests.value - 1
         })
 
