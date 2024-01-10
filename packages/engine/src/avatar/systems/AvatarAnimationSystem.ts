@@ -207,12 +207,13 @@ const execute = () => {
       )
     }
 
+    /**sync ik rig with fk rig */
     for (const name of VRMHumanBoneList) {
       const normalizedBone = normalizedRig[name]!
       const ikBone = ikRig[name]
       ikBone?.node.quaternion.copy(normalizedBone.node.quaternion)
-      ikBone?.node.position.copy(normalizedBone.node.position)
     }
+    ikRig.hips.node.position.copy(normalizedRig.hips.node.position)
 
     if (rightHandTargetBlendWeight) {
       getArmIKHint(
