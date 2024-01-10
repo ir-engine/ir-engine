@@ -156,12 +156,12 @@ else
 fi
 
 # The following scripts will need to be updated for DOCR but are not critical for the functionality of EE on DO.
-if [ $PRIVATE_ECR == "true" ]
-then
-  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-$PACKAGE --region $REGION --service $PACKAGE --releaseName $STAGE
-else
-  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-$PACKAGE --region us-east-1 --service $PACKAGE --releaseName $STAGE --public
-fi
+# if [ $PRIVATE_ECR == "true" ]
+# then
+#   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-$PACKAGE --region $REGION --service $PACKAGE --releaseName $STAGE
+# else
+#   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-$PACKAGE --region us-east-1 --service $PACKAGE --releaseName $STAGE --public
+# fi
 
 BUILD_END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 echo "${PACKAGE} build started at ${BUILD_START_TIME}, ended at ${BUILD_END_TIME}"
