@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { XRState } from '@etherealengine/engine/src/xr/XRState'
+import { XRState, isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
@@ -80,6 +80,7 @@ const AxisComponent = () => {
   return (
     <div
       style={{
+        fontFamily: 'var(--lato)',
         transition: 'all 0.6s ease',
         opacity: fingerDown.value ? 1 : 0,
         transform: fingerDown.value ? 'scale(1)' : 'scale(0.8)',
@@ -134,6 +135,16 @@ export const ARPlacement = () => {
   const engineState = useHookstate(getMutableState(EngineState))
   const xrState = useHookstate(getMutableState(XRState))
   const isARSession = xrState.sessionMode.value === 'immersive-ar'
+
+  useEffect(() => {
+    if (isMobileXRHeadset) return
+    /** On mobile, automatically put you in placement mode */
+    if (isARSession) {
+      xrState.scenePlacementMode.set('placing')
+      xrState.sceneScaleAutoMode.set(true)
+    }
+  }, [isARSession])
+
   if (!isARSession || !engineState.sceneLoaded.value) return <></>
 
   const inPlacingMode = xrState.scenePlacementMode.value === 'placing'
