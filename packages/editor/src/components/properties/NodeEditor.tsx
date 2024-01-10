@@ -31,6 +31,9 @@ import { hasComponent } from '@etherealengine/engine/src/ecs/functions/Component
 import { getState } from '@etherealengine/hyperflux'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
+import { useDockPanel } from '../EditorDockContainer'
+import { generateComponentPanelTab } from '../element/ComponentTab'
+import { GraphPanelTab } from '../graph/GraphPanel'
 import PropertyGroup from './PropertyGroup'
 import { EditorPropType } from './Util'
 
@@ -81,11 +84,6 @@ type NodeEditorProps = EditorPropType & {
   name?: string
 }
 
-/**
- * NodeEditor component used to render editor view.
- *
- * @type {class component}
- */
 export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
   description,
   children,
@@ -93,6 +91,7 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
   entity,
   component
 }) => {
+  const dockPanel = useDockPanel()
   return (
     <PropertyGroup
       name={name}
@@ -102,6 +101,17 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
           ? () => {
               const nodes = getState(SelectionState).selectedEntities
               EditorControlFunctions.addOrRemoveComponent(nodes, component, false)
+            }
+          : undefined
+      }
+      onOpenInPanelClick={
+        component && hasComponent(entity, component)
+          ? () => {
+              if (component.jsonID === 'BehaveGraph') {
+                dockPanel?.dockMove(GraphPanelTab, 'ComponentPropertiesTab', 'middle')
+              } else {
+                dockPanel?.dockMove(generateComponentPanelTab(component, entity), 'ComponentPropertiesTab', 'middle')
+              }
             }
           : undefined
       }

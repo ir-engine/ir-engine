@@ -188,6 +188,8 @@
     "lbl-dynamicLoad": "Load Children Dynamically",
     "lbl-dynamicLoadDistance": "Distance",
     "lbl-addComponent": "Add Component",
+    "lbl-openInNewPanel": "Open in New Panel",
+    "lbl-removeComponent": "Remove Component",
     "multipleNodeSelected": "Multiple Nodes of different types selected",
     "noNodeSelected": "No node selected",
     "ambientLight": {

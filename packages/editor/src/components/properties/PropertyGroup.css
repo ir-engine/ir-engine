@@ -32,7 +32,7 @@
   flex-direction: column;
 }
 
-.property-close-button {
+.property-icon-button {
   display: flex;
   flex-direction: row;
   margin: auto;
@@ -42,13 +42,14 @@
   background: none;
   border: none;
   color: var(--iconButtonColor);
+  cursor: pointer;
 }
 
-.property-close-button:hover {
+.property-icon-button:hover {
   font-size: 14px;
   color: var(--iconButtonHoverColor);
 }
 
-.property-close-button:active {
+.property-icon-button:active {
   color: var(--iconButtonSelectedBackground);
 }
