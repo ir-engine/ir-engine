@@ -37,10 +37,10 @@ export const RendererState = defineState({
     csm: null as CSM | null,
     csmHelper: null as CSMHelper | null,
     qualityLevel: isMobile ? 2 : 5, // range from 0 to 5
-    automatic: true,
+    automatic: isMobile ? false : true,
     // usePBR: true,
-    usePostProcessing: true,
-    useShadows: true,
+    usePostProcessing: isMobile ? false : true,
+    useShadows: isMobile ? false : true,
     physicsDebug: false,
     avatarDebug: false,
     renderMode: RenderModes.SHADOW as RenderModesType,

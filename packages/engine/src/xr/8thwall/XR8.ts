@@ -116,8 +116,7 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null)
   cameraCanvas.style.pointerEvents = 'none'
   cameraCanvas.style.userSelect = 'none'
 
-  const engineContainer = document.getElementById('engine-container')!
-  engineContainer.appendChild(cameraCanvas)
+  document.body.appendChild(cameraCanvas)
 
   const requiredPermissions = XR8.XrPermissions.permissions()
   return new Promise<HTMLCanvasElement>((resolve, reject) => {
