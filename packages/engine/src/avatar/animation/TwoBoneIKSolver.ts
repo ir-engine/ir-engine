@@ -166,7 +166,7 @@ export function solveTwoBoneIK(
       Engine.instance.scene.add(hintHelpers[root.uuid])
     }
     if (hint && hintHelpers[root.uuid]) {
-      hintHelpers[root.uuid].position.copy(targetPos)
+      hintHelpers[root.uuid].position.copy(hint)
       hintHelpers[root.uuid].updateMatrixWorld()
       if (!getState(RendererState).avatarDebug) {
         Engine.instance.scene.remove(hintHelpers[root.uuid])
