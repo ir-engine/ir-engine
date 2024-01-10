@@ -28,6 +28,7 @@ import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { Q_Y_180 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
@@ -293,7 +294,7 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
     const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
     const ikTransform = getComponent(ikTargetHead, TransformComponent)
     ikTransform.position.copy(cameraTransform.position)
-    ikTransform.rotation.copy(cameraTransform.rotation)
+    ikTransform.rotation.copy(cameraTransform.rotation).multiply(Q_Y_180)
     AvatarIKTargetComponent.blendWeight[ikTargetHead] = 1
     const rigComponent = getComponent(localClientEntity, AvatarRigComponent)
     const avatar = getComponent(localClientEntity, AvatarComponent)

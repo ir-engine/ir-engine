@@ -143,6 +143,7 @@ const execute = () => {
       avatarAnimationEntities.push(_entity)
     }
   }
+  updateAnimationGraph(avatarAnimationEntities)
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
@@ -178,13 +179,10 @@ const execute = () => {
 
     const transform = getComponent(entity, TransformComponent)
 
-    ikRig.hips.node.quaternion.copy(normalizedRig.hips.node.quaternion)
-    ikRig.hips.node.position.copy(normalizedRig.hips.node.position)
-
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
-      ikRig.hips.node.position.set(
+      normalizedRig.hips.node.position.set(
         headTransform.position.x,
         headTransform.position.y - avatarComponent.torsoLength - 0.125,
         headTransform.position.z
@@ -194,17 +192,23 @@ const execute = () => {
       hipsForward.set(0, 0, 1)
       hipsForward.applyQuaternion(rigidbodyComponent.rotation)
       hipsForward.multiplyScalar(0.125)
-      ikRig.hips.node.position.sub(hipsForward)
+      normalizedRig.hips.node.position.sub(hipsForward)
 
       // convert to local space
-      ikRig.hips.node.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
+      normalizedRig.hips.node.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
 
       _quat2.copy(headTransform.rotation)
 
       //calculate head look direction and apply to head bone
       //look direction should be set outside of the xr switch
-      ikRig.head.node.quaternion.multiplyQuaternions(ikRig.spine.node.getWorldQuaternion(_quat).invert(), _quat2)
+      normalizedRig.head.node.quaternion.multiplyQuaternions(
+        normalizedRig.spine.node.getWorldQuaternion(_quat).invert(),
+        _quat2
+      )
     }
+
+    ikRig.hips.node.quaternion.copy(normalizedRig.hips.node.quaternion)
+    ikRig.hips.node.position.copy(normalizedRig.hips.node.position)
 
     if (rightHandTargetBlendWeight) {
       getArmIKHint(
@@ -324,7 +328,6 @@ const execute = () => {
         leftFootTargetBlendWeight
       )
     }
-    updateAnimationGraph(avatarAnimationEntities)
     updateVRMRetargeting(rigComponent.vrm, entity)
   }
 }
