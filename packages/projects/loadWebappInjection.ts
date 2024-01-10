@@ -37,7 +37,7 @@ export const loadWebappInjection = async () => {
           if (typeof projectConfig.webappInjection !== 'function') return null!
           return (await projectConfig.webappInjection()).default
         } catch (e) {
-          console.log(`Failed to import world load event for project ${project} with reason ${e}`)
+          console.error(`Failed to import webapp load event for project ${project} with reason ${e}`)
           return null!
         }
       })
