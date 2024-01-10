@@ -109,7 +109,7 @@ const RenderModeTool = () => {
               info={t('editor:toolbar.render-settings.info-shadowMapResolution')}
             >
               <SelectInput
-                options={ShadowMapResolutionOptions}
+                options={ShadowMapResolutionOptions as any}
                 value={rendererState.shadowMapResolution.value}
                 onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
               />

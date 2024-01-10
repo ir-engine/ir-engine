@@ -53,6 +53,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
+import iterateObject3D from '../../scene/util/iterateObject3D'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
@@ -112,7 +113,7 @@ const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
 
-  asset.traverse((child: Mesh<any, Material>) => {
+  iterateObject3D(asset, (child: Mesh<any, Material>) => {
     //test for LODs within this traversal
     if (haveAnyLODs(child)) loddables.push(child)
 

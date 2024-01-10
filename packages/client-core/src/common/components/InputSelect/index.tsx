@@ -55,7 +55,7 @@ interface Props<T = unknown> {
 }
 
 export interface InputMenuItem {
-  value: string
+  value: string | number
   label: React.ReactNode
   disabled?: boolean
   overflowContent?: React.ReactNode

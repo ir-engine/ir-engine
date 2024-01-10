@@ -343,10 +343,10 @@ export const AuthService = {
   async loginUserByOAuth(service: string, location: any) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
-    const path = location?.state?.from || location.pathname
+    const path = new URLSearchParams(location.search).get('redirectUrl') || location.pathname
 
     const redirectConfig = {
-      path: path
+      path
     } as Record<string, string>
 
     const currentUrl = new URL(window.location.href)
