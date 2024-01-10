@@ -33,7 +33,7 @@ import FileBrowserContentPanel from './FileBrowser/FileBrowserContentPanel'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { t } from 'i18next'
 import { EditorState } from '../../services/EditorServices'
-import { DockContainer } from '../EditorContainer'
+import { DockContainer } from '../EditorDockContainer'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 
 /**

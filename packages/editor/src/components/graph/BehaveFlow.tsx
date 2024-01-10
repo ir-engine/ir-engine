@@ -80,7 +80,7 @@ const BehaveFlow = () => {
     <AutoSizer>
       {({ width, height }) => (
         <div style={{ width, height }}>
-          {entities.length && !validEntity ? (
+          {entities.length && !validEntity && (
             <PropertiesPanelButton
               style={{
                 position: 'absolute',
@@ -94,8 +94,6 @@ const BehaveFlow = () => {
             >
               {t('editor:graphPanel.addGraph')}
             </PropertiesPanelButton>
-          ) : (
-            <></>
           )}
           {validEntity && <ActiveBehaveGraph entity={entity} />}
         </div>

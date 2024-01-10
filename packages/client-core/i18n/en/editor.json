@@ -326,6 +326,12 @@
       "lbl-visible": "Visible",
       "info-visible": "Toggle the visibility of the ground plane. Setting to false will still allow shadows to be received, rather than setting the entity visibility."
     },
+    "graph": {
+      "name": "Behave Graph Component",
+      "description": "Adds a visual script to the entity.",
+      "lbl-disable-graph": "Disable Graph",
+      "lbl-play-graph": "Play Graph"
+    },
     "loopAnimation": {
       "title": "Loop Animation",
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
