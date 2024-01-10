@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
+import { DockLayout, PanelData, TabData } from 'rc-dock'
 
 import 'rc-dock/dist/rc-dock.css'
 
@@ -39,9 +39,8 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Dialog from '@mui/material/Dialog'
 
 import { scenePath } from '@etherealengine/common/src/schema.type.module'
-import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { hasComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { t } from 'i18next'
@@ -53,11 +52,12 @@ import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
-import { SelectionState } from '../services/SelectionServices'
 import './EditorContainer.css'
+import { DockContainer, DockContainerProvider, defaultLayout } from './EditorDockContainer'
 import AssetDropZone from './assets/AssetDropZone'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
-import { SceneAssetsPanelTab } from './assets/SceneAssetsPanel'
+
+import { SelectionState } from '../services/SelectionServices'
 import { ScenePanelTab } from './assets/ScenesPanel'
 import { ControlText } from './controlText/ControlText'
 import { DialogState } from './dialogs/DialogState'
@@ -76,21 +76,6 @@ import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
 
 const logger = multiLogger.child({ component: 'editor:EditorContainer' })
-
-/**
- *component used as dock container.
- */
-export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
-  const dockContainerStyles = {
-    '--dividerAlpha': dividerAlpha
-  }
-
-  return (
-    <div id={id} className="dock-container" style={dockContainerStyles as React.CSSProperties}>
-      {children}
-    </div>
-  )
-}
 
 const SceneLoadingProgress = () => {
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
@@ -315,49 +300,6 @@ const generateToolbarMenu = () => {
 
 const toolbarMenu = generateToolbarMenu()
 
-//const defaultLayout: LayoutData = useHookstate(getMutableState(EditorState).panelLayout).value
-
-const defaultLayout: LayoutData = {
-  dockbox: {
-    mode: 'horizontal' as DockMode,
-    children: [
-      {
-        mode: 'vertical' as DockMode,
-        size: 3,
-        children: [
-          {
-            tabs: [ScenePanelTab, ProjectBrowserPanelTab, SceneAssetsPanelTab]
-          }
-        ]
-      },
-      {
-        mode: 'vertical' as DockMode,
-        size: 8,
-        children: [
-          {
-            id: '+5',
-            tabs: [ViewportPanelTab],
-            size: 1
-          }
-        ]
-      },
-      {
-        mode: 'vertical' as DockMode,
-        size: 2,
-        children: [
-          {
-            tabs: [HierarchyPanelTab, MaterialLibraryPanelTab]
-          },
-          {
-            id: 'ComponentPropertiesTab',
-            tabs: [PropertiesPanelTab]
-          }
-        ]
-      }
-    ]
-  }
-}
-
 const tabs = [
   HierarchyPanelTab,
   PropertiesPanelTab,
@@ -420,11 +362,7 @@ const EditorContainer = () => {
     const activePanel = sceneLoaded.value ? 'filesPanel' : 'scenePanel'
     dockPanelRef.current.loadLayout(defaultLayout)
     dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
-
-    if (entity && hasComponent(entity, BehaveGraphComponent)) {
-      dockPanelRef.current.dockMove(GraphPanelTab, 'ComponentPropertiesTab', 'middle')
-    }
-  }, [entity, sceneLoaded])
+  }, [sceneLoaded])
 
   useEffect(() => {
     if (!sceneModified.value) return
@@ -473,13 +411,15 @@ const EditorContainer = () => {
           {sceneLoading && <SceneLoadingProgress />}
           <div className={styles.workspaceContainer}>
             <AssetDropZone />
-            <DockContainer>
-              <DockLayout
-                ref={dockPanelRef}
-                defaultLayout={defaultLayout}
-                style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
-              />
-            </DockContainer>
+            <DockContainerProvider dockPanelRef={dockPanelRef}>
+              <DockContainer>
+                <DockLayout
+                  ref={dockPanelRef}
+                  defaultLayout={defaultLayout}
+                  style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
+                />
+              </DockContainer>
+            </DockContainerProvider>
           </div>
           <Dialog
             open={!!dialogComponent}
