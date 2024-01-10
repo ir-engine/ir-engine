@@ -29,7 +29,7 @@ import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
+import { VRMHumanBoneList, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
 import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -207,8 +207,12 @@ const execute = () => {
       )
     }
 
-    ikRig.hips.node.quaternion.copy(normalizedRig.hips.node.quaternion)
-    ikRig.hips.node.position.copy(normalizedRig.hips.node.position)
+    for (const name of VRMHumanBoneList) {
+      const normalizedBone = normalizedRig[name]!
+      const ikBone = ikRig[name]
+      ikBone?.node.quaternion.copy(normalizedBone.node.quaternion)
+      ikBone?.node.position.copy(normalizedBone.node.position)
+    }
 
     if (rightHandTargetBlendWeight) {
       getArmIKHint(
