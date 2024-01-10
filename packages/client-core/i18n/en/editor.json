@@ -235,6 +235,7 @@
       "lbl-synchronize": "Synchronize",
       "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
       "lbl-volume": "Volume",
+      "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
       "lbl-size": "Size",
       "seektime": "Start Time"
@@ -367,7 +368,7 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-animationSpeed": "Animation Speed",
-      "lbl-isAvatar": "Force Avatar Animations",
+      "lbl-convertToVRM": "Convert to VRM",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-cameraOcclusion": "Occlude Camera",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
@@ -805,8 +806,8 @@
       "lbl-effectType": "Loading Effect",
       "lbl-previewType": "Preview Type",
       "lbl-previewImageURL": "Preview Image URL",
-      "lbl-savedImageURL": "Saved Image URL",
-      "lbl-previewImage": "Preview Image",
+      "lbl-savedImageURL": "Saved Image",
+      "lbl-generateImage": "Generate Image",
       "lbl-saveImage": "Save Image",
       "lbl-spawnPosition": "Spawn Position",
       "lbl-spawnRotation": "Spawn Rotation",
@@ -893,6 +894,9 @@
       "lbl-newProject": "New Project"
     }
   },
+  "graphPanel":{
+    "addGraph" : "Add Behave Graph"
+  },
   "layout": {
     "assetGrid": {
       "loading": "Loading...",
@@ -931,9 +935,12 @@
         "primitive-geometry": "Add basic Geometry to the scene",
         "link": "Add clickable Link to entity to route to different webpage",
         "dynamic-load": "Load entities dynamically"
-      }
+      },
+      "placeObject": "Place Object",
+      "placeObjectAtOrigin": "Place Object at Origin"
     },
     "filebrowser": {
+      "tab-name": "Project Files",
       "addNewFolder": "Add New Folder",
       "cutAsset": "Cut",
       "copyAsset": "Copy",
@@ -947,6 +954,7 @@
       "convert": "Convert",
       "downloadProject": "Download Project",
       "uploadAsset": "Upload Asset",
+      "search-placeholder": "Search files and folders ...",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
@@ -955,7 +963,26 @@
         "attribution": "Attribution:",
         "licensing": "Licensing:",
         "tag": "Tag:",
-        "addTag": "Add Tag"
+        "addTag": "Add Tag",
+        "save-changes": "Save Changes"
+      },
+      "view-mode": {
+        "icons": "View: Icons",
+        "list": "View: List",
+        "settings": {
+          "name": "View Options",
+          "iconSize": "Icon Size",
+          "select-listColumns": "Select List Columns",
+          "fontSize": "Font Size"
+        }
+      },
+      "table-list": {
+        "headers": {
+          "name": "Name",
+          "type": "Type",
+          "dateModified": "Date Modified",
+          "size": "Size"
+        }
       }
     },
     "scene-assets": {

@@ -58,7 +58,7 @@ export function FileBrowserInput({
   const onUpload = useUpload(uploadOptions)
 
   // todo fix for invalid URLs
-  const assetIsExternal = value && !value?.includes(config.client.fileServer)
+  const assetIsExternal = value && !value?.includes(config.client.fileServer) && !value.includes('blob:https://')
   const uploadExternalAsset = () => {
     onUpload([
       {

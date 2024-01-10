@@ -31,11 +31,16 @@ import logger from '@etherealengine/engine/src/common/functions/logger'
 import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
 import { defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
+import {
+  InstanceID,
+  instancePath,
+  instanceProvisionPath,
+  InstanceType,
+  LocationID,
+  RoomCode,
+  SceneID
+} from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
-import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { LocationID, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 

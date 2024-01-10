@@ -31,7 +31,7 @@ import {
   AuthenticationSettingPatch,
   AuthenticationSettingQuery,
   AuthenticationSettingType
-} from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 
 export interface AuthenticationSettingParams extends KnexAdapterParams<AuthenticationSettingQuery> {}
 

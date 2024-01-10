@@ -33,18 +33,18 @@ import fetch from 'node-fetch'
 import {
   instanceAuthorizedUserPath,
   InstanceAuthorizedUserType
-} from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
-import { InstanceProvisionType } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
-import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-authorized-user.schema'
+import { InstanceProvisionType } from '@etherealengine/common/src/schemas/networking/instance-provision.schema'
+import { InstanceID, instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { ChannelID, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
 import {
   LocationID,
   locationPath,
   LocationType,
   RoomCode
-} from '@etherealengine/engine/src/schemas/social/location.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/social/location.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'

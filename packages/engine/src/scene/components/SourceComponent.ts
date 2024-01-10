@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { createState, none } from '@etherealengine/hyperflux'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import { SceneID } from '../../schemas/projects/scene.schema'
 
 const entitiesBySource = {} as Record<SceneID, Entity[]>
 

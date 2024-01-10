@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated, Params } from '@feathersjs/feathers'
 
-import { LocationID, locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'

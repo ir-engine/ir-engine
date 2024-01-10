@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'

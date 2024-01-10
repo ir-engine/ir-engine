@@ -27,8 +27,8 @@ import { Paginated } from '@feathersjs/feathers/lib'
 
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { FileBrowserContentType, fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { FileBrowserContentType, fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { NotificationService } from './NotificationService'
 
 export const FILES_PAGE_LIMIT = 100

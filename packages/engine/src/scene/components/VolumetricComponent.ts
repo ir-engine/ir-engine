@@ -87,17 +87,24 @@ export const VolumetricComponent = defineComponent({
     return {
       paths: [] as string[],
       useLoadingEffect: true,
+      autoPauseWhenBuffering: true, // TODO: Implement this for UVOL1
       autoplay: true,
-      startTime: 0,
-      currentTime: 0,
-      lastUpdatedTime: 0,
       paused: true,
       initialBuffersLoaded: false,
       hasAudio: true,
       ended: true,
       volume: 1,
       playMode: PlayMode.loop as PlayMode,
-      track: -1
+      track: -1,
+      forceChangeTrack: false,
+      currentTrackInfo: {
+        dontReset: false,
+        mediaStartTime: 0,
+        playbackStartDate: 0,
+        playbackRate: 1,
+        currentTime: 0,
+        duration: 0
+      }
     }
   },
 
@@ -181,6 +188,11 @@ export function VolumetricReactor() {
 
       audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
     }
+
+    return () => {
+      removeComponent(entity, UVOL1Component)
+      removeComponent(entity, UVOL2Component)
+    }
   }, [])
 
   useEffect(() => {
@@ -210,22 +222,33 @@ export function VolumetricReactor() {
     }
     if (nextTrack === -1 || !volumetric.paths.value[nextTrack]) return
 
-    const resetTrack = () => {
-      // Overwriting with setComponent doesn't cleanup the component
-      removeComponent(entity, UVOL1Component)
-      removeComponent(entity, UVOL2Component)
-      volumetric.ended.set(false)
-      volumetric.initialBuffersLoaded.set(false)
-      volumetric.paused.set(true)
-      volumetric.startTime.set(0)
-      volumetric.lastUpdatedTime.set(0)
+    if (!volumetric.currentTrackInfo.dontReset.value) {
+      resetTrack()
     }
-
-    resetTrack()
-
     volumetric.track.set(nextTrack)
+    volumetric.forceChangeTrack.set(!volumetric.forceChangeTrack.value)
+  }, [volumetric.paths, volumetric.playMode, volumetric.ended])
 
-    let manifestPath = volumetric.paths.value[nextTrack]
+  const resetTrack = () => {
+    // Overwriting with setComponent doesn't cleanup the component
+    removeComponent(entity, UVOL1Component)
+    removeComponent(entity, UVOL2Component)
+    volumetric.initialBuffersLoaded.set(false)
+    volumetric.paused.set(true)
+    volumetric.currentTrackInfo.set({
+      dontReset: false,
+      mediaStartTime: 0,
+      playbackStartDate: 0,
+      playbackRate: 1,
+      currentTime: 0,
+      duration: 0
+    })
+  }
+
+  useEffect(() => {
+    if (volumetric.track.value === -1) return
+    volumetric.ended.set(false)
+    let manifestPath = volumetric.paths.value[volumetric.track.value]
     if (manifestPath.endsWith('.mp4')) {
       // UVOL1
       manifestPath = manifestPath.replace('.mp4', '.manifest')
@@ -249,7 +272,7 @@ export function VolumetricReactor() {
           })
         }
       })
-  }, [volumetric.paths, volumetric.playMode, volumetric.ended])
+  }, [volumetric.track, volumetric.forceChangeTrack])
 
   useEffect(() => {
     const volume = volumetric.volume.value

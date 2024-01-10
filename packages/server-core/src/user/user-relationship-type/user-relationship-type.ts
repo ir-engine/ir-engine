@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   userRelationshipTypeMethods,
   userRelationshipTypePath
-} from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
+} from '@etherealengine/common/src/schemas/user/user-relationship-type.schema'
 
 import { Application } from '../../../declarations'
 import { UserRelationshipTypeService } from './user-relationship-type.class'

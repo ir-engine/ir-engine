@@ -29,12 +29,7 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import {
-  LocationData,
-  LocationID,
-  LocationType,
-  locationPath
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationData, LocationID, LocationType, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -42,9 +37,8 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
@@ -89,7 +83,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   const state = useHookstate({ ...defaultState })
 
   const scenes = useHookstate(getMutableState(AdminSceneState).scenes)
-  const locationTypes = useFind(locationTypePath).data
+  // const locationTypes = useFind(locationTypePath).data
   const user = useHookstate(getMutableState(AuthState).user)
 
   const locationMutation = useMutation(locationPath)
@@ -104,12 +98,12 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
     }
   })
 
-  const locationTypesMenu: InputMenuItem[] = locationTypes.map((el) => {
-    return {
-      value: el.type,
-      label: el.type
-    }
-  })
+  // const locationTypesMenu: InputMenuItem[] = locationTypes.map((el) => {
+  //   return {
+  //     value: el.type,
+  //     label: el.type
+  //   }
+  // })
 
   useEffect(() => {
     AdminSceneService.fetchAdminScenes()
@@ -256,14 +250,14 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
           onChange={handleChange}
         />
 
-        <InputSelect
+        {/* <InputSelect
           name="type"
           label={t('admin:components.location.type')}
           value={state?.value?.type}
           menu={locationTypesMenu}
           disabled={viewMode}
           onChange={handleChange}
-        />
+        /> */}
 
         <Grid container spacing={5} className={styles.mb15px}>
           <Grid item xs={6}>
