@@ -137,7 +137,7 @@ export function solveTwoBoneIK(
       ahProj.copy(rootToHintVector).addScaledVector(acNorm, -rootToHintVector.dot(acNorm))
 
       if (ahProj.lengthSq() > 0) {
-        rot.setFromUnitVectors(abProj.normalize(), ahProj)
+        rot.setFromUnitVectors(abProj, ahProj)
         if (hintWeight > 0) {
           rot.x *= hintWeight
           rot.y *= hintWeight
