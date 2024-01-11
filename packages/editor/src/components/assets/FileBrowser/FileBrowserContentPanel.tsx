@@ -649,7 +649,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <StringInput
           placeholder={t('editor:layout.filebrowser.search-placeholder')}
           value={searchText.value}
-          onChange={(event) => searchText.set(event.target.value)}
+          onChange={searchText.set}
         />
       </div>
       {retrieving && (
