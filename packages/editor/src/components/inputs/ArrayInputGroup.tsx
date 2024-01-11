@@ -48,7 +48,7 @@ export interface ArrayInputGroupState {
 }
 
 const ArrayInputGroup = React.memo(
-  ({ prefix, label, values, onChange, acceptFileTypes, acceptDropItems, ...rest }: ArrayInputGroupProp) => {
+  ({ prefix, label, values, onChange, acceptFileTypes, acceptDropItems, onRelease, ...rest }: ArrayInputGroupProp) => {
     const addInput = (count = 1) => {
       const valuesCopy = [...values]
       for (let i = 0; i < count; i++) {
@@ -83,6 +83,9 @@ const ArrayInputGroup = React.memo(
                   addInput()
                   onChangeText(value, 0)
                 }
+              }}
+              onRelease={(value: string) => {
+                onRelease?.([value])
               }}
               acceptFileTypes={acceptFileTypes}
               acceptDropItems={acceptDropItems}
