@@ -42,12 +42,11 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  setComponent,
-  useQuery
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
+import { defineQuery, useQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
