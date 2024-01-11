@@ -29,11 +29,9 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   Component,
   ComponentMap,
-  defineQuery,
   getComponent,
   getOptionalComponent,
-  hasComponent,
-  removeQuery
+  hasComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
@@ -47,6 +45,7 @@ import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { defineQuery, removeQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import styles from './styles.module.scss'
 
 const renderEntityTreeRoots = () => {

@@ -56,9 +56,9 @@ export function StateDebug() {
 
   const state =
     stateSearch.value === ''
-      ? Engine.instance.store.valueMap
+      ? Engine.instance.store.stateMap
       : Object.fromEntries(
-          Object.entries(Engine.instance.store.valueMap).filter(([key]) =>
+          Object.entries(Engine.instance.store.stateMap).filter(([key]) =>
             key.toLowerCase().includes(stateSearch.value)
           )
         )
