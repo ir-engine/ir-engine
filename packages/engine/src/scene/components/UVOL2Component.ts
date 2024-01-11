@@ -45,7 +45,7 @@ import {
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
-import { isMobile } from '../../common/functions/isMobile'
+import { iOS, isMobile } from '../../common/functions/isMobile'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
@@ -530,6 +530,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         maxBufferHealth = 10 // seconds
         minBufferToStart = 2 // seconds
         bufferThreshold = 9 // seconds.
+      }
+      if (iOS) {
+        maxBufferHealth = 7 // seconds
+        minBufferToStart = 2 // seconds
+        bufferThreshold = 6 // seconds.
       }
     }
 
