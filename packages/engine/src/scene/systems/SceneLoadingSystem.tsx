@@ -79,6 +79,7 @@ const reactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
+  const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
 
   const physicsWorld = useHookstate(getMutableState(PhysicsState).physicsWorld)
 
@@ -100,7 +101,7 @@ const reactor = () => {
       dispatchAction(EngineActions.sceneLoaded({}))
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }
-  }, [sceneAssetPendingTagQuery.length, assetLoadingState])
+  }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
 
   if (!physicsWorld.value) return null
 
@@ -235,6 +236,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 /** @todo eventually, this will become redundant */
 const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
+  const selfEntity = useHookstate(UndefinedEntity)
 
   useEffect(() => {
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.entityUUID)
@@ -248,6 +250,8 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
 
     loadComponents(entity, entityState.components.get(NO_PROXY))
 
+    selfEntity.set(entity)
+
     return () => {
       removeEntity(entity)
     }
@@ -255,15 +259,17 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
 
   return (
     <>
-      {entityState.components.map((compState) => (
-        <ErrorBoundary key={compState.name.value}>
-          <ComponentLoadReactor
-            componentID={compState.value.name}
-            entityUUID={props.entityUUID}
-            componentJSONState={compState}
-          />
-        </ErrorBoundary>
-      ))}
+      {selfEntity.value
+        ? entityState.components.map((compState) => (
+            <ErrorBoundary key={compState.name.value}>
+              <ComponentLoadReactor
+                componentID={compState.value.name}
+                entityUUID={props.entityUUID}
+                componentJSONState={compState}
+              />
+            </ErrorBoundary>
+          ))
+        : null}
     </>
   )
 }
@@ -387,11 +393,11 @@ const ComponentLoadReactor = (props: {
     }
   }, [])
 
-  useEffect(() => {
-    if (!componentState?.value) return
-    const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
-    loadComponents(entity, [componentState.get(NO_PROXY)])
-  }, [componentState])
+  // useEffect(() => {
+  //   if (!componentState?.value) return
+  //   const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
+  //   loadComponents(entity, [componentState.get(NO_PROXY)])
+  // }, [componentState])
 
   return null
 }
@@ -401,7 +407,7 @@ const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
   for (const component of components) {
     /** @todo - we have to check for existence here, as the dynamic loading parent component takes a re-render to load in */
     if (!entity || !entityExists(entity)) {
-      console.warn('Entity does not exist', entity)
+      console.trace('Entity does not exist', entity)
       continue
     }
 

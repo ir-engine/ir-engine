@@ -143,16 +143,11 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
     csm.shadowBias = directionalLight.shadow.bias
 
     for (const light of csm.lights) {
-      light.color = directionalLight.color
-      light.intensity = directionalLight.intensity
-      light.shadow.bias = directionalLight.shadow.bias
+      light.color.copy(directionalLightComponent.color.value)
+      light.intensity = directionalLightComponent.intensity.value
+      light.shadow.bias = directionalLightComponent.shadowBias.value
       light.shadow.mapSize.setScalar(shadowMapResolution.value)
-      light.shadow.camera.near = 0
-      light.shadow.camera.far = 1
-      light.shadow.camera.updateProjectionMatrix()
-      light.shadow.map?.dispose()
-      light.shadow.map = null as any
-      light.shadow.needsUpdate = true
+      csm.needsUpdate = true
     }
   }, [
     shadowMapResolution,
@@ -238,13 +233,14 @@ function CSMReactor() {
   return <EntityCSMReactor entity={activeLightEntity} key={activeLightEntity} />
 }
 
-const shadowGeometry = new PlaneGeometry(1, 1, 1, 1)
+const shadowGeometry = new PlaneGeometry(1, 1, 1, 1).rotateX(-Math.PI)
 const shadowMaterial = new MeshBasicMaterial({
   side: DoubleSide,
   transparent: true,
   opacity: 1,
-  depthTest: true,
-  depthWrite: false
+  polygonOffset: true,
+  polygonOffsetFactor: -2,
+  polygonOffsetUnits: 0.01
 })
 
 const shadowState = hookstate(null as MeshBasicMaterial | null)
@@ -367,7 +363,7 @@ const updateDropShadowTransforms = () => {
     shadowRotation.setFromUnitVectors(intersected.face.normal, V_001)
     dropShadowTransform.rotation.copy(shadowRotation)
     dropShadowTransform.scale.setScalar(finalRadius * 2)
-    dropShadowTransform.position.copy(intersected.point.add(shadowOffset))
+    dropShadowTransform.position.copy(intersected.point).add(shadowOffset)
   }
 }
 
