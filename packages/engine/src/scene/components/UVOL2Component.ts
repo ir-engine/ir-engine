@@ -688,6 +688,17 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           }
         })
 
+        if (
+          !mesh.geometry.attributes.position ||
+          !model.geometry.attributes.position ||
+          mesh.geometry.attributes.position.array.length !== model.geometry.attributes.position.array.length
+        ) {
+          for (const attr of Object.keys(model.geometry.attributes)) {
+            mesh.geometry.attributes[attr] = model.geometry.attributes[attr]
+            mesh.geometry.attributes[attr].needsUpdate = true
+          }
+        }
+
         model.geometry.morphAttributes = {}
         if (!component.firstGeometryFrameLoaded.value) {
           // @ts-ignore
