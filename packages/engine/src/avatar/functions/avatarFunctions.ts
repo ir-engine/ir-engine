@@ -211,6 +211,12 @@ export const loadLocomotionAnimations = () => {
   AssetLoader.loadAsync(
     `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionAnimation}.glb`
   ).then((locomotionAsset: GLTF) => {
+    // delete unneeded geometry data to save memory
+    locomotionAsset.scene.traverse((node) => {
+      // if ((node as Mesh).isMesh) node.removeFromParent()
+      delete (node as any).geometry
+      delete (node as any).material
+    })
     for (let i = 0; i < locomotionAsset.animations.length; i++) {
       retargetAnimationClip(locomotionAsset.animations[i], locomotionAsset.scene)
     }
@@ -229,6 +235,13 @@ export const loadAnimationArray = (animations: string[], subDir: string) => {
     const filePath = `${config.client.fileServer}/projects/default-project/assets/animations/${subDir}/${clipName}.fbx`
     AssetLoader.loadAsync(filePath).then((animationsAsset: GLTF) => {
       const stateName = filePath.split('/').pop()!.split('.')[0]
+
+      // delete unneeded geometry data to save memory
+      animationsAsset.scene.traverse((node) => {
+        // if ((node as Mesh).isMesh) node.removeFromParent()
+        delete (node as any).geometry
+        delete (node as any).material
+      })
 
       //if no clipname specified, set first animation name to state name for lookup
       if (animationsAsset.scene.animations.length == 0) return
