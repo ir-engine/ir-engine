@@ -40,6 +40,7 @@ export default (currentType: string, scopeToVerify: string) => {
       query: {
         userId: loggedInUser.id
       },
+      user: loggedInUser,
       paginate: false
     })) as ScopeTypeInterface[]
     if (!scopes || scopes.length === 0) throw new NotFound('No scope available for the current user.')
