@@ -252,7 +252,7 @@ const SceneAssetsPanel = () => {
         <StringInput
           placeholder={t('editor:layout.scene-assets.search-placeholder')}
           value={searchText.value}
-          onChange={(event) => searchText.set(event.target.value)}
+          onChange={searchText.set}
         />
       </div>
       <div style={{ display: 'flex', height: '100%', width: '100%', margin: '1rem auto' }}>

@@ -153,7 +153,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
           <InputGroup name="File Path" label="File Path">
-            <StringInput value={srcPath.value} onChange={(e) => srcPath.set(e.target.value)} />
+            <StringInput value={srcPath.value} onChange={srcPath.set} />
           </InputGroup>
           <InputGroup name="Export Type" label={t('editor:properties.model.lbl-exportType')}>
             <SelectInput<string>

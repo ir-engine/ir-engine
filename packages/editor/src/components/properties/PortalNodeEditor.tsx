@@ -50,7 +50,7 @@ import EulerInput from '../inputs/EulerInput'
 import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import { ControlledStringInput } from '../inputs/StringInput'
+import StringInput, { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
@@ -130,7 +130,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor description={t('editor:properties.portal.description')} {...props}>
       <InputGroup name="Location" label={t('editor:properties.portal.lbl-locationName')}>
-        <ControlledStringInput
+        <StringInput
           value={portalComponent.location.value}
           onChange={updateProperty(PortalComponent, 'location')}
           onRelease={commitProperty(PortalComponent, 'location')}

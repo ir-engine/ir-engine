@@ -60,11 +60,9 @@ const StyledStringInput = React.forwardRef<any, StyledStringInputProps>(
 
 export interface StringInputProps {
   id?: string
-  value?: string
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
-  onBlur?: (e: FocusEvent<HTMLInputElement>) => void
-  onRelease?: any
-  onFocus?: any
+  value: string
+  onChange?: (value: string) => void
+  onRelease?: (value: string) => void
   required?: boolean
   pattern?: string
   title?: string
@@ -78,7 +76,16 @@ export interface StringInputProps {
 
 const StringInput = React.forwardRef<any, StringInputProps>(({ onChange, onRelease, ...rest }, ref) => {
   const { error, canDrop, ...other } = rest
-  return <input className="Input" style={inputStyle} onBlur={onRelease} onChange={onChange} {...other} ref={ref} />
+  return (
+    <input
+      className="Input"
+      style={inputStyle}
+      onBlur={(event) => onRelease?.(event.target.value)}
+      onChange={(event) => onChange?.(event.target.value)}
+      {...other}
+      ref={ref}
+    />
+  )
 })
 
 StringInput.displayName = 'StringInput'
@@ -124,7 +131,6 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
 
   const onFocus = () => {
     inputRef.current?.select()
-    if (rest.onFocus) rest.onFocus()
   }
 
   return (
