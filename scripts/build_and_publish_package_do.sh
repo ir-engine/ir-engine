@@ -26,14 +26,12 @@ if [ $PUBLISH_DOCKERHUB == 'true' ] && [ "$DOCKERFILE" != "client-serve-static" 
 then
   echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-  docker buildx build \
+  docker build \
     --builder etherealengine-$PACKAGE \
-    --push \
     -t $DOCR_REGISTRY/$REPO_NAME-$PACKAGE:${TAG}__${START_TIME} \
     -t $DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_$STAGE \
     -t ${LABEL}-$PACKAGE:${TAG} \
     -f dockerfiles/$PACKAGE/Dockerfile-$DOCKERFILE \
-    --cache-to type=registry,mode=max,image-manifest=true,ref=$DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
     --cache-from type=registry,ref=$DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
     --build-arg ECR_URL=$DOCR_REGISTRY \
     --build-arg REPO_NAME=$REPO_NAME \
@@ -69,6 +67,8 @@ then
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
     --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
+  docker push --all-tags $DOCR_REGISTRY/$REPO_NAME-$PACKAGE
+  docker push ${LABEL}-$PACKAGE:${TAG}
 elif [ "$DOCKERFILE" == "client-serve-static" ]
 then
   docker buildx build \
@@ -111,13 +111,11 @@ then
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
     --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
 else
-  docker buildx build \
+  docker build \
     --builder etherealengine-$PACKAGE \
-    --push \
     -t $DOCR_REGISTRY/$REPO_NAME-$PACKAGE:${TAG}__${START_TIME} \
     -t $DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_$STAGE \
     -f dockerfiles/$PACKAGE/Dockerfile-$DOCKERFILE \
-    --cache-to type=registry,mode=max,image-manifest=true,ref=$DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
     --cache-from type=registry,ref=$DOCR_REGISTRY/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
     --build-arg ECR_URL=$DOCR_REGISTRY \
     --build-arg REPO_NAME=$REPO_NAME \
@@ -153,6 +151,7 @@ else
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
     --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
+  docker push --all-tags $DOCR_REGISTRY/$REPO_NAME-$PACKAGE
 fi
 
 # The following scripts will need to be updated for DOCR but are not critical for the functionality of EE on DO.

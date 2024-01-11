@@ -3,7 +3,7 @@ set -e
 set -x
 
 STAGE="dig"
-TAG="dig-do-3.5.1"
+TAG="dig-do-5.4.5"
 LABEL="etherealengine/etherealengine"
 DOCR_REGISTRY="registry.digitalocean.com/etherealengine"
 REPO_NAME="etherealengine"
@@ -33,9 +33,7 @@ else
     -t $DOCR_REGISTRY/$REPO_NAME-builder:latest_$STAGE \
     -t $DOCR_REGISTRY/$REPO_NAME-builder:"${EEVERSION}_${TAG}" \
     -f dockerfiles/builder/Dockerfile-builder .
-  docker push
-     $DOCR_REGISTRY/$REPO_NAME-builder:latest_$STAGE \
-     $DOCR_REGISTRY/$REPO_NAME-builder:"${EEVERSION}_${TAG}"
+  docker push --all-tags $DOCR_REGISTRY/$REPO_NAME-builder
 fi
 
 # The following scripts will need to be updated for DOCR but are not critical for the functionality of EE on DO.
