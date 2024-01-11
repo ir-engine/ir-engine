@@ -32,19 +32,16 @@ import ExpandMore from './ExpandMore'
 import styles from './styles.module.scss'
 
 interface CollapsibleBlockProps {
-  label?: string
-  labelContent?: ReactNode
+  label?: string | ReactNode
   defaultOpen?: boolean
   children: ReactNode
 }
-
-export default function CollapsibleBlock({
-  label,
-  labelContent,
-  defaultOpen = false,
-  children,
-  ...rest
-}: CollapsibleBlockProps) {
+/**
+ * @param {object} props
+ * @param {string | ReactNode} props.label provide a string to generate an HTML label or ReactNode to render React elements
+ * @param {boolean} props.defaultOpen open the collapsible block on mount
+ */
+export default function CollapsibleBlock({ label, defaultOpen = false, children, ...rest }: CollapsibleBlockProps) {
   const [expand, setExpand] = useState<boolean>(defaultOpen)
   function toggleExpand() {
     setExpand(!expand)
@@ -53,11 +50,15 @@ export default function CollapsibleBlock({
     <div className={styles.contentContainer} {...rest}>
       <Box className="Box">
         <Stack className="Stack" spacing={1} direction="row">
-          <ExpandMore expand={expand} onClick={toggleExpand} aria-expanded={expand} aria-label={label}>
+          <ExpandMore
+            expand={expand}
+            onClick={toggleExpand}
+            aria-expanded={expand}
+            aria-label={typeof label === 'string' ? label : ''}
+          >
             <ExpandMoreIcon />
           </ExpandMore>
-          <label>{label}</label>
-          {labelContent}
+          {typeof label === 'string' ? <label>{label}</label> : label}
         </Stack>
       </Box>
       <br />

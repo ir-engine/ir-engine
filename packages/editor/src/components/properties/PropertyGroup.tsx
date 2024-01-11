@@ -49,9 +49,11 @@ const PropertyGroup = ({ name, description, openDetails, onClose, onOpenInPanelC
     <div className="property-group" {...rest}>
       <CollapsibleBlock
         defaultOpen={openDetails}
-        label={name}
-        labelContent={
+        label={
           <>
+            <span style={{ cursor: 'default', userSelect: 'none' }} onDoubleClick={() => onOpenInPanelClick?.()}>
+              {name}
+            </span>
             <div style={{ flexGrow: 1 }} />
             {onOpenInPanelClick && (
               <Tooltip title={t('editor:properties.lbl-openInNewPanel')}>
@@ -70,7 +72,9 @@ const PropertyGroup = ({ name, description, openDetails, onClose, onOpenInPanelC
           </>
         }
       >
-        <div className="property-group-header">{name}</div>
+        <div className="property-group-header" onClick={onOpenInPanelClick}>
+          {name}
+        </div>
         {description && (
           <div className="property-group-description">
             {description.split('\\n').map((line, i) => (
