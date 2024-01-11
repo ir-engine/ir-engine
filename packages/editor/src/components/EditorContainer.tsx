@@ -53,7 +53,7 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
-import { DockContainer, DockContainerProvider, defaultLayout } from './EditorDockContainer'
+import { COMPONENT_PROPERTIES_TAB, DockContainer, DockContainerProvider, defaultLayout } from './EditorDockContainer'
 import AssetDropZone from './assets/AssetDropZone'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
 
@@ -365,6 +365,14 @@ const EditorContainer = () => {
   }, [sceneLoaded])
 
   useEffect(() => {
+    const componentPropertiesTab = dockPanelRef.current?.find(COMPONENT_PROPERTIES_TAB)
+    if (componentPropertiesTab) {
+      ;(componentPropertiesTab as PanelData).tabs = [PropertiesPanelTab]
+      dockPanelRef.current?.updateTab('propertiesPanel', PropertiesPanelTab, true)
+    }
+  }, [entity])
+
+  useEffect(() => {
     if (!sceneModified.value) return
     const onBeforeUnload = (e) => {
       alert('You have unsaved changes. Please save before leaving.')
@@ -373,7 +381,6 @@ const EditorContainer = () => {
     }
 
     window.addEventListener('beforeunload', onBeforeUnload)
-
     return () => {
       window.removeEventListener('beforeunload', onBeforeUnload)
     }

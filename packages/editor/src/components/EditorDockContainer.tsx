@@ -65,6 +65,8 @@ export const DockContainer = ({
   )
 }
 
+export const COMPONENT_PROPERTIES_TAB = 'ComponentPropertiesTab'
+
 export const defaultLayout: LayoutData = {
   dockbox: {
     mode: 'horizontal' as DockMode,
@@ -97,7 +99,7 @@ export const defaultLayout: LayoutData = {
             tabs: [HierarchyPanelTab, MaterialLibraryPanelTab]
           },
           {
-            id: 'ComponentPropertiesTab',
+            id: COMPONENT_PROPERTIES_TAB,
             tabs: [PropertiesPanelTab]
           }
         ]
