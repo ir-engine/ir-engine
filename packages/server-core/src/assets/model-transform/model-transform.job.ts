@@ -31,7 +31,7 @@ import { argsToObject } from '@etherealengine/common/src/utils/objectToCommandLi
 import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 
 const modelTransformParameters: ModelTransformParameters = argsToObject(process.argv.slice(3))
 
@@ -56,7 +56,7 @@ cli.enable('status')
 
 cli.main(async () => {
   try {
-    const app = createFeathersKoaApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     await transformModel(modelTransformParameters)
     cli.exit(0)

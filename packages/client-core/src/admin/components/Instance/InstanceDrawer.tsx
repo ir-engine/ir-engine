@@ -34,11 +34,16 @@ import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
+import {
+  InstanceID,
+  InstanceType,
+  UserID,
+  UserName,
+  instanceAttendancePath,
+  userKickPath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { InstanceID, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
-import { UserID, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import { NotificationService } from '../../../common/services/NotificationService'

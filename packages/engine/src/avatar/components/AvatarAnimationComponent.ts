@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
+import { AnimationAction, SkeletonHelper, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -55,10 +55,8 @@ import {
 } from '../../transform/components/ComputedTransformComponent'
 import { AnimationState } from '../AnimationManager'
 import { locomotionAnimation } from '../animation/Util'
-import { retargetAvatarAnimations, setupAvatarForUser } from '../functions/avatarFunctions'
+import { retargetAvatarAnimations, setupAvatarForUser, setupAvatarProportions } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
-import { AnimationComponent } from './AnimationComponent'
-import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -102,24 +100,9 @@ export const AvatarRigComponent = defineComponent({
       rawRig: null! as VRMHumanBones,
 
       helperEntity: null as Entity | null,
-      /** The length of the torso in a t-pose, from the hip joint to the head joint */
-      torsoLength: 0,
-      /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
-      upperLegLength: 0,
-      /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
-      lowerLegLength: 0,
-      /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
-      footHeight: 0,
 
-      armLength: 0,
-
-      footGap: 0,
-
-      /** Cache of the skinned meshes currently on the rig */
-      skinnedMeshes: [] as SkinnedMesh[],
       /** The VRM model */
       vrm: null! as VRM,
-
       avatarURL: null as string | null
     }
   },
@@ -128,12 +111,6 @@ export const AvatarRigComponent = defineComponent({
     if (!json) return
     if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
-    if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
-    if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
-    if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
-    if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
-    if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
-    if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
   },
@@ -181,6 +158,7 @@ export const AvatarRigComponent = defineComponent({
     useEffect(() => {
       if (!modelComponent?.asset?.value) return
       const model = getComponent(entity, ModelComponent)
+      setupAvatarProportions(entity, model.asset as VRM)
       setComponent(entity, AvatarRigComponent, {
         vrm: model.asset as VRM,
         avatarURL: model.src
@@ -205,125 +183,13 @@ export const AvatarRigComponent = defineComponent({
       const rig = getComponent(entity, AvatarRigComponent)
       try {
         setupAvatarForUser(entity, rig.vrm)
-        if (manager.loadedAnimations[locomotionAnimation].value) retargetAvatarAnimations(entity)
+        retargetAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
       }
-    }, [rigComponent.vrm, locomotionAnimationState])
-
-    const manager = useHookstate(getMutableState(AnimationState))
-
-    useEffect(() => {
-      if (
-        !manager.loadedAnimations[locomotionAnimation].value ||
-        !rigComponent?.vrm?.value ||
-        !rigComponent?.normalizedRig?.value ||
-        getComponent(entity, AnimationComponent).animations.length
-      )
-        return
-      try {
-        retargetAvatarAnimations(entity)
-      } catch (e) {
-        console.error('Failed to retarget avatar animations', e)
-        if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
-      }
-    }, [manager.loadedAnimations, rigComponent.vrm])
+    }, [rigComponent.vrm])
 
     return null
   }
 })
-
-/**Used to generate an offset map that retargets ik position animations to fit any rig */
-export const retargetIkUtility = (entity: Entity, bindTracks: KeyframeTrack[], height: number, flipped: boolean) => {
-  const offset = new Vector3()
-  const foot = new Vector3()
-
-  const rig = getComponent(entity, AvatarRigComponent)
-  if (!rig.normalizedRig.hips?.node) return
-
-  const avatarComponent = getComponent(entity, AvatarComponent)
-  const scaleMultiplier = height / avatarComponent.avatarHeight
-
-  offset.y = rig.normalizedRig.rightFoot.node.getWorldPosition(foot).y * 2 * scaleMultiplier - 0.05
-
-  const direction = flipped ? -1 : 1
-
-  const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, flipped ? Math.PI : 0, 0))
-
-  const ikOffsetsMap = new Map<string, Vector3>()
-
-  for (let i = 0; i < bindTracks.length; i += 3) {
-    const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
-
-    //todo: find a better way to map joints to ik targets here
-    //currently hints are offset by joint forward to estimate where they should be for every rig
-    const bonePos = new Matrix4()
-    switch (key) {
-      case 'rightHandTarget':
-      case 'leftHandTarget':
-      case 'rightFootTarget':
-      case 'leftFootTarget':
-      case 'headTarget':
-        bonePos.copy(
-          rig.normalizedRig[key.replace('Target', '')].node.matrixWorld.multiply(
-            new Matrix4()
-              .setPosition(rig.normalizedRig[key].node.getWorldDirection(new Vector3()))
-              .multiplyScalar(direction * -1)
-          )
-        )
-        break
-      case 'rightElbowHint':
-        bonePos.copy(
-          rig.normalizedRig.rightLowerArm.node.matrixWorld.multiply(
-            new Matrix4()
-              .setPosition(rig.normalizedRig.rightLowerArm.node.getWorldDirection(new Vector3()))
-              .multiplyScalar(direction * -1)
-          )
-        )
-        break
-      case 'leftElbowHint':
-        bonePos.copy(
-          rig.normalizedRig.leftLowerArm.node.matrixWorld.multiply(
-            new Matrix4()
-              .setPosition(rig.normalizedRig.leftLowerArm.node.getWorldDirection(new Vector3()))
-              .multiplyScalar(direction * -1)
-          )
-        )
-        break
-      case 'rightKneeHint':
-        bonePos.copy(
-          rig.normalizedRig.rightLowerLeg.node.matrixWorld.multiply(
-            new Matrix4().setPosition(
-              rig.normalizedRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
-            )
-          )
-        )
-        break
-      case 'leftKneeHint':
-        bonePos.copy(
-          rig.normalizedRig.leftLowerLeg.node.matrixWorld.multiply(
-            new Matrix4().setPosition(
-              rig.normalizedRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
-            )
-          )
-        )
-        break
-      case 'headHint':
-        bonePos.copy(rig.normalizedRig.head.node.matrixWorld)
-      case 'hipsTarget':
-        bonePos.copy(rig.normalizedRig.hips.node.matrixWorld)
-    }
-    const pos = new Vector3()
-    bonePos.decompose(pos, new Quaternion(), new Vector3())
-    pos.applyQuaternion(hipsRotationoffset)
-    pos.sub(
-      new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]).multiplyScalar(
-        scaleMultiplier
-      )
-    )
-    pos.sub(offset)
-    ikOffsetsMap.set(key, pos)
-  }
-  return ikOffsetsMap
-}

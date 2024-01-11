@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { userApiKeyMethods, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userApiKeyMethods, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 
 import { Application } from '../../../declarations'
 import { UserApiKeyService } from './user-api-key.class'

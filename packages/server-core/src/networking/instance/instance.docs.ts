@@ -30,7 +30,7 @@ import {
   instancePatchSchema,
   instanceQuerySchema,
   instanceSchema
-} from '@etherealengine/engine/src/schemas/networking/instance.schema'
+} from '@etherealengine/common/src/schemas/networking/instance.schema'
 
 export default createSwaggerServiceOptions({
   schemas: { instanceDataSchema, instancePatchSchema, instanceQuerySchema, instanceSchema },

@@ -30,7 +30,7 @@ import {
   matchInstancePatchSchema,
   matchInstanceQuerySchema,
   matchInstanceSchema
-} from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+} from '@etherealengine/common/src/schemas/matchmaking/match-instance.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

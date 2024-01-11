@@ -32,10 +32,16 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import {
+  AvatarID,
+  IdentityProviderType,
+  InviteCode,
+  UserID,
+  UserName,
+  UserType,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { IdentityProviderType } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { InviteCode, UserID, UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'

@@ -45,13 +45,7 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import {
-  defineState,
-  getMutableState,
-  NO_PROXY,
-  syncStateWithLocalStorage,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import AddIcon from '@mui/icons-material/Add'
@@ -60,6 +54,7 @@ import AutorenewIcon from '@mui/icons-material/Autorenew'
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
 import DownloadIcon from '@mui/icons-material/Download'
 import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
+import SettingsIcon from '@mui/icons-material/Settings'
 import VideocamIcon from '@mui/icons-material/Videocam'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
@@ -67,14 +62,15 @@ import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
+import { Breadcrumbs, Link, Popover, TablePagination } from '@mui/material'
 
+import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
+import { archiverPath, fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
-import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
+import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
@@ -85,6 +81,7 @@ import CompressionPanel from '../CompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
 import styles from '../styles.module.scss'
 import { FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
+import { availableTableColumns, FilesViewModeSettings, FilesViewModeState } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
 
@@ -148,24 +145,11 @@ export function isFileDataType(value: any): value is FileDataType {
   return value && value.key
 }
 
-const FilesViewModeState = defineState({
-  name: 'FilesViewModeState',
-  initial: {
-    viewMode: 'icons' as 'icons' | 'list'
-  },
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(FilesViewModeState, ['viewMode'])
-  }
-})
-
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
  */
 const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {
   const { t } = useTranslation()
-
-  const anchorEl = useHookstate<null | HTMLElement>(null)
-  const anchorPosition = useHookstate<undefined | PopoverPosition>(undefined)
 
   const originalPath = `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
   const selectedDirectory = useHookstate(originalPath)
@@ -182,7 +166,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const contentToDeletePath = useHookstate('')
 
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
+
   const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
+  const viewModeSettingsAnchorPosition = useHookstate({ left: 0, top: 0 })
 
   const fileState = useHookstate(getMutableState(FileBrowserState))
   const filesValue = fileState.files.attach(Downgraded).value
@@ -236,17 +222,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     }
   }
 
-  const handleClose = () => {
-    anchorEl.set(null)
-    anchorPosition.set(undefined)
-  }
-
   const handlePageChange = async (_event, newPage: number) => {
     await FileBrowserService.fetchFiles(selectedDirectory.value, newPage)
   }
 
   const createNewFolder = async () => {
-    handleClose()
     await FileBrowserService.addNewFolder(`${selectedDirectory.value}New_Folder`)
     page = 0 // more efficient than requesting the files again
     await refreshDirectory()
@@ -491,6 +471,80 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     )
   }
 
+  const ViewModeSettings = () => {
+    const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+    return (
+      <>
+        <ToolButton
+          tooltip={t('editor:layout.filebrowser.view-mode.settings.name')}
+          icon={SettingsIcon}
+          onClick={(event) => viewModeSettingsAnchorPosition.set({ left: event.clientX, top: event.clientY })}
+          id="viewSettings"
+        />
+        <Popover
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right'
+          }}
+          anchorPosition={viewModeSettingsAnchorPosition.get(NO_PROXY)}
+          open={!!viewModeSettingsAnchorPosition.left.value}
+          onClose={() => viewModeSettingsAnchorPosition.set({ left: 0, top: 0 })}
+          anchorReference="anchorPosition"
+        >
+          <div className={styles.viewModeSettings}>
+            <div style={{ display: 'flex', width: '200px', flexDirection: 'column' }}>
+              {filesViewMode.value === 'icons' ? (
+                <InputSlider
+                  sx={{ width: '100%', marginTop: '15px' }}
+                  min={10}
+                  max={100}
+                  displaySliderLabel={true}
+                  value={viewModeSettings.icons.iconSize.value}
+                  onChange={viewModeSettings.icons.iconSize.set}
+                  label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
+                />
+              ) : (
+                <>
+                  <InputSlider
+                    sx={{ width: '100%', marginTop: '15px' }}
+                    min={5}
+                    max={30}
+                    displaySliderLabel={true}
+                    value={viewModeSettings.list.fontSize.value}
+                    onChange={viewModeSettings.list.fontSize.set}
+                    label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
+                  />
+                  <div>
+                    <div style={{ marginTop: '1rem' }}>
+                      <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
+                    </div>
+                    <div>
+                      {availableTableColumns.map((column) => (
+                        <FormControlLabel
+                          classes={{
+                            label: styles.viewModeSettingsLabel
+                          }}
+                          label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}
+                          control={
+                            <Checkbox
+                              style={{ color: 'var(--textColor)' }}
+                              checked={viewModeSettings.list.selectedTableColumns[column].value}
+                              onChange={(_, checked) => viewModeSettings.list.selectedTableColumns[column].set(checked)}
+                            />
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </Popover>
+      </>
+    )
+  }
+
   const Header = () => (
     <div
       style={{
@@ -521,6 +575,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           onClick={refreshDirectory}
           id="refreshDir"
         />
+        <ViewModeSettings />
         <select
           value={filesViewMode.value}
           onChange={(event) => filesViewMode.set(event.target.value as 'icons' | 'list')}
@@ -583,7 +638,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        height: '100%'
+        height: '100%',
+        color: 'var(--textColor)',
+        fontFamily: 'var(--lato)',
+        fontSize: '12px'
       }}
     >
       <Header />
@@ -591,7 +649,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <StringInput
           placeholder={t('editor:layout.filebrowser.search-placeholder')}
           value={searchText.value}
-          onChange={(event) => searchText.set(event.target.value)}
+          onChange={searchText.set}
         />
       </div>
       {retrieving && (

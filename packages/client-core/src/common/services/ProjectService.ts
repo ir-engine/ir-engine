@@ -25,30 +25,29 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import { githubRepoAccessRefreshPath } from '@etherealengine/common/src/schema.type.module'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { builderInfoPath } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
-import { projectBranchesPath } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
 import {
-  projectBuildPath,
-  ProjectBuildUpdateItemType
-} from '@etherealengine/engine/src/schemas/projects/project-build.schema'
-import {
+  builderInfoPath,
+  InviteCode,
+  projectBranchesPath,
   projectBuilderTagsPath,
-  ProjectBuilderTagsType
-} from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
-import { projectCheckSourceDestinationMatchPath } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
-import { projectCheckUnfetchedCommitPath } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
-import { projectCommitsPath } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
-import { projectDestinationCheckPath } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
-import { projectGithubPushPath } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
-import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
-import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
+  ProjectBuilderTagsType,
+  projectBuildPath,
+  ProjectBuildUpdateItemType,
+  projectCheckSourceDestinationMatchPath,
+  projectCheckUnfetchedCommitPath,
+  projectCommitsPath,
+  projectDestinationCheckPath,
+  projectGithubPushPath,
+  projectInvalidatePath,
+  projectPath,
+  projectPermissionPath,
+  ProjectType
+} from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ProjectParams } from '@etherealengine/server-core/src/projects/project/project.class'
 import { Paginated } from '@feathersjs/feathers'
 import { API } from '../../API'

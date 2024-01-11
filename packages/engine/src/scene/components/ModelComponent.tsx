@@ -44,6 +44,7 @@ import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   serializeComponent,
@@ -214,9 +215,11 @@ function ModelReactor(): JSX.Element {
     const model = modelComponent.get(NO_PROXY)!
     const asset = model.asset as GLTF | null
     if (!asset) return
+    const group = getOptionalComponent(entity, GroupComponent)
+    if (!group) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    const sceneObj = getComponent(entity, GroupComponent)[0] as Scene
+    const sceneObj = group[0] as Scene
 
     sceneObj.userData.src = model.src
     sceneObj.userData.sceneID = getModelSceneID(entity)

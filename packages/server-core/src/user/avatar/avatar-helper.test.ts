@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { copyDefaultProject, uploadLocalProjectToProvider } from '../../projects/project/project-helper'

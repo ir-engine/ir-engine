@@ -27,7 +27,7 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import knex from 'knex'
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import dotenv from 'dotenv-flow'
 
 dotenv.config({
