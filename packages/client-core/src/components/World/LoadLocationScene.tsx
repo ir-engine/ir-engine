@@ -27,7 +27,6 @@ import { t } from 'i18next'
 import { useEffect } from 'react'
 
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { SceneServices } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -48,10 +47,6 @@ export const useLoadLocation = (props: { locationName: string }) => {
 
   useEffect(() => {
     if (locationState.invalidLocation.value) {
-      getMutableState(AppLoadingState).merge({
-        state: AppLoadingStates.FAIL,
-        loaded: false
-      })
       WarningUIService.openWarning({
         title: t('common:instanceServer.invalidLocation'),
         body: `${t('common:instanceServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
@@ -64,10 +59,6 @@ export const useLoadLocation = (props: { locationName: string }) => {
 
   useEffect(() => {
     if (locationState.currentLocation.selfNotAuthorized.value) {
-      getMutableState(AppLoadingState).merge({
-        state: AppLoadingStates.FAIL,
-        loaded: false
-      })
       WarningUIService.openWarning({
         title: t('common:instanceServer.notAuthorizedAtLocationTitle'),
         body: t('common:instanceServer.notAuthorizedAtLocation'),
@@ -80,7 +71,12 @@ export const useLoadLocation = (props: { locationName: string }) => {
    * Once we have the location, fetch the current scene data
    */
   useEffect(() => {
-    if (!locationState.currentLocation.location.sceneId.value) return
+    if (
+      !locationState.currentLocation.location.sceneId.value ||
+      locationState.invalidLocation.value ||
+      locationState.currentLocation.selfNotAuthorized.value
+    )
+      return
     const scenePath = locationState.currentLocation.location.sceneId.value
     return SceneServices.setCurrentScene(scenePath)
   }, [locationState.currentLocation.location.sceneId])

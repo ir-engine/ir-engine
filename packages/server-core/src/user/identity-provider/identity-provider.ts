@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   identityProviderMethods,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 
 import { Application } from '../../../declarations'
 import { IdentityProviderService } from './identity-provider.class'

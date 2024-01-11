@@ -29,7 +29,7 @@ import { v4 } from 'uuid'
 import {
   taskServerSettingPath,
   TaskServerSettingType
-} from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/task-server-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/datetime-sql'

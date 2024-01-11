@@ -30,7 +30,7 @@ import {
   instanceAttendancePatchSchema,
   instanceAttendanceQuerySchema,
   instanceAttendanceSchema
-} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

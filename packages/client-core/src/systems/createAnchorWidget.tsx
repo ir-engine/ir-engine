@@ -39,6 +39,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
+import { AvatarInputSettingsState } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
@@ -55,9 +56,6 @@ export function createAnchorWidget() {
 
   const xrSessionQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
-  let lastX = 0
-  let lastY = 0
-
   const widget: Widget = {
     ui,
     label: 'World Anchor',
@@ -69,17 +67,20 @@ export function createAnchorWidget() {
     system: () => {
       if (xrState.session.value?.interactionMode !== 'world-space') return
       if (xrState.scenePlacementMode.value !== 'placing') return
+      const preferredHand = getState(AvatarInputSettingsState).preferredHand
 
       const scenePlacementEntity = getState(XRAnchorSystemState).scenePlacementEntity
       const inputSourceEntities = getComponent(scenePlacementEntity, InputComponent).inputSources
       for (const inputEntity of inputSourceEntities) {
         const inputComponent = getComponent(inputEntity, InputSourceComponent)
-        if (inputComponent.source.gamepad?.mapping !== 'xr-standard') return
+        if (inputComponent.source.gamepad?.mapping !== 'xr-standard') continue
+        if (inputComponent.source.handedness !== preferredHand) continue
 
         const buttonInputPressed = inputComponent.buttons[XRStandardGamepadButton.Trigger]?.down
 
         if (buttonInputPressed) {
           xrState.scenePlacementMode.set('placed')
+          return
         }
 
         const { deltaSeconds } = getState(EngineState)
@@ -87,18 +88,12 @@ export function createAnchorWidget() {
         const xAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.ThumbstickX]
         const yAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.ThumbstickY]
 
-        if (lastX) {
-          const xDelta = (lastX - xAxisInput) * Math.PI * deltaSeconds
-          getMutableState(XRState).sceneRotationOffset.set((currentValue) => currentValue + xDelta)
-        }
-        lastX = xAxisInput
+        const xDelta = xAxisInput * Math.PI * deltaSeconds
+        getMutableState(XRState).sceneRotationOffset.set((currentValue) => currentValue + xDelta)
 
         if (!xrState.sceneScaleAutoMode.value) {
-          if (lastY) {
-            const yDelta = (lastY - yAxisInput) * deltaSeconds
-            xrState.sceneScaleTarget.set((currentValue) => MathUtils.clamp(currentValue + yDelta, 0.01, 0.2))
-          }
-          lastY = yAxisInput
+          const yDelta = yAxisInput * deltaSeconds * 0.25
+          xrState.sceneScaleTarget.set((currentValue) => MathUtils.clamp(currentValue + yDelta, 0.01, 0.2))
         }
 
         const triggerButtonPressed = inputComponent.buttons[XRStandardGamepadButton.Stick]?.down

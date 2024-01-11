@@ -86,7 +86,7 @@ type ScrubberProps = {
   convertTo?: any
   value?: any
   onChange: (value: any) => void
-  onCommit?: (value: any) => void
+  onRelease?: (value: any) => void
 }
 
 const Scrubber: React.FC<ScrubberProps> = ({
@@ -103,7 +103,7 @@ const Scrubber: React.FC<ScrubberProps> = ({
   convertTo,
   value,
   onChange,
-  onCommit,
+  onRelease,
   ...rest
 }) => {
   const state = useHookstate({
@@ -142,8 +142,8 @@ const Scrubber: React.FC<ScrubberProps> = ({
       state.mouseX.set(null)
       state.mouseY.set(null)
 
-      if (onCommit) {
-        onCommit(value)
+      if (onRelease) {
+        onRelease(value)
       }
 
       document.exitPointerLock()

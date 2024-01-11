@@ -30,7 +30,7 @@ import {
   locationSettingDataValidator,
   locationSettingPatchValidator,
   locationSettingQueryValidator
-} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+} from '@etherealengine/common/src/schemas/social/location-setting.schema'
 
 import {
   locationSettingDataResolver,

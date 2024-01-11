@@ -141,6 +141,8 @@ export const useXRMovement = () => {
   const sceneScale = useHookstate(xrState.sceneScale)
   const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
   const session = useHookstate(xrState.session)
+  const sessionMode = useHookstate(xrState.sessionMode)
+  const sessionActive = useHookstate(xrState.sessionActive)
 
   const getAvatarCameraMode = () => {
     if (!session.value || scenePlacementMode.value === 'placing') return false
@@ -155,15 +157,14 @@ export const useXRMovement = () => {
   }, [avatarCameraMode, sceneScale, scenePlacementMode, session])
 
   const getMovementControlsEnabled = () => {
-    const { sessionActive, sceneScale, sessionMode } = getState(XRState)
-    if (!sessionActive) return true
-    const isMiniatureScale = sceneScale !== 1
-    return sessionMode === 'immersive-ar' ? isMiniatureScale : true
+    if (!sessionActive.value) return true
+    const isMiniatureScale = sceneScale.value !== 1
+    return sessionMode.value === 'immersive-ar' ? isMiniatureScale : true
   }
 
   useEffect(() => {
     xrMovementState.isMovementControlsEnabled.set(getMovementControlsEnabled())
-  }, [sceneScale, scenePlacementMode])
+  }, [sceneScale, sessionActive, sessionMode])
 }
 
 export const ReferenceSpace = {

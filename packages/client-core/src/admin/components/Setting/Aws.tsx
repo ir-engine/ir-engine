@@ -27,11 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import {
-  AwsCloudFrontType,
-  AwsSmsType,
-  awsSettingPath
-} from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
+import { AwsCloudFrontType, AwsSmsType, awsSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'

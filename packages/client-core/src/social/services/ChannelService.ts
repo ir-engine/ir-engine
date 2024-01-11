@@ -26,12 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
+import {
+  ChannelID,
+  ChannelType,
+  ChannelUserType,
+  InstanceID,
+  UserID,
+  channelPath,
+  channelUserPath
+} from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { NotificationService } from '../../common/services/NotificationService'
 import { SocketWebRTCClientNetwork, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'

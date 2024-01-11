@@ -126,7 +126,7 @@ export class EngineRenderer {
       stencil: false,
       antialias: false,
       depth: true,
-      logarithmicDepthBuffer: true,
+      logarithmicDepthBuffer: false,
       canvas,
       context,
       preserveDrawingBuffer: false,
