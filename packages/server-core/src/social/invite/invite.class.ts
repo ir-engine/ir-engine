@@ -31,7 +31,7 @@ import {
   InvitePatch,
   InviteQuery,
   InviteType
-} from '@etherealengine/engine/src/schemas/social/invite.schema'
+} from '@etherealengine/common/src/schemas/social/invite.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
 export interface InviteParams extends KnexAdapterParams<InviteQuery> {

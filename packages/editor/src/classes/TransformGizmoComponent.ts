@@ -40,7 +40,7 @@ import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { SnapMode, TransformPivot, TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { SnapMode, TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -78,7 +78,7 @@ export const TransformGizmoComponent = defineComponent({
           [entity],
           [new Euler().setFromQuaternion(transformComponent.value.rotation)]
         )
-        EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], TransformSpace.local, true)
+        EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], true)
         EditorControlFunctions.commitTransformSave([entity])
       })
 
@@ -92,13 +92,13 @@ export const TransformGizmoComponent = defineComponent({
       // set layers
       const raycaster = gizmoComponent.value.getRaycaster()
       raycaster.layers.set(ObjectLayers.TransformGizmo)
-      setObjectLayers(dummy, ObjectLayers.TransformGizmo)
-      setObjectLayers(gizmoComponent.value, ObjectLayers.TransformGizmo)
 
       // add dummy to entity and gizmo to dummy entity and attach
       addObjectToGroup(entity, dummy)
       gizmoComponent.value.attach(dummy)
       addObjectToGroup(dummyEntity, gizmoComponent.value)
+      setObjectLayers(gizmoComponent.value, ObjectLayers.TransformGizmo)
+      setObjectLayers(dummy, ObjectLayers.TransformGizmo)
       removeComponent(dummyEntity, TransformComponent)
 
       return () => {
@@ -152,15 +152,21 @@ export const TransformGizmoComponent = defineComponent({
     }, [editorHelperState.snapMode])
 
     useEffect(() => {
-      gizmoComponent.value.setTranslationSnap(editorHelperState.translationSnap.value)
+      gizmoComponent.value.setTranslationSnap(
+        editorHelperState.snapMode.value === SnapMode.Grid ? editorHelperState.translationSnap.value : null
+      )
     }, [editorHelperState.translationSnap])
 
     useEffect(() => {
-      gizmoComponent.value.setRotationSnap(degToRad(editorHelperState.rotationSnap.value))
+      gizmoComponent.value.setRotationSnap(
+        editorHelperState.snapMode.value === SnapMode.Grid ? degToRad(editorHelperState.rotationSnap.value) : null
+      )
     }, [editorHelperState.rotationSnap])
 
     useEffect(() => {
-      gizmoComponent.value.setScaleSnap(editorHelperState.scaleSnap.value)
+      gizmoComponent.value.setScaleSnap(
+        editorHelperState.snapMode.value === SnapMode.Grid ? editorHelperState.scaleSnap.value : null
+      )
     }, [editorHelperState.scaleSnap])
 
     return null

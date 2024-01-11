@@ -29,7 +29,7 @@ import {
   recordingResourceDataValidator,
   recordingResourcePatchValidator,
   recordingResourceQueryValidator
-} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+} from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
 import verifyScope from '../../hooks/verify-scope'
 
 import {

@@ -105,8 +105,10 @@ const execute = () => {
   // for now, it is unnecessary to compute anything on the server
   if (!isClient) return
   const network = NetworkState.worldNetwork
+  if (!network) return
+
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
+    if (!network.peers[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
     }
@@ -126,6 +128,7 @@ const execute = () => {
   for (const entity of motionCaptureQuery()) {
     const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
     const rigComponent = getComponent(entity, AvatarRigComponent)
+    if (!rigComponent.normalizedRig) continue
     const worldHipsParent = rigComponent.normalizedRig.hips.node.parent
     if (!peers) {
       removeComponent(entity, MotionCaptureRigComponent)

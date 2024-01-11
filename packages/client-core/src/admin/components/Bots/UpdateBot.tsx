@@ -37,10 +37,17 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import {
+  BotPatch,
+  BotType,
+  InstanceID,
+  InstanceType,
+  LocationID,
+  botPath,
+  instancePath,
+  locationPath
+} from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { BotPatch, BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
-import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import { validateForm } from '../../common/validation/formValidation'

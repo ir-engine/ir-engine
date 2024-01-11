@@ -67,7 +67,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.register((parser) => new KHRMaterialsPBRSpecularGlossinessExtension(parser))
   loader.register((parser) => new EEECSImporterExtension(parser))
   loader.register((parser) => new HubsComponentsExtension(parser))
-  loader.register((parser) => new VRMLoaderPlugin(parser, { helperRoot: new Group(), autoUpdateHumanBones: true }))
+  loader.register((parser) => new VRMLoaderPlugin(parser, { helperRoot: new Group(), autoUpdateHumanBones: false }))
   loader.register((parser) => new CachedImageLoadExtension(parser))
   if (MeshoptDecoder.useWorkers) {
     MeshoptDecoder.useWorkers(2)

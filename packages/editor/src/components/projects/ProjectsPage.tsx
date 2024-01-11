@@ -32,21 +32,19 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import {
-  ArrowRightRounded,
-  Check,
-  Clear,
-  Delete,
-  Download,
-  DownloadDone,
-  FilterList,
-  Group,
-  Link,
-  LinkOff,
-  Search,
-  Settings,
-  Upload
-} from '@mui/icons-material'
+import ArrowRightRounded from '@mui/icons-material/ArrowRightRounded'
+import Check from '@mui/icons-material/Check'
+import Clear from '@mui/icons-material/Clear'
+import Delete from '@mui/icons-material/Delete'
+import Download from '@mui/icons-material/Download'
+import DownloadDone from '@mui/icons-material/DownloadDone'
+import FilterList from '@mui/icons-material/FilterList'
+import Group from '@mui/icons-material/Group'
+import Link from '@mui/icons-material/Link'
+import LinkOff from '@mui/icons-material/LinkOff'
+import Search from '@mui/icons-material/Search'
+import Settings from '@mui/icons-material/Settings'
+import Upload from '@mui/icons-material/Upload'
 import {
   Accordion,
   AccordionDetails,
@@ -62,9 +60,8 @@ import {
 } from '@mui/material'
 
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
+import { InviteCode, projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { useNavigate } from 'react-router-dom'
 import { getProjects } from '../../functions/projectFunctions'
 import { EditorState } from '../../services/EditorServices'
@@ -291,7 +288,7 @@ const ProjectsPage = () => {
   }
 
   const onCreateProject = async (name) => {
-    await ProjectService.createProject(name)
+    await ProjectService.createProject(name, { query: { action: 'studio' } })
     await fetchInstalledProjects()
   }
 
@@ -324,7 +321,7 @@ const ProjectsPage = () => {
     if (activeProject.value) {
       try {
         const proj = installedProjects.get({ noproxy: true }).find((proj) => proj.id === activeProject.value?.id)!
-        await ProjectService.removeProject(proj.id)
+        await ProjectService.removeProject(proj.id, { query: { action: 'studio' } })
         await fetchInstalledProjects()
       } catch (err) {
         logger.error(err)

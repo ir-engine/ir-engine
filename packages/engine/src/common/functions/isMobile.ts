@@ -46,3 +46,5 @@ export const isSafari =
   typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent.toLowerCase())
 
 export const isMobile = mobileOrTablet
+
+export const isIPhone = typeof navigator !== 'undefined' && navigator.userAgent.match(/iPhone/i) !== null

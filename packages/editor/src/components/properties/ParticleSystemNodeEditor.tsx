@@ -54,7 +54,7 @@ import {
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux'
 
-import { ScatterPlotOutlined } from '@mui/icons-material'
+import ScatterPlotOutlined from '@mui/icons-material/ScatterPlotOutlined'
 
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -258,7 +258,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       />
       {particleSystem.systemParameters.shape.type === 'mesh_surface' && (
         <InputGroup name="Shape Mesh" label={t('editor:properties.particle-system.shape-mesh')}>
-          <ModelInput value={particleSystem.systemParameters.shape.mesh} onChange={onChangeShapeParm('mesh')} />
+          <ModelInput value={particleSystem.systemParameters.shape.mesh!} onChange={onChangeShapeParm('mesh')} />
         </InputGroup>
       )}
       {particleSystem.systemParameters.shape.type !== 'mesh_surface' && (

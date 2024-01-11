@@ -111,11 +111,11 @@ const reactor = () => {
     const mesh = new Mesh(geometry, material)
     mesh.layers.set(ObjectLayers.Camera)
     mesh.scale.set(-1, 1, -1)
-    mesh.renderOrder = 1
     mesh.name = 'Camera Fade Transition'
     const entity = createEntity()
     setComponent(entity, NameComponent, mesh.name)
     addObjectToGroup(entity, mesh)
+    mesh.renderOrder = 1
     setObjectLayers(mesh, ObjectLayers.Scene)
     const transition = createTransitionState(0.25, 'OUT')
 

@@ -28,7 +28,7 @@ import { Quaternion, Vector3 } from 'three'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { defineActionQueue, defineState, dispatchAction, none, receiveActions } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -85,7 +85,6 @@ export const EntityNetworkState = defineState({
         })
       }
     ],
-
     [
       WorldNetworkAction.destroyObject,
       (state, action: typeof WorldNetworkAction.destroyObject.matches._TYPE) => {
@@ -106,10 +105,23 @@ export const EntityNetworkState = defineState({
         if (!entity) return
         removeEntity(entity)
       }
+    ],
+    [
+      WorldNetworkAction.transferAuthorityOfObject,
+      (state, action: typeof WorldNetworkAction.transferAuthorityOfObject.matches._TYPE) => {
+        const entity = NetworkObjectComponent.getNetworkObject(action.ownerId, action.networkId)
+        if (!entity) return
+        getMutableComponent(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
+      }
     ]
   ]
 })
 
+/**
+ * Only the transfer needs to be event sourced
+ * @param action
+ * @returns
+ */
 export const receiveRequestAuthorityOverObject = (
   action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE
 ) => {
@@ -135,29 +147,12 @@ export const receiveRequestAuthorityOverObject = (
   )
 }
 
-export const receiveTransferAuthorityOfObject = (
-  action: typeof WorldNetworkAction.transferAuthorityOfObject.matches._TYPE
-) => {
-  // Authority request can only be processed by owner
-  if (action.$from !== action.ownerId) return
-
-  const entity = NetworkObjectComponent.getNetworkObject(action.ownerId, action.networkId)
-  if (!entity)
-    return console.log(
-      `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
-    )
-
-  getMutableComponent(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
-}
-
 const requestAuthorityOverObjectQueue = defineActionQueue(WorldNetworkAction.requestAuthorityOverObject.matches)
-const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
 
 const execute = () => {
   receiveActions(EntityNetworkState)
 
   for (const action of requestAuthorityOverObjectQueue()) receiveRequestAuthorityOverObject(action)
-  for (const action of transferAuthorityOfObjectQueue()) receiveTransferAuthorityOfObject(action)
 }
 
 export const EntityNetworkStateSystem = defineSystem({

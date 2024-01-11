@@ -27,10 +27,9 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { projectPath, userPath } from '@etherealengine/common/src/schema.type.module'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 import { pushProjectToGithub } from '@etherealengine/server-core/src/projects/project/github-helper'
 
 dotenv.config({
@@ -63,7 +62,7 @@ const options = cli.parse({
 
 cli.main(async () => {
   try {
-    const app = createFeathersKoaApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const { userId, projectId, reset, commitSHA, storageProviderName, jobId } = options
     const user = await app.service(userPath).get(userId)

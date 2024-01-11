@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AnimationMixer, Bone, InstancedMesh, Mesh, Object3D, SkinnedMesh } from 'three'
+import { AnimationMixer, Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJsonType, EntityJsonType } from '@etherealengine/common/src/schema.type.module'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
@@ -37,12 +38,11 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { ComponentJsonType, EntityJsonType } from '../../schemas/projects/scene.schema'
+import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -146,27 +146,30 @@ export const parseObjectComponentsFromGLTF = (
   return entityJson
 }
 
-export const parseGLTFModel = (entity: Entity) => {
+export const parseGLTFModel = (entity: Entity, scene: Scene) => {
   const model = getComponent(entity, ModelComponent)
-  const scene = model.scene!
+
   scene.updateMatrixWorld(true)
   computeTransformMatrix(entity)
 
   // always parse components first using old ECS parsing schema
   const entityJson = parseObjectComponentsFromGLTF(entity, scene)
   // current ECS parsing schema
-  iterateObject3D(scene, (obj: Object3D) => {
-    const uuid = obj.uuid as EntityUUID
-    const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
-    entityJson[uuid] = eJson
-  })
+
+  const children = [...scene.children]
+  for (const child of children) {
+    child.parent = model.scene
+    iterateObject3D(child, (obj: Object3D) => {
+      const uuid = obj.uuid as EntityUUID
+      const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
+      entityJson[uuid] = eJson
+    })
+  }
 
   enableObjectLayer(scene, ObjectLayers.Scene, true)
 
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (scene.animations?.length) {
-    // We only have to update the mixer time for this animations on each frame
-    if (getComponent(entity, AnimationComponent)) removeComponent(entity, AnimationComponent)
     setComponent(entity, AnimationComponent, {
       mixer: new AnimationMixer(scene),
       animations: scene.animations
@@ -174,6 +177,42 @@ export const parseGLTFModel = (entity: Entity) => {
   }
 
   return entityJson
+}
+
+export const proxifyParentChildRelationships = (obj: Object3D) => {
+  const objEntity = obj.entity
+  Object.defineProperties(obj, {
+    parent: {
+      get() {
+        if (EngineRenderer.instance?.rendering) return null
+        if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
+          const result =
+            getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
+            Engine.instance.scene
+          return result ?? null
+        }
+      },
+      set(value) {
+        throw new Error('Cannot set parent of proxified object')
+      }
+    },
+    children: {
+      get() {
+        if (EngineRenderer.instance?.rendering) return []
+        return hasComponent(objEntity, EntityTreeComponent)
+          ? getComponent(objEntity, EntityTreeComponent)
+              .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
+              .flatMap((child) => getComponent(child, GroupComponent))
+          : []
+      },
+      set(value) {
+        throw new Error('Cannot set children of proxified object')
+      }
+    },
+    isProxified: {
+      value: true
+    }
+  })
 }
 
 export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, entityJson?: EntityJsonType) => {
@@ -200,6 +239,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     rotation: obj.quaternion.clone(),
     scale: obj.scale.clone()
   })
+  computeTransformMatrix(objEntity)
   eJson.components.push({
     name: TransformComponent.jsonID,
     props: {
@@ -213,38 +253,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   setComponent(objEntity, GLTFLoadedComponent, ['entity'])
 
   /** Proxy children with EntityTreeComponent if it exists */
-  Object.defineProperties(obj, {
-    parent: {
-      get() {
-        if (EngineRenderer.instance?.rendering) return null
-        if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-          return (
-            getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
-            Engine.instance.scene
-          )
-        }
-      },
-      set(value) {
-        throw new Error('Cannot set parent of proxified object')
-      }
-    },
-    children: {
-      get() {
-        if (EngineRenderer.instance?.rendering) return []
-        return hasComponent(objEntity, EntityTreeComponent)
-          ? getComponent(objEntity, EntityTreeComponent)
-              .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
-              .flatMap((child) => getComponent(child, GroupComponent))
-          : []
-      },
-      set(value) {
-        throw new Error('Cannot set children of proxified object')
-      }
-    },
-    isProxified: {
-      value: true
-    }
-  })
+  proxifyParentChildRelationships(obj)
 
   obj.removeFromParent = () => {
     if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
@@ -289,7 +298,8 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   bone.isBone && setComponent(objEntity, BoneComponent, bone)
 
   const skinnedMesh = obj as SkinnedMesh
-  skinnedMesh.isSkinnedMesh && setComponent(objEntity, SkinnedMeshComponent, skinnedMesh)
+  if (skinnedMesh.isSkinnedMesh) setComponent(objEntity, SkinnedMeshComponent, skinnedMesh)
+  else setComponent(objEntity, FrustumCullCameraComponent)
 
   if (obj.userData['componentJson']) {
     eJson.components.push(...obj.userData['componentJson'])

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 
-import { InviteTypeQuery, InviteTypeType } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+import { InviteTypeQuery, InviteTypeType } from '@etherealengine/common/src/schemas/social/invite-type.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const inviteTypeResolver = resolve<InviteTypeType, HookContext>({})

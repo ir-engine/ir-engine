@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
@@ -34,12 +34,10 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  setComponent,
-  useQuery
+  setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { InfiniteGridComponent } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
@@ -296,19 +294,7 @@ const execute = () => {
   }
 }
 
-const SceneObjectEntityReactor = (props: { entity: Entity }) => {
-  useEffect(() => {
-    setComponent(props.entity, InputComponent)
-    return () => {
-      removeComponent(props.entity, InputComponent)
-    }
-  }, [])
-
-  return null
-}
-
 const reactor = () => {
-  const sceneObjectEntities = useQuery([SceneObjectComponent])
   const selectionState = useHookstate(getMutableState(SelectionState))
   const sceneQuery = defineQuery([SceneObjectComponent])
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
@@ -347,13 +333,7 @@ const reactor = () => {
     setComponent(infiniteGridHelperEntity, InfiniteGridComponent, { size: editorHelperState.translationSnap.value })
   }, [editorHelperState.translationSnap, rendererState.infiniteGridHelperEntity])
 
-  return (
-    <>
-      {sceneObjectEntities.map((entity) => (
-        <SceneObjectEntityReactor key={entity} entity={entity} />
-      ))}
-    </>
-  )
+  return null
 }
 
 export const EditorControlSystem = defineSystem({

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import RAPIER, {
+import {
   ActiveCollisionTypes,
   ActiveEvents,
   Collider,
@@ -78,7 +78,8 @@ import { ColliderDescOptions, CollisionEvents, RaycastHit, SceneQueryType } from
 
 export type PhysicsWorld = World
 
-function load() {
+async function load() {
+  const RAPIER = await import('@dimforge/rapier3d-compat')
   return RAPIER.init()
 }
 

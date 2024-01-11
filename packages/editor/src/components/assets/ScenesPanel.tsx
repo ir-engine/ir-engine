@@ -33,11 +33,11 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CompressedTexture } from 'three'
 
-import { MoreVert } from '@mui/icons-material'
+import MoreVert from '@mui/icons-material/MoreVert'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneDataType } from '@etherealengine/common/src/schema.type.module'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
 import { deleteScene, getScenes, onNewScene, renameScene, setSceneInState } from '../../functions/sceneFunctions'

@@ -29,6 +29,7 @@ import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
+import { Not } from 'bitecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -40,8 +41,13 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BoundingBoxComponent, updateBoundingBox } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import {
+  RigidBodyComponent,
+  RigidBodyDynamicTagComponent,
+  RigidBodyFixedTagComponent
+} from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { ScenePreviewCameraComponent } from '../../scene/components/ScenePreviewCamera'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { TransformSerialization } from '../TransformSerialization'
@@ -55,6 +61,12 @@ import { TransformComponent, composeMatrix } from '../components/TransformCompon
 
 const transformQuery = defineQuery([TransformComponent])
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
+const kinematicRigidbodyQuery = defineQuery([
+  TransformComponent,
+  RigidBodyComponent,
+  Not(RigidBodyFixedTagComponent),
+  Not(RigidBodyDynamicTagComponent)
+])
 const groupQuery = defineQuery([GroupComponent, VisibleComponent])
 
 const boundingBoxQuery = defineQuery([BoundingBoxComponent])
@@ -62,6 +74,8 @@ const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
 const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
+
+const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
 
 export const computeTransformMatrix = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
@@ -268,11 +282,13 @@ const execute = () => {
    * Update entity transforms
    */
   const allRigidbodyEntities = rigidbodyQuery()
+  const kinematicRigidbodyEntities = kinematicRigidbodyQuery()
   const awakeCleanRigidbodyEntities = allRigidbodyEntities.filter(filterAwakeCleanRigidbodies)
-  const dirtyRigidbodyEntities = allRigidbodyEntities.filter(isDirty)
+  const dirtyKinematicRigidbodyEntities = kinematicRigidbodyEntities.filter(isDirty)
+  // const dirtyRigidbodyEntities = allRigidbodyEntities.filter(isDirty)
 
   // if rigidbody transforms have been dirtied, teleport the rigidbody to the transform
-  for (const entity of dirtyRigidbodyEntities) copyTransformToRigidBody(entity)
+  for (const entity of dirtyKinematicRigidbodyEntities) copyTransformToRigidBody(entity)
 
   // lerp awake clean rigidbody entities (and make their transforms dirty)
   const simulationRemainder = engineState.frameTime - engineState.simulationTime
@@ -282,7 +298,6 @@ const execute = () => {
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty
   for (const entity of sortedTransformEntities) {
     const makeDirty =
-      TransformComponent.dirtyTransforms[entity] ||
       TransformComponent.dirtyTransforms[entity] ||
       TransformComponent.dirtyTransforms[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||
       TransformComponent.dirtyTransforms[
@@ -307,6 +322,13 @@ const execute = () => {
     viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
     viewCamera.projectionMatrix.copy(camera.projectionMatrix)
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
+  }
+
+  const scenePreviewCameraDirty = scenePreviewCameraQuery().filter(isDirty)
+
+  for (const entity of scenePreviewCameraDirty) {
+    const camera = getComponent(entity, ScenePreviewCameraComponent).camera
+    camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
   }
 
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)

@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { SceneCreateData } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { SceneCreateData } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'

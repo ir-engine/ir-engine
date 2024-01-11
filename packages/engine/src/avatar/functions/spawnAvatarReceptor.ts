@@ -27,14 +27,15 @@ import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapi
 import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getState } from '@etherealengine/hyperflux'
 
-import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
+import { setTargetCameraRotation } from '../../camera/functions/CameraFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
   NetworkObjectComponent,
@@ -48,11 +49,13 @@ import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/Collis
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
+import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -87,6 +90,10 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const userName = userNames[entityUUID]
   const shortId = ownerID.substring(0, 7)
   setComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))
+  const obj3d = new Object3D()
+  obj3d.entity = entity
+  addObjectToGroup(entity, obj3d)
+  proxifyParentChildRelationships(obj3d)
 
   setComponent(entity, VisibleComponent, true)
 
@@ -121,6 +128,8 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, ShadowComponent)
   setComponent(entity, GrabberComponent)
   setComponent(entity, AvatarRigComponent)
+
+  setComponent(entity, EntityTreeComponent)
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {
@@ -130,7 +139,6 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   const transform = getComponent(entity, TransformComponent)
   rigidBody.position.copy(transform.position)
   rigidBody.rotation.copy(transform.rotation)
-
   const bodyColliderDesc = ColliderDesc.capsule(
     avatarComponent.avatarHalfHeight - avatarRadius - 0.25,
     avatarRadius

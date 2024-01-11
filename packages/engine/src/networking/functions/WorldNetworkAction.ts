@@ -82,6 +82,7 @@ export class WorldNetworkAction {
     ownerId: matchesUserId,
     networkId: matchesNetworkId,
     newAuthority: matchesPeerID,
-    $topic: NetworkTopics.world
+    $topic: NetworkTopics.world,
+    $cache: true
   })
 }

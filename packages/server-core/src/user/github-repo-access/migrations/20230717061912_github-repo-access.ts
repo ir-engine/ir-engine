@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { githubRepoAccessPath } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+import { githubRepoAccessPath } from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 
 /**
  * @param { import("knex").Knex } knex

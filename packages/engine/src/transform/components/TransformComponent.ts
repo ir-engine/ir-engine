@@ -178,7 +178,7 @@ export const TransformComponent = defineComponent({
       transform.matrix.copy(transform.matrixWorld)
     }
     decomposeMatrix(entity)
-    TransformComponent.dirtyTransforms[entity] = false
+    TransformComponent.dirtyTransforms[entity] = true
   },
 
   /**

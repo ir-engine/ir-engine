@@ -40,7 +40,7 @@ export const XRUIComponent = defineComponent({
     if (typeof json !== 'undefined') {
       component.set(json)
       XRUIComponent.valueMap[entity] = json
-      component.value.interactionRays = getState(XRUIState).interactionRays
+      json.interactionRays = getState(XRUIState).interactionRays
     }
   },
 

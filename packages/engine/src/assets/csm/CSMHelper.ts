@@ -144,6 +144,7 @@ export class CSMHelper {
       setComponent(cascadeLinesEntity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
       setComponent(cascadeLinesEntity, NameComponent, 'CSM cascade line ' + cascadeLines.length)
       setObjectLayers(cascadeLine, ObjectLayers.NodeHelper)
+
       cascadeLines.push(cascadeLinesEntity)
 
       const planeMat = new MeshBasicMaterial({ transparent: true, opacity: 0.1, depthWrite: false, side: DoubleSide })
@@ -154,6 +155,7 @@ export class CSMHelper {
       setComponent(cascadePlanesEntity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
       setComponent(cascadePlanesEntity, NameComponent, 'CSM cascade plane ' + cascadeLines.length)
       setObjectLayers(cascadePlane, ObjectLayers.NodeHelper)
+
       cascadePlanes.push(cascadePlanesEntity)
 
       const shadowLine = new Box3Helper(new Box3(), new Color(0xffff00))

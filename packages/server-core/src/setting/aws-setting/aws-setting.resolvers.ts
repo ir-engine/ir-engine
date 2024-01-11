@@ -35,7 +35,7 @@ import {
   AwsSettingQuery,
   AwsSettingType,
   AwsSmsType
-} from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/aws-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

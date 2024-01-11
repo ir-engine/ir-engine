@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 
-import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { scopeTypePath } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
+import { ScopeType, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { Application } from '../../declarations'
 
 export default async (app: Application, userId: UserID) => {

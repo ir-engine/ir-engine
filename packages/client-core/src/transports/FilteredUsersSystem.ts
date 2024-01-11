@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -50,7 +50,7 @@ export const FilteredUsersService = {
     const selfUserId = getMutableState(AuthState).user.id.value
     const peers = Object.values(NetworkState.worldNetwork.peers)
     const worldUserIds = peers
-      .filter((peer) => peer.peerID !== 'server' && peer.userId !== selfUserId)
+      .filter((peer) => peer.peerID !== NetworkState.worldNetwork.hostPeerID && peer.userId !== selfUserId)
       .map((peer) => peer.userId)
     const nearbyUsers = getNearbyUsers(Engine.instance.userID, worldUserIds)
     mediaState.nearbyLayerUsers.set(nearbyUsers)

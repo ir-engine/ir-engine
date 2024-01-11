@@ -80,8 +80,8 @@ export const BoundingBoxComponent = defineComponent({
 
       setComponent(helperEntity, VisibleComponent)
 
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
       addObjectToGroup(helperEntity, helper)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
       boundingBox.helper.set(helperEntity)
 
       return () => {
