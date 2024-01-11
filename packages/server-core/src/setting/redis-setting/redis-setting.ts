@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { redisSettingMethods, redisSettingPath } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
+import { redisSettingMethods, redisSettingPath } from '@etherealengine/common/src/schemas/setting/redis-setting.schema'
 
 import { Application } from '../../../declarations'
 import { updateAppConfig } from '../../updateAppConfig'

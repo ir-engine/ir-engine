@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { ProjectCommitsType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
+import { ProjectCommitsType } from '@etherealengine/common/src/schemas/projects/project-commits.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { getProjectCommits } from '../project/project-helper'
 import { ProjectParams, ProjectParamsClient } from '../project/project.class'

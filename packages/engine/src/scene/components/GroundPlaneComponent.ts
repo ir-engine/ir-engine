@@ -41,6 +41,7 @@ import { PhysicsState } from '../../physics/state/PhysicsState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 
@@ -98,10 +99,12 @@ export const GroundPlaneComponent = defineComponent({
       mesh.geometry.rotateX(-Math.PI / 2)
       mesh.name = 'GroundPlaneMesh'
       mesh.material.polygonOffset = true
-      mesh.material.polygonOffsetUnits = -0.01
+      mesh.material.polygonOffsetFactor = -0.01
+      mesh.material.polygonOffsetUnits = 1
 
-      enableObjectLayer(mesh, ObjectLayers.Camera, true)
       addObjectToGroup(entity, mesh)
+      enableObjectLayer(mesh, ObjectLayers.Camera, true)
+      setComponent(entity, MeshComponent, mesh)
 
       const rigidBodyDesc = RigidBodyDesc.fixed()
       const colliderDesc = ColliderDesc.cuboid(radius * 2, 0.001, radius * 2)

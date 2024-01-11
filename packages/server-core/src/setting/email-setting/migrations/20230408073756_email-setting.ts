@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { emailSettingPath } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import { emailSettingPath } from '@etherealengine/common/src/schemas/setting/email-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex

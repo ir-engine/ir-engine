@@ -30,7 +30,7 @@ import {
   inviteTypeDataValidator,
   inviteTypePatchValidator,
   inviteTypeQueryValidator
-} from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+} from '@etherealengine/common/src/schemas/social/invite-type.schema'
 
 import {
   inviteTypeDataResolver,

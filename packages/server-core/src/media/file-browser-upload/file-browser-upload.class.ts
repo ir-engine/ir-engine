@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 

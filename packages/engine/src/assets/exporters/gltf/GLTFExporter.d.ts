@@ -75,7 +75,7 @@ export interface GLTFExporterOptions {
      */
     includeCustomExtensions?: boolean;
 
-    path?: string;
+    relativePath?: string;
 
     resourceURI?: string;
 

@@ -27,12 +27,21 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { hasComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getOptionalMutableComponent,
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { UVOL1Component } from '@etherealengine/engine/src/scene/components/UVOL1Component'
 import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL2Component'
+import { TextureType } from '@etherealengine/engine/src/scene/constants/UVOLTypes'
+import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
 import VideocamIcon from '@mui/icons-material/Videocam'
 import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
@@ -41,7 +50,6 @@ import { Button } from '../inputs/Button'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
@@ -64,6 +72,13 @@ const PlayModeOptions = [
   }
 ]
 
+type TextureTargetLabelsType = {
+  [key in TextureType]: {
+    label: string
+    value: number
+  }[]
+}
+
 /**
  * VolumetricNodeEditor provides the editor view to customize properties.
  *
@@ -72,13 +87,19 @@ const PlayModeOptions = [
  */
 export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [trackLabel, setTrackLabel] = React.useState('')
 
   const volumetricComponent = useComponent(props.entity, VolumetricComponent)
 
   const toggle = () => {
     volumetricComponent.paused.set(!volumetricComponent.paused.value)
   }
+
+  const [trackLabels, setTrackLabels] = React.useState(
+    [] as {
+      label: string
+      value: number
+    }[]
+  )
 
   useEffect(() => {
     const tracks = volumetricComponent.paths.value
@@ -87,7 +108,18 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
     }
     if (tracks.length === 1) {
       const segments = tracks[0].split('/')
-      setTrackLabel(segments[segments.length - 1])
+      setTrackLabels([
+        {
+          label: segments[segments.length - 1],
+          value: 0
+        }
+      ])
+      console.log('Setting labels: ', [
+        {
+          label: segments[segments.length - 1],
+          value: 0
+        }
+      ])
       return
     }
 
@@ -99,11 +131,81 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         prefix = prefix.substring(0, prefix.length - 1)
       }
     }
+    const _trackLabels = [] as {
+      label: string
+      value: number
+    }[]
 
-    const currentTrackPath = tracks[volumetricComponent.track.value]
+    for (let i = 0; i < tracks.length; i++) {
+      _trackLabels.push({
+        label: tracks[i].slice(prefix.length),
+        value: i
+      })
+    }
+    setTrackLabels(_trackLabels)
+    console.log('Setting labels: ', _trackLabels)
+  }, [volumetricComponent.paths])
 
-    setTrackLabel(currentTrackPath.slice(prefix.length))
-  }, [volumetricComponent.track, volumetricComponent.ended, volumetricComponent.paths])
+  const uvol2 = useOptionalComponent(props.entity, UVOL2Component)
+  const [geometryTargets, setGeometryTargets] = React.useState(
+    [] as {
+      label: string
+      value: number
+    }[]
+  )
+
+  useEffect(() => {
+    if (uvol2) {
+      const _geometryTargets = [] as {
+        label: string
+        value: number
+      }[]
+      _geometryTargets.push({
+        label: 'auto',
+        value: -1
+      })
+      uvol2.geometryInfo.targets.value.forEach((target, index) => {
+        _geometryTargets.push({
+          label: target,
+          value: index
+        })
+      })
+      setGeometryTargets(_geometryTargets)
+    }
+  }, [uvol2?.geometryInfo.targets])
+
+  const [textureTargets, setTextureTargets] = React.useState({} as TextureTargetLabelsType)
+  useEffect(() => {
+    if (!uvol2) {
+      return
+    }
+    const textureTypes = uvol2.textureInfo.textureTypes.value
+    const _textureTargets = {} as TextureTargetLabelsType
+    textureTypes.forEach((textureType) => {
+      _textureTargets[textureType] = [] as {
+        label: string
+        value: number
+      }[]
+      _textureTargets[textureType].push({
+        label: 'auto',
+        value: -1
+      })
+      uvol2.textureInfo[textureType].targets.value.forEach((target, index) => {
+        _textureTargets[textureType].push({
+          label: target,
+          value: index
+        })
+      })
+    })
+    setTextureTargets(_textureTargets)
+  }, [
+    uvol2?.textureInfo.textureTypes,
+    uvol2?.textureInfo.baseColor.targets,
+    uvol2?.textureInfo.normal.targets,
+    uvol2?.textureInfo.emissive.targets,
+    uvol2?.textureInfo.metallicRoughness.targets,
+    uvol2?.textureInfo.occlusion.targets
+  ])
 
   return (
     <NodeEditor
@@ -151,15 +253,20 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       />
 
       {(hasComponent(props.entity, UVOL2Component) || hasComponent(props.entity, UVOL1Component)) && (
-        <InputGroup name="CurrentTime" label={t('editor:properties.media.lbl-currentTime')}>
-          <CompoundNumericInput
-            min={0}
-            max={volumetricComponent.currentTrackInfo.duration.value}
-            step={0.01}
-            value={volumetricComponent.currentTrackInfo.currentTime.value}
-          />
-        </InputGroup>
+        <VolumetricCurrentTimeScrubber entity={props.entity} />
       )}
+
+      <InputGroup name="Playback Rate" label="Playback Rate">
+        <CompoundNumericInput
+          value={volumetricComponent.currentTrackInfo.playbackRate.value}
+          min={0.5}
+          max={4}
+          step={0.1}
+          onChange={(value: number) => {
+            volumetricComponent.currentTrackInfo.playbackRate.set(value)
+          }}
+        />
+      </InputGroup>
 
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
         <SelectInput
@@ -177,10 +284,73 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         )}
       </InputGroup>
 
+      {hasComponent(props.entity, UVOL2Component) && (
+        <>
+          <InputGroup name="Geometry Target" label="Geometry Target">
+            <SelectInput
+              key={props.entity}
+              options={geometryTargets}
+              value={uvol2?.geometryInfo.userTarget.value}
+              onChange={(value: number) => {
+                if (uvol2) {
+                  uvol2.geometryInfo.userTarget.set(value)
+                }
+              }}
+            />
+          </InputGroup>
+          {Object.keys(textureTargets).map((textureType, index) => {
+            return (
+              <InputGroup name={`${textureType} target`} label={`${textureType} target`} key={index}>
+                <SelectInput
+                  key={props.entity}
+                  options={textureTargets[textureType]}
+                  value={uvol2?.textureInfo[textureType].userTarget.value}
+                  onChange={(value: number) => {
+                    if (uvol2) {
+                      uvol2?.textureInfo[textureType].userTarget.set(value)
+                    }
+                  }}
+                />
+              </InputGroup>
+            )
+          })}
+        </>
+      )}
+
       <InputGroup name="Current Track" label="Current Track">
-        <StringInput value={trackLabel} />
+        <SelectInput
+          key={props.entity}
+          options={trackLabels}
+          value={trackLabels.length ? volumetricComponent.track.value : ''}
+          onChange={(value: number) => {
+            volumetricComponent.track.set(value)
+          }}
+        />
       </InputGroup>
     </NodeEditor>
+  )
+}
+
+function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
+  const { t } = useTranslation()
+  const volumetricComponent = useComponent(props.entity, VolumetricComponent)
+
+  return (
+    <InputGroup name="CurrentTime" label={t('editor:properties.media.lbl-currentTime')}>
+      <CompoundNumericInput
+        min={0}
+        max={volumetricComponent.currentTrackInfo.duration.value}
+        step={0.01}
+        onChange={(value) => {
+          const uvol2Component = getOptionalMutableComponent(props.entity, UVOL2Component)
+          if (uvol2Component) {
+            const engineState = getState(EngineState)
+            UVOL2Component.setStartAndPlaybackTime(props.entity, value, engineState.elapsedSeconds)
+          }
+        }}
+        value={volumetricComponent.currentTrackInfo.currentTime.value}
+      />
+    </InputGroup>
   )
 }
 

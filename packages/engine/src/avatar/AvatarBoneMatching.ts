@@ -673,7 +673,6 @@ export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
    * that must be removed for matching to keys in the mixamoVRMRigMap
    */
   const removeSuffix = mixamoPrefix ? false : !/[hp]/i.test(hips.name.charAt(9))
-
   hips.traverse((target) => {
     /**match the keys to create a humanoid bones object */
     let boneName = mixamoPrefix + target.name

@@ -31,8 +31,7 @@ import path from 'path'
 import { isDev } from '@etherealengine/common/src/config'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
-import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
-import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
   SceneCreateData,
   SceneDataType,
@@ -43,7 +42,8 @@ import {
   SceneQuery,
   SceneUpdate,
   scenePath
-} from '@etherealengine/engine/src/schemas/projects/scene.schema'
+} from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'

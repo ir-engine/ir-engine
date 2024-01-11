@@ -32,15 +32,15 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 import {
   recordingResourcePath,
   RecordingResourceType
-} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+} from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
 import {
   RecordingDatabaseType,
   RecordingID,
   RecordingQuery,
   RecordingSchemaType,
   RecordingType
-} from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/recording/recording.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const recordingDbToSchema = (rawData: RecordingDatabaseType): RecordingType => {

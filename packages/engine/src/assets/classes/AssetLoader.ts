@@ -53,6 +53,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
+import iterateObject3D from '../../scene/util/iterateObject3D'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
@@ -80,13 +81,13 @@ export function disposeDracoLoaderWorkers(): void {
   getState(AssetLoaderState).gltfLoader!.dracoLoader?.dispose()
 }
 
-const onUploadDropBuffer = (uuid?: string) =>
+const onUploadDropBuffer = () =>
   function (this: BufferAttribute) {
     // @ts-ignore
     this.array = new this.array.constructor(1)
   }
 
-const onTextureUploadDropSource = (uuid?: string) =>
+const onTextureUploadDropSource = () =>
   function (this: Texture) {
     // source.data can't be null because the WebGLRenderer checks for it
     this.source.data = { width: this.source.data.width, height: this.source.data.height, __deleted: true }
@@ -112,7 +113,7 @@ const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
 
-  asset.traverse((child: Mesh<any, Material>) => {
+  iterateObject3D(asset, (child: Mesh<any, Material>) => {
     //test for LODs within this traversal
     if (haveAnyLODs(child)) loddables.push(child)
 
@@ -224,6 +225,8 @@ const getAssetType = (assetFileName: string): AssetType => {
       return AssetType.MKV
     case 'm3u8':
       return AssetType.M3U8
+    case 'material':
+      return AssetType.MAT
     default:
       return null!
   }
@@ -237,6 +240,10 @@ const getAssetType = (assetFileName: string): AssetType => {
 const getAssetClass = (assetFileName: string): AssetClass => {
   assetFileName = assetFileName.toLowerCase()
   if (/\.(gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
+    if (/\.(material.gltf)$/.test(assetFileName)) {
+      console.log('Material asset')
+      return AssetClass.Material
+    }
     return AssetClass.Model
   } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
     return AssetClass.Image
@@ -344,6 +351,10 @@ const assetLoadCallback =
         registerMaterials(asset.scene, SourceType.MODEL, url)
       }
     }
+    if (assetClass === AssetClass.Material) {
+      const material = asset as Material
+      material.userData.type = assetType
+    }
     if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
       const texture = asset as Texture
       texture.wrapS = RepeatWrapping
@@ -361,7 +372,6 @@ const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineSta
 type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
   forceAssetType?: AssetType
-  uuid?: string
   assetRoot?: Entity
 }
 

@@ -25,11 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
+import { ChannelID, InstanceID, LocationID, RoomCode } from '@etherealengine/common/src/schema.type.module'
 import { defineAction, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Validator, matches } from '../common/functions/MatchesUtils'
-import { InstanceID } from '../schemas/networking/instance.schema'
-import { ChannelID } from '../schemas/social/channel.schema'
-import { LocationID, RoomCode } from '../schemas/social/location.schema'
 import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
 

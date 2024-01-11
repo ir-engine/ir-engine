@@ -35,12 +35,12 @@ import {
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import {
   MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../transports/MediaStreams'
 import {

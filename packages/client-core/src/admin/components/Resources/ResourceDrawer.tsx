@@ -46,7 +46,7 @@ import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'

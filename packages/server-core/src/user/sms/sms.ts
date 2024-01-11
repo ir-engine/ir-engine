@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { smsMethods, smsPath } from '@etherealengine/engine/src/schemas/user/sms.schema'
+import { smsMethods, smsPath } from '@etherealengine/common/src/schemas/user/sms.schema'
 import { Application } from '../../../declarations'
 import { SmsService } from './sms.class'
 import smsDocs from './sms.docs'

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { instanceProvisionSchema } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
+import { instanceProvisionSchema } from '@etherealengine/common/src/schemas/networking/instance-provision.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({

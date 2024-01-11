@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { AnalyticsQuery, AnalyticsType } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+import { AnalyticsQuery, AnalyticsType } from '@etherealengine/common/src/schemas/analytics/analytics.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

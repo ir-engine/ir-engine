@@ -100,6 +100,8 @@ import { ZSTDDecoder } from './zstddec.module.js';
 import WebWorker from 'web-worker'
 import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 
+const _taskCache = new WeakMap();
+
 let _activeLoaders = 0;
 
 let _zstd;
@@ -263,13 +265,36 @@ class KTX2Loader extends Loader {
 
 		}
 
-		this._createTexture( url, onLoad, onProgress, onError );
+		const loader = new FileLoader( this.manager );
+
+		loader.setResponseType( 'arraybuffer' );
+		loader.setWithCredentials( this.withCredentials );
+
+		loader.load( url, ( buffer ) => {
+
+			// Check for an existing task using this buffer. A transferred buffer cannot be transferred
+			// again from this thread.
+			if ( _taskCache.has( buffer ) ) {
+
+				const cachedTask = _taskCache.get( buffer );
+
+				return cachedTask.promise.then( onLoad ).catch( onError );
+
+			}
+
+			this._createTexture( buffer )
+				.then( ( texture ) => onLoad ? onLoad( texture ) : null )
+				.catch( onError );
+
+		}, onProgress, onError );
 
 	}
 
-	_createTextureFrom( transcodeResult, onLoad, onProgress, onError ) {
-		const { faces, width, height, format, dfdFlags, buffer } = transcodeResult;
-		const container = read( new Uint8Array( buffer ) );
+	_createTextureFrom( transcodeResult, container ) {
+
+		const { faces, width, height, format, type, error, dfdFlags } = transcodeResult;
+
+		if ( type === 'error' ) return Promise.reject( error );
 
 		let texture;
 
@@ -300,21 +325,33 @@ class KTX2Loader extends Loader {
 	}
 
 	/**
-	 * @param {string} url
+	 * @param {ArrayBuffer} buffer
 	 * @param {object?} config
 	 * @return {Promise<CompressedTexture|CompressedArrayTexture|DataTexture|Data3DTexture>}
 	 */
-	async _createTexture( url, onLoad, onProgress, onError, config = {} ) {
+	async _createTexture( buffer, config = {} ) {
 
+		const container = read( new Uint8Array( buffer ) );
+
+		if ( container.vkFormat !== VK_FORMAT_UNDEFINED ) {
+
+			return createRawTexture( container );
+
+		}
+
+		//
 		const taskConfig = config;
+		const texturePending = this.init().then( () => {
 
-		await this.init();
+			return this.workerPool.postMessage( { type: 'transcode', buffer, taskConfig: taskConfig }, [ buffer ] );
 
-		const response = await this.workerPool.postMessage( { type: 'transcode', url, taskConfig: taskConfig } );
+		} ).then( ( e ) => this._createTextureFrom( e.data, container ) );
 
-		if ( response.data.type === 'error' ) return onError(response.data.error);
+		// Cache the task result.
+		_taskCache.set( buffer, { promise: texturePending } );
 
-		onLoad(this._createTextureFrom( response.data));
+		return texturePending;
+
 	}
 
 	dispose() {
@@ -400,33 +437,15 @@ KTX2Loader.BasisWorker = function () {
 
 					try {
 
-						this.fetch(message.url).then((res) => {
-							return res.arrayBuffer();
-						})
-						.catch((err) => {
+						const { faces, buffers, width, height, hasAlpha, format, dfdFlags } = transcode( message.buffer );
 
-							self.postMessage( { type: 'error', requestId: message.requestId, error: err.message } );
-
-						})
-						.then((buffer) => {
-							if (!buffer) return
-
-							try {
-								const { faces, buffers, width, height, hasAlpha, format, dfdFlags } = transcode( buffer );
-								buffers.push( buffer );
-								self.postMessage( { type: 'transcode', requestId: message.requestId, faces, width, height, hasAlpha, format, dfdFlags, buffer }, buffers );
-							} catch (e) {
-								console.error(e)
-								self.postMessage( { type: 'error', requestId: message.requestId, error: e.message } );
-							}
-
-						})
+						self.postMessage( { type: 'transcode', id: message.id, faces, width, height, hasAlpha, format, dfdFlags }, buffers );
 
 					} catch ( error ) {
 
 						console.error( error );
 
-						self.postMessage( { type: 'error', requestId: message.requestId, error: error.message } );
+						self.postMessage( { type: 'error', id: message.id, error: error.message } );
 
 					}
 

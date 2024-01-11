@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import logger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -48,17 +47,18 @@ import {
 import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { TransformSpace, TransformSpaceType } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { ComponentJsonType, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
+import { RigidBodyComponent } from '@etherealengine/engine/src/physics/components/RigidBodyComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { ComponentJsonType, SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
@@ -319,35 +319,42 @@ const tempVector = new Vector3()
 const positionObject = (
   nodes: Entity[],
   positions: Vector3[],
-  space: TransformSpaceType = 'local',
+  space = getState(EditorHelperState).transformSpace,
   addToPosition?: boolean
 ) => {
   for (let i = 0; i < nodes.length; i++) {
-    const node = nodes[i]
+    const entity = nodes[i]
     const pos = positions[i] ?? positions[0]
 
-    const transform = getComponent(node, TransformComponent)
+    const transform = getComponent(entity, TransformComponent)
 
     if (space === TransformSpace.local) {
       if (addToPosition) transform.position.add(pos)
       else transform.position.copy(pos)
     } else {
-      const entityTreeComponent = getComponent(node, EntityTreeComponent)
+      const entityTreeComponent = getComponent(entity, EntityTreeComponent)
       const parentTransform = entityTreeComponent.parentEntity
         ? getComponent(entityTreeComponent.parentEntity, TransformComponent)
         : transform
 
+      tempVector.set(0, 0, 0)
       if (addToPosition) {
         tempVector.setFromMatrixPosition(transform.matrixWorld)
-        tempVector.add(pos)
       }
+      tempVector.add(pos)
 
       const _spaceMatrix = parentTransform.matrixWorld
       tempMatrix.copy(_spaceMatrix).invert()
       tempVector.applyMatrix4(tempMatrix)
 
       transform.position.copy(tempVector)
-      updateComponent(node, TransformComponent, { position: transform.position })
+    }
+
+    updateComponent(entity, TransformComponent, { position: transform.position })
+
+    if (hasComponent(entity, RigidBodyComponent)) {
+      getComponent(entity, RigidBodyComponent).position.copy(transform.position)
+      getComponent(entity, RigidBodyComponent).body.setTranslation(transform.position, true)
     }
   }
 }
@@ -355,18 +362,18 @@ const positionObject = (
 const T_QUAT_1 = new Quaternion()
 const T_QUAT_2 = new Quaternion()
 
-const rotateObject = (nodes: Entity[], rotations: Euler[], space: TransformSpaceType = TransformSpace.local) => {
+const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(EditorHelperState).transformSpace) => {
   for (let i = 0; i < nodes.length; i++) {
-    const node = nodes[i]
+    const entity = nodes[i]
 
-    const transform = getComponent(node, TransformComponent)
+    const transform = getComponent(entity, TransformComponent)
 
     T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
     if (space === TransformSpace.local) {
       transform.rotation.copy(T_QUAT_1)
     } else {
-      const entityTreeComponent = getComponent(node, EntityTreeComponent)
+      const entityTreeComponent = getComponent(entity, EntityTreeComponent)
       const parentTransform = entityTreeComponent.parentEntity
         ? getComponent(entityTreeComponent.parentEntity, TransformComponent)
         : transform
@@ -376,8 +383,14 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space: TransformSpace
       const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
       const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
 
-      updateComponent(node, TransformComponent, { rotation: newLocalQuaternion })
-      computeTransformMatrix(node)
+      transform.rotation.copy(newLocalQuaternion)
+    }
+
+    updateComponent(entity, TransformComponent, { rotation: transform.rotation })
+
+    if (hasComponent(entity, RigidBodyComponent)) {
+      getComponent(entity, RigidBodyComponent).rotation.copy(transform.rotation)
+      getComponent(entity, RigidBodyComponent).body.setRotation(transform.rotation, true)
     }
   }
 }
@@ -405,20 +418,15 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
       .decompose(transform.position, transform.rotation, transform.scale)
 
     updateComponent(entity, TransformComponent, { rotation: transform.rotation })
+
+    if (hasComponent(entity, RigidBodyComponent)) {
+      getComponent(entity, RigidBodyComponent).rotation.copy(transform.rotation)
+      getComponent(entity, RigidBodyComponent).body.setRotation(transform.rotation, true)
+    }
   }
 }
 
-const scaleObject = (
-  entities: Entity[],
-  scales: Vector3[],
-  space: TransformSpaceType = 'local',
-  overrideScale = false
-) => {
-  if (space === TransformSpace.world) {
-    logger.warn('Scaling an object in world space with a non-uniform scale is not supported')
-    return
-  }
-
+const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = false) => {
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i]
     const scale = scales[i] ?? scales[0]

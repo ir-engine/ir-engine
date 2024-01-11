@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarID } from '@etherealengine/common/src/schema.type.module'
 
 export const AVATAR_CHARACTERS = '123456789abcdef'
 export const AVATAR_ID_REGEX = /\/([a-fA-F0-9]+).glb$/
