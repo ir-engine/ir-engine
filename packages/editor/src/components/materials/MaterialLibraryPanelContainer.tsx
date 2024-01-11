@@ -164,7 +164,7 @@ export default function MaterialLibraryPanel() {
               New
             </Button>
             <InputGroup name="File Path" label="File Path">
-              <StringInput value={srcPath.value} onChange={(e) => srcPath.set(e.target.value)} />
+              <StringInput value={srcPath.value} onChange={srcPath.set} />
             </InputGroup>
             <Button
               onClick={async () => {
