@@ -68,9 +68,7 @@ function removeFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
   if (!obj.material?.userData?.fogPlugin) return
   removeOBCPlugin(obj.material, obj.material.userData.fogPlugin)
   delete obj.material.userData.fogPlugin
-  // material.needsUpdate is not working. Therefore have to invalidate the cache manually
-  const key = Math.random()
-  obj.material.customProgramCacheKey = () => key.toString()
+  obj.material.needsUpdate = true
   const shader = (obj.material as any).shader // todo add typings somehow
   FogShaders.splice(FogShaders.indexOf(shader), 1)
 }

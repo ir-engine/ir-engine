@@ -814,8 +814,8 @@
       "lbl-effectType": "Loading Effect",
       "lbl-previewType": "Preview Type",
       "lbl-previewImageURL": "Preview Image URL",
-      "lbl-savedImageURL": "Saved Image URL",
-      "lbl-previewImage": "Preview Image",
+      "lbl-savedImageURL": "Saved Image",
+      "lbl-generateImage": "Generate Image",
       "lbl-saveImage": "Save Image",
       "lbl-spawnPosition": "Spawn Position",
       "lbl-spawnRotation": "Spawn Rotation",
@@ -977,13 +977,19 @@
       },
       "view-mode": {
         "icons": "View: Icons",
-        "list": "View: List"
+        "list": "View: List",
+        "settings": {
+          "name": "View Options",
+          "iconSize": "Icon Size",
+          "select-listColumns": "Select List Columns",
+          "fontSize": "Font Size"
+        }
       },
       "table-list": {
         "headers": {
           "name": "Name",
           "type": "Type",
-          "date-modified": "Date Modified",
+          "dateModified": "Date Modified",
           "size": "Size"
         }
       }

@@ -37,7 +37,7 @@ export const loadEngineInjection = async () => {
           if (typeof projectConfig.worldInjection !== 'function') return null!
           return (await projectConfig.worldInjection()).default()
         } catch (e) {
-          console.log(`Failed to import world load event for project ${project} with reason ${e}`)
+          console.error(`Failed to import world load event for project ${project} with reason ${e}`)
           return null!
         }
       })
