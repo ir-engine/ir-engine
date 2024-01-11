@@ -1264,6 +1264,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     } else {
       updateNonUniformSolve(currentTime)
     }
+    for (const attr in mesh.geometry.attributes) {
+      mesh.geometry.attributes[attr].needsUpdate = true
+    }
   }
 
   const updateAllTextures = (currentTime: number) => {
