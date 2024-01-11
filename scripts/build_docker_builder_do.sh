@@ -3,7 +3,7 @@ set -e
 set -x
 
 STAGE="dig"
-TAG="dig-do-5.4.5"
+TAG="dig-do-5.4.6"
 LABEL="etherealengine/etherealengine"
 DOCR_REGISTRY="registry.digitalocean.com/etherealengine"
 REPO_NAME="etherealengine"
@@ -17,23 +17,23 @@ if [ $PUBLISH_DOCKERHUB == 'true' ]
 then
   echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-  docker build \
-    --cache-from type=gha \
+  docker buildx build \
+    --load \
     -t $DOCR_REGISTRY/$REPO_NAME-builder:latest_$STAGE \
     -t $DOCR_REGISTRY/$REPO_NAME-builder:"${EEVERSION}_${TAG}" \
     -t ${LABEL}-builder:"${EEVERSION}_${TAG}" \
     -f dockerfiles/builder/Dockerfile-builder .
-  docker push
-    $DOCR_REGISTRY/$REPO_NAME-builder:latest_$STAGE \
-    $DOCR_REGISTRY/$REPO_NAME-builder:"${EEVERSION}_${TAG}" \
-    ${LABEL}-builder:"${EEVERSION}_${TAG}"
+  docker push $DOCR_REGISTRY/$REPO_NAME-builder:latest_$STAGE
+  docker push $DOCR_REGISTRY/$REPO_NAME-builder:"${EEVERSION}_${TAG}"
+  docker push ${LABEL}-builder:"${EEVERSION}_${TAG}"
 else
-  docker build \
-    --cache-from type=gha \
+  docker buildx build \
+    --load \
     -t $DOCR_REGISTRY/$REPO_NAME-builder:latest_$STAGE \
     -t $DOCR_REGISTRY/$REPO_NAME-builder:"${EEVERSION}_${TAG}" \
     -f dockerfiles/builder/Dockerfile-builder .
-  docker push --all-tags $DOCR_REGISTRY/$REPO_NAME-builder
+  docker push $DOCR_REGISTRY/$REPO_NAME-builder:latest_$STAGE
+  docker push $DOCR_REGISTRY/$REPO_NAME-builder:"${EEVERSION}_${TAG}"
 fi
 
 # The following scripts will need to be updated for DOCR but are not critical for the functionality of EE on DO.
