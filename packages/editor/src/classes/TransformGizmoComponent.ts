@@ -40,7 +40,7 @@ import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { SnapMode, TransformPivot, TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { SnapMode, TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -78,7 +78,7 @@ export const TransformGizmoComponent = defineComponent({
           [entity],
           [new Euler().setFromQuaternion(transformComponent.value.rotation)]
         )
-        EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], TransformSpace.local, true)
+        EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], true)
         EditorControlFunctions.commitTransformSave([entity])
       })
 
