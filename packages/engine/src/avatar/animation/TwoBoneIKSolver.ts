@@ -104,11 +104,9 @@ export function solveTwoBoneIK(
   const midToTipLength = midToTipVector.length()
   const rootToTipLength = rootToTipVector.length()
 
-  const maxLength = rootToMidLength + midToTipLength
-
   const rootToTargetLength = rootToTargetVector.length()
   /** Restrict target position to always be a lesser distance from the root than a fully extended arm */
-  if (rootToTargetLength > maxLength) {
+  if (rootToTargetLength > rootToMidLength + midToTipLength) {
     rootToTargetVector.normalize().multiplyScalar((rootToMidLength + midToTipLength) * 0.999)
   }
 
@@ -136,7 +134,7 @@ export function solveTwoBoneIK(
   if (hasHint) {
     if (rootToTipLength > 0) {
       Object3DUtils.updateParentsMatrixWorld(tip, 2)
-
+      root.quaternion.identity()
       midBoneWorldPosition.setFromMatrixPosition(rawMid.matrixWorld)
       tipBoneWorldPosition.setFromMatrixPosition(rawTip.matrixWorld)
       rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
