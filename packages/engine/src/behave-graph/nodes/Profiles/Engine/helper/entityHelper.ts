@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
 import { MathUtils } from 'three'
 import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
 import { SceneState } from '../../../../../ecs/classes/Scene'
@@ -37,7 +38,6 @@ import { createEntity } from '../../../../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../../../../ecs/functions/EntityTree'
 import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../../../../scene/components/VisibleComponent'
-import { ComponentJsonType } from '../../../../../schemas/projects/scene.schema'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 export const addEntityToScene = (

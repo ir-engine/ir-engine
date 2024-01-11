@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 import {
   GithubRepoAccessQuery,
   GithubRepoAccessType
-} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+} from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

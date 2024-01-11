@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   clientSettingMethods,
   clientSettingPath
-} from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 
 import { Application } from '../../../declarations'
 import { updateAppConfig } from '../../updateAppConfig'

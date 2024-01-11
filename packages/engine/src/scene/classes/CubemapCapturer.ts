@@ -70,4 +70,8 @@ export default class CubemapCapturer {
     this.renderer.autoClear = autoClear
     return this.cubeRenderTarget
   }
+
+  dispose() {
+    this.cubeRenderTarget.dispose()
+  }
 }

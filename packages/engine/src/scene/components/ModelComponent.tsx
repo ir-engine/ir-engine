@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Group, Scene } from 'three'
+import { AnimationMixer, Group, Scene } from 'three'
 
 import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -33,6 +33,7 @@ import React from 'react'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -43,6 +44,7 @@ import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   serializeComponent,
@@ -69,6 +71,7 @@ import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
+import { VariantComponent } from './VariantComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 function clearMaterials(src: string) {
@@ -93,6 +96,8 @@ export const ModelComponent = defineComponent({
     return {
       src: '',
       cameraOcclusion: true,
+      //optional, only for bone matchable avatars
+      convertToVRM: false as boolean,
       // internal
       scene: null as Scene | null,
       asset: null as VRM | GLTF | null
@@ -102,7 +107,8 @@ export const ModelComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
-      cameraOcclusion: component.cameraOcclusion.value
+      cameraOcclusion: component.cameraOcclusion.value,
+      convertToVRM: component.convertToVRM.value
     }
   },
 
@@ -112,6 +118,7 @@ export const ModelComponent = defineComponent({
     if (typeof (json as any).avoidCameraOcclusion === 'boolean')
       component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
     if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
+    if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -137,10 +144,11 @@ export const ModelComponent = defineComponent({
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
+  const variantComponent = useOptionalComponent(entity, VariantComponent)
 
   useEffect(() => {
     let aborted = false
-
+    if (variantComponent && !variantComponent.calculated.value) return
     const model = modelComponent.value
     if (!model.src) {
       modelComponent.scene.set(null)
@@ -165,13 +173,21 @@ function ModelReactor(): JSX.Element {
         ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
       },
       (loadedAsset) => {
+        if (variantComponent && !variantComponent.calculated.value) return
         if (aborted) return
         if (typeof loadedAsset !== 'object') {
           addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
           return
         }
-        const boneMatchedAsset = autoconvertMixamoAvatar(loadedAsset) as GLTF
-        boneMatchedAsset.scene.animations = boneMatchedAsset.animations
+        const boneMatchedAsset = modelComponent.convertToVRM.value
+          ? (autoconvertMixamoAvatar(loadedAsset) as GLTF)
+          : loadedAsset
+        /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
+        if (boneMatchedAsset instanceof VRM)
+          setComponent(entity, AnimationComponent, {
+            animations: loadedAsset.animations,
+            mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBones.hips.node)
+          })
         modelComponent.asset.set(boneMatchedAsset)
       },
       (onprogress) => {
@@ -194,15 +210,17 @@ function ModelReactor(): JSX.Element {
     return () => {
       aborted = true
     }
-  }, [modelComponent.src])
+  }, [modelComponent.src, modelComponent.convertToVRM, variantComponent?.calculated])
 
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
     const asset = model.asset as GLTF | null
     if (!asset) return
+    const group = getOptionalComponent(entity, GroupComponent)
+    if (!group) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    const sceneObj = getComponent(entity, GroupComponent)[0] as Scene
+    const sceneObj = group[0] as Scene
 
     sceneObj.userData.src = model.src
     sceneObj.userData.sceneID = getModelSceneID(entity)
@@ -227,6 +245,9 @@ function ModelReactor(): JSX.Element {
           removeComponent(entity, SceneAssetPendingTagComponent)
         })
     else removeComponent(entity, SceneAssetPendingTagComponent)
+
+    /**hotfix for gltf animations being stored in the root and not scene property */
+    if (!asset.scene.animations.length && !(asset instanceof VRM)) asset.scene.animations = asset.animations
 
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)

@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { matches, matchesWithDefault } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import {
   applyIncomingActions,

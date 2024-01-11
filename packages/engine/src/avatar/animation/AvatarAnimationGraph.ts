@@ -28,8 +28,6 @@ import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -38,7 +36,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
+import { bindAnimationClipFromMixamo } from '../functions/retargetMixamoRig'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { locomotionAnimation } from './Util'
 
@@ -100,39 +98,45 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   }
 }
 
-/**Attempts to play animation by name from animation manager if already loaded, or from
- * default-project/assets/animations if not.*/
+/**
+ * @deprecated - we should not be lazily loading avatar animations - especially since they are being dispatched across the network
+ *
+ * Attempts to play animation by name from animation manager if already loaded, or from
+ * default-project/assets/animations if not
+ */
 export const loadAndPlayAvatarAnimation = (entity: Entity, filePath: string, clipName?: string, loop?: boolean) => {
   const animationState = getState(AnimationState)
   //get state name and file type
   const stateName = filePath.split('/').pop()!.split('.')[0]
   const fileType = filePath.split('.').pop()!
+  if (!animationState.loadedAnimations[stateName])
+    return console.warn(`[loadAndPlayAvatarAnimation]: ${stateName} not loaded`)
 
-  if (animationState.loadedAnimations[stateName])
-    playAvatarAnimationFromMixamo(entity, animationState.loadedAnimations[stateName].scene, loop, clipName)
-  else {
-    //load from default-project/assets/animations
-    AssetLoader.loadAsync(filePath).then((animationsAsset: GLTF) => {
-      //if no clipname specified, set first animation name to state name for lookup
-      if (animationsAsset.scene.animations.length == 0) return
-      animationsAsset.scene.animations[0].name = clipName!
-      switch (fileType) {
-        case 'fbx':
-          animationsAsset.scene.animations[0].name = clipName ?? stateName
-          animationsAsset.animations = animationsAsset.animations ?? animationsAsset.scene.animations
-          break
-        case 'glb':
-          //if it's a glb, set the scene's animations to the asset's animations
-          //this lets us assume they are in the same location for both fbx and glb files
-          animationsAsset.animations[0].name = clipName ?? stateName
-          animationsAsset.animations = animationsAsset.scene.animations
-          break
-      }
-      retargetAnimationClip(animationsAsset.animations[0], animationsAsset.scene)
-      animationState.loadedAnimations[stateName] = animationsAsset
-      playAvatarAnimationFromMixamo(entity, animationsAsset.scene, loop, clipName)
-    })
-  }
+  // if (animationState.loadedAnimations[stateName])
+  playAvatarAnimationFromMixamo(entity, animationState.loadedAnimations[stateName].scene, loop, clipName)
+  // else {
+  //   //load from default-project/assets/animations
+  //   AssetLoader.loadAsync(filePath).then((animationsAsset: GLTF) => {
+  //     //if no clipname specified, set first animation name to state name for lookup
+  //     if (animationsAsset.scene.animations.length == 0) return
+  //     animationsAsset.scene.animations[0].name = clipName!
+  //     switch (fileType) {
+  //       case 'fbx':
+  //         animationsAsset.scene.animations[0].name = clipName ?? stateName
+  //         animationsAsset.animations = animationsAsset.animations ?? animationsAsset.scene.animations
+  //         break
+  //       case 'glb':
+  //         //if it's a glb, set the scene's animations to the asset's animations
+  //         //this lets us assume they are in the same location for both fbx and glb files
+  //         animationsAsset.animations[0].name = clipName ?? stateName
+  //         animationsAsset.animations = animationsAsset.scene.animations
+  //         break
+  //     }
+  //     retargetAnimationClip(animationsAsset.animations[0], animationsAsset.scene)
+  //     animationState.loadedAnimations[stateName] = animationsAsset
+  //     playAvatarAnimationFromMixamo(entity, animationsAsset.scene, loop, clipName)
+  //   })
+  // }
 }
 
 /** Retargets a mixamo animation to the entity's avatar model, then blends in and out of the default locomotion state. */

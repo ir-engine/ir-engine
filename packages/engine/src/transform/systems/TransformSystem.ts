@@ -47,6 +47,7 @@ import {
   RigidBodyFixedTagComponent
 } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { ScenePreviewCameraComponent } from '../../scene/components/ScenePreviewCamera'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { TransformSerialization } from '../TransformSerialization'
@@ -73,6 +74,8 @@ const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
 const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
+
+const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
 
 export const computeTransformMatrix = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
@@ -319,6 +322,13 @@ const execute = () => {
     viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
     viewCamera.projectionMatrix.copy(camera.projectionMatrix)
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
+  }
+
+  const scenePreviewCameraDirty = scenePreviewCameraQuery().filter(isDirty)
+
+  for (const entity of scenePreviewCameraDirty) {
+    const camera = getComponent(entity, ScenePreviewCameraComponent).camera
+    camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
   }
 
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)

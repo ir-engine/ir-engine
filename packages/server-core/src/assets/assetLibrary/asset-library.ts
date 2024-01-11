@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { assetLibraryMethods, assetLibraryPath } from '@etherealengine/engine/src/schemas/assets/asset-library.schema'
+import { assetLibraryMethods, assetLibraryPath } from '@etherealengine/common/src/schemas/assets/asset-library.schema'
 import { Application } from '../../../declarations'
 import { AssetLibraryService } from './asset-library.class'
 import assetLibraryDocs from './asset-library.docs'
