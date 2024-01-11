@@ -29,7 +29,7 @@ import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { VRMHumanBoneList, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -88,19 +88,6 @@ const hipsForward = new Vector3(0, 0, 1)
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
-const blendIkChain = (
-  normalizedIkBones: VRMHumanBones,
-  normalizedFkBones: VRMHumanBones,
-  root: VRMHumanBoneName,
-  mid: VRMHumanBoneName,
-  tip: VRMHumanBoneName,
-  weight: number
-) => {
-  normalizedFkBones[root]!.node.quaternion.fastSlerp(normalizedIkBones[root]!.node.quaternion, weight)
-  normalizedFkBones[mid]!.node.quaternion.fastSlerp(normalizedIkBones[mid]!.node.quaternion, weight)
-  normalizedFkBones[tip]!.node.quaternion.fastSlerp(normalizedIkBones[tip]!.node.quaternion, weight)
-}
-
 const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds } = getState(EngineState)
@@ -133,10 +120,8 @@ const execute = () => {
   /**
    * 2 - Apply avatar animations
    */
-
   const avatarAnimationQueryArr = avatarAnimationQuery()
   const avatarAnimationEntities: Entity[] = []
-
   for (let i = 0; i < avatarAnimationQueryArr.length; i++) {
     const _entity = avatarAnimationQueryArr[i]
     if (priorityQueue.priorityEntities.has(_entity) || _entity === Engine.instance.localClientEntity) {
@@ -153,7 +138,6 @@ const execute = () => {
     avatarAnimationComponent.deltaAccumulator = elapsedSeconds
     const rawRig = rigComponent.rawRig
     const normalizedRig = rigComponent.normalizedRig
-    const ikRig = rigComponent.ikRig
 
     if (!rawRig?.hips?.node) continue
 
@@ -207,42 +191,26 @@ const execute = () => {
       )
     }
 
-    /**sync ik rig with fk rig */
-    for (const name of VRMHumanBoneList) {
-      const normalizedBone = normalizedRig[name]!
-      const ikBone = ikRig[name]
-      ikBone?.node.quaternion.copy(normalizedBone.node.quaternion)
-    }
-    ikRig.hips.node.position.copy(normalizedRig.hips.node.position)
-
     if (rightHandTargetBlendWeight) {
       getArmIKHint(
         entity,
         rightHandTransform.position,
         rightHandTransform.rotation,
-        ikRig.rightUpperArm.node.getWorldPosition(_vector3),
+        rawRig.rightUpperArm.node.getWorldPosition(_vector3),
         'right',
         _hint
       )
 
       solveTwoBoneIK(
-        ikRig.rightUpperArm.node,
-        ikRig.rightLowerArm.node,
-        ikRig.rightHand.node,
+        VRMHumanBoneName.RightUpperArm,
+        VRMHumanBoneName.RightLowerArm,
+        VRMHumanBoneName.RightHand,
+        rigComponent.vrm,
         rightHandTransform.position,
         rightHandTransform.rotation,
         null,
         _hint,
         rightHandTargetBlendWeight,
-        rightHandTargetBlendWeight
-      )
-
-      blendIkChain(
-        ikRig,
-        normalizedRig,
-        VRMHumanBoneName.RightUpperArm,
-        VRMHumanBoneName.RightLowerArm,
-        VRMHumanBoneName.RightHand,
         rightHandTargetBlendWeight
       )
     }
@@ -252,28 +220,20 @@ const execute = () => {
         entity,
         leftHandTransform.position,
         leftHandTransform.rotation,
-        ikRig.leftUpperArm.node.getWorldPosition(_vector3),
+        rawRig.leftUpperArm.node.getWorldPosition(_vector3),
         'left',
         _hint
       )
       solveTwoBoneIK(
-        ikRig.leftUpperArm.node,
-        ikRig.leftLowerArm.node,
-        ikRig.leftHand.node,
+        VRMHumanBoneName.LeftUpperArm,
+        VRMHumanBoneName.LeftLowerArm,
+        VRMHumanBoneName.LeftHand,
+        rigComponent.vrm,
         leftHandTransform.position,
         leftHandTransform.rotation,
         null,
         _hint,
         leftHandTargetBlendWeight,
-        leftHandTargetBlendWeight
-      )
-
-      blendIkChain(
-        ikRig,
-        normalizedRig,
-        VRMHumanBoneName.LeftUpperArm,
-        VRMHumanBoneName.LeftLowerArm,
-        VRMHumanBoneName.LeftHand,
         leftHandTargetBlendWeight
       )
     }
@@ -285,23 +245,15 @@ const execute = () => {
         .add(transform.position)
 
       solveTwoBoneIK(
-        ikRig.rightUpperLeg.node,
-        ikRig.rightLowerLeg.node,
-        ikRig.rightFoot.node,
+        VRMHumanBoneName.RightUpperLeg,
+        VRMHumanBoneName.RightLowerLeg,
+        VRMHumanBoneName.RightFoot,
+        rigComponent.vrm,
         rightFootTransform.position,
         rightFootTransform.rotation,
         null,
         _hint,
         rightFootTargetBlendWeight,
-        rightFootTargetBlendWeight
-      )
-
-      blendIkChain(
-        ikRig,
-        normalizedRig,
-        VRMHumanBoneName.RightUpperLeg,
-        VRMHumanBoneName.RightLowerLeg,
-        VRMHumanBoneName.RightFoot,
         rightFootTargetBlendWeight
       )
     }
@@ -313,23 +265,15 @@ const execute = () => {
         .add(transform.position)
 
       solveTwoBoneIK(
-        ikRig.leftUpperLeg.node,
-        ikRig.leftLowerLeg.node,
-        ikRig.leftFoot.node,
+        VRMHumanBoneName.LeftUpperLeg,
+        VRMHumanBoneName.LeftLowerLeg,
+        VRMHumanBoneName.LeftFoot,
+        rigComponent.vrm,
         leftFootTransform.position,
         leftFootTransform.rotation,
         null,
         _hint,
         leftFootTargetBlendWeight,
-        leftFootTargetBlendWeight
-      )
-
-      blendIkChain(
-        ikRig,
-        normalizedRig,
-        VRMHumanBoneName.LeftUpperLeg,
-        VRMHumanBoneName.LeftLowerLeg,
-        VRMHumanBoneName.LeftFoot,
         leftFootTargetBlendWeight
       )
     }
@@ -383,7 +327,7 @@ const reactor = () => {
 
 export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
-  insert: { before: AnimationSystem },
+  insert: { after: AnimationSystem },
   execute,
   reactor
 })
