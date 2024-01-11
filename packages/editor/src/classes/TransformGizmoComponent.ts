@@ -152,15 +152,21 @@ export const TransformGizmoComponent = defineComponent({
     }, [editorHelperState.snapMode])
 
     useEffect(() => {
-      gizmoComponent.value.setTranslationSnap(editorHelperState.translationSnap.value)
+      gizmoComponent.value.setTranslationSnap(
+        editorHelperState.snapMode.value === SnapMode.Grid ? editorHelperState.translationSnap.value : null
+      )
     }, [editorHelperState.translationSnap])
 
     useEffect(() => {
-      gizmoComponent.value.setRotationSnap(degToRad(editorHelperState.rotationSnap.value))
+      gizmoComponent.value.setRotationSnap(
+        editorHelperState.snapMode.value === SnapMode.Grid ? degToRad(editorHelperState.rotationSnap.value) : null
+      )
     }, [editorHelperState.rotationSnap])
 
     useEffect(() => {
-      gizmoComponent.value.setScaleSnap(editorHelperState.scaleSnap.value)
+      gizmoComponent.value.setScaleSnap(
+        editorHelperState.snapMode.value === SnapMode.Grid ? editorHelperState.scaleSnap.value : null
+      )
     }, [editorHelperState.scaleSnap])
 
     return null
