@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { ChannelID, InstanceID } from '@etherealengine/common/src/schema.type.module'
 import {
   defineAction,
   defineState,
@@ -38,9 +39,8 @@ import React, { useEffect } from 'react'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+
 import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
-import { InstanceID } from '../../schemas/networking/instance.schema'
-import { ChannelID } from '../../schemas/social/channel.schema'
 import { MediaStreamAppData, MediaTagType, NetworkState } from '../NetworkState'
 
 export class MediaProducerActions {

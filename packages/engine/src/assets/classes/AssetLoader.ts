@@ -53,6 +53,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
+import iterateObject3D from '../../scene/util/iterateObject3D'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
@@ -113,7 +114,7 @@ const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
 
-  asset.traverse((child: Mesh<any, Material>) => {
+  iterateObject3D(asset, (child: Mesh<any, Material>) => {
     //test for LODs within this traversal
     if (haveAnyLODs(child)) loddables.push(child)
 
@@ -225,6 +226,8 @@ const getAssetType = (assetFileName: string): AssetType => {
       return AssetType.MKV
     case 'm3u8':
       return AssetType.M3U8
+    case 'material':
+      return AssetType.MAT
     default:
       return null!
   }
@@ -238,6 +241,10 @@ const getAssetType = (assetFileName: string): AssetType => {
 const getAssetClass = (assetFileName: string): AssetClass => {
   assetFileName = assetFileName.toLowerCase()
   if (/\.(gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
+    if (/\.(material.gltf)$/.test(assetFileName)) {
+      console.log('Material asset')
+      return AssetClass.Material
+    }
     return AssetClass.Model
   } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
     return AssetClass.Image
@@ -273,7 +280,7 @@ const audioLoader = () => new AudioLoader()
 const tgaLoader = () => new TGALoader()
 const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
-  load: (src, onLoad) => {
+  load: (src, onLoad, onProgress, onError) => {
     const gltfLoader = getState(AssetLoaderState).gltfLoader
     if (!gltfLoader.ktx2Loader) initializeKTX2Loader(gltfLoader)
     gltfLoader.ktx2Loader!.load(
@@ -283,8 +290,8 @@ const ktx2Loader = () => ({
         texture.source.data.src = src
         onLoad(texture)
       },
-      () => {},
-      () => {}
+      onProgress,
+      onError
     )
   }
 })
@@ -344,6 +351,10 @@ const assetLoadCallback =
       if (notGLTF) {
         registerMaterials(asset.scene, SourceType.MODEL, url)
       }
+    }
+    if (assetClass === AssetClass.Material) {
+      const material = asset as Material
+      material.userData.type = assetType
     }
     if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
       const texture = asset as Texture

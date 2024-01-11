@@ -37,7 +37,7 @@ import { RendererState } from '../../renderer/RendererState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
@@ -70,7 +70,11 @@ export const ScenePreviewCameraComponent = defineComponent({
       const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
       cameraTransform.position.copy(transform.position)
       cameraTransform.rotation.copy(transform.rotation)
-      addObjectToGroup(entity, previewCamera.camera.value)
+      const camera = previewCamera.camera.value
+      addObjectToGroup(entity, camera)
+      return () => {
+        removeObjectFromGroup(entity, camera)
+      }
     }, [])
 
     useEffect(() => {

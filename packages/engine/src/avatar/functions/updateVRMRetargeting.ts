@@ -24,22 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
-import { Object3D, Quaternion, Vector3 } from 'three'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
+import { Entity } from '../../ecs/classes/Entity'
+import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { BoneComponent } from '../components/BoneComponent'
 
-export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
-  vrm.update(deltaTime)
-
+export const updateVRMRetargeting = (vrm: VRM, avatarEntity: Entity) => {
   const humanoidRig = (vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRig
   for (const boneName of VRMHumanBoneList) {
     const boneNode = humanoidRig.original.getBoneNode(boneName) as Object3D | null
 
     if (boneNode != null) {
-      const rigBoneNode = humanoidRig.getBoneNode(boneName)!
+      const rigBoneNode = humanoidRig.getBoneNode(boneName)! as Object3D
 
       delete TransformComponent.dirtyTransforms[rigBoneNode.entity]
 
@@ -53,26 +52,21 @@ export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
         .premultiply(invParentWorldRotation)
         .multiply(boneRotation)
 
-      // Move the mass center of the VRM
       if (boneName === 'hips') {
-        /** @todo for some reason this breaks loop animations */
-        const boneWorldPosition = rigBoneNode.getWorldPosition(_boneWorldPos)
-
-        const boneEntity = boneNode.entity
-        if (!boneEntity) continue
-
-        const parentEntity = getComponent(boneEntity, EntityTreeComponent)?.parentEntity
+        const entity = boneNode.entity
+        const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
         if (!parentEntity) continue
+        const parentBone =
+          getOptionalComponent(parentEntity, BoneComponent) ?? getOptionalComponent(parentEntity, TransformComponent)
+        if (!parentBone) continue
+        _boneWorldPos.copy(rigBoneNode.position).applyMatrix4(parentBone?.matrixWorld)
+        _parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
 
-        const parentBoneNode = getComponent(parentEntity, BoneComponent)
-        if (!parentBoneNode) continue
-
-        computeTransformMatrix(parentEntity)
-        parentBoneNode.updateMatrixWorld(true)
-
-        const parentWorldMatrix = parentBoneNode.matrixWorld
-        const localPosition = boneWorldPosition.applyMatrix4(parentWorldMatrix.clone().invert())
-        boneNode.position.copy(localPosition)
+        _boneWorldPos.applyMatrix4(_parentWorldMatrixInverse)
+        if (getComponent(avatarEntity, AvatarComponent)) {
+          _boneWorldPos.multiplyScalar(getComponent(avatarEntity, AvatarComponent).hipsHeight)
+        }
+        boneNode.position.copy(_boneWorldPos)
       }
     }
   }
@@ -80,3 +74,4 @@ export const updateVRMRetargeting = (vrm: VRM, deltaTime: number) => {
 
 const _quatA = new Quaternion()
 const _boneWorldPos = new Vector3()
+const _parentWorldMatrixInverse = new Matrix4()

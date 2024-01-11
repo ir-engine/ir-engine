@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { podsSchema } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import { podsSchema } from '@etherealengine/common/src/schemas/cluster/pods.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({

@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { AnimationMixer, Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJsonType, EntityJsonType } from '@etherealengine/common/src/schema.type.module'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
@@ -37,12 +38,10 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { ComponentJsonType, EntityJsonType } from '../../schemas/projects/scene.schema'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
@@ -171,8 +170,6 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
 
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (scene.animations?.length) {
-    // We only have to update the mixer time for this animations on each frame
-    if (getComponent(entity, AnimationComponent)) removeComponent(entity, AnimationComponent)
     setComponent(entity, AnimationComponent, {
       mixer: new AnimationMixer(scene),
       animations: scene.animations
@@ -242,6 +239,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     rotation: obj.quaternion.clone(),
     scale: obj.scale.clone()
   })
+  computeTransformMatrix(objEntity)
   eJson.components.push({
     name: TransformComponent.jsonID,
     props: {

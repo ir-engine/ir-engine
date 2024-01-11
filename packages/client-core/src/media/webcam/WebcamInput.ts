@@ -38,6 +38,7 @@ import { GroupComponent } from '@etherealengine/engine/src/scene/components/Grou
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { AnimationSystem } from '@etherealengine/engine/src/avatar/systems/AnimationSystem'
 import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
@@ -255,7 +256,7 @@ const setAvatarExpression = (entity: Entity): void => {
   if (morphValue === 0) return
 
   const morphName = morphNameByIndex[WebcamInputComponent.expressionIndex[entity]]
-  const skinnedMeshes = getComponent(entity, AvatarRigComponent).skinnedMeshes
+  const skinnedMeshes = getComponent(entity, AvatarComponent).skinnedMeshes
 
   for (const obj of skinnedMeshes) {
     if (!obj.morphTargetDictionary || !obj.morphTargetInfluences) continue

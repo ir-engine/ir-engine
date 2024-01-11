@@ -31,14 +31,14 @@ import path from 'path/posix'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import {
   FileBrowserContentType,
   FileBrowserPatch,
   FileBrowserUpdate
-} from '@etherealengine/engine/src/schemas/media/file-browser.schema'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+} from '@etherealengine/common/src/schemas/media/file-browser.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
@@ -205,16 +205,18 @@ export class FileBrowserService
     })) as StaticResourceType[]
 
     if (staticResources?.length > 0) {
-      for (const resource of staticResources) {
-        const newKey = resource.key.replace(path.join(_oldPath, data.oldName), path.join(_newPath, fileName))
-        await this.app.service(staticResourcePath).patch(
-          resource.id,
-          {
-            key: newKey
-          },
-          { isInternal: true }
-        )
-      }
+      await Promise.all(
+        staticResources.map(async (resource) => {
+          const newKey = resource.key.replace(path.join(_oldPath, data.oldName), path.join(_newPath, fileName))
+          await this.app.service(staticResourcePath).patch(
+            resource.id,
+            {
+              key: newKey
+            },
+            { isInternal: true }
+          )
+        })
+      )
     }
 
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
@@ -327,9 +329,9 @@ export class FileBrowserService
     })) as StaticResourceType[]
 
     if (staticResources?.length > 0) {
-      for (const resource of staticResources) {
-        await this.app.service(staticResourcePath).remove(resource.id)
-      }
+      await Promise.all(
+        staticResources.map(async (resource) => await this.app.service(staticResourcePath).remove(resource.id))
+      )
     }
 
     if (isDev && PROJECT_FILE_REGEX.test(key)) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { archiverMethods, archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
+import { archiverMethods, archiverPath } from '@etherealengine/common/src/schemas/media/archiver.schema'
 import { Application } from '../../../declarations'
 import { ArchiverService } from './archiver.class'
 import archiverDocs from './archiver.docs'

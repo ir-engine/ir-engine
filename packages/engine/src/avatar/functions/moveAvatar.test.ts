@@ -27,9 +27,9 @@ import { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'

@@ -29,7 +29,7 @@ import { Quaternion, Vector3 } from 'three'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+
 import {
   defineState,
   dispatchAction,
@@ -45,6 +45,7 @@ import { SceneState } from '../../ecs/classes/Scene'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'

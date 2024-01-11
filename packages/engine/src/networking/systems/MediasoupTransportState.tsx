@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { defineAction, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
-import { InstanceID } from '../../schemas/networking/instance.schema'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 

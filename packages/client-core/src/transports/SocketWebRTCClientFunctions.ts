@@ -40,6 +40,15 @@ import Primus from 'primus-client'
 import config from '@etherealengine/common/src/config'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import {
+  ChannelID,
+  InstanceID,
+  InviteCode,
+  LocationID,
+  MessageID,
+  RoomCode,
+  UserID
+} from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -80,9 +89,6 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { InviteCode, UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import {
   Action,
@@ -109,8 +115,6 @@ import { encode } from 'msgpackr'
 
 import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { LocationID, RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { MessageID } from '@etherealengine/engine/src/schemas/social/message.schema'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 

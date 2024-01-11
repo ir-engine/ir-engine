@@ -29,7 +29,7 @@ import dotenv from 'dotenv-flow'
 import fs from 'fs'
 import knex from 'knex'
 
-import { buildStatusPath, BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import { buildStatusPath, BuildStatusType } from '@etherealengine/common/src/schema.type.module'
 
 dotenv.config({
   path: appRootPath.path,

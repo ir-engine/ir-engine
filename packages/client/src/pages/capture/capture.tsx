@@ -39,7 +39,6 @@ import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import '@etherealengine/client-core/src/world/ClientNetworkModule'
 import '@etherealengine/engine/src/EngineModule'
-import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 
 const ecsRecordingErrorActionQueue = defineActionQueue(ECSRecordingActions.error.matches)
 
@@ -64,10 +63,6 @@ export const CaptureLocation = () => {
 
   useEffect(() => {
     if (locationName) LocationState.setLocationName(locationName)
-    getMutableState(AppLoadingState).merge({
-      state: AppLoadingStates.SUCCESS,
-      loaded: true
-    })
   }, [])
 
   useEffect(() => {

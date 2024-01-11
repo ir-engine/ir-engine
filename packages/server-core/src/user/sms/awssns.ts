@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns'
 
-import { MessageID } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { MessageID } from '@etherealengine/common/src/schemas/social/message.schema'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
 

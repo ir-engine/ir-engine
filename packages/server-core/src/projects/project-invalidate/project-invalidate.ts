@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   projectInvalidateMethods,
   projectInvalidatePath
-} from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
+} from '@etherealengine/common/src/schemas/projects/project-invalidate.schema'
 import { Application } from '../../../declarations'
 import { ProjectInvalidateService } from './project-invalidate.class'
 import projectInvalidateDocs from './project-invalidate.docs'

@@ -38,10 +38,10 @@ import { FixedSizeList } from 'react-window'
 
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { DockContainer } from '../EditorContainer'
 import StringInput from '../inputs/StringInput'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
@@ -106,12 +106,20 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
     if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
+  const fullName = resource.key.split('/').at(-1)!
+  const name = fullName.length > 15 ? `${fullName.substring(0, 12)}...` : fullName
+
   return (
     <div
       ref={drag}
       key={resource.id}
       onClick={() =>
-        onAssetSelectionChanged?.({ contentType: assetType, name: resource.key, resourceUrl: resource.url, size: '' })
+        onAssetSelectionChanged?.({
+          contentType: assetType,
+          name: fullName,
+          resourceUrl: resource.url,
+          size: 'unknown size'
+        })
       }
       style={{
         display: 'flex',
@@ -123,7 +131,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
       }}
     >
       <ResourceIcon style={{ marginBottom: '5px', height: '70px', width: '70px' }} />
-      <span>{resource.key.split('/').at(-1)}</span>
+      <span>{name}</span>
     </div>
   )
 }
@@ -244,11 +252,11 @@ const SceneAssetsPanel = () => {
         <StringInput
           placeholder={t('editor:layout.scene-assets.search-placeholder')}
           value={searchText.value}
-          onChange={(event) => searchText.set(event.target.value)}
+          onChange={searchText.set}
         />
       </div>
       <div style={{ display: 'flex', height: '100%', width: '100%', margin: '1rem auto' }}>
-        <div style={{ height: '100%', width: '50%' }}>
+        <div className={styles.hideScrollbar} style={{ height: '100%', width: '50%' }}>
           <AutoSizer onResize={ResourceList}>{ResourceList}</AutoSizer>
         </div>
         <div
@@ -257,7 +265,8 @@ const SceneAssetsPanel = () => {
             display: 'grid',
             gap: '40px 10px',
             gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))',
-            gridAutoRows: '60px'
+            gridAutoRows: '60px',
+            overflow: 'auto'
           }}
         >
           <ResourceItems />

@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { defineAction, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
-import { InstanceID } from '../../schemas/networking/instance.schema'
 
 export class MediasoupDataProducerActions {
   static requestProducer = defineAction({

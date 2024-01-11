@@ -60,7 +60,7 @@ import {
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { QueryReactor, defineQuery, useQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { defineSystem, useExecute } from '../../ecs/functions/SystemFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
@@ -79,6 +79,7 @@ import { ObjectLayerComponents } from '../components/ObjectLayerComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { SceneObjectSystem } from './SceneObjectSystem'
 
 export const ShadowSystemState = defineState({
   name: 'ee.engine.scene.ShadowSystemState',
@@ -105,34 +106,50 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
   const activeLightEntity = props.entity
 
   const directionalLightComponent = useComponent(activeLightEntity, DirectionalLightComponent)
+  const shadowMapResolution = useHookstate(getMutableState(RendererState).shadowMapResolution)
 
-  const directionalLight = directionalLightComponent?.light.value
+  const directionalLight = directionalLightComponent.light.value
 
   useEffect(() => {
-    getMutableState(RendererState).csm.set(new CSM({ light: directionalLight }))
+    /** @todo fix useInCSM reactivity */
+    // if (!directionalLightComponent.useInCSM.value) return
+    getMutableState(RendererState).csm.set(
+      new CSM({
+        light: directionalLight,
+        shadowBias: directionalLightComponent.shadowBias.value,
+        maxFar: directionalLightComponent.cameraFar.value,
+        lightIntensity: directionalLightComponent.intensity.value
+      })
+    )
     return () => {
       getState(RendererState).csm?.dispose()
       getMutableState(RendererState).csm.set(null)
     }
   }, [directionalLightComponent.useInCSM])
 
+  /** Must run after scene object system to ensure source light is not lit */
+  useExecute(
+    () => {
+      directionalLight.visible = false //!directionalLightComponent.useInCSM.value
+    },
+    { after: SceneObjectSystem }
+  )
+
   useEffect(() => {
     const csm = getState(RendererState).csm!
     if (!csm) return
 
+    csm.shadowBias = directionalLight.shadow.bias
+
     for (const light of csm.lights) {
-      light.color = directionalLight.color
-      light.intensity = directionalLight.intensity
-      light.shadow.bias = directionalLight.shadow.bias
-      light.shadow.radius = directionalLight.shadow.radius
-      light.shadow.mapSize.copy(directionalLight.shadow.mapSize)
-      light.shadow.camera.far = directionalLight.shadow.camera.far
-      light.shadow.camera.updateProjectionMatrix()
-      light.shadow.map?.dispose()
-      light.shadow.map = null as any
-      light.shadow.needsUpdate = true
+      light.color.copy(directionalLightComponent.color.value)
+      light.intensity = directionalLightComponent.intensity.value
+      light.shadow.bias = directionalLightComponent.shadowBias.value
+      light.shadow.mapSize.setScalar(shadowMapResolution.value)
+      csm.needsUpdate = true
     }
   }, [
+    shadowMapResolution,
     directionalLightComponent?.useInCSM,
     directionalLightComponent?.shadowBias,
     directionalLightComponent?.intensity,
@@ -215,13 +232,14 @@ function CSMReactor() {
   return <EntityCSMReactor entity={activeLightEntity} key={activeLightEntity} />
 }
 
-const shadowGeometry = new PlaneGeometry(1, 1, 1, 1)
+const shadowGeometry = new PlaneGeometry(1, 1, 1, 1).rotateX(-Math.PI)
 const shadowMaterial = new MeshBasicMaterial({
   side: DoubleSide,
   transparent: true,
   opacity: 1,
-  depthTest: true,
-  depthWrite: false
+  polygonOffset: true,
+  polygonOffsetFactor: -2,
+  polygonOffsetUnits: 0.01
 })
 
 const shadowState = hookstate(null as MeshBasicMaterial | null)
@@ -242,13 +260,7 @@ const DropShadowReactor = () => {
   const entityTree = useComponent(entity, EntityTreeComponent)
 
   useEffect(() => {
-    if (
-      getState(EngineState).isEditor ||
-      !shadow.cast.value ||
-      !shadowMaterial.value ||
-      !isMeshOrModel ||
-      hasComponent(entity, DropShadowComponent)
-    )
+    if (!shadow.cast.value || !shadowMaterial.value || !isMeshOrModel || hasComponent(entity, DropShadowComponent))
       return
 
     box3.makeEmpty()
@@ -303,7 +315,7 @@ function ShadowMeshReactor(props: { entity: Entity; obj: Mesh<any, Material> }) 
     }
 
     return () => {
-      if (obj.material) csm?.teardownMaterial(obj)
+      if (obj.material) csm?.teardownMaterial(obj.material)
     }
   }, [shadowComponent.cast, shadowComponent.receive, csm])
 
@@ -315,7 +327,7 @@ const shadowOffset = new Vector3(0, 0.01, 0)
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(dropShadowComponentQuery, compareDistanceToCamera)
 const sortedEntityTransforms = [] as Entity[]
 
-const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera]])
+const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
 
 const updateDropShadowTransforms = () => {
   const { deltaSeconds } = getState(EngineState)
@@ -323,7 +335,7 @@ const updateDropShadowTransforms = () => {
 
   sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)
 
-  const sceneObjects = cameraLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
+  const sceneObjects = cameraLayerQuery().flatMap((entity) => getComponent(entity, MeshComponent))
 
   for (const entity of priorityQueue.priorityEntities) {
     const dropShadow = getComponent(entity, DropShadowComponent)
@@ -332,7 +344,7 @@ const updateDropShadowTransforms = () => {
     TransformComponent.getWorldPosition(entity, raycasterPosition).add(dropShadow.center)
     raycaster.set(raycasterPosition, shadowDirection)
 
-    const intersected = raycaster.intersectObjects(sceneObjects)[0]
+    const intersected = raycaster.intersectObjects(sceneObjects, false)[0]
     if (!intersected || !intersected.face) {
       dropShadowTransform.scale.setScalar(0)
       continue
@@ -350,15 +362,17 @@ const updateDropShadowTransforms = () => {
     shadowRotation.setFromUnitVectors(intersected.face.normal, V_001)
     dropShadowTransform.rotation.copy(shadowRotation)
     dropShadowTransform.scale.setScalar(finalRadius * 2)
-    dropShadowTransform.position.copy(intersected.point.add(shadowOffset))
+    dropShadowTransform.position.copy(intersected.point).add(shadowOffset)
   }
 }
+
+const groupQuery = defineQuery([GroupComponent, VisibleComponent, ShadowComponent])
 
 const execute = () => {
   if (!isClient) return
 
   const useShadows = getShadowsEnabled()
-  if (!useShadows && !getState(EngineState).isEditor) {
+  if (!useShadows) {
     updateDropShadowTransforms()
     return
   }
@@ -367,6 +381,13 @@ const execute = () => {
   if (csm) {
     csm.update()
     if (csmHelper) csmHelper.update(csm)
+
+    /** hack fix to ensure CSM material is applied to all materials (which are not set reactively) */
+    for (const entity of groupQuery()) {
+      for (const obj of getComponent(entity, GroupComponent) as any as Mesh[]) {
+        if (obj.material && obj.receiveShadow) csm.setupMaterial(obj)
+      }
+    }
   }
 }
 

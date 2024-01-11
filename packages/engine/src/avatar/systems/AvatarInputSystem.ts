@@ -56,7 +56,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { XRControlsState } from '../../xr/XRState'
+import { XRControlsState, XRState } from '../../xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -215,7 +215,7 @@ const execute = () => {
 
   const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
 
-  if (!isCameraAttachedToAvatar) {
+  if (!isCameraAttachedToAvatar && !getState(XRState).session) {
     const firstWalkableEntityWithInput = walkableQuery().find(
       (entity) => getComponent(entity, InputComponent)?.inputSources.length
     )
@@ -269,12 +269,18 @@ const execute = () => {
     //** touch input (only for avatar jump)*/
     const doubleClicked = isCameraAttachedToAvatar ? false : getAvatarDoubleClick(buttons)
     /** keyboard input */
-    const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
+    const keyDeltaX =
+      (buttons.KeyA?.pressed ? -1 : 0) +
+      (buttons.KeyD?.pressed ? 1 : 0) +
+      (buttons[StandardGamepadButton.DPadLeft]?.pressed ? -1 : 0) +
+      (buttons[StandardGamepadButton.DPadRight]?.pressed ? 1 : 0)
     const keyDeltaZ =
       (buttons.KeyW?.pressed ? -1 : 0) +
       (buttons.KeyS?.pressed ? 1 : 0) +
       (buttons.ArrowUp?.pressed ? -1 : 0) +
-      (buttons.ArrowDown?.pressed ? 1 : 0)
+      (buttons.ArrowDown?.pressed ? 1 : 0) +
+      (buttons[StandardGamepadButton.DPadUp]?.pressed ? -1 : 0) +
+      (buttons[StandardGamepadButton.DPadDown]?.pressed ? -1 : 0)
 
     controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ).normalize()
 
