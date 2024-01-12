@@ -304,11 +304,11 @@ const SceneAssetsPanel = () => {
       return <div>{t('editor:layout.scene-assets.no-search-results')}</div>
     }
     if (selectedCategory.value) {
+      // prettier-ignore
       return (
         <>
           {categorizedStaticResources
-            .get(NO_PROXY)
-            [selectedCategory.value!]?.map((resource) =>
+            .get(NO_PROXY)[selectedCategory.value!]?.map((resource) =>
               'id' in resource ? (
                 <StaticResourceItem key={resource.id} resource={resource} />
               ) : (
