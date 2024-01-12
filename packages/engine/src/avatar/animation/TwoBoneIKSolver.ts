@@ -182,5 +182,4 @@ const targetPos = new Vector3(),
   abProj = new Vector3(),
   ahProj = new Vector3(),
   targetRot = new Quaternion(),
-  rot = new Quaternion(),
-  vec3 = new Vector3()
+  rot = new Quaternion()
