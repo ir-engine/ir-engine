@@ -91,7 +91,7 @@ export function SaveNewSceneDialog({
               pattern={'[A-Za-z0-9-\':"!@#$%^&*(),.?~ ]{4,64}'}
               title={t('editor:dialog.saveNewScene.info-name')}
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={setName}
             />
           </FormField>
         </div>

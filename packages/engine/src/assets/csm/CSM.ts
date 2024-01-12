@@ -173,7 +173,7 @@ export class CSM {
         light.castShadow = true
         light.frustumCulled = false
 
-        light.intensity = this.lightIntensity / this.cascades
+        light.intensity = this.lightIntensity
 
         const entity = createEntity()
         addObjectToGroup(entity, light)
