@@ -60,6 +60,7 @@ import { FileType } from './FileBrowser/FileBrowserContentPanel'
 
 type LODVariantDescriptor = {
   params: ModelTransformParameters
+  suffix: string
   variantMetadata: Record<string, any>[]
 }
 
@@ -146,6 +147,7 @@ export default function ModelCompressionPanel({
         src: fileProperties.value.url,
         modelFormat: fileProperties.value.url.endsWith('.gltf') ? 'gltf' : 'glb'
       },
+      suffix: '-transformed',
       variantMetadata: []
     }
   ])
@@ -208,10 +210,18 @@ export default function ModelCompressionPanel({
   }
 
   const confirmPreset = () => {
-    const selectedLOD = lods[selectedLODIndex]
-    const prevDst = selectedLOD.params.dst.value
-    selectedLOD.params.dst.set(`${prevDst}-${selectedPreset.dst.replace(/\s/g, '').toLowerCase()}`)
-    selectedLOD.params.maxTextureSize.set(selectedPreset.maxTextureSize)
+    const lastSuffix = lods[selectedLODIndex].suffix.value
+    const nextSuffix = `-${selectedPreset.dst.replace(/\s/g, '').toLowerCase()}`
+    lods[selectedLODIndex].suffix.set(nextSuffix)
+
+    const params = lods[selectedLODIndex].params
+    let newDST = params.dst.value
+    if (lastSuffix != null) {
+      newDST = newDST.replace(new RegExp(lastSuffix + '$'), '')
+    }
+    newDST += nextSuffix
+    params.dst.set(newDST)
+    params.maxTextureSize.set(selectedPreset.maxTextureSize)
     setModalOpen(false)
   }
 
@@ -262,6 +272,7 @@ export default function ModelCompressionPanel({
     lods.merge([
       {
         params: JSON.parse(JSON.stringify(lods[selectedLODIndex].params.value)),
+        suffix: lods[selectedLODIndex].suffix.value,
         variantMetadata: []
       }
     ])
