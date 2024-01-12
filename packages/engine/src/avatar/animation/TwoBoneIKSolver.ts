@@ -103,12 +103,12 @@ export function solveTwoBoneIK(
   const rootToMidLength = rootToMidVector.length()
   const midToTipLength = midToTipVector.length()
   const rootToTipLength = rootToTipVector.length()
-
-  const rootToTargetLength = rootToTargetVector.length()
-  /** Restrict target position to always be a lesser distance from the root than a fully extended arm */
-  if (rootToTargetLength > rootToMidLength + midToTipLength) {
+  const maxLength = rootToMidLength + midToTipLength
+  if (rootToTargetVector.lengthSq() > maxLength * maxLength) {
     rootToTargetVector.normalize().multiplyScalar((rootToMidLength + midToTipLength) * 0.999)
   }
+
+  const rootToTargetLength = rootToTargetVector.length()
 
   const hasHint = hint && hintWeight > 0
   if (hasHint) rootToHintVector.copy(hint).sub(rootBoneWorldPosition)
