@@ -88,7 +88,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   const xrState = getState(XRState)
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
-  const avatarHeight = getComponent(entity, AvatarComponent)?.avatarHeight ?? 1.6
+  const eyeHeight = getComponent(entity, AvatarComponent).eyeHeight
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   desiredMovement.copy(V_000)
 
@@ -98,7 +98,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
     const viewerPose = xrState.viewerPose
     /** move head position forward a bit to not be inside the avatar's body */
     avatarHeadPosition
-      .set(0, avatarHeight * 0.925, 0.25)
+      .set(0, eyeHeight, 0.25)
       .applyQuaternion(rigidbody.targetKinematicRotation)
       .add(rigidbody.targetKinematicPosition)
     viewerPose &&
@@ -287,8 +287,6 @@ export const applyGamepadInput = (entity: Entity) => {
     controller.isInAir || verticalMovement > 0 ? verticalMovement : 0,
     controller.gamepadWorldMovement.z
   )
-
-  controller.speedVelocity = controller.gamepadWorldMovement.lengthSq()
 
   moveAvatar(entity, _additionalMovement)
 }

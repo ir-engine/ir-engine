@@ -32,13 +32,13 @@ import {
   channelUserPatchValidator,
   channelUserPath,
   channelUserQueryValidator
-} from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+} from '@etherealengine/common/src/schemas/social/channel-user.schema'
 
-import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { messagePath } from '@etherealengine/common/src/schemas/social/message.schema'
 import verifyScope from '../../hooks/verify-scope'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { HookContext } from '../../../declarations'

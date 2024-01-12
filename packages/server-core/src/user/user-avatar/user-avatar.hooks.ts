@@ -24,14 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow } from 'feathers-hooks-common'
+import { disallow, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {
   userAvatarDataValidator,
   userAvatarPatchValidator,
   userAvatarQueryValidator
-} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
-
+} from '@etherealengine/common/src/schemas/user/user-avatar.schema'
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 import {
   userAvatarDataResolver,
   userAvatarExternalResolver,
@@ -54,7 +55,18 @@ export default {
       () => schemaHooks.validateData(userAvatarDataValidator),
       schemaHooks.resolveData(userAvatarDataResolver)
     ],
-    patch: [() => schemaHooks.validateData(userAvatarPatchValidator), schemaHooks.resolveData(userAvatarPatchResolver)],
+    patch: [
+      iff(
+        isProvider('external'),
+        iffElse(
+          async (context) => await checkScope(context.params.user, 'user', 'write'),
+          [],
+          [setLoggedinUserInQuery('userId')]
+        )
+      ),
+      () => schemaHooks.validateData(userAvatarPatchValidator),
+      schemaHooks.resolveData(userAvatarPatchResolver)
+    ],
     remove: [disallow('external')]
   },
 

@@ -6,7 +6,7 @@ import {
   helmMainVersionPath,
   helmSettingMethods,
   helmSettingPath
-} from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 
 import { Application } from '../../../declarations'
 import { updateAppConfig } from '../../updateAppConfig'

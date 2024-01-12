@@ -37,6 +37,7 @@ import InputGroup from '../inputs/InputGroup'
 import styles from './styles.module.scss'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
+import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import {
   DefaultModelTransformParameters as defaultParms,
   ModelTransformParameters
@@ -47,7 +48,6 @@ import { setComponent } from '@etherealengine/engine/src/ecs/functions/Component
 import { createSceneEntity } from '@etherealengine/engine/src/ecs/functions/createSceneEntity'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import exportGLTF from '../../functions/exportGLTF'
@@ -145,7 +145,11 @@ export default function ModelCompressionPanel({
       params: {
         ...defaultParms,
         src: fileProperties.value.url,
-        modelFormat: fileProperties.value.url.endsWith('.gltf') ? 'gltf' : 'glb'
+        modelFormat: fileProperties.url.value.endsWith('.gltf')
+          ? 'gltf'
+          : fileProperties.url.value.endsWith('.vrm')
+          ? 'vrm'
+          : 'glb'
       },
       suffix: '-transformed',
       variantMetadata: []

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
 import { Knex } from 'knex'
 
 /**

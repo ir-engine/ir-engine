@@ -29,7 +29,7 @@ import path from 'path'
 import { v4 } from 'uuid'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { SceneJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneJsonType } from '@etherealengine/common/src/schema.type.module'
 
 for (const project of fs.readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects/'))) {
   const files = fs.readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects/', project))

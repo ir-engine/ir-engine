@@ -29,7 +29,7 @@ import { v4 } from 'uuid'
 import {
   EmailSettingDatabaseType,
   emailSettingPath
-} from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/email-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/datetime-sql'

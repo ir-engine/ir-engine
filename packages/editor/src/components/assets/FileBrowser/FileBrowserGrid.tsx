@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { MouseEventHandler, MutableRefObject, useEffect, useState } from 'react'
-import { useDrag, useDrop } from 'react-dnd'
+import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { StateMethods, useHookstate } from '@etherealengine/hyperflux'
+import { StateMethods, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -46,6 +46,7 @@ import { addMediaNode } from '../../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../../functions/screenSpaceFunctions'
 import { ContextMenu } from '../../layout/ContextMenu'
 import styles from '../styles.module.scss'
+import { FilesViewModeSettings, availableTableColumns } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
 
 const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChanged: (newName: string) => void }) => {
@@ -77,16 +78,20 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
     return children
   }
   const { t } = useTranslation()
+  const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
+  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   return (
     <TableContainer component="div">
       <Table size="small" className={styles.table}>
         <TableHead>
-          <TableRow className={styles.tableHeaderRow}>
-            {['name', 'type', 'date-modified', 'size'].map((header) => (
-              <TableCell key={header} className={styles.tableCell}>
-                {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
-              </TableCell>
-            ))}
+          <TableRow className={styles.tableHeaderRow} style={{ height: fontSize * 3 }}>
+            {availableTableColumns
+              .filter((header) => selectedTableColumns[header])
+              .map((header) => (
+                <TableCell key={header} className={styles.tableCell} style={{ fontSize }}>
+                  {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
+                </TableCell>
+              ))}
           </TableRow>
         </TableHead>
         <TableBody>{children}</TableBody>
@@ -94,6 +99,7 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
     </TableContainer>
   )
 }
+
 export const FileTableListBody = ({
   file,
   onContextMenu,
@@ -101,7 +107,10 @@ export const FileTableListBody = ({
   onNameChanged,
   onClick,
   onDoubleClick,
-  modifiedDate
+  modifiedDate,
+  drop,
+  isOver,
+  drag
 }: {
   file: FileDataType
   onContextMenu: React.MouseEventHandler
@@ -110,29 +119,48 @@ export const FileTableListBody = ({
   onClick?: MouseEventHandler<HTMLDivElement>
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
   modifiedDate?: string
+  drop?: ConnectDropTarget
+  isOver: boolean
+  drag?: ConnectDragSource
 }) => {
+  const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
+  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
+  const dragFn = drag ?? ((input) => input)
+  const dropFn = drop ?? ((input) => input)
+  const tableColumns = {
+    name: (
+      <span className={styles.cellName}>
+        {file.isFolder ? (
+          <FolderIcon fontSize="inherit" />
+        ) : file.Icon ? (
+          <file.Icon fontSize="inherit" />
+        ) : (
+          <DescriptionIcon fontSize="inherit" />
+        )}
+        {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
+      </span>
+    ),
+    type: file.type.toUpperCase(),
+    dateModified: modifiedDate || '',
+    size: file.size
+  }
   return (
     <TableRow
       key={file.key}
-      sx={{ border: 0 }}
+      sx={{ border: file.isFolder ? (isOver ? '3px solid #ccc' : '') : '', height: fontSize * 3 }}
       onContextMenu={onContextMenu}
       onClick={isRenaming ? () => {} : onClick}
       onDoubleClick={isRenaming ? () => {} : onDoubleClick}
       hover
+      ref={(ref) => dragFn(dropFn(ref))}
     >
-      {[
-        <span className={styles.cellName}>
-          {file.isFolder ? <FolderIcon /> : file.Icon ? <file.Icon /> : <DescriptionIcon />}
-          {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
-        </span>,
-        file.type.toUpperCase(),
-        modifiedDate || '',
-        file.size
-      ].map((data, idx) => (
-        <TableCell key={idx} className={styles.tableCell}>
-          {data}
-        </TableCell>
-      ))}
+      {availableTableColumns
+        .filter((header) => selectedTableColumns[header])
+        .map((header, idx) => (
+          <TableCell key={idx} className={styles.tableCell} style={{ fontSize }}>
+            {tableColumns[header]}
+          </TableCell>
+        ))}
     </TableRow>
   )
 }
@@ -146,13 +174,26 @@ type FileGridItemProps = {
 }
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
+  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
   return (
     <div
       className={styles.fileListItemContainer}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.item.isFolder ? undefined : props.onClick}
+      style={{
+        fontSize: 0.2 * iconSize,
+        width: iconSize + 10,
+        margin: 0.1 * iconSize
+      }}
     >
-      <div className={styles.fileNameContainer}>
+      <div
+        className={styles.fileNameContainer}
+        style={{
+          height: iconSize,
+          width: iconSize,
+          fontSize: iconSize
+        }}
+      >
         {props.item.isFolder ? (
           <FolderIcon fontSize={'inherit'} />
         ) : props.item.Icon ? (
@@ -366,6 +407,9 @@ export function FileBrowserItem({
           isRenaming={renamingAsset}
           onNameChanged={onNameChanged}
           modifiedDate={staticResourceModifiedDates[item.key]}
+          drop={drop}
+          isOver={isOver}
+          drag={drag}
         />
       ) : (
         <div ref={drop} style={{ border: item.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}>

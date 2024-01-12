@@ -49,5 +49,6 @@ export enum AssetType {
   DDS = 'dds',
   KTX2 = 'ktx2',
   USDZ = 'usdz',
-  M3U8 = 'm3u8'
+  M3U8 = 'm3u8',
+  MAT = 'material'
 }

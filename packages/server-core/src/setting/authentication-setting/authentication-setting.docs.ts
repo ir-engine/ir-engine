@@ -30,7 +30,7 @@ import {
   authenticationSettingPatchSchema,
   authenticationSettingQuerySchema,
   authenticationSettingSchema
-} from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

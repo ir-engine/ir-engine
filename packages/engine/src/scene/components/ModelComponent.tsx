@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AnimationMixer, Scene } from 'three'
+import { AnimationMixer, Group, Scene } from 'three'
 
 import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -44,6 +44,7 @@ import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   serializeComponent,
@@ -59,17 +60,18 @@ import { removeMaterialSource } from '../../renderer/materials/functions/Materia
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { parseGLTFModel } from '../functions/loadGLTFModel'
+import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { EnvmapComponent } from './EnvmapComponent'
-import { GroupComponent } from './GroupComponent'
+import { GroupComponent, addObjectToGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
+import { VariantComponent } from './VariantComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 function clearMaterials(src: string) {
@@ -142,20 +144,23 @@ export const ModelComponent = defineComponent({
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const uuid = useComponent(entity, UUIDComponent)
+  const variantComponent = useOptionalComponent(entity, VariantComponent)
 
   useEffect(() => {
     let aborted = false
-
+    if (variantComponent && !variantComponent.calculated.value) return
     const model = modelComponent.value
     if (!model.src) {
-      // const dudScene = new Scene() as Scene & Object3D
-      // dudScene.entity = entity
-      // addObjectToGroup(entity, dudScene)
-      // proxifyParentChildRelationships(dudScene)
       modelComponent.scene.set(null)
       modelComponent.asset.set(null)
       return
+    }
+
+    if (!hasComponent(entity, GroupComponent)) {
+      const obj3d = new Group()
+      obj3d.entity = entity
+      addObjectToGroup(entity, obj3d)
+      proxifyParentChildRelationships(obj3d)
     }
 
     /** @todo this is a hack */
@@ -165,10 +170,10 @@ function ModelReactor(): JSX.Element {
       modelComponent.src.value,
       {
         forceAssetType: override,
-        ignoreDisposeGeometry: modelComponent.cameraOcclusion.value,
-        uuid: uuid.value
+        ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
       },
       (loadedAsset) => {
+        if (variantComponent && !variantComponent.calculated.value) return
         if (aborted) return
         if (typeof loadedAsset !== 'object') {
           addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
@@ -205,15 +210,17 @@ function ModelReactor(): JSX.Element {
     return () => {
       aborted = true
     }
-  }, [modelComponent.src, modelComponent.convertToVRM])
+  }, [modelComponent.src, modelComponent.convertToVRM, variantComponent?.calculated])
 
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
     const asset = model.asset as GLTF | null
     if (!asset) return
+    const group = getOptionalComponent(entity, GroupComponent)
+    if (!group) return
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    const sceneObj = getComponent(entity, GroupComponent)[0] as Scene
+    const sceneObj = group[0] as Scene
 
     sceneObj.userData.src = model.src
     sceneObj.userData.sceneID = getModelSceneID(entity)
@@ -260,9 +267,6 @@ function ModelReactor(): JSX.Element {
     return () => {
       if (!(asset instanceof VRM)) clearMaterials(src) // [TODO] Replace with hooks and refrence counting
       getMutableState(SceneState).scenes[uuid].set(none)
-      // for(const child of scene.children) {
-      //   removeEntity(child.entity)
-      // }
     }
   }, [modelComponent.scene])
 
@@ -318,7 +322,7 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
     if (shadowComponent)
       setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
     else removeComponent(props.entity, ShadowComponent)
-  }, [isMesh, shadowComponent])
+  }, [isMesh, shadowComponent?.cast, shadowComponent?.receive])
 
   const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
   useEffect(() => {
@@ -326,7 +330,16 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
     if (envmapComponent)
       setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
     else removeComponent(props.entity, EnvmapComponent)
-  }, [isMesh, envmapComponent])
+  }, [
+    isMesh,
+    envmapComponent,
+    envmapComponent?.envMapIntensity,
+    envmapComponent?.envmap,
+    envmapComponent?.envMapSourceColor,
+    envmapComponent?.envMapSourceURL,
+    envmapComponent?.envMapTextureType,
+    envmapComponent?.envMapSourceEntityUUID
+  ])
 
   return null
 }

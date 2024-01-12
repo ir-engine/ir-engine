@@ -30,6 +30,7 @@ import {
   makeFunctionNodeDefinition
 } from '@behave-graph/core'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { Tween } from '@tweenjs/tween.js'
 import {
   AdditiveAnimationBlendMode,
   AnimationActionLoopStyles,
@@ -37,8 +38,11 @@ import {
   LoopOnce,
   LoopPingPong,
   LoopRepeat,
+  Material,
   MathUtils,
-  NormalAnimationBlendMode
+  Mesh,
+  NormalAnimationBlendMode,
+  Object3D
 } from 'three'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
 import { AnimationState } from '../../../../../avatar/AnimationManager'
@@ -50,12 +54,17 @@ import { Entity } from '../../../../../ecs/classes/Entity'
 import {
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   hasComponent,
+  removeComponent,
   setComponent
 } from '../../../../../ecs/functions/ComponentFunctions'
+import { GroupComponent } from '../../../../../scene/components/GroupComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
+import iterateObject3D from '../../../../../scene/util/iterateObject3D'
+import { TweenComponent } from '../../../../../transform/components/TweenComponent'
 import { endXRSession, requestXRSession } from '../../../../../xr/XRSessionFunctions'
 import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
 import { addMediaComponent } from '../helper/assetHelper'
@@ -466,6 +475,98 @@ export const switchScene = makeFlowNodeDefinition({
     // const projectName = read<string>('projectName')
     // const sceneName = read<string>('sceneName')
     // SceneServices.setCurrentScene(projectName, sceneName)
+  }
+})
+
+export const redirectToURL = makeFlowNodeDefinition({
+  typeName: 'engine/redirectToURL',
+  category: NodeCategory.Action,
+  label: 'Redirect to URL',
+  in: {
+    flow: 'flow',
+    url: 'string'
+  },
+  out: {},
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const url = read<string>('url')
+    window.location.assign(url)
+  }
+})
+
+/**
+ * fadeMesh: fade in/out mesh
+ */
+export const fadeMesh = makeFlowNodeDefinition({
+  typeName: 'engine/fadeMesh',
+  category: NodeCategory.Effect,
+  label: 'Fade Mesh',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    fadeOut: 'boolean',
+    duration: 'float'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const entity = read<Entity>('entity')
+    const fadeOut = read<boolean>('fadeOut')
+    const duration = read<number>('duration')
+
+    const obj3d: Object3D | null = getOptionalComponent(entity, GroupComponent)?.[0] ?? null
+    const meshMaterials = obj3d
+      ? iterateObject3D(
+          obj3d,
+          (child: Mesh) => {
+            const result = child.material as Material
+            result.transparent = true
+            return result
+          },
+          (child: Mesh) =>
+            child?.isMesh &&
+            !!child.material &&
+            !Array.isArray(child.material) &&
+            typeof child.material.transparent === 'boolean'
+        )
+      : []
+
+    const opacitySlider: { opacity: number; _opacity: number } = { opacity: 1, _opacity: 1 }
+    Object.defineProperty(opacitySlider, 'opacity', {
+      get: () => opacitySlider._opacity,
+      set: (value) => {
+        opacitySlider._opacity = value
+        for (const material of meshMaterials) {
+          material.opacity = value
+        }
+      }
+    })
+    if (fadeOut) {
+      opacitySlider.opacity = 1
+      setComponent(
+        entity,
+        TweenComponent,
+        new Tween<any>(opacitySlider)
+          .to({ opacity: 0 }, duration * 1000)
+          .start()
+          .onComplete(() => {
+            removeComponent(entity, TweenComponent)
+          })
+      )
+    } else {
+      opacitySlider.opacity = 0
+      setComponent(
+        entity,
+        TweenComponent,
+        new Tween<any>(opacitySlider)
+          .to({ opacity: 1 }, duration * 1000)
+          .start()
+          .onComplete(() => {
+            removeComponent(entity, TweenComponent)
+          })
+      )
+    }
+    commit('flow')
   }
 })
 

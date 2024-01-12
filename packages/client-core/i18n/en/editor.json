@@ -235,6 +235,7 @@
       "lbl-synchronize": "Synchronize",
       "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
       "lbl-volume": "Volume",
+      "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
       "lbl-size": "Size",
       "seektime": "Start Time"
@@ -805,8 +806,8 @@
       "lbl-effectType": "Loading Effect",
       "lbl-previewType": "Preview Type",
       "lbl-previewImageURL": "Preview Image URL",
-      "lbl-savedImageURL": "Saved Image URL",
-      "lbl-previewImage": "Preview Image",
+      "lbl-savedImageURL": "Saved Image",
+      "lbl-generateImage": "Generate Image",
       "lbl-saveImage": "Save Image",
       "lbl-spawnPosition": "Spawn Position",
       "lbl-spawnRotation": "Spawn Rotation",
@@ -934,7 +935,9 @@
         "primitive-geometry": "Add basic Geometry to the scene",
         "link": "Add clickable Link to entity to route to different webpage",
         "dynamic-load": "Load entities dynamically"
-      }
+      },
+      "placeObject": "Place Object",
+      "placeObjectAtOrigin": "Place Object at Origin"
     },
     "filebrowser": {
       "tab-name": "Project Files",
@@ -965,13 +968,19 @@
       },
       "view-mode": {
         "icons": "View: Icons",
-        "list": "View: List"
+        "list": "View: List",
+        "settings": {
+          "name": "View Options",
+          "iconSize": "Icon Size",
+          "select-listColumns": "Select List Columns",
+          "fontSize": "Font Size"
+        }
       },
       "table-list": {
         "headers": {
           "name": "Name",
           "type": "Type",
-          "date-modified": "Date Modified",
+          "dateModified": "Date Modified",
           "size": "Size"
         }
       }

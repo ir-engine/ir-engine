@@ -26,14 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { BufferGeometry, Mesh, Scene } from 'three'
 
 import { MaterialComponentType } from '../../renderer/materials/components/MaterialComponent'
+import { GLTFExporterOptions } from '../exporters/gltf/GLTFExporter'
 import createGLTFExporter from './createGLTFExporter'
 
 export default async function exportMaterialsGLTF(
   materials: MaterialComponentType[],
-  options: {
-    binary: boolean
-    path: string
-  }
+  options: GLTFExporterOptions
 ): Promise<ArrayBuffer | { [key: string]: any } | undefined> {
   if (materials.length === 0) return
   const scene = new Scene()

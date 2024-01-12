@@ -30,7 +30,7 @@ import {
   buildStatusPatchSchema,
   buildStatusQuerySchema,
   buildStatusSchema
-} from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+} from '@etherealengine/common/src/schemas/cluster/build-status.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { Hook, HookContext } from '@feathersjs/feathers'
 
-import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
-import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
+import { matchInstancePath } from '@etherealengine/common/src/schemas/matchmaking/match-instance.schema'
+import { matchUserPath } from '@etherealengine/common/src/schemas/matchmaking/match-user.schema'
 import { MatchTicketAssignmentType } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 
-import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { instanceAuthorizedUserPath } from '@etherealengine/common/src/schemas/networking/instance-authorized-user.schema'
+import { InstanceID } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import logger from '../ServerLogger'
 
 interface AssignmentResponse extends MatchTicketAssignmentType {

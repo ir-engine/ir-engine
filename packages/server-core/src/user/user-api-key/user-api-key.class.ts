@@ -28,7 +28,7 @@ import {
   UserApiKeyPatch,
   UserApiKeyQuery,
   UserApiKeyType
-} from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+} from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 
 import { Params } from '@feathersjs/feathers'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
