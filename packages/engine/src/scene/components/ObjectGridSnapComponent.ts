@@ -28,7 +28,6 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
-  getMutableComponent,
   hasComponent,
   setComponent,
   useComponent,
@@ -36,28 +35,40 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { ArrowHelper, Box3, Euler, MathUtils, Mesh, Quaternion, Vector3 } from 'three'
+import {
+  ArrowHelper,
+  Box3,
+  BoxGeometry,
+  DoubleSide,
+  MathUtils,
+  Mesh,
+  MeshBasicMaterial,
+  Quaternion,
+  Vector3
+} from 'three'
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
-import { TransformSystem, computeTransformMatrix } from '../../transform/systems/TransformSystem'
-import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { addObjectToGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
+import { NameComponent } from './NameComponent'
+import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { UUIDComponent } from './UUIDComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export type AttachmentPointData = {
   position: Vector3
   rotation: Quaternion
-  helper?: ArrowHelper
+  helper?: Mesh | ArrowHelper
 }
 
 export function flipAround(rotation: Quaternion) {
   const localYAxis = new Vector3(1, 0, 0)
   localYAxis.applyQuaternion(rotation)
-  return new Quaternion().setFromAxisAngle(localYAxis, Math.PI)
+  return new Quaternion().setFromAxisAngle(localYAxis, Math.PI).multiply(rotation)
 }
 
 export const ObjectGridSnapComponent = defineComponent({
@@ -89,6 +100,22 @@ export const ObjectGridSnapComponent = defineComponent({
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
 
     const assetLoading = useOptionalComponent(entity, SceneAssetPendingTagComponent)
+
+    const helperEntity = useHookstate(null as Entity | null)
+
+    useEffect(() => {
+      const helper = createEntity()
+      setComponent(helper, NameComponent, 'helper')
+      setComponent(helper, VisibleComponent)
+      setComponent(helper, TransformComponent)
+      setComponent(helper, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+      setComponent(helper, EntityTreeComponent, { parentEntity: entity })
+      setComponent(helper, ObjectLayerMaskComponent, ObjectLayers.NodeHelper)
+      helperEntity.set(helper)
+      return () => {
+        removeEntity(helperEntity.value!)
+      }
+    }, [])
 
     useEffect(() => {
       if (assetLoading?.value) return
@@ -135,223 +162,14 @@ export const ObjectGridSnapComponent = defineComponent({
         scale: originalScale
       })
       iterateEntityNode(entity, computeTransformMatrix)
+      const helperMesh = new Mesh(
+        new BoxGeometry(...bbox.getSize(new Vector3())),
+        new MeshBasicMaterial({ color: 0xff0000, side: DoubleSide })
+      )
+
+      addObjectToGroup(helperEntity.value!, helperMesh)
     }, [assetLoading])
 
-    useEffect(() => {
-      //if no bounding box, return
-      if (!snapComponent.bbox.value || snapComponent.bbox.value.isEmpty()) return
-      //generate grid of attachment points on every side of the bounding box
-      const bbox = snapComponent.bbox.value
-      const density = snapComponent.density.value
-      const attachmentPoints: AttachmentPointData[] = []
-      const bboxSize = bbox.getSize(new Vector3())
-      const bboxMin = bbox.min
-      const bboxMax = bbox.max
-      //top side
-      // if (snapComponent.attachmentPoints.value.length > 0) {
-      //   for (const attachmentPoint of snapComponent.attachmentPoints.value) {
-      //     if (attachmentPoint.helper) removeObjectFromGroup(entity, attachmentPoint.helper)
-      //   }
-      // }
-
-      const generateHelper = (color: number) => {
-        return new ArrowHelper(new Vector3(0, 0, 1), new Vector3(), 0.5, color, 0.2, 0.1)
-      }
-
-      const helperEntities: Entity[] = []
-
-      const generateAttachmentPointsForSide = (
-        side: 'top' | 'bottom' | 'left' | 'right' | 'front' | 'back',
-        color: number
-      ) => {
-        let minI = bboxMin.x
-        let minJ = bboxMin.z
-        let sizeI = bboxSize.x
-        let sizeJ = bboxSize.z
-        switch (side) {
-          case 'top':
-            minI = bboxMin.x
-            minJ = bboxMin.z
-            sizeI = bboxSize.x
-            sizeJ = bboxSize.z
-            break
-          case 'bottom':
-            minI = bboxMin.x
-            minJ = bboxMin.z
-            sizeI = bboxSize.x
-            sizeJ = bboxSize.z
-            break
-          case 'left':
-            minI = bboxMin.y
-            minJ = bboxMin.z
-            sizeI = bboxSize.y
-            sizeJ = bboxSize.z
-            break
-          case 'right':
-            minI = bboxMin.y
-            minJ = bboxMin.z
-            sizeI = bboxSize.y
-            sizeJ = bboxSize.z
-            break
-          case 'front':
-            minI = bboxMin.x
-            minJ = bboxMin.y
-            sizeI = bboxSize.x
-            sizeJ = bboxSize.y
-            break
-          case 'back':
-            minI = bboxMin.x
-            minJ = bboxMin.y
-            sizeI = bboxSize.x
-            sizeJ = bboxSize.y
-            break
-        }
-        const generatePositionAndRotation = (x, z) => {
-          let position = new Vector3()
-          let rotation = new Quaternion()
-          switch (side) {
-            // case 'top':
-            //   position = new Vector3(x, bboxMax.y, z)
-            //   rotation = new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, 0))
-            //   break
-            // case 'bottom':
-            //   position = new Vector3(x, bboxMin.y, z)
-            //   rotation = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))
-            //   break
-            // case 'left':
-            //   position = new Vector3(bboxMin.x, x, z)
-            //   rotation = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
-            //   break
-            // case 'right':
-            //   position = new Vector3(bboxMax.x, x, z)
-            //   rotation = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
-            //   break
-            // case 'front':
-            //   position = new Vector3(x, bboxMin.y, z)
-            //   rotation = new Quaternion().setFromEuler(new Euler(0, 0, 0))
-            //   break
-            // case 'back':
-            //   position = new Vector3(x, bboxMin.y, z)
-            //   rotation = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
-            //   break
-            case 'top':
-              position = new Vector3(x, bboxMax.y, z)
-              rotation = new Quaternion().setFromEuler(new Euler(0, 0, 0))
-              break
-            case 'bottom':
-              position = new Vector3(x, bboxMin.y, z)
-              rotation = new Quaternion().setFromEuler(new Euler(Math.PI, 0, 0))
-              break
-            case 'left':
-              position = new Vector3(bboxMin.x, x, z)
-              rotation = new Quaternion().setFromEuler(new Euler(0, 0, Math.PI / 2))
-              break
-            case 'right':
-              position = new Vector3(bboxMax.x, x, z)
-              rotation = new Quaternion().setFromEuler(new Euler(0, 0, -Math.PI / 2))
-              break
-            case 'front':
-              position = new Vector3(x, z, bboxMax.z)
-              rotation = new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, 0))
-              break
-            case 'back':
-              position = new Vector3(x, z, bboxMin.z)
-              rotation = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))
-              break
-          }
-          return {
-            position,
-            rotation
-          }
-        }
-        if (density === 1) {
-          const x = minI + sizeI / 2
-          const z = minJ + sizeJ / 2
-          const helper = generateHelper(color)
-          const helperEntity = createEntity()
-          helperEntities.push(helperEntity)
-          const { position, rotation } = generatePositionAndRotation(x, z)
-          setComponent(helperEntity, TransformComponent, { position, rotation })
-          setComponent(helperEntity, EntityTreeComponent, {
-            parentEntity: entity,
-            uuid: MathUtils.generateUUID() as EntityUUID
-          })
-          addObjectToGroup(helperEntity, helper)
-          proxifyParentChildRelationships(helper)
-          setComponent(helperEntity, VisibleComponent)
-          //addWorldObjectToGroup(entity, helper)
-          attachmentPoints.push({
-            position,
-            rotation: flipAround(rotation),
-            helper
-          })
-        } else {
-          for (let i = 0; i < density; i++) {
-            for (let j = 0; j < density; j++) {
-              const x = minI + (sizeI / (density - 1)) * i
-              const z = minJ + (sizeJ / (density - 1)) * j
-              //const helper = new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial({ color: 0xFF0000 }))
-              const helper = generateHelper(color)
-              const helperEntity = createEntity()
-              helperEntities.push(helperEntity)
-              //attachment points point up in local space
-              const { position, rotation } = generatePositionAndRotation(x, z)
-              setComponent(helperEntity, TransformComponent, { position, rotation })
-              setComponent(helperEntity, EntityTreeComponent, {
-                parentEntity: entity,
-                uuid: MathUtils.generateUUID() as EntityUUID
-              })
-              addObjectToGroup(helperEntity, helper)
-              proxifyParentChildRelationships(helper)
-              setComponent(helperEntity, VisibleComponent)
-              attachmentPoints.push({
-                position,
-                rotation,
-                helper
-              })
-            }
-          }
-        }
-      }
-      //top side
-      generateAttachmentPointsForSide('top', 0x00ffff)
-      //bottom side
-      generateAttachmentPointsForSide('bottom', 0xff0000)
-      //left side
-      generateAttachmentPointsForSide('left', 0x0000ff)
-      //right side
-      generateAttachmentPointsForSide('right', 0xff00ff)
-      //front side
-      generateAttachmentPointsForSide('front', 0x00ff00)
-      //back side
-      generateAttachmentPointsForSide('back', 0xffff00)
-      //set attachment points in component
-      setComponent(entity, ObjectGridSnapComponent, {
-        attachmentPoints
-      })
-
-      return () => {
-        for (const helperEntity of helperEntities) {
-          removeEntity(helperEntity)
-        }
-      }
-    }, [snapComponent.density, snapComponent.bbox])
-
-    useExecute(
-      () => {
-        const snapComponent = getMutableComponent(entity, ObjectGridSnapComponent)
-        const transform = getComponent(entity, TransformComponent)
-        const attachmentPoints = snapComponent.attachmentPoints
-        //loop through all attachment points
-        for (let i = 0; i < attachmentPoints.length; i++) {
-          const attachmentPoint = attachmentPoints[i]
-          const helper = attachmentPoint.helper.get(NO_PROXY)!
-          helper.position.copy(attachmentPoint.position.value.clone().applyMatrix4(transform.matrix))
-          helper.quaternion.copy(transform.rotation.clone().multiply(attachmentPoint.rotation.value))
-        }
-      },
-      { after: TransformSystem }
-    )
     return null
   }
 })
