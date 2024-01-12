@@ -35,15 +35,8 @@ import { StringInputProps } from './StringInput'
  * @param       {any} rest
  * @constructor
  */
-function PrefabInput({ onChange, ...rest }: StringInputProps) {
-  return (
-    <FileBrowserInput
-      acceptFileTypes={['xre.gltf']}
-      acceptDropItems={['gltf', 'xre.gltf']}
-      onChange={onChange}
-      {...rest}
-    />
-  )
+function PrefabInput({ ...rest }: StringInputProps) {
+  return <FileBrowserInput acceptFileTypes={['xre.gltf']} acceptDropItems={['gltf', 'xre.gltf']} {...rest} />
 }
 
 export default PrefabInput
