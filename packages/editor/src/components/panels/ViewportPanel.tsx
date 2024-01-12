@@ -48,7 +48,6 @@ const ViewportDnD = () => {
     drop(item: SceneElementType | PrefabricatedComponentsType, monitor) {
       const vec3 = new Vector3()
       getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
-      console.log('debug1 item->', item)
       if (item.type === ItemTypes.PrefabComponents) {
         EditorControlFunctions.createObjectFromSceneElement([
           ...(item as PrefabricatedComponentsType).components,

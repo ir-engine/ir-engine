@@ -38,6 +38,7 @@ import { FixedSizeList } from 'react-window'
 
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
+import { ShapeType } from '@dimforge/rapier3d-compat'
 import {
   ComponentJsonType,
   StaticResourceType,
@@ -45,9 +46,12 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
+import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
+import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
+import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { DockContainer } from '../EditorContainer'
 import StringInput from '../inputs/StringInput'
@@ -73,6 +77,32 @@ const ResourceIcons = {
   [AssetClass.Video]: VideoNodeEditor.iconComponent,
   [AssetClass.Audio]: PositionalAudioNodeEditor.iconComponent
 }
+
+const DEFAULT_PREFAB_COMPONENTS: PrefabricatedComponentsType[] = [
+  {
+    components: [
+      { name: ModelComponent.jsonID },
+      { name: LoopAnimationComponent.jsonID },
+      { name: ShadowComponent.jsonID },
+      { name: EnvmapComponent.jsonID }
+    ],
+    label: 'Animated Model',
+    type: ItemTypes.PrefabComponents
+  },
+  {
+    components: [
+      { name: ModelComponent.jsonID },
+      {
+        name: ColliderComponent.jsonID,
+        props: {
+          shape: ShapeType.TriMesh
+        }
+      }
+    ],
+    label: 'Mesh Collider',
+    type: ItemTypes.PrefabComponents
+  }
+]
 
 const FolderItem = ({
   data: { resources, onClick, selectedCategory },
@@ -193,23 +223,7 @@ const SceneAssetsPanel = () => {
           }
 
           const categorizedResources: Record<string, ResourceItemType[]> = {
-            'Default Prefabs': [
-              {
-                components: [{ name: ModelComponent.jsonID }],
-                label: 'Model Component',
-                type: ItemTypes.PrefabComponents
-              },
-              {
-                components: [{ name: ImageComponent.jsonID }],
-                label: 'Image Component',
-                type: ItemTypes.PrefabComponents
-              },
-              {
-                components: [{ name: ImageComponent.jsonID }],
-                label: 'Image Component',
-                type: ItemTypes.PrefabComponents
-              }
-            ] as PrefabricatedComponentsType[]
+            'Default Prefabs': DEFAULT_PREFAB_COMPONENTS
           }
 
           resources.data.forEach((resource) => {
@@ -324,17 +338,28 @@ const SceneAssetsPanel = () => {
         <div className={styles.hideScrollbar} style={{ height: '100%', width: '50%' }}>
           <AutoSizer onResize={ResourceList}>{ResourceList}</AutoSizer>
         </div>
-        <div
-          style={{
-            width: '50%',
-            display: 'grid',
-            gap: '40px 10px',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))',
-            gridAutoRows: '60px',
-            overflow: 'auto'
-          }}
-        >
-          <ResourceItems />
+        <div style={{ width: '50%', overflow: 'auto' }}>
+          {selectedCategory.value && (
+            <div
+              style={{
+                textAlign: 'center',
+                fontStyle: 'italic',
+                marginBottom: '1.5rem'
+              }}
+            >
+              {t('editor:layout.scene-assets.info-drag-drop')}
+            </div>
+          )}
+          <div
+            style={{
+              display: 'grid',
+              gap: '40px 10px',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))',
+              gridAutoRows: '60px'
+            }}
+          >
+            <ResourceItems />
+          </div>
         </div>
       </div>
     </div>
