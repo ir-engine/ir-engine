@@ -130,7 +130,7 @@ const NumericInput = React.forwardRef(
       const finalValue = convertTo(roundedValue)
 
       if (onChange) {
-        onChange(finalValue)
+        onChange(Number(finalValue))
       }
 
       setTempValue(
@@ -194,7 +194,7 @@ const NumericInput = React.forwardRef(
         const clampedValue = min != null && max != null ? clamp(parsedValue, min, max) : parsedValue
         const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
         const finalValue = convertTo(roundedValue)
-        onChange?.(finalValue)
+        onChange?.(Number(finalValue))
       }
     }
 
@@ -218,7 +218,7 @@ const NumericInput = React.forwardRef(
       setFocused(false)
 
       if (onRelease) {
-        onRelease(tempValue!)
+        onRelease(Number(tempValue!))
       }
     }
 
