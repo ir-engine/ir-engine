@@ -52,10 +52,7 @@ import VideoNodeEditor from '../properties/VideoNodeEditor'
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
 import styles from './styles.module.scss'
 
-type FolderType = { folderType: 'folder'; assetClass: string }
-type ResourceType = { folderType: 'staticResource' } & StaticResourceType
-
-type CategorizedStaticResourceType = FolderType | ResourceType
+type FolderType = { assetClass: string }
 
 const ResourceIcons = {
   [AssetClass.Model]: ModelNodeEditor.iconComponent,
@@ -66,8 +63,8 @@ const ResourceIcons = {
 
 const StaticResourceItem = (props: {
   data: {
-    resources: CategorizedStaticResourceType[]
-    onClick: (resource: CategorizedStaticResourceType) => void
+    resources: FolderType[]
+    onClick: (resource: FolderType) => void
     selectedCategory: string | null
   }
   index: number
@@ -76,17 +73,15 @@ const StaticResourceItem = (props: {
   const index = props.index
   const resource = resources[index]
 
-  if (resource.folderType === 'folder') {
-    return (
-      <div
-        key={resource.folderType}
-        className={`${styles.resourceItemContainer} ${selectedCategory === resource.assetClass ? styles.selected : ''}`}
-        onClick={() => onClick(resource)}
-      >
-        {resource.assetClass}
-      </div>
-    )
-  }
+  return (
+    <div
+      key={resource.assetClass}
+      className={`${styles.resourceItemContainer} ${selectedCategory === resource.assetClass ? styles.selected : ''}`}
+      onClick={() => onClick(resource)}
+    >
+      {resource.assetClass}
+    </div>
+  )
 }
 
 const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
@@ -138,7 +133,6 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
 
 const SceneAssetsPanel = () => {
   const { t } = useTranslation()
-  const staticResources = useHookstate<CategorizedStaticResourceType[]>([])
   const categorizedStaticResources = useHookstate({} as Record<string, StaticResourceType[]>)
   const selectedCategory = useHookstate<string | null>(null)
   const loading = useHookstate(false)
@@ -158,20 +152,16 @@ const SceneAssetsPanel = () => {
           }
 
           const categorizedResources: Record<string, StaticResourceType[]> = {}
-          const categorizedResourcesList: CategorizedStaticResourceType[] = []
 
           resources.data.forEach((resource) => {
             const assetClass = AssetLoader.getAssetClass(resource.key)
             if (!(assetClass in categorizedResources)) {
-              categorizedResourcesList.push({ folderType: 'folder', assetClass })
               categorizedResources[assetClass] = []
             }
             categorizedResources[assetClass].push(resource)
-            categorizedResourcesList.push({ folderType: 'staticResource', ...resource })
           })
 
           categorizedStaticResources.set(categorizedResources)
-          staticResources.set(categorizedResourcesList)
         })
         .then(() => {
           loading.set(false)
@@ -189,26 +179,29 @@ const SceneAssetsPanel = () => {
   }, [searchText])
 
   const ResourceList = useCallback(
-    ({ height, width }) => (
-      <FixedSizeList
-        height={height}
-        width={width}
-        itemSize={32}
-        itemCount={staticResources.length}
-        itemData={{
-          resources: staticResources.get(NO_PROXY),
-          selectedCategory: selectedCategory.value,
-          onClick: (resource: FolderType) => {
-            selectedCategory.set(resource.assetClass)
-            searchText.set('')
-          }
-        }}
-        itemKey={(index) => index}
-      >
-        {StaticResourceItem}
-      </FixedSizeList>
-    ),
-    [selectedCategory]
+    ({ height, width }) => {
+      const folderTypes = Object.keys(categorizedStaticResources.value).map((assetClass) => ({ assetClass }))
+      return (
+        <FixedSizeList
+          height={height}
+          width={width}
+          itemSize={32}
+          itemCount={folderTypes.length}
+          itemData={{
+            resources: folderTypes,
+            selectedCategory: selectedCategory.value,
+            onClick: (resource: FolderType) => {
+              selectedCategory.set(resource.assetClass)
+              searchText.set('')
+            }
+          }}
+          itemKey={(index) => index}
+        >
+          {StaticResourceItem}
+        </FixedSizeList>
+      )
+    },
+    [selectedCategory, categorizedStaticResources]
   )
 
   const ResourceItems = () => {
@@ -220,7 +213,7 @@ const SceneAssetsPanel = () => {
       )
     }
     if (searchText.value) {
-      if (staticResources.value)
+      if (searchedStaticResources.length > 0)
         return (
           <>
             {searchedStaticResources.map((resource) => (
