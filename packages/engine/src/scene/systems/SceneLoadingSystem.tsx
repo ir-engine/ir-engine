@@ -393,11 +393,11 @@ const ComponentLoadReactor = (props: {
     }
   }, [])
 
-  // useEffect(() => {
-  //   if (!componentState?.value) return
-  //   const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
-  //   loadComponents(entity, [componentState.get(NO_PROXY)])
-  // }, [componentState])
+  useEffect(() => {
+    if (!componentState?.value) return
+    const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
+    loadComponents(entity, [componentState.get(NO_PROXY)])
+  }, [componentState])
 
   return null
 }
