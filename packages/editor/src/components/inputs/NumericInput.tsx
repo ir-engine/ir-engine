@@ -117,7 +117,7 @@ const NumericInput = React.forwardRef(
     }: NumericInputProp,
     ref
   ) => {
-    const [tempValue, setTempValue] = useState<string | null>(null)
+    const [tempValue, setTempValue] = useState<number | null>(null)
     const [focused, setFocused] = useState(false)
     const inputEl = useRef<HTMLInputElement>(null)
 
@@ -134,11 +134,13 @@ const NumericInput = React.forwardRef(
       }
 
       setTempValue(
-        roundedValue.toLocaleString('fullwide', {
-          useGrouping: false,
-          minimumFractionDigits: 0,
-          maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
-        })
+        Number(
+          roundedValue.toLocaleString('fullwide', {
+            useGrouping: false,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
+          })
+        )
       )
       setFocused(focus)
     }
@@ -216,7 +218,7 @@ const NumericInput = React.forwardRef(
       setFocused(false)
 
       if (onRelease) {
-        onRelease(value)
+        onRelease(tempValue!)
       }
     }
 
