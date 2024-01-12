@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { GraphJSON, VariableJSON } from '@behave-graph/core'
 import { BehaveGraphDomain } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -32,7 +33,10 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { XYPosition, useReactFlow } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
-import { Button } from '../../../inputs/Button'
+import { NodetoEnginetype } from '../../../../../../engine/src/behave-graph/nodes/Profiles/Engine/helper/commonHelper'
+import { Button, PropertiesPanelButton } from '../../../inputs/Button'
+import ParameterInput from '../../../inputs/ParameterInput'
+import SelectInput from '../../../inputs/SelectInput'
 import StringInput from '../../../inputs/StringInput'
 import CollapsibleBlock from '../../../layout/CollapsibleBlock'
 import PaginatedList from '../../../layout/PaginatedList'
@@ -40,31 +44,40 @@ import Panel from '../../../layout/Panel'
 import NodeEditor from '../../../properties/NodeEditor'
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow'
 import { useTemplateHandler } from '../hooks/useTemplateHandler'
+import { useVariableHandler } from '../hooks/useVariableHandler'
 import { behaveToFlow } from '../transformers/behaveToFlow'
 import { Examples } from './modals/LoadModal'
 
 type templateHandler = ReturnType<typeof useTemplateHandler>
+type variableHandler = ReturnType<typeof useVariableHandler>
 type BehaveGraphFlow = ReturnType<typeof useBehaveGraphFlow>
 
 export type SidePanelProps = {
   flowref: React.MutableRefObject<HTMLElement | null>
   examples: Examples
+  graph: GraphJSON
 }
 
 export const SidePanel = ({
   flowref,
   examples,
+  graph,
   onNodesChange,
   handleAddTemplate,
   handleApplyTemplate,
   handleDeleteTemplate,
-  handleEditTemplate
+  handleEditTemplate,
+  handleAddVariable,
+  handleEditVariable,
+  handleDeleteVariable
 }: SidePanelProps &
   Pick<templateHandler, 'handleApplyTemplate' | 'handleDeleteTemplate' | 'handleEditTemplate' | 'handleAddTemplate'> &
-  Pick<BehaveGraphFlow, 'onNodesChange'>) => {
+  Pick<BehaveGraphFlow, 'onNodesChange'> &
+  Pick<variableHandler, 'handleAddVariable' | 'handleDeleteVariable' | 'handleEditVariable'>) => {
   const reactFlow = useReactFlow()
   const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
   const { t } = useTranslation()
+  const graphTypes = behaveGraphState.registries[BehaveGraphDomain.ECS].values.get(NO_PROXY)
 
   useEffect(() => {
     for (const graph of Object.values(examples)) {
@@ -121,6 +134,7 @@ export const SidePanel = ({
           ></PaginatedList>
         </NodeEditor>
       </CollapsibleBlock>
+
       <CollapsibleBlock label={t('editor:graphPanel.sidePanel.template.name')}>
         <NodeEditor entity={UndefinedEntity} description={t('editor:graphPanel.sidePanel.template.description')}>
           <PaginatedList
@@ -157,6 +171,73 @@ export const SidePanel = ({
               )
             }}
           ></PaginatedList>
+        </NodeEditor>
+      </CollapsibleBlock>
+
+      <CollapsibleBlock label={'Graph Properties'}>
+        <NodeEditor entity={UndefinedEntity} description={t('editor:graphPanel.sidePanel.template.description')}>
+          <PaginatedList
+            options={{ countPerPage: 5 }}
+            list={graph.variables!}
+            element={(variable: VariableJSON, index) => {
+              return (
+                <CollapsibleBlock label={variable.name} style={{ overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                    <div style={{ display: 'flex', flexDirection: 'row', width: '100%', overflow: 'hidden' }}>
+                      <StringInput
+                        value={variable.name}
+                        onChange={(e) => {
+                          handleEditVariable({ ...variable, name: e.target.value })
+                        }}
+                      ></StringInput>
+                      <Button
+                        style={{ width: '20%' }}
+                        onClick={() => {
+                          handleDeleteVariable(variable)
+                        }}
+                      >
+                        <CancelOutlined />
+                      </Button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'row', width: '100%', overflow: 'hidden' }}>
+                      <div style={{ width: '40%' }}>
+                        <SelectInput
+                          options={Object.keys(graphTypes).map((valueType) => {
+                            return { label: valueType, value: valueType }
+                          })}
+                          value={variable.valueTypeName}
+                          onChange={(value) => {
+                            handleEditVariable({
+                              ...variable,
+                              valueTypeName: value,
+                              initialValue: graphTypes[value].creator()
+                            })
+                          }}
+                        />
+                      </div>
+                      <ParameterInput
+                        entity={`${UndefinedEntity}`}
+                        values={[NodetoEnginetype(variable.initialValue, variable.valueTypeName)]}
+                        onChange={(key) => (e) => {
+                          let value = e
+                          if (variable.valueTypeName !== 'object' && typeof e === 'object') value = e.target.value
+                          handleEditVariable({ ...variable, initialValue: value })
+                        }}
+                      />
+                    </div>
+                  </div>
+                </CollapsibleBlock>
+              )
+            }}
+          ></PaginatedList>
+          <PropertiesPanelButton
+            style={{ width: '80%' }}
+            onClick={() => {
+              handleAddVariable()
+            }}
+          >
+            {'Add Variable'}
+          </PropertiesPanelButton>
         </NodeEditor>
       </CollapsibleBlock>
     </div>

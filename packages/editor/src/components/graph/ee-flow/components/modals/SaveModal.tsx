@@ -26,24 +26,26 @@ Ethereal Engine. All Rights Reserved.
 import React, { useMemo, useRef, useState } from 'react'
 import { useEdges, useNodes } from 'reactflow'
 
+import { VariableJSON } from '@behave-graph/core'
 import { NodeSpecGenerator } from '../../hooks/useNodeSpecGenerator'
 import { flowToBehave } from '../../transformers/flowToBehave'
 import { Modal } from './Modal'
 
 export type SaveModalProps = {
   open?: boolean
+  variables: VariableJSON[]
   onClose: () => void
   specGenerator: NodeSpecGenerator
 }
 
-export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, specGenerator }) => {
+export const SaveModal: React.FC<SaveModalProps> = ({ open = false, variables, onClose, specGenerator }) => {
   const ref = useRef<HTMLTextAreaElement>(null)
   const [copied, setCopied] = useState(false)
 
   const edges = useEdges()
   const nodes = useNodes()
 
-  const flow = useMemo(() => flowToBehave(nodes, edges, specGenerator), [nodes, edges, specGenerator])
+  const flow = useMemo(() => flowToBehave(nodes, edges, variables, specGenerator), [nodes, edges, specGenerator])
 
   const jsonString = JSON.stringify(flow, null, 2)
 

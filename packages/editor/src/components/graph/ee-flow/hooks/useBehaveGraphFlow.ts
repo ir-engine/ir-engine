@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useCallback, useEffect, useState } from 'react'
 import { useEdgesState, useNodesState } from 'reactflow'
 
-import { GraphJSON } from '@behave-graph/core'
+import { GraphJSON, VariableJSON } from '@behave-graph/core'
 
 import { omit } from 'lodash'
 import { behaveToFlow } from '../transformers/behaveToFlow'
@@ -55,6 +55,7 @@ export const useBehaveGraphFlow = ({
   const [graphJson, setStoredGraphJson] = useState<GraphJSON | undefined>()
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
+  const [variables, setVariables] = useState<VariableJSON[]>([])
 
   const setGraphJson = useCallback(
     (graphJson: GraphJSON) => {
@@ -68,9 +69,11 @@ export const useBehaveGraphFlow = ({
 
       setNodes(nodes)
       setEdges(edges)
+      setVariables(graphJson.variables ?? [])
+
       setStoredGraphJson(graphJson)
     },
-    [setEdges, setNodes]
+    [setEdges, setNodes, setVariables]
   )
 
   useEffect(() => {
@@ -81,9 +84,9 @@ export const useBehaveGraphFlow = ({
   useEffect(() => {
     if (!specGenerator) return
     // when nodes and edges are updated, update the graph json with the flow to behave behavior
-    const graphJson = flowToBehave(nodes, edges, specGenerator)
+    const graphJson = flowToBehave(nodes, edges, variables, specGenerator)
     setStoredGraphJson(graphJson)
-  }, [nodes, edges, specGenerator])
+  }, [nodes, edges, variables, specGenerator])
 
   const nodeTypes = useCustomNodeTypes({
     specGenerator
@@ -105,6 +108,8 @@ export const useBehaveGraphFlow = ({
   return {
     nodes,
     edges,
+    variables,
+    setVariables,
     onEdgesChange,
     onNodesChange,
     deleteNodes,

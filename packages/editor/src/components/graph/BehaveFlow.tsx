@@ -28,7 +28,7 @@ import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/
 import { getComponent, hasComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { isEqual } from 'lodash'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { ReactFlowProvider } from 'reactflow'
@@ -46,20 +46,24 @@ export const ActiveBehaveGraph = (props: { entity }) => {
   // reactivity
   const behaveGraphState = getState(BehaveGraphState)
 
-  // get underlying data, avoid hookstate error 202
   const graphComponent = getComponent(entity, BehaveGraphComponent)
+  const [activeGraph, setActiveGraph] = useState(graphComponent.graph)
+
+  useEffect(() => {
+    commitProperty(BehaveGraphComponent, 'graph')(activeGraph)
+  }, [activeGraph])
 
   return (
     <ReactFlowProvider>
       <Flow
-        initialGraph={graphComponent.graph}
+        initialGraph={activeGraph}
         examples={{}}
         registry={behaveGraphState.registries[graphComponent.domain]}
         onChangeGraph={
           (newGraph) => {
             if (!newGraph) return
-            if (isEqual(graphComponent.graph, newGraph)) return
-            commitProperty(BehaveGraphComponent, 'graph')(newGraph)
+            if (isEqual(activeGraph, newGraph)) return
+            setActiveGraph(newGraph)
           }
           // need this to smoothen UX
         }

@@ -79,7 +79,22 @@ export default function ParameterInput({
   }
 
   const _defaults = defaults ?? generateDefaults(values)
-
+  /*
+0: "boolean"
+1: "string"
+2: "integer"
+3: "float"
+4: "vec2"
+5: "vec3"
+6: "vec4"
+7: "color"
+8: "euler"
+9: "quat"
+10: "mat3"
+11: "mat4"
+12: "object"
+13: "list"
+14: "entity"*/
   return (
     <Fragment>
       {Object.entries(_defaults).map(([k, parms]: [string, any]) => {
@@ -90,6 +105,8 @@ export default function ParameterInput({
               switch (parms.type) {
                 case 'boolean':
                   return <BooleanInput value={values[k]} onChange={setArgsProp(k)} />
+                case 'entity':
+                case 'integer':
                 case 'float':
                   return <NumericInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'string':
@@ -100,8 +117,11 @@ export default function ParameterInput({
                   if (thumbnails?.[k])
                     return <TexturePreviewInput preview={thumbnails[k]} value={values[k]} onChange={setArgsProp(k)} />
                   else return <TexturePreviewInput value={values[k]} onChange={setArgsProp(k)} />
+                case 'quat':
+                case 'euler':
                 case 'vec2':
                 case 'vec3':
+                case 'vec4':
                   return (
                     <Fragment>
                       {typeof values[k]?.map === 'function' &&

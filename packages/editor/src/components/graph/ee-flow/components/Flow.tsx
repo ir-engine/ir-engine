@@ -37,6 +37,7 @@ import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
 import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator.js'
 import { useSelectionHandler } from '../hooks/useSelectionHandler.js'
 import { useTemplateHandler } from '../hooks/useTemplateHandler.js'
+import { useVariableHandler } from '../hooks/useVariableHandler.js'
 import CustomControls from './Controls.js'
 import { NodePicker } from './NodePicker.js'
 import SidePanel from './SidePanel.js'
@@ -53,14 +54,22 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   const specGenerator = useNodeSpecGenerator(registry)
   const flowRef = useRef(null)
   const dragging = useHookstate(false)
-  const mouseOver = useHookstate(false)
   const { t } = useTranslation()
-
-  const { nodes, edges, onNodesChange, onEdgesChange, graphJson, setGraphJson, deleteNodes, nodeTypes } =
-    useBehaveGraphFlow({
-      initialGraphJson: graph,
-      specGenerator
-    })
+  const {
+    nodes,
+    edges,
+    variables,
+    setVariables,
+    onNodesChange,
+    onEdgesChange,
+    graphJson,
+    setGraphJson,
+    deleteNodes,
+    nodeTypes
+  } = useBehaveGraphFlow({
+    initialGraphJson: graph,
+    specGenerator
+  })
 
   const {
     onConnect,
@@ -78,6 +87,11 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     onEdgesChange,
     onNodesChange,
     specGenerator
+  })
+
+  const { handleAddVariable, handleEditVariable, handleDeleteVariable } = useVariableHandler({
+    variables,
+    setVariables
   })
 
   const { togglePlay, playing } = useGraphRunner({
@@ -99,7 +113,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   })
 
   useEffect(() => {
-    if (dragging.value || !mouseOver.value) return
+    if (dragging.value) return
     onChangeGraph(graphJson ?? graph)
   }, [graphJson]) // change in node position triggers reactor
 
@@ -117,8 +131,6 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
       onNodesDelete={deleteNodes}
       onConnectStart={handleStartConnect}
       onConnectEnd={handleStopConnect}
-      onPaneMouseEnter={() => mouseOver.set(true)}
-      onPaneMouseLeave={() => mouseOver.set(false)}
       fitView
       fitViewOptions={{ maxZoom: 1 }}
       onPaneClick={handlePaneClick}
@@ -127,15 +139,19 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
       multiSelectionKeyCode={'Shift'}
       deleteKeyCode={'Backspace'}
     >
-      <Panel position="top-left" style={{ width: '20%' }}>
+      <Panel position="top-left" style={{ width: '25%' }}>
         <SidePanel
           flowref={flowRef}
           examples={examples}
+          graph={graphJson ?? graph}
           onNodesChange={onNodesChange}
           handleAddTemplate={handleAddTemplate}
           handleApplyTemplate={handleApplyTemplate}
           handleDeleteTemplate={handleDeleteTemplate}
           handleEditTemplate={handleEditTemplate}
+          handleAddVariable={handleAddVariable}
+          handleEditVariable={handleEditVariable}
+          handleDeleteVariable={handleDeleteVariable}
         />
       </Panel>
 
@@ -145,6 +161,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
         onSaveGraph={onChangeGraph}
         setBehaviorGraph={setGraphJson}
         examples={examples}
+        variables={variables}
         specGenerator={specGenerator}
       />
       <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
