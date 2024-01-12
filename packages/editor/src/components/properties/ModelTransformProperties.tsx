@@ -282,7 +282,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
           <InputGroup name="matcap" label="matcap">
             <TexturePreviewInput
               value={vertexBakeOptions.matcapPath.value}
-              onChange={(val: string) => {
+              onRelease={(val: string) => {
                 vertexBakeOptions.matcapPath.set(val)
               }}
             />
