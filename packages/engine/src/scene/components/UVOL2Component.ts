@@ -1375,9 +1375,13 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       currentTime * component.data.value.texture[textureType]!.targets[textureTarget].frameRate
     )
     setTexture(textureType, textureTarget, textureFrame, currentTime)
-    const currentTextureBuffer = textureBuffer.get(textureType)!
+    const currentTextureBuffer = textureBuffer.get(textureType)
+    if (!currentTextureBuffer) {
+      return
+    }
     for (const target in component.data.value.texture[textureType]?.targets) {
       const frameData = currentTextureBuffer.get(target)
+      if (!frameData || frameData.length === 0) return
       const frameRate = component.data.value.texture[textureType]?.targets[target].frameRate as number
       if (frameData && frameData.length > 0) {
         for (const frameNo in frameData) {
