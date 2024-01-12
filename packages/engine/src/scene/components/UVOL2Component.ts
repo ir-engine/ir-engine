@@ -566,24 +566,39 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     return () => {
       removeObjectFromGroup(entity, group)
       clearInterval(intervalId)
-      // for (const texture of textureBuffer.values()) {
-      //   texture.dispose()
-      // }
-      // textureBuffer.clear()
-
-      // for (const value of geometryBuffer.values()) {
-      //   if (value instanceof Mesh) {
-      //     value.geometry.dispose()
-      //   } else if (value instanceof BufferGeometry) {
-      //     value.dispose()
-      //   } else if (value instanceof InterleavedBufferAttribute) {
-      //     mesh.geometry.setAttribute(value.name, value)
-      //   }
-      // }
-
-      // mesh.geometry.dispose()
-      // geometryBuffer.clear()
-      // mesh.material.dispose()
+      for (const textureType of component.textureInfo.textureTypes.value) {
+        const currentTextureBuffer = textureBuffer.get(textureType)
+        if (currentTextureBuffer) {
+          for (const target in component.textureInfo[textureType].targets) {
+            const frameData = currentTextureBuffer.get(target)
+            if (frameData) {
+              for (const frameNo in frameData) {
+                const texture = frameData[frameNo]
+                texture.dispose()
+                delete frameData[frameNo]
+              }
+            }
+          }
+        }
+      }
+      for (const target in geometryBuffer) {
+        const frameData = geometryBuffer.get(target)
+        if (frameData) {
+          for (const frameNo in frameData) {
+            const value = frameData[frameNo]
+            if (value instanceof Mesh) {
+              value.geometry.dispose()
+              value.material.dispose()
+            } else if (value instanceof BufferGeometry) {
+              value.dispose()
+            } else if (value instanceof InterleavedBufferAttribute) {
+              mesh.geometry.setAttribute(value.name, value)
+            }
+            delete frameData[frameNo]
+          }
+        }
+      }
+      mesh.geometry.dispose()
       audio.src = ''
     }
   }, [])
