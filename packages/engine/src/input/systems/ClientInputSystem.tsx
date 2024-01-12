@@ -582,7 +582,7 @@ const SceneObjectEntityReactor = (props: { entity: Entity }) => {
   useEffect(() => {
     if (!isMeshOrModel) return
 
-    setComponent(props.entity, InputComponent)
+    setComponent(props.entity, InputComponent, { highlight: getState(EngineState).isEditing })
     return () => {
       removeComponent(props.entity, InputComponent)
     }

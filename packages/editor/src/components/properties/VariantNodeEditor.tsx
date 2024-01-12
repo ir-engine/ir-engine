@@ -92,7 +92,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                   <InputGroup name="src" label={t('editor:properties.variant.src')}>
                     <ModelInput
                       value={level.src.value}
-                      onChange={commitProperty(VariantComponent, `levels.${index}.src` as any)}
+                      onRelease={commitProperty(VariantComponent, `levels.${index}.src` as any)}
                     />
                   </InputGroup>
                   {variantComponent.heuristic.value === 'DEVICE' && (
