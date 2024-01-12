@@ -38,13 +38,16 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { bindAnimationClipFromMixamo } from '../functions/retargetMixamoRig'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
-import { locomotionAnimation } from './Util'
+import { preloadedAnimations } from './Util'
 
 const animationQueue = defineActionQueue(AvatarNetworkAction.setAnimationState.matches)
 
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
   const manager = getState(AnimationState)
-  const clip = AnimationClip.findByName(animations ?? manager.loadedAnimations[locomotionAnimation]!.animations, name)
+  const clip = AnimationClip.findByName(
+    animations ?? manager.loadedAnimations[preloadedAnimations.locomotion]!.animations,
+    name
+  )
   return mixer.clipAction(clip)
 }
 

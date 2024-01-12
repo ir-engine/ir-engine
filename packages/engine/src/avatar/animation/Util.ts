@@ -63,15 +63,14 @@ export const emoteAnimations = {
   cry: 'cry',
   laugh: 'laugh',
   defeat: 'defeat',
-  falling: 'falling'
+  falling: 'falling',
+  seated: 'seated'
 }
 
-/** the locomotion animation file name */
-export const locomotionAnimation = 'locomotion'
-
-/** list out all the optionally loaded animations */
-export const optionalAnimations = {
-  seated: 'seated'
+/** the file names of preloaded animation bundles */
+export const preloadedAnimations = {
+  locomotion: 'locomotion',
+  emotes: 'emotes'
 }
 
 export const defaultAnimationPath = `${config.client.fileServer}/projects/default-project/assets/animations/`
