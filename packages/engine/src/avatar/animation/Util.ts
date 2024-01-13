@@ -53,18 +53,18 @@ export const ikTargets = {
 
 /** list out all the emote animation file names */
 export const emoteAnimations = {
-  dance1: 'dance1',
-  dance2: 'dance2',
-  dance3: 'dance3',
-  dance4: 'dance4',
-  clap: 'clap',
-  wave: 'wave',
-  kiss: 'kiss',
-  cry: 'cry',
-  laugh: 'laugh',
-  defeat: 'defeat',
-  falling: 'falling',
-  seated: 'seated'
+  dance1: 'Dance1',
+  dance2: 'Dance2',
+  dance3: 'Dance3',
+  dance4: 'Dance4',
+  clap: 'Clap',
+  wave: 'Wave',
+  kiss: 'Kiss',
+  cry: 'Cry',
+  laugh: 'Laugh',
+  defeat: 'Defeat',
+  falling: 'Falling',
+  seated: 'Seated'
 }
 
 /** the file names of preloaded animation bundles */

@@ -79,7 +79,7 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
     const graph = getMutableComponent(targetEntity, AvatarAnimationComponent).animationGraph
     graph.fadingOut.set(newAnimation.needsSkip ?? false)
     graph.layer.set(newAnimation.layer ?? 0)
-    playAvatarAnimationFromMixamo(targetEntity, animationAsset.scene, newAnimation.loop!)
+    playAvatarAnimationFromMixamo(targetEntity, animationAsset.scene, newAnimation.loop!, newAnimation.clipName!)
   }
 
   for (const entity of avatarEntities) {
