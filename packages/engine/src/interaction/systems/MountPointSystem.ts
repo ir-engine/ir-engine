@@ -84,7 +84,7 @@ const execute = () => {
 
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
-        filePath: defaultAnimationPath + preloadedAnimations.emotes + '.fbx',
+        animationAsset: preloadedAnimations.emotes,
         clipName: emoteAnimations.seated,
         needsSkip: true,
         entityUUID: getComponent(entity, UUIDComponent)
@@ -126,7 +126,7 @@ const execute = () => {
     AvatarControllerComponent.captureMovement(avatarEntity, mountEntity)
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
-        filePath: defaultAnimationPath + preloadedAnimations.emotes + '.fbx',
+        animationAsset: defaultAnimationPath + preloadedAnimations.emotes + '.fbx',
         clipName: emoteAnimations.seated,
         loop: true,
         layer: 1,

@@ -158,7 +158,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
     if (controller.isInAir && !beganFalling) {
       dispatchAction(
         AvatarNetworkAction.setAnimationState({
-          filePath: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
+          animationAsset: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
           clipName: 'Fall',
           loop: true,
           layer: 1,
@@ -171,7 +171,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
       if (beganFalling) {
         dispatchAction(
           AvatarNetworkAction.setAnimationState({
-            filePath: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
+            animationAsset: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
             clipName: 'Fall',
             loop: true,
             layer: 1,

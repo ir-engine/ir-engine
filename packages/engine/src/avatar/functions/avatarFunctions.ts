@@ -215,16 +215,15 @@ export const loadBundledAnimations = (animationFiles: string[]) => {
     ).then((locomotionAsset: GLTF) => {
       // delete unneeded geometry data to save memory
       locomotionAsset.scene.traverse((node) => {
-        // if ((node as Mesh).isMesh) node.removeFromParent()
         delete (node as any).geometry
         delete (node as any).material
       })
       for (let i = 0; i < locomotionAsset.animations.length; i++) {
         retargetAnimationClip(locomotionAsset.animations[i], locomotionAsset.scene)
       }
+      //ensure animations are always placed in the scene
+      locomotionAsset.scene.animations = locomotionAsset.animations
       manager.loadedAnimations[animationFile].set(locomotionAsset)
-      //update avatar speed from root motion
-      // todo: refactor this for direct translation from root motion
     })
   }
 }
