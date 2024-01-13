@@ -28,7 +28,7 @@ import { Box3, Quaternion, Vector3 } from 'three'
 import { dispatchAction, getMutableState, getState, receiveActions, useHookstate } from '@etherealengine/hyperflux'
 
 import { useEffect } from 'react'
-import { defaultAnimationPath, emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
+import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
@@ -126,7 +126,7 @@ const execute = () => {
     AvatarControllerComponent.captureMovement(avatarEntity, mountEntity)
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
-        animationAsset: defaultAnimationPath + preloadedAnimations.emotes + '.fbx',
+        animationAsset: preloadedAnimations.emotes,
         clipName: emoteAnimations.seated,
         loop: true,
         layer: 1,
