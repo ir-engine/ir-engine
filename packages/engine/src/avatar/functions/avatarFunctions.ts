@@ -212,18 +212,18 @@ export const loadBundledAnimations = (animationFiles: string[]) => {
   for (const animationFile of animationFiles) {
     AssetLoader.loadAsync(
       `${config.client.fileServer}/projects/default-project/assets/animations/${animationFile}.glb`
-    ).then((locomotionAsset: GLTF) => {
+    ).then((asset: GLTF) => {
       // delete unneeded geometry data to save memory
-      locomotionAsset.scene.traverse((node) => {
+      asset.scene.traverse((node) => {
         delete (node as any).geometry
         delete (node as any).material
       })
-      for (let i = 0; i < locomotionAsset.animations.length; i++) {
-        retargetAnimationClip(locomotionAsset.animations[i], locomotionAsset.scene)
+      for (let i = 0; i < asset.animations.length; i++) {
+        retargetAnimationClip(asset.animations[i], asset.scene)
       }
       //ensure animations are always placed in the scene
-      locomotionAsset.scene.animations = locomotionAsset.animations
-      manager.loadedAnimations[animationFile].set(locomotionAsset)
+      asset.scene.animations = asset.animations
+      manager.loadedAnimations[animationFile].set(asset)
     })
   }
 }

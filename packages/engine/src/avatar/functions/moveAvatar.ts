@@ -48,7 +48,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { XRControlsState, XRState } from '../../xr/XRState'
-import { defaultAnimationPath, preloadedAnimations } from '../animation/Util'
+import { preloadedAnimations } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
@@ -158,7 +158,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
     if (controller.isInAir && !beganFalling) {
       dispatchAction(
         AvatarNetworkAction.setAnimationState({
-          animationAsset: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
+          animationAsset: preloadedAnimations.locomotion,
           clipName: 'Fall',
           loop: true,
           layer: 1,
@@ -171,7 +171,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
       if (beganFalling) {
         dispatchAction(
           AvatarNetworkAction.setAnimationState({
-            animationAsset: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
+            animationAsset: preloadedAnimations.locomotion,
             clipName: 'Fall',
             loop: true,
             layer: 1,
