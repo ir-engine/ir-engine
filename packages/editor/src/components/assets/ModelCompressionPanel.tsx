@@ -39,7 +39,7 @@ import styles from './styles.module.scss'
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import {
-  DefaultModelTransformParameters as defaultParms,
+  DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
@@ -68,49 +68,49 @@ type LODVariantDescriptor = {
 // TODO: Find place to put hard-coded list
 const LODList: ModelTransformParameters[] = [
   {
-    ...defaultParms,
+    ...defaultParams,
     src: 'Desktop - Low',
     dst: 'Desktop - Low',
     maxTextureSize: 1024
   },
   {
-    ...defaultParms,
+    ...defaultParams,
     src: 'Desktop - Medium',
     dst: 'Desktop - Medium',
     maxTextureSize: 2048
   },
   {
-    ...defaultParms,
+    ...defaultParams,
     src: 'Desktop - High',
     dst: 'Desktop - High',
     maxTextureSize: 2048
   },
   {
-    ...defaultParms,
+    ...defaultParams,
     src: 'Mobile - Low',
     dst: 'Mobile - Low',
     maxTextureSize: 512
   },
   {
-    ...defaultParms,
+    ...defaultParams,
     src: 'Mobile - High',
     dst: 'Mobile - High',
     maxTextureSize: 1024
   },
   {
-    ...defaultParms,
+    ...defaultParams,
     src: 'XR - Low',
     dst: 'XR - Low',
     maxTextureSize: 1024
   },
   {
-    ...defaultParms,
+    ...defaultParams,
     src: 'XR - Medium',
     dst: 'XR - Medium',
     maxTextureSize: 1024
   },
   {
-    ...defaultParms,
+    ...defaultParams,
     src: 'XR - High',
     dst: 'XR - High',
     maxTextureSize: 2048
@@ -132,7 +132,7 @@ export default function ModelCompressionPanel({
   const [selectedLODIndex, setSelectedLODIndex] = useState<number>(0)
   const [variantSelectedLODIndex, setVariantSelectedLODIndex] = useState<number>(0)
   const [modalOpen, setModalOpen] = useState<boolean>(false)
-  const [selectedPreset, setSelectedPreset] = useState<ModelTransformParameters>(defaultParms)
+  const [selectedPreset, setSelectedPreset] = useState<ModelTransformParameters>(defaultParams)
   const [presetList, setPresetList] = useState<ModelTransformParameters[]>(LODList)
 
   useEffect(() => {
@@ -145,7 +145,7 @@ export default function ModelCompressionPanel({
   const lods = useHookstate<LODVariantDescriptor[]>([
     {
       params: {
-        ...defaultParms,
+        ...defaultParams,
         src: fileProperties.value.url,
         modelFormat: fileProperties.url.value.endsWith('.gltf')
           ? 'gltf'
@@ -168,19 +168,18 @@ export default function ModelCompressionPanel({
 
   const createLODVariants = async (
     modelSrc: string,
-    modelDst: string,
     lods: LODVariantDescriptor[],
     clientside: boolean,
     heuristic: 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE',
     exportCombined = false
   ) => {
-    const lodVariantParms: ModelTransformParameters[] = lods.map((lod) => ({
+    const lodVariantParams: ModelTransformParameters[] = lods.map((lod) => ({
       ...lod.params,
       src: modelSrc,
-      dst: `${modelDst}.${lod.params.modelFormat}`
+      dst: `${lod.params.dst}.${lod.params.modelFormat}`
     }))
 
-    for (const variant of lodVariantParms) {
+    for (const variant of lodVariantParams) {
       if (clientside) {
         await clientSideTransformModel(variant)
       } else {
@@ -197,7 +196,7 @@ export default function ModelCompressionPanel({
         levels: lods
           .map((lod, lodIndex) =>
             lod.variantMetadata.map((metadata) => ({
-              src: modelSrc.replace(/[^\/]+$/, lodVariantParms[lodIndex].dst),
+              src: modelSrc.replace(/[^\/]+$/, lodVariantParams[lodIndex].dst),
               metadata
             }))
           )
@@ -241,12 +240,11 @@ export default function ModelCompressionPanel({
 
   const compressModel = async () => {
     const modelSrc = fileProperties.url.value
-    const modelDst = lods[selectedLODIndex].params.dst.value
     const clientside = isClientside
     const exportCombined = isIntegratedPrefab
 
     const heuristic = 'DEVICE'
-    await createLODVariants(modelSrc, modelDst, lods.value, clientside, heuristic, exportCombined)
+    await createLODVariants(modelSrc, lods.value, clientside, heuristic, exportCombined)
 
     const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
     await FileBrowserService.fetchFiles(directoryToRefresh)
