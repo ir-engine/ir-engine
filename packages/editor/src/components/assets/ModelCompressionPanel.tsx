@@ -52,6 +52,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import exportGLTF from '../../functions/exportGLTF'
 
+import { removeEntityNodeRecursively } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { Box, ListItemButton, ListItemText, MenuItem, Modal, PopoverPosition } from '@mui/material'
 import { ContextMenu } from '../layout/ContextMenu'
 import { List, ListItem } from '../layout/List'
@@ -129,6 +130,7 @@ export default function ModelCompressionPanel({
   const [isClientside, setIsClientSide] = useState<boolean>(true)
   const [isIntegratedPrefab, setIsIntegratedPrefab] = useState<boolean>(true)
   const [selectedLODIndex, setSelectedLODIndex] = useState<number>(0)
+  const [variantSelectedLODIndex, setVariantSelectedLODIndex] = useState<number>(0)
   const [modalOpen, setModalOpen] = useState<boolean>(false)
   const [selectedPreset, setSelectedPreset] = useState<ModelTransformParameters>(defaultParms)
   const [presetList, setPresetList] = useState<ModelTransformParameters[]>(LODList)
@@ -193,9 +195,9 @@ export default function ModelCompressionPanel({
       setComponent(variant, ModelComponent)
       setComponent(variant, VariantComponent, {
         levels: lods
-          .map((lod, index) =>
+          .map((lod, lodIndex) =>
             lod.variantMetadata.map((metadata) => ({
-              src: modelSrc.replace(/[^\/]+$/, lodVariantParms[index].dst),
+              src: modelSrc.replace(/[^\/]+$/, lodVariantParms[lodIndex].dst),
               metadata
             }))
           )
@@ -203,8 +205,8 @@ export default function ModelCompressionPanel({
         heuristic
       })
 
-      const combinedModelFormat = modelSrc.endsWith('.gltf') ? 'gltf' : 'glb'
-      await exportGLTF(result, modelSrc.replace(/\.[^.]*$/, `-integrated.${combinedModelFormat}`))
+      await exportGLTF(result, modelSrc.replace(/\.[^.]*$/, `-integrated.gltf`))
+      removeEntityNodeRecursively(result)
     }
   }
 
@@ -283,12 +285,12 @@ export default function ModelCompressionPanel({
     setSelectedLODIndex(lods.length - 1)
   }
 
-  const handleVariantMetadataDelete = (index, mIndex) => {
-    lods[index].variantMetadata[mIndex].set(none)
+  const handleVariantMetadataDelete = (lodIndex, metadataIndex) => {
+    lods[lodIndex].variantMetadata[metadataIndex].set(none)
   }
 
-  const handleVariantMetadataAdd = (index, variantMetadata: Record<string, any>) => {
-    lods[index].variantMetadata.merge([variantMetadata])
+  const handleVariantMetadataAdd = (lodIndex, variantMetadata: Record<string, any>) => {
+    lods[lodIndex].variantMetadata.merge([variantMetadata])
   }
 
   const variantMetadataPresets: Map<string, Record<string, any>> = new Map([
@@ -301,7 +303,8 @@ export default function ModelCompressionPanel({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
-  const showVariantMetadataMenu = (event) => {
+  const showVariantMetadataMenu = (event, lodIndex) => {
+    setVariantSelectedLODIndex(lodIndex)
     setAnchorEl(event.currentTarget)
     setAnchorPosition({
       left: event.clientX + 2,
@@ -338,7 +341,7 @@ export default function ModelCompressionPanel({
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div className={styles.headerContainer}>LOD Levels</div>
             <List>
-              {lods.map((lod, index) => (
+              {lods.map((lod, lodIndex) => (
                 <ListItem>
                   <ListItemButton
                     style={{
@@ -346,16 +349,16 @@ export default function ModelCompressionPanel({
                       flexDirection: 'column',
                       alignItems: 'start'
                     }}
-                    selected={selectedLODIndex === index}
-                    onClick={() => handleLODSelect(index)}
+                    selected={selectedLODIndex === lodIndex}
+                    onClick={() => handleLODSelect(lodIndex)}
                   >
                     <ListItemText
-                      primary={`LOD Level ${index}`}
+                      primary={`LOD Level ${lodIndex}`}
                       secondary={lod.params.dst.value}
                       style={{ color: 'white' }}
                     />
                     <List>
-                      {lod.variantMetadata.map((metadata, mIndex) => (
+                      {lod.variantMetadata.map((metadata, metadataIndex) => (
                         <ListItem>
                           <ListItemButton>
                             {' '}
@@ -367,51 +370,38 @@ export default function ModelCompressionPanel({
                             />
                           </ListItemButton>
                           <IconButton
-                            onClick={() => handleVariantMetadataDelete(index, mIndex)}
+                            onClick={() => handleVariantMetadataDelete(lodIndex, metadataIndex)}
                             icon={<Icon type="Close" style={{ color: 'var(--iconButtonColor)' }} />}
                           ></IconButton>
                         </ListItem>
                       ))}
                     </List>
                     <IconButton
-                      onClick={showVariantMetadataMenu}
+                      onClick={(event) => showVariantMetadataMenu(event, lodIndex)}
                       icon={<Icon type="Add" style={{ color: 'var(--iconButtonColor)' }} />}
                     ></IconButton>
-                    <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
-                      {Array.from(variantMetadataPresets.entries()).map(([label, value]) => (
-                        <MenuItem
-                          onClick={() => {
-                            handleVariantMetadataAdd(index, value)
-                            handleClose()
-                          }}
-                        >
-                          {label}
-                        </MenuItem>
-                      ))}
-                    </ContextMenu>
-                    {/* <IconButton
-                      icon={<Icon type="Add" style={{ color: 'var(--iconButtonColor)' }} />}
-                    >
-                      <SelectInput
-                        onChange={(metadata) => handleVariantMetadataAdd(index, metadata)}
-                        options={
-                          Array.from(variantMetadataPresets.entries()).map(([label, value]) => 
-                            ({label, value } as {label: string, value: any})
-                          )
-                        }
-                      ></SelectInput>
-                    </IconButton> 
-                    */}
                   </ListItemButton>
                   {lods.length > 1 && (
                     <IconButton
-                      onClick={() => handleLODDelete(index)}
+                      onClick={() => handleLODDelete(lodIndex)}
                       icon={<Icon type="Delete" style={{ color: 'var(--iconButtonColor)' }} />}
                     ></IconButton>
                   )}
                 </ListItem>
               ))}
             </List>
+            <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
+              {Array.from(variantMetadataPresets.entries()).map(([label, value]) => (
+                <MenuItem
+                  onClick={() => {
+                    handleVariantMetadataAdd(variantSelectedLODIndex, value)
+                    handleClose()
+                  }}
+                >
+                  {label}
+                </MenuItem>
+              ))}
+            </ContextMenu>
             <div>
               <IconButton
                 onClick={() => handleLODAdd()}
