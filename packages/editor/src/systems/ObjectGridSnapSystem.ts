@@ -34,7 +34,8 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
-import { getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 import { Box3, Matrix4, Quaternion, Vector3 } from 'three'
 import { SelectionState } from '../services/SelectionServices'
 
@@ -51,59 +52,142 @@ function isParentSelected(entity: Entity) {
 }
 
 function bboxDistance(bbox1: Box3, bbox2: Box3, matrixWorld1: Matrix4, matrixWorld2: Matrix4) {
-  // Transform bbox1 corners to the local space of bbox2
-  let min1Transformed = bbox1.min.clone().applyMatrix4(matrixWorld1).applyMatrix4(matrixWorld2.clone().invert())
-  let max1Transformed = bbox1.max.clone().applyMatrix4(matrixWorld1).applyMatrix4(matrixWorld2.clone().invert())
-  bbox1.getSize(max1Transformed)
-
-  // Compute the distances in each dimension
-  const distanceX = Math.max(min1Transformed.x - bbox2.max.x, bbox2.min.x - max1Transformed.x, 0)
-  const distanceY = Math.max(min1Transformed.y - bbox2.max.y, bbox2.min.y - max1Transformed.y, 0)
-  const distanceZ = Math.max(min1Transformed.z - bbox2.max.z, bbox2.min.z - max1Transformed.z, 0)
-
-  // Calculate the total distance
-  return Math.sqrt(distanceX * distanceX + distanceY * distanceY + distanceZ * distanceZ)
+  const center1 = bbox1.getCenter(new Vector3())
+  const center2 = bbox2.getCenter(new Vector3())
+  const center1World = center1.clone().applyMatrix4(matrixWorld1)
+  const center2World = center2.clone().applyMatrix4(matrixWorld2)
+  const radius1 = bbox1.getSize(new Vector3()).length() / 2
+  const radius2 = bbox2.getSize(new Vector3()).length() / 2
+  return center1World.distanceTo(center2World) - radius1 - radius2
 }
 
-function getAxes(matrix: Matrix4) {
-  const forward = new Quaternion().setFromRotationMatrix(matrix)
-  const up = new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(0, 1, 0)).multiply(forward)
-  const right = new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(1, 0, 0)).multiply(forward)
-  const down = new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(0, -1, 0)).multiply(forward)
-  const left = new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(-1, 0, 0)).multiply(forward)
-  const back = new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(0, 0, -1)).multiply(forward)
-  return [forward, up, right, down, left, back]
-}
-
-function alignToClosestAxis(matrix1: Matrix4, matrix2: Matrix4) {
-  const forward = new Quaternion().setFromRotationMatrix(matrix1)
+function findClosestAxis(axis: Vector3, candidates: Vector3[]) {
   let minAngle = Infinity
-  let minOrientation = new Quaternion()
-  let srcOrientation = new Quaternion()
-  const srcAxes = getAxes(matrix1)
-  const dstAxes = getAxes(matrix2)
-  for (const srcAxis of srcAxes) {
-    for (const dstAxis of dstAxes) {
-      const angle = dstAxis.angleTo(srcAxis)
-      if (angle < minAngle) {
-        minAngle = angle
-        minOrientation = dstAxis
-        srcOrientation = srcAxis
-      }
+  let minAxis = new Vector3()
+  for (const candidate of candidates) {
+    const angle = axis.angleTo(candidate)
+    if (angle < minAngle) {
+      minAngle = angle
+      minAxis = candidate
     }
   }
-  const rotationQuaternion = minOrientation.multiply(srcOrientation.clone().invert())
-  return new Matrix4().makeRotationFromQuaternion(rotationQuaternion)
+  return minAxis
+}
+
+function alignToClosestAxis(matrix1: Matrix4, matrix2: Matrix4): Matrix4 {
+  const srcAxes = getAxes(matrix1)
+  const dstAxes = getAxes(matrix2)
+  const forward = srcAxes[0]
+  const up = srcAxes[1]
+  const right = srcAxes[2] //find rotations for each axis to the closest dst axis
+  const dstForward = findClosestAxis(forward, dstAxes)
+  const dstUp = findClosestAxis(up, dstAxes)
+  const dstRight = findClosestAxis(right, dstAxes)
+  //create rotation matrix
+  const rotation = new Matrix4()
+  rotation.makeBasis(dstRight, dstUp, dstForward)
+  return rotation
+}
+
+function getAxes(matrix: Matrix4): Vector3[] {
+  const rotation = new Quaternion().setFromRotationMatrix(matrix)
+  const forward = new Vector3(0, 0, 1).applyQuaternion(rotation)
+  const up = new Vector3(0, 1, 0).applyQuaternion(rotation)
+  const right = new Vector3(1, 0, 0).applyQuaternion(rotation)
+  const down = up.clone().negate()
+  const left = right.clone().negate()
+  const back = forward.clone().negate()
+  return [forward, up, right, down, left, back]
 }
 
 let lastExecution = 0
 
+function boundedTranslation(bbox1: Box3, bbox2: Box3, matrixWorld1: Matrix4, matrixWorld2: Matrix4): Vector3 {
+  // Transform the bounding boxes to world space
+  const transformedBBox1 = transformBoundingBox(bbox1, matrixWorld1)
+  const transformedBBox2 = transformBoundingBox(bbox2, matrixWorld2)
+  // Calculate the translation vector
+  return calculateTranslation(transformedBBox1, transformedBBox2)
+}
+
+function transformBoundingBox(bbox: Box3, matrix: Matrix4): Box3 {
+  const points = [
+    new Vector3(bbox.min.x, bbox.min.y, bbox.min.z),
+    new Vector3(bbox.min.x, bbox.min.y, bbox.max.z),
+    new Vector3(bbox.min.x, bbox.max.y, bbox.min.z),
+    new Vector3(bbox.min.x, bbox.max.y, bbox.max.z),
+    new Vector3(bbox.max.x, bbox.min.y, bbox.min.z),
+    new Vector3(bbox.max.x, bbox.min.y, bbox.max.z),
+    new Vector3(bbox.max.x, bbox.max.y, bbox.min.z),
+    new Vector3(bbox.max.x, bbox.max.y, bbox.max.z)
+  ]
+
+  return points.reduce((acc, point) => {
+    point.applyMatrix4(matrix)
+    acc.expandByPoint(point)
+    return acc
+  }, new Box3())
+}
+
+function calculateTranslation(bbox1: Box3, bbox2: Box3): Vector3 {
+  // Assuming bbox1 and bbox2 are now aligned and treated as axis-aligned
+  const translation = new Vector3()
+  // Calculate the translation needed for each axis
+  for (const axis of ['x', 'y', 'z']) {
+    if (bbox1.max[axis] < bbox2.min[axis]) {
+      translation[axis] = bbox2.min[axis] - bbox1.max[axis]
+    } else if (bbox1.min[axis] > bbox2.max[axis]) {
+      translation[axis] = bbox2.max[axis] - bbox1.min[axis]
+    } else {
+      //align an edge of bbox1 with an edge of bbox2
+      const minMin = Math.abs(bbox1.min[axis] - bbox2.min[axis])
+      const minMax = Math.abs(bbox1.min[axis] - bbox2.max[axis])
+      const maxMin = Math.abs(bbox1.max[axis] - bbox2.min[axis])
+      const maxMax = Math.abs(bbox1.max[axis] - bbox2.max[axis])
+      switch (Math.min(minMin, minMax, maxMin, maxMax)) {
+        case minMin:
+          translation[axis] = bbox2.min[axis] - bbox1.min[axis]
+          break
+        case minMax:
+          translation[axis] = bbox2.max[axis] - bbox1.min[axis]
+          break
+        case maxMin:
+          translation[axis] = bbox2.min[axis] - bbox1.max[axis]
+          break
+        case maxMax:
+          translation[axis] = bbox2.max[axis] - bbox1.max[axis]
+          break
+      }
+    }
+  }
+  return translation
+}
+
+const ObjectGridSnapState = defineState({
+  name: 'ObjectGridSnapState',
+  initial: {
+    enabled: true,
+    apply: false
+  }
+})
+
 export const ObjectGridSnapSystem = defineSystem({
   uuid: 'ee.engine.scene.ObjectGridSnapSystem',
   insert: { before: TransformSystem },
+  reactor: () => {
+    const snapState = useHookstate(getMutableState(ObjectGridSnapState))
+    const onMouseUp = (event) => {
+      if (snapState.enabled.value) {
+        snapState.apply.set(true)
+      }
+    }
+    useEffect(() => {
+      document.addEventListener('mouseup', onMouseUp)
+      return () => document.removeEventListener('mouseup', onMouseUp)
+    }, [])
+    return null
+  },
   execute: () => {
-    if (Date.now() - lastExecution < 100) return
-    lastExecution = Date.now()
     const entities = objectGridQuery()
     const selectedEntities: Entity[] = []
     const selectedParents: Entity[] = []
@@ -121,20 +205,51 @@ export const ObjectGridSnapSystem = defineSystem({
     for (let i = 0; i < selectedEntities.length; i++) {
       const selectedEntity = selectedEntities[i]
       const selectedParent = selectedParents[i]
+
+      const selectedBBox = getComponent(selectedEntity, ObjectGridSnapComponent).bbox
+      const selectedMatrixWorld = getComponent(selectedEntity, TransformComponent).matrixWorld
+      let closestEntity: Entity | null = null
+      let closestDistance = 1
       for (const candidateEntity of nonSelectedEntities) {
-        const selectedBBox = getComponent(selectedEntity, ObjectGridSnapComponent).bbox
-        const selectedMatrixWorld = getComponent(selectedEntity, TransformComponent).matrixWorld
         const candidateBBox = getComponent(candidateEntity, ObjectGridSnapComponent).bbox
         const candidateMatrixWorld = getComponent(candidateEntity, TransformComponent).matrixWorld
         const distance = bboxDistance(selectedBBox, candidateBBox, selectedMatrixWorld, candidateMatrixWorld)
-        if (distance < 1) {
-          console.log('snap')
-          const parentMatrixWorld = getComponent(selectedParent, TransformComponent).matrixWorld
-          const rotationMatrix = alignToClosestAxis(selectedMatrixWorld, candidateMatrixWorld)
-          parentMatrixWorld.copy(rotationMatrix.multiply(parentMatrixWorld))
-          TransformComponent.updateFromWorldMatrix(selectedParent)
+        if (distance < closestDistance) {
+          closestDistance = distance
+          closestEntity = candidateEntity
         }
       }
+      if (!closestEntity) continue
+      const selectedSnapComponent = getComponent(selectedEntity, ObjectGridSnapComponent)
+      const closestBBox = getComponent(closestEntity, ObjectGridSnapComponent).bbox
+      const closestMatrixWorld = getComponent(closestEntity, TransformComponent).matrixWorld
+      console.log('snap')
+
+      const parentMatrixWorld = getComponent(selectedParent, TransformComponent).matrixWorld
+      const srcMatrixWorld = parentMatrixWorld.clone()
+      const rotationMatrix = alignToClosestAxis(selectedMatrixWorld, closestMatrixWorld)
+      const position = new Vector3()
+      srcMatrixWorld.decompose(position, new Quaternion(), new Vector3())
+      const dstEntity = getState(ObjectGridSnapState).apply ? selectedParent : selectedSnapComponent.helper
+      if (!dstEntity) continue
+      const dstMatrixWorld = getComponent(dstEntity, TransformComponent).matrixWorld
+      dstMatrixWorld.copy(rotationMatrix)
+      dstMatrixWorld.setPosition(position)
+      TransformComponent.updateFromWorldMatrix(dstEntity)
+      const translation = boundedTranslation(
+        selectedBBox,
+        closestBBox,
+        new Matrix4().identity(),
+        dstMatrixWorld.clone().invert().multiply(closestMatrixWorld)
+      )
+      dstMatrixWorld.multiply(new Matrix4().makeTranslation(translation))
+      TransformComponent.updateFromWorldMatrix(dstEntity)
+      if (getState(ObjectGridSnapState).apply) {
+        //const dstTransform = getComponent(dstEntity, TransformComponent)
+        //commitProperties(TransformComponent, dstTransform)
+        getMutableState(ObjectGridSnapState).apply.set(false)
+      }
+      break
     }
   }
 })

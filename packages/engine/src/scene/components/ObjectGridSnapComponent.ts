@@ -35,23 +35,12 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import {
-  ArrowHelper,
-  Box3,
-  BoxGeometry,
-  DoubleSide,
-  MathUtils,
-  Mesh,
-  MeshBasicMaterial,
-  Quaternion,
-  Vector3
-} from 'three'
+import { Box3, BufferGeometry, LineBasicMaterial, LineSegments, MathUtils, Mesh, Quaternion, Vector3 } from 'three'
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { addObjectToGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { NameComponent } from './NameComponent'
 import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
@@ -62,13 +51,71 @@ import { VisibleComponent } from './VisibleComponent'
 export type AttachmentPointData = {
   position: Vector3
   rotation: Quaternion
-  helper?: Mesh | ArrowHelper
+  helper: Entity
 }
 
 export function flipAround(rotation: Quaternion) {
   const localYAxis = new Vector3(1, 0, 0)
   localYAxis.applyQuaternion(rotation)
   return new Quaternion().setFromAxisAngle(localYAxis, Math.PI).multiply(rotation)
+}
+
+function createBBoxGridHelper(bbox: Box3, density: number): LineSegments {
+  const lineSegmentList: Vector3[] = []
+  const size = new Vector3()
+  bbox.getSize(size)
+
+  // Create grid lines for each face of the bounding box
+  for (let i = 0; i <= density; i++) {
+    const fraction = i / density
+
+    // Front and back faces (parallel to XY plane)
+    const zFront = bbox.min.z + fraction * size.z
+    const zBack = bbox.max.z - fraction * size.z
+    for (let j = 0; j <= density; j++) {
+      const segmentFraction = j / density
+      const x = bbox.min.x + segmentFraction * size.x
+      const y = bbox.min.y + segmentFraction * size.y
+
+      lineSegmentList.push(new Vector3(x, bbox.min.y, zFront), new Vector3(x, bbox.max.y, zFront))
+      lineSegmentList.push(new Vector3(x, bbox.min.y, zBack), new Vector3(x, bbox.max.y, zBack))
+      lineSegmentList.push(new Vector3(bbox.min.x, y, zFront), new Vector3(bbox.max.x, y, zFront))
+      lineSegmentList.push(new Vector3(bbox.min.x, y, zBack), new Vector3(bbox.max.x, y, zBack))
+    }
+
+    // Top and bottom faces (parallel to XZ plane)
+    const yTop = bbox.max.y - fraction * size.y
+    const yBottom = bbox.min.y + fraction * size.y
+    for (let j = 0; j <= density; j++) {
+      const segmentFraction = j / density
+      const x = bbox.min.x + segmentFraction * size.x
+      const z = bbox.min.z + segmentFraction * size.z
+
+      lineSegmentList.push(new Vector3(x, yTop, bbox.min.z), new Vector3(x, yTop, bbox.max.z))
+      lineSegmentList.push(new Vector3(x, yBottom, bbox.min.z), new Vector3(x, yBottom, bbox.max.z))
+      lineSegmentList.push(new Vector3(bbox.min.x, yTop, z), new Vector3(bbox.max.x, yTop, z))
+      lineSegmentList.push(new Vector3(bbox.min.x, yBottom, z), new Vector3(bbox.max.x, yBottom, z))
+    }
+
+    // Left and right faces (parallel to YZ plane)
+    const xLeft = bbox.min.x + fraction * size.x
+    const xRight = bbox.max.x - fraction * size.x
+    for (let j = 0; j <= density; j++) {
+      const segmentFraction = j / density
+      const y = bbox.min.y + segmentFraction * size.y
+      const z = bbox.min.z + segmentFraction * size.z
+
+      lineSegmentList.push(new Vector3(xLeft, y, bbox.min.z), new Vector3(xLeft, y, bbox.max.z))
+      lineSegmentList.push(new Vector3(xRight, y, bbox.min.z), new Vector3(xRight, y, bbox.max.z))
+      lineSegmentList.push(new Vector3(xLeft, bbox.min.y, z), new Vector3(xLeft, bbox.max.y, z))
+      lineSegmentList.push(new Vector3(xRight, bbox.min.y, z), new Vector3(xRight, bbox.max.y, z))
+    }
+  }
+
+  return new LineSegments(
+    new BufferGeometry().setFromPoints(lineSegmentList),
+    new LineBasicMaterial({ color: 0xff0000 })
+  )
 }
 
 export const ObjectGridSnapComponent = defineComponent({
@@ -79,15 +126,15 @@ export const ObjectGridSnapComponent = defineComponent({
     return {
       density: 1 as number,
       bbox: new Box3(),
-      attachmentPoints: [] as AttachmentPointData[]
+      helper: null as Entity | null
     }
   },
   onSet: (entity, component, json) => {
     if (!json) return
     //if (typeof json.density === 'number') component.density.set(json.density)
     if (typeof json.bbox === 'object' && json.bbox.isBox3) component.bbox.set(json.bbox)
-    if (typeof json.attachmentPoints === 'object' && Array.isArray(json.attachmentPoints))
-      component.attachmentPoints.set(json.attachmentPoints)
+    if (typeof json.density === 'number') component.density.set(json.density)
+    if (typeof json.helper === 'number') component.helper.set(json.helper)
   },
   toJSON: (entity, component) => {
     return {
@@ -100,9 +147,6 @@ export const ObjectGridSnapComponent = defineComponent({
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
 
     const assetLoading = useOptionalComponent(entity, SceneAssetPendingTagComponent)
-
-    const helperEntity = useHookstate(null as Entity | null)
-
     useEffect(() => {
       const helper = createEntity()
       setComponent(helper, NameComponent, 'helper')
@@ -111,9 +155,10 @@ export const ObjectGridSnapComponent = defineComponent({
       setComponent(helper, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
       setComponent(helper, EntityTreeComponent, { parentEntity: entity })
       setComponent(helper, ObjectLayerMaskComponent, ObjectLayers.NodeHelper)
-      helperEntity.set(helper)
+
+      setComponent(entity, ObjectGridSnapComponent, { helper })
       return () => {
-        removeEntity(helperEntity.value!)
+        removeEntity(getComponent(entity, ObjectGridSnapComponent).helper!)
       }
     }, [])
 
@@ -127,11 +172,6 @@ export const ObjectGridSnapComponent = defineComponent({
       transform.matrix.decompose(originalPosition, originalRotation, originalScale)
       //set entity transform to identity before calculating bounding box
       setComponent(entity, EntityTreeComponent, { parentEntity: null })
-      // setComponent(entity, TransformComponent, {
-      //   position: new Vector3(),
-      //   rotation: new Quaternion().identity(),
-      //   scale: new Vector3(1, 1, 1)
-      // })
       transform.matrixWorld.identity()
       TransformComponent.updateFromWorldMatrix(entity)
       const meshes: Mesh[] = []
@@ -162,13 +202,19 @@ export const ObjectGridSnapComponent = defineComponent({
         scale: originalScale
       })
       iterateEntityNode(entity, computeTransformMatrix)
-      const helperMesh = new Mesh(
-        new BoxGeometry(...bbox.getSize(new Vector3())),
-        new MeshBasicMaterial({ color: 0xff0000, side: DoubleSide })
-      )
-
-      addObjectToGroup(helperEntity.value!, helperMesh)
     }, [assetLoading])
+
+    useEffect(() => {
+      const density = snapComponent.density.value
+      const bbox = snapComponent.bbox.value
+      const helperEntity = snapComponent.helper.value
+      if (!helperEntity) return
+      const helperMesh = createBBoxGridHelper(bbox, density)
+      addObjectToGroup(helperEntity, helperMesh)
+      return () => {
+        removeObjectFromGroup(helperEntity, helperMesh)
+      }
+    }, [snapComponent.bbox, snapComponent.density, snapComponent.helper])
 
     return null
   }
