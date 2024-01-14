@@ -48,8 +48,8 @@ import { Color, ColorSpace, Texture, TextureEncoding, Vector2 } from 'three'
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 
 export const Effects = {
-  SMAAEffect: 'SMAAEffect' as const,
-  OutlineEffect: 'OutlineEffect' as const,
+  // SMAAEffect: 'SMAAEffect' as const,
+  // OutlineEffect: 'OutlineEffect' as const,
   SSAOEffect: 'SSAOEffect' as const,
   SSREffect: 'SSREffect' as const,
   DepthOfFieldEffect: 'DepthOfFieldEffect' as const,
@@ -61,24 +61,24 @@ export const Effects = {
   LinearTosRGBEffect: 'LinearTosRGBEffect' as const,
   SSGIEffect: 'SSGIEffect' as const,
   TRAAEffect: 'TRAAEffect' as const,
+  // ChromaticAberrationEffect: 'ChromaticAberrationEffect' as const,
   MotionBlurEffect: 'MotionBlurEffect' as const,
-  ChromaticAberrationEffect: 'ChromaticAberrationEffect' as const,
-  ColorAverageEffect: 'ColorAverageEffect' as const,
-  DotScreenEffect: 'DotScreenEffect' as const,
-  TiltShiftEffect: 'TiltShiftEffect' as const,
-  GlitchEffect: 'GlitchEffect' as const,
-  GodRaysEffect: 'GodRaysEffect' as const,
-  GridEffect: 'GridEffect' as const,
-  LUT1DEffect: 'LUT1DEffect' as const,
-  LUT3DEffect: 'LUT3DEffect' as const,
-  NoiseEffect: 'NoiseEffect' as const,
-  PixelationEffect: 'PixelationEffect' as const,
-  ScanlineEffect: 'ScanlineEffect' as const,
-  ShockWaveEffect: 'ShockWaveEffect' as const,
-  FXAAEffect: 'FXAAEffect' as const,
-  TextureEffect: 'TextureEffect' as const,
-  VignetteEffect: 'VignetteEffect' as const,
-  LensDistortionEffect: 'LensDistortionEffect' as const
+  // ColorAverageEffect: 'ColorAverageEffect' as const,
+  // DotScreenEffect: 'DotScreenEffect' as const,
+  // TiltShiftEffect: 'TiltShiftEffect' as const,
+  // GlitchEffect: 'GlitchEffect' as const,
+  // GodRaysEffect: 'GodRaysEffect' as const,
+  // GridEffect: 'GridEffect' as const,
+  // LUT1DEffect: 'LUT1DEffect' as const,
+  // LUT3DEffect: 'LUT3DEffect' as const,
+  // NoiseEffect: 'NoiseEffect' as const,
+  // PixelationEffect: 'PixelationEffect' as const,
+  // ScanlineEffect: 'ScanlineEffect' as const,
+  // ShockWaveEffect: 'ShockWaveEffect' as const,
+  // FXAAEffect: 'FXAAEffect' as const,
+  // TextureEffect: 'TextureEffect' as const,
+  VignetteEffect: 'VignetteEffect' as const
+  // LensDistortionEffect: 'LensDistortionEffect' as const
 }
 
 export const EffectMap = {
@@ -693,12 +693,12 @@ export const effectInOrder = [
   Effects.SSAOEffect, // TODO- add option to use HBAO
   Effects.SSREffect,
   Effects.SSGIEffect,
-  Effects.GodRaysEffect,
+  // Effects.GodRaysEffect,
 
   /** 3. camera effects */
-  Effects.LensDistortionEffect,
+  // Effects.LensDistortionEffect,
   //Effects.LensFlareEffect,
-  Effects.ChromaticAberrationEffect,
+  // Effects.ChromaticAberrationEffect,
   Effects.MotionBlurEffect,
   Effects.BloomEffect,
   Effects.VignetteEffect,
@@ -709,11 +709,11 @@ export const effectInOrder = [
   Effects.BrightnessContrastEffect,
   Effects.HueSaturationEffect,
   Effects.ColorDepthEffect,
-  Effects.LUT1DEffect,
-  Effects.LUT3DEffect,
+  // Effects.LUT1DEffect,
+  // Effects.LUT3DEffect,
 
   /** 5. final fix, aliasing and noise passes */
   Effects.LinearTosRGBEffect, // should this just be always on?
-  Effects.TRAAEffect,
-  Effects.FXAAEffect
+  Effects.TRAAEffect
+  // Effects.FXAAEffect
 ]
