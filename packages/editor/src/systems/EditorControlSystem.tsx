@@ -32,6 +32,7 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -49,6 +50,7 @@ import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -282,8 +284,16 @@ const execute = () => {
   }
   if (primaryClickAccum <= 0.2) {
     if (buttons.PrimaryClick?.up && inputSource.assignedButtonEntity) {
-      const clickedEntity = inputSource.assignedButtonEntity
-      SelectionState.updateSelection([clickedEntity])
+      let clickedEntity = inputSource.assignedButtonEntity
+      while (
+        !hasComponent(clickedEntity, SourceComponent) &&
+        getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
+      ) {
+        clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
+      }
+      if (hasComponent(clickedEntity, SourceComponent)) {
+        SelectionState.updateSelection([clickedEntity])
+      }
     }
   }
   if (buttons.PrimaryClick?.pressed) {

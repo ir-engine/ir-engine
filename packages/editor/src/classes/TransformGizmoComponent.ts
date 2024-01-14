@@ -43,12 +43,13 @@ import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectL
 import { SnapMode, TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Euler, Object3D } from 'three'
 import { degToRad } from 'three/src/math/MathUtils'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { EditorHelperState } from '../services/EditorHelperState'
+import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 
 export const TransformGizmoComponent = defineComponent({
   name: 'TransformGizmo',
@@ -79,7 +80,12 @@ export const TransformGizmoComponent = defineComponent({
           [new Euler().setFromQuaternion(transformComponent.value.rotation)]
         )
         EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], true)
-        EditorControlFunctions.commitTransformSave([entity])
+        //check for snap modes
+        if (!getState(ObjectGridSnapState).enabled) {
+          EditorControlFunctions.commitTransformSave([entity])
+        } else {
+          getMutableState(ObjectGridSnapState).apply.set(true)
+        }
       })
 
       const dummy = new Object3D()

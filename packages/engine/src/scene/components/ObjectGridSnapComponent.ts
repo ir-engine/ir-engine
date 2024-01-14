@@ -28,6 +28,7 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   setComponent,
   useComponent,
@@ -40,6 +41,7 @@ import { Box3, BufferGeometry, LineBasicMaterial, LineSegments, MathUtils, Mesh,
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { NameComponent } from './NameComponent'
@@ -66,56 +68,54 @@ function createBBoxGridHelper(bbox: Box3, density: number): LineSegments {
   bbox.getSize(size)
 
   // Create grid lines for each face of the bounding box
-  for (let i = 0; i <= density; i++) {
-    const fraction = i / density
 
-    // Front and back faces (parallel to XY plane)
-    const zFront = bbox.min.z + fraction * size.z
-    const zBack = bbox.max.z - fraction * size.z
-    for (let j = 0; j <= density; j++) {
-      const segmentFraction = j / density
-      const x = bbox.min.x + segmentFraction * size.x
-      const y = bbox.min.y + segmentFraction * size.y
+  // Front and back faces (parallel to XY plane)
+  const zFront = bbox.min.z
+  const zBack = bbox.max.z
+  for (let j = 0; j <= density; j++) {
+    const segmentFraction = j / density
+    const x = bbox.min.x + segmentFraction * size.x
+    const y = bbox.min.y + segmentFraction * size.y
 
-      lineSegmentList.push(new Vector3(x, bbox.min.y, zFront), new Vector3(x, bbox.max.y, zFront))
-      lineSegmentList.push(new Vector3(x, bbox.min.y, zBack), new Vector3(x, bbox.max.y, zBack))
-      lineSegmentList.push(new Vector3(bbox.min.x, y, zFront), new Vector3(bbox.max.x, y, zFront))
-      lineSegmentList.push(new Vector3(bbox.min.x, y, zBack), new Vector3(bbox.max.x, y, zBack))
-    }
-
-    // Top and bottom faces (parallel to XZ plane)
-    const yTop = bbox.max.y - fraction * size.y
-    const yBottom = bbox.min.y + fraction * size.y
-    for (let j = 0; j <= density; j++) {
-      const segmentFraction = j / density
-      const x = bbox.min.x + segmentFraction * size.x
-      const z = bbox.min.z + segmentFraction * size.z
-
-      lineSegmentList.push(new Vector3(x, yTop, bbox.min.z), new Vector3(x, yTop, bbox.max.z))
-      lineSegmentList.push(new Vector3(x, yBottom, bbox.min.z), new Vector3(x, yBottom, bbox.max.z))
-      lineSegmentList.push(new Vector3(bbox.min.x, yTop, z), new Vector3(bbox.max.x, yTop, z))
-      lineSegmentList.push(new Vector3(bbox.min.x, yBottom, z), new Vector3(bbox.max.x, yBottom, z))
-    }
-
-    // Left and right faces (parallel to YZ plane)
-    const xLeft = bbox.min.x + fraction * size.x
-    const xRight = bbox.max.x - fraction * size.x
-    for (let j = 0; j <= density; j++) {
-      const segmentFraction = j / density
-      const y = bbox.min.y + segmentFraction * size.y
-      const z = bbox.min.z + segmentFraction * size.z
-
-      lineSegmentList.push(new Vector3(xLeft, y, bbox.min.z), new Vector3(xLeft, y, bbox.max.z))
-      lineSegmentList.push(new Vector3(xRight, y, bbox.min.z), new Vector3(xRight, y, bbox.max.z))
-      lineSegmentList.push(new Vector3(xLeft, bbox.min.y, z), new Vector3(xLeft, bbox.max.y, z))
-      lineSegmentList.push(new Vector3(xRight, bbox.min.y, z), new Vector3(xRight, bbox.max.y, z))
-    }
+    lineSegmentList.push(new Vector3(x, bbox.min.y, zFront), new Vector3(x, bbox.max.y, zFront))
+    lineSegmentList.push(new Vector3(x, bbox.min.y, zBack), new Vector3(x, bbox.max.y, zBack))
+    lineSegmentList.push(new Vector3(bbox.min.x, y, zFront), new Vector3(bbox.max.x, y, zFront))
+    lineSegmentList.push(new Vector3(bbox.min.x, y, zBack), new Vector3(bbox.max.x, y, zBack))
   }
 
-  return new LineSegments(
+  // Top and bottom faces (parallel to XZ plane)
+  const yTop = bbox.max.y
+  const yBottom = bbox.min.y
+  for (let j = 0; j <= density; j++) {
+    const segmentFraction = j / density
+    const x = bbox.min.x + segmentFraction * size.x
+    const z = bbox.min.z + segmentFraction * size.z
+
+    lineSegmentList.push(new Vector3(x, yTop, bbox.min.z), new Vector3(x, yTop, bbox.max.z))
+    lineSegmentList.push(new Vector3(x, yBottom, bbox.min.z), new Vector3(x, yBottom, bbox.max.z))
+    lineSegmentList.push(new Vector3(bbox.min.x, yTop, z), new Vector3(bbox.max.x, yTop, z))
+    lineSegmentList.push(new Vector3(bbox.min.x, yBottom, z), new Vector3(bbox.max.x, yBottom, z))
+  }
+
+  // Left and right faces (parallel to YZ plane)
+  const xLeft = bbox.min.x
+  const xRight = bbox.max.x
+  for (let j = 0; j <= density; j++) {
+    const segmentFraction = j / density
+    const y = bbox.min.y + segmentFraction * size.y
+    const z = bbox.min.z + segmentFraction * size.z
+
+    lineSegmentList.push(new Vector3(xLeft, y, bbox.min.z), new Vector3(xLeft, y, bbox.max.z))
+    lineSegmentList.push(new Vector3(xRight, y, bbox.min.z), new Vector3(xRight, y, bbox.max.z))
+    lineSegmentList.push(new Vector3(xLeft, bbox.min.y, z), new Vector3(xLeft, bbox.max.y, z))
+    lineSegmentList.push(new Vector3(xRight, bbox.min.y, z), new Vector3(xRight, bbox.max.y, z))
+  }
+  const result = new LineSegments(
     new BufferGeometry().setFromPoints(lineSegmentList),
     new LineBasicMaterial({ color: 0xff0000 })
   )
+  setObjectLayers(result, ObjectLayers.NodeHelper)
+  return result
 }
 
 export const ObjectGridSnapComponent = defineComponent({
@@ -124,7 +124,6 @@ export const ObjectGridSnapComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      density: 1 as number,
       bbox: new Box3(),
       helper: null as Entity | null
     }
@@ -133,13 +132,7 @@ export const ObjectGridSnapComponent = defineComponent({
     if (!json) return
     //if (typeof json.density === 'number') component.density.set(json.density)
     if (typeof json.bbox === 'object' && json.bbox.isBox3) component.bbox.set(json.bbox)
-    if (typeof json.density === 'number') component.density.set(json.density)
     if (typeof json.helper === 'number') component.helper.set(json.helper)
-  },
-  toJSON: (entity, component) => {
-    return {
-      density: component.density.value
-    }
   },
   reactor: () => {
     const entity = useEntityContext()
@@ -158,7 +151,8 @@ export const ObjectGridSnapComponent = defineComponent({
 
       setComponent(entity, ObjectGridSnapComponent, { helper })
       return () => {
-        removeEntity(getComponent(entity, ObjectGridSnapComponent).helper!)
+        const helper = getOptionalComponent(entity, ObjectGridSnapComponent)?.helper
+        !!helper && removeEntity(helper)
       }
     }, [])
 
@@ -205,16 +199,15 @@ export const ObjectGridSnapComponent = defineComponent({
     }, [assetLoading])
 
     useEffect(() => {
-      const density = snapComponent.density.value
       const bbox = snapComponent.bbox.value
       const helperEntity = snapComponent.helper.value
       if (!helperEntity) return
-      const helperMesh = createBBoxGridHelper(bbox, density)
+      const helperMesh = createBBoxGridHelper(bbox, 2)
       addObjectToGroup(helperEntity, helperMesh)
       return () => {
         removeObjectFromGroup(helperEntity, helperMesh)
       }
-    }, [snapComponent.bbox, snapComponent.density, snapComponent.helper])
+    }, [snapComponent.bbox, snapComponent.helper])
 
     return null
   }

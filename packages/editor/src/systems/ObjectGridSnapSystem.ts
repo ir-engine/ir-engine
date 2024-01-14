@@ -27,7 +27,8 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   defineQuery,
   getComponent,
-  getOptionalComponent
+  getOptionalComponent,
+  setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -35,8 +36,8 @@ import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/compon
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
 import { Box3, Matrix4, Quaternion, Vector3 } from 'three'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { SelectionState } from '../services/SelectionServices'
 
 const objectGridQuery = defineQuery([ObjectGridSnapComponent])
@@ -81,7 +82,9 @@ function alignToClosestAxis(matrix1: Matrix4, matrix2: Matrix4): Matrix4 {
   const up = srcAxes[1]
   const right = srcAxes[2] //find rotations for each axis to the closest dst axis
   const dstForward = findClosestAxis(forward, dstAxes)
+  dstAxes.splice(dstAxes.indexOf(dstForward), 1)
   const dstUp = findClosestAxis(up, dstAxes)
+  dstAxes.splice(dstAxes.indexOf(dstUp), 1)
   const dstRight = findClosestAxis(right, dstAxes)
   //create rotation matrix
   const rotation = new Matrix4()
@@ -140,30 +143,30 @@ function calculateTranslation(bbox1: Box3, bbox2: Box3): Vector3 {
       translation[axis] = bbox2.max[axis] - bbox1.min[axis]
     } else {
       //align an edge of bbox1 with an edge of bbox2
-      const minMin = Math.abs(bbox1.min[axis] - bbox2.min[axis])
-      const minMax = Math.abs(bbox1.min[axis] - bbox2.max[axis])
-      const maxMin = Math.abs(bbox1.max[axis] - bbox2.min[axis])
-      const maxMax = Math.abs(bbox1.max[axis] - bbox2.max[axis])
-      switch (Math.min(minMin, minMax, maxMin, maxMax)) {
-        case minMin:
-          translation[axis] = bbox2.min[axis] - bbox1.min[axis]
-          break
-        case minMax:
-          translation[axis] = bbox2.max[axis] - bbox1.min[axis]
-          break
-        case maxMin:
-          translation[axis] = bbox2.min[axis] - bbox1.max[axis]
-          break
-        case maxMax:
-          translation[axis] = bbox2.max[axis] - bbox1.max[axis]
-          break
+      const box1Pts = [bbox1.min[axis], (bbox1.min[axis] + bbox1.max[axis]) / 2, bbox1.max[axis]]
+      const box2Pts = [bbox2.min[axis], (bbox2.min[axis] + bbox2.max[axis]) / 2, bbox2.max[axis]]
+      let minDist = Infinity
+      let pt1 = 0
+      let pt2 = 0
+      for (const box1Pt of box1Pts) {
+        for (const box2Pt of box2Pts) {
+          const dist = Math.abs(box1Pt - box2Pt)
+          if (dist < minDist) {
+            minDist = dist
+            pt1 = box1Pt
+            pt2 = box2Pt
+            if (dist === 0) break
+          }
+        }
+        if (minDist === 0) break
       }
+      translation[axis] = pt2 - pt1
     }
   }
   return translation
 }
 
-const ObjectGridSnapState = defineState({
+export const ObjectGridSnapState = defineState({
   name: 'ObjectGridSnapState',
   initial: {
     enabled: true,
@@ -173,18 +176,9 @@ const ObjectGridSnapState = defineState({
 
 export const ObjectGridSnapSystem = defineSystem({
   uuid: 'ee.engine.scene.ObjectGridSnapSystem',
-  insert: { before: TransformSystem },
+  insert: { after: TransformSystem },
   reactor: () => {
     const snapState = useHookstate(getMutableState(ObjectGridSnapState))
-    const onMouseUp = (event) => {
-      if (snapState.enabled.value) {
-        snapState.apply.set(true)
-      }
-    }
-    useEffect(() => {
-      document.addEventListener('mouseup', onMouseUp)
-      return () => document.removeEventListener('mouseup', onMouseUp)
-    }, [])
     return null
   },
   execute: () => {
@@ -219,19 +213,38 @@ export const ObjectGridSnapSystem = defineSystem({
           closestEntity = candidateEntity
         }
       }
-      if (!closestEntity) continue
       const selectedSnapComponent = getComponent(selectedEntity, ObjectGridSnapComponent)
+      const commitNoOp = () => {
+        const helperEntity = selectedSnapComponent.helper
+        if (helperEntity) {
+          //reset helper bbox if exists
+          setComponent(helperEntity, TransformComponent, {
+            position: new Vector3(),
+            rotation: new Quaternion().identity(),
+            scale: new Vector3(1, 1, 1)
+          })
+        }
+        if (getState(ObjectGridSnapState).apply) {
+          EditorControlFunctions.commitTransformSave([selectedParent])
+          getMutableState(ObjectGridSnapState).apply.set(false)
+        }
+      }
+      if (!closestEntity) {
+        commitNoOp()
+        continue
+      }
       const closestBBox = getComponent(closestEntity, ObjectGridSnapComponent).bbox
       const closestMatrixWorld = getComponent(closestEntity, TransformComponent).matrixWorld
-      console.log('snap')
-
       const parentMatrixWorld = getComponent(selectedParent, TransformComponent).matrixWorld
       const srcMatrixWorld = parentMatrixWorld.clone()
       const rotationMatrix = alignToClosestAxis(selectedMatrixWorld, closestMatrixWorld)
       const position = new Vector3()
       srcMatrixWorld.decompose(position, new Quaternion(), new Vector3())
       const dstEntity = getState(ObjectGridSnapState).apply ? selectedParent : selectedSnapComponent.helper
-      if (!dstEntity) continue
+      if (!dstEntity) {
+        commitNoOp()
+        continue
+      }
       const dstMatrixWorld = getComponent(dstEntity, TransformComponent).matrixWorld
       dstMatrixWorld.copy(rotationMatrix)
       dstMatrixWorld.setPosition(position)
@@ -245,8 +258,7 @@ export const ObjectGridSnapSystem = defineSystem({
       dstMatrixWorld.multiply(new Matrix4().makeTranslation(translation))
       TransformComponent.updateFromWorldMatrix(dstEntity)
       if (getState(ObjectGridSnapState).apply) {
-        //const dstTransform = getComponent(dstEntity, TransformComponent)
-        //commitProperties(TransformComponent, dstTransform)
+        EditorControlFunctions.commitTransformSave([dstEntity])
         getMutableState(ObjectGridSnapState).apply.set(false)
       }
       break
