@@ -54,8 +54,13 @@ import {
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
 import { AnimationState } from '../AnimationManager'
-import { locomotionAnimation } from '../animation/Util'
-import { retargetAvatarAnimations, setupAvatarForUser, setupAvatarProportions } from '../functions/avatarFunctions'
+import { preloadedAnimations } from '../animation/Util'
+import {
+  retargetAvatarAnimations,
+  setAvatarSpeedFromRootMotion,
+  setupAvatarForUser,
+  setupAvatarProportions
+} from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -129,7 +134,9 @@ export const AvatarRigComponent = defineComponent({
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
     const visible = useOptionalComponent(entity, VisibleComponent)
     const modelComponent = useOptionalComponent(entity, ModelComponent)
-    const locomotionAnimationState = useHookstate(getMutableState(AnimationState).loadedAnimations[locomotionAnimation])
+    const locomotionAnimationState = useHookstate(
+      getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
+    )
 
     useEffect(() => {
       if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
@@ -191,6 +198,11 @@ export const AvatarRigComponent = defineComponent({
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
       }
     }, [rigComponent.vrm])
+
+    useEffect(() => {
+      if (!locomotionAnimationState?.value) return
+      setAvatarSpeedFromRootMotion()
+    }, [locomotionAnimationState])
 
     return null
   }
