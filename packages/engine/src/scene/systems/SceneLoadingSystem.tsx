@@ -394,6 +394,8 @@ const ComponentLoadReactor = (props: {
   }, [])
 
   useEffect(() => {
+    /** @todo this is a hack fix for variants */
+    if (!getState(EngineState).isEditing) return
     if (!componentState?.value) return
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
     loadComponents(entity, [componentState.get(NO_PROXY)])

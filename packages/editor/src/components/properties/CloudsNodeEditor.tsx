@@ -57,7 +57,7 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.clouds.description')}
     >
       <InputGroup name="Image" label={t('editor:properties.clouds.lbl-image')}>
-        <ImageInput value={cloudComponent.texture.value} onChange={updateProperty(CloudComponent, 'texture')} />
+        <ImageInput value={cloudComponent.texture.value} onRelease={commitProperty(CloudComponent, 'texture')} />
         {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.clouds.error-url')}</div>}
       </InputGroup>
 

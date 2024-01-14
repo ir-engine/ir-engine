@@ -95,7 +95,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
           <ModelInput
             value={loopAnimationComponent.animationPack.value}
-            onChange={commitProperty(LoopAnimationComponent, 'animationPack')}
+            onRelease={commitProperty(LoopAnimationComponent, 'animationPack')}
           />
           {errors?.LOADING_ERROR && (
             <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
