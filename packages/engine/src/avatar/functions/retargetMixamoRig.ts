@@ -33,6 +33,8 @@ const _quatA = new Quaternion()
 
 /**Retargets an animation clip into normalized bone space for use with any T-Posed normalized humanoid rig */
 export const retargetAnimationClip = (clip: AnimationClip, mixamoScene: Object3D) => {
+  const hipsPositionScale = mixamoScene.getObjectByName('Armature')!.scale.y
+
   for (let i = 0; i < clip.tracks.length; i++) {
     const track = clip.tracks[i]
     const trackSplitted = track.name.split('.')
@@ -44,10 +46,6 @@ export const retargetAnimationClip = (clip: AnimationClip, mixamoScene: Object3D
     // Store rotations of rest-pose
     rigNode.getWorldQuaternion(restRotationInverse).invert()
     rigNode.parent!.getWorldQuaternion(parentRestWorldRotation)
-
-    const hips = mixamoScene.getObjectByName('mixamorigHips')!
-    const motionHipsHeight = hips!.position.y
-    const hipsPositionScale = 1 / motionHipsHeight
 
     if (track instanceof QuaternionKeyframeTrack) {
       // Retarget rotation of mixamoRig to NormalizedBone
