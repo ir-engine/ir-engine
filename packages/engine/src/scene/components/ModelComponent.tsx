@@ -322,7 +322,7 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
     if (shadowComponent)
       setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
     else removeComponent(props.entity, ShadowComponent)
-  }, [isMesh, shadowComponent])
+  }, [isMesh, shadowComponent?.cast, shadowComponent?.receive])
 
   const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
   useEffect(() => {
@@ -330,7 +330,16 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
     if (envmapComponent)
       setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
     else removeComponent(props.entity, EnvmapComponent)
-  }, [isMesh, envmapComponent])
+  }, [
+    isMesh,
+    envmapComponent,
+    envmapComponent?.envMapIntensity,
+    envmapComponent?.envmap,
+    envmapComponent?.envMapSourceColor,
+    envmapComponent?.envMapSourceURL,
+    envmapComponent?.envMapTextureType,
+    envmapComponent?.envMapSourceEntityUUID
+  ])
 
   return null
 }

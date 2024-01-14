@@ -117,7 +117,7 @@ const NumericInput = React.forwardRef(
     }: NumericInputProp,
     ref
   ) => {
-    const [tempValue, setTempValue] = useState<string | null>(null)
+    const [tempValue, setTempValue] = useState<number | null>(null)
     const [focused, setFocused] = useState(false)
     const inputEl = useRef<HTMLInputElement>(null)
 
@@ -130,15 +130,17 @@ const NumericInput = React.forwardRef(
       const finalValue = convertTo(roundedValue)
 
       if (onChange) {
-        onChange(finalValue)
+        onChange(Number(finalValue))
       }
 
       setTempValue(
-        roundedValue.toLocaleString('fullwide', {
-          useGrouping: false,
-          minimumFractionDigits: 0,
-          maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
-        })
+        Number(
+          roundedValue.toLocaleString('fullwide', {
+            useGrouping: false,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
+          })
+        )
       )
       setFocused(focus)
     }
@@ -192,7 +194,7 @@ const NumericInput = React.forwardRef(
         const clampedValue = min != null && max != null ? clamp(parsedValue, min, max) : parsedValue
         const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
         const finalValue = convertTo(roundedValue)
-        onChange?.(finalValue)
+        onChange?.(Number(finalValue))
       }
     }
 
@@ -216,7 +218,7 @@ const NumericInput = React.forwardRef(
       setFocused(false)
 
       if (onRelease) {
-        onRelease(value)
+        onRelease(Number(tempValue!))
       }
     }
 

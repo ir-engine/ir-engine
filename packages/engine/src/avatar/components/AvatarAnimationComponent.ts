@@ -54,8 +54,13 @@ import {
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
 import { AnimationState } from '../AnimationManager'
-import { locomotionAnimation } from '../animation/Util'
-import { retargetAvatarAnimations, setupAvatarForUser, setupAvatarProportions } from '../functions/avatarFunctions'
+import { preloadedAnimations } from '../animation/Util'
+import {
+  retargetAvatarAnimations,
+  setAvatarSpeedFromRootMotion,
+  setupAvatarForUser,
+  setupAvatarProportions
+} from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -95,12 +100,13 @@ export const AvatarRigComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      /** Holds all the bones */
+      /** rig bones with quaternions relative to the raw bones in their bind pose */
       normalizedRig: null! as VRMHumanBones,
+      /** contains the raw bone quaternions */
       rawRig: null! as VRMHumanBones,
-
+      /** clone of the normalized rig that is used for the ik pass */
+      ikRig: null! as VRMHumanBones,
       helperEntity: null as Entity | null,
-
       /** The VRM model */
       vrm: null! as VRM,
       avatarURL: null as string | null
@@ -111,6 +117,7 @@ export const AvatarRigComponent = defineComponent({
     if (!json) return
     if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
+    if (matches.object.test(json.ikRig)) component.ikRig.set(json.ikRig)
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
   },
@@ -127,7 +134,9 @@ export const AvatarRigComponent = defineComponent({
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
     const visible = useOptionalComponent(entity, VisibleComponent)
     const modelComponent = useOptionalComponent(entity, ModelComponent)
-    const locomotionAnimationState = useHookstate(getMutableState(AnimationState).loadedAnimations[locomotionAnimation])
+    const locomotionAnimationState = useHookstate(
+      getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
+    )
 
     useEffect(() => {
       if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
@@ -189,6 +198,11 @@ export const AvatarRigComponent = defineComponent({
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
       }
     }, [rigComponent.vrm])
+
+    useEffect(() => {
+      if (!locomotionAnimationState?.value) return
+      setAvatarSpeedFromRootMotion()
+    }, [locomotionAnimationState])
 
     return null
   }
