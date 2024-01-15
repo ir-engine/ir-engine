@@ -45,7 +45,7 @@ export type FileBrowserInputProps = StringInputProps & { acceptFileTypes: string
  * @returns
  */
 export function FileBrowserInput({
-  onChange,
+  onRelease,
   value,
   acceptFileTypes,
   acceptDropItems,
@@ -78,7 +78,7 @@ export function FileBrowserInput({
       } as Partial<FileSystemFileEntry>
     ] as any).then((assets) => {
       if (assets) {
-        onChange?.(assets[0])
+        onRelease?.(assets[0])
       }
     })
   }
@@ -94,7 +94,7 @@ export function FileBrowserInput({
           url += item.fullName
         }
 
-        onChange?.(url)
+        onRelease?.(url)
       } else {
         // https://github.com/react-dnd/react-dnd/issues/1345#issuecomment-538728576
         const dndItem: any = monitor.getItem()
@@ -102,7 +102,7 @@ export function FileBrowserInput({
 
         onUpload(entries).then((assets) => {
           if (assets) {
-            onChange?.(assets[0])
+            onRelease?.(assets[0])
           }
         })
       }
@@ -118,7 +118,7 @@ export function FileBrowserInput({
       <ControlledStringInput
         ref={dropRef}
         value={value}
-        onChange={(value) => onChange?.(value)}
+        onRelease={onRelease}
         error={isOver && !canDrop}
         canDrop={isOver && canDrop}
         {...rest}

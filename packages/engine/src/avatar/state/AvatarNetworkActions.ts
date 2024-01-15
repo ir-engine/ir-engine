@@ -43,7 +43,7 @@ export class AvatarNetworkAction {
     type: 'ee.engine.avatar.SET_ANIMATION_STATE',
     entityUUID: matchesEntityUUID,
     clipName: matches.string.optional(),
-    filePath: matches.string,
+    animationAsset: matches.string,
     loop: matches.boolean.optional(),
     needsSkip: matches.boolean.optional(),
     layer: matches.number.optional(),

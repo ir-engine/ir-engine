@@ -133,12 +133,12 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           </InputGroup>
           <InputGroup name="Texture URL" label="Texture URL">
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Cubemap && (
-              <FolderInput value={envmapComponent.envMapSourceURL.value} onChange={onChangeCubemapURLSource} />
+              <FolderInput value={envmapComponent.envMapSourceURL.value} onRelease={onChangeCubemapURLSource} />
             )}
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Equirectangular && (
               <ImagePreviewInput
                 value={envmapComponent.envMapSourceURL.value}
-                onChange={commitProperty(EnvmapComponent, 'envMapSourceURL')}
+                onRelease={commitProperty(EnvmapComponent, 'envMapSourceURL')}
               />
             )}
             {errors?.MISSING_FILE && (

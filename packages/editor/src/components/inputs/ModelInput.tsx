@@ -38,12 +38,12 @@ import { StringInputProps } from './StringInput'
  * @param       {any} rest
  * @constructor
  */
-export function ModelInput({ onChange, ...rest }: StringInputProps) {
+export function ModelInput({ onRelease, ...rest }: StringInputProps) {
   return (
     <FileBrowserInput
       acceptFileTypes={ModelFileTypes}
       acceptDropItems={ItemTypes.Models}
-      onChange={onChange}
+      onRelease={onRelease}
       {...rest}
     />
   )

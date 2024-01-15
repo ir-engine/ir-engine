@@ -51,21 +51,21 @@ export const ImageContainer = ({ children }) => {
   return <div style={imageContainerStyle}>{children}</div>
 }
 
-export default function ImagePreviewInput({ value, onChange, ...rest }: StringInputProps) {
+export default function ImagePreviewInput({ value, onRelease, ...rest }: StringInputProps) {
   return (
     <ImageContainer>
       <Stack>
-        <ImageInput value={value} onChange={onChange} />
+        <ImageInput value={value} onRelease={onRelease} />
         <img src={value} crossOrigin="anonymous" style={imgStyle} />
       </Stack>
     </ImageContainer>
   )
 }
 
-export function ImagePreviewInputGroup({ name, label, value, onChange, ...rest }) {
+export function ImagePreviewInputGroup({ name, label, value, onRelease, ...rest }) {
   return (
     <InputGroup name={name} label={label} {...rest}>
-      <ImagePreviewInput value={value} onChange={onChange} />
+      <ImagePreviewInput value={value} onRelease={onRelease} />
     </InputGroup>
   )
 }

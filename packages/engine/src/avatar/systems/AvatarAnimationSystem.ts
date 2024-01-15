@@ -52,11 +52,11 @@ import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././componen
 import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
-import { emoteAnimations, ikTargets } from '../animation/Util'
+import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
-import { loadAnimationArray, loadLocomotionAnimations } from '../functions/avatarFunctions'
+import { loadBundledAnimations } from '../functions/avatarFunctions'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { AnimationSystem } from './AnimationSystem'
 
@@ -340,8 +340,7 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     if (isClient) {
-      loadLocomotionAnimations()
-      loadAnimationArray(Object.values(emoteAnimations), 'emotes')
+      loadBundledAnimations([preloadedAnimations.locomotion, preloadedAnimations.emotes])
     }
 
     const networkState = getMutableState(NetworkState)

@@ -59,7 +59,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.systemnode.description')}
     >
       <InputGroup name="Script" label={t('editor:properties.systemnode.lbl-filePath')}>
-        <ScriptInput value={systemComponent.filePath} onChange={onChangePath} />
+        <ScriptInput value={systemComponent.filePath} onRelease={onChangePath} />
         {!isPathValid && <div>{t('editor:properties.systemnode.error-url')}</div>}
       </InputGroup>
     </NodeEditor>
