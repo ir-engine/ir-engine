@@ -162,8 +162,6 @@ export class S3Provider implements StorageProviderInterface {
       ? config.aws.s3.endpoint
         ? `${config.aws.s3.endpoint.replace('http://', '').replace('https://', '')}/${this.bucket}`
         : config.aws.cloudfront.domain
-      : config.server.storageProvider === 's3-do'
-      ? config.aws.cloudfront.domain
       : `${config.aws.cloudfront.domain}/${this.bucket}`
 
   originURLs = [this.cacheDomain]

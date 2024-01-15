@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { FunctionSummary } from '@aws-sdk/client-cloudfront'
 
+import config from '../../appconfig'
 import S3Provider from './s3.storage'
 
 /**
@@ -34,6 +35,7 @@ export class S3DOProvider extends S3Provider {
   constructor() {
     super()
     this.bucketAssetURL = 'https://etherealengine-static-resources.sfo2.digitaloceanspaces.com'
+    this.cacheDomain = config.aws.cloudfront.domain
   }
   /**
    * Invalidate items in the S3 storage.
