@@ -31,6 +31,7 @@ import {
   CompressedTexture,
   Group,
   InterleavedBufferAttribute,
+  Material,
   Matrix3,
   Mesh,
   MeshBasicMaterial,
@@ -45,7 +46,7 @@ import {
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
-import { isMobile } from '../../common/functions/isMobile'
+import { isIPhone, isMobile } from '../../common/functions/isMobile'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
@@ -387,8 +388,11 @@ function UVOL2Reactor() {
   const audioContext = getState(AudioState).audioContext
   const audio = mediaElement.element
 
-  const geometryBuffer = useMemo(() => new Map<string, Mesh | BufferGeometry | KeyframeAttribute>(), [])
-  const textureBuffer = useMemo(() => new Map<string, CompressedTexture>(), [])
+  const geometryBuffer = useMemo(
+    () => new Map<string, (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]>(),
+    []
+  )
+  const textureBuffer = useMemo(() => new Map<string, Map<string, CompressedTexture[]>>(), [])
 
   let maxBufferHealth = 14 // seconds
   let minBufferToStart = 4 // seconds
@@ -531,6 +535,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         minBufferToStart = 2 // seconds
         bufferThreshold = 9 // seconds.
       }
+      if (isIPhone) {
+        maxBufferHealth = 5 // seconds
+        minBufferToStart = 2 // seconds
+        bufferThreshold = 4 // seconds.
+      }
     }
 
     const shadow = getMutableComponent(entity, ShadowComponent)
@@ -557,24 +566,39 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     return () => {
       removeObjectFromGroup(entity, group)
       clearInterval(intervalId)
-      for (const texture of textureBuffer.values()) {
-        texture.dispose()
-      }
-      textureBuffer.clear()
-
-      for (const value of geometryBuffer.values()) {
-        if (value instanceof Mesh) {
-          value.geometry.dispose()
-        } else if (value instanceof BufferGeometry) {
-          value.dispose()
-        } else if (value instanceof InterleavedBufferAttribute) {
-          mesh.geometry.setAttribute(value.name, value)
+      for (const textureType of component.textureInfo.textureTypes.value) {
+        const currentTextureBuffer = textureBuffer.get(textureType)
+        if (currentTextureBuffer) {
+          for (const target in component.textureInfo[textureType].targets) {
+            const frameData = currentTextureBuffer.get(target)
+            if (frameData) {
+              for (const frameNo in frameData) {
+                const texture = frameData[frameNo]
+                texture.dispose()
+                delete frameData[frameNo]
+              }
+            }
+          }
         }
       }
-
+      for (const target in geometryBuffer) {
+        const frameData = geometryBuffer.get(target)
+        if (frameData) {
+          for (const frameNo in frameData) {
+            const value = frameData[frameNo]
+            if (value instanceof Mesh) {
+              value.geometry.dispose()
+              value.material.dispose()
+            } else if (value instanceof BufferGeometry) {
+              value.dispose()
+            } else if (value instanceof InterleavedBufferAttribute) {
+              mesh.geometry.setAttribute(value.name, value)
+            }
+            delete frameData[frameNo]
+          }
+        }
+      }
       mesh.geometry.dispose()
-      geometryBuffer.clear()
-      mesh.material.dispose()
       audio.src = ''
     }
   }, [])
@@ -612,15 +636,17 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     Promise.allSettled(promises).then((values) => {
+      if (!geometryBuffer.has(target)) {
+        geometryBuffer.set(target, [])
+      }
+      const frameData = geometryBuffer.get(target)!
       values.forEach((result, j) => {
         const model = result.status === 'fulfilled' ? (result.value as Mesh) : null
         if (!model) {
           return
         }
         const i = j + startFrame
-        const key = createKey(target, i)
-        model.name = key
-        geometryBuffer.set(createKey(target, i), model)
+        frameData[i] = model as BufferGeometry | Mesh<BufferGeometry, Material>
 
         component.geometryInfo.merge({
           bufferHealth: component.geometryInfo.bufferHealth.value + 1 / targetData.frameRate,
@@ -665,6 +691,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     Promise.allSettled(promises).then((values) => {
+      if (!geometryBuffer.has(target)) {
+        geometryBuffer.set(target, [])
+      }
+      const frameData = geometryBuffer.get(target)!
       values.forEach((result, j) => {
         const model = result.status === 'fulfilled' ? (result.value as Mesh) : null
         if (!model) {
@@ -682,9 +712,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           if (normalMorphAttributes) {
             const normalAttr = normalMorphAttributes[index]
             normalAttr.name = key
-            geometryBuffer.set(key, { position: attr, normal: normalAttr })
+            frameData[segmentOffset + index] = { position: attr, normal: normalAttr }
           } else {
-            geometryBuffer.set(key, { position: attr })
+            frameData[segmentOffset + index] = { position: attr }
           }
         })
 
@@ -875,15 +905,21 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       if (component.forceFetchTextures.value) {
         component.forceFetchTextures.set(false)
       }
+      if (!textureBuffer.has(textureType)) {
+        textureBuffer.set(textureType, new Map<string, CompressedTexture[]>())
+      }
+      const currentTextureBuffer = textureBuffer.get(textureType)!
+      if (!currentTextureBuffer.has(target)) {
+        currentTextureBuffer.set(target, [])
+      }
+      const frameData = currentTextureBuffer.get(target)!
       values.forEach((result, j) => {
         const texture = result.status === 'fulfilled' ? (result.value as CompressedTexture) : null
         if (!texture) {
           return
         }
         const i = j + startFrame
-        const key = createKey(target, i, textureType)
-        texture.name = key
-        textureBuffer.set(key, texture)
+        frameData[i] = texture
         component.textureInfo[textureType].merge({
           bufferHealth: Math.min(
             component.textureInfo[textureType].bufferHealth.value + 1 / frameRate,
@@ -1014,8 +1050,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     } else {
       index = Math.ceil(index)
     }
-    const key = createKey(currentGeometryTarget, index)
-    if (!geometryBuffer.has(key)) {
+    const frameData = geometryBuffer.get(currentGeometryTarget)!
+    if (!frameData || !frameData[index]) {
       const targets = component.geometryInfo.targets.value
 
       for (let i = 0; i < targets.length; i++) {
@@ -1028,12 +1064,13 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           _index = Math.ceil(_index)
         }
 
-        if (geometryBuffer.has(createKey(_target, _index))) {
-          return geometryBuffer.get(createKey(_target, _index)) as KeyframeAttribute
+        const _frameData = geometryBuffer.get(_target)!
+        if (_frameData && _frameData[_index]) {
+          return _frameData[_index] as KeyframeAttribute
         }
       }
     } else {
-      return geometryBuffer.get(key) as KeyframeAttribute
+      return frameData[index] as KeyframeAttribute
     }
 
     return false
@@ -1103,41 +1140,36 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const setGeometry = (target: string, index: number) => {
-    const key = createKey(target, index)
+    const frameData = geometryBuffer.get(target)!
     const targetData = component.data.value.geometry.targets[target]
 
-    if (!geometryBuffer.has(key)) {
+    if (!frameData || !frameData[index]) {
       const frameRate = targetData.frameRate
       const targets = component.geometryInfo.targets.value
       for (let i = 0; i < targets.length; i++) {
         const _target = targets[i]
         const _frameRate = component.data.value.geometry.targets[_target].frameRate
         const _index = Math.round((index * _frameRate) / frameRate)
-        if (geometryBuffer.has(createKey(_target, _index))) {
+        const _frameData = geometryBuffer.get(_target)!
+        if (_frameData && _frameData[_index]) {
           setGeometry(_target, _index)
           return
         }
       }
     } else {
       if (targetData.format === 'draco') {
-        const geometry = geometryBuffer.get(key)! as BufferGeometry
+        const geometry = frameData[index] as BufferGeometry
         if (mesh.geometry !== geometry) {
-          const oldGeometry = mesh.geometry
           mesh.geometry = geometry
           mesh.geometry.attributes.position.needsUpdate = true
-          oldGeometry.dispose()
-          const oldGeometryKey = oldGeometry.name
-          geometryBuffer.delete(oldGeometryKey)
           return
         }
       } else if (targetData.format === 'glb') {
-        const model = geometryBuffer.get(key)! as Mesh
+        const model = frameData[index] as Mesh
         const geometry = model.geometry
         if (mesh.geometry !== geometry) {
-          const oldGeometry = mesh.geometry
           mesh.geometry = geometry
           mesh.geometry.attributes.position.needsUpdate = true
-          oldGeometry.dispose()
         }
         if (model.material instanceof MeshStandardMaterial && model.material.map) {
           if (model.material.map.repeat) {
@@ -1147,8 +1179,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
             offset.copy(model.material.map.offset)
           }
         }
-        const oldModelKey = model.name
-        geometryBuffer.delete(oldModelKey)
         return
       }
     }
@@ -1196,27 +1226,29 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         material.map.needsUpdate = true
       }
     }
-    const oldTexture = textureBuffer.get(oldTextureKey)
-    if (oldTexture && component.data.deletePreviousBuffers.value !== false) {
-      oldTexture.dispose()
-      textureBuffer.delete(oldTextureKey)
-    }
   }
 
   const setTexture = (textureType: TextureType, target: string, index: number, currentTime: number) => {
-    const key = createKey(target, index, textureType)
-    if (!textureBuffer.has(key)) {
+    const currentTextureBuffer = textureBuffer.get(textureType)
+    if (!currentTextureBuffer) {
+      return
+    }
+    const frameData = currentTextureBuffer.get(target)!
+    if (!frameData || !frameData[index]) {
       const targets = component.textureInfo[textureType].targets.value
       for (let i = 0; i < targets.length; i++) {
         const _frameRate = component.data.value.texture[textureType]!.targets[targets[i]].frameRate
         const _index = getFrame(currentTime, _frameRate)
-        if (textureBuffer.has(createKey(targets[i], _index, textureType))) {
+        const _currentTextureBuffer = textureBuffer.get(textureType)!
+        const _frameData = _currentTextureBuffer.get(targets[i])!
+
+        if (_frameData && _frameData[_index]) {
           setTexture(textureType, targets[i], _index, currentTime)
           return
         }
       }
     } else {
-      const texture = textureBuffer.get(key)!
+      const texture = frameData[index] as CompressedTexture
       setMap(textureType, texture)
     }
   }
@@ -1250,12 +1282,73 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       setPositionAndNormal('keyframeB', keyframeB)
       ;(mesh.material as ShaderMaterial).uniforms.mixRatio.value = mixRatio
     }
+
+    const index = mesh.geometry.index
+    const newGeometry = new BufferGeometry()
+    const oldGeometry = mesh.geometry
+
+    newGeometry.setIndex(index)
+    for (const key in mesh.geometry.attributes) {
+      newGeometry.setAttribute(key, mesh.geometry.attributes[key])
+      oldGeometry.deleteAttribute(key)
+    }
+    newGeometry.boundingSphere = mesh.geometry.boundingSphere
+    newGeometry.boundingBox = mesh.geometry.boundingBox
+
+    for (const target in component.data.value.geometry.targets) {
+      const frameData = geometryBuffer.get(target)
+      const frameRate = component.data.value.geometry.targets[target].frameRate
+      if (frameData && frameData.length > 0) {
+        for (const frameNo in frameData) {
+          const frameTime = parseInt(frameNo) / frameRate
+          if (frameTime < currentTime - 0.5) {
+            const attribute = frameData[frameNo] as KeyframeAttribute
+            oldGeometry.setAttribute(attribute.position.name + '.position', attribute.position)
+            if (attribute.normal) {
+              oldGeometry.setAttribute(attribute.normal.name + '.normal', attribute.normal)
+            }
+            delete frameData[frameNo]
+          } else {
+            break
+          }
+        }
+      }
+    }
+    mesh.geometry = newGeometry
+    oldGeometry.dispose()
   }
 
   const updateNonUniformSolve = (currentTime: number) => {
     const geometryTarget = component.geometryInfo.targets[component.geometryInfo.currentTarget.value].value
+    const targetData = component.data.value.geometry.targets[geometryTarget]
     const geometryFrame = Math.round(currentTime * component.data.value.geometry.targets[geometryTarget].frameRate)
     setGeometry(geometryTarget, geometryFrame)
+
+    for (const target in component.data.value.geometry.targets) {
+      const frameData = geometryBuffer.get(target)
+      const frameRate = component.data.value.geometry.targets[target].frameRate
+      if (frameData && frameData.length > 0) {
+        for (const frameNo in frameData) {
+          const frameTime = parseInt(frameNo) / frameRate
+          if (frameTime < currentTime - 0.5) {
+            if (targetData.format === 'draco') {
+              const geometry = frameData[frameNo] as BufferGeometry
+              geometry.dispose()
+            } else if (targetData.format === 'glb') {
+              const oldMesh = frameData[frameNo] as Mesh<BufferGeometry, Material>
+              oldMesh.geometry.dispose()
+              if (oldMesh.material['map']) {
+                oldMesh.material['map'].dispose()
+              }
+              oldMesh.material.dispose()
+            }
+            delete frameData[frameNo]
+          } else {
+            break
+          }
+        }
+      }
+    }
   }
 
   const updateGeometry = (currentTime: number) => {
@@ -1282,13 +1375,33 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       currentTime * component.data.value.texture[textureType]!.targets[textureTarget].frameRate
     )
     setTexture(textureType, textureTarget, textureFrame, currentTime)
+    const currentTextureBuffer = textureBuffer.get(textureType)
+    if (!currentTextureBuffer) {
+      return
+    }
+    for (const target in component.data.value.texture[textureType]?.targets) {
+      const frameData = currentTextureBuffer.get(target)
+      if (!frameData || frameData.length === 0) return
+      const frameRate = component.data.value.texture[textureType]?.targets[target].frameRate as number
+      if (frameData && frameData.length > 0) {
+        for (const frameNo in frameData) {
+          const frameTime = parseInt(frameNo) / frameRate
+          if (frameTime < currentTime - 0.5) {
+            const texture = frameData[frameNo]
+            texture.dispose()
+            delete frameData[frameNo]
+          } else {
+            break
+          }
+        }
+      }
+    }
   }
 
   const isWaiting = useRef(false)
 
   const update = () => {
     const delta = getState(EngineState).deltaSeconds
-
     if (
       component.loadingEffectStarted.value &&
       !component.loadingEffectEnded.value &&
