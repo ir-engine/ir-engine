@@ -31,7 +31,7 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { InstancedMesh, Mesh, Object3D, SkinnedMesh } from 'three'
+import { InstancedMesh, LineBasicMaterial, Mesh, Object3D, SkinnedMesh } from 'three'
 import { MeshBVHVisualizer } from 'three-mesh-bvh'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
@@ -42,6 +42,13 @@ import { MeshComponent } from './MeshComponent'
 import { ModelComponent } from './ModelComponent'
 import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
+
+const edgeMaterial = new LineBasicMaterial({
+  color: 0x00ff88,
+  transparent: true,
+  opacity: 0.3,
+  depthWrite: false
+})
 
 function ValidMeshForBVH(mesh: Mesh): boolean {
   return mesh && mesh.isMesh && !(mesh as InstancedMesh).isInstancedMesh && !(mesh as SkinnedMesh).isSkinnedMesh
@@ -75,7 +82,7 @@ export const MeshBVHComponent = defineComponent({
     const component = useComponent(entity, MeshBVHComponent)
     const debug = useHookstate(getMutableState(RendererState).physicsDebug)
     const visible = useOptionalComponent(entity, VisibleComponent)
-    const model = useOptionalComponent(entity, ModelComponent)
+    const model = useComponent(entity, ModelComponent)
     const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
     useEffect(() => {
@@ -93,7 +100,7 @@ export const MeshBVHComponent = defineComponent({
                 if (toGenerate == 0) {
                   component.generated.set(true)
                 }
-                if (model && model.cameraOcclusion) {
+                if (model.cameraOcclusion) {
                   ObjectLayerMaskComponent.enableLayers(currEntity, ObjectLayers.Camera)
                 }
               }
@@ -128,11 +135,12 @@ export const MeshBVHComponent = defineComponent({
             let meshBVHVisualizer = null as MeshBVHVisualizer | null
 
             meshBVHVisualizer = new MeshBVHVisualizer(mesh!)
-            addObjectToGroup(currEntity, meshBVHVisualizer)
-
+            meshBVHVisualizer.edgeMaterial = edgeMaterial
             meshBVHVisualizer.depth = 20
             meshBVHVisualizer.displayParents = false
             meshBVHVisualizer.update()
+
+            addObjectToGroup(currEntity, meshBVHVisualizer)
             component.visualizers.merge([meshBVHVisualizer])
           }
         }
