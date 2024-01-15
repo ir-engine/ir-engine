@@ -132,9 +132,7 @@ export const MeshBVHComponent = defineComponent({
         for (const currEntity of entities) {
           const mesh = getOptionalComponent(currEntity, MeshComponent)
           if (ValidMeshForBVH(mesh!)) {
-            let meshBVHVisualizer = null as MeshBVHVisualizer | null
-
-            meshBVHVisualizer = new MeshBVHVisualizer(mesh!)
+            const meshBVHVisualizer = new MeshBVHVisualizer(mesh!)
             meshBVHVisualizer.edgeMaterial = edgeMaterial
             meshBVHVisualizer.depth = 20
             meshBVHVisualizer.displayParents = false
