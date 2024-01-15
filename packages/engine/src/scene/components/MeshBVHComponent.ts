@@ -31,22 +31,13 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import {
-  Box3,
-  BufferAttribute,
-  BufferGeometry,
-  InstancedMesh,
-  LineBasicMaterial,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  SkinnedMesh
-} from 'three'
+import { Box3, InstancedMesh, LineBasicMaterial, Mesh, MeshBasicMaterial, Object3D, SkinnedMesh } from 'three'
+import { MeshBVHVisualizer } from 'three-mesh-bvh'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { addObjectToGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { ModelComponent } from './ModelComponent'
 import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
@@ -193,20 +184,20 @@ export const MeshBVHComponent = defineComponent({
   onInit(entity) {
     return {
       generated: false,
-      visualizer: null as Object3D | null
+      visualizers: null as Object3D[] | null
     }
   },
 
   onSet(entity, component, json) {
     if (!json) return
 
-    if (json.visualizer) component.visualizer.set(json.visualizer)
+    if (json.visualizers) component.visualizers.set(json.visualizers)
   },
 
   toJSON(entity, component) {
     return {
       generated: component.generated.value,
-      visualizer: component.visualizer.value
+      visualizers: component.visualizers.value
     }
   },
 
@@ -248,92 +239,92 @@ export const MeshBVHComponent = defineComponent({
     }, [visible, childEntities])
 
     useEffect(() => {
-      console.log('MESHBVHVISUALIZER')
       if (!component.generated.value) return
 
-      const visualizer = new Mesh()
+      // const visualizer = new Mesh()
 
-      let indexArraysLength = 0
-      const indexArrays = [] as ArrayLike<number>[]
+      // let indexArraysLength = 0
+      // const indexArrays = [] as ArrayLike<number>[]
 
-      let positionsLength = 0
-      const positions = [] as Float32Array[]
-
-      const entities = childEntities.value
-      for (const currEntity of entities) {
-        const mesh = getOptionalComponent(currEntity, MeshComponent)
-        if (ValidMeshForBVH(mesh!)) {
-          const data = GetMeshBVHGeometry(mesh!)
-          if (data && data.indexArray && data.positionArray) {
-            indexArraysLength += data.indexArray.length
-            indexArrays.push(data.indexArray)
-
-            positionsLength += data.positionArray.length
-            positions.push(data.positionArray)
-          }
-        }
-      }
-
-      const finalIndexArray = new Uint32Array(indexArraysLength)
-      let i = 0
-      for (const indexArr of indexArrays) {
-        let j = 0
-        for (; j < indexArr.length; j++) {
-          finalIndexArray[i + j] = indexArr[j]
-        }
-        i += j
-      }
-
-      const finalPositionArray = new Float32Array(indexArraysLength)
-      let ix = 0
-      for (const positionArr of positions) {
-        let jx = 0
-        for (; jx < positionArr.length; jx++) {
-          finalPositionArray[ix + jx] = positionArr[jx]
-        }
-        ix += jx
-      }
-
-      const geometry = new BufferGeometry()
-      geometry.setIndex(new BufferAttribute(finalIndexArray, 1, false))
-      geometry.setAttribute('position', new BufferAttribute(finalPositionArray, 3, false))
-
-      visualizer.material = edgeMaterial
-      visualizer.geometry = geometry
-      visualizer.visible = true
-      addObjectToGroup(entity, visualizer)
+      // let positionsLength = 0
+      // const positions = [] as Float32Array[]
 
       // const entities = childEntities.value
       // for (const currEntity of entities) {
       //   const mesh = getOptionalComponent(currEntity, MeshComponent)
       //   if (ValidMeshForBVH(mesh!)) {
-      //     let meshBVHVisualizer = null as MeshBVHVisualizer | null
+      //     const data = GetMeshBVHGeometry(mesh!)
+      //     if (data && data.indexArray && data.positionArray) {
+      //       indexArraysLength += data.indexArray.length
+      //       indexArrays.push(data.indexArray)
 
-      //     const remove = () => {
-      //       if (meshBVHVisualizer) {
-      //         removeObjectFromGroup(currEntity, meshBVHVisualizer)
-      //         //The MeshBVHVisualizer type def is missing the dispose method
-      //         ;(meshBVHVisualizer as any).dispose()
-      //       }
-      //     }
-
-      //     if (component.generated.value && debug.value) {
-      //       meshBVHVisualizer = new MeshBVHVisualizer(mesh!)
-      //       addObjectToGroup(currEntity, meshBVHVisualizer)
-
-      //       meshBVHVisualizer.depth = 20
-      //       meshBVHVisualizer.displayParents = false
-      //       meshBVHVisualizer.update()
-      //       // component.visualizer.set(meshBVHVisualizer)
-      //     } else if (component.generated.value && !debug.value) {
-      //       remove()
-      //       // component.visualizer.set(null)
+      //       positionsLength += data.positionArray.length
+      //       positions.push(data.positionArray)
       //     }
       //   }
       // }
 
+      // const finalIndexArray = new Uint32Array(indexArraysLength)
+      // let i = 0
+      // for (const indexArr of indexArrays) {
+      //   let j = 0
+      //   for (; j < indexArr.length; j++) {
+      //     finalIndexArray[i + j] = indexArr[j]
+      //   }
+      //   i += j
+      // }
+
+      // const finalPositionArray = new Float32Array(indexArraysLength)
+      // let ix = 0
+      // for (const positionArr of positions) {
+      //   let jx = 0
+      //   for (; jx < positionArr.length; jx++) {
+      //     finalPositionArray[ix + jx] = positionArr[jx]
+      //   }
+      //   ix += jx
+      // }
+
+      // const geometry = new BufferGeometry()
+      // geometry.setIndex(new BufferAttribute(finalIndexArray, 1, false))
+      // geometry.setAttribute('position', new BufferAttribute(finalPositionArray, 3, false))
+
+      // visualizer.material = edgeMaterial
+      // visualizer.geometry = geometry
+      // visualizer.visible = true
+      // addObjectToGroup(entity, visualizer)
+
+      const remove = () => {
+        if (component.visualizers.value) {
+          for (const visualizer of component.visualizers.value) {
+            removeObjectFromGroup(visualizer.entity, visualizer)
+          }
+        }
+        component.visualizers.set(null)
+      }
+
+      if (debug.value && !component.visualizers.value) {
+        component.visualizers.set([])
+        const entities = childEntities.value
+        for (const currEntity of entities) {
+          const mesh = getOptionalComponent(currEntity, MeshComponent)
+          if (ValidMeshForBVH(mesh!)) {
+            let meshBVHVisualizer = null as MeshBVHVisualizer | null
+
+            meshBVHVisualizer = new MeshBVHVisualizer(mesh!)
+            addObjectToGroup(currEntity, meshBVHVisualizer)
+
+            meshBVHVisualizer.depth = 20
+            meshBVHVisualizer.displayParents = false
+            meshBVHVisualizer.update()
+            component.visualizers.merge([meshBVHVisualizer])
+          }
+        }
+      } else if (!debug.value) {
+        remove()
+      }
+
       return () => {
-        // remove()
+        remove()
       }
     }, [component.generated, debug])
 
