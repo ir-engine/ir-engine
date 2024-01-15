@@ -43,7 +43,6 @@ export const EditorHelperState = defineState({
     transformModeOnCancel: TransformMode.translate as TransformModeType,
     transformSpace: TransformSpace.world as TransformSpaceType,
     transformPivot: TransformPivot.Selection as TransformPivotType,
-    attachmentPointSnap: false,
     gridSnap: SnapMode.Grid as SnapModeType,
     translationSnap: 0.5,
     rotationSnap: 10,

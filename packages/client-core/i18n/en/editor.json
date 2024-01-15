@@ -125,7 +125,8 @@
       "info-origin": "Sets pivot mode to the world origin (0,0,0)"
     },
     "transformSnapTool": {
-      "toggleSnapMode": "[C] Toggle Snap Mode",
+      "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
+      "toggleSnapMode": "[C] Toggle Grid Snap",
       "info-translate": "Translate objects by a unit of measurement.",
       "info-rotate": "Rotate objects by a specific degrees."
     },

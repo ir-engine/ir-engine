@@ -65,6 +65,7 @@ import {
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
+import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 const raycaster = new Raycaster()
 const raycasterResults: Intersection<Object3D>[] = []
@@ -75,6 +76,10 @@ let lastZoom = 0
 let selectedEntities: Entity[]
 let dragging = false
 let primaryClickAccum = 0
+
+const onKeyB = () => {
+  getMutableState(ObjectGridSnapState).enabled.set(!getState(ObjectGridSnapState).enabled)
+}
 
 const onKeyQ = () => {
   /*const nodes = getState(SelectionState).selectedEntities
@@ -241,6 +246,7 @@ const execute = () => {
 
   if (editorHelperState.isFlyModeEnabled) return
 
+  if (buttons.KeyB?.down) onKeyB()
   if (buttons.KeyQ?.down) onKeyQ()
   if (buttons.KeyE?.down) onKeyE()
   if (buttons.KeyF?.down) onKeyF()

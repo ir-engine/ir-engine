@@ -182,6 +182,8 @@ export const ObjectGridSnapSystem = defineSystem({
     return null
   },
   execute: () => {
+    const snapState = getState(ObjectGridSnapState)
+    if (!snapState.enabled) return
     const entities = objectGridQuery()
     const selectedEntities: Entity[] = []
     const selectedParents: Entity[] = []

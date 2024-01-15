@@ -29,10 +29,12 @@ import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformCo
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import AttractionsIcon from '@mui/icons-material/Attractions'
+import BusinessIcon from '@mui/icons-material/Business'
 
 import { useTranslation } from 'react-i18next'
 import { toggleSnapMode } from '../../../functions/transformFunctions'
 import { EditorHelperState } from '../../../services/EditorHelperState'
+import { ObjectGridSnapState } from '../../../systems/ObjectGridSnapSystem'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -61,7 +63,7 @@ const TransformSnapTool = () => {
   const { t } = useTranslation()
 
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-
+  const objectSnapState = useHookstate(getMutableState(ObjectGridSnapState))
   const onChangeTranslationSnap = (snapValue: number) => {
     getMutableState(EditorHelperState).translationSnap.set(snapValue)
     if (editorHelperState.gridSnap.value !== SnapMode.Grid) {
@@ -77,7 +79,7 @@ const TransformSnapTool = () => {
   }
 
   const toggleAttachmentPointSnap = () => {
-    editorHelperState.attachmentPointSnap.set(!editorHelperState.attachmentPointSnap.value)
+    objectSnapState.enabled.set(!objectSnapState.enabled.value)
   }
 
   // const onChangeScaleSnap = (snapValue: number) => {
@@ -92,9 +94,9 @@ const TransformSnapTool = () => {
       <InfoTooltip title={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
         <button
           onClick={toggleAttachmentPointSnap}
-          className={styles.toolButton + ' ' + (editorHelperState.attachmentPointSnap.value ? styles.selected : '')}
+          className={styles.toolButton + ' ' + (objectSnapState.enabled.value ? styles.selected : '')}
         >
-          <AttractionsIcon fontSize="small" />
+          <BusinessIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <InfoTooltip title={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
