@@ -34,14 +34,14 @@ import {
   avatarPatchValidator,
   avatarPath,
   avatarQueryValidator
-} from '@etherealengine/engine/src/schemas/user/avatar.schema'
+} from '@etherealengine/common/src/schemas/user/avatar.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import logger from '../../ServerLogger'
 
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { userAvatarPath } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -188,17 +188,18 @@ const removeAvatarResources = async (context: HookContext<AvatarService>) => {
  * @returns
  */
 const updateUserAvatars = async (context: HookContext<AvatarService>) => {
-  const avatars = (await context.app.service(avatarPath).find({
+  const avatars = await context.app.service(avatarPath).find({
     query: {
       id: {
         $ne: context.id?.toString() as AvatarID
-      }
-    },
-    paginate: false
-  })) as AvatarType[]
+      },
+      isPublic: true,
+      $limit: 1000
+    }
+  })
 
-  if (avatars.length > 0) {
-    const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.length)]
+  if (avatars.data.length > 0) {
+    const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
     await context.app.service(userAvatarPath).patch(
       null,
       {
@@ -207,7 +208,8 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
       {
         query: {
           avatarId: context.id?.toString() as AvatarID
-        }
+        },
+        user: context.params.user
       }
     )
   }

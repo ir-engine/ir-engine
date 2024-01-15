@@ -30,7 +30,7 @@ import path from 'path'
 import * as stream from 'stream'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 
-import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import config from '../../appconfig'
 import {
   BlobStore,

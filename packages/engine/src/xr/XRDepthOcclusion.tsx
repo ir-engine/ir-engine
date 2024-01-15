@@ -265,17 +265,13 @@ function DepthOcclusionReactor({ obj }) {
 
   useEffect(() => {
     const mesh = obj as any as Mesh<any, Material>
-    if (depthDataTexture && depthSupported)
-      mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.addDepthOBCPlugin(o.material, depthDataTexture.value!))
-    else mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
-  }, [depthDataTexture])
+    if (!mesh.isMesh || !depthDataTexture || !depthSupported) return
 
-  useEffect(() => {
+    XRDepthOcclusion.addDepthOBCPlugin(mesh.material, depthDataTexture.value!)
     return () => {
-      const mesh = obj as any as Mesh<any, Material>
-      mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
+      XRDepthOcclusion.removeDepthOBCPlugin(mesh.material)
     }
-  }, [])
+  }, [depthDataTexture])
 
   return null
 }

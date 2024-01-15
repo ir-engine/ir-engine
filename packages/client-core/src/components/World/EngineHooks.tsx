@@ -32,11 +32,10 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
-import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { getComponent, removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { Network, NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
@@ -46,15 +45,11 @@ import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDC
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
-import { FollowCameraComponent } from '@etherealengine/engine/src/camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '@etherealengine/engine/src/camera/components/TargetCameraRotationComponent'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -73,29 +68,21 @@ export const useEngineInjection = () => {
 
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
-  const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
     if (spectate) {
-      if (!sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
+      if (!sceneLoaded.value) return
       dispatchAction(EngineActions.spectateUser({}))
       return
     }
 
     const spectateParam = getSearchParamFromURL('spectate')
 
-    if (
-      Engine.instance.localClientEntity ||
-      !sceneLoaded.value ||
-      !authState.user.value ||
-      !authState.user.avatar.value ||
-      spectateParam
-    )
-      return
+    if (Engine.instance.localClientEntity || !sceneLoaded.value || spectateParam) return
 
     // the avatar should only be spawned once, after user auth and scene load
-    const user = authState.user
-    const avatarDetails = user.avatar.value
+    const user = getState(AuthState).user
+    const avatarDetails = user.avatar
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
@@ -105,13 +92,13 @@ export const useLocationSpawnAvatar = (spectate = false) => {
     if (avatarDetails.modelResource?.url) {
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
-        avatarID: user.avatar.id.value!,
-        name: user.name.value
+        avatarID: user.avatar.id!,
+        name: user.name
       })
     } else {
       AvatarState.selectRandomAvatar()
     }
-  }, [sceneLoaded, authState.user.avatar])
+  }, [sceneLoaded])
 }
 
 /**
@@ -128,24 +115,27 @@ export const useLocationSpawnAvatarWithDespawn = () => {
 
 export const despawnSelfAvatar = () => {
   const clientEntity = Engine.instance.localClientEntity
+  console.log('despawnSelfAvatar', clientEntity)
   if (!clientEntity) return
 
-  const peersCountForUser =
-    getState(NetworkState).networks[getState(NetworkState).hostIds.world!].users[Engine.instance.userID]?.length
+  const network = NetworkState.worldNetwork
+
+  const peersCountForUser = network?.users?.[Engine.instance.userID]?.length
 
   // if we are the last peer in the world for this user, destroy the object
   if (!peersCountForUser || peersCountForUser === 1) {
     dispatchAction(WorldNetworkAction.destroyObject({ entityUUID: getComponent(clientEntity, UUIDComponent) }))
   }
 
-  const cameraEntity = Engine.instance.cameraEntity
-  if (!cameraEntity) return
+  /** @todo this logic should be handled by the camera system */
+  // const cameraEntity = Engine.instance.cameraEntity
+  // if (!cameraEntity) return
 
-  const cameraComputed = getComponent(cameraEntity, ComputedTransformComponent)
-  removeEntity(cameraComputed.referenceEntity)
-  removeComponent(cameraEntity, ComputedTransformComponent)
-  removeComponent(cameraEntity, FollowCameraComponent)
-  removeComponent(cameraEntity, TargetCameraRotationComponent)
+  // const cameraComputed = getComponent(cameraEntity, ComputedTransformComponent)
+  // removeEntity(cameraComputed.referenceEntity)
+  // removeComponent(cameraEntity, ComputedTransformComponent)
+  // removeComponent(cameraEntity, FollowCameraComponent)
+  // removeComponent(cameraEntity, TargetCameraRotationComponent)
 }
 
 export const useLinkTeleport = () => {
@@ -163,11 +153,6 @@ export const useLinkTeleport = () => {
     // shut down connection with existing world instance server
     // leaving a world instance server will check if we are in a location media instance and shut that down too
     leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
-
-    getMutableState(AppLoadingState).merge({
-      state: AppLoadingStates.START_STATE,
-      loaded: false
-    })
     getMutableState(LinkState).location.set(undefined)
   }, [linkState.location])
 }
@@ -184,7 +169,7 @@ export const usePortalTeleport = () => {
     const activePortal = getComponent(activePortalEntity, PortalComponent)
 
     const currentLocation = locationState.locationName.value.split('/')[1]
-    if (currentLocation === activePortal.location || UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]) {
+    if (currentLocation === activePortal.location || UUIDComponent.getEntityByUUID(activePortal.linkedPortalId)) {
       teleportAvatar(
         Engine.instance.localClientEntity!,
         activePortal.remoteSpawnPosition,
@@ -204,10 +189,6 @@ export const usePortalTeleport = () => {
       PortalComponent.setPlayerInPortalEffect(activePortal.effectType)
     } else {
       getMutableState(PortalState).portalReady.set(true)
-      getMutableState(AppLoadingState).merge({
-        state: AppLoadingStates.START_STATE,
-        loaded: false
-      })
       // teleport player to where the portal spawn position is
       teleportAvatar(Engine.instance.localClientEntity, activePortal.remoteSpawnPosition)
     }
@@ -233,23 +214,18 @@ type Props = {
 }
 
 export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
-  const engineState = useHookstate(getMutableState(EngineState))
-  const appState = useHookstate(getMutableState(AppLoadingState).state)
+  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
 
   useLocationSpawnAvatar(spectate)
   usePortalTeleport()
   useLinkTeleport()
 
   useEffect(() => {
-    if (engineState.sceneLoaded.value && appState.value !== AppLoadingStates.SUCCESS) {
-      getMutableState(AppLoadingState).merge({
-        state: AppLoadingStates.SUCCESS,
-        loaded: true
-      })
+    if (sceneLoaded.value) {
       /** used by the PWA service worker */
       window.dispatchEvent(new Event('load'))
     }
-  }, [engineState.sceneLoaded, engineState.loadingProgress])
+  }, [sceneLoaded])
 }
 
 export const useOnlineNetwork = () => {
@@ -280,9 +256,9 @@ export const useOfflineNetwork = () => {
       addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
-      NetworkState.worldNetwork.authenticated = true
-      NetworkState.worldNetwork.connected = true
-      NetworkState.worldNetwork.ready = true
+      NetworkState.worldNetworkState.authenticated.set(true)
+      NetworkState.worldNetworkState.connected.set(true)
+      NetworkState.worldNetworkState.ready.set(true)
 
       NetworkPeerFunctions.createPeer(
         NetworkState.worldNetwork as Network,

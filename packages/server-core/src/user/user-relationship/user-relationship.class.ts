@@ -32,7 +32,7 @@ import {
   UserRelationshipPatch,
   UserRelationshipQuery,
   UserRelationshipType
-} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+} from '@etherealengine/common/src/schemas/user/user-relationship.schema'
 
 export interface UserRelationshipParams extends KnexAdapterParams<UserRelationshipQuery> {}
 

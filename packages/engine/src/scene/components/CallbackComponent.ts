@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, defineComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const enum StandardCallbacks {
   PLAY = 'xre.play',
@@ -37,7 +37,7 @@ export const CallbackComponent = defineComponent({
 })
 
 export function setCallback(entity: Entity, key: string, callback: (...params: any) => void) {
-  if (!hasComponent(entity, CallbackComponent)) addComponent(entity, CallbackComponent, new Map())
+  if (!hasComponent(entity, CallbackComponent)) setComponent(entity, CallbackComponent, new Map())
   const callbacks = getComponent(entity, CallbackComponent)
   callbacks.set(key, callback)
   callbacks[key] = key // for inspector

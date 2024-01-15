@@ -29,6 +29,7 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { State, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { NetworkActions, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
@@ -38,7 +39,6 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import {
   SocketWebRTCClientNetwork,
@@ -74,16 +74,27 @@ const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
   const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
 
   useEffect(() => {
-    const sendTransport = MediasoupTransportState.getTransport(props.networkID, 'send') as WebRTCTransportExtension
-    const recvTransport = MediasoupTransportState.getTransport(props.networkID, 'recv') as WebRTCTransportExtension
-    networkState.ready.set(!!recvTransport && !!sendTransport)
+    const topic = networkState.topic.value
+    const topicEnabled = getState(NetworkState).config[topic]
+    if (topicEnabled) {
+      const sendTransport = MediasoupTransportState.getTransport(props.networkID, 'send') as WebRTCTransportExtension
+      const recvTransport = MediasoupTransportState.getTransport(props.networkID, 'recv') as WebRTCTransportExtension
+      networkState.ready.set(!!recvTransport && !!sendTransport)
+    } else {
+      networkState.ready.set(true)
+    }
   }, [transportState])
 
   return null
 }
 
 const reactor = () => {
+  const networkConfig = useHookstate(getMutableState(NetworkState).config)
+  const isOnline = networkConfig.world.value || networkConfig.media.value
   const networkIDs = Object.keys(useHookstate(getMutableState(NetworkState).networks).value)
+
+  /** @todo - instead of checking for network config, we should filter NetworkConnectionReactor by networks with a "real" transport */
+  if (!isOnline) return null
 
   return (
     <>

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import type { UserID } from '@etherealengine/common/src/schema.type.module'
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { createHyperStore, getState, ReactorRoot, State } from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
@@ -34,7 +34,7 @@ import '../../patchEngineNode'
 import '../utils/threejsPatches'
 
 import type { FeathersApplication } from '@feathersjs/feathers'
-import { Group, Object3D, Scene } from 'three'
+import { Group, Scene } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
@@ -85,12 +85,6 @@ export class Engine {
    * Reference to the three.js scene object.
    */
   scene = new Scene()
-
-  /**
-   * Map of object lists by layer
-   * (automatically updated by the SceneObjectSystem)
-   */
-  objectLayerList = {} as { [layer: number]: Set<Object3D> }
 
   /**
    * The xr origin reference space entity

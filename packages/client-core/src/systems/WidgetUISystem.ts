@@ -46,7 +46,7 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { isMobileXRHeadset, ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
@@ -67,6 +67,7 @@ import {
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
@@ -88,7 +89,7 @@ const WidgetUISystemState = defineState({
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
     setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
-    setComponent(widgetMenuUI.entity, LocalTransformComponent)
+    setComponent(widgetMenuUI.entity, TransformComponent)
     removeComponent(widgetMenuUI.entity, VisibleComponent)
     setComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
     // const helper = new AxesHelper(0.1)
@@ -156,15 +157,13 @@ const execute = () => {
   for (const action of registerWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
     setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: widgetMenuUI.entity })
-    setComponent(widget.ui.entity, LocalTransformComponent)
   }
   for (const action of unregisterWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
-    removeComponent(widget.ui.entity, LocalTransformComponent)
+    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: null })
     if (typeof widget.cleanup === 'function') widget.cleanup()
   }
 
-  const transform = getComponent(widgetMenuUI.entity, LocalTransformComponent)
   const activeInputSourceEntity = inputSources.find(
     (entity) => getComponent(entity, InputSourceComponent).source.handedness === widgetState.handedness
   )
@@ -178,10 +177,10 @@ const execute = () => {
     if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
       removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
       setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-      setComponent(widgetMenuUI.entity, LocalTransformComponent)
+      setComponent(widgetMenuUI.entity, TransformComponent, { scale: new Vector3().setScalar(1) })
     }
 
-    const transform = getComponent(widgetMenuUI.entity, LocalTransformComponent)
+    const transform = getComponent(widgetMenuUI.entity, TransformComponent)
     if (pose) {
       const rot = widgetState.handedness === 'left' ? widgetLeftRotation : widgetRightRotation
       const offset = widgetState.handedness === 'left' ? widgetLeftMenuGripOffset : widgetRightMenuGripOffset
@@ -192,11 +191,12 @@ const execute = () => {
     }
   } else {
     if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
-      removeComponent(widgetMenuUI.entity, EntityTreeComponent)
-      removeComponent(widgetMenuUI.entity, LocalTransformComponent)
-      setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.cameraEntity, () =>
-        ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, 0.1)
-      )
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
+      setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.cameraEntity, () => {
+        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+        const distance = camera.near * 1.1 // 10% in front of camera
+        ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, distance)
+      })
     }
   }
 

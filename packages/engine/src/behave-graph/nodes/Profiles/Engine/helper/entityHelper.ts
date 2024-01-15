@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
 import { MathUtils } from 'three'
-import { Entity } from '../../../../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
 import { SceneState } from '../../../../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
@@ -37,13 +38,12 @@ import { createEntity } from '../../../../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../../../../ecs/functions/EntityTree'
 import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../../../../scene/components/VisibleComponent'
-import { ComponentJsonType } from '../../../../../schemas/projects/scene.schema'
-import { LocalTransformComponent } from '../../../../../transform/components/TransformComponent'
+import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 export const addEntityToScene = (
   componentJson: Array<ComponentJsonType>,
   parentEntity = SceneState.getRootEntity(),
-  beforeEntity = null as Entity | null
+  beforeEntity = UndefinedEntity as Entity
 ) => {
   const newEntity = createEntity()
   let childIndex = undefined as undefined | number
@@ -54,7 +54,7 @@ export const addEntityToScene = (
     }
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
-  setComponent(newEntity, LocalTransformComponent)
+  setComponent(newEntity, TransformComponent)
   const uuid = MathUtils.generateUUID() as EntityUUID
   setComponent(newEntity, UUIDComponent, uuid)
   setComponent(newEntity, VisibleComponent)

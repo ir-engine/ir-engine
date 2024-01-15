@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { XRUI, createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -39,7 +39,7 @@ import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThu
 import { AuthState } from '../../../user/services/AuthService'
 import { AvatarMenus } from '../../AvatarUISystem'
 import XRTextButton from '../../components/XRTextButton'
-import styles from './index.scss'
+import styles from './index.scss?inline'
 
 export const AvatarUIContextMenuState = defineState({
   name: 'AvatarUISystem',

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectsMethods, projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { projectsMethods, projectsPath } from '@etherealengine/common/src/schemas/projects/projects.schema'
 import { Application } from '../../../declarations'
 import { ProjectsService } from './projects.class'
 import projectsDocs from './projects.docs'

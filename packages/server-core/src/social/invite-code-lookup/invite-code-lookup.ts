@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   inviteCodeLookupMethods,
   inviteCodeLookupPath
-} from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+} from '@etherealengine/common/src/schemas/social/invite-code-lookup.schema'
 
 import { Application } from '../../../declarations'
 import { InviteCodeLookupService } from './invite-code-lookup.class'

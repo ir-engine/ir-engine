@@ -169,6 +169,7 @@ function UVOL1Reactor() {
       volumetric.ended.set(true)
       video.removeEventListener('ended', setEnded)
     })
+    volumetric.currentTrackInfo.duration.set(component.data.frameData.length / component.data.frameRate.value)
 
     return () => {
       removeObjectFromGroup(entity, mesh)
@@ -253,6 +254,7 @@ function UVOL1Reactor() {
         mesh.material.needsUpdate = true
         oldMaterial.dispose()
       }
+      volumetric.currentTrackInfo.currentTime.set(frameToPlay / component.data.frameRate.value)
 
       if (meshBuffer.has(frameToPlay)) {
         // @ts-ignore: value cannot be anything else other than BufferGeometry
@@ -269,8 +271,15 @@ function UVOL1Reactor() {
     processFrame(frameToPlay)
   })
 
+  useEffect(() => {
+    video.playbackRate = volumetric.currentTrackInfo.playbackRate.value
+  }, [volumetric.currentTrackInfo.playbackRate])
+
   useExecute(
     () => {
+      //do not execute if the cortoloader has not been initialized
+      if (getState(AssetLoaderState).cortoLoader === null) return
+
       const delta = getState(EngineState).deltaSeconds
 
       if (

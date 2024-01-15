@@ -36,9 +36,8 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { UserName, emailSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { emailSettingPath } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
-import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import styles from '../../styles/settings.module.scss'
 
 const Email = () => {

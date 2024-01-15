@@ -30,7 +30,7 @@ import {
   redisSettingPatchSchema,
   redisSettingQuerySchema,
   redisSettingSchema
-} from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/redis-setting.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

@@ -44,7 +44,7 @@ import {
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { SceneLoadingSystem } from '../SceneModule'
 import { PortalEffect } from '../classes/PortalEffect'
@@ -71,13 +71,12 @@ export const HyperspaceTagComponent = defineComponent({
       }
     )
 
-    getComponent(hyperspaceEffectEntity, LocalTransformComponent).scale.set(10, 10, 10)
+    getComponent(hyperspaceEffectEntity, TransformComponent).scale.set(10, 10, 10)
     setComponent(hyperspaceEffectEntity, EntityTreeComponent, { parentEntity: entity })
     setComponent(hyperspaceEffectEntity, VisibleComponent)
 
     const ambientLightEntity = createEntity()
     const light = new AmbientLight('#aaa')
-    setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
     light.layers.enable(ObjectLayers.Portal)
     addObjectToGroup(ambientLightEntity, light)
 

@@ -36,5 +36,6 @@ export const TweenComponent = defineComponent({
 
   onSet(entity, component, json) {
     component.set(json as Tween<any>)
+    TweenComponent.valueMap[entity] = json as Tween<any>
   }
 })

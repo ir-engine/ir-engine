@@ -53,6 +53,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
+import iterateObject3D from '../../scene/util/iterateObject3D'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
@@ -80,13 +81,13 @@ export function disposeDracoLoaderWorkers(): void {
   getState(AssetLoaderState).gltfLoader!.dracoLoader?.dispose()
 }
 
-const onUploadDropBuffer = (uuid?: string) =>
+const onUploadDropBuffer = () =>
   function (this: BufferAttribute) {
     // @ts-ignore
     this.array = new this.array.constructor(1)
   }
 
-const onTextureUploadDropSource = (uuid?: string) =>
+const onTextureUploadDropSource = () =>
   function (this: Texture) {
     // source.data can't be null because the WebGLRenderer checks for it
     this.source.data = { width: this.source.data.width, height: this.source.data.height, __deleted: true }
@@ -112,7 +113,7 @@ const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
 
-  asset.traverse((child: Mesh<any, Material>) => {
+  iterateObject3D(asset, (child: Mesh<any, Material>) => {
     //test for LODs within this traversal
     if (haveAnyLODs(child)) loddables.push(child)
 
@@ -224,6 +225,8 @@ const getAssetType = (assetFileName: string): AssetType => {
       return AssetType.MKV
     case 'm3u8':
       return AssetType.M3U8
+    case 'material':
+      return AssetType.MAT
     default:
       return null!
   }
@@ -237,6 +240,10 @@ const getAssetType = (assetFileName: string): AssetType => {
 const getAssetClass = (assetFileName: string): AssetClass => {
   assetFileName = assetFileName.toLowerCase()
   if (/\.(gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
+    if (/\.(material.gltf)$/.test(assetFileName)) {
+      console.log('Material asset')
+      return AssetClass.Material
+    }
     return AssetClass.Model
   } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
     return AssetClass.Image
@@ -272,7 +279,7 @@ const audioLoader = () => new AudioLoader()
 const tgaLoader = () => new TGALoader()
 const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
-  load: (src, onLoad) => {
+  load: (src, onLoad, onProgress, onError) => {
     const ktxLoader = getState(AssetLoaderState).gltfLoader!.ktx2Loader
     if (!ktxLoader) throw new Error('KTX2Loader not yet initialized')
     ktxLoader.load(
@@ -282,8 +289,8 @@ const ktx2Loader = () => ({
         texture.source.data.src = src
         onLoad(texture)
       },
-      () => {},
-      () => {}
+      onProgress,
+      onError
     )
   }
 })
@@ -331,16 +338,22 @@ const assetLoadCallback =
         asset = { scene: asset }
       } else if (assetType === AssetType.VRM) {
         asset = asset.userData.vrm
+        asset.userData = { flipped: true }
       }
 
       if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
       if (asset.scene.userData) asset.scene.userData.type = assetType
       if (asset.userData) asset.userData.type = assetType
+      else asset.userData = { type: assetType }
 
       AssetLoader.processModelAsset(asset.scene, args)
       if (notGLTF) {
         registerMaterials(asset.scene, SourceType.MODEL, url)
       }
+    }
+    if (assetClass === AssetClass.Material) {
+      const material = asset as Material
+      material.userData.type = assetType
     }
     if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
       const texture = asset as Texture
@@ -358,7 +371,7 @@ const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineSta
 
 type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
-  uuid?: string
+  forceAssetType?: AssetType
   assetRoot?: Entity
 }
 
@@ -367,8 +380,7 @@ const load = async (
   args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {},
-  assetTypeOverride: AssetType = null!
+  onError = (event: ErrorEvent | Error) => {}
 ) => {
   if (!_url) {
     onError(new Error('URL is empty'))
@@ -376,7 +388,7 @@ const load = async (
   }
   let url = getAbsolutePath(_url)
 
-  const assetType = assetTypeOverride ? assetTypeOverride : AssetLoader.getAssetType(url)
+  const assetType = args.forceAssetType ? args.forceAssetType : AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
   if (iOS && (assetType === AssetType.PNG || assetType === AssetType.JPEG)) {
     const img = new Image()
@@ -425,14 +437,9 @@ const load = async (
   }
 }
 
-const loadAsync = async (
-  url: string,
-  args: LoadingArgs = {},
-  onProgress = (request: ProgressEvent) => {},
-  assetTypeOverride: AssetType = null!
-) => {
+const loadAsync = async (url: string, args: LoadingArgs = {}, onProgress = (request: ProgressEvent) => {}) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, args, resolve, onProgress, reject, assetTypeOverride)
+    load(url, args, resolve, onProgress, reject)
   })
 }
 

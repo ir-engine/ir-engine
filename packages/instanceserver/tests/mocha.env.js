@@ -33,5 +33,3 @@ require("ts-node").register({
   files: true,
   swc: true
 })
-
-require("fix-esm").register()

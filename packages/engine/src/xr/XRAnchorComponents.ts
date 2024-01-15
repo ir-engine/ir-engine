@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, ShadowMaterial } from 'three'
+import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, Object3D, ShadowMaterial } from 'three'
 import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
@@ -42,7 +42,7 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../ecs/functions/EntityTree'
-import { GroupComponent, Object3DWithEntity } from '../scene/components/GroupComponent'
+import { GroupComponent } from '../scene/components/GroupComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
@@ -110,57 +110,49 @@ const occlusionMat = new MeshLambertMaterial({ colorWrite: false })
 
 /** adds occlusion and shadow materials, and hides the mesh (or sets it to wireframe) */
 const anchorMeshFound = (
-  group: (Object3DWithEntity & Mesh<BufferGeometry, MeshStandardMaterial>)[],
+  group: (Object3D & Mesh<BufferGeometry, MeshStandardMaterial>)[],
   wireframe: boolean,
   meshes: State<Mesh[]>
 ) => {
-  for (const object of group) {
-    object.traverse((obj: Mesh<BufferGeometry, MeshStandardMaterial>) => {
-      if (obj.isMesh) {
-        if (!vpsMeshes.has(obj.uuid)) {
-          const shadowMesh = new Mesh().copy(obj, true)
-          shadowMesh.material = shadowMat
-          obj.parent!.add(shadowMesh)
+  for (const obj of group) {
+    if (!obj.isMesh) continue
+    if (!vpsMeshes.has(obj.uuid)) {
+      const shadowMesh = new Mesh().copy(obj, true)
+      shadowMesh.material = shadowMat
+      obj.parent!.add(shadowMesh)
 
-          const occlusionMesh = new Mesh().copy(obj, true)
-          occlusionMesh.material = occlusionMat
-          obj.parent!.add(occlusionMesh)
+      const occlusionMesh = new Mesh().copy(obj, true)
+      occlusionMesh.material = occlusionMat
+      obj.parent!.add(occlusionMesh)
 
-          if (wireframe) {
-            obj.material.wireframe = true
-          } else {
-            obj.visible = false
-          }
-
-          vpsMeshes.set(obj.uuid, {
-            wireframe: wireframe ? obj.material.wireframe : undefined
-          })
-
-          meshes.merge([shadowMesh, occlusionMesh])
-        }
+      if (wireframe) {
+        obj.material.wireframe = true
+      } else {
+        obj.visible = false
       }
-    })
+
+      vpsMeshes.set(obj.uuid, {
+        wireframe: wireframe ? obj.material.wireframe : undefined
+      })
+
+      meshes.merge([shadowMesh, occlusionMesh])
+    }
   }
 }
 
 /** removes the occlusion and shadow materials, and resets the mesh */
-const anchorMeshLost = (
-  group: (Object3DWithEntity & Mesh<BufferGeometry, MeshStandardMaterial>)[],
-  meshes: State<Mesh[]>
-) => {
-  for (const object of group) {
-    object.traverse((obj: Mesh<BufferGeometry, MeshStandardMaterial>) => {
-      if (obj.material && vpsMeshes.has(obj.uuid)) {
-        const wireframe = vpsMeshes.get(obj.uuid)!.wireframe
-        if (typeof wireframe === 'boolean') {
-          obj.material.wireframe = wireframe
-        } else {
-          obj.visible = true
-        }
-        delete obj.userData.XR8_VPS
-        vpsMeshes.delete(obj.uuid)
+const anchorMeshLost = (group: (Object3D & Mesh<BufferGeometry, MeshStandardMaterial>)[], meshes: State<Mesh[]>) => {
+  for (const obj of group) {
+    if (obj.material && vpsMeshes.has(obj.uuid)) {
+      const wireframe = vpsMeshes.get(obj.uuid)!.wireframe
+      if (typeof wireframe === 'boolean') {
+        obj.material.wireframe = wireframe
+      } else {
+        obj.visible = true
       }
-    })
+      delete obj.userData.XR8_VPS
+      vpsMeshes.delete(obj.uuid)
+    }
   }
   for (const mesh of meshes.value) {
     mesh.removeFromParent()
@@ -183,7 +175,7 @@ function PersistentAnchorReactor() {
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const xrState = useHookstate(getMutableState(XRState))
 
-  const group = groupComponent?.value as (Object3DWithEntity & Mesh<BufferGeometry, MeshStandardMaterial>)[] | undefined
+  const group = groupComponent?.value as (Object3D & Mesh<BufferGeometry, MeshStandardMaterial>)[] | undefined
 
   useEffect(() => {
     if (!group) return
@@ -202,7 +194,7 @@ function PersistentAnchorReactor() {
       anchorMeshFound(group, wireframe, meshes)
     } else {
       /** add back to the scene */
-      const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value]
+      const originalParent = UUIDComponent.getEntityByUUID(originalParentEntityUUID.value)
       setComponent(entity, EntityTreeComponent, { parentEntity: originalParent })
       TransformComponent.dirtyTransforms[entity] = true
 

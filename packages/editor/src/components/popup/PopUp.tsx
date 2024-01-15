@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect, useState } from 'react'
 
-import { InfoSharp } from '@mui/icons-material'
+import InfoSharp from '@mui/icons-material/InfoSharp'
 import './PopUp.css'
 
 // Import the external CSS file

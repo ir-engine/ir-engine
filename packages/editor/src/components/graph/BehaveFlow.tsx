@@ -25,15 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState'
-import {
-  getComponent,
-  hasComponent,
-  useComponent,
-  useQuery
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { isEqual } from 'lodash'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import 'reactflow/dist/style.css'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -47,7 +43,6 @@ export const ActiveBehaveGraph = (props: { entity }) => {
   const { entity } = props
 
   // reactivity
-  useComponent(entity, BehaveGraphComponent).graph.value
   const behaveGraphState = getState(BehaveGraphState)
 
   // get underlying data, avoid hookstate error 202
@@ -75,6 +70,7 @@ const BehaveFlow = () => {
   const entities = selectionState.selectedEntities.value
   const entity = entities[entities.length - 1]
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
+  const { t } = useTranslation()
 
   const addGraph = () => EditorControlFunctions.addOrRemoveComponent([entity], BehaveGraphComponent, true)
 
@@ -97,8 +93,7 @@ const BehaveFlow = () => {
                 addGraph()
               }}
             >
-              {' '}
-              Add Graph
+              {t('editor:graphPanel.addGraph')}
             </PropertiesPanelButton>
           ) : (
             <></>

@@ -34,7 +34,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getState } from '@etherealengine/hyperflux'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { Engine } from '../../../../../ecs/classes/Engine'
-import { Entity } from '../../../../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
 import { SceneState } from '../../../../../ecs/classes/Scene'
 import {
   ComponentMap,
@@ -73,7 +73,7 @@ export const getEntity = makeFunctionNodeDefinition({
   out: { entity: 'entity' },
   exec: ({ read, write, graph }) => {
     const entityUUID = read<EntityUUID>('entity')
-    const entity = UUIDComponent.entitiesByUUID[entityUUID]
+    const entity = UUIDComponent.getEntityByUUID(entityUUID)
     write('entity', entity)
   }
 })
@@ -188,8 +188,9 @@ export const addEntity = makeFlowNodeDefinition({
   out: { flow: 'flow', entity: 'entity' },
   initialState: undefined,
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
-    const parentEntityUUID = read<string>('parentEntity')
-    const parentEntity: Entity = parentEntityUUID == '' ? null : UUIDComponent.entitiesByUUID[parentEntityUUID]
+    const parentEntityUUID = read<EntityUUID>('parentEntity')
+    const parentEntity: Entity =
+      parentEntityUUID == '' ? UndefinedEntity : UUIDComponent.getEntityByUUID(parentEntityUUID)
     const componentName = read<string>('componentName')
     const entity = addEntityToScene([{ name: ComponentMap.get(componentName)?.jsonID! }], parentEntity)
     const entityName = read<string>('entityName')

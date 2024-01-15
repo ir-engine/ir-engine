@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { CircleGeometry, Mesh, MeshBasicMaterial } from 'three'
 
-import { addComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
@@ -47,7 +47,7 @@ export function createAvatarDetailView(id: string) {
       videoPreviewMesh
     })
   )
-  addComponent(ui.entity, NameComponent, 'avatar-detail-ui-' + id)
+  setComponent(ui.entity, NameComponent, 'avatar-detail-ui-' + id)
   return ui
 }
 

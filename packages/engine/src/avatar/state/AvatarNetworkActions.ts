@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AvatarID } from '@etherealengine/common/src/schema.type.module'
 import { defineAction } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { AvatarID } from '../../schemas/user/avatar.schema'
 import { matchesIkTarget } from '../animation/Util'
 
 export class AvatarNetworkAction {
@@ -41,7 +41,7 @@ export class AvatarNetworkAction {
     type: 'ee.engine.avatar.SET_ANIMATION_STATE',
     entityUUID: matchesEntityUUID,
     clipName: matches.string.optional(),
-    filePath: matches.string,
+    animationAsset: matches.string,
     loop: matches.boolean.optional(),
     needsSkip: matches.boolean.optional(),
     layer: matches.number.optional(),

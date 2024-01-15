@@ -48,7 +48,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { XRControlsState, XRState } from '../../xr/XRState'
-import { defaultAnimationPath, locomotionAnimation } from '../animation/Util'
+import { preloadedAnimations } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
@@ -88,7 +88,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   const xrState = getState(XRState)
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
-  const avatarHeight = getComponent(entity, AvatarComponent)?.avatarHeight ?? 1.6
+  const eyeHeight = getComponent(entity, AvatarComponent).eyeHeight
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   desiredMovement.copy(V_000)
 
@@ -98,7 +98,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
     const viewerPose = xrState.viewerPose
     /** move head position forward a bit to not be inside the avatar's body */
     avatarHeadPosition
-      .set(0, avatarHeight * 0.925, 0.25)
+      .set(0, eyeHeight, 0.25)
       .applyQuaternion(rigidbody.targetKinematicRotation)
       .add(rigidbody.targetKinematicPosition)
     viewerPose &&
@@ -158,7 +158,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
     if (controller.isInAir && !beganFalling) {
       dispatchAction(
         AvatarNetworkAction.setAnimationState({
-          filePath: defaultAnimationPath + locomotionAnimation + '.glb',
+          animationAsset: preloadedAnimations.locomotion,
           clipName: 'Fall',
           loop: true,
           layer: 1,
@@ -171,7 +171,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
       if (beganFalling) {
         dispatchAction(
           AvatarNetworkAction.setAnimationState({
-            filePath: defaultAnimationPath + locomotionAnimation + '.glb',
+            animationAsset: preloadedAnimations.locomotion,
             clipName: 'Fall',
             loop: true,
             layer: 1,
@@ -288,8 +288,6 @@ export const applyGamepadInput = (entity: Entity) => {
     controller.gamepadWorldMovement.z
   )
 
-  controller.speedVelocity = controller.gamepadWorldMovement.lengthSq()
-
   moveAvatar(entity, _additionalMovement)
 }
 
@@ -357,7 +355,7 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
     const avatarTransform = getComponent(entity, TransformComponent)
     const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
 
-    originRelativeToAvatarMatrix.multiplyMatrices(avatarTransform.matrixInverse, originTransform.matrix)
+    originRelativeToAvatarMatrix.copy(avatarTransform.matrix).invert().multiply(originTransform.matrix)
     desiredAvatarMatrix.compose(
       rigidBody.targetKinematicPosition,
       rigidBody.targetKinematicRotation,
@@ -365,7 +363,6 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
     )
     originTransform.matrix.multiplyMatrices(desiredAvatarMatrix, originRelativeToAvatarMatrix)
     originTransform.matrix.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
-    originTransform.matrixInverse.copy(originTransform.matrix).invert()
     updateWorldOrigin()
   }
 

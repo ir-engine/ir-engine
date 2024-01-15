@@ -58,21 +58,16 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
 
     const meshBVHVisualizers = [] as MeshBVHVisualizer[]
 
-    function addMeshBVHVisualizer(obj: Mesh) {
-      const mesh = obj as any as Mesh
-      if (mesh.isMesh && mesh.parent && mesh.geometry?.boundsTree) {
-        const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
-        mesh.parent.add(meshBVHVisualizer)
-        visualizers.push(meshBVHVisualizer)
-        meshBVHVisualizers.push(meshBVHVisualizer)
-        meshBVHVisualizer.depth = 20
-        meshBVHVisualizer.displayParents = false
-        meshBVHVisualizer.update()
-        return meshBVHVisualizer
-      }
+    const mesh = obj as any as Mesh
+    if (mesh.isMesh && mesh.parent && mesh.geometry?.boundsTree) {
+      const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
+      mesh.parent.add(meshBVHVisualizer)
+      visualizers.push(meshBVHVisualizer)
+      meshBVHVisualizers.push(meshBVHVisualizer)
+      meshBVHVisualizer.depth = 20
+      meshBVHVisualizer.displayParents = false
+      meshBVHVisualizer.update()
     }
-
-    obj.traverse(addMeshBVHVisualizer)
 
     return () => {
       for (const visualizer of meshBVHVisualizers) {

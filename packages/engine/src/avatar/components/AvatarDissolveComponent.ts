@@ -23,28 +23,101 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, MeshBasicMaterial, ShaderLib, ShaderMaterial, UniformsLib, UniformsUtils } from 'three'
+import { getState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import {
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+  ShaderLib,
+  ShaderMaterial,
+  SkinnedMesh,
+  UniformsLib,
+  UniformsUtils
+} from 'three'
 import { matches } from '../../common/functions/MatchesUtils'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+import { RendererState } from '../../renderer/RendererState'
+import { MeshComponent } from '../../scene/components/MeshComponent'
+import { setupObject } from '../../scene/systems/SceneObjectSystem'
+import { SkinnedMeshComponent } from './SkinnedMeshComponent'
+
+export type MaterialMap = {
+  entity: Entity
+  material: Material
+}
 
 export const AvatarDissolveComponent = defineComponent({
   name: 'AvatarDissolveComponent',
 
   onInit: (entity) => {
     return {
-      minHeight: -1,
-      maxHeight: 1,
-      currentTime: 0
+      height: 1,
+      currentTime: 0,
+      dissolveMaterials: [] as Array<ShaderMaterial>,
+      originMaterials: [] as Array<MaterialMap>
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
 
-    if (matches.number.test(json.minHeight)) component.minHeight.set(json.minHeight)
-    if (matches.number.test(json.maxHeight)) component.maxHeight.set(json.maxHeight)
-    if (matches.number.test(json.currentTime)) component.maxHeight.set(json.currentTime)
+    if (matches.number.test(json.height)) component.height.set(json.height)
+    if (matches.number.test(json.currentTime)) component.currentTime.set(json.currentTime)
+    if (json.dissolveMaterials) component.dissolveMaterials.set(json.dissolveMaterials as Array<ShaderMaterial>)
+    if (json.originMaterials) component.originMaterials.set(json.originMaterials as Array<MaterialMap>)
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+
+    useEffect(() => {
+      const materialList: Array<MaterialMap> = []
+      const dissolveMatList: Array<ShaderMaterial> = []
+
+      iterateEntityNode(entity, (entity: Entity) => {
+        if (!hasComponent(entity, SkinnedMeshComponent)) return
+
+        const mesh = getComponent(entity, SkinnedMeshComponent) as SkinnedMesh<any, any>
+        if (mesh.material) {
+          const material = mesh.material
+          materialList.push({
+            entity,
+            material: material
+          })
+          mesh.material = AvatarDissolveComponent.createDissolveMaterial(mesh as any)
+          dissolveMatList.push(mesh.material)
+        }
+      })
+
+      getMutableComponent(entity, AvatarDissolveComponent).merge({
+        dissolveMaterials: dissolveMatList,
+        originMaterials: materialList
+      })
+
+      return () => {
+        for (const originalMaterial of materialList) {
+          const avatarObject = getComponent(originalMaterial.entity, MeshComponent)
+          if (avatarObject) {
+            avatarObject.material = originalMaterial.material
+
+            // todo - this will be unnecessary when materials are reactive
+            setupObject(avatarObject, getState(RendererState).forceBasicMaterials)
+          }
+        }
+      }
+    }, [])
+
+    return null
   },
 
   createDissolveMaterial(object: Mesh<any, MeshBasicMaterial & ShaderMaterial>): any {
@@ -186,6 +259,6 @@ export const AvatarDissolveComponent = defineComponent({
       material.uniforms.time.value = dissolveComponent.currentTime
     }
 
-    return dissolveComponent.currentTime >= dissolveComponent.maxHeight
+    if (dissolveComponent.currentTime >= dissolveComponent.height) removeComponent(entity, AvatarDissolveComponent)
   }
 })

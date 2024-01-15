@@ -32,6 +32,7 @@ import {
   DoubleSide,
   Line,
   LineBasicMaterial,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   Quaternion,
@@ -137,6 +138,7 @@ const AvatarTeleportSystemState = defineState({
 const lineSegments = 64 // segments to make a whole circle, uses far less
 const lineGeometryVertices = new Float32Array((lineSegments + 1) * 3)
 const lineGeometryColors = new Float32Array((lineSegments + 1) * 3)
+const mat4 = new Matrix4()
 
 let canTeleport = false
 
@@ -190,9 +192,11 @@ const execute = () => {
         const pose = getState(XRState).xrFrame!.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)!
         guidelineTransform.position.copy(pose.transform.position as any as Vector3)
         guidelineTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
-        guidelineTransform.matrixInverse.fromArray(pose.transform.inverse.matrix)
+        guidelineTransform.matrix.fromArray(pose.transform.matrix)
       }
     }
+
+    const guidelineTransformMatrixInverse = mat4.copy(guidelineTransform.matrix).invert()
 
     const { p, v, t } = getParabolaInputParams(
       guidelineTransform.position,
@@ -210,7 +214,7 @@ const execute = () => {
       // set vertex to current position of the virtual ball at time t
       positionAtT(currentVertexWorld, (i * t) / lineSegments, p, v, gravity)
       currentVertexLocal.copy(currentVertexWorld)
-      currentVertexLocal.applyMatrix4(guidelineTransform.matrixInverse) // worldToLocal
+      currentVertexLocal.applyMatrix4(guidelineTransformMatrixInverse) // worldToLocal
       currentVertexLocal.toArray(lineGeometryVertices, i * 3)
       positionAtT(nextVertexWorld, ((i + 1) * t) / lineSegments, p, v, gravity)
       const currentVertexDirection = nextVertexWorld.subVectors(nextVertexWorld, currentVertexWorld)
@@ -224,7 +228,7 @@ const execute = () => {
     lastValidationData.positionValid ? (canTeleport = true) : (canTeleport = false)
     // Line should extend only up to last valid vertex
     currentVertexLocal.copy(currentVertexWorld)
-    currentVertexLocal.applyMatrix4(guidelineTransform.matrixInverse) // worldToLocal
+    currentVertexLocal.applyMatrix4(guidelineTransformMatrixInverse) // worldToLocal
     currentVertexLocal.toArray(lineGeometryVertices, i * 3)
     stopGuidelineAtVertex(currentVertexLocal, lineGeometryVertices, i + 1, lineSegments)
     guideline.geometry.attributes.position.needsUpdate = true

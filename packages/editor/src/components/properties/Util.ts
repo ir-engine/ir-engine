@@ -69,11 +69,10 @@ export const updateProperties = <C extends Component>(
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
-    ? [UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]]
+    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
     : selectionState.selectedEntities.value
   for (let i = 0; i < affectedNodes.length; i++) {
     const node = affectedNodes[i]
-    if (typeof node === 'string') continue
     updateComponent(node, component, properties)
   }
 }
@@ -99,7 +98,7 @@ export const commitProperties = <C extends Component>(
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
-    ? [UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]]
+    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
     : selectionState.selectedEntities.value
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)

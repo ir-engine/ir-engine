@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import {
-  NO_PROXY,
   defineState,
   dispatchAction,
   getMutableState,
@@ -37,6 +36,7 @@ import {
   useState
 } from '@etherealengine/hyperflux'
 
+import { AvatarID, AvatarType, avatarPath, userAvatarPath } from '@etherealengine/common/src/schema.type.module'
 import { Paginated } from '@feathersjs/feathers'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
@@ -47,9 +47,7 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { AvatarID, AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
-import { userAvatarPath } from '../../schemas/user/user-avatar.schema'
-import { loadAvatarModelAsset } from '../functions/avatarFunctions'
+import { loadAvatarModelAsset, unloadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from './AvatarNetworkActions'
 
@@ -122,7 +120,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
   }, [])
 
   useEffect(() => {
-    const avatarEntity = UUIDComponent.entitiesByUUID[entityUUID]
+    const avatarEntity = UUIDComponent.getEntityByUUID(entityUUID)
 
     const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
     if (!networkObject) {
@@ -159,12 +157,14 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     const url = state.userAvatarDetails.value.modelResource?.url
     if (!url) return
 
-    const entity = UUIDComponent.entitiesByUUID[entityUUID]
+    const entity = UUIDComponent.getEntityByUUID(entityUUID)
     if (!entity || !entityExists(entity)) return
 
-    const avatarDetails = state.userAvatarDetails.get(NO_PROXY)
-
     loadAvatarModelAsset(entity, url)
+    return () => {
+      if (!entityExists(entity)) return
+      unloadAvatarForUser(entity)
+    }
   }, [state.userAvatarDetails])
 
   return null

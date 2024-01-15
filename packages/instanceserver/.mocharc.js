@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 
 module.exports = {
   failZero: false,
-  parallel: true,
+  parallel: false,
   spec: ['tests/**/*.test.ts'],
   require: [
     'tests/mocha.env', // init env here
@@ -35,5 +35,10 @@ module.exports = {
   ],
   extension: [
     'ts'
-  ]
+  ],
+  bail: true,
+  exit: true,
+  recursive: true,
+  jobs: '1',
+  timeout: '60000'
 };

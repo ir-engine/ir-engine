@@ -30,7 +30,7 @@ import {
   buildStatusDataValidator,
   buildStatusPatchValidator,
   buildStatusQueryValidator
-} from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+} from '@etherealengine/common/src/schemas/cluster/build-status.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {

@@ -45,7 +45,7 @@ const ConferenceMode = (): JSX.Element => {
   const displayedUsers =
     network?.id && currentChannelInstanceConnection
       ? Object.values(network.peers).filter(
-          (peer) => peer.peerID !== 'server' && peer.userId !== authState.user.id.value
+          (peer) => peer.peerID !== network.hostPeerID && peer.userId !== authState.user.id.value
         ) || []
       : []
 

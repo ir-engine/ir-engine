@@ -23,17 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
-import { getState } from '@etherealengine/hyperflux'
-
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
-import { defineComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { LocalTransformComponent } from '../../transform/components/TransformComponent'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 /**
  * GrabbableComponent
@@ -42,20 +33,7 @@ import { LocalTransformComponent } from '../../transform/components/TransformCom
 export const GrabbableComponent = defineComponent({
   name: 'GrabbableComponent',
   jsonID: 'equippable', // TODO: rename to grabbable
-  toJSON: () => true,
-
-  reactor: () => {
-    const entity = useEntityContext()
-
-    /** @todo figure out a better way of disassociating dynamic objects from the scene */
-    useEffect(() => {
-      if (getState(EngineState).isEditor) return
-      removeComponent(entity, LocalTransformComponent)
-      setComponent(entity, EntityTreeComponent, { parentEntity: SceneState.getRootEntity() })
-    }, [])
-
-    return null
-  }
+  toJSON: () => true
 })
 
 /**
@@ -89,19 +67,14 @@ export const GrabberComponent = defineComponent({
 
   onInit(entity) {
     return {
-      grabbedEntity: null as Entity | null
+      left: null as Entity | null,
+      right: null as Entity | null
     }
   },
 
   onSet(entity, component, json) {
     if (!json) return
-    if (typeof json.grabbedEntity === 'number' || json.grabbedEntity === null)
-      component.grabbedEntity.set(json.grabbedEntity)
-  },
-
-  onRemove(entity, component) {
-    const grabbedEntity = component.grabbedEntity.value
-    if (!grabbedEntity) return
-    removeComponent(grabbedEntity, GrabbedComponent)
+    if (typeof json.left === 'number' || json.left === null) component.left.set(json.left)
+    if (typeof json.right === 'number' || json.right === null) component.right.set(json.right)
   }
 })

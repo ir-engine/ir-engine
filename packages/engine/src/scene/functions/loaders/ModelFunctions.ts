@@ -26,16 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { DracoOptions } from '@gltf-transform/functions'
 import { Material, Texture } from 'three'
 
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import {
   GeometryTransformParameters,
   ImageTransformParameters,
+  ModelTransformParameters,
   ResourceID,
   ResourceTransforms
 } from '../../../assets/classes/ModelTransform'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
-import { SceneID } from '../../../schemas/projects/scene.schema'
 import { MeshComponent } from '../../components/MeshComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 import { UUIDComponent } from '../../components/UUIDComponent'
@@ -50,7 +51,7 @@ export function getModelSceneID(entity: Entity): SceneID {
   return (getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src) as SceneID
 }
 
-export function getModelResources(entity: Entity): ResourceTransforms {
+export function getModelResources(entity: Entity, defaultParms: ModelTransformParameters): ResourceTransforms {
   const model = getComponent(entity, ModelComponent)
   if (!model?.scene) return { geometries: [], images: [] }
   const geometries: GeometryTransformParameters[] = iterateEntityNode(entity, (entity) => {
@@ -71,13 +72,16 @@ export function getModelResources(entity: Entity): ResourceTransforms {
       }
       return {
         resourceId: geometry.uuid as ResourceID,
+        isParameterOverride: true,
         enabled: true,
         parameters: {
           weld: {
+            isParameterOverride: true,
             enabled: false,
             parameters: 0.0001
           },
           dracoCompression: {
+            isParameterOverride: true,
             enabled: false,
             parameters: dracoParms
           }
@@ -86,9 +90,11 @@ export function getModelResources(entity: Entity): ResourceTransforms {
     })
     .filter((x, i, arr) => arr.indexOf(x) === i) // remove duplicates
 
+  const visitedMaterials: Set<Material> = new Set()
   const images: ImageTransformParameters[] = iterateEntityNode(entity, (entity) => {
     const mesh = getComponent(entity, MeshComponent)
-    if (!mesh?.isMesh || !mesh.material) return []
+    if (!mesh?.isMesh || !mesh.material || visitedMaterials.has(mesh.material as Material)) return []
+    visitedMaterials.add(mesh.material as Material)
     const textures: Texture[] = Object.entries(mesh.material)
       .filter(([, x]) => x?.isTexture)
       .map(([field, texture]) => {
@@ -96,40 +102,62 @@ export function getModelResources(entity: Entity): ResourceTransforms {
         return texture
       })
     const tmpImages: HTMLImageElement[] = textures.map((texture) => texture.image)
-    const images: HTMLImageElement[] = textures
+    const images: [HTMLImageElement, string][] = textures
       .filter((texture, i, arr) => tmpImages.indexOf(tmpImages[i]) === i)
       .map((texture) => {
         const image = texture.image as HTMLImageElement
         image.id = texture.name
-        return image
+        let descriptor = ''
+        if (/normal/i.test(texture.name)) {
+          descriptor = 'normalMap'
+        }
+        if (/basecolor/i.test(texture.name) || /diffuse/i.test(texture.name)) {
+          descriptor = 'baseColorMap'
+        }
+        return [image, descriptor]
       })
-    const result: ImageTransformParameters[] = images.map((image) => {
-      return {
+    const result: ImageTransformParameters[] = images.map(([image, descriptor]) => {
+      const imageParms = {
         resourceId: image.id as ResourceID,
-        enabled: false,
+        isParameterOverride: true,
+        enabled: !!descriptor,
         parameters: {
           flipY: {
             enabled: false,
+            isParameterOverride: true,
             parameters: false
           },
           maxTextureSize: {
-            enabled: true,
-            parameters: 2048
+            enabled: false,
+            isParameterOverride: true,
+            parameters: 1024
           },
           textureFormat: {
-            enabled: true,
+            enabled: false,
+            isParameterOverride: true,
             parameters: 'ktx2'
           },
           textureCompressionType: {
             enabled: false,
+            isParameterOverride: true,
             parameters: 'etc1'
           },
           textureCompressionQuality: {
             enabled: false,
+            isParameterOverride: true,
             parameters: 128
           }
         }
       } as ImageTransformParameters
+      if (descriptor === 'normalMap') {
+        imageParms.parameters.textureCompressionType.enabled = true
+        imageParms.parameters.textureCompressionType.parameters = 'uastc'
+      }
+      if (descriptor === 'baseColorMap') {
+        imageParms.parameters.maxTextureSize.enabled = true
+        imageParms.parameters.maxTextureSize.parameters = defaultParms.maxTextureSize * 2
+      }
+      return imageParms
     })
     return result
   })

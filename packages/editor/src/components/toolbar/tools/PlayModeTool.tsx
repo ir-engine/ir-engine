@@ -82,7 +82,8 @@ const PlayModeTool = () => {
           name: authState.user.name.value
         })
 
-      getMutableState(EngineState).isEditing.set(false)
+      // todo
+      // getMutableState(EngineState).isEditing.set(false)
       // run all behave graph logic
       graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.execute({ entity })))
     }

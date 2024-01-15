@@ -24,11 +24,24 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as THREE from 'three'
-import { BufferGeometry, Euler, Mesh, Object3D, Quaternion, Scene, Vector2, Vector3 } from 'three'
+import {
+  BufferGeometry,
+  Euler,
+  Matrix4,
+  Mesh,
+  Object3D,
+  Quaternion,
+  Scene,
+  SkinnedMesh,
+  Vector2,
+  Vector3,
+  Vector4
+} from 'three'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
+import { Entity } from '../classes/Entity'
 
 //@ts-ignore
 Vector3.prototype.toJSON = function () {
@@ -125,8 +138,27 @@ BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 declare module 'three/src/core/Object3D' {
   export interface Object3D {
     matrixWorldAutoUpdate: boolean
+    entity: Entity
     /** @deprecated use ECS hierarchy instead [#9308](https://github.com/EtherealEngine/etherealengine/issues/9308) */
     add(...object: Object3D[]): this
+    /** @deprecated use ECS hierarchy instead [#9308](https://github.com/EtherealEngine/etherealengine/issues/9308) */
+    parent: Object3D | null
+    /** @deprecated use ECS hierarchy instead [#9308](https://github.com/EtherealEngine/etherealengine/issues/9308) */
+    children: Object3D[]
+    /** @deprecated use ECS hierarchy instead [#9308](https://github.com/EtherealEngine/etherealengine/issues/9308) */
+    removeFromParent(): this
+    /** @deprecated use ECS hierarchy instead [#9308](https://github.com/EtherealEngine/etherealengine/issues/9308) */
+    remove(...object: Object3D[]): this
+    /** @deprecated use ECS hierarchy instead [#9308](https://github.com/EtherealEngine/etherealengine/issues/9308) */
+    clear(): this
+    /** @deprecated use ECS hierarchy instead [#9308](https://github.com/EtherealEngine/etherealengine/issues/9308) */
+    attach(object: Object3D): this
+    /** @deprecated use ECS hierarchy instead [#9308](https://github.com/EtherealEngine/etherealengine/issues/9308) */
+    traverse(callback: (object: Object3D) => void): void
+    /** @deprecated use ECS hierarchy instead [#9308](https://github.com/EtherealEngine/etherealengine/issues/9308) */
+    traverseVisible(callback: (object: Object3D) => void): void
+    /** @deprecated use ECS hierarchy instead [#9308](https://github.com/EtherealEngine/etherealengine/issues/9308) */
+    traverseAncestors(callback: (object: Object3D) => void): void
   }
 }
 
@@ -158,6 +190,43 @@ Object3D.prototype.getWorldScale = function (target) {
 Object3D.prototype.getWorldDirection = function (target) {
   const e = this.matrixWorld.elements
   return target.set(e[8], e[9], e[10]).normalize()
+}
+
+const _basePosition = /*@__PURE__*/ new Vector3()
+
+const _skinIndex = /*@__PURE__*/ new Vector4()
+const _skinWeight = /*@__PURE__*/ new Vector4()
+
+const _vector3 = /*@__PURE__*/ new Vector3()
+const _matrix4 = /*@__PURE__*/ new Matrix4()
+
+SkinnedMesh.prototype.applyBoneTransform = function (index, vector) {
+  const skeleton = this.skeleton
+  const geometry = this.geometry
+
+  _skinIndex.fromBufferAttribute(geometry.attributes.skinIndex, index)
+  _skinWeight.fromBufferAttribute(geometry.attributes.skinWeight, index)
+
+  _basePosition.copy(vector).applyMatrix4(this.bindMatrix)
+
+  vector.set(0, 0, 0)
+
+  for (let i = 0; i < 4; i++) {
+    const weight = _skinWeight.getComponent(i)
+
+    if (weight !== 0) {
+      const boneIndex = _skinIndex.getComponent(i)
+
+      /** this is the line added */
+      if (!skeleton.bones[boneIndex]) continue
+
+      _matrix4.multiplyMatrices(skeleton.bones[boneIndex].matrixWorld, skeleton.boneInverses[boneIndex])
+
+      vector.addScaledVector(_vector3.copy(_basePosition).applyMatrix4(_matrix4), weight)
+    }
+  }
+
+  return vector.applyMatrix4(this.bindMatrixInverse)
 }
 
 globalThis.THREE = { ...THREE, GLTFLoader } as any

@@ -57,8 +57,8 @@
           "name": "camera-settings",
           "props": {
             "fov": 50,
-            "cameraNearClip": 0.01,
-            "cameraFarClip": 10000,
+            "cameraNearClip": 0.1,
+            "cameraFarClip": 1000,
             "projectionType": 1,
             "minCameraDistance": 1,
             "maxCameraDistance": 50,
@@ -911,7 +911,7 @@
           "props": {
             "position": {
               "x": -12,
-              "y": 1.5,
+              "y": 0,
               "z": 14
             },
             "rotation": {
@@ -921,15 +921,11 @@
               "w": 1
             },
             "scale": {
-              "x": 0.5,
-              "y": 0.5,
-              "z": 0.5
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
-        },
-        {
-          "name": "visible",
-          "props": {}
         },
         {
           "name": "shadow",
@@ -962,10 +958,10 @@
           "props": {
             "location": "sky-station",
             "linkedPortalId": "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae",
-            "redirect": false,
+            "redirect": true,
             "effectType": "Hyperspace",
             "previewType": "Spherical",
-            "previewImageURL": "__$project$__/default-project/apartment-Portal.png",
+            "previewImageURL": "__$project$__/default-project/apartment-Portal.ktx2",
             "spawnPosition": {
               "x": -12,
               "y": 0,
@@ -978,6 +974,10 @@
               "w": 1
             }
           }
+        },
+        {
+          "name": "visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",

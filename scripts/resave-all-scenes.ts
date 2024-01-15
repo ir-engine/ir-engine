@@ -132,7 +132,7 @@ const resaveAllProjects = async () => {
 
     await delay(1)
 
-    const newScene = serializeWorld(UUIDComponent.entitiesByUUID[sceneJson.root]) as SceneJson
+    const newScene = serializeWorld(UUIDComponent.getEntityByUUID(sceneJson.root)) as SceneJson
 
     // log each component diff
     const changes = JSON.parse(JSON.stringify(diff(sceneJson, newScene))) as SceneJson

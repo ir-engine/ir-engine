@@ -28,7 +28,17 @@ import FileBrowser from './file-browser/file-browser'
 import OEmbed from './oembed/oembed'
 import Archiver from './recursive-archiver/archiver'
 import StaticResourceFilters from './static-resource-filters/static-resource-filters'
+import ProjectResource from './static-resource/project-resource.service'
 import StaticResource from './static-resource/static-resource'
 import Upload from './upload-asset/upload-asset.service'
 
-export default [StaticResource, StaticResourceFilters, FileBrowser, FileBrowserUpload, OEmbed, Upload, Archiver]
+export default [
+  ProjectResource,
+  StaticResource,
+  StaticResourceFilters,
+  FileBrowser,
+  FileBrowserUpload,
+  OEmbed,
+  Upload,
+  Archiver
+]

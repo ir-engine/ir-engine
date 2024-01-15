@@ -30,7 +30,7 @@ import { Tween } from '@tweenjs/tween.js'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 
 export const AnimateScaleComponent = defineComponent({
@@ -52,8 +52,7 @@ export const AnimateScaleComponent = defineComponent({
     const entity = useEntityContext()
 
     useEffect(() => {
-      const transformComponent =
-        getComponent(entity, LocalTransformComponent) ?? getComponent(entity, TransformComponent)
+      const transformComponent = getComponent(entity, TransformComponent) ?? getComponent(entity, TransformComponent)
       const originalScale = transformComponent.scale.clone()
 
       const sizeMultiplier = getComponent(entity, AnimateScaleComponent).multiplier
@@ -71,7 +70,7 @@ export const AnimateScaleComponent = defineComponent({
 
 const animateScale = (entity: Entity, newScale: Vector3) => {
   const highlight = { scaler: 0 }
-  const { scale } = getComponent(entity, LocalTransformComponent) ?? getComponent(entity, TransformComponent)
+  const { scale } = getComponent(entity, TransformComponent) ?? getComponent(entity, TransformComponent)
   setComponent(
     entity,
     TweenComponent,

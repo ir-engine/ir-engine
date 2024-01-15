@@ -31,7 +31,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './styles.module.scss'
 

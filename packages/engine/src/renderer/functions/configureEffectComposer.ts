@@ -57,6 +57,7 @@ export const configureEffectComposer = (
   camera: PerspectiveCamera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 ): void => {
   if (!EngineRenderer.instance) return
+  if (!camera) return
 
   const scene = Engine.instance.scene
 
@@ -82,32 +83,20 @@ export const configureEffectComposer = (
 
   const smaaEffect = new SMAAEffect()
   composer.SMAAEffect = smaaEffect
-  effects.push(smaaEffect)
 
   const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
   composer.HighlightEffect = outlineEffect
-  effects.push(outlineEffect)
+
+  const OutlineAndSmaaEffectPass = new EffectPass(camera, smaaEffect, outlineEffect)
+  composer.addPass(OutlineAndSmaaEffectPass)
 
   const postprocessingSettings = getState(PostProcessingSettingsState)
-  postprocessingSettings.enabled = true
-  if (!postprocessingSettings.enabled) {
-    composer.EffectPass = new EffectPass(camera, ...effects)
-    //composer.addPass(composer.EffectPass)
-    return
-  }
 
   const postProcessingEffects = postprocessingSettings.effects as EffectPropsSchema
 
   const effectKeys = Object.keys(EffectMap)
 
-  const normalPass = new NormalPass(scene, camera, {
-    renderTarget: new WebGLRenderTarget(1, 1, {
-      minFilter: NearestFilter,
-      magFilter: NearestFilter,
-      format: RGBAFormat,
-      stencilBuffer: false
-    })
-  })
+  const normalPass = new NormalPass(scene, camera)
 
   const depthRenderTarget = new WebGLRenderTarget(window.innerWidth, window.innerHeight)
   depthRenderTarget.texture.minFilter = NearestFilter
@@ -192,9 +181,8 @@ export const configureEffectComposer = (
   if (effects.length) {
     if (useVelocityDepthNormalPass)
       if (useDepthDownsamplingPass) {
-        //composer.addPass(velocityDepthNormalPass)
-
-        //composer.addPass(depthDownsamplingPass)
+        composer.addPass(normalPass)
+        composer.addPass(depthDownsamplingPass)
         const textureEffect = new TextureEffect({
           blendFunction: BlendFunction.SKIP,
           texture: depthDownsamplingPass.texture

@@ -59,17 +59,23 @@ export function ColorInput({ value, onChange, onRelease, onSelect, disabled, ...
     setAnchorEl(event.currentTarget)
   }
 
+  useEffect(() => {
+    if (color !== value) {
+      setColor(value)
+    }
+  }, [value])
+
   const handleClose = () => {
     setAnchorEl(null)
     onRelease && onRelease(color)
   }
 
-  useEffect(() => {
+  const handleSelect = () => {
     if (color !== value) {
       setColor(value)
-      if (onSelect) onSelect(value)
     }
-  }, [value])
+    if (onSelect) onSelect(value)
+  }
 
   const handleChange = ({ hex }) => {
     const color = new Color(hex)
@@ -88,7 +94,7 @@ export function ColorInput({ value, onChange, onRelease, onSelect, disabled, ...
         <div className="ColorPreview" style={{ background: hexColor }} />
         <div className="ColorText">{hexColor.toUpperCase()}</div>
       </button>
-      <Popover open={open && !disabled} anchorEl={anchorEl} onClose={handleClose}>
+      <Popover open={open && !disabled} anchorEl={anchorEl} onSelect={handleSelect} onClose={handleClose}>
         <div className="ColorInputPopover">
           <SketchPicker {...rest} color={hexColor} disableAlpha={true} onChange={handleChange} />
         </div>

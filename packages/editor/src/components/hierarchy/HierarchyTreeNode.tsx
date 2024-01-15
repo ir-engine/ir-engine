@@ -31,7 +31,6 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getAllComponents,
   getComponent,
-  useComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
@@ -95,7 +94,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const data = props.data
   const selectionState = useHookstate(getMutableState(SelectionState))
 
-  const nodeName = useComponent(node.entity, NameComponent).value
+  const nodeName = useOptionalComponent(node.entity, NameComponent)?.value
 
   const errors = node.entity ? useOptionalComponent(node.entity, ErrorComponent) : undefined
 

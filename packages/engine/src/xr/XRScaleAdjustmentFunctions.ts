@@ -32,7 +32,7 @@ import { ReferenceSpace, XRState } from './XRState'
 
 export const getTrackingSpaceOffset = (height: number) => {
   const avatarComponent = getComponent(Engine.instance.localClientEntity, AvatarComponent)
-  return height / avatarComponent.avatarHeight
+  return height / avatarComponent.eyeHeight
 }
 
 /** @todo add a reactor looking for when the avatar model changes that calls this */

@@ -32,7 +32,11 @@ import { FixedSizeList } from 'react-window'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getComponent, getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  getOptionalComponent,
+  useQuery
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -42,8 +46,8 @@ import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
@@ -94,12 +98,17 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const [searchHierarchy, setSearchHierarchy] = useState<string>('')
 
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
-  const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
-  const rootEntity = useHookstate(UUIDComponent.entitiesByUUIDState[rootEntityUUID])
+  const uuidQuery = useQuery([UUIDComponent, SceneObjectComponent])
+  const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
+  const index = SceneState.useSnapshotIndex(activeScene.value!)
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
-      <HierarchyTreeNode {...props} key={props.data.nodes[props.index].entity} onContextMenu={onContextMenu} />
+      <HierarchyTreeNode
+        {...props}
+        key={props.data.nodes[props.index].depth + ' ' + props.index + ' ' + props.data.nodes[props.index].entity}
+        onContextMenu={onContextMenu}
+      />
     ),
     [nodes]
   )
@@ -114,7 +123,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   useEffect(() => {
     if (!expandedNodes.value[activeScene.value!]) {
-      expandedNodes.set({ [activeScene.value!]: { [rootEntity.value]: true } })
+      expandedNodes.set({ [activeScene.value!]: { [rootEntity]: true } })
     }
   }, [rootEntity])
 
@@ -129,7 +138,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
         )
       )
     )
-  }, [expandedNodes, activeScene, selectionState.selectedEntities, entities])
+  }, [expandedNodes, index, uuidQuery.length, activeScene, selectionState.selectedEntities])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 
@@ -405,8 +414,12 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
       return true
     }
   })
+
+  if (!activeScene) return <></>
+
   let validNodes = nodeSearch?.length > 0 ? nodeSearch : nodes
   validNodes = validNodes.filter((node) => entityExists(node.entity))
+
   const HierarchyList = ({ height, width }) => (
     <FixedSizeList
       height={height}
@@ -432,19 +445,15 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
     </FixedSizeList>
   )
 
-  if (!activeScene) return <></>
-
   return (
     <>
       <div className={styles.panelContainer}>
         <div className={styles.dockableTabButtons}>
           <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
         </div>
-        {Engine.instance.scene && (
-          <div style={{ height: '100%' }}>
-            <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
-          </div>
-        )}
+        <div style={{ height: '100%' }}>
+          <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
+        </div>
         <PropertiesPanelButton
           variant="contained"
           // TODO see why we have to specify capitalize here

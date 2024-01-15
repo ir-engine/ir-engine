@@ -68,9 +68,7 @@ function removeFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
   if (!obj.material?.userData?.fogPlugin) return
   removeOBCPlugin(obj.material, obj.material.userData.fogPlugin)
   delete obj.material.userData.fogPlugin
-  // material.needsUpdate is not working. Therefore have to invalidate the cache manually
-  const key = Math.random()
-  obj.material.customProgramCacheKey = () => key.toString()
+  obj.material.needsUpdate = true
   const shader = (obj.material as any).shader // todo add typings somehow
   FogShaders.splice(FogShaders.indexOf(shader), 1)
 }
@@ -81,9 +79,9 @@ function FogGroupReactor({ obj }: GroupReactorProps) {
   useEffect(() => {
     const customShader = fog.type.value === FogType.Brownian || fog.type.value === FogType.Height
     if (customShader) {
-      obj.traverse(addFogShaderPlugin)
+      addFogShaderPlugin(obj as any)
       return () => {
-        obj.traverse(removeFogShaderPlugin)
+        removeFogShaderPlugin(obj as any)
       }
     }
   }, [fog.type])
