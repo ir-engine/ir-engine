@@ -149,6 +149,7 @@ export const parseObjectComponentsFromGLTF = (
 
 export const parseGLTFModel = (entity: Entity, scene: Scene) => {
   const model = getComponent(entity, ModelComponent)
+  setComponent(entity, MeshBVHComponent)
 
   scene.updateMatrixWorld(true)
   computeTransformMatrix(entity)
@@ -301,9 +302,6 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   const skinnedMesh = obj as SkinnedMesh
   if (skinnedMesh.isSkinnedMesh) setComponent(objEntity, SkinnedMeshComponent, skinnedMesh)
   else setComponent(objEntity, FrustumCullCameraComponent)
-
-  if (mesh.isMesh && !instancedMesh.isInstancedMesh && !skinnedMesh.isSkinnedMesh)
-    setComponent(objEntity, MeshBVHComponent, { mesh: mesh })
 
   if (obj.userData['componentJson']) {
     eJson.components.push(...obj.userData['componentJson'])
