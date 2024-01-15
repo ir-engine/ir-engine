@@ -38,7 +38,7 @@ import {
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
 import { MeshComponent } from '../../scene/components/MeshComponent'
@@ -80,6 +80,8 @@ export const BoundingBoxComponent = defineComponent({
 
       setComponent(helperEntity, VisibleComponent)
 
+      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+
       addObjectToGroup(helperEntity, helper)
       setObjectLayers(helper, ObjectLayers.NodeHelper)
       boundingBox.helper.set(helperEntity)
@@ -100,11 +102,8 @@ export const updateBoundingBox = (entity: Entity) => {
   box.makeEmpty()
 
   const callback = (child: Entity) => {
-    const boundingBox = getOptionalComponent(child, BoundingBoxComponent)
-    if (boundingBox) {
-      const obj = getOptionalComponent(entity, MeshComponent)
-      if (obj) expandBoxByObject(obj, box)
-    }
+    const obj = getOptionalComponent(child, MeshComponent)
+    if (obj) expandBoxByObject(obj, box)
   }
 
   iterateEntityNode(entity, callback)
