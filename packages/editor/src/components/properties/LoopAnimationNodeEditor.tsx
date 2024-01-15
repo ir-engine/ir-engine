@@ -57,18 +57,19 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const modelComponent = useOptionalComponent(entity, ModelComponent)
   const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
+  const animationComponent = useComponent(entity, AnimationComponent)
   const animationOptions = useState([] as { label: string; value: number }[])
 
   const errors = getEntityErrors(props.entity, ModelComponent)
 
   useEffect(() => {
     const animationComponent = getComponent(entity, AnimationComponent)
-    if (animationComponent && animationComponent.animations)
-      animationOptions.set([
-        { label: 'None', value: -1 },
-        ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
-      ])
-  }, [modelComponent?.asset, modelComponent?.convertToVRM])
+    if (!animationComponent.animations.length) return
+    animationOptions.set([
+      { label: 'None', value: -1 },
+      ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
+    ])
+  }, [modelComponent?.asset, modelComponent?.convertToVRM, animationComponent.animations])
 
   const onChangePlayingAnimation = (index) => {
     commitProperties(LoopAnimationComponent, {
