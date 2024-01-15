@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Types } from 'bitecs'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 const maxBitWidth = 32
 
@@ -79,19 +79,38 @@ export const ObjectLayerMaskComponent = defineComponent({
     setComponent(entity, ObjectLayerMaskComponent, mask)
   },
 
+  enableLayer(entity: Entity, layer: number) {
+    if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
+    setComponent(entity, ObjectLayerComponents[layer])
+  },
+
   enableLayers(entity: Entity, ...layers: number[]) {
-    const mask = ObjectLayerMaskComponent.mask[entity] | layers.reduce((acc, layer) => acc | (1 << layer) | 0, 0)
-    setComponent(entity, ObjectLayerMaskComponent, mask)
+    if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
+    for (const layer of layers) {
+      setComponent(entity, ObjectLayerComponents[layer])
+    }
+  },
+
+  disableLayer(entity: Entity, layer: number) {
+    if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
+    removeComponent(entity, ObjectLayerComponents[layer])
   },
 
   disableLayers(entity: Entity, ...layers: number[]) {
-    const mask = ObjectLayerMaskComponent.mask[entity] & layers.reduce((acc, layer) => (acc & ~(1 << layer)) | 0, -1)
-    setComponent(entity, ObjectLayerMaskComponent, mask)
+    if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
+    for (const layer of layers) {
+      removeComponent(entity, ObjectLayerComponents[layer])
+    }
   },
 
   toggleLayer(entity: Entity, layer: number) {
-    const mask = (ObjectLayerMaskComponent.mask[entity] ^ (1 << layer)) | 0
-    setComponent(entity, ObjectLayerMaskComponent, mask)
+    if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
+    const ObjectLayerComponent = ObjectLayerComponents[layer]
+    if (hasComponent(entity, ObjectLayerComponent)) {
+      removeComponent(entity, ObjectLayerComponent)
+    } else {
+      setComponent(entity, ObjectLayerComponent)
+    }
   },
 
   setMask(entity: Entity, mask: number) {
@@ -117,11 +136,11 @@ export class Layer {
   }
 
   enable(channel: number) {
-    ObjectLayerMaskComponent.enableLayers(this.entity, channel)
+    ObjectLayerMaskComponent.enableLayer(this.entity, channel)
   }
 
   enableAll() {
-    ObjectLayerMaskComponent.enableLayers(this.entity, ...[...Array(maxBitWidth).keys()])
+    ObjectLayerMaskComponent.setMask(this.entity, -1)
   }
 
   toggle(channel: number) {
@@ -129,12 +148,11 @@ export class Layer {
   }
 
   disable(channel: number) {
-    ObjectLayerMaskComponent.disableLayers(this.entity, channel)
+    ObjectLayerMaskComponent.disableLayer(this.entity, channel)
   }
 
   disableAll() {
-    ObjectLayerMaskComponent.disableLayers(this.entity, ...[...Array(maxBitWidth).keys()])
-    ObjectLayerMaskComponent.mask[this.entity] = 0
+    ObjectLayerMaskComponent.setMask(this.entity, 0)
   }
 
   test(layers: Layer) {

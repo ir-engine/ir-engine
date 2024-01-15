@@ -36,7 +36,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { destroyEngine } from '../classes/Engine'
-import { Entity } from '../classes/Entity'
+import { Entity, UndefinedEntity } from '../classes/Entity'
 import { SceneState } from '../classes/Scene'
 import { createEntity } from '../functions/EntityFunctions'
 import { getComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
@@ -65,7 +65,7 @@ describe('EntityTreeComponent', () => {
     setComponent(entity, EntityTreeComponent)
     const node = getComponent(entity, EntityTreeComponent)
     assert.equal(node.children.length, 0)
-    assert.equal(node.parentEntity, null)
+    assert.equal(node.parentEntity, UndefinedEntity)
   })
 
   it('should set given values', () => {

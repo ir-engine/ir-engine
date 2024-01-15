@@ -284,14 +284,15 @@ export const getOptionalComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
 ): ComponentType | undefined => {
-  return getOptionalMutableComponent(entity, component)?.get(NO_PROXY_STEALTH) as ComponentType | undefined
+  const componentState = component.stateMap[entity]!
+  return componentState?.promised ? undefined : (componentState?.get(NO_PROXY_STEALTH) as ComponentType | undefined)
 }
 
 export const getComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
 ): ComponentType => {
-  const componentState = getOptionalMutableComponent(entity, component)
+  const componentState = component.stateMap[entity]!
   if (!componentState || componentState.promised) {
     console.warn(
       `[getComponent]: entity does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
@@ -396,8 +397,9 @@ export const updateComponent = <C extends Component>(
 }
 
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
-  if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none)
-  return !component.stateMap[entity]!.promised
+  if (!component) throw new Error('[hasComponent]: component is undefined')
+  if (!entity) return false
+  return bitECS.hasComponent(Engine.instance, component, entity)
 }
 
 export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
