@@ -23,32 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  SnapMode,
-  SnapModeType,
-  TransformMode,
-  TransformModeType,
-  TransformPivot,
-  TransformPivotType,
-  TransformSpace,
-  TransformSpaceType
-} from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const EditorHelperState = defineState({
-  name: 'EditorHelperState',
-  initial: () => ({
-    isFlyModeEnabled: false,
-    transformMode: TransformMode.translate as TransformModeType,
-    transformModeOnCancel: TransformMode.translate as TransformModeType,
-    transformSpace: TransformSpace.world as TransformSpaceType,
-    transformPivot: TransformPivot.Selection as TransformPivotType,
-    snapMode: SnapMode.Grid as SnapModeType,
-    translationSnap: 0.5,
-    rotationSnap: 10,
-    scaleSnap: 0.1
-  }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(EditorHelperState, ['snapMode', 'translationSnap', 'rotationSnap', 'scaleSnap'])
+export const SceneSettingsComponent = defineComponent({
+  name: 'SceneSettingsComponent',
+  jsonID: 'scene-settings',
+
+  onInit() {
+    return {
+      thumbnailURL: '',
+      loadingscreenURL: '',
+      primaryColor: '#FFFFFF',
+      secondaryColor: '#000000'
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (typeof json.thumbnailURL === 'string') component.thumbnailURL.set(json.thumbnailURL)
+    if (typeof json.loadingscreenURL === 'string') component.loadingscreenURL.set(json.loadingscreenURL)
+    if (typeof json.primaryColor === 'string') component.primaryColor.set(json.primaryColor)
+    if (typeof json.secondaryColor === 'string') component.secondaryColor.set(json.secondaryColor)
+  },
+
+  toJSON: (entity, component) => {
+    return {
+      thumbnailURL: component.thumbnailURL.value,
+      loadingscreenURL: component.loadingscreenURL.value,
+      primaryColor: component.primaryColor.value,
+      secondaryColor: component.secondaryColor.value
+    }
   }
 })
