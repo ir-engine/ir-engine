@@ -27,26 +27,6 @@ import { FunctionSummary } from '@aws-sdk/client-cloudfront'
 
 import S3Provider from './s3.storage'
 
-const MAX_ITEMS = 1
-const CFFunctionTemplate = `
-function handler(event) {
-    var request = event.request;
-    var routeRegexRoot = __$routeRegex$__
-    var routeRegex = new RegExp(routeRegexRoot)
-    var publicRegexRoot = __$publicRegex$__
-    var publicRegex = new RegExp(publicRegexRoot)
-
-    if (routeRegex.test(request.uri)) {
-        request.uri = '/client/index.html'
-    }
-    
-    if (publicRegex.test(request.uri)) {
-        request.uri = '/client' + request.uri
-    }
-    return request;
-}
-`
-
 /**
  * Storage provide class to communicate with AWS S3 API.
  */
