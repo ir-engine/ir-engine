@@ -25,16 +25,28 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   defineComponent,
+  getOptionalComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { Box3, LineBasicMaterial, Mesh, MeshBasicMaterial, Object3D } from 'three'
+import {
+  Box3,
+  BufferAttribute,
+  BufferGeometry,
+  InstancedMesh,
+  LineBasicMaterial,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  SkinnedMesh
+} from 'three'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
+import { addObjectToGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { ModelComponent } from './ModelComponent'
 import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
@@ -68,13 +80,13 @@ function arrayToBox(nodeIndex32: number, array: ArrayBuffer, target: Box3) {
 
 const boundingBox$1 = /* @__PURE__ */ new Box3()
 
-const GetMeshBVHGeometry = (
+function GetMeshBVHGeometry(
   mesh: Mesh,
   depth = 10,
   group = 0,
   displayParents = false,
   displayEdges = true
-): { indexArray: ArrayLike<number>; positionArray: Float32Array } | null => {
+): { indexArray: ArrayLike<number>; positionArray: Float32Array } | null {
   const boundsTree = mesh.geometry.boundsTree
   if (boundsTree) {
     // count the number of bounds required
@@ -171,6 +183,10 @@ const GetMeshBVHGeometry = (
   return null
 }
 
+function ValidMeshForBVH(mesh: Mesh): boolean {
+  return mesh && mesh.isMesh && !(mesh as InstancedMesh).isInstancedMesh && !(mesh as SkinnedMesh).isSkinnedMesh
+}
+
 export const MeshBVHComponent = defineComponent({
   name: 'MeshBVHComponent',
 
@@ -200,72 +216,120 @@ export const MeshBVHComponent = defineComponent({
     const debug = useHookstate(getMutableState(RendererState).physicsDebug)
     const visible = useOptionalComponent(entity, VisibleComponent)
     const model = useOptionalComponent(entity, ModelComponent)
+    const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
     useEffect(() => {
       let aborted = false
       if (!component.generated.value && visible?.value) {
-        const entities = ModelComponent.entitiesInModelHierarchyState[entity]
-        const toGenerate = entities.length
-        let generated = 0
+        const entities = childEntities.value
+        let toGenerate = 0
         for (const currEntity of entities) {
-          const mesh = useComponent(currEntity.value, MeshComponent)
-          generateMeshBVH(mesh.value).then(() => {
-            if (!aborted) {
-              generated += 1
-              if (generated >= toGenerate) {
-                component.generated.set(true)
+          const mesh = getOptionalComponent(currEntity, MeshComponent)
+          if (ValidMeshForBVH(mesh!)) {
+            toGenerate += 1
+            generateMeshBVH(mesh!).then(() => {
+              if (!aborted) {
+                toGenerate -= 1
+                if (toGenerate == 0) {
+                  component.generated.set(true)
+                }
+                if (model && model.cameraOcclusion) {
+                  ObjectLayerMaskComponent.enableLayers(currEntity, ObjectLayers.Camera)
+                }
               }
-              if (model && model.cameraOcclusion) {
-                ObjectLayerMaskComponent.enableLayers(entity, ObjectLayers.Camera)
-              }
-            }
-          })
+            })
+          }
         }
       }
 
       return () => {
         aborted = true
       }
-    }, [visible])
+    }, [visible, childEntities])
 
     useEffect(() => {
+      console.log('MESHBVHVISUALIZER')
+      if (!component.generated.value) return
+
       const visualizer = new Mesh()
+
+      let indexArraysLength = 0
       const indexArrays = [] as ArrayLike<number>[]
+
+      let positionsLength = 0
       const positions = [] as Float32Array[]
 
-      const entities = ModelComponent.entitiesInModelHierarchyState[entity]
+      const entities = childEntities.value
       for (const currEntity of entities) {
-        const mesh = useComponent(currEntity.value, MeshComponent)
-        const data = GetMeshBVHGeometry(mesh.value)
-        if (data && data.indexArray && data.positionArray) {
-          indexArrays.push(data.indexArray)
-          positions.push(data.positionArray)
+        const mesh = getOptionalComponent(currEntity, MeshComponent)
+        if (ValidMeshForBVH(mesh!)) {
+          const data = GetMeshBVHGeometry(mesh!)
+          if (data && data.indexArray && data.positionArray) {
+            indexArraysLength += data.indexArray.length
+            indexArrays.push(data.indexArray)
+
+            positionsLength += data.positionArray.length
+            positions.push(data.positionArray)
+          }
         }
       }
 
+      const finalIndexArray = new Uint32Array(indexArraysLength)
+      let i = 0
+      for (const indexArr of indexArrays) {
+        let j = 0
+        for (; j < indexArr.length; j++) {
+          finalIndexArray[i + j] = indexArr[j]
+        }
+        i += j
+      }
+
+      const finalPositionArray = new Float32Array(indexArraysLength)
+      let ix = 0
+      for (const positionArr of positions) {
+        let jx = 0
+        for (; jx < positionArr.length; jx++) {
+          finalPositionArray[ix + jx] = positionArr[jx]
+        }
+        ix += jx
+      }
+
+      const geometry = new BufferGeometry()
+      geometry.setIndex(new BufferAttribute(finalIndexArray, 1, false))
+      geometry.setAttribute('position', new BufferAttribute(finalPositionArray, 3, false))
+
       visualizer.material = edgeMaterial
+      visualizer.geometry = geometry
+      visualizer.visible = true
+      addObjectToGroup(entity, visualizer)
 
-      // let meshBVHVisualizer = null as MeshBVHVisualizer | null
+      // const entities = childEntities.value
+      // for (const currEntity of entities) {
+      //   const mesh = getOptionalComponent(currEntity, MeshComponent)
+      //   if (ValidMeshForBVH(mesh!)) {
+      //     let meshBVHVisualizer = null as MeshBVHVisualizer | null
 
-      // const remove = () => {
-      //   if (meshBVHVisualizer) {
-      //     removeObjectFromGroup(entity, meshBVHVisualizer)
-      //     //The MeshBVHVisualizer type def is missing the dispose method
-      //     ;(meshBVHVisualizer as any).dispose()
+      //     const remove = () => {
+      //       if (meshBVHVisualizer) {
+      //         removeObjectFromGroup(currEntity, meshBVHVisualizer)
+      //         //The MeshBVHVisualizer type def is missing the dispose method
+      //         ;(meshBVHVisualizer as any).dispose()
+      //       }
+      //     }
+
+      //     if (component.generated.value && debug.value) {
+      //       meshBVHVisualizer = new MeshBVHVisualizer(mesh!)
+      //       addObjectToGroup(currEntity, meshBVHVisualizer)
+
+      //       meshBVHVisualizer.depth = 20
+      //       meshBVHVisualizer.displayParents = false
+      //       meshBVHVisualizer.update()
+      //       // component.visualizer.set(meshBVHVisualizer)
+      //     } else if (component.generated.value && !debug.value) {
+      //       remove()
+      //       // component.visualizer.set(null)
+      //     }
       //   }
-      // }
-
-      // if (component.generated.value && debug.value) {
-      //   meshBVHVisualizer = new MeshBVHVisualizer(component.mesh.value)
-      //   addObjectToGroup(entity, meshBVHVisualizer)
-
-      //   meshBVHVisualizer.depth = 20
-      //   meshBVHVisualizer.displayParents = false
-      //   meshBVHVisualizer.update()
-      //   component.visualizer.set(meshBVHVisualizer)
-      // } else if (component.visualizer.value && !debug.value) {
-      //   remove()
-      //   component.visualizer.set(null)
       // }
 
       return () => {
