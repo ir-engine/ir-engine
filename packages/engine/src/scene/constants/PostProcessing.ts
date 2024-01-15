@@ -482,7 +482,31 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   [Effects.SSREffect]: {
     isActive: false,
+    // mode: 'ssr' as 'ssr' | 'ssgi',
     ...defaultSSROptions
+  },
+  [Effects.SSGIEffect]: {
+    isActive: false,
+    distance: 10,
+    thickness: 10,
+    autoThickness: false,
+    maxRoughness: 1,
+    blend: 0.9,
+    denoiseIterations: 1,
+    denoiseKernel: 2,
+    denoiseDiffuse: 10,
+    denoiseSpecular: 10,
+    depthPhi: 2,
+    normalPhi: 50,
+    roughnessPhi: 1,
+    envBlur: 0.5,
+    importanceSampling: true,
+    directLightMultiplier: 1,
+    steps: 20,
+    refineSteps: 5,
+    spp: 1,
+    resolutionScale: 1,
+    missedRays: false
   },
   [Effects.DepthOfFieldEffect]: {
     isActive: false,
@@ -495,6 +519,43 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     resolutionX: Resolution.AUTO_SIZE,
     resolutionY: Resolution.AUTO_SIZE
   },
+  // [Effects.GodRaysEffect]: {
+  //   isActive: false,
+  //   blendFunction: BlendFunction.SCREEN,
+  //   samples: 60.0,
+  //   density: 0.96,
+  //   decay: 0.9,
+  //   weight: 0.4,
+  //   exposure: 0.6,
+  //   clampMax: 1.0,
+  //   resolutionScale: 0.5,
+  //   resolutionX: Resolution.AUTO_SIZE,
+  //   resolutionY: Resolution.AUTO_SIZE,
+  //   width: Resolution.AUTO_SIZE,
+  //   height: Resolution.AUTO_SIZE,
+  //   kernelSize: KernelSize.SMALL,
+  //   blur: true
+  // },
+  // [Effects.LensDistortionEffect]: {
+  //   isActive: false,
+  //   distortion: new Vector2(0,0),
+  //   principalPoint: new Vector2(0,0),
+  //   focalLength: new Vector2(0,0),
+  //   skew: 0
+  // }
+  // [Effects.ChromaticAberrationEffect]: {
+  //   isActive: false,
+  //   blendFunction: BlendFunction.NORMAL,
+  //   offset: undefined,
+  //   radialModulation: false,
+  //   modulationOffset: 0.15
+  // },
+  [Effects.MotionBlurEffect]: {
+    isActive: false,
+    intensity: 1,
+    jitter: 1,
+    samples: 16
+  },
   [Effects.BloomEffect]: {
     isActive: true,
     blendFunction: BlendFunction.SCREEN,
@@ -505,6 +566,14 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     intensity: 1.0,
     radius: 0.85,
     levels: 8
+  },
+  [Effects.VignetteEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.NORMAL,
+    technique: VignetteTechnique.DEFAULT,
+    eskil: false,
+    offset: 0.5,
+    darkness: 0.5
   },
   [Effects.ToneMappingEffect]: {
     isActive: false,
@@ -539,29 +608,6 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   [Effects.LinearTosRGBEffect]: {
     isActive: false
   },
-  [Effects.SSGIEffect]: {
-    isActive: false,
-    distance: 10,
-    thickness: 10,
-    autoThickness: false,
-    maxRoughness: 1,
-    blend: 0.9,
-    denoiseIterations: 1,
-    denoiseKernel: 2,
-    denoiseDiffuse: 10,
-    denoiseSpecular: 10,
-    depthPhi: 2,
-    normalPhi: 50,
-    roughnessPhi: 1,
-    envBlur: 0.5,
-    importanceSampling: true,
-    directLightMultiplier: 1,
-    steps: 20,
-    refineSteps: 5,
-    spp: 1,
-    resolutionScale: 1,
-    missedRays: false
-  },
   [Effects.TRAAEffect]: {
     isActive: false,
     blend: 0.8,
@@ -572,20 +618,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     depthDistance: 10,
     worldDistance: 5,
     neighborhoodClamping: true
-  },
-  [Effects.MotionBlurEffect]: {
-    isActive: false,
-    intensity: 1,
-    jitter: 1,
-    samples: 16
-  },
-  // [Effects.ChromaticAberrationEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.NORMAL,
-  //   offset: undefined,
-  //   radialModulation: false,
-  //   modulationOffset: 0.15
-  // },
+  }
   // [Effects.ColorAverageEffect]: {
   //   isActive: false,
   //   blendFunction: BlendFunction.NORMAL
@@ -616,23 +649,6 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   //   columns: 0.05,
   //   ratio: 0.85
   // },
-  // [Effects.GodRaysEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.SCREEN,
-  //   samples: 60.0,
-  //   density: 0.96,
-  //   decay: 0.9,
-  //   weight: 0.4,
-  //   exposure: 0.6,
-  //   clampMax: 1.0,
-  //   resolutionScale: 0.5,
-  //   resolutionX: Resolution.AUTO_SIZE,
-  //   resolutionY: Resolution.AUTO_SIZE,
-  //   width: Resolution.AUTO_SIZE,
-  //   height: Resolution.AUTO_SIZE,
-  //   kernelSize: KernelSize.SMALL,
-  //   blur: true
-  // },
   // [Effects.GridEffect]: {
   //   isActive: false,
   //   blendFunction: BlendFunction.OVERLAY,
@@ -657,21 +673,6 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   //   blendFunction: BlendFunction.NORMAL,
   //   texture: undefined,
   //   aspectCorrection: false
-  // },
-  [Effects.VignetteEffect]: {
-    isActive: false,
-    blendFunction: BlendFunction.NORMAL,
-    technique: VignetteTechnique.DEFAULT,
-    eskil: false,
-    offset: 0.5,
-    darkness: 0.5
-  }
-  // [Effects.LensDistortionEffect]: {
-  //   isActive: false,
-  //   distortion: new Vector2(0,0),
-  //   principalPoint: new Vector2(0,0),
-  //   focalLength: new Vector2(0,0),
-  //   skew: 0
   // }
 }
 
@@ -689,10 +690,10 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
 export const effectInOrder = [
   /** 2. world effects */
   // Effects.PaniniProjection,
-  Effects.DepthOfFieldEffect,
-  Effects.SSAOEffect, // TODO- add option to use HBAO
   Effects.SSREffect,
   Effects.SSGIEffect,
+  Effects.DepthOfFieldEffect,
+  Effects.SSAOEffect, // TODO- add option to use HBAO
   Effects.GodRaysEffect,
 
   /** 3. camera effects */

@@ -24,15 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  BlendFunction,
   DepthDownsamplingPass,
   EffectComposer,
   EffectPass,
   NormalPass,
   OutlineEffect,
   RenderPass,
-  SMAAEffect,
-  TextureEffect
+  SMAAEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
 import { PerspectiveCamera } from 'three'
@@ -90,7 +88,7 @@ export const configureEffectComposer = (
 
   const postProcessingEffects = postprocessingSettings.effects as EffectPropsSchema
 
-  const effectKeys = Object.keys(EffectMap)
+  const effectKeys = Object.keys(postProcessingEffects)
 
   const normalPass = new NormalPass(scene, camera)
 
@@ -103,6 +101,8 @@ export const configureEffectComposer = (
   let useVelocityDepthNormalPass = false
   let useDepthDownsamplingPass = false
 
+  let effectSSGI = null! as any
+
   for (const key of effectKeys) {
     const effect = postProcessingEffects[key]
 
@@ -113,24 +113,22 @@ export const configureEffectComposer = (
 
     if (key === Effects.SSAOEffect) {
       const eff = new EffectClass(camera, normalPass.texture, {
-        ...effect,
-        normalDepthBuffer: depthDownsamplingPass.texture
+        ...effect
+        // normalDepthBuffer: depthDownsamplingPass.texture // this is deprecated
       })
       useDepthDownsamplingPass = true
       composer[key] = eff
       effects.push(eff)
-    } else if (key === Effects.SSREffect) {
-      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effect)
+    } else if (key === Effects.SSREffect || key === Effects.SSGIEffect) {
+      // SSR is just a mode of SSGI, and can't both be run at the same time
+      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, { ...effect, velocityDepthNormalPass })
       useVelocityDepthNormalPass = true
       composer[key] = eff
-      effects.push(eff)
+      /** @todo figure out why this conflicts with SSAO */
+      // effects.push(eff)
+      effectSSGI = eff
     } else if (key === Effects.DepthOfFieldEffect) {
       const eff = new EffectClass(camera, effect)
-      composer[key] = eff
-      effects.push(eff)
-    } else if (key === Effects.SSGIEffect) {
-      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effect)
-      useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.TRAAEffect) {
@@ -153,15 +151,20 @@ export const configureEffectComposer = (
   }
   if (effects.length) {
     if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
+    /** @todo figure out why this conflicts with SSAO - for now just add as another pass*/
+    if (effectSSGI) {
+      composer.SSGIPass = new EffectPass(camera, effectSSGI)
+      composer.addPass(composer.SSGIPass)
+    }
 
     if (useDepthDownsamplingPass) {
       composer.addPass(normalPass)
-      composer.addPass(depthDownsamplingPass)
-      const textureEffect = new TextureEffect({
-        blendFunction: BlendFunction.SKIP,
-        texture: depthDownsamplingPass.texture
-      })
-      effects.push(textureEffect)
+      // composer.addPass(depthDownsamplingPass)
+      // const textureEffect = new TextureEffect({
+      //   blendFunction: BlendFunction.SKIP,
+      //   texture: depthDownsamplingPass.texture
+      // })
+      // effects.push(textureEffect)
     }
 
     composer.EffectPass = new EffectPass(camera, ...effects)

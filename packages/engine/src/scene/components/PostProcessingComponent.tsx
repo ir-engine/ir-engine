@@ -45,8 +45,8 @@ export const PostProcessingComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
 
-    if (json.enabled) component.enabled.set(json.enabled)
-    if (json.effects) {
+    if (typeof json.enabled === 'boolean') component.enabled.set(json.enabled)
+    if (typeof json.effects === 'object') {
       for (const [name, effect] of Object.entries(json.effects)) {
         component.effects[name].merge(effect)
       }

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { TextureLoader } from 'three'
 import { isClient } from './common/functions/getEnvironment'
 
 if (!isClient) {
@@ -58,6 +59,9 @@ if (!isClient) {
       product: 'NativeScript', // patch axios so it doesnt complain,
       userAgent: 'node'
     }
+
+  // patch for realism-effects
+  TextureLoader.prototype.load = (() => {}) as any
   /*
   
   // todo: move this out of module scope
