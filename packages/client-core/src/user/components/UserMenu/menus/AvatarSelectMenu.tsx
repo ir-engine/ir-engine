@@ -81,12 +81,14 @@ const AvatarMenu = () => {
 
   const handleConfirmAvatar = () => {
     if (userAvatarId.value !== selectedAvatarId.value) {
-      if (!hasComponent(Engine.instance.localClientEntity, SpawnEffectComponent) && authState.user?.value) {
+      const localClientEntity = Engine.instance.localClientEntity
+      if (!localClientEntity || !hasComponent(localClientEntity, SpawnEffectComponent)) {
         AvatarState.updateUserAvatarId(selectedAvatarId.value)
+        if (localClientEntity) avatarLoading.set(true)
+        else PopupMenuServices.showPopupMenu()
       }
     }
     selectedAvatarId.set('' as AvatarID)
-    avatarLoading.set(true)
   }
 
   const handleSearch = async (searchString: string) => {
