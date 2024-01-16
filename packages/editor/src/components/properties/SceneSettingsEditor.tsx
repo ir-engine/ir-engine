@@ -117,11 +117,14 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
       new File([loadingScreen], loadingScreenFilename)
     ])
 
-    // const [[envmapURL], [loadingScreenURL]] = await Promise.all(promises)
+    const [[envmapURL], [loadingScreenURL]] = await Promise.all(promises.promises)
 
-    // const url = (
-    //   await .promises[0]
-    // )[0]
+    commitProperty(SceneSettingsComponent, 'loadingScreenURL')(loadingScreenURL)
+    state.merge({
+      loadingScreenURL: null,
+      loadingScreenImageData: null,
+      uploadingLoadingScreen: false
+    })
   }
 
   const generateColors = () => {}
@@ -163,7 +166,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
             {t('editor:properties.sceneSettings.lbl-save')}
           </PropertiesPanelButton>
         )}
-        <ImagePreviewInput value={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingscreenURL.value} />
+        <ImagePreviewInput value={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value} />
       </InputGroup>
       <InputGroup name="Primary Color" label={t('editor:properties.fog.lbl-colors')}>
         <PropertiesPanelButton onClick={generateColors}>

@@ -32,7 +32,7 @@ export const SceneSettingsComponent = defineComponent({
   onInit() {
     return {
       thumbnailURL: '',
-      loadingscreenURL: '',
+      loadingScreenURL: '',
       primaryColor: '#FFFFFF',
       secondaryColor: '#000000'
     }
@@ -42,7 +42,7 @@ export const SceneSettingsComponent = defineComponent({
     if (!json) return
 
     if (typeof json.thumbnailURL === 'string') component.thumbnailURL.set(json.thumbnailURL)
-    if (typeof json.loadingscreenURL === 'string') component.loadingscreenURL.set(json.loadingscreenURL)
+    if (typeof json.loadingScreenURL === 'string') component.loadingScreenURL.set(json.loadingScreenURL)
     if (typeof json.primaryColor === 'string') component.primaryColor.set(json.primaryColor)
     if (typeof json.secondaryColor === 'string') component.secondaryColor.set(json.secondaryColor)
   },
@@ -50,7 +50,7 @@ export const SceneSettingsComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       thumbnailURL: component.thumbnailURL.value,
-      loadingscreenURL: component.loadingscreenURL.value,
+      loadingScreenURL: component.loadingScreenURL.value,
       primaryColor: component.primaryColor.value,
       secondaryColor: component.secondaryColor.value
     }
