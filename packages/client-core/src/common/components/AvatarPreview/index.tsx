@@ -37,12 +37,11 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { SxProps, Theme } from '@mui/material/styles'
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import styles from './index.module.scss'
 
-import { setupSceneForPreview } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
-import { isAvaturn } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
+import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 interface Props {
   fill?: boolean
   avatarUrl?: string
@@ -75,22 +74,18 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setAvatarLoading(true)
     resetAnimationLogic(entity.value)
     /** @todo this is a hack */
-    const override = !isAvaturn(avatarUrl) ? undefined : AssetType.glB
 
-    AssetLoader.loadAsync(avatarUrl, {
-      forceAssetType: override
-    }).then((avatar) => {
-      const loadedAvatar = setupSceneForPreview(avatar)
-      scene.value.add(loadedAvatar)
-      loadedAvatar.name = 'avatar'
-      loadedAvatar.rotateY(Math.PI)
-      setAvatarLoading(false)
-      onAvatarLoaded && onAvatarLoaded()
+    setComponent(entity.value, UUIDComponent)
+    setComponent(entity.value, ModelComponent, { src: avatarUrl, sceneOverride: scene.value })
+    //const mixer = new AnimationMixer(loadedAvatar.humanoid.normalizedHumanBones.hips.node)
+    //setComponent(entity.value, AnimationComponent, {mixer})
+    //mixer.clipAction(bindAnimationClipFromMixamo(getState(AnimationState).loadedAnimations[preloadedAnimations.locomotion].animations[0], loadedAvatar)).play()
+    setAvatarLoading(false)
+    onAvatarLoaded && onAvatarLoaded()
 
-      loadedAvatar.getWorldPosition(camera.value.position)
-      camera.value.position.y += 1.8
-      camera.value.position.z = 1
-    })
+    //loadedAvatar.scene.getWorldPosition(camera.value.position)
+    camera.value.position.y += 1.8
+    camera.value.position.z = 1
   }
 
   return (

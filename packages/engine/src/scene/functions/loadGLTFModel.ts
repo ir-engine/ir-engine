@@ -146,7 +146,7 @@ export const parseObjectComponentsFromGLTF = (
   return entityJson
 }
 
-export const parseGLTFModel = (entity: Entity, scene: Scene) => {
+export const parseGLTFModel = (entity: Entity, scene: Scene, sceneOverride = null as Scene | null) => {
   const model = getComponent(entity, ModelComponent)
 
   scene.updateMatrixWorld(true)
@@ -161,7 +161,7 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
     child.parent = model.scene
     iterateObject3D(child, (obj: Object3D) => {
       const uuid = obj.uuid as EntityUUID
-      const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
+      const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid], sceneOverride)
       entityJson[uuid] = eJson
     })
   }
@@ -215,7 +215,12 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
   })
 }
 
-export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, entityJson?: EntityJsonType) => {
+export const generateEntityJsonFromObject = (
+  rootEntity: Entity,
+  obj: Object3D,
+  entityJson?: EntityJsonType,
+  scene = null as Scene | null
+) => {
   // create entity outside of scene loading reactor since we need to access it before the reactor is guaranteed to have executed
   const objEntity = UUIDComponent.getOrCreateEntityByUUID(obj.uuid as EntityUUID)
   const parentEntity = obj.parent ? obj.parent.entity : rootEntity
@@ -249,7 +254,8 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     }
   })
 
-  addObjectToGroup(objEntity, obj)
+  addObjectToGroup(objEntity, obj, scene)
+  console.log(scene)
   setComponent(objEntity, GLTFLoadedComponent, ['entity'])
 
   /** Proxy children with EntityTreeComponent if it exists */

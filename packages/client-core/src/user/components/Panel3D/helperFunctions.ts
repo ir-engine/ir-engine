@@ -85,5 +85,5 @@ export const setupSceneForPreview = (avatar) => {
   avatarScene.traverse((obj: Object3D) => {
     obj.layers.set(ObjectLayers.Panel)
   })
-  return avatarScene
+  return avatar
 }

@@ -38,7 +38,7 @@ import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectL
 const initialize3D = () => {
   const camera = new PerspectiveCamera(60, 1, 0.25, 100000)
   camera.position.set(0, 1.75, 0.5)
-  camera.layers.set(ObjectLayers.Panel)
+  camera.layers.set(ObjectLayers.Scene)
 
   const scene = new Scene()
 
@@ -56,7 +56,7 @@ const initialize3D = () => {
   scene.add(hemi)
 
   scene.traverse((obj) => {
-    obj.layers.set(ObjectLayers.Panel)
+    obj.layers.set(ObjectLayers.Scene)
   })
   const renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true })
   renderer.setPixelRatio(window.devicePixelRatio)

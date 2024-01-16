@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanoid } from '@pixiv/three-vrm'
-import { AnimationClip, AnimationMixer, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Scene, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -110,7 +110,7 @@ export const isAvaturn = (url: string) => {
 }
 
 /**tries to load avatar model asset if an avatar is not already pending */
-export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {
+export const loadAvatarModelAsset = (entity: Entity, avatarURL: string, scene = null as Scene | null) => {
   if (!avatarURL) return
   //check if the url to the file is an avaturn url to infer the file type
   const pendingComponent = getOptionalComponent(entity, AvatarPendingComponent)
