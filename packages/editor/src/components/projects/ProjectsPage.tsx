@@ -196,7 +196,7 @@ const ProjectsPage = () => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    Engine.instance.api.service(projectPath).on('patched', () => fetchInstalledProjects())
+    Engine.instance.api.service(projectPath).on('patched', () => refetchProjects())
   }, [])
 
   const fetchInstalledProjects = async (query?: string) => {
@@ -249,23 +249,20 @@ const ProjectsPage = () => {
     loading.set(false)
   }
 
-  useEffect(() => {
-    fetchOfficialProjects()
-    fetchCommunityProjects()
-  }, [installedProjects])
+  const refetchProjects = async () => {
+    fetchInstalledProjects().then(() => Promise.all([fetchOfficialProjects(), fetchCommunityProjects()]))
+  }
 
   const refreshGithubRepoAccess = () => {
     ProjectService.refreshGithubRepoAccess()
-    fetchInstalledProjects()
+    refetchProjects()
   }
 
   useEffect(() => {
     if (!authUser || !user) return
     if (authUser.accessToken.value == null || authUser.accessToken.value.length <= 0 || user.id.value == null) return
 
-    fetchInstalledProjects()
-    fetchOfficialProjects()
-    fetchCommunityProjects()
+    refetchProjects()
   }, [authUser.accessToken])
 
   // TODO: Implement tutorial #7257
@@ -289,22 +286,22 @@ const ProjectsPage = () => {
 
   const onCreateProject = async (name) => {
     await ProjectService.createProject(name, { query: { action: 'studio' } })
-    await fetchInstalledProjects()
+    await refetchProjects()
   }
 
   const onCreatePermission = async (userInviteCode: InviteCode, projectId: string) => {
     await ProjectService.createPermission(userInviteCode, projectId)
-    await fetchInstalledProjects()
+    await refetchProjects()
   }
 
   const onPatchPermission = async (id: string, type: string) => {
     await ProjectService.patchPermission(id, type)
-    await fetchInstalledProjects()
+    await refetchProjects()
   }
 
   const onRemovePermission = async (id: string) => {
     await ProjectService.removePermission(id)
-    await fetchInstalledProjects()
+    await refetchProjects()
   }
 
   const openDeleteConfirm = () => isDeleteDialogOpen.set(true)
@@ -322,7 +319,7 @@ const ProjectsPage = () => {
       try {
         const proj = installedProjects.get({ noproxy: true }).find((proj) => proj.id === activeProject.value?.id)!
         await ProjectService.removeProject(proj.id, { query: { action: 'studio' } })
-        await fetchInstalledProjects()
+        await refetchProjects()
       } catch (err) {
         logger.error(err)
       }
@@ -336,7 +333,7 @@ const ProjectsPage = () => {
     uploadingProject.set(true)
     try {
       await ProjectService.pushProject(id)
-      await fetchInstalledProjects()
+      await refetchProjects()
     } catch (err) {
       logger.error(err)
     }
