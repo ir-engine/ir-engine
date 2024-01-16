@@ -36,7 +36,7 @@ import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { ComponentType, getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
@@ -214,7 +214,7 @@ export const applyAutopilotInput = (entity: Entity) => {
 
   const markerState = getState(AutopilotMarker)
 
-  const controller = getComponent(entity, AvatarControllerComponent)
+  const controller = getOptionalComponent(entity, AvatarControllerComponent)
 
   if (!controller || !markerState.walkTarget) return
 

@@ -41,7 +41,7 @@ import { getMutableState, getState, useHookstate, useMutableState } from '@ether
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
@@ -148,12 +148,16 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   useEffect(() => {
     const source = hasComponent(entity, ModelComponent)
       ? getModelSceneID(entity)
-      : getComponent(entity, SourceComponent)
+      : getOptionalComponent(entity, SourceComponent)
     return () => {
       if (obj.isProxified) {
         disposeObject3D(obj)
       } else {
-        iterateObject3D(obj, disposeObject3D, (obj: Object3D) => getComponent(obj.entity, SourceComponent) === source)
+        iterateObject3D(
+          obj,
+          disposeObject3D,
+          (obj: Object3D) => getOptionalComponent(obj.entity, SourceComponent) === source
+        )
       }
     }
   }, [])

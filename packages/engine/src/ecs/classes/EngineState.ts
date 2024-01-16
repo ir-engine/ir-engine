@@ -37,6 +37,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { getComponent, setComponent } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { EntityTreeComponent } from '../functions/EntityTree'
+import { UndefinedEntity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
@@ -50,7 +51,7 @@ export const EngineState = defineState({
     const originEntity = createEntity()
     const origin = new Group()
     setComponent(originEntity, NameComponent, 'origin')
-    setComponent(originEntity, EntityTreeComponent, { parentEntity: null })
+    setComponent(originEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
     setComponent(originEntity, TransformComponent)
     setComponent(originEntity, VisibleComponent, true)
     addObjectToGroup(originEntity, origin)
@@ -65,7 +66,7 @@ export const EngineState = defineState({
     setComponent(cameraEntity, CameraComponent)
     setComponent(cameraEntity, VisibleComponent, true)
     setComponent(originEntity, TransformComponent, { position: new Vector3(0, 5, 2) })
-    setComponent(cameraEntity, EntityTreeComponent, { parentEntity: null })
+    setComponent(cameraEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
     const camera = getComponent(cameraEntity, CameraComponent)
     camera.matrixAutoUpdate = false
     camera.matrixWorldAutoUpdate = false

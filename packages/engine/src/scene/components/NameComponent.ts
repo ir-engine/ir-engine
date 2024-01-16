@@ -38,7 +38,6 @@ export const NameComponent = defineComponent({
   onSet: (entity, component, name?: string) => {
     if (typeof name !== 'string') throw new Error('NameComponent expects a non-empty string')
     component.set(name)
-    NameComponent.valueMap[entity] = name
     const exists = NameComponent.entitiesByName[name]
     const entitiesByNameState = NameComponent.entitiesByNameState
     if (exists) entitiesByNameState.merge({ [name]: [...exists, entity] })
