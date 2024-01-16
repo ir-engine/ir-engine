@@ -42,7 +42,7 @@ import {
 import { entityExists, removeEntity } from '../functions/EntityFunctions'
 
 type EntityTreeSetType = {
-  parentEntity: Entity | null
+  parentEntity: Entity
   uuid?: EntityUUID
   childIndex?: number
 }
@@ -60,7 +60,7 @@ export const EntityTreeComponent = defineComponent({
   onInit: (entity) => {
     return {
       // api
-      parentEntity: UndefinedEntity as Entity,
+      parentEntity: UndefinedEntity,
       // internal
       children: [] as Entity[]
     }

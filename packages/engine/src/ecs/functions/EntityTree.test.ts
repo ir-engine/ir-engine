@@ -127,7 +127,7 @@ describe('EntityTreeComponent', () => {
     assert.equal(sceneNode.children[3], UUIDComponent.getEntityByUUID('child-2' as EntityUUID))
     assert.equal(sceneNode.children[4], UUIDComponent.getEntityByUUID('child-3' as EntityUUID))
     assert.equal(sceneNode.children[5], UUIDComponent.getEntityByUUID('child-4' as EntityUUID))
-    assert.equal(sceneNode.parentEntity, null)
+    assert.equal(sceneNode.parentEntity, UndefinedEntity)
   })
 
   it('should remove entity from maps', () => {
@@ -169,7 +169,7 @@ describe('EntityTreeFunctions', () => {
       assert(hasComponent(sceneEntity, SceneTagComponent))
       assert(hasComponent(sceneEntity, TransformComponent))
       assert(hasComponent(sceneEntity, EntityTreeComponent))
-      assert.equal(getComponent(sceneEntity, EntityTreeComponent).parentEntity, null)
+      assert.equal(getComponent(sceneEntity, EntityTreeComponent).parentEntity, UndefinedEntity)
     })
   })
 
@@ -188,7 +188,7 @@ describe('EntityTreeFunctions', () => {
       setComponent(child, EntityTreeComponent, { parentEntity: root })
 
       const parent = createEntity()
-      setComponent(parent, EntityTreeComponent, { parentEntity: null })
+      setComponent(parent, EntityTreeComponent, { parentEntity: UndefinedEntity })
       setComponent(child, EntityTreeComponent, { parentEntity: parent })
 
       const parentNode = getComponent(parent, EntityTreeComponent)

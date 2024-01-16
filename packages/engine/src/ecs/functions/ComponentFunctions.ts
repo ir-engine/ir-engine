@@ -273,7 +273,7 @@ export const getMutableComponent = <ComponentType>(
   const componentState = getOptionalMutableComponent(entity, component)
   if (!componentState || componentState.promised) {
     console.warn(
-      `[getMutableComponent]: entity does not have ${component.name}. This will be an error in the future. Use getOptionalMutableComponent if there is uncertainty over whether or not an entity has the specified component.`
+      `[getMutableComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalMutableComponent if there is uncertainty over whether or not an entity has the specified component.`
     )
     return undefined as any
   }
@@ -295,7 +295,7 @@ export const getComponent = <ComponentType>(
   const componentState = component.stateMap[entity]!
   if (!componentState || componentState.promised) {
     console.warn(
-      `[getComponent]: entity does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
+      `[getComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
     )
     return undefined as any
   }

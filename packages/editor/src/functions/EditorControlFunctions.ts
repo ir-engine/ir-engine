@@ -58,6 +58,7 @@ import { RigidBodyComponent } from '@etherealengine/engine/src/physics/component
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 import { filterParentEntities } from './filterParentEntities'
@@ -371,8 +372,8 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(Edit
     T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
     if (space === TransformSpace.local) {
-      updateComponent(node, TransformComponent, { rotation: T_QUAT_1 })
-      computeTransformMatrix(node)
+      updateComponent(entity, TransformComponent, { rotation: T_QUAT_1 })
+      computeTransformMatrix(entity)
     } else {
       const entityTreeComponent = getComponent(entity, EntityTreeComponent)
       const parentTransform = entityTreeComponent.parentEntity

@@ -31,7 +31,7 @@ import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   ComponentJSONIDMap,
   ComponentMap,
@@ -258,7 +258,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   obj.removeFromParent = () => {
     if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
       setComponent(objEntity, EntityTreeComponent, {
-        parentEntity: null
+        parentEntity: UndefinedEntity
       })
     }
     return obj
