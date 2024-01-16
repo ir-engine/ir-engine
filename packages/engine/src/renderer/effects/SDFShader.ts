@@ -66,6 +66,7 @@ const SDFShader = {
     uniform vec3 scale;
     uniform int mode;
     uniform mat4 modelMatrix;
+    uniform vec3 lightDirection;
     varying vec2 vUv;
     varying float vViewZ;
     #include <logdepthbuf_pars_fragment>
@@ -81,17 +82,6 @@ const SDFShader = {
 
     vec3 torus(vec3 p, vec2 t) {
       float angle = uTime;
-      float c = cos(angle);
-      float s = sin(angle);
-      mat3 rotationMatrix = mat3(1.0, 0.0, 0.0, 0.0, c, -s, 0.0, s, c);
-      p = rotationMatrix * p;
-
-      vec2 q = vec2(length(p.xz) - t.x, p.y);
-      return vec3(length(q) - t.y, q.y, 0.0);
- 
-    }
-    vec3 torus2(vec3 p, vec2 t) {
-      float angle = -uTime;
       float c = cos(angle);
       float s = sin(angle);
       mat3 rotationMatrix = mat3(1.0, 0.0, 0.0, 0.0, c, -s, 0.0, s, c);
@@ -168,11 +158,10 @@ const SDFShader = {
   
 
     float shortestDistanceToTorus(vec3 ro, vec2 t) {
+      ro = (inverse(modelMatrix) * vec4(ro, 1.0)).xyz;  
       return torus(ro, t).x;
     }
-    float shortestDistanceToTorus2(vec3 ro, vec2 t) {
-      return torus2(ro, t).x;
-    }
+
     vec3 estimateNormal(vec3 p, vec2 torusParams) {
       float epsilon = 0.01; // Adjust
       return normalize(vec3(
@@ -204,10 +193,12 @@ const SDFShader = {
     }
     
     vec3 rayMarchPhong(vec3 ro, vec3 rd) {
-      ro= (modelMatrix * vec4(ro, 1.0)).xyz;
+      mat4 invModelMatrix = inverse(modelMatrix);
+      //ro= (invModelMatrix * vec4(ro, 1.0)).xyz;
       float d = 0.0;
       for (int i = 0; i < MAX_STEPS && d < MAX_DIST; i++) {
           vec3 p = ro + rd * d;
+          //p = (modelMatrix * vec4(p, 1.0)).xyz;
           float dist = shortestDistanceToTorus(p, vec2(0.5, 0.2));
           if (dist < MIN_DIST) {
             //reconstruct depth texture to linear space

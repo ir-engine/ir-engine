@@ -30,14 +30,13 @@ import {
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Color, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { CameraSystem } from '../../camera/systems/CameraSystem'
+//import { CameraSystem } from '../../camera/systems/CameraSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { UndefinedEntity } from '../../ecs/classes/Entity'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { SDFShader } from '../../renderer/effects/SDFShader'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { setCallback } from './CallbackComponent'
@@ -89,7 +88,7 @@ export const SDFComponent = defineComponent({
   SDFStateSettingsState: defineState({
     name: 'SDFSettingsState',
     initial: {
-      enabled: false
+      enabled: true
     }
   }),
 
@@ -109,25 +108,18 @@ export const SDFComponent = defineComponent({
       })
 
       shader.uniforms.modelMatrix.value = sdfTranform.matrixWorld
-
+      shader.uniforms.cameraMatrix.value = cameraTransform.matrix
+      shader.uniforms.fov.value = cameraComponent.fov
+      shader.uniforms.aspectRatio.value = cameraComponent.aspect
+      shader.uniforms.near.value = cameraComponent.near
+      shader.uniforms.far.value = cameraComponent.far
+      shader.uniforms.modelMatrix.value = sdfTranform.matrixWorld
+      shader.uniforms.cameraPos.value = cameraPosition
       setComponent(updater, UpdatableComponent, true)
     }, [])
 
-    useExecute(
-      () => {
-        shader.uniforms.cameraPos.value = cameraPosition
-        shader.uniforms.cameraMatrix.value = cameraTransform.matrix
-        shader.uniforms.fov.value = cameraComponent.fov
-        shader.uniforms.aspectRatio.value = cameraComponent.aspect
-        shader.uniforms.near.value = cameraComponent.near
-        shader.uniforms.far.value = cameraComponent.far
-      },
-      { after: CameraSystem }
-    )
-
     useEffect(() => {
-      if (getState(SDFComponent.SDFStateSettingsState).enabled != sdfComponent.enable.value)
-        getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(sdfComponent.enable.value)
+      getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(sdfComponent.enable.value)
     }, [sdfComponent.enable])
 
     useEffect(() => {
@@ -139,7 +131,7 @@ export const SDFComponent = defineComponent({
     }, [sdfComponent.color])
 
     useEffect(() => {
-      shader.uniforms.uScale.value = sdfComponent.scale.value
+      shader.uniforms.scale.value = sdfComponent.scale.value
     }, [sdfComponent.scale])
 
     useEffect(() => {

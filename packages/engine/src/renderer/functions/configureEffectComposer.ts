@@ -122,7 +122,7 @@ export const configureEffectComposer = (
   })
 
   const SDFSetting = getState(SDFComponent.SDFStateSettingsState)
-  if (!SDFSetting.enabled) {
+  if (SDFSetting.enabled) {
     const SDFPass = new ShaderPass(SDFShader.shader, 'inputBuffer')
     composer.addPass(SDFPass)
   }
