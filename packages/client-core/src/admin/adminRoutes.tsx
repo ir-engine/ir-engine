@@ -65,8 +65,13 @@ const AdminRoutes = () => {
     }
   }, [scopes])
 
+  useEffect(() => {
+    if (admin?.id?.value?.length! > 0 && !admin?.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
+      RouterState.navigate('/', { redirectUrl: location.pathname })
+    }
+  }, [admin])
+
   if (admin?.id?.value?.length! > 0 && !admin?.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
-    RouterState.navigate('/', { redirectUrl: location.pathname })
     return <></>
   }
 
