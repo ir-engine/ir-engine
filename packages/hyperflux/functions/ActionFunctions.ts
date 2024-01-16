@@ -345,6 +345,8 @@ export const dispatchAction = <A extends Action>(action: A) => {
   }
 
   HyperFlux.store.actions.incoming.push(action as Required<ResolvedActionType>)
+
+  addOutgoingTopicIfNecessary(topic)
 }
 
 export function addOutgoingTopicIfNecessary(topic: string) {
@@ -398,7 +400,6 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
 
 const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>) => {
   for (const [queueHandle, queue] of HyperFlux.store.actions.queues) {
-    // HyperFlux.store.actions.activeQueue = queue
     if (queueHandle.test(action)) {
       // if the action is out of order, mark the queue as needing resync
       if (queue.actions.length > 0 && queue.actions.at(-1)!.$time > action.$time) {
@@ -407,7 +408,6 @@ const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>) =
       queue.actions.push(action)
     }
   }
-  // HyperFlux.store.actions.activeQueue = null
 }
 
 const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
