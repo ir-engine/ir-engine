@@ -34,12 +34,10 @@ import Dialog from './Dialog'
  * SaveNewSceneDialog used to show dialog when to save new scene.
  */
 export function SaveNewSceneDialog({
-  thumbnailUrl,
   initialName,
   onConfirm,
   onCancel
 }: {
-  thumbnailUrl: string
   initialName: string
   onConfirm: (value: { name: string }) => void
   onCancel: () => void
@@ -72,17 +70,6 @@ export function SaveNewSceneDialog({
     >
       <div style={{ width: '100%' }}>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-          <img
-            src={thumbnailUrl}
-            alt=""
-            crossOrigin="anonymous"
-            style={{
-              borderRadius: '6px',
-              marginBottom: '10px'
-            }}
-            height={160}
-            width={256}
-          />
           <FormField>
             <label htmlFor="name">{t('editor:dialog.saveNewScene.lbl-name')}</label>
             <StringInput
