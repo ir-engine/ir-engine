@@ -4,10 +4,6 @@
     "1b731841-172a-4141-89cb-d1cceeec748f": {
       "components": [
         {
-          "name": "visible",
-          "props": {}
-        },
-        {
           "name": "transform",
           "props": {
             "position": {
@@ -229,6 +225,20 @@
             "toneMapping": 1,
             "toneMappingExposure": 0.8,
             "shadowMapType": 2
+          }
+        },
+        {
+          "name": "visible",
+          "props": true
+        },
+        {
+          "name": "scene-settings",
+          "props": {
+            "thumbnailURL": "__$project$__/default-project/sky-station.thumbnail.jpg",
+            "loadingScreenURL": "__$project$__/default-project/sky-station.loadingscreen.ktx2",
+            "primaryColor": "#0A6493",
+            "backgroundColor": "rgb(238, 232, 243)",
+            "alternativeColor": "#316F9E"
           }
         }
       ],
