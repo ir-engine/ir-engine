@@ -24,15 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import {
-  BufferGeometry,
-  Color,
-  DirectionalLight,
-  Float32BufferAttribute,
-  LineBasicMaterial,
-  LineSegments,
-  Vector3
-} from 'three'
+import { BufferGeometry, Color, DirectionalLight, Float32BufferAttribute, LineBasicMaterial, LineSegments } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -267,5 +259,3 @@ export const DirectionalLightComponent = defineComponent({
     return null
   }
 })
-
-const _vec3 = new Vector3()

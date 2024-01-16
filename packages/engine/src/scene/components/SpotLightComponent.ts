@@ -32,8 +32,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   SpotLight,
-  TorusGeometry,
-  Vector3
+  TorusGeometry
 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
@@ -206,5 +205,3 @@ export const SpotLightComponent = defineComponent({
     return null
   }
 })
-
-const _vec3 = new Vector3()
