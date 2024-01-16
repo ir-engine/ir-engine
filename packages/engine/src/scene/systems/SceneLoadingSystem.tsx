@@ -246,7 +246,7 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     setComponent(entity, SceneTagComponent, true)
     setComponent(entity, TransformComponent)
     setComponent(entity, SceneObjectComponent)
-    setComponent(entity, EntityTreeComponent, { parentEntity: null })
+    setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 
     loadComponents(entity, entityState.components.get(NO_PROXY))
 
