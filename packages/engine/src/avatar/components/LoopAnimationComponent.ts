@@ -209,8 +209,7 @@ export const LoopAnimationComponent = defineComponent({
 
       if (!hasComponent(entity, AnimationComponent)) {
         setComponent(entity, AnimationComponent, {
-          mixer: new AnimationMixer(model.asset!.scene),
-          animations: model.scene?.animations ?? []
+          mixer: new AnimationMixer(model.asset!.scene)
         })
       }
     }, [modelComponent?.asset])
@@ -238,7 +237,7 @@ export const LoopAnimationComponent = defineComponent({
       return () => {
         aborted = true
       }
-    }, [animComponent, loopAnimationComponent.animationPack])
+    }, [animComponent, loopAnimationComponent.animationPack, modelComponent?.scene])
 
     return null
   }

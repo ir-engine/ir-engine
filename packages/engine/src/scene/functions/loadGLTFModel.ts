@@ -255,7 +255,6 @@ export const generateEntityJsonFromObject = (
   })
 
   addObjectToGroup(objEntity, obj, scene)
-  console.log(scene)
   setComponent(objEntity, GLTFLoadedComponent, ['entity'])
 
   /** Proxy children with EntityTreeComponent if it exists */
